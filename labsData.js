@@ -1,0 +1,481 @@
+window.INITIAL_LABS_DATA = [
+  {
+    "id": "lab-01",
+    "labNumber": "01",
+    "title": "練習1 Inject、Debug實作",
+    "date": "2026-07-14",
+    "category": "基礎實作",
+    "summary": "學習 Node-RED 的核心觸發點（Inject 節點）與除錯顯示（Debug 節點），認識 JavaScript 的各種基本資料型態（Timestamp、String、Number、Boolean、JSON 物件）。",
+    "flowImage": "images_src/ok/20260714_01_練習1 Inject、Debug實作[flow].png",
+    "resultImage": "images_src/ok/20260714_01_練習1 Inject、Debug實作[result].png",
+    "objective": "1. 掌握 Node-RED 中 Inject 節點與 Debug 節點的連線與配置方式。\n2. 理解 JavaScript 的五大常見資料型態：時間戳 (Timestamp/Date)、字串 (String)、數字 (Number)、布林值 (Boolean)、物件 (JSON Object)。\n3. 學會透過右側 Debug 側邊欄觀察 msg.payload 輸出內容與資料型態型別。",
+    "tutorialSteps": [
+      {
+        "step": "1. 新增 Flow 與註解",
+        "description": "在工作區上方加入兩個 Comment 節點，分別命名為「練習1: Inject、Debug實作」與「[認識java script的型態]」，方便整理流程架構與程式說明。"
+      },
+      {
+        "step": "2. 拉取 Debug 節點",
+        "description": "從左側節點面板拖曳一個 Debug 節點至工作區，名稱設為「debug 343」，預設輸出 msg.payload。"
+      },
+      {
+        "step": "3. 建立 5 個 Inject 節點並設定型態",
+        "description": "分別拉取 5 個 Inject 節點，將右側連接點連至「debug 343」：\n- 時間戳 (Date)：名稱改為「時間戳」，msg.payload 設為 timestamp (Date)。\n- 字串 (String)：名稱改為「Hello World !」，msg.payload 型態選為 str，內容輸入 Hello World !。\n- 數字 (Number)：名稱改為「123456789」，msg.payload 型態選為 num，內容輸入 123456789。\n- 布林值 (Boolean)：名稱改為「true」，msg.payload 型態選為 bool，內容選 true。\n- JSON 物件 (JSON)：名稱改為「JSON」，msg.payload 型態選為 json，內容輸入 JSON 格式：{\"時間\": \"2026/07/14\", \"地點\": \"五股\", \"姓名\": \"張世學\"}。"
+      },
+      {
+        "step": "4. 部署與測試",
+        "description": "點擊右上角「Deploy」按鈕部署流程。依序手動點擊各 Inject 節點左側按鈕，並觀察右側 Debug 側邊欄輸出的型態 (number, string[13], boolean, Object) 與對應數值。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 的流程 JSON 程式碼，需求如下：\n1. 包含一個名稱為「debug 343」的 Debug 節點。\n2. 包含 5 個 Inject (輸入) 節點，全部連接至該 Debug 節點：\n   - 節點 1：名稱「時間戳」，輸出 timestamp (Date)\n   - 節點 2：名稱「Hello World !」，輸出 string 內容 \"Hello World !\"\n   - 節點 3：名稱「123456789」，輸出 number 內容 123456789\n   - 節點 4：名稱「true」，輸出 boolean 內容 true\n   - 節點 5：名稱「JSON」，輸出 JSON 物件，包含 {\"時間\": \"2026/07/14\", \"地點\": \"五股\", \"姓名\": \"張世學\"}\n3. 包含兩個 Comment 註解節點，顯示標題「練習1: Inject、Debug實作」與「[認識java script的型態]」。\n請直接輸出可直接匯入 Node-RED 的完整 JSON Array 格式。",
+    "nodeRedJson": [
+      {
+        "id": "comment_1",
+        "type": "comment",
+        "z": "tab_1",
+        "name": "練習1: Inject、Debug實作",
+        "info": "",
+        "x": 170,
+        "y": 80,
+        "wires": []
+      },
+      {
+        "id": "comment_2",
+        "type": "comment",
+        "z": "tab_1",
+        "name": "[認識java script的型態]",
+        "info": "",
+        "x": 420,
+        "y": 80,
+        "wires": []
+      },
+      {
+        "id": "inject_timestamp",
+        "type": "inject",
+        "z": "tab_1",
+        "name": "時間戳",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 140,
+        "wires": [
+          [
+            "debug_node"
+          ]
+        ]
+      },
+      {
+        "id": "inject_string",
+        "type": "inject",
+        "z": "tab_1",
+        "name": "Hello World !",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello World !",
+        "payloadType": "str",
+        "x": 150,
+        "y": 200,
+        "wires": [
+          [
+            "debug_node"
+          ]
+        ]
+      },
+      {
+        "id": "inject_number",
+        "type": "inject",
+        "z": "tab_1",
+        "name": "123456789",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "123456789",
+        "payloadType": "num",
+        "x": 140,
+        "y": 260,
+        "wires": [
+          [
+            "debug_node"
+          ]
+        ]
+      },
+      {
+        "id": "inject_boolean",
+        "type": "inject",
+        "z": "tab_1",
+        "name": "true",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 120,
+        "y": 320,
+        "wires": [
+          [
+            "debug_node"
+          ]
+        ]
+      },
+      {
+        "id": "inject_json",
+        "type": "inject",
+        "z": "tab_1",
+        "name": "JSON",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"時間\":\"2026/07/14\",\"地點\":\"五股\",\"姓名\":\"張世學\"}",
+        "payloadType": "json",
+        "x": 130,
+        "y": 380,
+        "wires": [
+          [
+            "debug_node"
+          ]
+        ]
+      },
+      {
+        "id": "debug_node",
+        "type": "debug",
+        "z": "tab_1",
+        "name": "debug 343",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 450,
+        "y": 140,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方文檔 - Inject Node",
+        "url": "https://nodered.org/docs/user-guide/nodes#inject"
+      },
+      {
+        "title": "Node-RED 官方文檔 - Debug Node",
+        "url": "https://nodered.org/docs/user-guide/nodes#debug"
+      },
+      {
+        "title": "MDN JavaScript 資料型態與結構",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Data_structures"
+      }
+    ]
+  },
+  {
+    "id": "lab-02",
+    "labNumber": "02",
+    "title": "練習1-1 http request實作",
+    "date": "2026-07-14",
+    "category": "網路 API 實作",
+    "summary": "學習使用 Node-RED 的 http request 節點發送 HTTP GET 請求，讀取網路開放資料 (JSON、XML、HTML、CSV) 並解析輸出 msg.payload 物件。",
+    "flowImage": "images_src/ok/20260714_02_練習1-1 http request實作_[flow].png",
+    "resultImage": "images_src/ok/20260714_02_練習1-1 http request實作_[result].png",
+    "objective": "1. 掌握 Node-RED 中 http request 節點的 URL 配置與 HTTP GET 請求方式。\n2. 學習透過 Inject 節點觸發網路 API 存取。\n3. 理解網路開放資料格式 (JSON/XML/CSV) 於 Debug 視窗的結構解析與資料取出技巧。",
+    "tutorialSteps": [
+      {
+        "step": "1. 新增 Flow 與註解說明",
+        "description": "在工作區上方加入兩個 Comment 節點，分別標註「練習1-1: http request實作」與「[讀取網路jason格式]」。"
+      },
+      {
+        "step": "2. 建立 Inject 觸發節點",
+        "description": "拖曳 4 個 Inject 節點，分別命名為：「JSON」、「XML」、「YAHOO」、「CSV」，作為發送 API 請求的開關。"
+      },
+      {
+        "step": "3. 建立並配置 http request 節點",
+        "description": "拖曳 4 個 http request 節點，與左側 Inject 節點連接：\n- **JSON 請求**：URL 設定為開放資料 JSON API，Return 屬性選擇「a parsed JSON object」。\n- **XML 請求**：URL 設定為 XML 格式 API。\n- **YAHOO 請求**：URL 設定為 Yahoo 網址。\n- **CSV 請求**：URL 設定為 CSV 格式開放資料 API。"
+      },
+      {
+        "step": "4. 連接 Debug 節點並測試",
+        "description": "將 4 個 http request 節點的輸出端全部連接至「debug 344」節點。點擊 Deploy 部署後，按壓「JSON」Inject 按鈕，即可在右側 Debug 視窗觀察到解析後的 JSON Object (含 57 筆陣列資料)。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON 程式碼，需求如下：\n1. 包含 4 個 Inject 節點，分別命名為「JSON」、「XML」、「YAHOO」、「CSV」。\n2. 包含 4 個 http request 節點 (HTTP GET 請求，自動解析 JSON)，分別連接在 4 個 Inject 節點之後。\n3. 4 個 http request 節點輸出均連接至名稱為「debug 344」的 Debug 節點。\n4. 包含兩個 Comment 註解節點，標題為「練習1-1: http request實作」與「[讀取網路jason格式]」。\n請輸出可直接匯入 Node-RED 的完整 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab2_1",
+        "type": "comment",
+        "z": "tab_lab2",
+        "name": "練習1-1: http request實作",
+        "info": "",
+        "x": 180,
+        "y": 80,
+        "wires": []
+      },
+      {
+        "id": "comment_lab2_2",
+        "type": "comment",
+        "z": "tab_lab2",
+        "name": "[讀取網路jason格式]",
+        "info": "",
+        "x": 450,
+        "y": 80,
+        "wires": []
+      },
+      {
+        "id": "inject_json_api",
+        "type": "inject",
+        "z": "tab_lab2",
+        "name": "JSON",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 140,
+        "wires": [
+          [
+            "http_req_json"
+          ]
+        ]
+      },
+      {
+        "id": "http_req_json",
+        "type": "http request",
+        "z": "tab_lab2",
+        "name": "http 請求",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://data.tainan.gov.tw/api/v1/rest/datastore/395000000A-000208-001",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 330,
+        "y": 140,
+        "wires": [
+          [
+            "debug_344"
+          ]
+        ]
+      },
+      {
+        "id": "inject_xml_api",
+        "type": "inject",
+        "z": "tab_lab2",
+        "name": "XML",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 200,
+        "wires": [
+          [
+            "http_req_xml"
+          ]
+        ]
+      },
+      {
+        "id": "http_req_xml",
+        "type": "http request",
+        "z": "tab_lab2",
+        "name": "http 請求",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 330,
+        "y": 200,
+        "wires": [
+          [
+            "debug_344"
+          ]
+        ]
+      },
+      {
+        "id": "inject_yahoo_api",
+        "type": "inject",
+        "z": "tab_lab2",
+        "name": "YAHOO",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 260,
+        "wires": [
+          [
+            "http_req_yahoo"
+          ]
+        ]
+      },
+      {
+        "id": "http_req_yahoo",
+        "type": "http request",
+        "z": "tab_lab2",
+        "name": "http 請求",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://tw.yahoo.com",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 330,
+        "y": 260,
+        "wires": [
+          [
+            "debug_344"
+          ]
+        ]
+      },
+      {
+        "id": "inject_csv_api",
+        "type": "inject",
+        "z": "tab_lab2",
+        "name": "CVS",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 320,
+        "wires": [
+          [
+            "http_req_csv"
+          ]
+        ]
+      },
+      {
+        "id": "http_req_csv",
+        "type": "http request",
+        "z": "tab_lab2",
+        "name": "http 請求",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 330,
+        "y": 320,
+        "wires": [
+          [
+            "debug_344"
+          ]
+        ]
+      },
+      {
+        "id": "debug_344",
+        "type": "debug",
+        "z": "tab_lab2",
+        "name": "debug 344",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 140,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED Cookbook - HTTP Requests 官方教學目錄",
+        "url": "https://cookbook.nodered.org/http/#http-requests"
+      },
+      {
+        "title": "FlowFuse - Node-RED HTTP Request 節點詳細規格與教學",
+        "url": "https://flowfuse.com/node-red/core-nodes/http-request/"
+      },
+      {
+        "title": "Node-RED 官方 User Guide 使用手冊",
+        "url": "https://nodered.org/docs/user-guide/"
+      },
+      {
+        "title": "政府資料開放平臺 (Open Data 數據源)",
+        "url": "https://data.gov.tw"
+      }
+    ]
+  }
+];
