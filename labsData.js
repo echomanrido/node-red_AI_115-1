@@ -205,6 +205,23 @@ window.INITIAL_LABS_DATA = [
         "title": "MDN JavaScript 資料型態與結構",
         "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Data_structures"
       }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在丙級術科考試的 SCADA 模擬中，我們使用 Inject 節點手動發送 PLC 暫存器的模擬數值（如狀態 flag 的 true/false 或計數器數值），並利用 Debug 監控端接收的數據型態，這能協助在實體配線前除錯 SCADA 系統與 PLC 的數據對應。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "在半導體廠務 SCADA（如超純水、電力監控系統）中，使用 Inject 節點定期（如每 5 秒）產生模擬感測器數據 JSON 封包，並透過 Debug 監看其結構，以確保數據在寫入歷史資料庫 (Historian) 前通訊協議與型別無誤。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "在智慧家庭 SCADA 監控主機中，使用 Inject 節點模擬快遞箱門禁與重量感測器狀態變化，並在 SCADA 的事件警報看板 (Alarm Logger) 中，利用 Debug 節點追蹤並驗證此觸發訊號是否已正確轉換為可供 HMI 呈現的布林數值。"
+      }
     ]
   },
   {
@@ -475,6 +492,23 @@ window.INITIAL_LABS_DATA = [
       {
         "title": "政府資料開放平臺 (Open Data 數據源)",
         "url": "https://data.gov.tw"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "SCADA 系統藉由 HTTP Request 節點，以 GET 方式向工廠的 MES 系統或生產管理伺服器拉取最新的術科派工指令與配方 JSON 資料，進而將派工參數派送至現場的 PLC 控制器，實作 SCADA 向上對接資訊層的配方管理與工單派送功能。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "廠區 SCADA 監控中心利用 HTTP Request 節點定期調用設備端閘道器的 Web API，以 GET 方式拉取機台當前的 SECS/GEM 通訊狀態與機台稼動率數據。取得的 JSON 封包經解析後，直接在 SCADA 中控大螢幕上動態更新該生產線的所有機台狀態。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "家庭物流監控 SCADA 系統透過 HTTP Request 節點，定時呼叫第三方快遞追蹤 API，擷取最新的包裹物流 JSON 狀態。當狀態顯示為「已配達」時，SCADA 系統便在監控畫面上點亮對應的指示燈，並將資料寫入家庭快遞事件歷史紀錄中。"
       }
     ]
   }

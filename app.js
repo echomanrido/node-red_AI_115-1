@@ -147,6 +147,16 @@ document.addEventListener('DOMContentLoaded', () => {
         <i class="fa-solid fa-arrow-up-right-from-square external-icon"></i>
       </a>
     `).join('') : '<p style="color:var(--text-dim);">無延伸連結</p>';
+    
+    const appsHtml = lab.applications ? lab.applications.map(app => `
+      <div class="app-scenario-card">
+        <div class="app-scenario-header">
+          <i class="${escapeHtml(app.icon || 'fa-solid fa-cubes')}"></i>
+          <span>${escapeHtml(app.scenario)}</span>
+        </div>
+        <div class="app-scenario-desc">${escapeHtml(app.description)}</div>
+      </div>
+    `).join('') : '<p style="color:var(--text-dim);">暫無實務情境應用</p>';
 
     contentBodyEl.innerHTML = `
       <!-- (1) Lab Header -->
@@ -195,6 +205,14 @@ document.addEventListener('DOMContentLoaded', () => {
         <h3 class="section-title"><i class="fa-solid fa-list-check"></i> Flow 實作步驟與邏輯解析</h3>
         <div class="steps-timeline">
           ${stepsHtml}
+        </div>
+      </section>
+
+      <!-- (4-1) SCADA 實務情境應用 -->
+      <section class="section-card">
+        <h3 class="section-title"><i class="fa-solid fa-industry"></i> SCADA 實務情境應用 (三大應用領域)</h3>
+        <div class="apps-grid">
+          ${appsHtml}
         </div>
       </section>
 
@@ -337,5 +355,16 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+  }
+
+  // 測試用：若 URL 帶有 scroll=1，自動滾動至實務情境應用區塊
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('scroll') === '1') {
+    setTimeout(() => {
+      const target = document.querySelector('.apps-grid');
+      if (target) {
+        target.scrollIntoView({ behavior: 'auto', block: 'center' });
+      }
+    }, 800);
   }
 });
