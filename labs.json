@@ -511,5 +511,260 @@
         "description": "家庭物流監控 SCADA 系統透過 HTTP Request 節點，定時呼叫第三方快遞追蹤 API，擷取最新的包裹物流 JSON 狀態。當狀態顯示為「已配達」時，SCADA 系統便在監控畫面上點亮對應的指示燈，並將資料寫入家庭快遞事件歷史紀錄中。"
       }
     ]
+  },
+  {
+    "id": "lab-03",
+    "labNumber": "03",
+    "title": "台北市公車 API 串接與資料讀取",
+    "date": "2026-08-08",
+    "category": "進階實作",
+    "summary": "學習透過 Node-RED 串接政府 TDX (交通部通用電子地圖與運輸資訊) 平台 API，使用 OAuth 2.0 驗證機制取得 Access Token，並發送 HTTP GET 請求取得台北市公車的即時到站預估時間，最後透過 Function 節點對 JSON 陣列進行模糊篩選與欄位整理。",
+    "flowImage": "images_src/ok/20260714_台北市公車_[flow].png",
+    "resultImage": "images_src/ok/20260714_台北市公車_[result].png",
+    "objective": "1. 掌握 TDX 平台的 OAuth 2.0 驗證機制與 Token 獲取流程。\n2. 學習利用 Node-RED 發送帶有 Authorization 標頭的 HTTP 請求。\n3. 熟練使用 Function 節點進行 JSON 陣列過濾、字串模糊搜尋（篩選特定站牌）與資料欄位重組。",
+    "tutorialSteps": [
+      {
+        "step": "1. 填入金鑰與包裝 Token 請求",
+        "description": "在 Change 節點（填入你的 TDX 金鑰）中，將 msg.clientId 與 msg.clientSecret 設定為您在 TDX 平台申請的 API 憑證。隨後在 Function 節點（包裝 Token 請求）中將這兩個欄位包裝成 grant_type=client_credentials 格式，並在 msg.headers 中設定 Content-Type 標頭為 application/x-www-form-urlencoded。"
+      },
+      {
+        "step": "2. 呼叫 TDX 取得 Token",
+        "description": "使用 HTTP Request 節點（呼叫 TDX 取得 Token）向 TDX 驗證伺服器發送 POST 請求。在屬性中將傳回值（Return）設定為 a parsed JSON object。請求成功後，Token 會被解析並存放在 msg.payload.access_token 中。"
+      },
+      {
+        "step": "3. 檢查 Token 並準備公車 API URL",
+        "description": "在 Function 節點（檢查 Token 並準備 URL）中檢查 Access Token 是否成功取得。接著將 token 提取出來，包裝到 OData GET 請求所需的 HTTP Authorization: Bearer 標頭中。最後，在 msg.url 設定目標台北市公車即時到站估算的 API 網址（例如：https://tdx.transportdata.tw/api/basic/v2/Bus/EstimatedTimeOfArrival/City/Taipei/承德幹線?$format=JSON）。"
+      },
+      {
+        "step": "4. 呼叫台北公車 API 與篩選",
+        "description": "第二個 HTTP Request 節點向設定好的 API 發送 GET 請求。回傳的公車到站預估資料（JSON 格式陣列）會被傳入 Function 節點（如 6. 模糊篩選與整理資訊）。在裡面撰寫 JavaScript 的 filter 邏輯，藉由 indexOf 或是 regex 進行特定站牌名稱（如圓山皇宮大廈、工商展覽中心或頭前國小）的模糊篩選，並將公車方向與到站時間（含去回程）整理成精簡的 JSON 欄位輸出至 Debug 節點。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在丙級術科 SCADA 整合中，可利用此處相同的 HTTP Request 與 OAuth 2.0 驗證通訊機制連接工廠中央的 MES 生產工單伺服器。藉由取得授權 Token 拉取最新派工指令 JSON 數據，並將加工參數（如生產配方）寫入三菱 PLC，實作現場端與資訊層的動態安全連線。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "半導體廠區的廠務環控 SCADA 系統（例如廢水或化學品監測），需透過 HTTP RESTful 安全協議定期輪詢台積電內部安全閘道器或外部環境數據 API。透過 Token 驗證定期擷取高頻率監測 JSON，並動態整合於 FMCS 戰情室螢幕，實作跨廠區安全數據連線。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧家庭 SCADA 監控主機（如 Home Assistant）透過此通訊協議定時輪詢大眾運輸 API，當家人通勤的公車即將抵達「頭前國小」站時（例如小於 5 分鐘），家庭 SCADA 會自動在液晶看板點亮提示燈並啟動玄關語音提醒，供家人安排取件、出發通勤或出門迎接。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，用於串接政府交通部 TDX 平台的台北市公車即時到站 API：\n1. 包含一個 Inject 節點（名稱「點我手動查詢」）觸發流程。\n2. 包含一個 Change 節點（名稱「1. 填入你的 TDX 金鑰」）設定 clientId 與 clientSecret，以及 Function 節點（名稱「2. 包裝 Token 請求」）將金鑰組裝成 urlencoded 格式。\n3. 使用 HTTP Request 節點（名稱「3. 呼叫 TDX 取得 Token」，Method 為 POST）向 TDX 驗證伺服器發送請求取得 Access Token。\n4. 使用 Function 節點（名稱「4. 檢查 Token 並準備 URL」）從 msg.payload 提取 Token，放入 Authorization Bearer 標頭，並設定 GET 台北市公車 EstimatedTimeOfArrival API 網址。\n5. 使用 HTTP Request 節點（名稱「5. 呼叫台北公車 API」，Method 為 GET）取得公車到站資訊。\n6. 使用 Function 節點（名稱「6. 模糊篩選與整理資訊」）對傳回的 JSON 陣列進行 filter 篩選，比對特定站牌名稱（如「圓山皇宮大廈」），並重組路線、站牌、去回程方向與估算到站時間（轉換為分鐘）輸出，最後接至 Debug 節點輸出。",
+    "nodeRedJson": [
+      {
+        "id": "tab_bus",
+        "type": "tab",
+        "label": "台北市公車 API 實作",
+        "disabled": false,
+        "info": ""
+      },
+      {
+        "id": "comment_bus_1",
+        "type": "comment",
+        "z": "tab_bus",
+        "name": "練習3: 台北市公車 API 串接與資料讀取",
+        "info": "",
+        "x": 200,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "inject_bus",
+        "type": "inject",
+        "z": "tab_bus",
+        "name": "點我手動查詢",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 120,
+        "y": 140,
+        "wires": [
+          [
+            "change_keys"
+          ]
+        ]
+      },
+      {
+        "id": "change_keys",
+        "type": "change",
+        "z": "tab_bus",
+        "name": "1. 填入你的 TDX 金鑰",
+        "rules": [
+          {
+            "t": "set",
+            "p": "clientId",
+            "pt": "msg",
+            "to": "YOUR_CLIENT_ID",
+            "tot": "str"
+          },
+          {
+            "t": "set",
+            "p": "clientSecret",
+            "pt": "msg",
+            "to": "YOUR_CLIENT_SECRET",
+            "tot": "str"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 340,
+        "y": 140,
+        "wires": [
+          [
+            "func_pack_token"
+          ]
+        ]
+      },
+      {
+        "id": "func_pack_token",
+        "type": "function",
+        "z": "tab_bus",
+        "name": "2. 包裝 Token 請求",
+        "func": "msg.headers = {\n    'Content-Type': 'application/x-www-form-urlencoded'\n};\nmsg.payload = `grant_type=client_credentials&client_id=${msg.clientId}&client_secret=${msg.clientSecret}`;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 140,
+        "wires": [
+          [
+            "http_get_token"
+          ]
+        ]
+      },
+      {
+        "id": "http_get_token",
+        "type": "http request",
+        "z": "tab_bus",
+        "name": "3. 呼叫 TDX 取得 Token",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 800,
+        "y": 140,
+        "wires": [
+          [
+            "func_prep_api"
+          ]
+        ]
+      },
+      {
+        "id": "func_prep_api",
+        "type": "function",
+        "z": "tab_bus",
+        "name": "4. 檢查 Token 並準備 URL",
+        "func": "if (!msg.payload || !msg.payload.access_token) {\n    node.error(\"取得 Token 失敗！\");\n    return null;\n}\nvar token = msg.payload.access_token;\nmsg.headers = {\n    'Authorization': 'Bearer ' + token,\n    'Accept': 'application/json'\n};\nmsg.url = 'https://tdx.transportdata.tw/api/basic/v2/Bus/EstimatedTimeOfArrival/City/Taipei/承德幹線?$format=JSON';\nmsg.payload = null;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 200,
+        "y": 240,
+        "wires": [
+          [
+            "http_get_bus"
+          ]
+        ]
+      },
+      {
+        "id": "http_get_bus",
+        "type": "http request",
+        "z": "tab_bus",
+        "name": "5. 呼叫台北公車 API",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 460,
+        "y": 240,
+        "wires": [
+          [
+            "func_filter_bus"
+          ]
+        ]
+      },
+      {
+        "id": "func_filter_bus",
+        "type": "function",
+        "z": "tab_bus",
+        "name": "6. 模糊篩選與整理資訊",
+        "func": "var data = msg.payload;\nif (!Array.isArray(data)) {\n    return msg;\n}\nvar targetStopName = \"圓山皇宮大廈\";\nvar filtered = data.filter(function(item) {\n    return item.StopName && item.StopName.Zh_tw && item.StopName.Zh_tw.indexOf(targetStopName) !== -1;\n});\nvar result = filtered.map(function(item) {\n    var direction = item.Direction === 0 ? \"去程 (往新北投)\" : \"回程 (往捷運石牌)\";\n    var timeInMin = item.EstimateTime !== undefined ? Math.round(item.EstimateTime / 60) + \" 分鐘\" : \"未發車/末班已過\";\n    return {\n        路線: \"承德幹線\",\n        站牌: targetStopName,\n        方向: direction,\n        到站時間: timeInMin\n    };\n});\nmsg.payload = result;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 240,
+        "wires": [
+          [
+            "debug_bus"
+          ]
+        ]
+      },
+      {
+        "id": "debug_bus",
+        "type": "debug",
+        "z": "tab_bus",
+        "name": "顯示公車動態",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 960,
+        "y": 240,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "交通部 TDX 運輸資料流通服務平台 官方網站",
+        "url": "https://tdx.transportdata.tw"
+      },
+      {
+        "title": "TDX API 呼叫說明與 OData 規格指引",
+        "url": "https://tdx.transportdata.tw/api-service/swagger"
+      },
+      {
+        "title": "Node-RED 官方文檔 - Function 節點使用說明與 JS 寫法",
+        "url": "https://nodered.org/docs/user-guide/writing-functions"
+      }
+    ]
   }
 ]
