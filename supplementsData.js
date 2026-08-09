@@ -1,0 +1,124 @@
+window.INITIAL_SUPPLEMENTS_DATA = [
+  {
+    "id": "sup-01",
+    "supNumber": "01",
+    "title": "Node.js 與 npm 安裝狀態確認",
+    "date": "2026-07-09",
+    "category": "環境建置",
+    "summary": "介紹如何在 Windows 系統下利用命令提示字元 (cmd) 檢查 Node.js 與 npm 是否已成功安裝，並讀取當前的執行版本，為 Node-RED 架設打好基礎。",
+    "image": "images_src/ok/20260709_check_version_supplement.jpg",
+    "objective": "1. 掌握命令提示字元 (Terminal) 的基本開啟方式與基本命令行操作。\n2. 理解版本檢測指令 `-v` 或 `--version` 的參數用途。\n3. 確認開發環境是否完全就緒，為本地端架設 Node-RED 作為物聯網中樞進行準備。",
+    "tutorialSteps": [
+      {
+        "step": "1. 開啟 Windows 命令提示字元 (cmd)",
+        "description": "在 Windows 系統中，按下鍵盤的 `Win + R` 鍵開啟「執行」對話框，輸入 `cmd` 後按下 Enter 鍵；或者在 Windows 開始功能表搜尋「命令提示字元」並點擊開啟。"
+      },
+      {
+        "step": "2. 執行 Node.js 版本查詢指令",
+        "description": "在開啟的命令列視窗中輸入指令 `node -v`（注意 node 與參數之間有一個空格）並按下 Enter。若先前 Node.js 安裝順利且環境變數設定正確，命令列將回傳如 `v18.17.0` 等版本號。"
+      },
+      {
+        "step": "3. 執行 npm 套件管理器版本查詢指令",
+        "description": "接著在視窗中輸入指令 `npm -v` 並按下 Enter。系統將回傳如 `9.6.7` 的套件管理器版本號。npm 是 Node.js 內建的套件管理器，隨 Node.js 一併安裝，是用於在終端安裝及管理 Node-RED 等開源工具的關鍵程式。"
+      },
+      {
+        "step": "4. 排除常見安裝錯誤",
+        "description": "若執行指令時回傳「'node' 不是內部或外部命令、可執行的程式或批次檔」，通常代表 Node.js 安裝失敗或 PATH 環境變數遺漏，請重新執行 Node.js 官方安裝檔並勾選『Add to PATH』選項。"
+      }
+    ],
+    "references": [
+      {
+        "title": "Node.js 官方下載頁面",
+        "url": "https://nodejs.org/zh-tw/download/"
+      },
+      {
+        "title": "npm 官方繁體中文指南",
+        "url": "https://docs.npmjs.com/about-npm"
+      },
+      {
+        "title": "Node-RED 官方本地安裝教學指南",
+        "url": "https://nodered.org/docs/getting-started/local"
+      }
+    ]
+  },
+  {
+    "id": "sup-02",
+    "supNumber": "02",
+    "title": "JavaScript 資料型態與 Node-RED 節點對應",
+    "date": "2026-07-14",
+    "category": "JavaScript 基礎",
+    "summary": "剖析 JavaScript 核心資料型態（String, Number, Boolean, JSON, timestamp）的定義，並介紹如何在 Node-RED 的 Inject (輸入) 節點屬性面板中進行切換與配置。",
+    "image": "images_src/ok/20260714_javascript_format_supplement.jpg",
+    "objective": "1. 掌握 JavaScript 核心變數型態（字串、數字、布林值、時間戳記、JSON 物件）的基本概念。\n2. 理解 Node-RED 的核心變數流向封包格式 `msg.payload`。\n3. 學習如何在 Inject 節點的屬性編輯面板中，手動切換並設定不同型態的資料發送源。",
+    "tutorialSteps": [
+      {
+        "step": "1. 認識字串 (String) 與數字 (Number) 型態",
+        "description": "字串（String）用於表示純文字，必須使用雙引號 `\"\"` 或單引號 `''` 包裹，例如 `\"hello world\"`；數字（Number）則代表數值，可用於數學計算或 PLC 暫存器定址，不用加任何引號，例如 `42`。"
+      },
+      {
+        "step": "2. 認識布林值 (Boolean) 邏輯型態",
+        "description": "布林值（Boolean）僅有 `true` (真 / On / 1) 與 `false` (假 / Off / 0) 兩個邏輯值，在工業通訊中通常與 PLC 的數位 I/O（如 X0, Y0, M0）完全對應，用於觸發按鈕或開關邏輯。"
+      },
+      {
+        "step": "3. 理解時間戳記 (Timestamp) 的含意與 Node-RED 應用",
+        "description": "時間戳記代表自 1970 年 1 月 1 日午夜起累計至今的毫秒數。在 Node-RED 雙擊 Inject 節點，將 Payload 改為「時間戳記」並開啟「重複」發送，常被做為輪詢 PLC 狀態的心跳包 (Heartbeat) 或定時驅動訊號。"
+      },
+      {
+        "step": "4. 認識 JSON 物件型態",
+        "description": "JSON (JavaScript Object Notation) 是輕量級的資料結構，以花括號 `{}` 表示。在 Node-RED 的屬性面板中選取 JSON，可以使用結構化的 Key-Value pairs 對接複雜的多參數感測器數據。"
+      }
+    ],
+    "references": [
+      {
+        "title": "MDN Web Docs - JavaScript 的基本型態與資料結構說明",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Data_structures"
+      },
+      {
+        "title": "Node-RED 官方 Docs - 認識變數通訊對象 msg.payload",
+        "url": "https://nodered.org/docs/user-guide/messages"
+      }
+    ]
+  },
+  {
+    "id": "sup-03",
+    "supNumber": "03",
+    "title": "JSON 語法結構與 key-value pairs 對應",
+    "date": "2026-07-14",
+    "category": "JSON 語法",
+    "summary": "深入理解 JSON (JavaScript Object Notation) 資料交換格式的語法規則，並透過課程描述範例了解「鍵-值」對 (key-value pairs) 的結構設計與工業物聯網應用情境。",
+    "image": "images_src/ok/20260714_json_supplement.jpg",
+    "objective": "1. 學習並熟練 JSON 格式的標準語法規範（如雙引號強制要求、逗號分隔原則等）。\n2. 掌握鍵-值對 (key-value pairs) 的對稱關係，並具備手寫標準 JSON 的能力。\n3. 理解 JSON 作為工業物聯網（SCADA / MQTT）主流資料通訊架構的技術優勢。",
+    "tutorialSteps": [
+      {
+        "step": "1. 理解 JSON 的定義與物件邊界",
+        "description": "JSON 是基於 JavaScript 物件語法的純文字資料交換格式。它使用大括號 `{}` 來包裹一個物件（Object），大括號內包含了一組或多組以逗號分隔的鍵-值對。"
+      },
+      {
+        "step": "2. 剖析「鍵-值對」 (key-value pairs) 的結構",
+        "description": "每個鍵-值對是由「鍵 (Key)」與「值 (Value)」所組成，中間以英文冒號 `:` 分隔。例如 `\"地點\": \"OMRON\"`。鍵（Key）必須為雙引號包裹的字串；值（Value）可以是字串、數字、布林值、JSON 物件或陣列。"
+      },
+      {
+        "step": "3. 學習逗號分隔語法與最常犯的格式錯誤",
+        "description": "多組鍵值對之間必須使用英文半形逗號 `,` 進行分隔。在 JSON 物件的最後一組鍵值對結尾，**絕對不可以**加上任何逗號，否則會導致語法解析失敗 (Syntax Error)！"
+      },
+      {
+        "step": "4. 以 JSON 描述實際工控課程範例",
+        "description": "如簡報範例所示：`{ \"時間\": \"1/26\", \"地點\": \"OMRON\", \"課程\": \"工廠自動化網路架構應用\", \"內容\": \"Node-Red\" }`，這是一個标准的 JSON 物件，生動地將課程資訊以四組屬性呈現，格式清晰易讀。"
+      }
+    ],
+    "references": [
+      {
+        "title": "JSON 官方規格繁體中文說明書",
+        "url": "https://www.json.org/json-zh.html"
+      },
+      {
+        "title": "w3schools - JSON 快速學習引導教程",
+        "url": "https://www.w3schools.com/js/js_json_intro.asp"
+      },
+      {
+        "title": "JSON 格式線上語法檢驗與美化工具 (JSONLint)",
+        "url": "https://jsonlint.com/"
+      }
+    ]
+  }
+];
