@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISO 流程對應 Node-RED 概念：智慧製造之虛實整合實踐指南</title>
+  
+  <!-- 引入 Google Fonts Outfit 與 Noto Sans TC, 以及 FontAwesome 圖標 -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      
+      --primary: #38bdf8;
+      --primary-dark: #0284c7;
+      --primary-alpha: rgba(56, 189, 248, 0.08);
+      
+      --purple: #c084fc;
+      --purple-dark: #7c3aed;
+      --purple-alpha: rgba(192, 132, 252, 0.08);
+
+      --green: #4ade80;
+      --green-dark: #16a34a;
+      
+      --red: #f87171;
+      --red-dark: #dc2626;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    }
+    
+    header {
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 24px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .main-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    
+    .subtitle {
+      color: var(--text-muted);
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+    
+    h2 {
+      font-size: 1.35rem;
+      color: #0f172a;
+      margin-top: 40px;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary-alpha);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    p {
+      margin-bottom: 15px;
+      color: #334155;
+    }
+    
+    ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+    
+    li {
+      margin-bottom: 8px;
+      color: #334155;
+    }
+    
+    /* 玻璃卡片 */
+    .glass-card {
+      background: rgba(248, 250, 252, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    /* 表格設計 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 25px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+      border: 1px solid var(--border-color);
+    }
+    
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+    }
+    
+    th {
+      background: #f1f5f9;
+      color: #0f172a;
+      font-weight: 600;
+      border-bottom: 2px solid var(--border-color);
+    }
+    
+    td {
+      background: white;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+      font-size: 0.95rem;
+    }
+    
+    tr:hover td {
+      background: #f8fafc;
+    }
+    
+    /* 圖片排版 */
+    .img-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+      margin: 25px 0;
+    }
+    
+    .img-card {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .img-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      cursor: zoom-in;
+      transition: transform 0.2s;
+      object-fit: contain;
+    }
+    
+    .img-card img:hover {
+      transform: scale(1.015);
+    }
+    
+    .img-title {
+      text-align: center;
+      font-weight: 500;
+      margin-top: 12px;
+      color: #0f172a;
+      font-size: 0.9rem;
+    }
+
+    /* 程式碼卡片 */
+    .code-container {
+      position: relative;
+      margin: 25px 0;
+    }
+    
+    .code-header {
+      background: #1e293b;
+      color: #cbd5e1;
+      padding: 12px 20px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    
+    .copy-btn {
+      background: rgba(255,255,255,0.08);
+      border: none;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+    
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.18);
+    }
+    
+    pre {
+      background: #0f172a;
+      color: #38bdf8;
+      padding: 20px;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.85rem;
+      max-height: 380px;
+      border: 1px solid #1e293b;
+      border-top: none;
+    }
+
+    /* 提示框 */
+    .tip-box {
+      background: var(--primary-alpha);
+      border-left: 4px solid var(--primary);
+      padding: 15px 20px;
+      border-radius: 6px;
+      margin: 20px 0;
+      color: #0369a1;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 0.95rem;
+    }
+    
+    .tip-box i {
+      margin-top: 3px;
+      font-size: 1.1rem;
+    }
+
+    /* 燈箱 Lightbox */
+    .lightbox {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      cursor: zoom-out;
+    }
+    
+    .lightbox img {
+      max-width: 92%;
+      max-height: 92%;
+      object-fit: contain;
+      border-radius: 6px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="main-title">
+        <i class="fa-solid fa-map-location-dot" style="color: var(--purple-dark);"></i>
+        <span>ISO 流程對應 Node-RED 概念：智慧製造之虛實整合實踐指南</span>
+      </div>
+      <p class="subtitle">五股職訓局 - 機電 AI 115-1 期 課程學習補充教材</p>
+    </header>
+
+    <p>本教材旨在幫助同學理解工業界常用的國際標準流程規範（<strong>ISO 9001 品質管理</strong>與<strong>ISO 45001 職業安全衛生</strong>）如何以 1:1 的邏輯，完美對應並實現在 Node-RED 自動化控制流程中，進而實踐智慧製造的虛實整合系統 (CPS)。</p>
+
+    <h2><i class="fa-solid fa-compass" style="color: var(--primary-dark);"></i> 一、 核心概念：過程方法 (Process Approach)</h2>
+    <p>ISO 品質與安全管理系統的核心在於<strong>「過程方法」</strong>：任何作業都是將指定的 <strong>「輸入 (Inputs)」</strong>，透過一連串的 <strong>「活動與處置 (Processes/Activities)」</strong>，轉換為預期的 <strong>「輸出 (Outputs)」</strong>，並依循 <strong>PDCA (規劃-實施-檢查-改善)</strong> 循環進行持續改進。</p>
+    
+    <div class="glass-card">
+      <p style="font-weight: 500; margin-bottom: 8px;">在 Node-RED 的資料流 (Data Flow) 架構中，這一邏輯能完美對應：</p>
+      <div style="font-family: monospace; background: #cbd5e1; color: #0f172a; padding: 14px; border-radius: 6px; text-align: center; font-size: 0.95rem;">
+        [ 輸入 (Inputs) ] ───> [ 過程活動/處置 (Processes) ] ───> [ 輸出 (Outputs) ]
+      </div>
+    </div>
+
+    <h2><i class="fa-solid fa-images" style="color: var(--purple-dark);"></i> 二、 流程對照與實務圖表</h2>
+    <p>以下為本課程的核心對照圖表，點擊圖片可放大檢視：</p>
+    
+    <div class="img-grid">
+      <div class="img-card">
+        <img src="ISO 流程對應 Node-RED 概念.png" alt="ISO 過程方法與 Node-RED 核心節點映射對照" class="zoom-trigger">
+        <div class="img-title"><i class="fa-solid fa-image"></i> 圖表 1: ISO 過程方法與 Node-RED 核心節點映射對照</div>
+      </div>
+      <div class="img-card">
+        <img src="ISO 流程對應 Node-RED 概念_02.png" alt="ISO 品質與安全管制流程實務對照圖" class="zoom-trigger">
+        <div class="img-title"><i class="fa-solid fa-image"></i> 圖表 2: ISO 品質與安全管制流程實務對照圖</div>
+      </div>
+    </div>
+
+    <h2><i class="fa-solid fa-table-columns" style="color: var(--primary-dark);"></i> 三、 ISO 9001 (品質) 與 ISO 45001 (安全) 運作管制比較</h2>
+    <p>兩大系統在<strong>條款 8.1（運作規劃與管制）</strong>的日常控制中均屬於 **Do (實施)** 階段，但其實務著重點與保護對象有顯著差異：</p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>比較項目</th>
+          <th>ISO 9001 條款 8.1（品質管理）</th>
+          <th>ISO 45001 條款 8.1（職業安全衛生）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>核心保護對象</strong></td>
+          <td>產品、服務與<strong>客戶滿意度</strong>。</td>
+          <td>現場作業的<strong>人員生命安全與健康</strong>。</td>
+        </tr>
+        <tr>
+          <td><strong>日常控制焦點</strong></td>
+          <td>產品規格符合性、良率、製程公差。</td>
+          <td>消除危險因子、控制剩餘風險。</td>
+        </tr>
+        <tr>
+          <td><strong>核心控制手段</strong></td>
+          <td>品質檢驗規範 (SIP)、製程管制計畫 (CP)。</td>
+          <td>消除 ➔ 替代 ➔ 工程控制 ➔ 管理控制 ➔ PPE。</td>
+        </tr>
+        <tr>
+          <td><strong>變更管理 (MOC)</strong></td>
+          <td>變更是否影響產品品質、交期與成本。</td>
+          <td>變更是否帶來新危害。</td>
+        </tr>
+        <tr>
+          <td><strong>外包/採購管制</strong></td>
+          <td>供應商交付之原物料或外包質量控制。</td>
+          <td>承攬商/外包商在廠內作業的安全與合規。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2><i class="fa-solid fa-industry" style="color: var(--purple-dark);"></i> 四、 雙軌整合案例：智慧生產線「品質與安全」聯鎖控制</h2>
+    <p>在智慧工廠的實務中，同一個 SMT 生產線或化學品操作點，通常需在 Node-RED 內同時整合這兩套標準的運作邏輯：</p>
+    
+    <div class="glass-card">
+      <p style="font-weight: 600; color: var(--purple-dark);"><i class="fa-solid fa-chevron-right"></i> 1. ISO 9001 實務範例 (以「SMT 電路板組裝」為例)</p>
+      <ul style="margin-top: 5px; margin-bottom: 20px;">
+        <li><strong>輸入 (Inputs)</strong>：客製化 BOM 表、迴焊爐各溫區的標準溫度曲線設定值。</li>
+        <li><strong>過程處理 (Process)</strong>：監控迴焊爐實際溫度、執行 AOI 光學自動檢測，判定錫膏良率與位移量是否在公差內。</li>
+        <li><strong>輸出 (Outputs)</strong>：產出合格的 PCBA 板、品質檢驗紀錄、不合格品自動挑退控制信號。</li>
+      </ul>
+      
+      <p style="font-weight: 600; color: var(--purple-dark);"><i class="fa-solid fa-chevron-right"></i> 2. ISO 45001 實務範例 (以「化學品槽車卸料」為例)</p>
+      <ul style="margin-top: 5px;">
+        <li><strong>輸入 (Inputs)</strong>：SDS 安全技術說明書閾值、作業環境揮發性氣體濃度。</li>
+        <li><strong>過程處理 (Process)</strong>：啟動前檢查「作業許可證 (PTW)」簽核狀態、強制檢驗靜電接地信號，依據控制階層進行聯鎖判定。</li>
+        <li><strong>輸出 (Outputs)</strong>：若氣體超標則自動關閉化學閥（工程控制）、發送 LINE 告警通報應變小組（管理控制）。</li>
+      </ul>
+    </div>
+
+    <h2><i class="fa-solid fa-code" style="color: var(--primary-dark);"></i> 五、 實戰演練：Node-RED 範例 Flow 匯入與部署</h2>
+    
+    <div class="tip-box">
+      <i class="fa-solid fa-circle-info" style="color: var(--primary-dark);"></i>
+      <div>
+        <strong>快速匯入指南</strong>：點擊程式碼區塊右上角的 <strong>「複製 JSON」</strong> 按鈕，開啟 Node-RED ➔ 點選右上角選單 <code>☰</code> ➔ 選擇 <code>Import</code> ➔ 貼上 JSON 代碼並點擊 <strong>Deploy</strong>。
+      </div>
+    </div>
+
+    <div class="code-container">
+      <div class="code-header">
+        <span><i class="fa-solid fa-code"></i> 1. ISO 9001 範例：SMT 設備溫度品質檢驗流程</span>
+        <button class="copy-btn" onclick="copyCode('code9001')"><i class="fa-regular fa-copy"></i> 複製 JSON</button>
+      </div>
+      <pre id="code9001">[
+    {
+        "id": "iso_input_inject",
+        "type": "inject",
+        "z": "iso_flow_demo",
+        "name": "輸入：感測器溫度 (85°C)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"sensor_id\":\"TEMP-01\",\"temperature\":85,\"location\":\"Line-A\"}",
+        "payloadType": "json",
+        "x": 190,
+        "y": 180,
+        "wires": [
+            [
+                "iso_process_check"
+            ]
+        ]
+    },
+    {
+        "id": "iso_process_check",
+        "type": "switch",
+        "z": "iso_flow_demo",
+        "name": "處理：檢驗溫度點 (門檻 80°C)",
+        "property": "payload.temperature",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "80",
+                "vt": "num"
+            },
+            {
+                "t": "lte",
+                "v": "80",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 470,
+        "y": 180,
+        "wires": [
+            [
+                "iso_process_alarm_format"
+            ],
+            [
+                "iso_output_normal_log"
+            ]
+        ]
+    },
+    {
+        "id": "iso_process_alarm_format",
+        "type": "change",
+        "z": "iso_flow_demo",
+        "name": "處理：生成品管告警紀錄",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload.status",
+                "pt": "msg",
+                "to": "ALARM",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "payload.message",
+                "pt": "msg",
+                "to": "警告：設備溫度過高！已超出 ISO 品質管制標準。",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 750,
+        "y": 140,
+        "wires": [
+            [
+                "iso_output_alarm_log"
+            ]
+        ]
+    },
+    {
+        "id": "iso_output_alarm_log",
+        "type": "debug",
+        "z": "iso_flow_demo",
+        "name": "輸出：異常告警點 (記錄與通知)",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1030,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "iso_output_normal_log",
+        "type": "debug",
+        "z": "iso_flow_demo",
+        "name": "輸出：正常數據歸檔",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1000,
+        "y": 220,
+        "wires": []
+    }
+]</pre>
+    </div>
+
+    <div class="code-container">
+      <div class="code-header">
+        <span><i class="fa-solid fa-code"></i> 2. ISO 45001 範例：局限空間作業 (Confined Space) 安全監控流程</span>
+        <button class="copy-btn" onclick="copyCode('code45001')"><i class="fa-regular fa-copy"></i> 複製 JSON</button>
+      </div>
+      <pre id="code45001">[
+    {
+        "id": "iso45001_input_sensor",
+        "type": "inject",
+        "z": "iso45001_flow",
+        "name": "輸入：局限空間 O2 感測器 (測得 18.0%)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"location\":\"Confined-Space-01\",\"o2_percent\":18.0,\"worker_count\":2}",
+        "payloadType": "json",
+        "x": 220,
+        "y": 180,
+        "wires": [
+            [
+                "iso45001_process_eval"
+            ]
+        ]
+    },
+    {
+        "id": "iso45001_process_eval",
+        "type": "switch",
+        "z": "iso45001_flow",
+        "name": "過程：風險評估 (O2 < 19.5% 缺氧)",
+        "property": "payload.o2_percent",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "19.5",
+                "vt": "num"
+            },
+            {
+                "t": "gte",
+                "v": "19.5",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 520,
+        "y": 180,
+        "wires": [
+            [
+                "iso45001_process_alarm_payload"
+            ],
+            [
+                "iso45001_output_normal_db"
+            ]
+        ]
+    },
+    {
+        "id": "iso45001_process_alarm_payload",
+        "type": "change",
+        "z": "iso45001_flow",
+        "name": "過程：封裝危害控制指令",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload.status",
+                "pt": "msg",
+                "to": "HAZARD_ALERT",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "payload.action",
+                "pt": "msg",
+                "to": "1. 啟動強制排風機  2. 發送安衛告警推播  3. 人員迅速撤離",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 800,
+        "y": 140,
+        "wires": [
+            [
+                "iso45001_output_alarm_notice"
+            ]
+        ]
+    },
+    {
+        "id": "iso45001_output_alarm_notice",
+        "type": "debug",
+        "z": "iso45001_flow",
+        "name": "輸出：安衛告警通報與設備控制",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1090,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "iso45001_output_normal_db",
+        "type": "debug",
+        "z": "iso45001_flow",
+        "name": "輸出：日常安衛日誌寫入 DB",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1070,
+        "y": 220,
+        "wires": []
+    }
+]</pre>
+    </div>
+
+  </div>
+
+  <!-- 燈箱視窗 -->
+  <div class="lightbox" id="lightbox">
+    <img id="lightbox-img" src="" alt="放大截圖">
+  </div>
+
+  <script>
+    // 複製程式碼功能
+    function copyCode(elementId) {
+      const codeText = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(codeText).then(() => {
+        const btn = document.querySelector(`[onclick="copyCode('${elementId}')"]`);
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<i class="fa-solid fa-check"></i> 已複製`;
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+        }, 1500);
+      }).catch(err => {
+        console.error('複製失敗:', err);
+      });
+    }
+
+    // 燈箱控制邏輯
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const zoomTriggers = document.querySelectorAll('.zoom-trigger');
+
+    zoomTriggers.forEach(img => {
+      img.addEventListener('click', () => {
+        lightboxImg.src = img.src;
+        lightbox.style.display = 'flex';
+      });
+    });
+
+    lightbox.addEventListener('click', () => {
+      lightbox.style.display = 'none';
+    });
+  </script>
+</body>
+</html>

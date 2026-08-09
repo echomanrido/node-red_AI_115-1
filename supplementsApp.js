@@ -155,18 +155,28 @@ document.addEventListener('DOMContentLoaded', () => {
         <p class="lab-summary">${escapeHtml(sup.summary)}</p>
       </section>
 
-      <!-- (2) 單張教材大圖展示 -->
-      <section class="gallery-section" style="grid-template-columns: 1fr;">
-        <div class="image-card">
-          <div class="image-header" style="border-bottom: 1px solid rgba(56, 189, 248, 0.15);">
-            <span class="image-title" style="color: var(--primary);"><i class="fa-solid fa-image"></i> 教材內容圖片</span>
-            <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+      <!-- (2) 教材圖片展示 (支援單張 sup.image 或多張 sup.images) -->
+      ${(() => {
+        const imagesList = sup.images || (sup.image ? [sup.image] : []);
+        if (imagesList.length === 0) return '';
+        const columns = imagesList.length > 1 ? 'repeat(auto-fit, minmax(400px, 1fr))' : '1fr';
+        const cardsHtml = imagesList.map((imgSrc, idx) => `
+          <div class="image-card">
+            <div class="image-header" style="border-bottom: 1px solid rgba(56, 189, 248, 0.15); display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <span class="image-title" style="color: var(--primary); font-size: 0.85rem;"><i class="fa-solid fa-image"></i> 教材圖表 ${imagesList.length > 1 ? idx + 1 : ''}</span>
+              <span class="zoom-hint" style="font-size: 0.75rem;"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="image-wrapper sup-img-wrapper-class" data-img="${imgSrc}" style="cursor: zoom-in; max-height: 480px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; width: 100%;">
+              <img src="${imgSrc}" alt="教材截圖" style="width: 100%; height: auto; object-fit: contain;" onerror="this.src='https://via.placeholder.com/800x400?text=Image+Not+Found'">
+            </div>
           </div>
-          <div class="image-wrapper" id="supImgWrapper" style="cursor: zoom-in; max-height: 480px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000;">
-            <img src="${sup.image}" alt="教材截圖" style="width: 100%; height: auto; object-fit: contain;" onerror="this.src='https://via.placeholder.com/800x400?text=Image+Not+Found'">
-          </div>
-        </div>
-      </section>
+        `).join('');
+        return `
+          <section class="gallery-section" style="display: grid; grid-template-columns: ${columns}; gap: 20px; width: 100%; margin-bottom: 24px;">
+            ${cardsHtml}
+          </section>
+        `;
+      })()}
 
       <!-- (3) 學習目標 -->
       <section class="section-card">
@@ -194,8 +204,11 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
 
     // 重新綁定 Lightbox 放大事件
-    document.getElementById('supImgWrapper').addEventListener('click', () => {
-      openLightbox(sup.image, `補充 ${sup.supNumber}: ${sup.title}`);
+    document.querySelectorAll('.sup-img-wrapper-class').forEach(wrapper => {
+      wrapper.addEventListener('click', () => {
+        const imgSrc = wrapper.dataset.img;
+        openLightbox(imgSrc, `補充 ${sup.supNumber}: ${sup.title}`);
+      });
     });
   }
 
