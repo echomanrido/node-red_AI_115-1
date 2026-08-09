@@ -120,5 +120,43 @@ window.INITIAL_SUPPLEMENTS_DATA = [
         "url": "https://jsonlint.com/"
       }
     ]
+  },
+  {
+    "id": "sup-04",
+    "supNumber": "04",
+    "title": "ISO 流程對應 Node-RED 概念",
+    "date": "2026-08-09",
+    "category": "ISO 流程與控制",
+    "summary": "介紹 ISO 9001 與 ISO 45001 的過程方法與 I/O 流程概念，並透過 SMT 設備品質檢測與局限空間安全防護，詳細剖析其在 Node-RED 實體組件中的虛實整合對應。",
+    "image": "images_src/ok/ISO 流程對應 Node-RED 概念.png",
+    "objective": "1. 理解 ISO 9001 (品質) 與 ISO 45001 (安全) 的過程方法 (Process Approach) 原理。\n2. 掌握 ISO 條款與 Node-RED 各類型節點 (I/O, Switch, Change, Function) 的映射對應關係。\n3. 學習在 Node-RED 中建立品質與安全雙軌整合的自動化控制與緊急應變流程。",
+    "tutorialSteps": [
+      {
+        "step": "1. 認識 ISO 過程方法與 I/O 原理",
+        "description": "理解品質/安衛系統的核心為輸入（Inputs，如客戶或現場感測數據）、過程活動與處置（Processes，如控制規則或SOP）、以及輸出（Outputs，如合格品或安全措施），並對應 Node-RED 節點流向。"
+      },
+      {
+        "step": "2. 解析 ISO 9001 與 45001 在 8.1 的控制階層對照",
+        "description": "ISO 9001 著重產品良率公差與首件檢查，而 ISO 45001 著重控制危害階層（工程/管理/PPE），在智慧工廠實務中，可將感測PLC訊號分流處理，品質異常歸檔，安衛超標則啟動緊急中斷。"
+      },
+      {
+        "step": "3. 匯入與部署品質與安全範例 Flow",
+        "description": "使用 Node-RED 選單 ☰ ➔ Import 功能，分別貼入講義中的 SMT 設備溫度檢測與局限空間氧氣安全監測之範例 JSON。匯入後，點擊右上角 Deploy (部署) 按鈕讓流程上線。"
+      },
+      {
+        "step": "4. 模擬觸發並驗證自動化控制結果",
+        "description": "點擊 Inject 輸入節點左側的按鈕發送模擬數據，觀察右側 Debug 面板の輸出。驗證當偵測值異常時（如 O2 濃度低於 19.5%），Change 節點能自動封裝緊急應變控制措施（如啟動風機與撤離通報）。"
+      }
+    ],
+    "references": [
+      {
+        "title": "ISO 流程對應 Node-RED 概念講義手冊 (README.md)",
+        "url": "補充/ISO 流程對應 Node-RED 概念/README.md"
+      },
+      {
+        "title": "Node-RED 官方 Docs - 使用 Switch 進行流程判斷分流",
+        "url": "https://nodered.org/docs/user-guide/nodes"
+      }
+    ]
   }
 ];
