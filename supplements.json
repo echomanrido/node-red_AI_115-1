@@ -161,5 +161,47 @@
         "url": "https://nodered.org/docs/user-guide/nodes"
       }
     ]
+  },
+  {
+    "id": "sup-05",
+    "supNumber": "05",
+    "title": "ISO 14064-1 與 ISO 14067 流程對應 Node-RED 概念",
+    "date": "2026-08-11",
+    "category": "ESG 碳盤查",
+    "summary": "將 ISO 14064-1（組織級溫室氣體盤查）與 ISO 14067（產品碳足跡）的過程方法導入 Node-RED，利用工業物聯網技術將傳統靜態的碳盤查轉化為自動化、實時運算的動態碳數據流。",
+    "image": "images_src/ok/iso14064_iso14067_flow_nodered.png",
+    "objective": "1. 理解 ISO 14064-1（組織級溫室氣體）與 ISO 14067（產品碳足跡）的核心管理架構與 PDCA 循環。\n2. 掌握溫室氣體排放量計算公式：E = AD * EF * GWP（活動數據 * 排放係數 * 全球暖化潛勢）。\n3. 學習如何將 ISO 標準中的「輸入、處理、輸出」過程方法與 Node-RED 內實體節點的「採集、計算、控制」進行完美映射。",
+    "tutorialSteps": [
+      {
+        "step": "1. 規劃階段 (Plan / 邊界與係數設定)",
+        "description": "在進行碳盤查前，須先設定組織邊界與營運邊界，並鑑別排放範疇（Scope 1 直接排放、Scope 2 間接排放、Scope 3 其他間接排放），最後載入最新的排碳係數。在 Node-RED 中，這對應為全域變數 (Global Context) 的組態設定，將電力排碳係數與 GWP 值跨流程共享。"
+      },
+      {
+        "step": "2. 實施階段 (Do / 數據採集 - 輸入層)",
+        "description": "即時擷取能源與活動數據。在 Node-RED 中對應為「輸入層」，使用 Modbus TCP / OPC UA 讀取現場智慧電表與蒸汽流量計；或使用 HTTP Request / SQL 節點定期拉取 ERP 進貨紀錄，作為範疇三供應鏈原物料的活動數據 (Activity Data, AD)。"
+      },
+      {
+        "step": "3. 實施階段 (Do / 碳排演算 - 處理層)",
+        "description": "進行數據清淤、分類與碳排計算。在 Node-RED 中對應為「處理層」，使用 Filter 節點過濾電表讀值異常的跳點與空值，再透過 Switch 節點依據範疇分類分流數據，最後以 Function 節點撰寫運算邏輯，即時套用公式：E = AD * EF * GWP，將能耗與原料轉換為 CO2 排放當量。"
+      },
+      {
+        "step": "4. 檢查與改善階段 (Check & Act / 數據驗證與卸載控制 - 輸出層)",
+        "description": "進行碳排放監控與超標抑低。對比基準年數據檢驗碳強度，在 Node-RED 內設定碳排閾值；當即時碳排超標時，觸發「輸出層」發送 Line / Email 警報，並由 Webhook 將數據寫入 ESG / ECMS 碳管理平台；同時發送控制命令給 PLC，抑低用電或對高耗能設備進行調控卸載，實現 PDCA 改善閉環。"
+      }
+    ],
+    "references": [
+      {
+        "title": "ISO 14064-1:2018 組織級溫室氣體排放國際標準規章",
+        "url": "https://www.iso.org/standard/66453.html"
+      },
+      {
+        "title": "ISO 14067:2018 產品碳足跡國際標準規章",
+        "url": "https://www.iso.org/standard/71206.html"
+      },
+      {
+        "title": "環境部國家溫室氣體登錄平台 - 排放係數庫查詢",
+        "url": "https://ghgregistry.moenv.gov.tw/"
+      }
+    ]
   }
 ]
