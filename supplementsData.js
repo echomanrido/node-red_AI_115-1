@@ -203,5 +203,47 @@ window.INITIAL_SUPPLEMENTS_DATA = [
         "url": "https://ghgregistry.moenv.gov.tw/"
       }
     ]
+  },
+  {
+    "id": "sup-06",
+    "supNumber": "06",
+    "title": "HTTP 通訊協定與 Node-RED 網頁爬蟲實作",
+    "date": "2026-08-14",
+    "category": "網路協定",
+    "summary": "理解 HTTP (Hypertext Transfer Protocol) 通訊協定中的「請求 (Request)」與「回應 (Response)」機制，並學習如何在 Node-RED 中利用 HTTP Request 與 HTML 節點實作自動化網頁資料爬蟲。",
+    "image": "images_src/ok/20260814_http_protocol_supplement.jpg",
+    "objective": "1. 理解 HTTP 協定的運作邏輯（Client-Server 模型與 Request-Response 週期）。\n2. 掌握 HTTP GET 方法的用途與網址 URL 的構成。\n3. 學習在 Node-RED 中使用 http request 節點擷取網頁 HTML，並利用 html 節點（CSS Selector 選擇器）精確解析目標網頁的文字內容。",
+    "tutorialSteps": [
+      {
+        "step": "1. 理解 HTTP Request & Response 運作機制",
+        "description": "網頁瀏覽器或 Node-RED 作為客戶端 (Client)，發送包含目標 URL 的 HTTP GET Request 給網頁伺服器 (Web Server)；伺服器處理後，回傳包含 HTML 原始碼的 HTTP Response，完成單次的網頁存取週期。"
+      },
+      {
+        "step": "2. 在 Node-RED 中建立 HTTP 請求流程",
+        "description": "拖入一個 Inject (觸發) 節點作為起點，後方連接 http request 節點。雙擊 http request 節點，將 Method 設定為 GET，並在 URL 欄位輸入目標網址（例如：https://fchart.github.io/fchart.html），以讀取目標網頁資源。"
+      },
+      {
+        "step": "3. 使用 HTML 節點與 CSS 選擇器解析資料",
+        "description": "為了解析並擷取回傳的 HTML 內容，在 http request 後方串接一個 html 節點。在 html 節點的 Selector 欄位輸入目標網頁元素的 CSS 選擇器，例如 `span.cd__headline-text`，過濾出特定標籤的文字。"
+      },
+      {
+        "step": "4. 部署並驗證網頁爬蟲執行結果",
+        "description": "在 html 節點後方連接 debug 節點，點擊右上角的 Deploy (部署) 按鈕讓流程上線。點擊 Inject 節點左側按鈕觸發流程，在右側 Debug 面板中即可看到精確擷取到的 msg.payload 網頁文字資料。"
+      }
+    ],
+    "references": [
+      {
+        "title": "MDN Web Docs - HTTP 通訊協定概念與運作原理",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/HTTP/Overview"
+      },
+      {
+        "title": "Node-RED 官方 Docs - 使用 HTTP Request 擷取外部 API 與網頁",
+        "url": "https://nodered.org/docs/user-guide/writing-functions#interacting-with-apis"
+      },
+      {
+        "title": "w3schools - CSS Selectors 選擇器語法說明",
+        "url": "https://www.w3schools.com/cssref/css_selectors.php"
+      }
+    ]
   }
 ];
