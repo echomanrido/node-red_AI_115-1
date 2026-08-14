@@ -919,5 +919,169 @@ window.INITIAL_LABS_DATA = [
         "url": "https://www.w3schools.com/js/js_strings.asp"
       }
     ]
+  },
+  {
+    "id": "lab-05",
+    "labNumber": "05",
+    "title": "練習 2-2: 門禁監控事件多來源字串處理",
+    "date": "2026-08-14",
+    "category": "基礎實作",
+    "summary": "學習如何將多個不同輸入源（如前門與後門開關事件）彙整至同一個 Function 節點中，進行共用格式處理，並掌握如何在後續流程中進行責任人員的動態拼接與分發。",
+    "flowImage": "images_src/ok/20260814_門禁系統應用[flow].png",
+    "resultImage": "images_src/ok/20260814_門禁系統應用[result].png",
+    "objective": "1. 掌握多個 Inject（輸入）節點彙整至單一 Function 節點的「多對一」多路複用流程設計。\n2. 熟練使用 JavaScript 進行變數動態拼接與格式統一化。\n3. 理解 Node-RED 中，單一節點的多條輸出連線 (Wires) 如何將相同的 msg 副本同時分發至不同分支。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立前門與後門雙輸入源",
+        "description": "在 Node-RED 編輯器中拖入兩個 inject 節點。雙擊第一個節點，將 Payload 型態設定為 string，輸入內容為 \"前門被開啟\"，將節點命名為「前門被開啟」；雙擊第二個節點，Payload 設為 string，輸入內容為 \"後門被開啟\"，將節點命名為「後門被開啟」。"
+      },
+      {
+        "step": "2. 彙整至共用處理 Function 節點",
+        "description": "拖入一個 function 節點，命名為 \"地點時間訊息\"，將其輸入端同時與「前門被開啟」及「後門被開啟」兩個節點的輸出端相連。雙擊開啟程式碼編輯區，輸入代碼：msg.payload = msg.payload + \" 五股機丙教室 20260418\"; return msg;，以將兩個來源事件加上統一的地點與日期後綴。"
+      },
+      {
+        "step": "3. 分發一：第一階段偵錯輸出",
+        "description": "將 \"地點時間訊息\" 節點的輸出端連線至一個 debug 節點 (命名為 debug 18)，用於驗證與記錄第一階段的地點時間事件資訊。"
+      },
+      {
+        "step": "4. 分發二：第二階段責任人拼接與驗證",
+        "description": "從 \"地點時間訊息\" 節點的輸出端，拉出另一條線連接至第二個 function 節點（命名為 \"負責人\"），代碼輸入：msg.payload = msg.payload + \" 張世學\";。接著在後方連接 debug 19 節點。點擊 Deploy 部署並觸發事件後，在右側偵錯欄中可同時查看到 debug 18 輸出的事件原始資訊以及 debug 19 輸出的加上負責人簽名後的完整訊息。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在丙級術科 SCADA 整合中，可利用此機制將現場多個位置的感測器（如 X1 送料極限、X2 裝配極限）事件彙整至同一個 Function 進行格式處理，統一加上位置與時間，產生標準 SCADA 警報文字（如「送料極限異常 於 五股機丙教室」）推送到警報顯示窗。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "半導體廠區環控中，多個機台通訊事件的彙整。例如將多個機台（EQP01、EQP02）的離線事件，在共用 Function 中加上晶圓廠區代碼與系統時間，包裝成標準 MES 警報格式，並分發至資料庫儲存與廠務通訊群組。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧家庭安防中，多個門窗（前門、後門、窗戶）防盜監視器的事件彙整。當任一門窗被開啟時，將開啟事件在共用 Function 中拼接上家庭位置與時間，再分發至 Line Notify 通報，並加上警報負責人派發，實作自動化家庭防盜通報。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，用於模擬門禁監控：\n1. 包含兩個 Inject 節點，分別發送字串 \"前門被開啟\" 與 \"後門被開啟\"。\n2. 這兩個節點的輸出都連線到同一個 Function 節點（名稱「地點時間訊息」），將 msg.payload 加上 \" 五股機丙教室 20260418\"。\n3. 「地點時間訊息」的輸出連線到一個 Debug 節點（名稱「debug 18」）。\n4. 同時，「地點時間訊息」的輸出也連線到另一個 Function 節點（名稱「負責人」），將 msg.payload 加上 \" 張世學\"，最後接至 Debug 節點（名稱「debug 19」）輸出。\n請以標準 JSON 陣列回傳。",
+    "nodeRedJson": [
+      {
+        "id": "n-inject-front",
+        "type": "inject",
+        "z": "tab_door",
+        "name": "前門被開啟",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "前門被開啟",
+        "payloadType": "str",
+        "x": 130,
+        "y": 100,
+        "wires": [
+          [
+            "n-func-info"
+          ]
+        ]
+      },
+      {
+        "id": "n-inject-back",
+        "type": "inject",
+        "z": "tab_door",
+        "name": "後門被開啟",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "後門被開啟",
+        "payloadType": "str",
+        "x": 130,
+        "y": 200,
+        "wires": [
+          [
+            "n-func-info"
+          ]
+        ]
+      },
+      {
+        "id": "n-func-info",
+        "type": "function",
+        "z": "tab_door",
+        "name": "地點時間訊息",
+        "func": "msg.payload = msg.payload + \" 五股機丙教室 20260418\";\nreturn msg;",
+        "x": 380,
+        "y": 140,
+        "wires": [
+          [
+            "n-debug-18",
+            "n-func-owner"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-18",
+        "type": "debug",
+        "z": "tab_door",
+        "name": "debug 18",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 580,
+        "y": 100,
+        "wires": []
+      },
+      {
+        "id": "n-func-owner",
+        "type": "function",
+        "z": "tab_door",
+        "name": "負責人",
+        "func": "msg.payload = msg.payload + \" 張世學\";\nreturn msg;",
+        "x": 380,
+        "y": 240,
+        "wires": [
+          [
+            "n-debug-19"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-19",
+        "type": "debug",
+        "z": "tab_door",
+        "name": "debug 19",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 580,
+        "y": 240,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - Function 節點使用說明與 JS 寫法",
+        "url": "https://nodered.org/docs/user-guide/writing-functions"
+      },
+      {
+        "title": "w3schools - JavaScript 陣列與字串連接教學",
+        "url": "https://www.w3schools.com/js/js_strings.asp"
+      }
+    ]
   }
 ];
