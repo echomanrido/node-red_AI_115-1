@@ -1083,5 +1083,176 @@ window.INITIAL_LABS_DATA = [
         "url": "https://www.w3schools.com/js/js_strings.asp"
       }
     ]
+  },
+  {
+    "id": "lab-06",
+    "labNumber": "06",
+    "title": "練習 2-3: 時間戳格式化與 UTC+8 本地時間轉換",
+    "date": "2026-08-14",
+    "category": "基礎實作",
+    "summary": "學習如何將 Node-RED 內建的毫秒時間戳 (timestamp) 轉換為 ISO 8601 標準國際時間字串，並進階利用 JavaScript 將其格式化為台灣當地 (UTC+8) 的可讀時間格式，最後拼接事件主題輸出。",
+    "flowImage": "images_src/ok/20260814_真實時間[flow].png",
+    "resultImage": "images_src/ok/20260814_真實時間[result].png",
+    "objective": "1. 理解 Node-RED 的 Timestamp 數據型態（毫秒）與 JavaScript Date 物件的建構。\n2. 掌握 toISOString() 函數的用途與 UTC 標準時間 of 意涵。\n3. 學習在沒有外部套件下，利用 JavaScript 原生方法手動提取年、月、日、時、分、秒並補零，轉換為台灣 (UTC+8) 可讀時間字串。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 UTC 格式時間流程",
+        "description": "在 Node-RED 編輯器中拖入一個 inject 節點，雙擊將其命名為「後門打開:時間戳」，Payload 設為 timestamp (時間戳記)，Topic 設為 \" 後門打開\" (注意前面有一個半形空格)。後方連接一個 function 節點（命名為 msg.payload + msg.topic），代碼編輯區中輸入：msg.payload = new Date(msg.payload).toISOString() + msg.topic; return msg;。最後將輸出連接至 debug 20 節點。"
+      },
+      {
+        "step": "2. 建立 UTC+8 本地格式時間流程",
+        "description": "拖入第二個 inject 節點，命名為「觸發事件」，Payload 設為 timestamp，Topic 設為 \" 後門打開\"。後方連接第二個 function 節點（命名為 轉 UTC+8 並拼接 topic）。"
+      },
+      {
+        "step": "3. 撰寫台灣當地時間格式化演算法",
+        "description": "雙擊「轉 UTC+8 並拼接 topic」Function 節點，在編輯區中輸入手動提取年月日時分秒並補零之演算法：\nvar date = new Date(msg.payload);\nvar y = date.getFullYear();\nvar m = ('0' + (date.getMonth() + 1)).slice(-2);\nvar d = ('0' + date.getDate()).slice(-2);\nvar hh = ('0' + date.getHours()).slice(-2);\nvar mm = ('0' + date.getMinutes()).slice(-2);\nvar ss = ('0' + date.getSeconds()).slice(-2);\nmsg.payload = y + '/' + m + '/' + d + ' ' + hh + ':' + mm + ':' + ss + msg.topic;\nreturn msg;"
+      },
+      {
+        "step": "4. 串接偵錯輸出與部署驗證",
+        "description": "將「轉 UTC+8 並拼接 topic」節點的輸出端連接至 debug 節點 (命名為「輸出結果」)。點擊 Deploy 部署，依序點擊兩個 Inject 節點的觸發按鈕，在右側 Debug 偵錯欄中，debug 20 會輸出帶有 Z 後綴的 UTC 國際時間（如 2026-08-14T07:54:09.632Z 後門打開），而「輸出結果」則會輸出補零格式化後的台灣當地時間（如 2026/08/14 15:54:10 後門打開）。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在丙級術科 SCADA 系統中，當現場裝配台氣缸或送料轉盤發生極限異常時，PLC 發送 M 點報警訊號，Node-RED 接收後調用此時間戳轉換演算法，將系統毫秒時間轉換為台灣本地格式（如 2026/08/14 15:54:10），並拼接上異常事件內容，寫入 SCADA 歷史報警清單中，方便稽查維修時間。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "半導體廠區高頻率環境監測（如電力能耗或純水 pH 值採集）時的時戳對齊（Timestamp Alignment）。感測器採集到的毫秒時戳，在 Function 節點中統一格式化為標準的本地時間格式（YYYY/MM/DD HH:mm:ss），確保資料庫 (MySQL/Historian) 在存儲跨區域設備時的時間序列完整性。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧家庭防盜與包裹配送事件記錄。當玄關門鎖被開啟或快遞箱被觸發時，系統擷取當前毫秒時間，轉換為台灣當地的可讀時間，拼接成「您的包裹於 2026/08/14 15:54:10 已送達快遞箱！」發送至使用者的 Line Bot 進行即時推播。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，用於時間戳格式轉換：\n1. 包含兩個 Inject 節點，Payload 皆發送當前時間戳 (timestamp)，Topic 設為 \" 後門打開\"。\n2. 第一個 Inject 節點接至 Function 節點，利用 JavaScript 的 toISOString() 轉換為 ISO 格式字串並拼接 Topic，接至 Debug 節點輸出。\n3. 第二個 Inject 節點接至另一個 Function 節點，利用 JavaScript 將毫秒時間轉換為台灣當地 UTC+8 的 \"YYYY/MM/DD HH:mm:ss\" 格式，並手動補零，最後拼接 Topic，接至第二個 Debug 節點 (輸出結果) 輸出。\n請以標準 JSON 陣列回傳。",
+    "nodeRedJson": [
+      {
+        "id": "n-inject-ts-1",
+        "type": "inject",
+        "z": "tab_time",
+        "name": "後門打開:時間戳",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": " 後門打開",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 100,
+        "wires": [
+          [
+            "n-func-iso"
+          ]
+        ]
+      },
+      {
+        "id": "n-func-iso",
+        "type": "function",
+        "z": "tab_time",
+        "name": "msg.payload + msg.topic",
+        "func": "msg.payload = new Date(msg.payload).toISOString() + msg.topic;\nreturn msg;",
+        "x": 420,
+        "y": 100,
+        "wires": [
+          [
+            "n-debug-20"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-20",
+        "type": "debug",
+        "z": "tab_time",
+        "name": "debug 20",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 650,
+        "y": 100,
+        "wires": []
+      },
+      {
+        "id": "n-inject-ts-2",
+        "type": "inject",
+        "z": "tab_time",
+        "name": "觸發事件",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": " 後門打開",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 200,
+        "wires": [
+          [
+            "n-func-tw"
+          ]
+        ]
+      },
+      {
+        "id": "n-func-tw",
+        "type": "function",
+        "z": "tab_time",
+        "name": "轉 UTC+8 並拼接 topic",
+        "func": "var date = new Date(msg.payload);\nvar y = date.getFullYear();\nvar m = (\"0\" + (date.getMonth() + 1)).slice(-2);\nvar d = (\"0\" + date.getDate()).slice(-2);\nvar hh = (\"0\" + date.getHours()).slice(-2);\nvar mm = (\"0\" + date.getMinutes()).slice(-2);\nvar ss = (\"0\" + date.getSeconds()).slice(-2);\nmsg.payload = y + \"/\" + m + \"/\" + d + \" \" + hh + \":\" + mm + \":\" + ss + msg.topic;\nreturn msg;",
+        "x": 380,
+        "y": 200,
+        "wires": [
+          [
+            "n-debug-tw"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-tw",
+        "type": "debug",
+        "z": "tab_time",
+        "name": "輸出結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 600,
+        "y": 200,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - Function 節點使用說明與 JS 寫法",
+        "url": "https://nodered.org/docs/user-guide/writing-functions"
+      },
+      {
+        "title": "w3schools - JavaScript Date 日期物件規格教學說明",
+        "url": "https://www.w3schools.com/js/js_dates.asp"
+      }
+    ]
   }
 ];
