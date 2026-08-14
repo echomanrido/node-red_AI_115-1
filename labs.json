@@ -766,5 +766,158 @@
         "url": "https://nodered.org/docs/user-guide/writing-functions"
       }
     ]
+  },
+  {
+    "id": "lab-04",
+    "labNumber": "04",
+    "title": "練習 2-1: Function 節點字串處理實作",
+    "date": "2026-08-14",
+    "category": "基礎實作",
+    "summary": "學習如何在 Node-RED 中使用 Function 節點撰寫 JavaScript 程式碼，以實現字串的讀取、動態拼接與連續處理，奠定後續在工業資料封裝中的自訂程式基礎。",
+    "flowImage": "images_src/ok/20260814_function[flow].png",
+    "resultImage": "images_src/ok/20260814_function[result].png",
+    "objective": "1. 理解 Node-RED 中 Function 節點的基本結構，並掌握 msg.payload 變數的存取與回傳方式。\n2. 學習利用 JavaScript 進行字串拼接運算（使用 + 運算子）。\n3. 掌握多個 Function 節點串接時，資料流 (Dataflow) 的連續修改與傳遞機制。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Inject 觸發源",
+        "description": "在 Node-RED 編輯器中拖入一個 inject 節點，雙擊開啟屬性面板，將 Payload 型態設定為 string (字串)，並輸入內容 \"Hello\"，將節點命名為 Hello。"
+      },
+      {
+        "step": "2. 撰寫第一個字串拼接 Function 節點",
+        "description": "拖入一個 function 節點，命名為 \"加字串\"，將其輸入與 Hello 節點的輸出相連。雙擊開啟程式碼編輯區，輸入程式碼：msg.payload = msg.payload + \" 五股 20260814 !\"; return msg; 以在原字串後拼接地點與日期。"
+      },
+      {
+        "step": "3. 串接第一階段偵錯輸出",
+        "description": "拖入第一個 debug 節點 (自動命名為 debug 17)，將其輸入端連接至第一個 \"加字串\" 節點的輸出端，用於驗證第一階段的字串拼接結果 (\"Hello 五股 20260814 !\")。"
+      },
+      {
+        "step": "4. 建置連續字串拼接流程並驗證",
+        "description": "從第一個 \"加字串\" 節點的輸出端，額外拉出一條線連接至第二個 function 節點（命名為 \"加字串\"），代碼輸入：msg.payload = msg.payload + \" 張世學\";。接著在後方連接第三個 function 節點（命名為 \"加字串\"），代碼輸入：msg.payload = msg.payload + \" 機電整合班\";。最後串接 debug 16 節點。點擊 Deploy 部署後，點擊 Hello 節點，即可在右側偵錯欄分別查看 \"Hello 五股 20260814 !\" 與完整拼接的 \"Hello 五股 20260814 ! 張世學 機電整合班\"。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在丙級術科 SCADA 整合中，可利用此字串拼接機制將 PLC 的暫存器數值（如 D100 良品產量）與文字組合。例如，在 Function 節點中將 msg.payload 數值包裝為 \"目前輸送帶累積良品產量為 \" + msg.payload + \" 個\"，動態呈現在 SCADA 歷史事件報表中，使監控人員一目了然。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "廠區環控 SCADA 系統（如廢水處理 pH 值監測）在發送高頻遙測資料至中央 MES 或資料庫前，常需利用 Function 進行字串處理。例如將測得的 pH 值拼接上感測器編號與時間戳：\"pH_Sensor_01: \" + msg.payload + \" at \" + Date.now()，以統一資料格式供後續 BigQuery 分析。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧家庭 SCADA 中控主機在偵測到快遞箱門禁事件時，利用 Function 節點將事件狀態與收件人姓名進行字串拼接，封裝成一封易讀的中文警報簡訊：\"警告：您的快遞箱於 \" + msg.payload + \" 被開啟！\"，再透過 Webhook API 拋送至使用者的 Line 或手機簡訊通知。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，其中包含：\n1. 一個 Inject 節點發送字串 \"Hello\"。\n2. 一個 Function 節點，將 payload 加上 \" 五股 20260814 !\"。\n3. 一個 Debug 節點輸出上述結果。\n4. 另外串接兩個 Function 節點，分別將 payload 加上 \" 張世學\" 與 \" 機電整合班\"，最後使用第二個 Debug 節點輸出完整拼接的字串。\n請以 JSON 陣列格式回傳，方便我直接複製匯入 Node-RED。",
+    "nodeRedJson": [
+      {
+        "id": "n-inject-hello",
+        "type": "inject",
+        "z": "tab_func",
+        "name": "Hello",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello",
+        "payloadType": "str",
+        "x": 130,
+        "y": 120,
+        "wires": [
+          [
+            "n-func-add-1"
+          ]
+        ]
+      },
+      {
+        "id": "n-func-add-1",
+        "type": "function",
+        "z": "tab_func",
+        "name": "加字串",
+        "func": "msg.payload = msg.payload + \" 五股 20260814 !\";\nreturn msg;",
+        "x": 320,
+        "y": 120,
+        "wires": [
+          [
+            "n-debug-17",
+            "n-func-add-2"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-17",
+        "type": "debug",
+        "z": "tab_func",
+        "name": "debug 17",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 530,
+        "y": 120,
+        "wires": []
+      },
+      {
+        "id": "n-func-add-2",
+        "type": "function",
+        "z": "tab_func",
+        "name": "加字串",
+        "func": "msg.payload = msg.payload + \" 張世學\";\nreturn msg;",
+        "x": 340,
+        "y": 240,
+        "wires": [
+          [
+            "n-func-add-3"
+          ]
+        ]
+      },
+      {
+        "id": "n-func-add-3",
+        "type": "function",
+        "z": "tab_func",
+        "name": "加字串",
+        "func": "msg.payload = msg.payload + \" 機電整合班\";\nreturn msg;",
+        "x": 510,
+        "y": 240,
+        "wires": [
+          [
+            "n-debug-16"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-16",
+        "type": "debug",
+        "z": "tab_func",
+        "name": "debug 16",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 710,
+        "y": 240,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - Function 節點使用說明與 JS 寫法",
+        "url": "https://nodered.org/docs/user-guide/writing-functions"
+      },
+      {
+        "title": "w3schools - JavaScript 字串拼接與運算子教學",
+        "url": "https://www.w3schools.com/js/js_strings.asp"
+      }
+    ]
   }
 ]
