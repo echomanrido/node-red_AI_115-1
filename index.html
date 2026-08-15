@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </head>
 <body>
   <div class="home-container">
@@ -373,6 +374,37 @@
 
     </section>
 
+    <!-- 訪客數據統計戰情室 -->
+    <section class="visitor-stats-section">
+      <div class="stats-header">
+        <i class="fa-solid fa-chart-line stats-icon"></i>
+        <span>本站訪客統計戰情室</span>
+      </div>
+      <div class="visitor-stats-grid">
+        <div class="visitor-stat-card">
+          <div class="card-icon"><i class="fa-solid fa-eye"></i></div>
+          <div class="card-info">
+            <span class="card-label">今日個人點閱</span>
+            <span class="visitor-counter-number" id="local_pv_count">0</span>
+          </div>
+        </div>
+        <div class="visitor-stat-card">
+          <div class="card-icon" style="color: var(--primary);"><i class="fa-solid fa-chart-simple"></i></div>
+          <div class="card-info">
+            <span class="card-label">本站總瀏覽量 (PV)</span>
+            <span class="visitor-counter-number" id="busuanzi_value_site_pv">--</span>
+          </div>
+        </div>
+        <div class="visitor-stat-card">
+          <div class="card-icon" style="color: var(--accent-green);"><i class="fa-solid fa-users"></i></div>
+          <div class="card-info">
+            <span class="card-label">本站總訪客數 (UV)</span>
+            <span class="visitor-counter-number" id="busuanzi_value_site_uv">--</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Footer -->
     <footer class="home-footer">
       <p>&copy; 2026 五股職訓局（作者：Rido老師） - 機電AI_115-1期 | Node-RED 智慧機電實務課程講義</p>
@@ -611,6 +643,30 @@
         modal.style.display = "none";
       }
     });
+  </script>
+
+  <script>
+    // 訪客計數器 LocalStorage 本機邏輯 & file:/// 安全降級
+    (function() {
+      // 1. 本地今日點閱計數
+      const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      const storedDate = localStorage.getItem('visitor_date');
+      let localPV = parseInt(localStorage.getItem('visitor_local_pv') || '0', 10);
+
+      if (storedDate !== todayStr) {
+        // 新的一天，重設計數
+        localPV = 1;
+        localStorage.setItem('visitor_date', todayStr);
+      } else {
+        localPV += 1;
+      }
+      localStorage.setItem('visitor_local_pv', localPV);
+      
+      const localPVEl = document.getElementById('local_pv_count');
+      if (localPVEl) {
+        localPVEl.innerText = localPV;
+      }
+    })();
   </script>
 </body>
 </html>
