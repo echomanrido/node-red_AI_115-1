@@ -1688,5 +1688,171 @@ window.INITIAL_LABS_DATA = [
         "url": "https://www.w3schools.com/js/js_arithmetic.asp"
       }
     ]
+  },
+  {
+    "id": "lab-09",
+    "labNumber": "09",
+    "title": "練習 3-1: JavaScript if-else 字串條件分支判斷實作",
+    "date": "2026-08-21",
+    "category": "基礎實作",
+    "summary": "學習在 Node-RED 的 Function 節點中編寫 JavaScript 經典的 if-else 條件分支邏輯。藉由對輸入字串內容（Hello vs. 其他）的判斷，實現資料流的動態修改與輸出分流。",
+    "flowImage": "images_src/ok/20260821_if-else_字串判斷[flow].png",
+    "resultImage": "images_src/ok/20260821_if-else_字串判斷[result].png",
+    "objective": "1. 掌握 JavaScript 條件分支結構 if (條件) { ... } else { ... } 的基本語法。\n2. 學習如何在 Function 節點中對 msg.payload 進行字串全等比較 (===)。\n3. 體會自動化流程中，如何依據輸入資料的內容特徵進行邏輯分支分發。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立多輸入 Inject 節點",
+        "description": "在 Node-RED 編輯器中拉入三個 inject 節點，分別命名為「Hello」、「Hi」與「你好」。將這三個節點的 Payload 型態都設為 string (字串)，內容分別填入 \"Hello\"、\"Hi\" 與 \"你好\"。"
+      },
+      {
+        "step": "2. 編寫 if-else 分支 Function",
+        "description": "拖入一個 function 節點，雙擊命名為「if-else判斷」。在程式碼編輯區中，撰寫判斷輸入字串是否為 \"Hello\" 的條件邏輯：\nif (msg.payload === \"Hello\") {\n    msg.payload = \"Hello 五股 !!\";\n} else {\n    msg.payload = \"One more....\";\n}\nreturn msg;"
+      },
+      {
+        "step": "3. 串接輸出端並部署",
+        "description": "將三個 Inject 節點的輸出端，皆連線至「if-else判斷」Function 節點。在 Function 節點後方串接一個 debug 節點（命名為 debug 30）。點擊右上角 Deploy 部署使流程上線。"
+      },
+      {
+        "step": "4. 觸發與結果驗證",
+        "description": "點擊「Hello」Inject 節點，觀察右側 Debug 視窗輸出字串 \"Hello 五股 !!\"；點擊「Hi」與「你好」Inject 節點，觀察 Debug 視窗皆輸出 \"One more....\"。驗證 JavaScript 條件分支與字串相等性比較邏輯運作正常。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在丙級送料與顏色辨識裝配系統中，工件顏色與材質判定分揀控制。當光電感測器與顏色辨識元件將偵測到的結果（如 \"Red\"、\"Green\"）傳遞至 Node-RED 中樞時，Function 節點使用 if-else 判斷：若為紅色，則驅動 A 氣缸推出至良品收集槽；否則（其他顏色）則驅動 B 氣缸推出至備用槽，落實物理分揀控制。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "半導體廠房環境監控 (FMCS) 設備狀態與操作模式警告過濾。邊緣端 SCADA 收集機台運行模式字串（如 \"Run\"、\"Idle\"、\"Down\"）。當模式為 \"Down\" 時，if 分支觸發高優先級的機台停機警告並透過通訊發送至 MES 系統；若為其他模式，則僅記錄於歷史 Log，實現智慧訊息過濾。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧門禁與快遞送達狀態邏輯分流。當快遞箱偵測到開關狀態或辨識出簽收人字串時，在 Function 節點中使用 if-else 判斷是否為「郵差送件」身分：若成立，則向 LINE 發送「有包裹請取件」通知；否則（如家人取件）則發送「取件完畢，箱門已關閉」以節省推播頻寬。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，用於進行 if-else 字串條件判斷：\n1. 包含三個 Inject 節點，Payload 分別發送字串 \"Hello\"、\"Hi\"、\"你好\"。\n2. 三個節點均接至一個 Function 節點 (名為 if-else判斷)。\n3. Function 節點內部使用 JavaScript 語法：若 payload 為 \"Hello\"，則將 payload 修改為 \"Hello 五股 !!\"；否則，將 payload 修改為 \"One more....\"。\n4. Function 節點輸出接至一個 Debug 節點 (debug 30) 進行輸出。\n請以 JSON 陣列格式回傳。",
+    "nodeRedJson": [
+      {
+        "id": "n-inject-hello",
+        "type": "inject",
+        "z": "tab_ifelse",
+        "name": "Hello",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello",
+        "payloadType": "str",
+        "x": 100,
+        "y": 100,
+        "wires": [
+          [
+            "n-func-ifelse"
+          ]
+        ]
+      },
+      {
+        "id": "n-inject-hi",
+        "type": "inject",
+        "z": "tab_ifelse",
+        "name": "Hi",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hi",
+        "payloadType": "str",
+        "x": 100,
+        "y": 160,
+        "wires": [
+          [
+            "n-func-ifelse"
+          ]
+        ]
+      },
+      {
+        "id": "n-inject-nihao",
+        "type": "inject",
+        "z": "tab_ifelse",
+        "name": "你好",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "你好",
+        "payloadType": "str",
+        "x": 100,
+        "y": 220,
+        "wires": [
+          [
+            "n-func-ifelse"
+          ]
+        ]
+      },
+      {
+        "id": "n-func-ifelse",
+        "type": "function",
+        "z": "tab_ifelse",
+        "name": "if-else判斷",
+        "func": "if (msg.payload === \"Hello\") {\n    msg.payload = \"Hello 五股 !!\";\n} else {\n    msg.payload = \"One more....\";\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 160,
+        "wires": [
+          [
+            "n-debug-30"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-30",
+        "type": "debug",
+        "z": "tab_ifelse",
+        "name": "debug 30",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 510,
+        "y": 160,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - Function 節點使用說明與 JS 寫法",
+        "url": "https://nodered.org/docs/user-guide/writing-functions"
+      },
+      {
+        "title": "w3schools - JavaScript if...else 條件判斷語法說明",
+        "url": "https://www.w3schools.com/js/js_if_else.asp"
+      }
+    ]
   }
 ];
