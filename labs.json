@@ -1473,5 +1473,220 @@
         "url": "https://www.w3schools.com/js/js_strings.asp"
       }
     ]
+  },
+  {
+    "id": "lab-08",
+    "labNumber": "08",
+    "title": "練習 2-4: JavaScript 鏈式四則算術運算實作",
+    "date": "2026-08-21",
+    "category": "基礎實作",
+    "summary": "學習在 Node-RED 中使用連續的 Function 節點對 msg.payload 執行鏈式 (Chain) 算術運算。透過加、減、乘、除的依序運算，掌握資料流的逐步加工與分流偵錯方法。",
+    "flowImage": "images_src/ok/20260821_02_四則運算[flow].png",
+    "resultImage": "images_src/ok/20260821_02_四則運算[result].png",
+    "objective": "1. 理解 Node-RED 中 Function 節點對 msg.payload 的就地修改與向後傳遞機制。\n2. 學習在 JavaScript 中進行基本的 +、-、*、/ 四則運算。\n3. 掌握鏈式管線 (Pipeline) 結構中，如何在中間節點分流至 Debug 節點進行逐步調試。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立輸入源與加法節點",
+        "description": "拖入一個 inject 節點，命名為 \"11\"，Payload 設定為 number 數字 11。後方連接第一個 function 節點，命名為「加二」，程式碼輸入 msg.payload = msg.payload + 2; return msg;。將「加二」的輸出端分別連接至 debug 27 偵錯節點與下一個 Function 節點。"
+      },
+      {
+        "step": "2. 建立減法與乘法節點",
+        "description": "拖入第二個 function 節點，命名為「減一」，內容輸入 msg.payload = msg.payload - 1; return msg;，輸出接至 debug 28。拖入第三個 function 節點，命名為「乘四」，內容輸入 msg.payload = msg.payload * 4; return msg;，輸出接至 debug 29。"
+      },
+      {
+        "step": "3. 建立除法與最終輸出節點",
+        "description": "拖入第四個 function 節點，命名為「除三」，內容輸入 msg.payload = msg.payload / 3; return msg;。將「除三」的輸出端連接至 debug 26 偵錯節點。"
+      },
+      {
+        "step": "4. 部署並驗證鏈式運算結果",
+        "description": "點擊 Deploy 部署，點擊 Inject 觸發按鈕。在右側 Debug 偵錯欄中，將會依序看到中間運算的分流輸出：debug 27 輸出 13 (11+2)、debug 28 輸出 12 (13-1)、debug 29 輸出 48 (12*4) 以及最終 debug 26 輸出 16 (48/3)，驗證數據鏈式傳遞無誤。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在丙級送料與裝配術科系統中，讀取旋轉工作盤或輸送帶感測器的脈衝數據後，需要將其轉換為實體工件移動角度或距離。可在 Function 中採用鏈式結構：先將脈衝數乘以齒比，減去歸零偏置值，最後除以單位係數。以最直覺的資料管道方式，輸出精準的角度數值至 SCADA 人機界面展示。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "半導體廠房環境監控系統 (FMCS) 中 Raw Data 數據校正。設備傳回的 4-20mA 電流原始訊號，在 Node-RED Function 鏈中先減去偏置 4mA，乘上轉換係數得到對應壓力，再除以大氣壓單位，最終傳送出標準物理量數值，寫入大數據庫進行 OEE 分析。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧家庭能耗度數與階梯式電費累加計算。智慧電表讀取當前的瓦特數後，於鏈式 Function 中依序執行：除以 1000 換算為千瓦小時（度），乘以對應的時間與夏季電價費率，最後加上公攤基本電費。此管道式流程能以最清晰的方式計算出當日電費，傳入首頁訪客計數看板或 Dashboard 展示。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，用於進行鏈式四則運算：\n1. 包含一個 Inject 節點，Payload 發送數字 11。\n2. 依序接上四個 Function 節點，功能分別為「加二」(payload+2)、「減一」(payload-1)、「乘四」(payload*4) 和「除三」(payload/3)。\n3. 每個 Function 節點的輸出端，除了連到下一個運算節點外，也分別分流連接到一個 Debug 節點 (依序命名為 debug 27, debug 28, debug 29, debug 26)，以便我在 Debug 視窗觀看每一步的鏈式算術運算值。\n請以 JSON 陣列格式回傳。",
+    "nodeRedJson": [
+      {
+        "id": "n-inject-arith-11",
+        "type": "inject",
+        "z": "tab_arithmetic",
+        "name": "11",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "11",
+        "payloadType": "num",
+        "x": 100,
+        "y": 120,
+        "wires": [
+          [
+            "n-func-add2"
+          ]
+        ]
+      },
+      {
+        "id": "n-func-add2",
+        "type": "function",
+        "z": "tab_arithmetic",
+        "name": "加二",
+        "func": "msg.payload = msg.payload + 2;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 120,
+        "wires": [
+          [
+            "n-debug-27",
+            "n-func-sub1"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-27",
+        "type": "debug",
+        "z": "tab_arithmetic",
+        "name": "debug 27",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 270,
+        "y": 200,
+        "wires": []
+      },
+      {
+        "id": "n-func-sub1",
+        "type": "function",
+        "z": "tab_arithmetic",
+        "name": "減一",
+        "func": "msg.payload = msg.payload - 1;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 120,
+        "wires": [
+          [
+            "n-debug-28",
+            "n-func-mul4"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-28",
+        "type": "debug",
+        "z": "tab_arithmetic",
+        "name": "debug 28",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 430,
+        "y": 200,
+        "wires": []
+      },
+      {
+        "id": "n-func-mul4",
+        "type": "function",
+        "z": "tab_arithmetic",
+        "name": "乘四",
+        "func": "msg.payload = msg.payload * 4;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 570,
+        "y": 120,
+        "wires": [
+          [
+            "n-debug-29",
+            "n-func-div3"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-29",
+        "type": "debug",
+        "z": "tab_arithmetic",
+        "name": "debug 29",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 590,
+        "y": 200,
+        "wires": []
+      },
+      {
+        "id": "n-func-div3",
+        "type": "function",
+        "z": "tab_arithmetic",
+        "name": "除三",
+        "func": "msg.payload = msg.payload / 3;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 120,
+        "wires": [
+          [
+            "n-debug-26"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-26",
+        "type": "debug",
+        "z": "tab_arithmetic",
+        "name": "debug 26",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 890,
+        "y": 120,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - Function 節點使用說明與 JS 寫法",
+        "url": "https://nodered.org/docs/user-guide/writing-functions"
+      },
+      {
+        "title": "w3schools - JavaScript 算術運算與變數計算規格說明",
+        "url": "https://www.w3schools.com/js/js_arithmetic.asp"
+      }
+    ]
   }
 ]
