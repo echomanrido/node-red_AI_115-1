@@ -1254,5 +1254,224 @@
         "url": "https://www.w3schools.com/js/js_dates.asp"
       }
     ]
+  },
+  {
+    "id": "lab-07",
+    "labNumber": "07",
+    "title": "練習 2-3: JavaScript 數字與字串型別運算對照實作",
+    "date": "2026-08-21",
+    "category": "基礎實作",
+    "summary": "探討 JavaScript 弱型態特性中的隱式轉型行為。透過對照組實作，觀察數字 (Number) 與字串 (String) 在使用 + 運算子時的數學加法與字串拼接差異，掌握工業數據採集時的型別校正重要性。",
+    "flowImage": "images_src/ok/20260821_01_數字與字串比較[flow].png",
+    "resultImage": "images_src/ok/20260821_01_數字與字串比較[result].png",
+    "objective": "1. 理解 JavaScript 隱式型別轉換 (Implicit Coercion) 的機制，掌握 + 運算子在不同型別下的行為。\n2. 觀察當資料來源型別為 String 時，如何因為運算優先級退化為字串拼接（如 \"11\" + 1 變成 \"111\"）。\n3. 體會工業物聯網（如 Modbus 數值解析）進行顯式轉型 (Explicit Conversion) 的必要性。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立數字對照組 (對照組一)",
+        "description": "拖入一個 inject 節點，命名為 \"11\"，將其 Payload 型態設定為 number (數字)，數值輸入 11。後方連接兩個 function 節點，分別命名為「數字+1」與「字串+1」；「數字+1」內輸入 msg.payload = msg.payload + 1; return msg;，「字串+1」內輸入 msg.payload = msg.payload + \"1\"; return msg;。最後將輸出連接至 debug 22 與 debug 23 偵錯節點。"
+      },
+      {
+        "step": "2. 建立字串對照組 (對照組二)",
+        "description": "拖入第二個 inject 節點，命名為 \"11\"，將其 Payload 型態設定為 string (字串)，內容輸入 \"11\"。同樣連線至另外兩個相同邏輯的 function 節點「數字+1」與「字串+1」，最後接至 debug 24 與 debug 25 偵錯節點。"
+      },
+      {
+        "step": "3. 部署並驗證數字組運算結果",
+        "description": "點擊 Deploy 部署，觸發數字組 Inject 節點。在右側 Debug 偵錯欄中，debug 22 輸出為數字 12 (執行數學加法)，而 debug 23 輸出為字串 \"111\" (執行隱式字串拼接，因為加數為字串 \"1\")。"
+      },
+      {
+        "step": "4. 部署並驗證字串組運算結果與除錯",
+        "description": "觸發字串組 Inject 節點。在 Debug 偵錯欄中，debug 24 與 debug 25 輸出的結果皆為字串 \"111\"。這是因為當被加數為字串 \"11\" 時，+ 運算子會強制將加數轉型為字串進行拼接。若要執行數學加法，必須在 Function 內使用 Number(msg.payload) 或 parseInt(msg.payload) 進行顯式轉型。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在丙級術科 SCADA 整合中，從 Modbus 讀取三菱 PLC 暫存器（如 D100 良品計數）時，若通訊協定節點回傳的數據格式為字串，直接在 Node-RED 進行累加運算（如 msg.payload + 1）會導致產量數據拼接異常。必須在 Function 節點中先使用 parseInt(msg.payload) 進行數值強制轉型，才能確保警報判定與產量計數顯示正常。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "半導體廠區 FMCS 環控與能耗監控系統。從 SECS/GEM 設備通訊取得的溫度或電流值有時會以字串形式拋送。在發送至 MySQL 或寫入大數據平台 (BigQuery) 前，SCADA 中樞需利用 Function 進行顯式型別檢查與轉換，確保所有 OEE 稼動率計算與電力統計分析不會因隱式字串拼接時失真。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧家庭物流中控在讀取快遞箱稱重感測器的數據時，若 API 傳回的數值型態為字串，需利用 Function 執行 Number(msg.payload) 轉型。如此一來才能與開箱閾值（如大於 10 公克代表有快遞）進行正確的數學比較，防止防盜或收件警報器產生邏輯誤判。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，用於對照數字與字串型別運算行為：\n1. 包含一個 Inject 節點（輸出數字 11），連線到兩個 Function 節點（分別是「數字+1」執行 msg.payload+1，與「字串+1」執行 msg.payload+\"1\"），並各自接上 Debug 節點輸出。\n2. 包含第二個 Inject 節點（輸出字串 \"11\"），連線到兩個與上述相同邏輯的 Function 節點，並各自接上 Debug 節點輸出，以便我在 Debug 視窗觀察 JavaScript 隱式型別轉換行為。\n請以 JSON 陣列格式回傳。",
+    "nodeRedJson": [
+      {
+        "id": "n-inject-num",
+        "type": "inject",
+        "z": "tab_coercion",
+        "name": "11",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "11",
+        "payloadType": "num",
+        "x": 110,
+        "y": 120,
+        "wires": [
+          [
+            "n-func-num-add1",
+            "n-func-num-addstr1"
+          ]
+        ]
+      },
+      {
+        "id": "n-func-num-add1",
+        "type": "function",
+        "z": "tab_coercion",
+        "name": "數字+1",
+        "func": "msg.payload = msg.payload + 1;\nreturn msg;",
+        "x": 360,
+        "y": 100,
+        "wires": [
+          [
+            "n-debug-22"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-22",
+        "type": "debug",
+        "z": "tab_coercion",
+        "name": "debug 22",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 710,
+        "y": 100,
+        "wires": []
+      },
+      {
+        "id": "n-func-num-addstr1",
+        "type": "function",
+        "z": "tab_coercion",
+        "name": "字串+1",
+        "func": "msg.payload = msg.payload + \"1\";\nreturn msg;",
+        "x": 360,
+        "y": 140,
+        "wires": [
+          [
+            "n-debug-23"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-23",
+        "type": "debug",
+        "z": "tab_coercion",
+        "name": "debug 23",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 710,
+        "y": 140,
+        "wires": []
+      },
+      {
+        "id": "n-inject-str",
+        "type": "inject",
+        "z": "tab_coercion",
+        "name": "11",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "11",
+        "payloadType": "str",
+        "x": 110,
+        "y": 240,
+        "wires": [
+          [
+            "n-func-str-add1",
+            "n-func-str-addstr1"
+          ]
+        ]
+      },
+      {
+        "id": "n-func-str-add1",
+        "type": "function",
+        "z": "tab_coercion",
+        "name": "數字+1",
+        "func": "msg.payload = msg.payload + 1;\nreturn msg;",
+        "x": 360,
+        "y": 220,
+        "wires": [
+          [
+            "n-debug-24"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-24",
+        "type": "debug",
+        "z": "tab_coercion",
+        "name": "debug 24",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 710,
+        "y": 220,
+        "wires": []
+      },
+      {
+        "id": "n-func-str-addstr1",
+        "type": "function",
+        "z": "tab_coercion",
+        "name": "字串+1",
+        "func": "msg.payload = msg.payload + \"1\";\nreturn msg;",
+        "x": 360,
+        "y": 260,
+        "wires": [
+          [
+            "n-debug-25"
+          ]
+        ]
+      },
+      {
+        "id": "n-debug-25",
+        "type": "debug",
+        "z": "tab_coercion",
+        "name": "debug 25",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 710,
+        "y": 260,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - Function 節點使用說明與 JS 寫法",
+        "url": "https://nodered.org/docs/user-guide/writing-functions"
+      },
+      {
+        "title": "w3schools - JavaScript 數字與字串型別比較運算說明",
+        "url": "https://www.w3schools.com/js/js_strings.asp"
+      }
+    ]
   }
 ]
