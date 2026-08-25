@@ -151,6 +151,21 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `).join('') : '<p style="color:var(--text-dim);">暫無實務情境應用</p>';
 
+    const galleryHtml = tool.flowImage ? `
+      <!-- 圖片展示 -->
+      <section class="gallery-section" style="margin-bottom: 24px;">
+        <div class="image-card" style="width: 100%; max-width: 800px; margin: 0 auto; border-top: 3px solid #ec4899;">
+          <div class="image-header">
+            <span class="image-title" style="color:#ec4899;"><i class="fa-solid fa-image"></i> AI 工具功能與介面展示</span>
+            <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+          </div>
+          <div class="image-wrapper" id="flowImgWrapper">
+            <img src="${tool.flowImage}" alt="AI工具介面截圖" onerror="this.src='https://via.placeholder.com/600x300?text=Image+Not+Found'" class="zoomable-img" style="cursor: pointer;">
+          </div>
+        </div>
+      </section>
+    ` : '';
+
     contentBodyEl.innerHTML = `
       <!-- (1) Tool Header -->
       <section class="lab-header-card" style="border-left-color:#ec4899;">
@@ -166,6 +181,9 @@ document.addEventListener('DOMContentLoaded', () => {
           </a>
         </div>
       </section>
+
+      <!-- (1.5) 圖片畫廊 (動態) -->
+      ${galleryHtml}
 
       <!-- (2) 學習目標 -->
       <section class="section-card">
@@ -194,12 +212,12 @@ document.addEventListener('DOMContentLoaded', () => {
       <!-- (5) AI 提示詞 (Prompt) -->
       <section class="section-card">
         <div class="code-box-header">
-          <h3 class="section-title" style="margin-bottom:0; border-bottom:none;"><i class="fa-solid fa-wand-magic-sparkles" style="color:#ec4899;"></i> 音樂風格與歌詞 Prompt 範例</h3>
+          <h3 class="section-title" style="margin-bottom:0; border-bottom:none;"><i class="fa-solid fa-wand-magic-sparkles" style="color:#ec4899;"></i> 協作發問 Prompt 範例</h3>
           <button class="copy-btn" id="copyPromptBtn" style="border-color: rgba(236, 72, 153, 0.3); color:#ec4899;">
             <i class="fa-regular fa-copy"></i> 複製 Prompt
           </button>
         </div>
-        <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 12px;">將以下提示詞複製，並在 Suno 啟用自訂模式 (Custom Mode) 貼入 Style of Music 與 Lyrics 中：</p>
+        <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 12px;">複製以下發問提示詞貼入專屬 GPT 助理中，快速產出 Node-RED 程式邏輯或解決方案：</p>
         <pre class="prompt-content" style="border-left-color:#ec4899;">${escapeHtml(tool.aiPrompt)}</pre>
       </section>
 
@@ -217,6 +235,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (copyPromptBtn) {
       copyPromptBtn.addEventListener('click', () => {
         copyToClipboard(tool.aiPrompt, 'Prompt 範例已成功複製到剪貼簿！');
+      });
+    }
+
+    // Lightbox 放大預覽事件綁定
+    const modal = document.getElementById("lightboxModal");
+    const modalImg = document.getElementById("lightboxImg");
+    const captionText = document.getElementById("lightboxCaption");
+    const closeBtn = document.getElementById("lightboxClose");
+
+    document.querySelectorAll(".zoomable-img").forEach(img => {
+      img.addEventListener("click", function() {
+        if (modal && modalImg) {
+          modal.style.display = "flex";
+          modalImg.src = this.src;
+          if (captionText) captionText.innerHTML = this.alt || "AI 工具介面展示";
+        }
+      });
+    });
+
+    if (closeBtn && modal) {
+      closeBtn.addEventListener("click", function() {
+        modal.style.display = "none";
+      });
+    }
+
+    if (modal) {
+      modal.addEventListener("click", function(e) {
+        if (e.target === modal || e.target === closeBtn) {
+          modal.style.display = "none";
+        }
       });
     }
   }
