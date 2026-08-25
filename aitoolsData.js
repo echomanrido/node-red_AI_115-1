@@ -1,0 +1,62 @@
+window.INITIAL_AITOOLS_DATA = [
+  {
+    "id": "tool-suno",
+    "toolNumber": "01",
+    "title": "Suno - AI 音樂生成器",
+    "date": "2026-08-25",
+    "category": "生成式音樂 AI",
+    "summary": "Suno 是一款突破性的生成式 AI 音樂創作工具，能讓任何人無需懂音樂理論，只需輸入文字提示詞，即可在數秒內生成包含高品質人聲與完整樂器編排的專屬音樂與歌曲。本課程引導您將 Suno 音樂融入智慧機電實務專題簡報及音效系統中。",
+    "webUrl": "https://www.suno.com",
+    "objective": "1. 掌握 Suno AI 生成歌曲的操作介面與生成參數設定。\n2. 學習如何透過「自訂模式 (Custom Mode)」分離音樂風格提示詞（Style of Music）與歌詞（Lyrics）以進行精細控制。\n3. 掌握生成音樂作品的音效下載、拼接（Extend）與人聲風格微調技巧。\n4. 結合智慧機電整合術科成果簡報，完成高品質專案配樂設計。",
+    "tutorialSteps": [
+      {
+        "step": "1. 註冊並登入 Suno 帳戶",
+        "description": "瀏覽 Suno 官方網站 (https://www.suno.com)，點擊「Create」並使用 Google、Discord 或 Microsoft 帳戶完成快速註冊與登入。每個免費帳戶每天會贈送 50 個 Credit（點數），可生成 10 首歌曲（每次創作消耗 10 點生成 2 首）。"
+      },
+      {
+        "step": "2. 進入創作介面 (Create)",
+        "description": "點擊左側選單的「Create」。預設為簡單模式（Song Description），您可以直接輸入您想生成的歌曲主題（例如：工廠機器轟鳴、Synthwave、歡快的晨間咖啡時光）。如果不希望有歌詞，可開啟「Instrumental」純音樂開關。"
+      },
+      {
+        "step": "3. 啟用自訂模式 (Custom Mode) 進行精細控制",
+        "description": "開啟「Custom」切換開關，這會解鎖獨立的輸入框：\n1. Lyrics (歌詞)：您可以自己撰寫繁體中文歌詞，或點擊「Generate Lyrics」讓 AI 自動生成。\n2. Style of Music (音樂風格)：填入歌曲的音樂類型、樂器、音色和氛圍。例如：80s Synthwave, Industrial beats, mechanical hum, driving rhythm, synthesizer, male vocal, energetic。\n3. Title：填入歌曲的名稱。"
+      },
+      {
+        "step": "4. 點擊 Create 並下載/延伸歌曲",
+        "description": "點擊下方的 Create 按鈕，Suno 會在數秒內生成兩首不同編排的歌曲。您可以點擊播放聆聽。如果不滿意，可以修改提示詞重新生成。點擊歌曲右側的「...」➔「Get Audio」或「Get Video」即可下載高品質的 MP3 或 MP4。若想加長歌曲，可點擊「Extend」在指定秒數後繼續生成下一段。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級實務專題簡報背景音樂",
+        "icon": "fa-solid fa-gears",
+        "description": "在進行機電整合丙級第二題「送料與顏色辨識裝配系統」專題成果簡報時，將 Suno 生成的「Industrial Synthwave (工業電子樂)」作為開場影片或簡報背景配樂，能極大增強專案的現代感與科技感，展現 Vibe Coding 與 AI 協作特色。"
+      },
+      {
+        "scenario": "SCADA 警報與工廠環境音效生成",
+        "icon": "fa-solid fa-industry",
+        "description": "利用 Suno 的 Instrumental (純音樂無人聲) 模式，搭配特定的風格提示詞（如 High pitch warning tone, digital alarm beep, rapid synthesizer pulse），生成高辨識度的客製化工業警報音效，並透過 Node-RED 寫入音效播放節點，整合至中樞 HMI 壁掛觸控螢幕。"
+      },
+      {
+        "scenario": "家庭智慧控制展示影片配樂",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "在智慧快遞箱或智慧防盜系統實物專題完成後，錄製 1 分鐘 of 展示短片。利用 Suno 生成一首輕快、溫馨的「Acoustic Pop (民謠流行樂)」並帶有智慧包裹送達歌詞的背景歌曲，能讓專題簡報更具吸引力與商業賣點。"
+      }
+    ],
+    "aiPrompt": "音樂風格 Prompt 範例 (Style of Music)：\n80s cyber punk, synthwave, industrial automation beat, robotic clangs, electronic synthesizers, driving tempo, energetic, futuristic, male vocoder vocals\n\n歌詞 Prompt 範例 (Lyrics)：\n[Verse 1]\n綠色光電 照亮轉盤的軌跡\n氣缸推出 辨識良品的奇蹟\nModbus 傳遞著無聲的數據\nNode-RED 串起這智慧的旋律\n\n[Chorus]\n送料 裝配 轉盤在轉動\n機電整合 程式在跳動\nAI 的翅膀 讓工業發光\n智慧的工廠 我們在起航！",
+    "references": [
+      {
+        "title": "Suno AI 官方網站",
+        "url": "https://www.suno.com"
+      },
+      {
+        "title": "Suno 提示詞攻略 - 官方 Wiki 與寫作指引",
+        "url": "https://www.suno.wiki"
+      },
+      {
+        "title": "如何在影片中合規使用 Suno 生成之音樂版權說明",
+        "url": "https://suno-ai.notion.site/Frequently-Asked-Questions"
+      }
+    ]
+  }
+];
