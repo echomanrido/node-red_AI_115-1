@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSidebar(filtered);
   });
 
-  // 渲染側邊欄選單
+  // 渲染側邊欄選單 (只有多於 1 個的同類工具才渲染分組標題)
   function renderSidebar(tools) {
     toolListEl.innerHTML = '';
     if (tools.length === 0) {
@@ -82,27 +82,57 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // 依據 category 進行分組
+    const groups = {};
     tools.forEach(tool => {
-      const item = document.createElement('a');
-      item.className = `lab-item ${tool.id === currentToolId ? 'active' : ''}`;
-      item.dataset.id = tool.id;
-      item.innerHTML = `
-        <div class="lab-badge" style="background: rgba(236, 72, 153, 0.1); color: #ec4899;">${tool.toolNumber}</div>
-        <div class="lab-info">
-          <div class="lab-title-text">${tool.title}</div>
-          <div class="lab-meta-text">${tool.category} • ${tool.date}</div>
-        </div>
-      `;
+      if (!groups[tool.category]) {
+        groups[tool.category] = [];
+      }
+      groups[tool.category].push(tool);
+    });
 
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        selectTool(tool.id);
-        if (window.innerWidth <= 900) {
-          sidebar.classList.remove('open');
-        }
+    // 依類別渲染項目
+    Object.keys(groups).forEach(category => {
+      const groupTools = groups[category];
+      const hasGroupHeader = groupTools.length > 1; // 只有大於 1 個工具的分類才顯示大標題
+
+      if (hasGroupHeader) {
+        // 1. 建立並插入分類小標題
+        const groupTitle = document.createElement('div');
+        groupTitle.className = 'sidebar-group-title';
+        groupTitle.textContent = category;
+        toolListEl.appendChild(groupTitle);
+      }
+
+      // 2. 建立並插入該類別下的所有工具項目
+      groupTools.forEach(tool => {
+        const item = document.createElement('a');
+        item.className = `lab-item ${tool.id === currentToolId ? 'active' : ''}`;
+        item.dataset.id = tool.id;
+        
+        // 只有在沒有顯示大標題時，卡片內才展示 category 字樣，否則隱去以防累贅
+        const metaText = hasGroupHeader 
+          ? tool.date 
+          : `${tool.category} • ${tool.date}`;
+
+        item.innerHTML = `
+          <div class="lab-badge" style="background: rgba(236, 72, 153, 0.1); color: #ec4899;">${tool.toolNumber}</div>
+          <div class="lab-info">
+            <div class="lab-title-text">${tool.title}</div>
+            <div class="lab-meta-text">${metaText}</div>
+          </div>
+        `;
+
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          selectTool(tool.id);
+          if (window.innerWidth <= 900) {
+            sidebar.classList.remove('open');
+          }
+        });
+
+        toolListEl.appendChild(item);
       });
-
-      toolListEl.appendChild(item);
     });
   }
 
@@ -151,20 +181,30 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `).join('') : '<p style="color:var(--text-dim);">暫無實務情境應用</p>';
 
-    const galleryHtml = tool.flowImage ? `
-      <!-- 圖片展示 -->
-      <section class="gallery-section" style="margin-bottom: 24px;">
-        <div class="image-card" style="width: 100%; max-width: 800px; margin: 0 auto; border-top: 3px solid #ec4899;">
-          <div class="image-header">
-            <span class="image-title" style="color:#ec4899;"><i class="fa-solid fa-image"></i> AI 工具功能與介面展示</span>
-            <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
-          </div>
-          <div class="image-wrapper" id="flowImgWrapper">
-            <img src="${tool.flowImage}" alt="AI工具介面截圖" onerror="this.src='https://via.placeholder.com/600x300?text=Image+Not+Found'" class="zoomable-img" style="cursor: pointer;">
-          </div>
+    let galleryHtml = '';
+    if (tool.flowImage) {
+      const images = Array.isArray(tool.flowImage) ? tool.flowImage : [tool.flowImage];
+      const imgCardsHtml = images.map((imgUrl, index) => `
+        <div class="image-wrapper" style="flex: 1; min-width: 280px; max-width: 100%;">
+          <img src="${imgUrl}" alt="AI工具介面截圖 ${index + 1}" onerror="this.src='https://via.placeholder.com/600x300?text=Image+Not+Found'" class="zoomable-img" style="cursor: pointer; width: 100%; border-radius: 8px;">
         </div>
-      </section>
-    ` : '';
+      `).join('');
+
+      galleryHtml = `
+        <!-- 圖片展示 -->
+        <section class="gallery-section" style="margin-bottom: 24px;">
+          <div class="image-card" style="width: 100%; max-width: 900px; margin: 0 auto; border-top: 3px solid #ec4899;">
+            <div class="image-header">
+              <span class="image-title" style="color:#ec4899;"><i class="fa-solid fa-image"></i> AI 工具功能與介面展示</span>
+              <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊圖片可放大預覽</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding: 16px; background: rgba(0,0,0,0.15); border-radius: 0 0 12px 12px;">
+              ${imgCardsHtml}
+            </div>
+          </div>
+        </section>
+      `;
+    }
 
     contentBodyEl.innerHTML = `
       <!-- (1) Tool Header -->
