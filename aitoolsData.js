@@ -60,8 +60,68 @@ window.INITIAL_AITOOLS_DATA = [
     ]
   },
   {
-    "id": "tool-chatgpt-gpts",
+    "id": "tool-obsidian-clipper",
     "toolNumber": "02",
+    "title": "Obsidian & Web Clipper - 打造個人第二大腦",
+    "date": "2026-08-26",
+    "category": "AI 協作工具 (AI TOOLS)",
+    "summary": "Obsidian 是一款基於本地 Markdown 檔案的雙向連結筆記軟體。搭配官方的 Obsidian Web Clipper 瀏覽器剪報擴充套件，能幫助您一鍵將網頁上的 AI 教材、API 手冊與程式重點無縫擷取至本地知識庫，建立個人化的雙向關聯知識圖譜。",
+    "webUrl": "https://obsidian.md",
+    "flowImage": [
+      "images_src/ok/20260826_obsidian_clipper_store.png",
+      "images_src/ok/20260826_obsidian_app.png"
+    ],
+    "objective": "1. 掌握如何安裝並設定 Obsidian Web Clipper 瀏覽器擴充套件。\n2. 學習如何一鍵擷取與高亮網頁教材，並匯入至本地 Obsidian 筆記庫。\n3. 掌握 Obsidian 雙向連結 [[筆記名稱]] 與關係圖譜 (Graph View) 的基本使用方法。",
+    "tutorialSteps": [
+      {
+        "step": "1. 下載並安裝 Obsidian 本地端軟體",
+        "description": "前往 Obsidian 官網 (https://obsidian.md) 下載並安裝適用於您作業系統的本地端軟體。建立一個新的筆記庫 (Vault) 資料夾以存放所有 Markdown 筆記。"
+      },
+      {
+        "step": "2. 安裝 Obsidian Web Clipper 瀏覽器擴充套件",
+        "description": "在 Chrome 線上應用程式商店搜尋並安裝「Obsidian Web Clipper」。安裝完成後，點擊擴充功能圖示進行設定，連結至您本地的 Obsidian 筆記庫路徑。"
+      },
+      {
+        "step": "3. 一鍵剪輯網頁內容並標記高亮",
+        "description": "瀏覽 AI 技術文章或教學網頁時，點擊 Web Clipper。您可以自訂擷取模板，並直接在網頁上選取並高亮重要段落，最後點擊「Add to Obsidian」一鍵將整個網頁轉為 Markdown 儲存至本地。"
+      },
+      {
+        "step": "4. 建立雙向連結與檢視關係圖譜",
+        "description": "在 Obsidian 內使用雙引號括弧『[[其他筆記名稱]]』來建立關聯。隨著筆記增加，點選左側選單的「關係圖譜 (Graph View)」按鈕，即可視覺化檢視您所有 AI 知識點之間的樹狀網路關聯。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "AI 課程教材與網頁精華一鍵歸檔",
+        "icon": "fa-solid fa-graduation-cap",
+        "description": "在學習 Node-RED 或 AI 演算法時，每天都會查閱大量文件。利用 Web Clipper 剪下帶有圖片與高亮的 Markdown，免去複製貼上時排版亂掉的困擾，讓學習教材在本地端離線永久保存。"
+      },
+      {
+        "scenario": "機電/AI 知識卡片盒與關係圖譜整理",
+        "icon": "fa-solid fa-diagram-project",
+        "description": "透過雙向連結，學員可以將「機器學習 - 感知器」、「XOR 邏輯」與「機電整合第二題送料辨識」關聯起來。藉由關係圖譜的可視化線條，能清晰理解哪些技術是跨學科應用的核心樞紐。"
+      },
+      {
+        "scenario": "Node-RED 常用 Flow JSON 與程式碼片段庫",
+        "icon": "fa-solid fa-code",
+        "description": "在 Obsidian 內為常用節點配置（如 HTTP Request 串接、Buffer 轉換 JS）建立程式碼專區。搭配 #code 等標籤分類，在開發流程時可隨時快速複製，無縫貼入 Node-RED 中，是工程師不可或缺的程式碼寶庫。"
+      }
+    ],
+    "aiPrompt": "Obsidian Markdown 雙向連結語法範例：\n\n# 機器學習與機電整合實務\n在我們進行 [[(機器學習)線性分類-感知器 (Perceptron)]] 的學習中，我們探討了線性可分性的概念。\n\n## 實務關聯\n在機電整合 the 實務專題中，常會使用 [[Node-RED]] 的 Function 節點撰寫判斷邏輯。如果遇到非線性可分的問題，例如 [[XOR 邏輯問題]]，我們就需要引入更複雜的神經網路或改變特徵空間來解決。",
+    "references": [
+      {
+        "title": "Obsidian 官方網站",
+        "url": "https://obsidian.md"
+      },
+      {
+        "title": "Obsidian Web Clipper 官方商店安裝頁面",
+        "url": "https://chromewebstore.google.com/detail/obsidian-web-clipper/cnjifjpddelmedmihgijeibhnjfabmlf?hl=zh-TW"
+      }
+    ]
+  },
+  {
+    "id": "tool-chatgpt-gpts",
+    "toolNumber": "03",
     "title": "ChatGPT 探索 GPTs - 專屬 Node-RED 助理",
     "date": "2026-08-25",
     "category": "生成式 AI 助手",
@@ -117,8 +177,68 @@ window.INITIAL_AITOOLS_DATA = [
     ]
   },
   {
+    "id": "tool-manus-website",
+    "toolNumber": "04",
+    "title": "Manus - AI 全自動網頁與專案提案生成",
+    "date": "2026-08-26",
+    "category": "生成式 AI 助手",
+    "summary": "Manus 是一款全自動的通用型 AI Agent 平台，能模擬瀏覽器與編輯器進行多步驟複雜任務。本指南將引導您利用 Manus，將您的個人經歷與專題想法，全自動生成為一個高質感的專題計畫提案與 HMI 網頁展示平台。",
+    "webUrl": "https://manus.im",
+    "flowImage": [
+      "images_src/ok/20260826_manus_portal.png",
+      "images_src/ok/20260826_manus_website_generation.png"
+    ],
+    "objective": "1. 掌握如何在 Manus 平台中輸入長篇的個人經歷與專題企劃 Prompt。\n2. 學習 Manus 作為自主 Agent 進行搜尋、程式撰寫與網頁預覽的運作原理。\n3. 掌握在 Manus 生成網頁後進行線上發布、預覽與下載原始碼的方法。",
+    "tutorialSteps": [
+      {
+        "step": "1. 登入 Manus 並選取建立網站",
+        "description": "開啟 Manus 官方網站 (https://manus.im)。在對話框底部的快速功能捷徑中，點擊「建立網站」按鈕，以進入網頁全自動生成與開發工作區。"
+      },
+      {
+        "step": "2. 輸入個人經歷與專案企劃 Prompt",
+        "description": "在輸入框中貼入您的長篇 Prompt，例如：『你是個指導教授...現在想設計一個專案，使用 node-red c# 開發，結合機電整合與 Arduino...』，然後按下送出。"
+      },
+      {
+        "step": "3. 觀看 Manus 自主執行與除錯",
+        "description": "Manus 會自動拆解任務：蒐集機電資料、設計 UI/UX、編寫 HTML/CSS/JS 代碼，並在遇到報錯時自動重寫。您可以在右側面板即時觀看它操作虛擬瀏覽器的生成過程。"
+      },
+      {
+        "step": "4. 預覽、修改與一鍵發布網站",
+        "description": "生成完成後，右側會出現如「RE:BOARD 智慧維修平台」的精美網頁預覽。您可以利用左側對話框繼續發送微調指令（如『修改配色』），最後點選右上角的「已發布」或下載按鈕，取得專案成果。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "專題計畫 Proposal 與成果網頁快速生成",
+        "icon": "fa-solid fa-graduation-cap",
+        "description": "學員通常擅長硬體配線與 PLC，但不擅長撰寫網頁與專案提案計畫書。利用 Manus，只需輸入專題使用的技術（如 teacheble machine, Node-RED），便能全自動生成圖文並茂的成果展示網站，做為期末報告或檢定簡報的精美門面。"
+      },
+      {
+        "scenario": "智慧工廠 HMI 提案可視化展示",
+        "icon": "fa-solid fa-industry",
+        "description": "當要進行智慧維修、電路板檢測等物聯網 HMI 設計提案時，利用 Manus 產出包含「系統狀態、維修流程控制、RAG輔助」等具備科技感的前端網頁，能立刻讓您的簡報方案呈現具體的互動預覽，勝過千言萬語。"
+      },
+      {
+        "scenario": "物聯網專案自主式程式架構規劃",
+        "icon": "fa-solid fa-diagram-project",
+        "description": "Manus 不僅僅是生成靜態網頁，還能自主拆解專案架構（例如 Arduino、Node-RED 與 C# 如何通訊）。它會在對話中為您繪製出清晰的通訊數據流向圖，大幅度縮減學員摸索系統整合的時間成本。"
+      }
+    ],
+    "aiPrompt": "你是個指導教授。學生。工作經歷：電路板維修。證照：氣壓丙級，機電整合丙級。要提出圖文並茂的proposal。\n現在想設計一個專案，使用node-red c#開發，結合機電整合，微處理器（arduino）。結合vibe coding, LLM, RAG, 影像識別（GOOGLE teachable machine）。\n請針對工作經驗，幫我規劃合適的專案並建立成果網頁。",
+    "references": [
+      {
+        "title": "Manus AI 官方網站",
+        "url": "https://manus.im"
+      },
+      {
+        "title": "Node-RED 官方網站",
+        "url": "https://nodered.org"
+      }
+    ]
+  },
+  {
     "id": "tool-gemini-gems",
-    "toolNumber": "03",
+    "toolNumber": "05",
     "title": "Gemini 專屬 Gems - Node-RED 5W1H 導師",
     "date": "2026-08-26",
     "category": "Gemini 智慧協作",
@@ -174,7 +294,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-gemini-canvas",
-    "toolNumber": "04",
+    "toolNumber": "06",
     "title": "Gemini Canvas - 網頁與 SCADA 原型設計",
     "date": "2026-08-26",
     "category": "Gemini 智慧協作",
@@ -234,7 +354,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-gemini-notebook",
-    "toolNumber": "05",
+    "toolNumber": "07",
     "title": "Gemini Notebook - AI 個人知識庫與學習助理",
     "date": "2026-08-26",
     "category": "Gemini 智慧協作",
@@ -291,7 +411,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-gemini-notebook-integration",
-    "toolNumber": "06",
+    "toolNumber": "08",
     "title": "Gemini 整合 Notebook - 跨平台知識庫連結",
     "date": "2026-08-26",
     "category": "Gemini 智慧協作",
@@ -350,122 +470,62 @@ window.INITIAL_AITOOLS_DATA = [
     ]
   },
   {
-    "id": "tool-manus-website",
-    "toolNumber": "07",
-    "title": "Manus - AI 全自動網頁與專案提案生成",
+    "id": "tool-ai-studio-app",
+    "toolNumber": "09",
+    "title": "Google AI Studio - New app 應用快速開發",
     "date": "2026-08-26",
-    "category": "生成式 AI 助手",
-    "summary": "Manus 是一款全自動的通用型 AI Agent 平台，能模擬瀏覽器與編輯器進行多步驟複雜任務。本指南將引導您利用 Manus，將您的個人經歷與專題想法，全自動生成為一個高質感的專題計畫提案與 HMI 網頁展示平台。",
-    "webUrl": "https://manus.im",
+    "category": "Gemini 智慧協作",
+    "summary": "Google AI Studio 推出全新「+ New app」低程式碼開發功能。只需用語音或文字描述您的需求，Gemini 便會自動為您搭建具備完整前後端與功能預覽的 Web 應用程式，並提供歷史版本控制與一鍵發布共享功能。",
+    "webUrl": "https://aistudio.google.com",
     "flowImage": [
-      "images_src/ok/20260826_manus_portal.png",
-      "images_src/ok/20260826_manus_website_generation.png"
+      "images_src/ok/20260826_ai_studio_portal.png",
+      "images_src/ok/20260826_ai_studio_app_preview.png"
     ],
-    "objective": "1. 掌握如何在 Manus 平台中輸入長篇的個人經歷與專題企劃 Prompt。\n2. 學習 Manus 作為自主 Agent 進行搜尋、程式撰寫與網頁預覽的運作原理。\n3. 掌握在 Manus 生成網頁後進行線上發布、預覽與下載原始碼的方法。",
+    "objective": "1. 掌握如何在 Google AI Studio 側邊欄啟用「+ New app」開發功能。\n2. 學習如何以自然語言引導 Gemini 建立如「圖像文字擷取」等 HMI Web 應用。\n3. 掌握應用程式的 Code 原始碼檢視、版本控制 Checkpoint 與 Remix 分支開發技巧。",
     "tutorialSteps": [
       {
-        "step": "1. 登入 Manus 並選取建立網站",
-        "description": "開啟 Manus 官方網站 (https://manus.im)。在對話框底部的快速功能捷徑中，點擊「建立網站」按鈕，以進入網頁全自動生成與開發工作區。"
+        "step": "1. 開啟 AI Studio 並點選 + New app",
+        "description": "登入 Google AI Studio (https://aistudio.google.com)。點擊左側 BUILD 區塊底下的「+ New app」以新開開發環境。"
       },
       {
-        "step": "2. 輸入個人經歷與專案企劃 Prompt",
-        "description": "在輸入框中貼入您的長篇 Prompt，例如：『你是個指導教授...現在想設計一個專案，使用 node-red c# 開發，結合機電整合與 Arduino...』，然後按下送出。"
+        "step": "2. 在輸入框中描述您的 App 需求",
+        "description": "在中央對話欄貼入 Prompt。例如：『建立一個圖像文字擷取應用：上傳圖片，讓 Gemini AI 為您讀出圖片中的文字，支援拖曳或上傳，科技感暗黑風。』"
       },
       {
-        "step": "3. 觀看 Manus 自主執行與除錯",
-        "description": "Manus 會自動拆解任務：蒐集機電資料、設計 UI/UX、編寫 HTML/CSS/JS 代碼，並在遇到報錯時自動重寫。您可以在右側面板即時觀看它操作虛擬瀏覽器的生成過程。"
+        "step": "3. 於右側進行即時測試與代碼微調",
+        "description": "Gemini 會在右側預覽區塊直接渲染出功能完備的網頁。您可以在左側對話框繼續發送指令微調版面配色與新增功能，或在左側 Checkpoint 歷史中還原先前版本。"
       },
       {
-        "step": "4. 預覽、修改與一鍵發布網站",
-        "description": "生成完成後，右側會出現如「RE:BOARD 智慧維修平台」的精美網頁預覽。您可以利用左側對話框繼續發送微調指令（如『修改配色』），最後點選右上角的「已發布」或下載按鈕，取得專案成果。"
+        "step": "4. 發布共享或下載原始碼",
+        "description": "點選右上角「Publish」產出公開網址提供給他人，或點選「Code」下載完整程式碼整合至您的本地專案中。"
       }
     ],
     "applications": [
       {
-        "scenario": "專題計畫 Proposal 與成果網頁快速生成",
-        "icon": "fa-solid fa-graduation-cap",
-        "description": "學員通常擅長硬體配線與 PLC，但不擅長撰寫網頁與專案提案計畫書。利用 Manus，只需輸入專題使用的技術（如 teacheble machine, Node-RED），便能全自動生成圖文並茂的成果展示網站，做為期末報告或檢定簡報的精美門面。"
+        "scenario": "圖像文字擷取 (OCR) 手機工具",
+        "icon": "fa-solid fa-mobile-screen-button",
+        "description": "學員可快速做出一款上傳機電配線板或銘牌照片、自動辨識並提取所有端子台編號與標籤文字的行動 Web 應用，省去手動抄寫的繁瑣工作。"
       },
       {
-        "scenario": "智慧工廠 HMI 提案可視化展示",
+        "scenario": "無程式碼工控原型 HMI 設計",
         "icon": "fa-solid fa-industry",
-        "description": "當要進行智慧維修、電路板檢測等物聯網 HMI 設計提案時，利用 Manus 產出包含「系統狀態、維修流程控制、RAG輔助」等具備科技感的前端網頁，能立刻讓您的簡報方案呈現具體的互動預覽，勝過千言萬語。"
+        "description": "無須手寫網頁。只需對 AI 說『設計一個顯示冷卻水塔溫度與壓力的儀表板，並在超標時顯示紅色警報』，便能一秒產出展示原型。"
       },
       {
-        "scenario": "物聯網專案自主式程式架構規劃",
-        "icon": "fa-solid fa-diagram-project",
-        "description": "Manus 不僅僅是生成靜態網頁，還能自主拆解專案架構（例如 Arduino、Node-RED 與 C# 如何通訊）。它會在對話中為您繪製出清晰的通訊數據流向圖，大幅度縮減學員摸索系統整合的時間成本。"
-      }
-    ],
-    "aiPrompt": "你是個指導教授。學生。工作經歷：電路板維修。證照：氣壓丙級，機電整合丙級。要提出圖文並茂的proposal。\n現在想設計一個專案，使用node-red c#開發，結合機電整合，微處理器（arduino）。結合vibe coding, LLM, RAG, 影像識別（GOOGLE teachable machine）。\n請針對工作經驗，幫我規劃合適的專案並建立成果網頁。",
-    "references": [
-      {
-        "title": "Manus AI 官方網站",
-        "url": "https://manus.im"
-      },
-      {
-        "title": "Node-RED 官方網站",
-        "url": "https://nodered.org"
-      }
-    ]
-  },
-  {
-    "id": "tool-obsidian-clipper",
-    "toolNumber": "08",
-    "title": "Obsidian & Web Clipper - 打造個人第二大腦",
-    "date": "2026-08-26",
-    "category": "AI 協作工具 (AI TOOLS)",
-    "summary": "Obsidian 是一款基於本地 Markdown 檔案的雙向連結筆記軟體。搭配官方的 Obsidian Web Clipper 瀏覽器剪報擴充套件，能幫助您一鍵將網頁上的 AI 教材、API 手冊與程式重點無縫擷取至本地知識庫，建立個人化的雙向關聯知識圖譜。",
-    "webUrl": "https://obsidian.md",
-    "flowImage": [
-      "images_src/ok/20260826_obsidian_clipper_store.png",
-      "images_src/ok/20260826_obsidian_app.png"
-    ],
-    "objective": "1. 掌握如何安裝並設定 Obsidian Web Clipper 瀏覽器擴充套件。\n2. 學習如何一鍵擷取與高亮網頁教材，並匯入至本地 Obsidian 筆記庫。\n3. 掌握 Obsidian 雙向連結 [[筆記名稱]] 與關係圖譜 (Graph View) 的基本使用方法。",
-    "tutorialSteps": [
-      {
-        "step": "1. 下載並安裝 Obsidian 本地端軟體",
-        "description": "前往 Obsidian 官網 (https://obsidian.md) 下載並安裝適用於您作業系統的本地端軟體。建立一個新的筆記庫 (Vault) 資料夾以存放所有 Markdown 筆記。"
-      },
-      {
-        "step": "2. 安裝 Obsidian Web Clipper 瀏覽器擴充套件",
-        "description": "在 Chrome 線上應用程式商店搜尋並安裝「Obsidian Web Clipper」。安裝完成後，點擊擴充功能圖示進行設定，連結至您本地的 Obsidian 筆記庫路徑。"
-      },
-      {
-        "step": "3. 一鍵剪輯網頁內容並標記高亮",
-        "description": "瀏覽 AI 技術文章或教學網頁時，點擊 Web Clipper。您可以自訂擷取模板，並直接在網頁上選取並高亮重要段落，最後點擊「Add to Obsidian」一鍵將整個網頁轉為 Markdown 儲存至本地。"
-      },
-      {
-        "step": "4. 建立雙向連結與檢視關係圖譜",
-        "description": "在 Obsidian 內使用雙引號括弧『[[其他筆記名稱]]』來建立關聯。隨著筆記增加，點選左側選單的「關係圖譜 (Graph View)」按鈕，即可視覺化檢視您所有 AI 知識點之間的樹狀網路關聯。"
-      }
-    ],
-    "applications": [
-      {
-        "scenario": "AI 課程教材與網頁精華一鍵歸檔",
+        "scenario": "學術與檢定考卷隨堂測驗 App",
         "icon": "fa-solid fa-graduation-cap",
-        "description": "在學習 Node-RED 或 AI 演算法時，每天都會查閱大量文件。利用 Web Clipper 剪下帶有圖片與高亮的 Markdown，免去複製貼上時排版亂掉的困擾，讓學習教材在本地端離線永久保存。"
-      },
-      {
-        "scenario": "機電/AI 知識卡片盒與關係圖譜整理",
-        "icon": "fa-solid fa-diagram-project",
-        "description": "透過雙向連結，學員可以將「機器學習 - 感知器」、「XOR 邏輯」與「機電整合第二題送料辨識」關聯起來。藉由關係圖譜的可視化線條，能清晰理解哪些技術是跨學科應用的核心樞紐。"
-      },
-      {
-        "scenario": "Node-RED 常用 Flow JSON 與程式碼片段庫",
-        "icon": "fa-solid fa-code",
-        "description": "在 Obsidian 內為常用節點配置（如 HTTP Request 串接、Buffer 轉換 JS）建立程式碼專區。搭配 #code 等標籤分類，在開發流程時可隨時快速複製，無縫貼入 Node-RED 中，是工程師不可或缺的程式碼寶庫。"
+        "description": "上傳 PDF 考卷檔，輸入『把這份電工原理考古題做成一個單選題測驗 App』，Gemini 即會為您封裝出一個能在手機上直接點擊刷題、計分與觀看解析的精美 App。"
       }
     ],
-    "aiPrompt": "Obsidian Markdown 雙向連結語法範例：\n\n# 機器學習與機電整合實務\n在我們進行 [[(機器學習)線性分類-感知器 (Perceptron)]] 的學習中，我們探討了線性可分性的概念。\n\n## 實務關聯\n在機電整合 the 實務專題中，常會使用 [[Node-RED]] 的 Function 節點撰寫判斷邏輯。如果遇到非線性可分的問題，例如 [[XOR 邏輯問題]]，我們就需要引入更複雜的神經網路或改變特徵空間來解決。",
+    "aiPrompt": "建立一個圖像文字擷取(Image Text Extractor)應用：\n1. 用戶能上傳圖片（拖曳、貼上或點擊）。\n2. 讓 Gemini AI 精確為用戶讀出圖片中的文字。\n3. 配色採用暗黑風，具備現代科技感。",
     "references": [
       {
-        "title": "Obsidian 官方網站",
-        "url": "https://obsidian.md"
+        "title": "Google AI Studio 官方平台",
+        "url": "https://aistudio.google.com"
       },
       {
-        "title": "Obsidian Web Clipper 官方商店安裝頁面",
-        "url": "https://chromewebstore.google.com/detail/obsidian-web-clipper/cnjifjpddelmedmihgijeibhnjfabmlf?hl=zh-TW"
+        "title": "Google Gemini 開發者說明文獻",
+        "url": "https://ai.google.dev"
       }
     ]
   }

@@ -91,8 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
       groups[tool.category].push(tool);
     });
 
-    let previousWasGroup = false;
-
     // 依類別渲染項目
     Object.keys(groups).forEach(category => {
       const groupTools = groups[category];
@@ -104,11 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
         groupTitle.className = 'sidebar-group-title';
         groupTitle.textContent = category;
         toolListEl.appendChild(groupTitle);
-        previousWasGroup = true;
       }
 
       // 2. 建立並插入該類別下的所有工具項目
-      groupTools.forEach((tool, index) => {
+      groupTools.forEach(tool => {
         const item = document.createElement('a');
         item.className = `lab-item ${tool.id === currentToolId ? 'active' : ''}`;
         item.dataset.id = tool.id;
@@ -126,13 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         `;
 
-        // 如果這個項目是平鋪的，且前一個類別是群組項目，我們在第一個子項上加上分界線以防視覺混淆
-        if (!hasGroupHeader && previousWasGroup && index === 0) {
-          item.style.marginTop = '16px';
-          item.style.borderTop = '1px solid rgba(255, 255, 255, 0.08)';
-          item.style.paddingTop = '16px';
-        }
-
         item.addEventListener('click', (e) => {
           e.preventDefault();
           selectTool(tool.id);
@@ -143,10 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         toolListEl.appendChild(item);
       });
-
-      if (!hasGroupHeader) {
-        previousWasGroup = false;
-      }
     });
   }
 
