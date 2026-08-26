@@ -231,5 +231,122 @@ window.INITIAL_AITOOLS_DATA = [
         "url": "https://gemini.google.com"
       }
     ]
+  },
+  {
+    "id": "tool-gemini-notebook",
+    "toolNumber": "05",
+    "title": "Gemini Notebook - AI 個人知識庫與學習助理",
+    "date": "2026-08-26",
+    "category": "Gemini 智慧協作",
+    "summary": "Google NotebookLM 是基於 Gemini 模型的個人 AI 知識庫。有別於一般常有幻覺的 AI，它能嚴格基於您上傳的專屬文件進行問答，並提供自動生成語音簡報與心智圖的學習工作室功能。",
+    "webUrl": "https://notebooklm.google",
+    "flowImage": "images_src/ok/20260826_gemini_notebook.png",
+    "objective": "1. 掌握如何在 NotebookLM 中上傳 PDF 術科教材、簡報與網路連結建立來源（Sources）。\n2. 學習如何精確向 AI 提問，使其依據上傳的資料進行無幻覺的專業解答與重點摘要。\n3. 掌握利用「筆記工作室 (Studio)」自動生成二人對談語音摘要 (Audio Overview) 以及學習指南、心智圖的方法。",
+    "tutorialSteps": [
+      {
+        "step": "1. 登入 NotebookLM 並新建筆記本",
+        "description": "登入 Google NotebookLM (https://notebooklm.google)。點擊「新增筆記本」或「New Notebook」，為您的特定學科或專題建立一個獨立的學習工作區。"
+      },
+      {
+        "step": "2. 上傳您的參考來源 (Sources)",
+        "description": "點擊左側「來源」控制面板的「+」按鈕。您可以上傳 PDF 術科手冊、Word 規格書、YouTube 影片網址，或是直接貼上網頁連結。AI 將會讀取並分析這些文件作為它答題的唯一知識庫。"
+      },
+      {
+        "step": "3. 在對話區進行考古題解析與提問",
+        "description": "在底部的對話框中向 AI 發問。例如：『根據我上傳的術科手冊，當輸送帶感測到黃色工件時，氣缸應如何動作？』。AI 會給予精準的答覆，並在答案中標註引用資料的頁碼來源，確保真實可靠。"
+      },
+      {
+        "step": "4. 利用工作室生成筆記與語音摘要",
+        "description": "開啟右側的「工作室 (Studio)」面板。您可以點擊「語音摘要 (Audio Overview)」的產生按鈕，AI 會在數分鐘內生成一段極其逼真的美式英文男女對談語音，像 Podcast 一樣討論您上傳的文件；亦能一鍵產出心智圖、問答指南等學習卡片。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合術科手冊 PDF 答疑",
+        "icon": "fa-solid fa-gears",
+        "description": "機電整合丙級術科說明書長達數十頁，學生不易快速檢索。將 PDF 餵給 NotebookLM，直接發問：『送料辨識裝配系統的第二題，極限開關與 PLC 的接線方式為何？』，AI 能在 2 秒內於長篇大論中定位答案並提供精確指引。"
+      },
+      {
+        "scenario": "電工原理與歷屆考題 AI 模擬面試",
+        "icon": "fa-solid fa-bolt",
+        "description": "將電工原理歷屆考題與詳解文字檔上傳作為 Source。發問：『請根據文件，隨機出一題戴維寧等效電路的計算題考我，並在我回答後給予評分與詳細公式解說。』，立刻擁有一位專屬的 24 小時個人考題家教。"
+      },
+      {
+        "scenario": "語音 Podcast 雙人英文聽力與論文摘要",
+        "icon": "fa-solid fa-microphone",
+        "description": "將繁複的英文設備手冊上傳，生成語音播報 (Audio Overview)。利用碎片時間（如通勤、開車）聆聽 AI 用 Podcast 形式深入淺出地討論該手冊的核心功能，在無形中同時提升專業領域知識與英文聽力。"
+      }
+    ],
+    "aiPrompt": "我已經上傳了機電整合丙級術科檢定說明書。\n1. 請幫我將第二題「送料辨識裝配系統」的所有主要動作流程（如：工件置入、馬達旋轉、顏色辨識、氣缸推出、計數重置等），整理成一個順序清晰的步驟清單。\n2. 對於每一個動作，標註出對應 of PLC 輸入/輸出 (I/O) 節點名稱，以便我配置 Node-RED 通訊流程。",
+    "references": [
+      {
+        "title": "Google NotebookLM 官方網站",
+        "url": "https://notebooklm.google"
+      },
+      {
+        "title": "Google 官方 NotebookLM 功能與使用指南說明中心",
+        "url": "https://support.google.com/notebooklm"
+      }
+    ]
+  },
+  {
+    "id": "tool-gemini-notebook-integration",
+    "toolNumber": "06",
+    "title": "Gemini 整合 Notebook - 跨平台知識庫連結",
+    "date": "2026-08-26",
+    "category": "Gemini 智慧協作",
+    "summary": "介紹如何在 Google Gemini 網頁對話框中直接連結並載入您在 NotebookLM 中建立的筆記本，進行無幻覺、有引用出處標記的考古題快速檢索實戰。",
+    "webUrl": "https://gemini.google.com",
+    "flowImage": [
+      "images_src/ok/20260826_gemini_notebook_menu.png",
+      "images_src/ok/20260826_gemini_notebook_chat.png"
+    ],
+    "objective": "1. 掌握在 Google Gemini 對話輸入框中找到並啟用 Notebooks 整合入口。\n2. 學習如何選擇並連結特定的 Notebook 筆記本來源。\n3. 實戰演練：載入「AI 應用規劃師考古題」筆記本，精確查詢 K-means 等相關考題。",
+    "tutorialSteps": [
+      {
+        "step": "1. 開啟 Google Gemini 並點選輸入框的「+」",
+        "description": "登入 Gemini (https://gemini.google.com)。點選下方輸入框左側的「+」上傳與加載按鈕。"
+      },
+      {
+        "step": "2. 點選更多上傳選項中的「Notebooks」",
+        "description": "當選單彈出時，將滑鼠懸停至「更多上傳選項」，在右側彈出選單中點選「Notebooks」以開啟知識庫連結面板。"
+      },
+      {
+        "step": "3. 選擇並載入「AI應用規劃師_考古題」筆記本",
+        "description": "在筆記本列表中選取您先前在 NotebookLM 中建立的考卷知識庫，這會將該筆記本以引用來源（Sources）的形式載入目前對話中。"
+      },
+      {
+        "step": "4. 輸入檢索指令列出 K-means 相關考題",
+        "description": "在對話框貼入提示詞：『列出有關 K-means 相關考題』，Gemini 將嚴格基於該筆記本來源，整理出精確題號、題目與標準答案，並標註引用頁籤。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "考前特定考點快速定位",
+        "icon": "fa-solid fa-graduation-cap",
+        "description": "在檢定考前，學員可以利用此整合，在 Gemini 中直接呼叫已載入的整本考卷，快速定位並比對「K-means」等特定演算法的題型，提高複習效率。"
+      },
+      {
+        "scenario": "跨平台筆記本與通用大模型無縫整合",
+        "icon": "fa-solid fa-diagram-project",
+        "description": "將專門的考古題知識庫 (NotebookLM) 與具備高超理解力的通用大模型 (Gemini Pro) 無縫連通，既能享有 Notebook 絕無幻覺的特色，又能利用 Gemini 的多輪流暢對話深入剖析題目。"
+      },
+      {
+        "scenario": "檢定術科接線說明書即時查詢",
+        "icon": "fa-solid fa-gears",
+        "description": "在進行實體機台配線與 Node-RED 邏輯設計時，將雙手解放。直接向 Gemini 語音發問，它會自動讀取背景加載的術科手冊 Notebook，給予極其精確的 PLC I/O 接線配置回覆。"
+      }
+    ],
+    "aiPrompt": "列出有關K-means相關考題",
+    "references": [
+      {
+        "title": "Google Gemini 官方網站",
+        "url": "https://gemini.google.com"
+      },
+      {
+        "title": "Google NotebookLM 官方網站",
+        "url": "https://notebooklm.google"
+      }
+    ]
   }
 ];
