@@ -773,5 +773,65 @@ window.INITIAL_AITOOLS_DATA = [
         "url": "https://modelcontextprotocol.io"
       }
     ]
+  },
+  {
+    "id": "tool-manus-skills",
+    "toolNumber": "14",
+    "title": "Manus - 自訂技能 (Skills) 與 AI 互動教學網站生成",
+    "date": "2026-08-28",
+    "category": "生成式 AI 助手",
+    "summary": "介紹如何在 Manus 中管理與啟用自訂技能（Skills）。以「AI／機器學習互動教學網站（ai-ml-interactive-teaching-websites）」自訂技能為例，詳解如何透過自訂約束（如任務標題強制命名為 [IPS AI]問題 格式、使用 ELI5 簡明語言結構與提供即時互動回饋），指引 Agent 全自動產出適合新手的零門檻機器學習互動式教學網頁。",
+    "webUrl": "https://manus.im",
+    "flowImage": [
+      "images_src/ok/20260828_manus_skills_panel.png",
+      "images_src/ok/20260828_manus_skills_detail.png"
+    ],
+    "objective": "1. 掌握 Manus 技能面板（Skills）的入口位置與個人/團隊技能啟用方法。\n2. 理解 SKILL.md 中 YAML 前 frontmatter 與行為約束指令（ELI5、[IPS AI] 任務標題命名的硬性規範）。\n3. 實戰演練：啟用特定技能後，引導 Manus 自動建立精美的機器學習（如 KNN 演算法、梯度下降）互動式 Canvas 教學網頁原型。",
+    "tutorialSteps": [
+      {
+        "step": "1. 開啟自訂技能 Skills 面板",
+        "description": "登入 Manus (https://manus.im)。點擊左側選單的「Skills (技能)」分頁，進入您的專屬代理人技能工作室。"
+      },
+      {
+        "step": "2. 搜尋並啟用 AI 互動教學網站技能",
+        "description": "在搜尋框中搜尋並選取「個人」分類。點選「ai-ml-interactive-teaching-websites (AI／機器學習互動教學網站)」技能旁之選取框，確保打勾啟用以載入對話脈絡。"
+      },
+      {
+        "step": "3. 深入理解行為與命名限制",
+        "description": "點擊詳情確認該技能的約束規則：(1) 所有新增的任務與 checkpoint 標題，必須寫成格式『[IPS AI]問題名稱』（例如：[IPS AI]製作一個可互動的 K-Fold 驗證教學網站）；(2) 教學語言必須遵守 ELI5 (Explain Like I'm 5) 框架，避免複雜學術名詞，提供即時動態回饋。"
+      },
+      {
+        "step": "4. 發送指令引導自動化網頁開發",
+        "description": "在載入該技能的對話框中發送任務：『[IPS AI]如何用互動網頁解說 K-Fold 交叉驗證？』。Manus 會自動遵循此技能的指令，使用虛擬瀏覽器編寫出一個具備動態圖表與拖曳拆分數據組的單頁 HMI 教學網頁！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機器學習概念零門檻互動教材生成",
+        "icon": "fa-solid fa-graduation-cap",
+        "description": "對於難以理解的機器學習演算法（如 KNN 鄰近演算法、Gradient Descent 梯度下降），直接發送任務。AI 互動技能會為您封裝出包含動態散點圖、可調整 Learning Rate 滑桿的精美 HTML 頁面，學員一玩即懂。"
+      },
+      {
+        "scenario": "課程專題 IPS 專屬格式專案大綱管理",
+        "icon": "fa-solid fa-folder-open",
+        "description": "在進行期末專題的機器學習特徵工程（Feature Engineering）規劃時，利用此自訂技能，Manus 會自動將所有產出文件以規範的 [IPS AI] 前綴進行 Checkpoint 與任務存檔，方便教師進行結構化成果驗證。"
+      },
+      {
+        "scenario": "智慧工廠異常檢測 (Anomaly Detection) 原型解說",
+        "icon": "fa-solid fa-industry",
+        "description": "當要向業主解說 AI 是如何進行設備電流異常檢測時，指引 Manus：『[IPS AI]建立一個工廠異常電流檢測的互動演示頁面』，一秒生成包含良品/不良品動態分佈與動態 Threshold 壓閥調節拉條的 SCADA 展示首頁。"
+      }
+    ],
+    "aiPrompt": "[IPS AI]如何以最簡單的互動網頁解釋 K-Means 分群演算法的迭代過程？\n1. 必須在網頁中包含一個 Canvas，點擊能隨機產生散點，並有按鈕能一步步展示 Center 點的更新位移軌跡。\n2. 教學語言必須極簡，避免生硬統計公式，著重物理直覺。",
+    "references": [
+      {
+        "title": "Manus AI 官方網站",
+        "url": "https://manus.im"
+      },
+      {
+        "title": "Model Context Protocol (MCP) 官方協議介紹與開發手冊",
+        "url": "https://modelcontextprotocol.io"
+      }
+    ]
   }
 ];
