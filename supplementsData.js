@@ -295,5 +295,39 @@ window.INITIAL_SUPPLEMENTS_DATA = [
         "url": "https://www.w3schools.com/cssref/css_selectors.php"
       }
     ]
+  },
+  {
+    "id": "sup-08",
+    "supNumber": "08",
+    "title": "利用三口二位電磁閥比喻 if-else 關係",
+    "date": "2026-08-28",
+    "category": "機電整合與程式思維",
+    "summary": "探討程式控制與氣動硬體的跨界對照。以三口二位常閉型電磁閥為例，對照 C# / JavaScript 中的 if-else 二元決策，用硬體閥芯吸合與彈簧復位的物理行為，生動解說代碼控制的本質。",
+    "image": "images_src/ok/20260828_ifelse_flowchart.png",
+    "objective": "1. 掌握三口二位常閉型電磁閥 (3/2-Way NC Valve) 的氣流管口與換向物理特性。\n2. 建立硬體吸合與彈簧復位，與程式 if 與 else 分支的邏輯映射對照。\n3. 培養跨領域思維，學會以硬體的物理防護與安全 default 特性來設計強健的軟體防錯。",
+    "tutorialSteps": [
+      {
+        "step": "1. 開啟模擬器網頁",
+        "description": "點選右下角延伸參考連結的「互動模擬網頁：三口二位電磁閥 if-else 宇宙」連結以開啟獨立的 HTML 動態模擬教學網頁。"
+      },
+      {
+        "step": "2. 進行線圈開關控制",
+        "description": "手動點選模擬器頂端的開關切換「線圈通電/斷電」狀態。觀察左側 SVG 氣壓缸伸出/縮回、P-A-R 氣流方向的改變，以及右側 C 語言程式碼 high-light 行的同步切換。"
+      },
+      {
+        "step": "3. 深入理解工程映射",
+        "description": "對照網頁底部的對照表，深入理解電磁閥的「二位性（兩個位置）」如何等價於代碼 if-else 的「互斥邏輯」；「機械彈簧」如何等價於程式防錯的「Default 兜底防護」；以及「弱電訊號控制強大做功」的物理映射。"
+      }
+    ],
+    "references": [
+      {
+        "title": "互動模擬網頁：三口二位電磁閥 if-else 宇宙",
+        "url": "valve_ifelse_metaphor.html"
+      },
+      {
+        "title": "SMC 台灣官方網站 - 閥門作動原理與選型手冊",
+        "url": "https://www.smc.com.tw"
+      }
+    ]
   }
 ];

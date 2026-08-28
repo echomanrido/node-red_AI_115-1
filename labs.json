@@ -2102,5 +2102,277 @@
         "url": "https://www.w3schools.com/js/js_comparisons.asp"
       }
     ]
+  },
+  {
+    "id": "lab-11",
+    "labNumber": "11",
+    "title": "練習 3-3: if else判斷-msg.topic",
+    "date": "2026-08-28",
+    "category": "基礎實作",
+    "summary": "學習在 Node-RED 中利用 msg.topic 作為氣壓缸名稱識別碼，並以 msg.payload 作為感測器極限位置狀態值。透過 JavaScript 進行動態字串拼接，僅需一組簡單的 if-else 邏輯即可模組化管理無限多組氣壓缸，大幅提升流程擴充性。",
+    "flowImage": "images_src/ok/20260828_practice_3_3_flow.png",
+    "resultImage": "images_src/ok/20260828_practice_3_3_result.png",
+    "objective": "1. 理解 Node-RED 中 msg.topic 與 msg.payload 的組合式通訊協議設計（Object-Property 概念）。\n2. 掌握如何利用 JavaScript 在 Function 節點內存取 msg.topic 並與 payload 進行動態字串拼接。\n3. 學習如何以模組化思維簡化 flow，避免為每組設備撰寫重複的條件判斷。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 A、B、C 三缸極限感測 Inject 節點",
+        "description": "拉取 6 個 Inject 節點，分別命名為「A:0」、「A:1」、「B:0」、「B:1」、「C:0」與「C:1」。雙擊開啟屬性，將 msg.payload 型態設為數字，分別輸入 0 (縮回) 或 1 (伸出)；將 msg.topic 屬性分別設定為該氣壓缸名稱 \"A\"、\"B\" 或 \"C\"。"
+      },
+      {
+        "step": "2. 編寫模組化字串拼接 Function 節點",
+        "description": "拖入一個 Function 節點，命名為「if-else判斷」。雙擊寫入以下程式碼：\nvar cylinder = msg.topic; // 取得氣壓缸名稱 (A, B, C)\nvar status = msg.payload;  // 取得感測器狀態 (0 或 1)\nif (status === 1) {\n    msg.payload = cylinder + \"+ 氣壓缸伸出 ~~\";\n} else {\n    msg.payload = cylinder + \"- 氣壓缸縮回 !!\";\n}\nreturn msg;"
+      },
+      {
+        "step": "3. 連接除錯 Debug 節點並部署",
+        "description": "將 6 個 Inject 的輸出均連入該 Function，Function 輸出接至 Debug 節點。點選 Deploy 部署使流程上線。"
+      },
+      {
+        "step": "4. 觸發與動態拼接驗證",
+        "description": "手動按壓各 Inject：\n- 點選「A:1」➔ Debug 側邊欄輸出 \"A+ 氣壓缸伸出 ~~\";\n- 點選「C:0」➔ Debug 側邊欄輸出 \"C- 氣壓缸縮回 !!\"。觀察系統如何動態提取 msg.topic 作為名稱進行完美的訊息重組。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在丙級術科送料、分裝的 SCADA 監控畫面中，當三菱 PLC 端傳回多個氣壓缸（A缸、B缸、C缸）的磁簧傳感器開關數值時，使用本模組化設計。將 PLC 暫存器名稱寫入 msg.topic，狀態值寫入 msg.payload。SCADA 只需一條 Node-RED 數據線路，即可動態在人機介面上對應點亮「A缸已伸出」、「C缸已縮回」的警報與動畫燈，省去為每個氣壓缸單獨拉線與重複撰寫 if-else 的繁複工作。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "在半導體機台狀態傳輸中，有數十組真空泵浦（Pump）與閥門（Valve）。邊緣 Gateway 在讀取機台狀態時，將設備代號（如 Pump_01、Valve_03）寫入 msg.topic，狀態（1=Run、0=Stop）寫入 msg.payload。透過本 if-else 模組進行字串封裝，封裝後的 JSON 數據可一鍵轉換為 SECS/GEM 通訊格式並寫入大數據歷史資料庫 (Historian)，實現高效率、零冗餘的設備大數據整合。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "在智慧家居防盜與環境監控系統中，有多個門窗磁簧感測器（客廳窗戶、大門、廚房後門）。家庭主機在接收到感測訊號時，將門窗名稱寫入 msg.topic，狀態值寫入 msg.payload。Node-RED 僅需一個 Function 節點即可重組出「大門-門禁開啟 !!」或「客廳窗戶-門禁關閉 ~~」訊息，並透過 LINE 警報動態發送給屋主，簡化中控邏輯。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，符合以下規格：\n1. 包含 6 個 Inject 節點，Payload 均為數字 (0 或 1)，msg.topic 設為該氣壓缸名稱 (如 \"A\"、\"B\"、\"C\")，節點標題為「A:0」、「A:1」、「B:0」、「B:1」、「C:0」、「C:1」。\n2. 包含一個 Function 節點 (名稱：if-else判斷)。從 msg.topic 提取氣壓缸名稱，從 msg.payload 提取狀態 (0/1)。若為 1 則 payload 修改為「{缸名}+ 氣壓缸伸出 ~~」；若為 0 則修改為「{缸名}- 氣壓缸縮回 !!」。\n3. 所有 Inject 的輸出均接至該 Function，Function 輸出接至 Debug 節點。\n請以 JSON 陣列格式回傳。",
+    "nodeRedJson": [
+      {
+        "id": "tab_topic",
+        "type": "tab",
+        "label": "練習3-3: if else判斷-msg.topic",
+        "disabled": false,
+        "info": ""
+      },
+      {
+        "id": "inject_a0_t",
+        "type": "inject",
+        "z": "tab_topic",
+        "name": "A:0",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "A",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 120,
+        "y": 80,
+        "wires": [
+          [
+            "function_ifelse_t"
+          ]
+        ]
+      },
+      {
+        "id": "inject_a1_t",
+        "type": "inject",
+        "z": "tab_topic",
+        "name": "A:1",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "A",
+        "payload": "1",
+        "payloadType": "num",
+        "x": 120,
+        "y": 140,
+        "wires": [
+          [
+            "function_ifelse_t"
+          ]
+        ]
+      },
+      {
+        "id": "inject_b0_t",
+        "type": "inject",
+        "z": "tab_topic",
+        "name": "B:0",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "B",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 120,
+        "y": 200,
+        "wires": [
+          [
+            "function_ifelse_t"
+          ]
+        ]
+      },
+      {
+        "id": "inject_b1_t",
+        "type": "inject",
+        "z": "tab_topic",
+        "name": "B:1",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "B",
+        "payload": "1",
+        "payloadType": "num",
+        "x": 120,
+        "y": 260,
+        "wires": [
+          [
+            "function_ifelse_t"
+          ]
+        ]
+      },
+      {
+        "id": "inject_c0_t",
+        "type": "inject",
+        "z": "tab_topic",
+        "name": "C:0",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "C",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 120,
+        "y": 320,
+        "wires": [
+          [
+            "function_ifelse_t"
+          ]
+        ]
+      },
+      {
+        "id": "inject_c1_t",
+        "type": "inject",
+        "z": "tab_topic",
+        "name": "C:1",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "C",
+        "payload": "1",
+        "payloadType": "num",
+        "x": 120,
+        "y": 380,
+        "wires": [
+          [
+            "function_ifelse_t"
+          ]
+        ]
+      },
+      {
+        "id": "function_ifelse_t",
+        "type": "function",
+        "z": "tab_topic",
+        "name": "if-else判斷",
+        "func": "var cylinder = msg.topic;\nvar status = msg.payload;\nif (status === 1) {\n    msg.payload = cylinder + \"+ 氣壓缸伸出 ~~\";\n} else {\n    msg.payload = cylinder + \"- 氣壓缸縮回 !!\";\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 230,
+        "wires": [
+          [
+            "debug_output_t"
+          ]
+        ]
+      },
+      {
+        "id": "debug_output_t",
+        "type": "debug",
+        "z": "tab_topic",
+        "name": "氣壓缸狀態輸出",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 540,
+        "y": 230,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - Function 節點使用說明與 JS 寫法",
+        "url": "https://nodered.org/docs/user-guide/writing-functions"
+      },
+      {
+        "title": "w3schools - JavaScript 字串運算與動態串接說明",
+        "url": "https://www.w3schools.com/js/js_strings.asp"
+      }
+    ]
   }
 ]
