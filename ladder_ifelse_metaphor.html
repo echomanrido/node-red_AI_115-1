@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PLC 階梯圖模擬 if-else 邏輯互動模擬教學系統</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans TC"', 'sans-serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            plc: {
+              bg: '#0f172a',
+              card: '#1e293b',
+              rail: '#3b82f6',
+              active: '#10b981',
+              warning: '#f59e0b',
+              inactive: '#475569',
+              wire: '#64748b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* 電流流動脈衝動畫 */
+    @keyframes electricFlow {
+      0% { stroke-dashoffset: 24; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .wire-active {
+      stroke: #10b981 !important;
+      stroke-width: 3.5 !important;
+      filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.8));
+      stroke-dasharray: 6, 6;
+      animation: electricFlow 0.8s linear infinite;
+    }
+    .wire-inactive {
+      stroke: #475569;
+      stroke-width: 2.5;
+    }
+    .coil-glow {
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+    /* 氣壓缸滑順過渡 */
+    .cylinder-rod {
+      transition: transform 0.05s linear;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-900 font-sans">
+
+  <!-- 頂部導航與標題 -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <a href="supplements.html" class="p-2 bg-slate-850 hover:bg-slate-700 border border-slate-700/60 rounded-lg text-slate-300 transition-colors flex items-center justify-center">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </a>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <svg class="w-6 h-6 text-slate-950 font-bold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg sm:text-xl text-white tracking-wide flex items-center gap-2">
+            利用階梯圖模擬 if-else 範例
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">互動教材</span>
+          </h1>
+          <p class="text-xs text-slate-400">偵測到物品 ➔ 氣壓缸伸出 ➔ 到達 a1 端點 ➔ 夾爪夾 (True) / 夾爪放 (False)</p>
+        </div>
+      </div>
+
+      <!-- 控制輔助功能 -->
+      <div class="flex items-center gap-2">
+        <button id="audioToggleBtn" class="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800 text-xs font-medium text-slate-300 hover:bg-slate-700 transition flex items-center gap-1.5">
+          <span id="audioIcon">🔊</span>
+          <span id="audioStatusText">音效：開啟</span>
+        </button>
+        <button id="helpModalBtn" class="px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-950/40 text-xs font-medium text-emerald-300 hover:bg-emerald-900/50 transition flex items-center gap-1">
+          <span>📖 原理說明</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要控制工具列 -->
+  <section class="bg-slate-900 border-b border-slate-800/80 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- 狀態觸發按鈕群 -->
+        <button id="btnAutoCycle" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold text-sm shadow-md shadow-emerald-500/20 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span id="autoCycleText">啟動自動循環示範</span>
+        </button>
+
+        <button id="btnExtend" class="px-3.5 py-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold transition active:scale-95">
+          ➡️ 氣壓缸伸出 (到達 a1)
+        </button>
+
+        <button id="btnRetract" class="px-3.5 py-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold transition active:scale-95">
+          ⬅️ 氣壓缸縮回 (離開 a1)
+        </button>
+
+        <button id="btnToggleA1" class="px-3.5 py-2 rounded-xl border border-amber-500/40 bg-amber-950/30 text-amber-300 hover:bg-amber-900/40 text-sm font-semibold transition">
+          ⚡ 強制切換極限開關 a1
+        </button>
+      </div>
+
+      <!-- 手動滑桿 -->
+      <div class="flex items-center gap-3 bg-slate-950/60 px-4 py-1.5 rounded-xl border border-slate-800">
+        <label for="posSlider" class="text-xs font-semibold text-slate-400 whitespace-nowrap">氣壓缸伸出行程：</label>
+        <input id="posSlider" type="range" min="0" max="100" value="0" class="w-32 sm:w-48 accent-emerald-400 cursor-pointer" />
+        <span id="posPercent" class="font-mono text-sm font-bold text-emerald-400 w-12 text-right">0%</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 主要三大視覺化區域 -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- 左區塊：機構模擬與實體動畫 (5欄) -->
+    <div class="lg:col-span-5 flex flex-col gap-6">
+      
+      <!-- 實體機構動畫卡片 -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden flex flex-col">
+        <div class="px-4 py-3 bg-slate-800/60 border-b border-slate-800 flex justify-between items-center">
+          <span class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+            自動化機構動態模擬
+          </span>
+          <span id="mechStatusBadge" class="text-xs px-2.5 py-1 rounded-md font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+            氣壓缸：縮回 / 夾爪：放開
+          </span>
+        </div>
+
+        <div class="p-6 bg-slate-950/70 relative flex flex-col items-center justify-center min-h-[320px]">
+          
+          <!-- 工件與輸送台 -->
+          <div class="w-full relative h-64 flex flex-col justify-end items-center">
+            
+            <!-- 氣壓缸機體主視圖 -->
+            <div class="w-full max-w-md relative pb-12">
+              
+              <!-- 極限開關 a1 端點感測器 -->
+              <div class="absolute right-14 -top-8 flex flex-col items-center z-20">
+                <div id="sensorLed" class="w-4 h-4 rounded-full bg-slate-700 border-2 border-slate-500 shadow-none transition-all duration-200"></div>
+                <div class="h-6 w-0.5 bg-slate-600"></div>
+                <span class="text-[11px] font-mono font-bold text-amber-400 bg-slate-900/90 px-1.5 py-0.5 rounded border border-amber-500/40">端點 a1</span>
+              </div>
+
+              <!-- 氣壓缸主體 -->
+              <div class="flex items-center relative">
+                <!-- 氣缸缸體 (固定) -->
+                <div class="w-32 h-16 bg-gradient-to-b from-slate-700 via-slate-800 to-slate-900 border-2 border-slate-600 rounded-l-xl shadow-lg relative flex items-center justify-center z-10">
+                  <div class="text-[10px] font-mono text-slate-400 uppercase tracking-tighter">Pneumatic<br>Cylinder</div>
+                  <div class="absolute -top-3 left-3 w-4 h-3 bg-blue-500/80 rounded-t-sm" title="進氣孔A"></div>
+                  <div class="absolute -top-3 right-3 w-4 h-3 bg-blue-500/80 rounded-t-sm" title="進氣孔B"></div>
+                </div>
+
+                <!-- 伸出軸心活塞桿 (動態位移) -->
+                <div id="pistonRodContainer" class="flex items-center cylinder-rod relative z-0" style="transform: translateX(0px);">
+                  <!-- 金屬連桿 -->
+                  <div class="w-28 h-5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-400 shadow-inner border-y border-slate-500"></div>
+                  
+                  <!-- 行程撞塊 (觸發 a1) -->
+                  <div id="actuatorDog" class="w-3 h-8 bg-amber-500 rounded-sm -ml-1 shadow z-20" title="撞塊"></div>
+
+                  <!-- 機械夾爪 (Gripper) -->
+                  <div class="relative ml-0 flex items-center">
+                    <!-- 夾爪底座 -->
+                    <div class="w-8 h-14 bg-slate-700 border-2 border-slate-500 rounded-r-md flex items-center justify-center">
+                      <span class="text-[9px] font-bold text-slate-300 -rotate-90">GRIP</span>
+                    </div>
+
+                    <!-- 上夾爪手指 -->
+                    <div id="gripperTop" class="absolute -top-5 left-7 w-9 h-3.5 bg-slate-300 border border-slate-600 rounded-tr transition-all duration-300 origin-left" style="transform: rotate(0deg) translateY(0px);"></div>
+                    <!-- 下夾爪手指 -->
+                    <div id="gripperBottom" class="absolute -bottom-5 left-7 w-9 h-3.5 bg-slate-300 border border-slate-600 rounded-br transition-all duration-300 origin-left" style="transform: rotate(0deg) translateY(0px);"></div>
+                  </div>
+                </div>
+
+                <!-- 目標工件 (物料) -->
+                <div id="workpiece" class="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 border-2 border-amber-200 rounded-lg shadow-lg flex items-center justify-center text-slate-950 font-black text-xs transition-all duration-300">
+                  物品
+                </div>
+              </div>
+
+              <!-- 底部機架導軌 -->
+              <div class="w-full h-3 bg-slate-800 border-t border-slate-700 mt-2 rounded-full"></div>
+            </div>
+
+            <!-- 狀態即時標註 -->
+            <div class="w-full flex justify-between text-xs font-mono text-slate-400 px-4 pt-2 border-t border-slate-800/80">
+              <div>極限開關狀態：<span id="sensorTextStatus" class="font-bold text-rose-400">0 (OFF / 未到達)</span></div>
+              <div>夾爪動作：<span id="gripperTextStatus" class="font-bold text-amber-400">程序B：夾爪放</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 變數即時監視儀表 (I/O Status) -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+          <span>⚡ PLC I/O 即時暫存器數值</span>
+        </h3>
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+            <div class="text-[11px] text-slate-400 mb-1 font-mono">輸入 X0 (a1)</div>
+            <div id="ioA1" class="font-mono text-lg font-black text-slate-500">0</div>
+            <div class="text-[10px] text-slate-500">極限開關端點</div>
+          </div>
+          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+            <div class="text-[11px] text-slate-400 mb-1 font-mono">輸出 Y0 (程序A)</div>
+            <div id="ioY0" class="font-mono text-lg font-black text-slate-500">0</div>
+            <div class="text-[10px] text-slate-500">夾爪夾 (True)</div>
+          </div>
+          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+            <div class="text-[11px] text-slate-400 mb-1 font-mono">輸出 Y1 (程序B)</div>
+            <div id="ioY1" class="font-mono text-lg font-black text-emerald-400">1</div>
+            <div class="text-[10px] text-slate-500">夾爪放 (False)</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 中間與右側：階梯圖與程式碼邏輯對照 (7欄) -->
+    <div class="lg:col-span-7 flex flex-col gap-6">
+
+      <!-- 階梯圖電路可視化卡片 -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden flex flex-col">
+        <div class="px-5 py-3.5 bg-slate-800/60 border-b border-slate-800 flex justify-between items-center">
+          <div>
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-3 h-3 bg-emerald-500 rounded-sm inline-block"></span>
+              PLC 階梯圖邏輯 (Ladder Diagram)
+            </h2>
+          </div>
+          <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2 py-1 rounded border border-slate-800">
+            IEC 61131-3 LD
+          </span>
+        </div>
+
+        <!-- 階梯圖主要渲染區 (SVG 電路圖) -->
+        <div class="p-6 bg-slate-950 flex flex-col items-center justify-center">
+          
+          <div class="w-full max-w-xl bg-slate-900/90 p-4 rounded-xl border border-slate-800 relative">
+            
+            <!-- 母線與階梯 SVG -->
+            <svg id="ladderSvg" viewBox="0 0 540 260" class="w-full h-auto select-none">
+              <!-- 左母線 (Power Rail 24V+) -->
+              <line x1="40" y1="20" x2="40" y2="240" stroke="#3b82f6" stroke-width="6" stroke-linecap="round" />
+              <text x="35" y="15" fill="#60a5fa" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">L+</text>
+              
+              <!-- 右母線 (Neutral Rail 0V) -->
+              <line x1="500" y1="20" x2="500" y2="240" stroke="#3b82f6" stroke-width="6" stroke-linecap="round" />
+              <text x="505" y="15" fill="#60a5fa" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">N/0V</text>
+
+              <!-- 條件標籤 a1 (圓圈框) -->
+              <g transform="translate(190, 25)">
+                <rect x="0" y="0" width="80" height="24" rx="12" fill="#0f172a" stroke="#f59e0b" stroke-width="2" />
+                <text x="40" y="16" fill="#fbbf24" font-size="13" font-weight="bold" text-anchor="middle" font-family="monospace">a1 (條件)</text>
+              </g>
+
+              <!-- 第一階 (Rung 1) : True 分支 -> 常開接點 a1 -> 夾爪夾 -->
+              <g id="rung1Group">
+                <!-- 左導線 -->
+                <line id="wireRung1Left" x1="40" y1="90" x2="180" y2="90" class="wire-inactive" />
+                
+                <!-- 常開接點 a1 (NO Contact) -->
+                <g id="contactNO" transform="translate(180, 70)" class="cursor-pointer">
+                  <!-- 接點左端子 -->
+                  <line x1="0" y1="20" x2="15" y2="20" stroke="#94a3b8" stroke-width="2.5" />
+                  <line x1="15" y1="5" x2="15" y2="35" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+                  <!-- 接點右端子 -->
+                  <line x1="35" y1="5" x2="35" y2="35" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+                  <line x1="35" y1="20" x2="50" y2="20" stroke="#94a3b8" stroke-width="2.5" />
+                  <!-- 標籤 -->
+                  <text x="25" y="-3" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle" font-family="monospace">a1 (NO)</text>
+                  <!-- 導通時的橋接綠線 -->
+                  <line id="noBridge" x1="15" y1="20" x2="35" y2="20" stroke="#10b981" stroke-width="3.5" opacity="0" />
+                </g>
+
+                <!-- 中間導線 -->
+                <line id="wireRung1Mid" x1="230" y1="90" x2="350" y2="90" class="wire-inactive" />
+
+                <!-- 輸出線圈 (夾爪夾 / 程序A) -->
+                <g id="coilA" transform="translate(350, 70)">
+                  <rect id="coilABox" x="0" y="5" width="100" height="30" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="2" />
+                  <text id="coilAText" x="50" y="24" fill="#94a3b8" font-size="12" font-weight="bold" text-anchor="middle">夾爪夾 (A)</text>
+                </g>
+
+                <!-- 右導線至母線 -->
+                <line id="wireRung1Right" x1="450" y1="90" x2="500" y2="90" class="wire-inactive" />
+                
+                <text x="20" y="94" fill="#94a3b8" font-size="10" font-family="monospace">000</text>
+                <text x="475" y="75" fill="#34d399" font-size="10" font-weight="bold">True</text>
+              </g>
+
+              <!-- 第二階 (Rung 2) : False 分支 -> 常閉接點 a1 -> 夾爪放 -->
+              <g id="rung2Group">
+                <!-- 左垂直分流線 -->
+                <line id="wireBranchDown" x1="90" y1="90" x2="90" y2="190" class="wire-inactive" />
+                <!-- 第二階左導線 -->
+                <line id="wireRung2Left" x1="90" y1="190" x2="180" y2="190" class="wire-inactive" />
+
+                <!-- 常閉接點 a1 (NC Contact with Slash) -->
+                <g id="contactNC" transform="translate(180, 170)" class="cursor-pointer">
+                  <!-- 接點左端子 -->
+                  <line x1="0" y1="20" x2="15" y2="20" stroke="#94a3b8" stroke-width="2.5" />
+                  <line x1="15" y1="5" x2="15" y2="35" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+                  <!-- 接點右端子 -->
+                  <line x1="35" y1="5" x2="35" y2="35" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+                  <line x1="35" y1="20" x2="50" y2="20" stroke="#94a3b8" stroke-width="2.5" />
+                  <!-- 斜線 (常閉標誌) -->
+                  <line id="ncSlash" x1="10" y1="35" x2="40" y2="5" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" />
+                  <!-- 標籤 -->
+                  <text x="25" y="-3" fill="#f43f5e" font-size="12" font-weight="bold" text-anchor="middle" font-family="monospace">/a1 (NC)</text>
+                  <!-- 導通時的橫接線 -->
+                  <line id="ncBridge" x1="15" y1="20" x2="35" y2="20" stroke="#10b981" stroke-width="3.5" opacity="1" />
+                </g>
+
+                <!-- 中間導線 -->
+                <line id="wireRung2Mid" x1="230" y1="190" x2="350" y2="190" class="wire-inactive" />
+
+                <!-- 輸出線圈 (夾爪放 / 程序B) -->
+                <g id="coilB" transform="translate(350, 170)">
+                  <rect id="coilBBox" x="0" y="5" width="100" height="30" rx="6" fill="#1e293b" stroke="#10b981" stroke-width="2" />
+                  <text id="coilBText" x="50" y="24" fill="#34d399" font-size="12" font-weight="bold" text-anchor="middle">夾爪放 (B)</text>
+                </g>
+
+                <!-- 右導線至母線 -->
+                <line id="wireRung2Right" x1="450" y1="190" x2="500" y2="190" class="wire-inactive" />
+
+                <text x="20" y="194" fill="#94a3b8" font-size="10" font-family="monospace">001</text>
+                <text x="475" y="175" fill="#f87171" font-size="10" font-weight="bold">False</text>
+              </g>
+            </svg>
+
+            <!-- 階梯圖即時狀態解說橫條 -->
+            <div id="ladderTip" class="mt-2 py-2 px-3 bg-slate-950/80 rounded-lg border border-slate-800 text-xs flex items-center justify-between">
+              <span class="text-slate-400">目前電流狀態：</span>
+              <span id="ladderStatusText" class="font-bold text-emerald-400">常閉接點導通 ➔ 夾爪放開 (程序B 執行中)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 程式碼即時同步對照卡片 (Code Mapping) -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+        <div class="px-5 py-3 bg-slate-800/60 border-b border-slate-800 flex justify-between items-center">
+          <span class="text-sm font-bold text-white flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            if-else 程式邏輯即時同步對照
+          </span>
+          <div class="flex gap-1.5">
+            <button id="langC" class="px-2.5 py-1 text-xs rounded bg-emerald-500/20 text-emerald-400 font-mono font-bold border border-emerald-500/30">C / Arduino</button>
+            <button id="langST" class="px-2.5 py-1 text-xs rounded bg-slate-800 text-slate-400 font-mono hover:text-slate-200">PLC 結構化文字 (ST)</button>
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-950 font-mono text-xs sm:text-sm overflow-x-auto">
+          <!-- C / Arduino 格式 -->
+          <div id="codeViewC" class="space-y-1">
+            <div id="line1" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors duration-200">
+              <span class="text-slate-600 select-none w-4">1</span>
+              <span><span class="text-purple-400 font-bold">if</span> ( <span id="codeCondVar" class="text-amber-300 font-bold">a1 == 1</span> ) <span class="text-slate-500">// 氣壓缸到達 a1 端點 (條件成立)</span></span>
+            </div>
+            <div id="line2" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors duration-200">
+              <span class="text-slate-600 select-none w-4">2</span>
+              <span>{</span>
+            </div>
+            <div id="line3" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors duration-200">
+              <span class="text-slate-600 select-none w-4">3</span>
+              <span class="pl-4"><span class="text-emerald-400 font-semibold">程序A_夾爪夾()</span>; <span class="text-slate-500">// 常開接點導通 (True 分支)</span></span>
+            </div>
+            <div id="line4" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors duration-200">
+              <span class="text-slate-600 select-none w-4">4</span>
+              <span>}</span>
+            </div>
+            <div id="line5" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors duration-200">
+              <span class="text-slate-600 select-none w-4">5</span>
+              <span><span class="text-purple-400 font-bold">else</span> <span class="text-slate-500">// 未到達 a1 端點 (條件不成立)</span></span>
+            </div>
+            <div id="line6" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors duration-200">
+              <span class="text-slate-600 select-none w-4">6</span>
+              <span>{</span>
+            </div>
+            <div id="line7" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors duration-200">
+              <span class="text-slate-600 select-none w-4">7</span>
+              <span class="pl-4"><span class="text-rose-400 font-semibold">程序B_夾爪放()</span>; <span class="text-slate-500">// 常閉接點導通 (False 分支)</span></span>
+            </div>
+            <div id="line8" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors duration-200">
+              <span class="text-slate-600 select-none w-4">8</span>
+              <span>}</span>
+            </div>
+          </div>
+
+          <!-- ST 結構化文字格式 -->
+          <div id="codeViewST" class="space-y-1 hidden">
+            <div id="stLine1" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors">
+              <span class="text-slate-600 select-none w-4">1</span>
+              <span><span class="text-purple-400 font-bold">IF</span> a1 = TRUE <span class="text-purple-400 font-bold">THEN</span></span>
+            </div>
+            <div id="stLine2" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors">
+              <span class="text-slate-600 select-none w-4">2</span>
+              <span class="pl-4">Y0_GripperClamp := TRUE; <span class="text-slate-500">(* 夾爪夾 *)</span></span>
+            </div>
+            <div id="stLine3" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors">
+              <span class="text-slate-600 select-none w-4">3</span>
+              <span><span class="text-purple-400 font-bold">ELSE</span></span>
+            </div>
+            <div id="stLine4" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors">
+              <span class="text-slate-600 select-none w-4">4</span>
+              <span class="pl-4">Y1_GripperRelease := TRUE; <span class="text-slate-500">(* 夾爪放 *)</span></span>
+            </div>
+            <div id="stLine5" class="py-1 px-3 rounded flex items-center gap-3 text-slate-400 transition-colors">
+              <span class="text-slate-600 select-none w-4">5</span>
+              <span><span class="text-purple-400 font-bold">END_IF;</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 原理解說卡片區 -->
+  <footer class="max-w-7xl w-full mx-auto px-4 sm:px-6 pb-12">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+      <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+        <span>💡 邏輯對照核心概念解析</span>
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="font-bold text-emerald-400 mb-2 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            1. 常開接點 (NO Contact)
+          </div>
+          <p class="text-slate-400 leading-relaxed text-xs">
+            對應 <code class="text-amber-300 font-mono">if (條件成立)</code>。預設斷路，當外部感測器 <code class="text-cyan-300 font-mono">a1 = 1 (ON)</code> 時接點閉合導通，觸發「夾爪夾」輸出。
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="font-bold text-rose-400 mb-2 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+            2. 常閉接點 (NC Contact)
+          </div>
+          <p class="text-slate-400 leading-relaxed text-xs">
+            對應 <code class="text-purple-300 font-mono">else (條件不成立)</code>。預設常通，當感測器 <code class="text-cyan-300 font-mono">a1 = 0 (OFF)</code> 時保持導通，維持「夾爪放」輸出。
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="font-bold text-cyan-400 mb-2 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            3. PLC 掃描週期互斥性
+          </div>
+          <p class="text-slate-400 leading-relaxed text-xs">
+            PLC 每個掃描週期（Scan Cycle）會連續讀取所有階梯。透過同一變數的 NO 與 NC 接點，實現與 high-level 程式語法完全相同的二選一互斥分支。
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 說明 Modal 彈窗 -->
+  <div id="helpModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+      <h3 class="text-lg font-bold text-white mb-3">階梯圖與程式控制教學指引</h3>
+      <p class="text-sm text-slate-300 mb-4 leading-relaxed">
+        本互動系統模擬工業自動化中的經典情境：
+      </p>
+      <ul class="text-xs text-slate-300 space-y-2 mb-6 list-disc list-inside">
+        <li><strong>初始狀態</strong>：氣壓缸未伸出，極限開關 <code class="text-amber-300 font-mono">a1=0</code>。此時常閉接點（NC）導通，執行 <code class="text-emerald-400">夾爪放開</code>。</li>
+        <li><strong>工件到達端點</strong>：氣壓缸伸出到達 90% 以上位置，撞塊壓下 <code class="text-amber-300 font-mono">a1</code>。</li>
+        <li><strong>接點狀態反轉</strong>：常開接點（NO）導通觸發 <code class="text-emerald-400">夾爪夾緊</code>；常閉接點斷開。</li>
+      </ul>
+      <button id="closeHelpModal" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition">
+        我瞭解了，開始體驗
+      </button>
+    </div>
+  </div>
+
+  <!-- 核心控制與音效 JavaScript -->
+  <script>
+    // --- 狀態管理 ---
+    const state = {
+      cylinderPos: 0,     // 0 ~ 100 (%)
+      a1Sensor: false,    // 端點開關狀態
+      autoCycle: false,   // 是否自動循環
+      autoDirection: 1,   // 1: 伸出, -1: 縮回
+      soundEnabled: true,
+      currentLang: 'C'    // 'C' 或 'ST'
+    };
+
+    // --- Web Audio 音效合成器 ---
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      // 繼電器/接點喀噠聲
+      playRelayClick(isClose = true) {
+        if (!state.soundEnabled) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = isClose ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(isClose ? 850 : 600, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+      // 氣壓洩氣聲
+      playPneumaticPuff() {
+        if (!state.soundEnabled) return;
+        this.init();
+        const bufferSize = this.ctx.sampleRate * 0.12;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1400;
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        noise.start();
+      }
+      // 夾爪夾緊金屬碰擊聲
+      playClampSnap() {
+        if (!state.soundEnabled) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.09);
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    // --- DOM 元素快取 ---
+    const posSlider = document.getElementById('posSlider');
+    const posPercent = document.getElementById('posPercent');
+    const pistonRodContainer = document.getElementById('pistonRodContainer');
+    const gripperTop = document.getElementById('gripperTop');
+    const gripperBottom = document.getElementById('gripperBottom');
+    const workpiece = document.getElementById('workpiece');
+    const sensorLed = document.getElementById('sensorLed');
+    const sensorTextStatus = document.getElementById('sensorTextStatus');
+    const gripperTextStatus = document.getElementById('gripperTextStatus');
+    const mechStatusBadge = document.getElementById('mechStatusBadge');
+
+    // I/O Registers
+    const ioA1 = document.getElementById('ioA1');
+    const ioY0 = document.getElementById('ioY0');
+    const ioY1 = document.getElementById('ioY1');
+
+    // 階梯圖線路與接點
+    const noBridge = document.getElementById('noBridge');
+    const ncBridge = document.getElementById('ncBridge');
+    const ncSlash = document.getElementById('ncSlash');
+    const wireRung1Left = document.getElementById('wireRung1Left');
+    const wireRung1Mid = document.getElementById('wireRung1Mid');
+    const wireRung1Right = document.getElementById('wireRung1Right');
+    const coilABox = document.getElementById('coilABox');
+    const coilAText = document.getElementById('coilAText');
+
+    const wireBranchDown = document.getElementById('wireBranchDown');
+    const wireRung2Left = document.getElementById('wireRung2Left');
+    const wireRung2Mid = document.getElementById('wireRung2Mid');
+    const wireRung2Right = document.getElementById('wireRung2Right');
+    const coilBBox = document.getElementById('coilBBox');
+    const coilBText = document.getElementById('coilBText');
+    const ladderStatusText = document.getElementById('ladderStatusText');
+
+    // 程式碼高亮列
+    const line1 = document.getElementById('line1');
+    const line3 = document.getElementById('line3');
+    const line5 = document.getElementById('line5');
+    const line7 = document.getElementById('line7');
+    const codeCondVar = document.getElementById('codeCondVar');
+
+    // ST 模式列
+    const stLine1 = document.getElementById('stLine1');
+    const stLine2 = document.getElementById('stLine2');
+    const stLine3 = document.getElementById('stLine3');
+    const stLine4 = document.getElementById('stLine4');
+
+    // 控制按鈕
+    const btnAutoCycle = document.getElementById('btnAutoCycle');
+    const autoCycleText = document.getElementById('autoCycleText');
+    const btnExtend = document.getElementById('btnExtend');
+    const btnRetract = document.getElementById('btnRetract');
+    const btnToggleA1 = document.getElementById('btnToggleA1');
+    const audioToggleBtn = document.getElementById('audioToggleBtn');
+    const audioIcon = document.getElementById('audioIcon');
+    const audioStatusText = document.getElementById('audioStatusText');
+
+    // 語言切換
+    const langC = document.getElementById('langC');
+    const langST = document.getElementById('langST');
+    const codeViewC = document.getElementById('codeViewC');
+    const codeViewST = document.getElementById('codeViewST');
+
+    // --- 更新與渲染邏輯 ---
+    function updateSystemState(pos, triggerSound = true) {
+      const prevA1 = state.a1Sensor;
+      state.cylinderPos = Math.max(0, Math.min(100, pos));
+      
+      // 氣壓缸伸出達 88% 以上時，撞塊壓中端點 a1
+      state.a1Sensor = state.cylinderPos >= 88;
+
+      // 檢查狀態變化並播放對應音效
+      if (triggerSound && prevA1 !== state.a1Sensor) {
+        sound.playRelayClick(state.a1Sensor);
+        if (state.a1Sensor) {
+          sound.playClampSnap();
+        }
+      }
+
+      renderUI();
+    }
+
+    function renderUI() {
+      const pos = state.cylinderPos;
+      const isA1 = state.a1Sensor;
+
+      // 1. 更新滑桿與數值
+      posSlider.value = pos;
+      posPercent.textContent = `${Math.round(pos)}%`;
+
+      // 2. 機構物理動畫
+      // 活塞桿最大伸出距離約 135px
+      const travelDistance = (pos / 100) * 135;
+      pistonRodContainer.style.transform = `translateX(${travelDistance}px)`;
+
+      if (isA1) {
+        // a1 觸發 -> 夾爪夾緊
+        gripperTop.style.transform = 'rotate(18deg) translateY(4px)';
+        gripperBottom.style.transform = 'rotate(-18deg) translateY(-4px)';
+        workpiece.style.transform = 'translateY(-50%) scale(0.96)';
+        workpiece.style.boxShadow = '0 0 15px rgba(245, 158, 11, 0.8)';
+        
+        sensorLed.className = 'w-4 h-4 rounded-full bg-amber-400 border-2 border-amber-200 shadow-[0_0_12px_#f59e0b] transition-all duration-200';
+        sensorTextStatus.textContent = '1 (ON / 已到達端點)';
+        sensorTextStatus.className = 'font-bold text-emerald-400';
+
+        gripperTextStatus.textContent = '程序A：夾爪夾緊 (已夾住工件)';
+        gripperTextStatus.className = 'font-bold text-emerald-400';
+
+        mechStatusBadge.textContent = '氣壓缸：已到位 (a1=1) / 夾爪：夾緊 (True)';
+        mechStatusBadge.className = 'text-xs px-2.5 py-1 rounded-md font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+      } else {
+        // 未到達 a1 -> 夾爪張開
+        gripperTop.style.transform = 'rotate(0deg) translateY(0px)';
+        gripperBottom.style.transform = 'rotate(0deg) translateY(0px)';
+        workpiece.style.transform = 'translateY(-50%) scale(1)';
+        workpiece.style.boxShadow = 'none';
+
+        sensorLed.className = 'w-4 h-4 rounded-full bg-slate-700 border-2 border-slate-500 shadow-none transition-all duration-200';
+        sensorTextStatus.textContent = '0 (OFF / 未到達)';
+        sensorTextStatus.className = 'font-bold text-rose-400';
+
+        gripperTextStatus.textContent = '程序B：夾爪放開 (釋放工件)';
+        gripperTextStatus.className = 'font-bold text-amber-400';
+
+        mechStatusBadge.textContent = '氣壓缸：運作中 (a1=0) / 夾爪：放開 (False)';
+        mechStatusBadge.className = 'text-xs px-2.5 py-1 rounded-md font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+      }
+
+      // 3. I/O 暫存器監視器
+      ioA1.textContent = isA1 ? '1' : '0';
+      ioA1.className = `font-mono text-lg font-black ${isA1 ? 'text-amber-400' : 'text-slate-500'}`;
+
+      ioY0.textContent = isA1 ? '1' : '0';
+      ioY0.className = `font-mono text-lg font-black ${isA1 ? 'text-emerald-400' : 'text-slate-500'}`;
+
+      ioY1.textContent = !isA1 ? '1' : '0';
+      ioY1.className = `font-mono text-lg font-black ${!isA1 ? 'text-emerald-400' : 'text-slate-500'}`;
+
+      // 4. 階梯圖電路動畫
+      if (isA1) {
+        // Rung 1 (True) 導通
+        noBridge.setAttribute('opacity', '1');
+        wireRung1Left.className.baseVal = 'wire-active';
+        wireRung1Mid.className.baseVal = 'wire-active';
+        wireRung1Right.className.baseVal = 'wire-active';
+        coilABox.setAttribute('fill', '#065f46');
+        coilABox.setAttribute('stroke', '#10b981');
+        coilAText.setAttribute('fill', '#34d399');
+        coilAText.textContent = '夾爪夾 (ON)';
+
+        // Rung 2 (False) 斷路
+        ncBridge.setAttribute('opacity', '0');
+        wireBranchDown.className.baseVal = 'wire-inactive';
+        wireRung2Left.className.baseVal = 'wire-inactive';
+        wireRung2Mid.className.baseVal = 'wire-inactive';
+        wireRung2Right.className.baseVal = 'wire-inactive';
+        coilBBox.setAttribute('fill', '#1e293b');
+        coilBBox.setAttribute('stroke', '#475569');
+        coilBText.setAttribute('fill', '#64748b');
+        coilBText.textContent = '夾爪放 (OFF)';
+
+        ladderStatusText.textContent = '【True 分支】常開接點 a1 閉合 ➔ 導通「夾爪夾」線圈 (程序A)';
+        ladderStatusText.className = 'font-bold text-emerald-400';
+      } else {
+        // Rung 1 (True) 斷路
+        noBridge.setAttribute('opacity', '0');
+        wireRung1Left.className.baseVal = 'wire-inactive';
+        wireRung1Mid.className.baseVal = 'wire-inactive';
+        wireRung1Right.className.baseVal = 'wire-inactive';
+        coilABox.setAttribute('fill', '#1e293b');
+        coilABox.setAttribute('stroke', '#475569');
+        coilAText.setAttribute('fill', '#64748b');
+        coilAText.textContent = '夾爪夾 (OFF)';
+
+        // Rung 2 (False) 導通
+        ncBridge.setAttribute('opacity', '1');
+        wireBranchDown.className.baseVal = 'wire-active';
+        wireRung2Left.className.baseVal = 'wire-active';
+        wireRung2Mid.className.baseVal = 'wire-active';
+        wireRung2Right.className.baseVal = 'wire-active';
+        coilBBox.setAttribute('fill', '#065f46');
+        coilBBox.setAttribute('stroke', '#10b981');
+        coilBText.setAttribute('fill', '#34d399');
+        coilBText.textContent = '夾爪放 (ON)';
+
+        ladderStatusText.textContent = '【False 分支】常閉接點 a1 保持導通 ➔ 導通「夾爪放」線圈 (程序B)';
+        ladderStatusText.className = 'font-bold text-rose-400';
+      }
+
+      // 5. 程式碼行高亮同步 (C & ST)
+      if (isA1) {
+        // C Code Highlighting
+        codeCondVar.textContent = 'a1 == 1 (TRUE)';
+        line1.className = 'py-1 px-3 rounded flex items-center gap-3 bg-emerald-950/80 text-emerald-300 font-bold border-l-4 border-emerald-500';
+        line3.className = 'py-1 px-3 rounded flex items-center gap-3 bg-emerald-900/40 text-emerald-200 font-bold';
+        line5.className = 'py-1 px-3 rounded flex items-center gap-3 text-slate-500 opacity-60';
+        line7.className = 'py-1 px-3 rounded flex items-center gap-3 text-slate-500 opacity-60';
+
+        // ST Code Highlighting
+        stLine1.className = 'py-1 px-3 rounded flex items-center gap-3 bg-emerald-950/80 text-emerald-300 font-bold border-l-4 border-emerald-500';
+        stLine2.className = 'py-1 px-3 rounded flex items-center gap-3 bg-emerald-900/40 text-emerald-200 font-bold';
+        stLine3.className = 'py-1 px-3 rounded flex items-center gap-3 text-slate-500 opacity-60';
+        stLine4.className = 'py-1 px-3 rounded flex items-center gap-3 text-slate-500 opacity-60';
+      } else {
+        // C Code Highlighting
+        codeCondVar.textContent = 'a1 == 0 (FALSE)';
+        line1.className = 'py-1 px-3 rounded flex items-center gap-3 text-slate-500 opacity-60';
+        line3.className = 'py-1 px-3 rounded flex items-center gap-3 text-slate-500 opacity-60';
+        line5.className = 'py-1 px-3 rounded flex items-center gap-3 bg-rose-950/80 text-rose-300 font-bold border-l-4 border-rose-500';
+        line7.className = 'py-1 px-3 rounded flex items-center gap-3 bg-rose-900/40 text-rose-200 font-bold';
+
+        // ST Code Highlighting
+        stLine1.className = 'py-1 px-3 rounded flex items-center gap-3 text-slate-500 opacity-60';
+        stLine2.className = 'py-1 px-3 rounded flex items-center gap-3 text-slate-500 opacity-60';
+        stLine3.className = 'py-1 px-3 rounded flex items-center gap-3 bg-rose-950/80 text-rose-300 font-bold border-l-4 border-rose-500';
+        stLine4.className = 'py-1 px-3 rounded flex items-center gap-3 bg-rose-900/40 text-rose-200 font-bold';
+      }
+    }
+
+    // --- 自動運行動畫迴圈 ---
+    let animFrameId = null;
+    function autoCycleStep() {
+      if (!state.autoCycle) return;
+
+      let newPos = state.cylinderPos + state.autoDirection * 0.8;
+      
+      if (newPos >= 100) {
+        newPos = 100;
+        state.autoDirection = -1;
+        sound.playPneumaticPuff();
+      } else if (newPos <= 0) {
+        newPos = 0;
+        state.autoDirection = 1;
+        sound.playPneumaticPuff();
+      }
+
+      updateSystemState(newPos, true);
+      animFrameId = requestAnimationFrame(autoCycleStep);
+    }
+
+    // --- 事件監聽綁定 ---
+    posSlider.addEventListener('input', (e) => {
+      stopAutoCycle();
+      updateSystemState(parseFloat(e.target.value));
+    });
+
+    btnExtend.addEventListener('click', () => {
+      stopAutoCycle();
+      sound.playPneumaticPuff();
+      animateToPosition(100);
+    });
+
+    btnRetract.addEventListener('click', () => {
+      stopAutoCycle();
+      sound.playPneumaticPuff();
+      animateToPosition(0);
+    });
+
+    btnToggleA1.addEventListener('click', () => {
+      stopAutoCycle();
+      const targetPos = state.cylinderPos >= 88 ? 0 : 100;
+      sound.playPneumaticPuff();
+      animateToPosition(targetPos);
+    });
+
+    function animateToPosition(target) {
+      const start = state.cylinderPos;
+      const duration = 400; // ms
+      const startTime = performance.now();
+
+      function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // EaseInOutQuad
+        const ease = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+        const current = start + (target - start) * ease;
+        updateSystemState(current, true);
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    function stopAutoCycle() {
+      if (state.autoCycle) {
+        state.autoCycle = false;
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        btnAutoCycle.className = 'px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold text-sm shadow-md shadow-emerald-500/20 transition flex items-center gap-2';
+        autoCycleText.textContent = '啟動自動循環示範';
+      }
+    }
+
+    btnAutoCycle.addEventListener('click', () => {
+      sound.init();
+      if (state.autoCycle) {
+        stopAutoCycle();
+      } else {
+        state.autoCycle = true;
+        btnAutoCycle.className = 'px-4 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-bold text-sm shadow-md shadow-rose-500/20 transition flex items-center gap-2';
+        autoCycleText.textContent = '暫停自動循環';
+        sound.playPneumaticPuff();
+        animFrameId = requestAnimationFrame(autoCycleStep);
+      }
+    });
+
+    // 接點點擊手動切換
+    document.getElementById('contactNO').addEventListener('click', () => {
+      stopAutoCycle();
+      animateToPosition(100);
+    });
+    document.getElementById('contactNC').addEventListener('click', () => {
+      stopAutoCycle();
+      animateToPosition(0);
+    });
+
+    // 音效切換按鈕
+    audioToggleBtn.addEventListener('click', () => {
+      state.soundEnabled = !state.soundEnabled;
+      if (state.soundEnabled) {
+        sound.init();
+        audioIcon.textContent = '🔊';
+        audioStatusText.textContent = '音效：開啟';
+        audioToggleBtn.classList.remove('opacity-50');
+      } else {
+        audioIcon.textContent = '🔇';
+        audioStatusText.textContent = '音效：關閉';
+        audioToggleBtn.classList.add('opacity-50');
+      }
+    });
+
+    // 程式語系切換
+    langC.addEventListener('click', () => {
+      codeViewC.classList.remove('hidden');
+      codeViewST.classList.add('hidden');
+      langC.className = 'px-2.5 py-1 text-xs rounded bg-emerald-500/20 text-emerald-400 font-mono font-bold border border-emerald-500/30';
+      langST.className = 'px-2.5 py-1 text-xs rounded bg-slate-800 text-slate-400 font-mono hover:text-slate-200';
+    });
+    langST.addEventListener('click', () => {
+      codeViewC.classList.add('hidden');
+      codeViewST.classList.remove('hidden');
+      langST.className = 'px-2.5 py-1 text-xs rounded bg-emerald-500/20 text-emerald-400 font-mono font-bold border border-emerald-500/30';
+      langC.className = 'px-2.5 py-1 text-xs rounded bg-slate-800 text-slate-400 font-mono hover:text-slate-200';
+    });
+
+    // Modal 說明視窗控制
+    const helpModal = document.getElementById('helpModal');
+    const helpModalBtn = document.getElementById('helpModalBtn');
+    const closeHelpModal = document.getElementById('closeHelpModal');
+
+    helpModalBtn.addEventListener('click', () => {
+      helpModal.classList.remove('hidden');
+      setTimeout(() => helpModal.classList.remove('opacity-0'), 10);
+    });
+    closeHelpModal.addEventListener('click', () => {
+      helpModal.classList.add('opacity-0');
+      setTimeout(() => helpModal.classList.add('hidden'), 200);
+    });
+    helpModal.addEventListener('click', (e) => {
+      if (e.target === helpModal) {
+        helpModal.classList.add('opacity-0');
+        setTimeout(() => helpModal.classList.add('hidden'), 200);
+      }
+    });
+
+    // 初始化系統
+    window.onload = () => {
+      updateSystemState(0, false);
+    };
+  </script>
+</body>
+</html>
