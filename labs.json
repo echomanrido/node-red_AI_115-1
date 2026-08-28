@@ -1854,5 +1854,253 @@
         "url": "https://www.w3schools.com/js/js_if_else.asp"
       }
     ]
+  },
+  {
+    "id": "lab-10",
+    "labNumber": "10",
+    "title": "練習 3-2: if else判斷-氣壓缸應用",
+    "date": "2026-08-28",
+    "category": "基礎實作",
+    "summary": "學習在 Node-RED Function 節點中使用 JavaScript 多條件分支（if-else if-else）與邏輯或運算子（||）來判定氣壓缸感測器訊號狀態，動態過濾異常輸入。",
+    "flowImage": "images_src/ok/20260828_practice_3_2_flow.png",
+    "resultImage": "images_src/ok/20260828_practice_3_2_result.png",
+    "objective": "1. 掌握 JavaScript 多條件分支 (if-else if-else) 的程式語法結構。\n2. 學習在條件判斷中使用邏輯或運算子 (||) 進行多重條件比對。\n3. 理解工控訊號處理中異常輸入判定 (異常過濾與警報發送) 的邏輯實現。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立多組氣壓缸極限感測 Inject 節點",
+        "description": "拉取 6 個 Inject 節點，分別命名為「a0」、「a1」、「b0」、「b1」、「c0」與「c1」，將它們的 Payload 型態都設為 string (字串)，內容輸入與名稱相同的代號字串。這 6 個字串代表 A 與 B 雙動氣壓缸的極限感測器反饋（0 為縮回，1 為伸出），而 c 則代表非法/未知的氣壓缸名稱。"
+      },
+      {
+        "step": "2. 撰寫多條件判斷與警報 Function 節點",
+        "description": "拖入一個 Function 節點，命名為「if-else判斷」。在程式編輯區中寫入以下邏輯：\nvar cylinder = msg.payload;\nif (cylinder === \"a1\" || cylinder === \"b1\") {\n    msg.payload = \"+ 氣壓缸伸出 ~~\";\n} else if (cylinder === \"a0\" || cylinder === \"b0\") {\n    msg.payload = \"- 氣壓缸縮回 !!\";\n} else {\n    msg.payload = \"氣壓缸不存在\";\n}\nreturn msg;"
+      },
+      {
+        "step": "3. 連接至除錯 Debug 節點並部署",
+        "description": "將 6 個 Inject 節點的輸出都連線至「if-else判斷」Function 節點。Function 輸出則連至名為「氣壓缸狀態輸出」的 Debug 節點。點選 Deploy 部署使流程上線。"
+      },
+      {
+        "step": "4. 點擊測試與異常判定驗證",
+        "description": "手動點擊各 Inject 觸發：\n- 點選 a1/b1 ➔ Debug 側邊欄輸出「+ 氣壓缸伸出 ~~」。\n- 點選 a0/b0 ➔ Debug 側邊欄輸出「- 氣壓缸縮回 !!」。\n- 點選 c0/c1 ➔ Debug 側邊欄輸出「氣壓缸不存在」。驗證異常訊號被正確偵測與排除。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在機電整合丙級術科考試（如送料、加工、分裝）中，A 缸與 B 缸通常代表電磁閥控制的送料雙動氣壓缸，0 與 1 分別代表氣壓缸前後磁簧感測器 (磁性開關) 的狀態。此 if-else 邏輯能即時偵測 PLC 傳回的感測器訊號，在 SCADA 面板上點亮對應的「氣壓缸已伸出」或「已縮回」指示燈；若感測訊號異常（如收到 c0/c1 或是兩磁簧開關同時為 1），則在 SCADA 上觸發「氣壓缸傳感異常」高亮警報，保護機械結構不因誤動作損壞。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "在半導體晶圓廠的生產線中，真空閥門氣壓缸與閥門開關的極限感測器會連接到 Edge Gateway。本 Node-RED 邏輯可用於進行 SECS/GEM 協議通訊前的訊號完整性校正 (Data Validation)。若接收到不合法的感測器編碼（如 c0），系統會立即將此無效數據過濾，不予寫入機台歷史資料庫 (Historian) 中，並發送 SECS/GEM ALID 警報給主控電腦，避免晶圓製程受到不正確氣壓反饋的干擾。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "在智慧家庭門禁與包裹物流箱中，a0 與 b0 可模擬為「一樓大門關閉」、「物流箱蓋闔」，a1 與 b1 為「大門開啟」、「箱蓋打開」。本 if-else 邏輯能實時採集物流箱限位開關狀態；一旦收到非法的感測器編碼（例如 c1 觸發），中控主機 (如 Home Assistant) 會透過 Webhook 將該異常登錄在事件日誌 (Event Log) 中，並立刻透過 Line / Notify 發送「防盜警報：物流箱狀態未知」給屋主，確保居家包裹安全。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，符合以下規格：\n1. 包含 6 個 Inject 節點，Payload 均為字串，名稱與內容分別為「a0」、「a1」、「b0」、「b1」、「c0」與「c1」。\n2. 包含一個 Function 節點 (名稱：if-else判斷)。若 payload 為 \"a1\" 或 \"b1\"，則修改為 \"+ 氣壓缸伸出 ~~\"; 若為 \"a0\" 或 \"b0\"，則修改為 \"- 氣壓缸縮回 !!\"; 其他值則修改為 \"氣壓缸不存在\"。\n3. 所有 Inject 的輸出均接至該 Function，Function 輸出接至名稱為「氣壓缸狀態輸出」的 Debug 節點。\n請以 JSON 陣列格式回傳。",
+    "nodeRedJson": [
+      {
+        "id": "tab_cylinder",
+        "type": "tab",
+        "label": "練習3-2: if else判斷-氣壓缸應用",
+        "disabled": false,
+        "info": ""
+      },
+      {
+        "id": "inject_a0",
+        "type": "inject",
+        "z": "tab_cylinder",
+        "name": "a0",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "a0",
+        "payloadType": "str",
+        "x": 120,
+        "y": 80,
+        "wires": [
+          [
+            "function_ifelse"
+          ]
+        ]
+      },
+      {
+        "id": "inject_a1",
+        "type": "inject",
+        "z": "tab_cylinder",
+        "name": "a1",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "a1",
+        "payloadType": "str",
+        "x": 120,
+        "y": 140,
+        "wires": [
+          [
+            "function_ifelse"
+          ]
+        ]
+      },
+      {
+        "id": "inject_b0",
+        "type": "inject",
+        "z": "tab_cylinder",
+        "name": "b0",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "b0",
+        "payloadType": "str",
+        "x": 120,
+        "y": 200,
+        "wires": [
+          [
+            "function_ifelse"
+          ]
+        ]
+      },
+      {
+        "id": "inject_b1",
+        "type": "inject",
+        "z": "tab_cylinder",
+        "name": "b1",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "b1",
+        "payloadType": "str",
+        "x": 120,
+        "y": 260,
+        "wires": [
+          [
+            "function_ifelse"
+          ]
+        ]
+      },
+      {
+        "id": "inject_c0",
+        "type": "inject",
+        "z": "tab_cylinder",
+        "name": "c0",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "c0",
+        "payloadType": "str",
+        "x": 120,
+        "y": 320,
+        "wires": [
+          [
+            "function_ifelse"
+          ]
+        ]
+      },
+      {
+        "id": "inject_c1",
+        "type": "inject",
+        "z": "tab_cylinder",
+        "name": "c1",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "c1",
+        "payloadType": "str",
+        "x": 120,
+        "y": 380,
+        "wires": [
+          [
+            "function_ifelse"
+          ]
+        ]
+      },
+      {
+        "id": "function_ifelse",
+        "type": "function",
+        "z": "tab_cylinder",
+        "name": "if-else判斷",
+        "func": "var cylinder = msg.payload;\nif (cylinder === \"a1\" || cylinder === \"b1\") {\n    msg.payload = \"+ 氣壓缸伸出 ~~\";\n} else if (cylinder === \"a0\" || cylinder === \"b0\") {\n    msg.payload = \"- 氣壓缸縮回 !!\";\n} else {\n    msg.payload = \"氣壓缸不存在\";\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 230,
+        "wires": [
+          [
+            "debug_output"
+          ]
+        ]
+      },
+      {
+        "id": "debug_output",
+        "type": "debug",
+        "z": "tab_cylinder",
+        "name": "氣壓缸狀態輸出",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "x": 540,
+        "y": 230,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - Function 節點使用說明與 JS 寫法",
+        "url": "https://nodered.org/docs/user-guide/writing-functions"
+      },
+      {
+        "title": "w3schools - JavaScript 邏輯運算子 (Logical Operators)",
+        "url": "https://www.w3schools.com/js/js_comparisons.asp"
+      }
+    ]
   }
 ]
