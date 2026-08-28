@@ -2,6 +2,56 @@ window.INITIAL_SUPPLEMENTS_DATA = [
   {
     "id": "sup-01",
     "supNumber": "01",
+    "title": "電腦硬體規格需求與採購指南",
+    "date": "2026-08-28",
+    "category": "硬體規劃",
+    "summary": "針對 Node-RED 開發、C# 程式開發與落地型大語言模型 (Local LLM) 三種應用場景，深入剖析其硬體瓶頸與資源消耗差異，並提供不同場景的推薦電腦規格配置、預算估算與採購參考連結。",
+    "image": "images_src/ok/20260828_pc_specs_comparison.png",
+    "objective": "1. 掌握 Node-RED、C# 程式開發與落地型大語言模型 (Local LLM) 在電腦硬體資源消耗上的根本差異。\n2. 學習如何依據自身開發需求選擇合適的 CPU 核心數、RAM 容量與 SSD 讀寫規格。\n3. 了解獨立顯卡 (GPU) 與顯示記憶體 (VRAM) 對於運行落地 LLM 的決定性影響與採購標準。",
+    "tutorialSteps": [
+      {
+        "step": "1. 三種開發場景規格對比與瓶頸分析",
+        "description": "【核心規格指標對比】\n\n• 運算負載類型：\n  - Node-RED：輕量 I/O、事件驅動\n  - C# 開發：多執行緒編譯、容器/資料庫模擬\n  - 落地 LLM：矩陣平行運算、記憶體頻寬吞吐\n\n• CPU 建議：\n  - Node-RED：4 ~ 6 核心（如 Core i3 / R5 / 樹莓派）\n  - C# 開發：8 ~ 16 核心（Core i5 / i7、Ryzen 7）\n  - 落地 LLM：8 ~ 16 核心（單純推論以顯卡為主，量化模型 CPU-offload 需多核心）\n\n• 系統記憶體 (RAM)：\n  - Node-RED：8GB ~ 16GB\n  - C# 開發：32GB ~ 64GB（開 IDE + Docker + DB）\n  - 落地 LLM：32GB ~ 64GB DDR5（Apple 體系需 48GB~128GB 統一記憶體）\n\n• 獨立顯卡 (GPU)：\n  - Node-RED：無需獨立顯卡（內顯即可）\n  - C# 開發：內顯或入門顯卡（遊戲/3D 開發除外）\n  - 落地 LLM：極度依賴顯卡與 VRAM（8B 需 16GB VRAM；70B 需 24GB~48GB+）\n\n• 硬碟容量：\n  - Node-RED：256GB ~ 512GB SSD\n  - C# 開發：1TB NVMe PCIe 4.0 SSD\n  - 落地 LLM：2TB+ 高速 NVMe SSD（模型權重檔極大）"
+      },
+      {
+        "step": "2. Node-RED 流程開發機（輕量/邊緣物聯網）",
+        "description": "• 硬體重點：Node.js 執行環境開銷極小，著重在低功耗、穩定聯網與基本記憶體。\n• 推薦配置：迷你主機（Mini PC）或入門文書機（Intel N100 / Ryzen 5 + 16GB RAM + 512GB SSD）。\n• 預估預算：約 NT$ 6,000 ~ 12,000"
+      },
+      {
+        "step": "3. C# / .NET 專業開發機（中高效能編譯）",
+        "description": "• 硬體重點：Visual Studio 2022、SQL Server 本地實例、Docker 容器與快速增量編譯，需要充足的 CPU 多核效能與 32GB 以上記憶體。\n• 推薦配置：Intel Core i7-14700 / AMD Ryzen 7 7700X + 32GB~64GB DDR5 + 1TB~2TB Gen4 SSD + RTX 4060（非必要，依專案而定）。\n• 預估預算：約 NT$ 28,000 ~ 45,000"
+      },
+      {
+        "step": "4. 落地型大語言模型運算工作站（高效能 AI 推論）",
+        "description": "• 硬體重點：\n  - 7B ~ 14B 模型（如 Llama 3 8B, Qwen 14B 量化版）：需 16GB VRAM 顯卡（如 RTX 4060 Ti 16GB 或 RTX 4070 Ti Super 16GB）。\n  - 32B ~ 70B 模型（量化版 / 高並發）：需 24GB VRAM 以上（RTX 3090 / 4090 或雙卡並行），或採用 Apple Silicon 高頻寬統一記憶體方案（Mac mini / Studio 64GB+）。\n• 推薦配置：\n  - Windows/Linux PC 方案：Ryzen 7 / i7 + 64GB RAM + NVIDIA RTX 4060 Ti 16GB / RTX 4090 24GB + 1000W 電源。\n  - Mac 方案：Mac mini / Mac Studio (M4 Pro / M2 Ultra, 48GB~64GB+ 統一記憶體)。\n• 預估預算：\n  - 入門 AI 機（16GB VRAM）：約 NT$ 38,000 ~ 55,000\n  - 中高階 AI 工作站（24GB VRAM / Mac 高規）：約 NT$ 75,000 ~ 120,000+\n"
+      }
+    ],
+    "references": [
+      {
+        "title": "PChome 24h - 專業開發兼 AI 筆電 (ASUS TUF R7/32G/RTX5060)",
+        "url": "https://24h.pchome.com.tw/prod/DHABFO-A900IYQLL-000"
+      },
+      {
+        "title": "PChome 24h - 2TB 高速 PCIe Gen4 M.2 SSD (Lexar 雷克沙)",
+        "url": "https://24h.pchome.com.tw/prod/DRAHIS-A900J94T3-000"
+      },
+      {
+        "title": "欣亞數位 - DIY 電腦估價與零組件",
+        "url": "https://www.sinya.com.tw/"
+      },
+      {
+        "title": "原價屋 線上估價系統",
+        "url": "https://coolpc.tw/evaluate.php"
+      },
+      {
+        "title": "Apple 台灣官方商店 - Mac mini / Mac Studio 配置",
+        "url": "https://www.apple.com/tw/shop/buy-mac/mac-mini"
+      }
+    ]
+  },
+  {
+    "id": "sup-02",
+    "supNumber": "02",
     "title": "Node.js 與 npm 安裝狀態確認",
     "date": "2026-07-09",
     "category": "環境建置",
@@ -42,8 +92,8 @@ window.INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-02",
-    "supNumber": "02",
+    "id": "sup-03",
+    "supNumber": "03",
     "title": "JavaScript 資料型態與 Node-RED 節點對應",
     "date": "2026-07-14",
     "category": "JavaScript 基礎",
@@ -80,8 +130,8 @@ window.INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-03",
-    "supNumber": "03",
+    "id": "sup-04",
+    "supNumber": "04",
     "title": "JSON 語法結構與 key-value pairs 對應",
     "date": "2026-07-14",
     "category": "JSON 語法",
@@ -122,8 +172,8 @@ window.INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-04",
-    "supNumber": "04",
+    "id": "sup-05",
+    "supNumber": "05",
     "title": "ISO 流程對應 Node-RED 概念",
     "date": "2026-08-09",
     "category": "ISO 流程與控制",
@@ -163,8 +213,8 @@ window.INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-05",
-    "supNumber": "05",
+    "id": "sup-06",
+    "supNumber": "06",
     "title": "ISO 14064-1 與 ISO 14067 流程對應 Node-RED 概念",
     "date": "2026-08-11",
     "category": "ESG 碳盤查",
@@ -205,8 +255,8 @@ window.INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-06",
-    "supNumber": "06",
+    "id": "sup-07",
+    "supNumber": "07",
     "title": "HTTP 通訊協定與 Node-RED 網頁爬蟲實作",
     "date": "2026-08-14",
     "category": "網路協定",
