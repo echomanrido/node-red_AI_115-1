@@ -325,8 +325,8 @@ window.INITIAL_SUPPLEMENTS_DATA = [
         "url": "valve_ifelse_metaphor.html"
       },
       {
-        "title": "SMC 台灣官方網站 - 閥門作動原理與選型手冊",
-        "url": "https://www.smc.com.tw"
+        "title": "SMC 台灣官方網站 (氣動元件與作動原理)",
+        "url": "https://www.smcworld.com/zh-tw/"
       }
     ]
   }
