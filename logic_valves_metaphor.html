@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>氣壓邏輯閥互動模擬器 (梭動閥 OR / 雙壓閥 AND)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @keyframes pulse-flow {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 0.3; }
+    }
+    .flow-active {
+      animation: pulse-flow 1.5s infinite ease-in-out;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #38bdf8;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
+
+  <!-- 頂部導航與標題 -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30 px-4 py-3 sm:px-6">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <a href="supplements.html" class="p-2 bg-slate-850 hover:bg-slate-700 border border-slate-700/60 rounded-lg text-slate-300 transition-colors flex items-center justify-center">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        </a>
+        <div class="p-2.5 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl shadow-lg shadow-cyan-500/20 text-white">
+          <i data-lucide="cpu" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            氣壓邏輯閥物理模擬器
+          </h1>
+          <p class="text-xs text-slate-400">Pneumatic Logic Valve Simulation: Shuttle (OR) & Dual-Pressure (AND)</p>
+        </div>
+      </div>
+
+      <!-- 核心模式切換 -->
+      <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 shadow-inner">
+        <button id="btn-mode-or" onclick="setValveMode('OR')" class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-cyan-500 text-white shadow-md shadow-cyan-500/30">
+          <i data-lucide="git-fork" class="w-4 h-4"></i>
+          梭動閥 (OR 邏輯)
+        </button>
+        <button id="btn-mode-and" onclick="setValveMode('AND')" class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 text-slate-400 hover:text-slate-200">
+          <i data-lucide="git-merge" class="w-4 h-4"></i>
+          雙壓閥 (AND 邏輯)
+        </button>
+      </div>
+
+      <!-- 音效與快速功能 -->
+      <div class="flex items-center gap-2">
+        <button id="btn-sound" onclick="toggleSound()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition" title="開關氣壓音效">
+          <i data-lucide="volume-2" id="sound-icon" class="w-5 h-5"></i>
+        </button>
+        <button onclick="resetInputs()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition" title="重設輸入">
+          <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主體區域 -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- 左側面板：氣壓輸入控制與預設情境 (4 cols) -->
+    <div class="lg:col-span-4 flex flex-col gap-6">
+      
+      <!-- 輸入源 X 控制卡片 -->
+      <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-cyan-400 ring-4 ring-cyan-400/20"></span>
+            <h2 class="font-bold text-base text-slate-200">輸入端 X (口 1)</h2>
+          </div>
+          <button id="btn-toggle-x" onclick="toggleInput('X')" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20">
+            通氣 ON (1)
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex justify-between items-center text-xs text-slate-400">
+            <span>設定輸入氣壓 $P_X$</span>
+            <span class="font-mono text-cyan-400 text-sm font-semibold" id="val-pres-x">6.0 bar</span>
+          </div>
+          <input type="range" id="slider-pres-x" min="1" max="10" step="0.5" value="6" oninput="updatePressure('X', this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+            <span>1 bar</span>
+            <span>5 bar</span>
+            <span>10 bar</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 輸入源 Y 控制卡片 -->
+      <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-indigo-400 ring-4 ring-indigo-400/20"></span>
+            <h2 class="font-bold text-base text-slate-200">輸入端 Y (口 1)</h2>
+          </div>
+          <button id="btn-toggle-y" onclick="toggleInput('Y')" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-slate-800 text-slate-400">
+            關閉 OFF (0)
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex justify-between items-center text-xs text-slate-400">
+            <span>設定輸入氣壓 $P_Y$</span>
+            <span class="font-mono text-indigo-400 text-sm font-semibold" id="val-pres-y">6.0 bar</span>
+          </div>
+          <input type="range" id="slider-pres-y" min="1" max="10" step="0.5" value="6" oninput="updatePressure('Y', this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+            <span>1 bar</span>
+            <span>5 bar</span>
+            <span>10 bar</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 快速工況情境預設 -->
+      <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 shadow-xl flex-1 flex flex-col justify-between">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <i data-lucide="bookmark" class="w-3.5 h-3.5 text-cyan-400"></i> 工業應用教學預設情境
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5">
+          <button onclick="applyScenario('OR_SINGLE')" class="p-2.5 text-left rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 transition group">
+            <div class="text-xs font-medium text-slate-200 group-hover:text-cyan-400 flex items-center justify-between">
+              <span>手動 / 自動切換 (OR)</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">X=1, Y=0</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">單側信號推動梭芯，連通至輸出端 $A$</p>
+          </button>
+
+          <button onclick="applyScenario('AND_BOTH_BALANCED')" class="p-2.5 text-left rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 transition group">
+            <div class="text-xs font-medium text-slate-200 group-hover:text-cyan-400 flex items-center justify-between">
+              <span>雙手操作安全迴路 (AND)</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">X=1, Y=1 (同壓)</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">雙端同時受壓，閥芯平衡釋放輸出 $A$</p>
+          </button>
+
+          <button onclick="applyScenario('AND_DIFF_PRESSURE')" class="p-2.5 text-left rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 transition group">
+            <div class="text-xs font-medium text-slate-200 group-hover:text-cyan-400 flex items-center justify-between">
+              <span>雙壓閥壓差特性 ($P_X > P_Y$)</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800">X=8bar, Y=3bar</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">高壓推動閥芯，輸出端呈現較低氣壓 $P_Y$</p>
+          </button>
+
+          <button onclick="applyScenario('OR_DIFF_PRESSURE')" class="p-2.5 text-left rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 transition group">
+            <div class="text-xs font-medium text-slate-200 group-hover:text-cyan-400 flex items-center justify-between">
+              <span>梭動閥壓差特性 ($P_X > P_Y$)</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">X=8bar, Y=3bar</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">高壓推向低壓側密封，輸出端呈現較高氣壓 $P_X$</p>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 中間與右側：物理剖面動態模擬與氣壓缸作動 (8 cols) -->
+    <div class="lg:col-span-8 flex flex-col gap-6">
+      
+      <!-- 主動畫視窗 Canvas -->
+      <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 shadow-2xl flex flex-col relative overflow-hidden">
+        
+        <!-- 狀態資訊抬頭 -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-3">
+            <div id="output-badge" class="px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+              輸出 A (口 2)：有氣壓 (1)
+            </div>
+            <div class="text-xs text-slate-400 font-mono">
+              實測輸出壓力：<span id="output-pressure-text" class="text-emerald-400 font-bold text-sm">6.0 bar</span>
+            </div>
+          </div>
+          <div class="text-xs text-slate-400 flex items-center gap-2">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span> 藍色：氣流流動
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 ml-2"></span> 金色：閥芯封閉面
+          </div>
+        </div>
+
+        <!-- 畫布主體 -->
+        <div class="relative w-full h-[360px] sm:h-[400px] bg-slate-950 rounded-xl border border-slate-800/80 overflow-hidden shadow-inner flex items-center justify-center">
+          <canvas id="valveCanvas" class="w-full h-full block"></canvas>
+
+          <!-- 閥體簡介標籤 -->
+          <div class="absolute bottom-3 left-4 pointer-events-none text-left">
+            <div class="text-xs font-bold uppercase tracking-widest text-slate-600" id="canvas-valve-title">梭動閥 (OR 邏輯閥)</div>
+            <div class="text-[10px] text-slate-600 font-mono">ISO 1219-1 COMPLIANT</div>
+          </div>
+        </div>
+
+        <!-- 動作原理即時文字解說 -->
+        <div class="mt-4 p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-start gap-3">
+          <div class="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 shrink-0 mt-0.5">
+            <i data-lucide="info" class="w-4 h-4"></i>
+          </div>
+          <div class="text-xs leading-relaxed text-slate-300">
+            <span class="font-semibold text-cyan-300" id="diag-title">運作狀態分析：</span>
+            <span id="diag-desc">輸入端 X 有氣壓，氣流推動梭芯向右移動，密閉 Y 端入口，氣流順利導向輸出端 A。</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 下半部：真值表、ISO 符號與下游執行元件 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- 邏輯真值表與物理比對 -->
+        <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 shadow-xl flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
+              <i data-lucide="table" class="w-4 h-4 text-cyan-400"></i>
+              邏輯真值表 (Truth Table)
+            </h3>
+            <span class="text-[11px] text-slate-400 font-mono" id="truth-valve-type">OR Gate</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-center border-collapse">
+              <thead>
+                <tr class="bg-slate-950 text-slate-400 border-b border-slate-800">
+                  <th class="py-2 px-3 font-semibold">輸入 X</th>
+                  <th class="py-2 px-3 font-semibold">輸入 Y</th>
+                  <th class="py-2 px-3 font-semibold">輸出 A</th>
+                  <th class="py-2 px-3 font-semibold text-right">氣壓行為特徵</th>
+                </tr>
+              </thead>
+              <tbody id="truth-table-body" class="divide-y divide-slate-800/60 font-mono">
+                <!-- 動態注入表格 -->
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-3 text-[11px] text-slate-400 italic">
+            * 綠色高亮列代表目前輸入與輸出之即時邏輯狀態。
+          </div>
+        </div>
+
+        <!-- ISO 氣壓迴路符號與下游氣壓缸作動 -->
+        <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 shadow-xl flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
+              <i data-lucide="activity" class="w-4 h-4 text-cyan-400"></i>
+              ISO 1219 符號與負載作動
+            </h3>
+            <span class="text-[11px] font-mono text-cyan-400" id="iso-name">Shuttle Valve Symbol</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 items-center bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+            <!-- ISO 符號 SVG 向量繪製 -->
+            <div class="flex flex-col items-center justify-center p-2">
+              <span class="text-[10px] text-slate-500 mb-1">標準氣壓符號</span>
+              <svg id="iso-svg" viewBox="0 0 120 90" class="w-28 h-20">
+                <!-- 動態由 JavaScript 繪製 ISO 符號 -->
+              </svg>
+            </div>
+
+            <!-- 下游單動氣壓缸視覺化 -->
+            <div class="flex flex-col items-center justify-center p-2 border-l border-slate-800">
+              <span class="text-[10px] text-slate-500 mb-1">終端執行元件 (單動缸)</span>
+              <div class="w-full relative h-16 flex items-center justify-center">
+                <svg id="cylinder-svg" viewBox="0 0 140 60" class="w-32 h-14">
+                  <!-- 缸體外殼 -->
+                  <rect x="20" y="15" width="70" height="30" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                  <!-- 活塞桿 (動態位移) -->
+                  <g id="cylinder-piston" transform="translate(0, 0)">
+                    <rect x="25" y="17" width="10" height="26" fill="#38bdf8" rx="2"/>
+                    <rect x="35" y="27" width="50" height="6" fill="#94a3b8" rx="1"/>
+                  </g>
+                  <!-- 彈簧復歸線條 -->
+                  <path d="M 40 30 L 45 22 L 50 38 L 55 22 L 60 38 L 65 22 L 70 38 L 75 22 L 80 30" fill="none" stroke="#475569" stroke-width="1.5"/>
+                  <!-- 進氣口接頭 -->
+                  <path d="M 28 45 L 28 55" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span id="cylinder-status" class="text-[10px] font-bold text-cyan-400 mt-1">氣缸伸出 (Extended)</span>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 leading-normal mt-2">
+            當輸出端 $A$ 有氣壓時，壓力克服內部彈簧阻力使活塞桿伸出；當壓力為 0 時，彈簧自動將活塞推回原位。
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- 頁尾 -->
+  <footer class="mt-auto border-t border-slate-800/80 bg-slate-950 py-3 text-center text-xs text-slate-500">
+    氣動邏輯控制教學展示系統 • 採用純 HTML5 Canvas 與 Web Audio 物理氣流渲染技術
+  </footer>
+
+  <!-- 應用程式核心邏輯與動畫引擎腳本 -->
+  <script>
+    // --- 系統全域狀態 (State Management) ---
+    const state = {
+      valveMode: 'OR', // 'OR' (梭動閥) 或 'AND' (雙壓閥)
+      inputX: true,    // 開關狀態 (1 或 0)
+      inputY: false,
+      pressureX: 6.0,  // 氣壓值 (bar)
+      pressureY: 6.0,
+      soundEnabled: true,
+      
+      // 動畫物理狀態
+      spoolPosition: 0.8, // -1 (最左), 0 (中間), 1 (最右)
+      targetSpoolPosition: 0.8,
+      particles: [],
+      cylinderPistonPos: 1.0, // 0: 縮回, 1: 伸出
+      targetCylinderPos: 1.0
+    };
+
+    // --- 音效生成器 (Web Audio API - 無需外部素材) ---
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playPneumaticSound(type) {
+      if (!state.soundEnabled) return;
+      try {
+        initAudio();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const now = audioCtx.currentTime;
+        if (type === 'hiss') {
+          // 氣流噴氣聲 (白噪音濾波)
+          const bufferSize = audioCtx.sampleRate * 0.2;
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const noise = audioCtx.createBufferSource();
+          noise.buffer = buffer;
+
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(1200, now);
+          filter.Q.setValueAtTime(3, now);
+
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+          noise.start(now);
+        } else if (type === 'click') {
+          // 閥芯撞擊金屬聲
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(450, now);
+          osc.frequency.exponentialRampToValueAtTime(80, now + 0.08);
+
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        }
+      } catch (e) {
+        // 忽略音效權限警告
+      }
+    }
+
+    function toggleSound() {
+      state.soundEnabled = !state.soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      if (state.soundEnabled) {
+        icon.setAttribute('data-lucide', 'volume-2');
+        playPneumaticSound('click');
+      } else {
+        icon.setAttribute('data-lucide', 'volume-x');
+      }
+      lucide.createIcons();
+    }
+
+    // --- 計算物理邏輯與輸出 ---
+    function calculateLogic() {
+      const pX = state.inputX ? state.pressureX : 0;
+      const pY = state.inputY ? state.pressureY : 0;
+      let outPressure = 0;
+      let outLogic = false;
+      let targetPos = 0;
+      let diagTitle = "";
+      let diagDesc = "";
+
+      if (state.valveMode === 'OR') {
+        // ========== 梭動閥 (OR 邏輯) ==========
+        if (pX === 0 && pY === 0) {
+          outLogic = false;
+          outPressure = 0;
+          targetPos = 0; // 靜止居中
+          diagTitle = "雙端無輸入 (X=0, Y=0)";
+          diagDesc = "兩側皆無氣壓輸入，閥芯停留原位，輸出端 A 無氣壓輸出 (0 bar)。";
+        } else if (pX > 0 && pY === 0) {
+          outLogic = true;
+          outPressure = pX;
+          targetPos = 1; // 往右推到底，封閉 Y 端
+          diagTitle = "僅 X 端進氣 (X=1, Y=0)";
+          diagDesc = `X 端氣壓 (${pX.toFixed(1)} bar) 推動梭芯向右緊密封閉 Y 端座口，氣流暢通導向輸出端 A。`;
+        } else if (pX === 0 && pY > 0) {
+          outLogic = true;
+          outPressure = pY;
+          targetPos = -1; // 往左推到底，封閉 X 端
+          diagTitle = "僅 Y 端進氣 (X=0, Y=1)";
+          diagDesc = `Y 端氣壓 (${pY.toFixed(1)} bar) 推動梭芯向左緊密封閉 X 端座口，氣流暢通導向輸出端 A。`;
+        } else {
+          // pX > 0 && pY > 0
+          outLogic = true;
+          if (pX > pY) {
+            outPressure = pX;
+            targetPos = 1;
+            diagTitle = "雙側進氣且 X 壓較大 (PX > PY)";
+            diagDesc = `X 側高壓 (${pX.toFixed(1)} bar) 克服 Y 側低壓 (${pY.toFixed(1)} bar)，將梭芯推向右側封閉 Y 端，輸出端 A 呈現高壓側氣壓 (${pX.toFixed(1)} bar)。`;
+          } else if (pY > pX) {
+            outPressure = pY;
+            targetPos = -1;
+            diagTitle = "雙側進氣且 Y 壓較大 (PY > PX)";
+            diagDesc = `Y 側高壓 (${pY.toFixed(1)} bar) 克服 X 側低壓 (${pX.toFixed(1)} bar)，將梭芯推向左側封閉 X 端，輸出端 A 呈現高壓側氣壓 (${pY.toFixed(1)} bar)。`;
+          } else {
+            outPressure = pX;
+            targetPos = 0; // 平衡
+            diagTitle = "雙側等壓進氣 (PX = PY)";
+            diagDesc = `兩端氣壓相等 (${pX.toFixed(1)} bar)，梭芯於中央受壓平衡，兩端氣流皆匯流至輸出端 A。`;
+          }
+        }
+
+      } else {
+        // ========== 雙壓閥 (AND 邏輯) ==========
+        if (pX === 0 && pY === 0) {
+          outLogic = false;
+          outPressure = 0;
+          targetPos = 0;
+          diagTitle = "雙端無輸入 (X=0, Y=0)";
+          diagDesc = "兩端無氣壓，滑閥處於未受壓狀態，輸出端 A 無輸出。";
+        } else if (pX > 0 && pY === 0) {
+          outLogic = false;
+          outPressure = 0;
+          targetPos = 1; // 往右推到底，X 自身封閉通路
+          diagTitle = "僅單側 X 端進氣 (X=1, Y=0)";
+          diagDesc = `X 端氣壓 (${pX.toFixed(1)} bar) 推動滑閥芯向右，閥芯外緣階梯封閉了流向 A 的通道，輸出端 A 無氣壓 (0 bar)。`;
+        } else if (pX === 0 && pY > 0) {
+          outLogic = false;
+          outPressure = 0;
+          targetPos = -1; // 往左推到底，Y 自身封閉通路
+          diagTitle = "僅單側 Y 端進氣 (X=0, Y=1)";
+          diagDesc = `Y 端氣壓 (${pY.toFixed(1)} bar) 推動滑閥芯向左，閥芯外緣階梯封閉了流向 A 的通道，輸出端 A 無氣壓 (0 bar)。`;
+        } else {
+          // pX > 0 && pY > 0: AND 成功觸發
+          outLogic = true;
+          if (pX > pY) {
+            outPressure = pY; // 取低壓
+            targetPos = 0.6; // 稍微偏向低壓側
+            diagTitle = "雙側進氣但壓力不同 (PX > PY)";
+            diagDesc = `兩側皆有氣壓達成 AND 條件！高壓 X 端 (${pX.toFixed(1)} bar) 將閥芯推向右，低壓 Y 端 (${pY.toFixed(1)} bar) 之氣流經內部縫隙導向輸出端 A。輸出氣壓為較低者 (${pY.toFixed(1)} bar)。`;
+          } else if (pY > pX) {
+            outPressure = pX; // 取低壓
+            targetPos = -0.6;
+            diagTitle = "雙側進氣但壓力不同 (PY > PX)";
+            diagDesc = `兩側皆有氣壓達成 AND 條件！高壓 Y 端 (${pY.toFixed(1)} bar) 將閥芯推向左，低壓 X 端 (${pX.toFixed(1)} bar) 之氣流導向輸出端 A。輸出氣壓為較低者 (${pX.toFixed(1)} bar)。`;
+          } else {
+            outPressure = pX;
+            targetPos = 0;
+            diagTitle = "雙側等壓進氣 (PX = PY)";
+            diagDesc = `兩端氣壓完美平衡 (${pX.toFixed(1)} bar)，閥芯位於中央，雙側氣流匯聚並由輸出端 A 順利排出。`;
+          }
+        }
+      }
+
+      state.targetSpoolPosition = targetPos;
+      state.targetCylinderPos = outLogic ? 1.0 : 0.0;
+
+      // 更新介面文字與標記
+      document.getElementById('diag-title').innerText = diagTitle + "：";
+      document.getElementById('diag-desc').innerText = diagDesc;
+
+      const outBadge = document.getElementById('output-badge');
+      const outText = document.getElementById('output-pressure-text');
+      const cylStatus = document.getElementById('cylinder-status');
+
+      if (outLogic) {
+        outBadge.className = "px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        outBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> 輸出 A (口 2)：有氣壓 (1)`;
+        outText.className = "text-emerald-400 font-bold text-sm";
+        outText.innerText = `${outPressure.toFixed(1)} bar`;
+        cylStatus.innerText = "氣缸伸出 (Extended)";
+        cylStatus.className = "text-[10px] font-bold text-cyan-400 mt-1";
+      } else {
+        outBadge.className = "px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1.5 bg-slate-800 text-slate-400 border border-slate-700";
+        outBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-500"></span> 輸出 A (口 2)：無氣壓 (0)`;
+        outText.className = "text-slate-400 font-bold text-sm";
+        outText.innerText = "0.0 bar";
+        cylStatus.innerText = "彈簧復歸 (Retracted)";
+        cylStatus.className = "text-[10px] font-bold text-slate-500 mt-1";
+      }
+
+      renderTruthTable(outLogic, pX, pY);
+      renderISOSymbol(outLogic);
+    }
+
+    // --- UI 交互處理 ---
+    function setValveMode(mode) {
+      if (state.valveMode === mode) return;
+      state.valveMode = mode;
+      playPneumaticSound('click');
+
+      const btnOr = document.getElementById('btn-mode-or');
+      const btnAnd = document.getElementById('btn-mode-and');
+      const canvasTitle = document.getElementById('canvas-valve-title');
+      const truthType = document.getElementById('truth-valve-type');
+      const isoName = document.getElementById('iso-name');
+
+      if (mode === 'OR') {
+        btnOr.className = "flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-cyan-500 text-white shadow-md shadow-cyan-500/30";
+        btnAnd.className = "flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 text-slate-400 hover:text-slate-200";
+        canvasTitle.innerText = "梭動閥 (OR 邏輯閥 - 雙向止回閥)";
+        truthType.innerText = "OR 邏輯 (或閘)";
+        isoName.innerText = "Shuttle Valve (OR)";
+      } else {
+        btnAnd.className = "flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-blue-600 text-white shadow-md shadow-blue-500/30";
+        btnOr.className = "flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 text-slate-400 hover:text-slate-200";
+        canvasTitle.innerText = "雙壓閥 (AND 邏輯閥 - 雙推控制閥)";
+        truthType.innerText = "AND 邏輯 (及閘)";
+        isoName.innerText = "Dual-Pressure Valve (AND)";
+      }
+
+      calculateLogic();
+      lucide.createIcons();
+    }
+
+    function toggleInput(port) {
+      playPneumaticSound('hiss');
+      if (port === 'X') {
+        state.inputX = !state.inputX;
+        const btn = document.getElementById('btn-toggle-x');
+        if (state.inputX) {
+          btn.className = "px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20";
+          btn.innerText = "通氣 ON (1)";
+        } else {
+          btn.className = "px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-slate-800 text-slate-400";
+          btn.innerText = "關閉 OFF (0)";
+        }
+      } else {
+        state.inputY = !state.inputY;
+        const btn = document.getElementById('btn-toggle-y');
+        if (state.inputY) {
+          btn.className = "px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-indigo-500 text-white shadow-md shadow-indigo-500/20";
+          btn.innerText = "通氣 ON (1)";
+        } else {
+          btn.className = "px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-slate-800 text-slate-400";
+          btn.innerText = "關閉 OFF (0)";
+        }
+      }
+      calculateLogic();
+    }
+
+    // 更新滑塊壓力值
+    function updatePressure(port, val) {
+      const num = parseFloat(val);
+      if (port === 'X') {
+        state.pressureX = num;
+        document.getElementById('val-pres-x').innerText = `${num.toFixed(1)} bar`;
+      } else {
+        state.pressureY = num;
+        document.getElementById('val-pres-y').innerText = `${num.toFixed(1)} bar`;
+      }
+      calculateLogic();
+    }
+
+    function resetInputs() {
+      state.inputX = true;
+      state.inputY = false;
+      state.pressureX = 6.0;
+      state.pressureY = 6.0;
+
+      document.getElementById('slider-pres-x').value = 6.0;
+      document.getElementById('slider-pres-y').value = 6.0;
+      document.getElementById('val-pres-x').innerText = "6.0 bar";
+      document.getElementById('val-pres-y').innerText = "6.0 bar";
+
+      const btnX = document.getElementById('btn-toggle-x');
+      btnX.className = "px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20";
+      btnX.innerText = "通氣 ON (1)";
+
+      const btnY = document.getElementById('btn-toggle-y');
+      btnY.className = "px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-slate-800 text-slate-400";
+      btnY.innerText = "關閉 OFF (0)";
+
+      playPneumaticSound('click');
+      calculateLogic();
+    }
+
+    function applyScenario(type) {
+      playPneumaticSound('click');
+      if (type === 'OR_SINGLE') {
+        setValveMode('OR');
+        state.inputX = true;
+        state.inputY = false;
+        state.pressureX = 6.0;
+        state.pressureY = 6.0;
+      } else if (type === 'AND_BOTH_BALANCED') {
+        setValveMode('AND');
+        state.inputX = true;
+        state.inputY = true;
+        state.pressureX = 6.0;
+        state.pressureY = 6.0;
+      } else if (type === 'AND_DIFF_PRESSURE') {
+        setValveMode('AND');
+        state.inputX = true;
+        state.inputY = true;
+        state.pressureX = 8.0;
+        state.pressureY = 3.0;
+      } else if (type === 'OR_DIFF_PRESSURE') {
+        setValveMode('OR');
+        state.inputX = true;
+        state.inputY = true;
+        state.pressureX = 8.0;
+        state.pressureY = 3.0;
+      }
+
+      // 同步 UI 控制項
+      document.getElementById('slider-pres-x').value = state.pressureX;
+      document.getElementById('slider-pres-y').value = state.pressureY;
+      document.getElementById('val-pres-x').innerText = `${state.pressureX.toFixed(1)} bar`;
+      document.getElementById('val-pres-y').innerText = `${state.pressureY.toFixed(1)} bar`;
+
+      const btnX = document.getElementById('btn-toggle-x');
+      btnX.className = state.inputX 
+        ? "px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20"
+        : "px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-slate-800 text-slate-400";
+      btnX.innerText = state.inputX ? "通氣 ON (1)" : "關閉 OFF (0)";
+
+      const btnY = document.getElementById('btn-toggle-y');
+      btnY.className = state.inputY 
+        ? "px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
+        : "px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 bg-slate-800 text-slate-400";
+      btnY.innerText = state.inputY ? "通氣 ON (1)" : "關閉 OFF (0)";
+
+      calculateLogic();
+    }
+
+    // --- 真值表渲染與即時比對 ---
+    function renderTruthTable(currentOut, pX, pY) {
+      const tbody = document.getElementById('truth-table-body');
+      const isOR = state.valveMode === 'OR';
+
+      const rows = isOR ? [
+        { x: 0, y: 0, a: 0, desc: "無輸出 (0 bar)" },
+        { x: 1, y: 0, a: 1, desc: "X 導通至 A (PX)" },
+        { x: 0, y: 1, a: 1, desc: "Y 導通至 A (PY)" },
+        { x: 1, y: 1, a: 1, desc: "輸出高壓側 (Max)" }
+      ] : [
+        { x: 0, y: 0, a: 0, desc: "無輸出 (0 bar)" },
+        { x: 1, y: 0, a: 0, desc: "X 自鎖封閉 (0 bar)" },
+        { x: 0, y: 1, a: 0, desc: "Y 自鎖封閉 (0 bar)" },
+        { x: 1, y: 1, a: 1, desc: "輸出低壓側 (Min)" }
+      ];
+
+      const currentXBit = state.inputX ? 1 : 0;
+      const currentYBit = state.inputY ? 1 : 0;
+
+      let html = '';
+      rows.forEach(r => {
+        const isActive = (r.x === currentXBit && r.y === currentYBit);
+        const rowClass = isActive 
+          ? "bg-cyan-500/20 text-cyan-300 font-bold border-l-2 border-cyan-400" 
+          : "text-slate-400 hover:bg-slate-800/40";
+
+        html += `
+          <tr class="${rowClass} transition-colors">
+            <td class="py-2.5 px-3">${r.x}</td>
+            <td class="py-2.5 px-3">${r.y}</td>
+            <td class="py-2.5 px-3 font-semibold ${r.a === 1 ? 'text-emerald-400' : 'text-slate-500'}">${r.a}</td>
+            <td class="py-2.5 px-3 text-right text-[11px]">${r.desc}</td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    // --- ISO 符號繪製 (SVG) ---
+    function renderISOSymbol(outLogic) {
+      const svg = document.getElementById('iso-svg');
+      const isOR = state.valveMode === 'OR';
+      const pX = state.inputX;
+      const pY = state.inputY;
+
+      let spoolShift = 0;
+      if (state.spoolPosition > 0.3) spoolShift = 10;
+      else if (state.spoolPosition < -0.3) spoolShift = -10;
+
+      if (isOR) {
+        // 梭動閥 ISO 1219 符號
+        svg.innerHTML = `
+          <!-- 外框 -->
+          <rect x="15" y="20" width="90" height="50" fill="#0f172a" stroke="#64748b" stroke-width="2" rx="4"/>
+          <!-- 內部兩側閥座斜線 -->
+          <line x1="28" y1="30" x2="28" y2="60" stroke="#475569" stroke-width="2"/>
+          <line x1="92" y1="30" x2="92" y2="60" stroke="#475569" stroke-width="2"/>
+          <!-- 連通管路 -->
+          <line x1="0" y1="45" x2="28" y2="45" stroke="${pX ? '#38bdf8' : '#475569'}" stroke-width="3"/>
+          <line x1="120" y1="45" x2="92" y2="45" stroke="${pY ? '#818cf8' : '#475569'}" stroke-width="3"/>
+          <line x1="60" y1="20" x2="60" y2="0" stroke="${outLogic ? '#34d399' : '#475569'}" stroke-width="3"/>
+          <!-- 內部移動鋼珠 -->
+          <circle cx="${60 + spoolShift}" cy="45" r="10" fill="#e2e8f0" stroke="#0284c7" stroke-width="2"/>
+          <!-- 端口標記 -->
+          <text x="5" y="40" fill="#94a3b8" font-size="9" font-family="sans-serif">X</text>
+          <text x="108" y="40" fill="#94a3b8" font-size="9" font-family="sans-serif">Y</text>
+          <text x="65" y="12" fill="#94a3b8" font-size="9" font-family="sans-serif">A</text>
+        `;
+      } else {
+        // 雙壓閥 ISO 1219 符號
+        svg.innerHTML = `
+          <!-- 外框 -->
+          <rect x="15" y="20" width="90" height="50" fill="#0f172a" stroke="#64748b" stroke-width="2" rx="4"/>
+          <!-- 內部差動雙盤閥芯 -->
+          <line x1="0" y1="45" x2="20" y2="45" stroke="${pX ? '#38bdf8' : '#475569'}" stroke-width="3"/>
+          <line x1="120" y1="45" x2="100" y2="45" stroke="${pY ? '#818cf8' : '#475569'}" stroke-width="3"/>
+          <line x1="60" y1="20" x2="60" y2="0" stroke="${outLogic ? '#34d399' : '#475569'}" stroke-width="3"/>
+          <!-- 滑閥芯幾何 -->
+          <g transform="translate(${spoolShift}, 0)">
+            <rect x="35" y="32" width="10" height="26" fill="#94a3b8" rx="1"/>
+            <rect x="75" y="32" width="10" height="26" fill="#94a3b8" rx="1"/>
+            <line x1="45" y1="45" x2="75" y2="45" stroke="#cbd5e1" stroke-width="4"/>
+          </g>
+          <!-- 端口標記 -->
+          <text x="5" y="40" fill="#94a3b8" font-size="9" font-family="sans-serif">X</text>
+          <text x="108" y="40" fill="#94a3b8" font-size="9" font-family="sans-serif">Y</text>
+          <text x="65" y="12" fill="#94a3b8" font-size="9" font-family="sans-serif">A</text>
+        `;
+      }
+    }
+
+    // --- HTML5 CANVAS 2D 動態物理剖面繪製引擎 ---
+    const canvas = document.getElementById('valveCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 氣流粒子類別
+    class Particle {
+      constructor(source, pressure) {
+        this.reset(source, pressure);
+      }
+      reset(source, pressure) {
+        this.source = source; // 'X' 或 'Y'
+        this.pressure = pressure;
+        this.x = source === 'X' ? 40 : canvas.width - 40;
+        this.y = canvas.height / 2 + (Math.random() * 20 - 10);
+        this.vx = (source === 'X' ? 1 : -1) * (3 + pressure * 0.8);
+        this.vy = (Math.random() - 0.5) * 2;
+        this.life = 1.0;
+        this.decay = 0.01 + Math.random() * 0.015;
+        this.radius = 2 + Math.random() * 2.5;
+        this.color = source === 'X' ? '#38bdf8' : '#818cf8';
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= this.decay;
+      }
+    }
+
+    function initCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    // 每一幀的物理與粒子渲染
+    function drawSimulation() {
+      const w = canvas.width / (window.devicePixelRatio || 1);
+      const h = canvas.height / (window.devicePixelRatio || 1);
+
+      // 1. 平滑逼近目標閥芯與氣缸位置 (Lerp)
+      state.spoolPosition += (state.targetSpoolPosition - state.spoolPosition) * 0.12;
+      state.cylinderPistonPos += (state.targetCylinderPos - state.cylinderPistonPos) * 0.15;
+
+      // 更新下游氣缸視覺
+      const pistonElem = document.getElementById('cylinder-piston');
+      if (pistonElem) {
+        pistonElem.setAttribute('transform', `translate(${state.cylinderPistonPos * 28}, 0)`);
+      }
+
+      // 清除畫布
+      ctx.clearRect(0, 0, w, h);
+
+      const centerX = w / 2;
+      const centerY = h / 2;
+      const chamberW = Math.min(w * 0.65, 340);
+      const chamberH = 90;
+      const pipeWidth = 28;
+
+      // 2. 繪製背景網格與導管
+      // 導管：X 入口 (左)
+      const gradX = ctx.createLinearGradient(0, centerY - pipeWidth/2, chamberX(0), centerY + pipeWidth/2);
+      gradX.addColorStop(0, state.inputX ? 'rgba(56, 189, 248, 0.4)' : 'rgba(30, 41, 59, 0.5)');
+      gradX.addColorStop(1, '#0f172a');
+      ctx.fillStyle = gradX;
+      ctx.fillRect(centerX - chamberW/2 - 60, centerY - pipeWidth/2, 60, pipeWidth);
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(centerX - chamberW/2 - 60, centerY - pipeWidth/2, 60, pipeWidth);
+
+      // 導管：Y 入口 (右)
+      ctx.fillStyle = state.inputY ? 'rgba(129, 140, 248, 0.4)' : 'rgba(30, 41, 59, 0.5)';
+      ctx.fillRect(centerX + chamberW/2, centerY - pipeWidth/2, 60, pipeWidth);
+      ctx.strokeRect(centerX + chamberW/2, centerY - pipeWidth/2, 60, pipeWidth);
+
+      // 導管：A 出口 (上)
+      const outActive = (state.valveMode === 'OR' && (state.inputX || state.inputY)) ||
+                        (state.valveMode === 'AND' && (state.inputX && state.inputY));
+      ctx.fillStyle = outActive ? 'rgba(52, 211, 153, 0.4)' : 'rgba(30, 41, 59, 0.5)';
+      ctx.fillRect(centerX - pipeWidth/2, centerY - chamberH/2 - 60, pipeWidth, 60);
+      ctx.strokeRect(centerX - pipeWidth/2, centerY - chamberH/2 - 60, pipeWidth, 60);
+
+      // 3. 閥體腔室外殼 (Chamber Base)
+      const bodyGrad = ctx.createLinearGradient(0, centerY - chamberH/2, 0, centerY + chamberH/2);
+      bodyGrad.addColorStop(0, '#1e293b');
+      bodyGrad.addColorStop(0.5, '#0f172a');
+      bodyGrad.addColorStop(1, '#1e293b');
+      ctx.fillStyle = bodyGrad;
+      ctx.fillRect(centerX - chamberW/2, centerY - chamberH/2, chamberW, chamberH);
+
+      // 閥體金屬外框
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(centerX - chamberW/2, centerY - chamberH/2, chamberW, chamberH);
+
+      // 4. 繪製閥座密封圈 (Valve Seats)
+      const seatWidth = 14;
+      ctx.fillStyle = '#f59e0b'; // 金色/琥珀色橡膠密封環
+      // 左密封座
+      ctx.fillRect(centerX - chamberW/2 + 30, centerY - chamberH/2 + 8, seatWidth, chamberH - 16);
+      // 右密封座
+      ctx.fillRect(centerX + chamberW/2 - 30 - seatWidth, centerY - chamberH/2 + 8, seatWidth, chamberH - 16);
+
+      // 5. 根據模式繪製內部活動閥芯
+      const maxDisplace = (chamberW/2) - 65;
+      const spoolOffsetX = state.spoolPosition * maxDisplace;
+
+      if (state.valveMode === 'OR') {
+        // ================= 梭動閥芯 (Shuttle Ball) =================
+        const ballX = centerX + spoolOffsetX;
+        const ballRadius = 26;
+
+        // 閥芯本體
+        const ballGrad = ctx.createRadialGradient(ballX - 6, centerY - 6, 2, ballX, centerY, ballRadius);
+        ballGrad.addColorStop(0, '#f8fafc');
+        ballGrad.addColorStop(0.7, '#94a3b8');
+        ballGrad.addColorStop(1, '#334155');
+
+        ctx.beginPath();
+        ctx.arc(ballX, centerY, ballRadius, 0, Math.PI * 2);
+        ctx.fillStyle = ballGrad;
+        ctx.fill();
+        ctx.strokeStyle = '#0284c7';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // 兩側橡膠止回墊片
+        ctx.fillStyle = '#f43f5e';
+        ctx.fillRect(ballX - ballRadius - 4, centerY - 14, 4, 28);
+        ctx.fillRect(ballX + ballRadius, centerY - 14, 4, 28);
+
+      } else {
+        // ================= 雙壓滑閥芯 (Dual-Pressure Stepped Spool) =================
+        const spoolX = centerX + spoolOffsetX;
+        const diskW = 16;
+        const diskH = chamberH - 24;
+
+        ctx.fillStyle = '#cbd5e1';
+        // 中央連桿
+        ctx.fillRect(spoolX - 35, centerY - 8, 70, 16);
+        ctx.strokeStyle = '#475569';
+        ctx.strokeRect(spoolX - 35, centerY - 8, 70, 16);
+
+        // 左側密封阻擋盤
+        const leftDiskGrad = ctx.createLinearGradient(spoolX - 45, 0, spoolX - 45 + diskW, 0);
+        leftDiskGrad.addColorStop(0, '#94a3b8');
+        leftDiskGrad.addColorStop(1, '#475569');
+        ctx.fillStyle = leftDiskGrad;
+        ctx.fillRect(spoolX - 45, centerY - diskH/2, diskW, diskH);
+        ctx.strokeRect(spoolX - 45, centerY - diskH/2, diskW, diskH);
+
+        // 右側密封阻擋盤
+        ctx.fillStyle = leftDiskGrad;
+        ctx.fillRect(spoolX + 45 - diskW, centerY - diskH/2, diskW, diskH);
+        ctx.strokeRect(spoolX + 45 - diskW, centerY - diskH/2, diskW, diskH);
+
+        // 密封環
+        ctx.fillStyle = '#f43f5e';
+        ctx.fillRect(spoolX - 45 - 3, centerY - 12, 3, 24);
+        ctx.fillRect(spoolX + 45, centerY - 12, 3, 24);
+      }
+
+      // 6. 氣流粒子發射與更新 (Particle Flow Dynamics)
+      if (state.inputX && Math.random() < 0.6) {
+        state.particles.push(new Particle('X', state.pressureX));
+      }
+      if (state.inputY && Math.random() < 0.6) {
+        state.particles.push(new Particle('Y', state.pressureY));
+      }
+
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.update();
+
+        // 粒子受閥芯與流道物理碰撞/轉向
+        if (state.valveMode === 'OR') {
+          // 梭動閥：未被阻擋側氣流往中間並向上排出
+          if (p.source === 'X' && state.spoolPosition < 0.7) {
+            if (p.x > centerX - 10) {
+              p.vy = -Math.abs(p.vx) * 0.9;
+              p.vx *= 0.3;
+            }
+          } else if (p.source === 'Y' && state.spoolPosition > -0.7) {
+            if (p.x < centerX + 10) {
+              p.vy = -Math.abs(p.vx) * 0.9;
+              p.vx *= 0.3;
+            }
+          }
+        } else {
+          // 雙壓閥：雙端皆通時氣流轉向出口 A；單端通時被阻擋盤擋住消散
+          if (state.inputX && state.inputY) {
+            if (Math.abs(p.x - centerX) < 25) {
+              p.vy = -4;
+              p.vx *= 0.1;
+            }
+          }
+        }
+
+        // 繪製粒子
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = p.color;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1.0;
+
+        if (p.life <= 0 || p.y < centerY - chamberH/2 - 70) {
+          state.particles.splice(i, 1);
+        }
+      }
+
+      // 7. 端口標示文字 (Port Labels)
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillText(`口 X (1)`, centerX - chamberW/2 - 55, centerY - pipeWidth/2 - 8);
+
+      ctx.fillStyle = '#818cf8';
+      ctx.fillText(`口 Y (1)`, centerX + chamberW/2 + 10, centerY - pipeWidth/2 - 8);
+
+      ctx.fillStyle = '#34d399';
+      ctx.fillText(`出口 A (2)`, centerX + pipeWidth/2 + 8, centerY - chamberH/2 - 35);
+
+      requestAnimationFrame(drawSimulation);
+    }
+
+    function chamberX(offset) {
+      const w = canvas.width / (window.devicePixelRatio || 1);
+      return w / 2 + offset;
+    }
+
+    // --- 視窗縮放自適應 ---
+    window.addEventListener('resize', () => {
+      initCanvas();
+    });
+
+    // --- 初始化執行 ---
+    window.addEventListener('DOMContentLoaded', () => {
+      initCanvas();
+      calculateLogic();
+      lucide.createIcons();
+      requestAnimationFrame(drawSimulation);
+    });
+  </script>
+</body>
+</html>
