@@ -833,5 +833,75 @@ window.INITIAL_AITOOLS_DATA = [
         "url": "https://modelcontextprotocol.io"
       }
     ]
+  },
+  {
+    "id": "tool-drive-gemini-notebook-canvas",
+    "toolNumber": "15",
+    "title": "Google 雲端硬碟掃描 ➔ NotebookLM ➔ Gemini Canvas 互動網頁全流程",
+    "date": "2026-09-01",
+    "category": "Gemini 智慧協作",
+    "summary": "示範完整的 Google 跨平台 AI 整合工作流：利用手機版 Google 雲端硬碟掃描實體家電/設備說明書為可搜尋 PDF，在 Google 文件中開啟並透過 Gemini 對話提煉電力注意事項，再匯入 NotebookLM 建立無幻覺的專屬知識庫，最後在 Gemini 中連結該筆記本並透過 Canvas 功能全自動生成高質感的「電力設備安裝與用電安全互動指南」網頁。",
+    "webUrl": "https://support.google.com/drive/answer/3145835?hl=zh-Hant&co=GENIE.Platform%3DAndroid&oco=2",
+    "flowImage": [
+      "images_src/ok/20260901_drive_scan_guide.png",
+      "images_src/ok/20260901_gdocs_gemini_chat.png",
+      "images_src/ok/20260901_notebooklm_dryer_guide.png",
+      "images_src/ok/20260901_gemini_canvas_prompt.png"
+    ],
+    "objective": "1. 掌握使用 Android/iOS 手機版 Google 雲端硬碟（Google Drive）相機掃描實體說明書並自動裁切、轉存為可搜尋 PDF 的技巧。\n2. 學習在 Google 文件中開啟 PDF，利用內建 Gemini 側邊欄對話快速提取關鍵安裝與電力規範重點。\n3. 掌握在 NotebookLM 中以雲端硬碟 PDF 作為來源（Source），生成結構化指南、簡報大綱與音訊摘要。\n4. 掌握在 Google Gemini 中呼叫「@NotebookLM」或上傳特定筆記本來源，並搭配「+ Canvas」功能全自動生成可互動的 HMI/教學網頁。",
+    "tutorialSteps": [
+      {
+        "step": "1. 手機版 Google Drive 掃描家電說明書上傳",
+        "description": "開啟手機上的「Google 雲端硬碟」App，輕觸右下角的「相機」圖示對準實體家電說明書（如 Bosch 乾衣機安裝手冊）。藍線會自動框出文件邊界並進行自動擷取與校正，調整濾鏡與裁切後點擊「完成」，將文件以可搜尋的 PDF 格式儲存並自動同步至 Google 雲端硬碟。"
+      },
+      {
+        "step": "2. 在 Google 文件中開啟並使用 Gemini 對話",
+        "description": "在電腦端瀏覽器開啟 Google 雲端硬碟，右鍵點擊剛上傳的 PDF 檔案以「Google 文件」開啟。點擊右上角或側邊欄的「Gemini」AI 助理圖示，輸入提問：『安裝時，電力相關要注意什麼？』，Gemini 會立即分析整份文件內容，快速提煉出 220V 專用迴路、接地需求與斷路器規格等核心條目。"
+      },
+      {
+        "step": "3. NotebookLM 新增雲端 PDF 來源並生成文件",
+        "description": "前往 NotebookLM (https://notebooklm.google) 建立新筆記本，點選「新增來源 ➔ Google 雲端硬碟」，選取剛才的家電說明書 PDF。在對話區針對安裝手冊進行無幻覺深入提問，並可在右側筆記工作室一鍵生成「常見問題解答 (FAQ)」、「學習指南」或「語音摘要」。"
+      },
+      {
+        "step": "4. Gemini 連結 NotebookLM + Canvas 產生互動網頁",
+        "description": "開啟 Google Gemini (https://gemini.google.com)，點擊輸入框左側「+」選取「Notebooks」並載入剛才建立的家電說明書筆記本。點擊「+ Canvas」啟用網頁編輯工作區，貼入 Prompt：『安裝時，電力相關要注意什麼？產生互動式網頁。』，Gemini 將依據手冊的權威數據，自動編寫並渲染出包含負載計算機、安全點檢表與五大黃金法則的完整 HMI 互動式網頁！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "實體設備手冊數位化與智慧問答系統",
+        "icon": "fa-solid fa-file-pdf",
+        "description": "工廠或實驗室常有數百頁厚重的 PLC、電磁閥、變頻器實體紙本說明書。透過手機 Drive 掃描並匯入 NotebookLM，技師在現場只需用語音或文字提問，AI 就能在 2 秒內定位出精確的配線端子腳位與參數設定。"
+      },
+      {
+        "scenario": "施工現場電力安全與法規自動點檢表",
+        "icon": "fa-solid fa-clipboard-check",
+        "description": "家電或工控安裝技師在進行大功率設備（如 220V 乾衣機、熱水器、EV 充電樁）施工前，透過 Gemini Canvas 產出的專屬點檢網頁，在手機上逐項勾選接地電阻、漏電斷路器規格，並一鍵匯出檢查報告供業主驗收。"
+      },
+      {
+        "scenario": "互動式機電教學教材與 HMI 原型快速搭建",
+        "icon": "fa-solid fa-laptop-code",
+        "description": "教師或學生只需上傳任何專業教材 PDF，即可利用 NotebookLM + Gemini Canvas 在 1 分鐘內全自動生成包含動態拉條試算、真值表與圖表呈現的互動式教學網頁，極大提高教學成果展示的專業度與互動性。"
+      }
+    ],
+    "aiPrompt": "以載入的「家電設備安裝說明書」筆記本為依據，請幫我針對安裝時的電力與用電安全規範，使用 HTML/CSS/JavaScript 產生一個專業、具備科技感暗黑風格的「電力設備安裝與用電安全互動指南」網頁：\\n1. 包含可即時計算額定電流、建議安全線徑 (mm² / AWG) 與斷路器容量 (A) 的負載試算機。\\n2. 包含情境式施工點檢表（支援 Bosch 220V 乾衣機、EV 充電樁等情境切換與報告複製）。\\n3. 整理電氣施工五大安全黃金法則與 6 大危險雷區排查診斷。\\n4. 包含緊急電氣事故應變處理彈窗。\\n5. 介面需支援 RWD 響應式佈局與現代磨砂玻璃質感。",
+    "references": [
+      {
+        "title": "互動模擬網頁：電力設備安裝與用電安全互動指南",
+        "url": "electrical_safety_guide.html"
+      },
+      {
+        "title": "Google 官方支援：使用 Google 雲端硬碟掃描文件",
+        "url": "https://support.google.com/drive/answer/3145835?hl=zh-Hant&co=GENIE.Platform%3DAndroid&oco=2"
+      },
+      {
+        "title": "Google NotebookLM 官方平台",
+        "url": "https://notebooklm.google"
+      },
+      {
+        "title": "Google Gemini 官方平台",
+        "url": "https://gemini.google.com"
+      }
+    ]
   }
 ];

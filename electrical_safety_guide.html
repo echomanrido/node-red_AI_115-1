@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>電力設備安裝與用電安全互動指南</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            electric: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              900: '#0c4a6e',
+            },
+            amberVolt: '#f59e0b',
+            dangerRed: '#ef4444',
+            safeGreen: '#10b981'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar & glass effect */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .neon-border-amber {
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+    }
+    .neon-border-cyan {
+      box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-cyan-500 selection:text-white">
+
+  <!-- 頂部導覽列 -->
+  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <a href="aitools.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700/60 rounded-lg text-slate-300 transition-colors flex items-center justify-center" title="返回 AI 工具講義">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </a>
+        <div class="p-2 bg-gradient-to-tr from-amber-500 to-cyan-500 rounded-lg text-slate-950 shadow-md">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg text-white leading-tight">電力安裝與施工安全指南</h1>
+          <p class="text-xs text-slate-400">Electrical Safety & Load Engineering Visualizer</p>
+        </div>
+      </div>
+
+      <!-- 導覽切換標籤 -->
+      <nav class="hidden md:flex space-x-1 bg-slate-800/60 p-1 rounded-xl border border-slate-700">
+        <button onclick="switchTab('calculator')" id="nav-calculator" class="tab-btn px-4 py-1.5 text-sm font-medium rounded-lg transition bg-cyan-600 text-white shadow">
+          負載與線徑計算
+        </button>
+        <button onclick="switchTab('checklist')" id="nav-checklist" class="tab-btn px-4 py-1.5 text-sm font-medium rounded-lg transition text-slate-400 hover:text-slate-200">
+          情境施工點檢表
+        </button>
+        <button onclick="switchTab('rules')" id="nav-rules" class="tab-btn px-4 py-1.5 text-sm font-medium rounded-lg transition text-slate-400 hover:text-slate-200">
+          五大安全黃金法則
+        </button>
+        <button onclick="switchTab('hazards')" id="nav-hazards" class="tab-btn px-4 py-1.5 text-sm font-medium rounded-lg transition text-slate-400 hover:text-slate-200">
+          危險雷區與診斷
+        </button>
+      </nav>
+
+      <!-- 快速緊急指南按鈕 -->
+      <button onclick="openEmergencyModal()" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-rose-600/20 text-rose-300 border border-rose-500/30 hover:bg-rose-600 hover:text-white transition flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>緊急電氣應變</span>
+      </button>
+    </div>
+
+    <!-- 行動裝置分頁切換 -->
+    <div class="flex md:hidden overflow-x-auto border-t border-slate-800 bg-slate-900 px-2 py-2 gap-1 text-xs no-scrollbar">
+      <button onclick="switchTab('calculator')" class="m-tab-btn flex-1 py-1.5 px-3 rounded-md whitespace-nowrap bg-cyan-600 text-white font-medium">負載計算</button>
+      <button onclick="switchTab('checklist')" class="m-tab-btn flex-1 py-1.5 px-3 rounded-md whitespace-nowrap text-slate-400 hover:text-white">施工點檢</button>
+      <button onclick="switchTab('rules')" class="m-tab-btn flex-1 py-1.5 px-3 rounded-md whitespace-nowrap text-slate-400 hover:text-white">安全準則</button>
+      <button onclick="switchTab('hazards')" class="m-tab-btn flex-1 py-1.5 px-3 rounded-md whitespace-nowrap text-slate-400 hover:text-white">危險診斷</button>
+    </div>
+  </header>
+
+  <!-- 主內容容器 -->
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-8">
+
+    <!-- TAB 1: 負載與線徑計算機 -->
+    <section id="sec-calculator" class="tab-content block space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- 左側輸入區 -->
+        <div class="lg:col-span-5 glass-panel rounded-2xl p-6 shadow-xl space-y-5">
+          <div class="border-b border-slate-700/80 pb-4">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <span class="text-cyan-400">⚡</span> 電力負載與安全配線試算
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">根據設備總功率、電壓與傳輸距離，自動匹配法規安全線徑與斷路器規格。</p>
+          </div>
+
+          <!-- 快速設備模板 -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-2">快速選擇設備情境範本：</label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <button onclick="applyPreset(110, 1500, 10, '一般廚房插座 (電鍋/微波爐)')" class="px-2.5 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 transition">110V 廚房大電 (1500W)</button>
+              <button onclick="applyPreset(220, 2800, 12, 'Bosch 220V 乾衣機 (專用漏保迴路)')" class="px-2.5 py-1.5 text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded border border-amber-500/40 transition font-medium">🧺 Bosch 乾衣機 (2.8kW)</button>
+              <button onclick="applyPreset(220, 2800, 15, '大噸數分離式冷氣')" class="px-2.5 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 transition">220V 冷氣 (2.8kW)</button>
+              <button onclick="applyPreset(220, 7000, 20, '即熱式電熱水器 / EV 慢充')" class="px-2.5 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 transition">220V 電熱水器 (7kW)</button>
+              <button onclick="applyPreset(220, 11000, 30, '電動車 48A 壁掛充電樁')" class="px-2.5 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 transition">EV 充電樁 (11kW)</button>
+              <button onclick="applyPreset(220, 3500, 12, 'IH 雙口電磁爐')" class="px-2.5 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 transition">IH 電磁爐 (3.5kW)</button>
+            </div>
+          </div>
+
+          <!-- 參數輸入 -->
+          <div class="space-y-4 pt-2">
+            <div>
+              <label class="flex justify-between text-sm font-medium text-slate-300 mb-1">
+                <span>系統供電電壓 (V)</span>
+                <span id="lbl-voltage" class="text-cyan-400 font-mono">220 V</span>
+              </label>
+              <select id="inp-voltage" onchange="calculateSpecs()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500">
+                <option value="110">單相 110V (一般家電/照明)</option>
+                <option value="220" selected>單相 220V (冷氣/充電樁/大功率熱水器)</option>
+                <option value="380">三相三線/四線 380V (工業/伺服器機房)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="flex justify-between text-sm font-medium text-slate-300 mb-1">
+                <span>設備額定總功率 (Watts)</span>
+                <span id="lbl-watts" class="text-amber-400 font-mono font-semibold">7000 W</span>
+              </label>
+              <div class="flex items-center space-x-3">
+                <input type="range" id="inp-watts-range" min="100" max="25000" step="100" value="7000" oninput="syncWatts(this.value)" class="flex-grow accent-cyan-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                <input type="number" id="inp-watts-num" min="100" max="100000" step="50" value="7000" oninput="syncWatts(this.value)" class="w-24 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm font-mono text-right text-slate-100 focus:border-cyan-500">
+              </div>
+            </div>
+
+            <div>
+              <label class="flex justify-between text-sm font-medium text-slate-300 mb-1">
+                <span>單程配線長度 (公尺 M)</span>
+                <span id="lbl-distance" class="text-slate-300 font-mono">20 m</span>
+              </label>
+              <input type="range" id="inp-distance" min="1" max="100" step="1" value="20" oninput="calculateSpecs()" class="w-full accent-cyan-500 bg-slate-800 h-2 rounded-lg cursor-pointer">
+              <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                <span>近距離 (1m)</span>
+                <span>一般室內 (15-25m)</span>
+                <span>長距離 (>50m 壓降明顯)</span>
+              </div>
+            </div>
+
+            <!-- 連續運轉係數切換 -->
+            <div class="flex items-center justify-between p-3 bg-slate-900/90 rounded-xl border border-slate-800">
+              <div>
+                <div class="text-sm font-medium text-slate-200">連續負載安全係數 (125%)</div>
+                <div class="text-[11px] text-slate-400">運轉超過 3 小時之設備（如 EV 充電、熱水器、空調）</div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="inp-continuous" checked onchange="calculateSpecs()" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側運算分析結果 -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <!-- 核心指標卡 -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="glass-panel p-4 rounded-2xl border-l-4 border-cyan-500">
+              <div class="text-xs text-slate-400 font-medium">額定工作電流 (Rated)</div>
+              <div class="text-2xl font-bold font-mono text-cyan-400 mt-1" id="res-current">31.8 A</div>
+              <div class="text-[11px] text-slate-500 mt-0.5" id="res-design-current">設計安全電流: 39.8 A</div>
+            </div>
+
+            <div class="glass-panel p-4 rounded-2xl border-l-4 border-amberVolt">
+              <div class="text-xs text-slate-400 font-medium">建議斷路器 (NFB / MCB)</div>
+              <div class="text-2xl font-bold font-mono text-amber-400 mt-1" id="res-breaker">40 A</div>
+              <div class="text-[11px] text-slate-400 mt-0.5" id="res-breaker-type">建議加裝 30mA 漏電保護</div>
+            </div>
+
+            <div class="glass-panel p-4 rounded-2xl border-l-4 border-emerald-500">
+              <div class="text-xs text-slate-400 font-medium">建議最低銅芯線徑</div>
+              <div class="text-2xl font-bold font-mono text-emerald-400 mt-1" id="res-wire">8.0 mm²</div>
+              <div class="text-[11px] text-slate-500 mt-0.5" id="res-awg">(約 8 AWG / 安全載流 40A)</div>
+            </div>
+          </div>
+
+          <!-- 深度安全評估指標 -->
+          <div class="glass-panel rounded-2xl p-6 space-y-4">
+            <h3 class="text-sm font-semibold text-slate-200 flex items-center justify-between">
+              <span>壓降損失與線路熱風險評估</span>
+              <span id="badge-voltage-drop" class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800">
+                壓降合格: 1.42%
+              </span>
+            </h3>
+
+            <!-- 壓降進度條 -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>估算線路壓降損失：<strong class="text-slate-200" id="res-drop-volts">3.12 V</strong></span>
+                <span>標準門檻: ≤ 3% (長距離 ≤ 5%)</span>
+              </div>
+              <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                <div id="bar-voltage-drop" class="bg-emerald-500 h-full transition-all duration-300" style="width: 28%;"></div>
+              </div>
+            </div>
+
+            <!-- 配線與保護裝置詳細建議清單 -->
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+              <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                <div class="text-xs font-semibold text-cyan-300 flex items-center gap-1.5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  接地線徑 (Grounding Wire)
+                </div>
+                <p class="text-xs text-slate-300" id="res-ground-wire">建議使用 5.5 mm² 專用綠色接地線，接地電阻需小於 100Ω (三種接地)。</p>
+              </div>
+
+              <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                <div class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  配線管路與接頭建議
+                </div>
+                <p class="text-xs text-slate-300" id="res-conduit-tip">建議穿入 PVC/CD 管或金屬 EMT 管保護，接線端需使用冷壓端子並依額定扭矩鎖緊。</p>
+              </div>
+            </div>
+
+            <!-- 即時安全提醒警示 (動態) -->
+            <div id="dynamic-warning-box" class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs flex items-start gap-2.5">
+              <svg class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div class="text-slate-300" id="dynamic-warning-text">
+                此負載電流較大，務必拉設「專用獨立迴路（Dedicated Circuit）」，嚴禁與一般插座或照明共用分路，開關箱螺絲需使用扭力起子確實鎖緊。
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: 情境施工點檢表 -->
+    <section id="sec-checklist" class="tab-content hidden space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-5 rounded-2xl">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="text-emerald-400">📋</span> 實務安裝前中後安全防護點檢
+          </h2>
+          <p class="text-xs text-slate-400">依安裝類別逐項確認，杜絕漏電、跳閘與電氣火災隱患。</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- 統計進度 -->
+          <div class="text-right">
+            <div class="text-xs text-slate-400">點檢完成率</div>
+            <div class="text-sm font-bold text-cyan-400 font-mono" id="checklist-progress-text">0 / 0 (0%)</div>
+          </div>
+          <button onclick="resetChecklist()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700">重置</button>
+          <button onclick="exportChecklistReport()" class="px-3.5 py-1.5 text-xs bg-cyan-600 hover:bg-cyan-500 text-white font-medium rounded-lg shadow flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            複製檢查報告
+          </button>
+        </div>
+      </div>
+
+      <!-- 情境切換 -->
+      <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-3">
+        <button onclick="switchCategory('dryer')" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40" data-cat="dryer">🧺 Bosch/歐規 220V 乾衣機</button>
+        <button onclick="switchCategory('general')" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-slate-400 border border-slate-800" data-cat="general">🏡 一般居家/廚房高功率</button>
+        <button onclick="switchCategory('ev')" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-slate-400 border border-slate-800" data-cat="ev">🚗 EV 充電樁安裝</button>
+        <button onclick="switchCategory('hvac')" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-slate-400 border border-slate-800" data-cat="hvac">❄️ 空調 / 熱泵 / 熱水器</button>
+        <button onclick="switchCategory('panel')" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-slate-400 border border-slate-800" data-cat="panel">⚡ 配電箱擴充與改線</button>
+      </div>
+
+      <!-- 點檢項目清單容器 -->
+      <div id="checklist-items-container" class="space-y-3">
+        <!-- 動態渲染 -->
+      </div>
+    </section>
+
+    <!-- TAB 3: 五大安全黃金法則 -->
+    <section id="sec-rules" class="tab-content hidden space-y-6">
+      <div class="border-b border-slate-800 pb-4">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <span class="text-amber-400">🛡️</span> 電氣施工作業五大黃金法則 (5 Golden Rules)
+        </h2>
+        <p class="text-xs text-slate-400 mt-1">國際電工標準規範之關鍵生命防線，任何電氣維護與安裝必須嚴格執行。</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- 法則 1 -->
+        <div class="glass-panel p-6 rounded-2xl relative overflow-hidden border-t-4 border-rose-500 group hover:border-rose-400 transition">
+          <div class="absolute top-3 right-3 text-3xl font-black text-slate-800">01</div>
+          <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-white">徹底斷電與上鎖掛牌 (LOTO)</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            絕不可僅關閉設備本身的開關，必須至總配電箱切斷對應的<strong class="text-rose-300">無熔絲開關 (NFB)</strong>。若於公共區域或多人施工，應懸掛「維修中禁止合閘」警示標籤。
+          </p>
+          <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-rose-400 font-medium flex items-center gap-1">
+            ⚠️ 切勿抱持「帶電作業一次沒關係」的僥倖心態。
+          </div>
+        </div>
+
+        <!-- 法則 2 -->
+        <div class="glass-panel p-6 rounded-2xl relative overflow-hidden border-t-4 border-amberVolt group hover:border-amber-400 transition">
+          <div class="absolute top-3 right-3 text-3xl font-black text-slate-800">02</div>
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-white">接觸前「雙重驗電」驗證</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            切斷電源後，手部接觸任何銅線前，必須先使用<strong class="text-amber-300">非接觸式驗電筆</strong>初驗，再使用<strong class="text-amber-300">數位三用電表</strong>量測火線(L)-中性線(N)、火線(L)-地線(G)是否均為 0V。
+          </p>
+          <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-amber-400 font-medium">
+            💡 驗電三步驟：先測已知有電源確認電表正常 ➔ 測目標線路 ➔ 再測已知電源。
+          </div>
+        </div>
+
+        <!-- 法則 3 -->
+        <div class="glass-panel p-6 rounded-2xl relative overflow-hidden border-t-4 border-emerald-500 group hover:border-emerald-400 transition">
+          <div class="absolute top-3 right-3 text-3xl font-black text-slate-800">03</div>
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-white">實質接地與漏電保護 (GFCI/ELCB)</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            金屬外殼設備（熱水器、洗衣機、充電樁、冷凍設備）<strong class="text-emerald-300">必須具備確實接地線 (PE)</strong>，並於潮濕或高功率迴路安裝高速高靈敏度漏電斷路器 (30mA / 0.1秒內跳脫)。
+          </p>
+          <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-emerald-400 font-medium">
+            ⚡ 嚴禁將地線 (G) 私自短接至中性線 (N) 偽裝接地！
+          </div>
+        </div>
+
+        <!-- 法則 4 -->
+        <div class="glass-panel p-6 rounded-2xl relative overflow-hidden border-t-4 border-cyan-500 group hover:border-cyan-400 transition">
+          <div class="absolute top-3 right-3 text-3xl font-black text-slate-800">04</div>
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-white">線徑與斷路器容量精確匹配</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            斷路器是「保護電線不被燒融」，而非保護設備。永遠保持<strong class="text-cyan-300">「電線安全載流量 > 斷路器跳脫容量」</strong>。例如：2.0mm 單芯線最大載流約 19-20A，斷路器絕不可配 30A！
+          </p>
+          <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-cyan-400 font-medium">
+            🔥 「小線配大掣」是導致暗管電線走火的第一主因。
+          </div>
+        </div>
+
+        <!-- 法則 5 -->
+        <div class="glass-panel p-6 rounded-2xl relative overflow-hidden border-t-4 border-purple-500 group hover:border-purple-400 transition">
+          <div class="absolute top-3 right-3 text-3xl font-black text-slate-800">05</div>
+          <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-white">標準壓接工藝與扭矩校準</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            多芯絞線務必使用專用「冷壓端子 (O型 / 針型)」配合壓接鉗，嚴禁直接散線塞入螺絲孔。鎖付配電箱斷路器與端子排時，需使用<strong class="text-purple-300">扭力起子</strong>依原廠標定扭矩鎖緊。
+          </p>
+          <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-purple-400 font-medium">
+            🔩 螺絲未鎖緊造成的「接觸電阻虛接」會使端子溫度飆破 200°C。
+          </div>
+        </div>
+
+        <!-- 專業防護裝備卡 -->
+        <div class="glass-panel p-6 rounded-2xl relative overflow-hidden border border-slate-700 bg-gradient-to-br from-slate-900 to-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="text-xs font-bold text-cyan-400 tracking-wider uppercase mb-1">必備安全防護 PPE</div>
+            <h3 class="text-base font-bold text-white">施工前個人防護裝備查核</h3>
+            <ul class="mt-3 space-y-2 text-xs text-slate-300">
+              <li class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span> 1000V 絕緣螺絲起子與電工鉗
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span> Class 0 絕緣防護手套 (乾淨無破損)
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span> 絕緣電工安全鞋 (耐電壓橡膠底)
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span> 防護護目鏡 (防止短路時電弧火花噴濺)
+              </li>
+            </ul>
+          </div>
+          <div class="mt-4 p-2.5 bg-slate-950/60 rounded-lg text-[11px] text-slate-400">
+            嚴禁在潮濕地面、雨天室外無遮蔽或赤腳狀態下接觸任何通電設備。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 4: 危險雷區與排查診斷 -->
+    <section id="sec-hazards" class="tab-content hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span class="text-rose-500">⚠️</span> 常見電氣施工危險雷區與排查診斷
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">分析最容易引發火災與感電事故的 6 大施工盲點與改善對策。</p>
+        </div>
+        <!-- 搜尋篩選 -->
+        <input type="text" id="hazard-search" oninput="filterHazards()" placeholder="搜尋關鍵字 (如: 接地、跳閘、發熱)..." class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl px-3 py-2 w-full sm:w-64 focus:outline-none focus:border-cyan-500">
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="hazards-grid">
+        <!-- 卡片 1 -->
+        <div class="hazard-card glass-panel p-5 rounded-2xl border border-rose-500/30 space-y-3">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-500/20 text-rose-400 border border-rose-500/40">極高危險</span>
+              <h3 class="text-sm font-bold text-white">虛接接觸不良 ➔ 端子氧化高溫自燃</h3>
+            </div>
+            <span class="text-slate-500 text-xs font-mono">#01</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <strong class="text-slate-100">現象：</strong>接線螺絲未鎖到規定扭矩、或多股線未壓端子散開。電流通過接觸不良點時產生高電阻 ($P=I^2 R$)，短時間內發熱使絕緣皮碳化起火。
+          </p>
+          <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs space-y-1">
+            <div class="text-emerald-400 font-semibold text-[11px]">正確處置法：</div>
+            <div class="text-slate-400 text-[11px]">使用壓接鉗壓著規格匹配的端子；施工完成 1 個月或通電滿載後，使用紅外線熱像儀檢測配電箱節點溫度（溫差 >5°C 即需重新鎖固）。</div>
+          </div>
+        </div>
+
+        <!-- 卡片 2 -->
+        <div class="hazard-card glass-panel p-5 rounded-2xl border border-rose-500/30 space-y-3">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-500/20 text-rose-400 border border-rose-500/40">致命隱患</span>
+              <h3 class="text-sm font-bold text-white">中性線 (N) 與地線 (G) 混接或假接地</h3>
+            </div>
+            <span class="text-slate-500 text-xs font-mono">#02</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <strong class="text-slate-100">現象：</strong>在插座端將地線孔直接拉一條短線連到中性線（俗稱偷吃步做假接地），或者在分電箱內將 N 與 PE 排亂混接。
+          </p>
+          <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs space-y-1">
+            <div class="text-emerald-400 font-semibold text-[11px]">嚴重後果與排查：</div>
+            <div class="text-slate-400 text-[11px]">一旦外部主幹線中性線斷路，所有電器金屬外殼立即帶上 110V/220V 致命市電；此外會導致漏電斷路器 (ELCB) 無法正常合閘或頻繁誤跳。</div>
+          </div>
+        </div>
+
+        <!-- 卡片 3 -->
+        <div class="hazard-card glass-panel p-5 rounded-2xl border border-amber-500/30 space-y-3">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-500/20 text-amber-400 border border-amber-500/40">配線違規</span>
+              <h3 class="text-sm font-bold text-white">小線配大開關 (失保走火)</h3>
+            </div>
+            <span class="text-slate-500 text-xs font-mono">#03</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <strong class="text-slate-100">現象：</strong>原迴路使用 1.6mm 或 2.0mm 電線（載流極限 15A-19A），因經常跳閘，不專業人員直接將 15A 斷路器私自更換為 30A 或 40A。
+          </p>
+          <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs space-y-1">
+            <div class="text-emerald-400 font-semibold text-[11px]">正確處置法：</div>
+            <div class="text-slate-400 text-[11px]">跳閘代表「負載已超過電線安全能力」。應抽換更粗線徑（如 5.5mm²）或重新拉設獨立專用迴路，切不可單純加大開關容量！</div>
+          </div>
+        </div>
+
+        <!-- 卡片 4 -->
+        <div class="hazard-card glass-panel p-5 rounded-2xl border border-amber-500/30 space-y-3">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-500/20 text-amber-400 border border-amber-500/40">材料缺陷</span>
+              <h3 class="text-sm font-bold text-white">銅線與鋁線直接纏繞 (電化學腐蝕)</h3>
+            </div>
+            <span class="text-slate-500 text-xs font-mono">#04</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <strong class="text-slate-100">現象：</strong>老舊建築主線常為鋁線，裝修時直接用電工膠帶將新銅線與舊鋁線絞接在一起。
+          </p>
+          <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs space-y-1">
+            <div class="text-emerald-400 font-semibold text-[11px]">正確處置法：</div>
+            <div class="text-slate-400 text-[11px]">銅鋁電位差大且熱膨脹係數不同，通電受潮會迅速氧化腐蝕斷裂。必須使用專用「銅鋁過渡接頭 (Al/Cu Connector)」並塗抹導電膏隔絕空氣。</div>
+          </div>
+        </div>
+
+        <!-- 卡片 5 -->
+        <div class="hazard-card glass-panel p-5 rounded-2xl border border-cyan-500/30 space-y-3">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">散熱隱患</span>
+              <h3 class="text-sm font-bold text-white">導線管內穿線率過滿 (管內積熱)</h3>
+            </div>
+            <span class="text-slate-500 text-xs font-mono">#05</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <strong class="text-slate-100">現象：</strong>在一根四分 (1/2") PVC 管內硬塞入 6 條以上 5.5mm² 電線，導致管內截面積佔用率超過 40% 法規上限。
+          </p>
+          <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs space-y-1">
+            <div class="text-emerald-400 font-semibold text-[11px]">散熱修正係數：</div>
+            <div class="text-slate-400 text-[11px]">同一管內多條導線同時通電時，熱量無法散逸，電線載流量需打折（4~6 條打 8 折，7~9 條打 7 折）。應分管配線或選用更大管徑。</div>
+          </div>
+        </div>
+
+        <!-- 卡片 6 -->
+        <div class="hazard-card glass-panel p-5 rounded-2xl border border-cyan-500/30 space-y-3">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">環境防護</span>
+              <h3 class="text-sm font-bold text-white">戶外或潮濕處無 IP 防水防塵與滴水彎</h3>
+            </div>
+            <span class="text-slate-500 text-xs font-mono">#06</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <strong class="text-slate-100">現象：</strong>室外充電樁、冷氣室外機接線盒未使用 IP65 等級防水盒，且電纜進線口由上方進入且未留「U 型滴水彎 (Drip Loop)」。
+          </p>
+          <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs space-y-1">
+            <div class="text-emerald-400 font-semibold text-[11px]">正確施作標準：</div>
+            <div class="text-slate-400 text-[11px]">電纜線必須「由下方進線」，並鎖緊防水格蘭頭 (Cable Gland)，管口施打防火防水矽利康密封。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 緊急電氣應變彈出視窗 (Modal) -->
+  <div id="emergency-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-panel bg-slate-900 border border-rose-500/50 max-w-2xl w-full rounded-2xl p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95">
+      <div class="flex items-center justify-between border-b border-rose-500/30 pb-3">
+        <div class="flex items-center space-x-2 text-rose-400">
+          <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h3 class="text-lg font-bold text-white">電氣事故緊急黃金應變程序</h3>
+        </div>
+        <button onclick="closeEmergencyModal()" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs text-slate-300">
+        <!-- 步驟 1 -->
+        <div class="p-3.5 rounded-xl bg-rose-950/40 border border-rose-900 flex items-start gap-3">
+          <div class="w-6 h-6 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">1</div>
+          <div>
+            <div class="font-bold text-rose-300 text-sm">第一步：切斷電源，切勿直接拉扯觸電者！</div>
+            <p class="mt-1 text-slate-300 leading-relaxed">
+              立即切斷總電源斷路器。若無法即時切斷，使用<strong class="text-white">乾燥不導電之木棍、塑膠掃把柄或厚橡膠</strong>將患者與帶電體推開。施救者嚴禁徒手觸碰觸電者皮膚。
+            </p>
+          </div>
+        </div>
+
+        <!-- 步驟 2 -->
+        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700 flex items-start gap-3">
+          <div class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 font-bold flex items-center justify-center flex-shrink-0 text-xs">2</div>
+          <div>
+            <div class="font-bold text-amber-300 text-sm">第二步：電氣火災滅火器正確選用</div>
+            <p class="mt-1 text-slate-300 leading-relaxed">
+              電氣火災屬於 <strong class="text-white">C 類火災</strong>。<br>
+              ✅ <strong class="text-emerald-400">可用：</strong> 二氧化碳 (CO₂) 滅火器、乾粉 (ABC 類) 滅火器。<br>
+              ❌ <strong class="text-rose-400">嚴禁使用：</strong> 水、泡沫滅火器或水霧（水具導電性，會造成滅火者嚴重觸電爆炸）。
+            </p>
+          </div>
+        </div>
+
+        <!-- 步驟 3 -->
+        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700 flex items-start gap-3">
+          <div class="w-6 h-6 rounded-full bg-cyan-500 text-slate-950 font-bold flex items-center justify-center flex-shrink-0 text-xs">3</div>
+          <div>
+            <div class="font-bold text-cyan-300 text-sm">第三步：評估生命徵象與求救</div>
+            <p class="mt-1 text-slate-300 leading-relaxed">
+              撥打 119。若傷患失去意識且無呼吸心跳，立即實施 <strong class="text-white">CPR 心肺復甦術</strong> 並請旁人取得 <strong class="text-white">AED (自動體外心臟去顫器)</strong> 進行電擊搶救（觸電常引發心室顫動）。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex justify-end">
+        <button onclick="closeEmergencyModal()" class="px-5 py-2 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-white rounded-xl">我已知悉並關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast 訊息通知框 (替代 alert) -->
+  <div id="toast-box" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-cyan-600 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-medium border border-cyan-400">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+      <span id="toast-message">操作完成</span>
+    </div>
+  </div>
+
+  <!-- 頁尾 -->
+  <footer class="mt-auto border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div>© 2026 電力安裝安全互動系統 · 遵守 IEC 60364 與 用戶用電設備裝置規則</div>
+      <div class="flex items-center space-x-4 text-slate-400">
+        <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> 規範標準：CNS / NEC / IEC</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript 邏輯 -->
+  <script>
+    /* 點檢項目資料庫 */
+    const checklistData = {
+      dryer: [
+        { id: 'd1', title: '220V 獨立專用迴路 (Dedicated Circuit)', desc: 'Bosch 乾衣機額定功率約 2000W~2800W，必須從配電箱直接拉設獨立專線，嚴禁與洗衣機、熱水器或一般 110V 插座共用或串接。', cat: 'dryer', level: '必要' },
+        { id: 'd2', title: '專用 2P 漏電斷路器 (ELCB / RCBO 30mA)', desc: '配電盤端必須配置 2P 20A（或原廠標定 16A）之高速型漏電斷路器，額定感度電流 ≤ 30mA、動作時間 ≤ 0.1秒，能同時切斷兩條火線 (L1/L2)。', cat: 'dryer', level: '必要' },
+        { id: 'd3', title: '金屬外殼實質接地 (PE 接地端子)', desc: '乾衣機滾筒為金屬導體且運轉易累積靜電與濕氣，必須拉設獨立綠色接地線（≥2.0mm² 或 3.5mm²），接地電阻需 <100Ω，杜絕手觸微電刺痛或漏電致命。', cat: 'dryer', level: '必要' },
+        { id: 'd4', title: '專用 220V 插座與耐高溫線材', desc: '安裝合格之 220V 專用三孔插座（如美規 NEMA 6-20R / 6-15R 或歐規 Schuko 接地座），線徑建議採用 3.5mm² 或 5.5mm² 銅芯線，杜絕插頭鬆動接觸不良發熱。', cat: 'dryer', level: '必要' },
+        { id: 'd5', title: '漏電斷路器「每月月檢 (Test 鍵)」機制', desc: '施工完成與驗收時按壓斷路器之橘色/黃色「TEST 測試鈕」，確認開關瞬間確實跳脫切斷電源，並告知業主每月定期測試一次。', cat: 'dryer', level: '高' },
+        { id: 'd6', title: '工作陽台防潮防水盒 (IP55 保護蓋)', desc: '若乾衣機置於工作陽台或近洗衣槽潮濕處，插座需加裝防雨防潑水透明掀蓋式保護盒，且電纜進線須由下方進線避免雨水順線滲漏。', cat: 'dryer', level: '高' },
+        { id: 'd7', title: '嚴禁使用廉價 110V 升壓器 (Step-Up Transformer)', desc: '切勿為了省下拉線工資而使用小型 110V 轉 220V 變壓器帶動大功率乾衣機，變壓器長時間大電流負載極易發熱自燃引發火災。', cat: 'dryer', level: '必要' }
+      ],
+      general: [
+        { id: 'g1', title: '獨立分路配置', desc: '微波爐、烤箱、電熱水瓶等超過 1000W 設備已拉設專用單一插座分路，無延長線串接。', cat: 'general', level: '高' },
+        { id: 'g2', title: '漏電斷路器 (ELCB) 測試', desc: '廚房、浴室等近水潮濕區域之插座迴路已加裝 30mA 高感度高速型漏電斷路器，按壓 Test 鍵可正常跳脫。', cat: 'general', level: '必要' },
+        { id: 'g3', title: '接地端子實質接地', desc: '三孔插座之地線孔確實驗出接地，與中性線電壓差小於 2V，嚴禁空接或短接至中性線。', cat: 'general', level: '必要' },
+        { id: 'g4', title: '插座規格匹配', desc: '高功率廚房家電選用 20A 規格壁插（T型插孔）及耐熱線材，無塑膠面板泛黃或受熱變形痕跡。', cat: 'general', level: '建議' }
+      ],
+      ev: [
+        { id: 'ev1', title: '容量與電表容量評估', desc: '住宅總配電盤額定總安培數足夠（充電樁 32A/48A 需配合 125% 連續負載係數預留 40A/60A 斷路器）。', cat: 'ev', level: '必要' },
+        { id: 'ev2', title: '專用線徑與金屬導線管', desc: '電纜採用 8mm² 或 14mm² 以上單芯/多芯絞線，全程穿入金屬 EMT 管或防曬防水可撓金屬管保護。', cat: 'ev', level: '必要' },
+        { id: 'ev3', title: 'A型/B型漏電保護機制', desc: '斷路器具備對 AC/DC 脈動直流漏電之偵測跳脫能力（Type-A EV 或 Type-B 漏保），避免充電樁直流洩漏導致保護失效。', cat: 'ev', level: '高' },
+        { id: 'ev4', title: '戶外防水與滴水彎 (Drip Loop)', desc: '戶外壁掛樁達到 IP55/IP65 防護等級，管線由下方進線並保留 U 型滴水彎，防雨水順線滲入機板。', cat: 'ev', level: '必要' },
+        { id: 'ev5', title: '接地電阻量測 (<100Ω)', desc: 'EV 充電設備接地端子已使用接地電阻計量測，電阻值確實低於 100Ω（建議 <10Ω 最佳）。', cat: 'ev', level: '必要' }
+      ],
+      hvac: [
+        { id: 'h1', title: '專用 220V 雙極斷路器 (2P NFB)', desc: '冷氣與儲熱/即熱式熱水器採用 2P 獨立無熔絲開關，能同時切斷兩條火線 (L1/L2)。', cat: 'hvac', level: '必要' },
+        { id: 'h2', title: '室外機防振與金屬隔離開關', desc: '室外機附近安裝手動維修切斷開關 (Safety Disconnect Switch)，便於技師安全維修時徹底斷電。', cat: 'hvac', level: '高' },
+        { id: 'h3', title: '控制線與信號線隔離', desc: '變頻冷氣通訊信號線採用屏蔽線並與高壓電源線分管配置，防止電磁干擾造成機板通訊故障。', cat: 'hvac', level: '建議' },
+        { id: 'h4', title: '熱水器漏電開關連動', desc: '電熱水器機身金屬外殼與熱水銅管確實接地，線路前端配置專用漏電斷路器。', cat: 'hvac', level: '必要' }
+      ],
+      panel: [
+        { id: 'p1', title: '斷電驗電三步驟 (LOTO)', desc: '主開關切斷後，使用電表測量確認各匯流排銅排與出線端確實 0V 無電壓。', cat: 'panel', level: '必要' },
+        { id: 'p2', title: '扭力起子標準校緊', desc: '斷路器螺絲接點依標定數值（如 2.5 N·m - 4.5 N·m）確實鎖緊，防止接觸電阻過熱。', cat: 'panel', level: '必要' },
+        { id: 'p3', title: '三相/單相負載平衡分配', desc: '重新分配單相 110V 負載於 L1 與 L2 兩相之間，兩相電流不平衡度小於 10%，避免中性線超載過熱。', cat: 'panel', level: '高' },
+        { id: 'p4', title: '壓接端子絕緣套管', desc: '多芯絞線一律使用專用銅質鍍錫壓接端子 (O型)，並套上絕緣套管標示相序色（黑/紅/藍/白/綠）。', cat: 'panel', level: '必要' },
+        { id: 'p5', title: '絕緣阻抗測試 (Megger)', desc: '送電前使用 500V 兆歐表測量相間及相地絕緣阻抗，數值必須大於 1.0 MΩ (標準應 >10 MΩ)。', cat: 'panel', level: '高' }
+      ]
+    };
+
+    // 使用者勾選狀態
+    let checkedState = {};
+    let currentCategory = 'dryer';
+
+    // 初始化頁面
+    window.addEventListener('DOMContentLoaded', () => {
+      calculateSpecs();
+      renderChecklist();
+    });
+
+    /* TAB 切換 */
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      const activeSec = document.getElementById('sec-' + tabId);
+      if (activeSec) activeSec.classList.remove('hidden');
+
+      // 更新 Desktop 按鈕樣式
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-cyan-600', 'text-white', 'shadow');
+        btn.classList.add('text-slate-400');
+      });
+      const activeNav = document.getElementById('nav-' + tabId);
+      if (activeNav) {
+        activeNav.classList.add('bg-cyan-600', 'text-white', 'shadow');
+        activeNav.classList.remove('text-slate-400');
+      }
+
+      // 更新 Mobile 按鈕樣式
+      document.querySelectorAll('.m-tab-btn').forEach((mbtn, idx) => {
+        const tabs = ['calculator', 'checklist', 'rules', 'hazards'];
+        if (tabs[idx] === tabId) {
+          mbtn.classList.add('bg-cyan-600', 'text-white');
+          mbtn.classList.remove('text-slate-400');
+        } else {
+          mbtn.classList.remove('bg-cyan-600', 'text-white');
+          mbtn.classList.add('text-slate-400');
+        }
+      });
+    }
+
+    /* 負載計算機邏輯 */
+    function syncWatts(val) {
+      document.getElementById('inp-watts-range').value = val;
+      document.getElementById('inp-watts-num').value = val;
+      document.getElementById('lbl-watts').textContent = Number(val).toLocaleString() + ' W';
+      calculateSpecs();
+    }
+
+    function applyPreset(v, w, dist, label) {
+      document.getElementById('inp-voltage').value = v;
+      document.getElementById('inp-distance').value = dist;
+      syncWatts(w);
+      showToast(`已套用範本：${label}`);
+    }
+
+    function calculateSpecs() {
+      const v = parseFloat(document.getElementById('inp-voltage').value);
+      const w = parseFloat(document.getElementById('inp-watts-num').value);
+      const dist = parseFloat(document.getElementById('inp-distance').value);
+      const isContinuous = document.getElementById('inp-continuous').checked;
+
+      document.getElementById('lbl-voltage').textContent = v + ' V';
+      document.getElementById('lbl-distance').textContent = dist + ' m';
+      document.getElementById('lbl-watts').textContent = Number(w).toLocaleString() + ' W';
+
+      // 額定電流計算 (三相 380V: I = P / (sqrt(3) * V * pf=0.85); 單相: I = P / V)
+      let ratedCurrent = 0;
+      if (v === 380) {
+        ratedCurrent = w / (Math.sqrt(3) * 380 * 0.9);
+      } else {
+        ratedCurrent = w / v;
+      }
+
+      // 連續負載設計電流 (1.25x)
+      const designCurrent = isContinuous ? ratedCurrent * 1.25 : ratedCurrent;
+
+      // 推薦斷路器標準容量 (15, 20, 30, 40, 50, 60, 75, 100, 125, 150, 200)
+      const breakers = [15, 20, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200, 250];
+      let recommendedBreaker = breakers.find(b => b >= designCurrent) || Math.ceil(designCurrent / 50) * 50;
+
+      // 建議最低線徑 (基於 PVC 導線管 3 條以下載流量規範，台灣 CNS / IEC)
+      let wireMm2 = 2.0;
+      let awgText = "2.0 mm 單芯線 (約 12 AWG / 19A)";
+      let wireResistancePerKm = 5.65; // Ω/km approx for copper
+
+      if (recommendedBreaker <= 15) {
+        wireMm2 = 1.6;
+        awgText = "1.6 mm / 2.0 mm² (15A)";
+        wireResistancePerKm = 8.9;
+      } else if (recommendedBreaker <= 20) {
+        wireMm2 = 3.5;
+        awgText = "3.5 mm² (約 12 AWG / 20A)";
+        wireResistancePerKm = 5.2;
+      } else if (recommendedBreaker <= 30) {
+        wireMm2 = 5.5;
+        awgText = "5.5 mm² (約 10 AWG / 30A)";
+        wireResistancePerKm = 3.3;
+      } else if (recommendedBreaker <= 40) {
+        wireMm2 = 8.0;
+        awgText = "8.0 mm² (約 8 AWG / 40A)";
+        wireResistancePerKm = 2.3;
+      } else if (recommendedBreaker <= 55) {
+        wireMm2 = 14.0;
+        awgText = "14 mm² (約 6 AWG / 55A)";
+        wireResistancePerKm = 1.3;
+      } else if (recommendedBreaker <= 70) {
+        wireMm2 = 22.0;
+        awgText = "22 mm² (約 4 AWG / 70A)";
+        wireResistancePerKm = 0.82;
+      } else if (recommendedBreaker <= 95) {
+        wireMm2 = 38.0;
+        awgText = "38 mm² (約 2 AWG / 95A)";
+        wireResistancePerKm = 0.48;
+      } else {
+        wireMm2 = 60.0;
+        awgText = "60 mm² 以上電纜";
+        wireResistancePerKm = 0.31;
+      }
+
+      // 壓降計算 (單相 V_drop = 2 * L * I * R / 1000 ; 三相 V_drop = sqrt(3) * L * I * R / 1000)
+      let vDrop = 0;
+      if (v === 380) {
+        vDrop = (Math.sqrt(3) * dist * ratedCurrent * wireResistancePerKm) / 1000;
+      } else {
+        vDrop = (2 * dist * ratedCurrent * wireResistancePerKm) / 1000;
+      }
+      const dropPercentage = (vDrop / v) * 100;
+
+      // 如果壓降超過 3%，建議提升線徑一階以避免壓降過大
+      let dropWarning = "";
+      if (dropPercentage > 3.0) {
+        dropWarning = ` (⚠️ 壓降已達 ${dropPercentage.toFixed(1)}%，建議將線徑放大一階以減少線損發熱)`;
+      }
+
+      // 接地線建議
+      let groundWireText = "2.0 mm² (綠色)";
+      if (recommendedBreaker > 30 && recommendedBreaker <= 60) groundWireText = "5.5 mm² (綠色)";
+      if (recommendedBreaker > 60 && recommendedBreaker <= 100) groundWireText = "8.0 mm² (綠色)";
+      if (recommendedBreaker > 100) groundWireText = "14.0 mm² 以上 (綠色)";
+
+      // 更新畫面 DOM
+      document.getElementById('res-current').textContent = ratedCurrent.toFixed(1) + ' A';
+      document.getElementById('res-design-current').textContent = `設計安全電流: ${designCurrent.toFixed(1)} A ${isContinuous ? '(含125%)' : ''}`;
+      document.getElementById('res-breaker').textContent = recommendedBreaker + ' A';
+      document.getElementById('res-wire').textContent = wireMm2 + ' mm²';
+      document.getElementById('res-awg').textContent = awgText + dropWarning;
+      document.getElementById('res-drop-volts').textContent = vDrop.toFixed(2) + ' V';
+      document.getElementById('res-ground-wire').innerHTML = `建議接地線徑：<strong class="text-cyan-300 font-mono">${groundWireText}</strong>，接地電阻需小於 100Ω。`;
+
+      // 壓降 Badge 與進度條
+      const badge = document.getElementById('badge-voltage-drop');
+      const bar = document.getElementById('bar-voltage-drop');
+      const clampedPercent = Math.min(Math.max(dropPercentage * 10, 5), 100);
+      bar.style.width = clampedPercent + '%';
+
+      if (dropPercentage <= 2.5) {
+        badge.className = "px-2.5 py-0.5 text-xs font-mono rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800";
+        badge.textContent = `壓降優良: ${dropPercentage.toFixed(2)}%`;
+        bar.className = "bg-emerald-500 h-full transition-all duration-300";
+      } else if (dropPercentage <= 3.5) {
+        badge.className = "px-2.5 py-0.5 text-xs font-mono rounded-full bg-amber-950 text-amber-400 border border-amber-800";
+        badge.textContent = `壓降注意: ${dropPercentage.toFixed(2)}%`;
+        bar.className = "bg-amber-500 h-full transition-all duration-300";
+      } else {
+        badge.className = "px-2.5 py-0.5 text-xs font-mono rounded-full bg-rose-950 text-rose-400 border border-rose-800 animate-pulse";
+        badge.textContent = `壓降過高: ${dropPercentage.toFixed(2)}% (超過法規 3%)`;
+        bar.className = "bg-rose-500 h-full transition-all duration-300";
+      }
+
+      // 動態提示
+      const tipBox = document.getElementById('dynamic-warning-text');
+      if (w >= 7000) {
+        tipBox.textContent = `此為極高功率設備 (${(w/1000).toFixed(1)}kW)，強烈建議由甲種或乙種電匠合格技師施工，並確認總開關箱主進戶線（幹線）容量是否足夠，需使用專用金屬管保護。`;
+      } else if (v === 380) {
+        tipBox.textContent = `380V 動力電具有高電弧與相間短路風險，送電前必須嚴格確認 R-S-T 相序與相間電壓，操作需配戴耐高壓防護面罩與絕緣手套。`;
+      } else {
+        tipBox.textContent = `一般分路請確保同一迴路之插座總負載不超過該迴路額定容量之 80%，接線盒內部導線連接處必須確實纏繞或使用合格彈簧螺紋接頭 (Wire Nut) / WAGO 連接器。`;
+      }
+    }
+
+    /* 點檢表互動邏輯 */
+    function switchCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        if (btn.dataset.cat === cat) {
+          btn.className = "cat-btn px-4 py-2 text-xs font-semibold rounded-xl bg-slate-800 text-cyan-400 border border-cyan-500/40 shadow";
+        } else {
+          btn.className = "cat-btn px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-slate-400 border border-slate-800";
+        }
+      });
+      renderChecklist();
+    }
+
+    function renderChecklist() {
+      const container = document.getElementById('checklist-items-container');
+      const items = checklistData[currentCategory] || [];
+      container.innerHTML = '';
+
+      items.forEach(item => {
+        const isChecked = !!checkedState[item.id];
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-xl border transition-all duration-200 flex items-start gap-3 cursor-pointer ${isChecked ? 'bg-cyan-950/20 border-cyan-500/50' : 'bg-slate-900/70 border-slate-800 hover:border-slate-700'}`;
+        card.onclick = (e) => {
+          if (e.target.tagName !== 'INPUT') toggleCheck(item.id);
+        };
+
+        let badgeColor = 'bg-slate-800 text-slate-400';
+        if (item.level === '必要') badgeColor = 'bg-rose-500/20 text-rose-300 border border-rose-500/30';
+        if (item.level === '高') badgeColor = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        if (item.level === '建議') badgeColor = 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30';
+
+        card.innerHTML = `
+          <input type="checkbox" id="chk-${item.id}" ${isChecked ? 'checked' : ''} onchange="toggleCheck('${item.id}')" class="mt-1 w-4 h-4 rounded text-cyan-500 bg-slate-800 border-slate-700 focus:ring-cyan-500 cursor-pointer">
+          <div class="flex-grow space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-bold ${isChecked ? 'text-cyan-300 line-through' : 'text-slate-200'}">${item.title}</span>
+              <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full ${badgeColor}">${item.level}</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">${item.desc}</p>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      updateProgress();
+    }
+
+    function toggleCheck(id) {
+      checkedState[id] = !checkedState[id];
+      renderChecklist();
+    }
+
+    function resetChecklist() {
+      checkedState = {};
+      renderChecklist();
+      showToast('已重置點檢清單');
+    }
+
+    function updateProgress() {
+      const allItems = Object.values(checklistData).flat();
+      const total = allItems.length;
+      const checkedCount = allItems.filter(i => checkedState[i.id]).length;
+      const pct = Math.round((checkedCount / total) * 100);
+
+      document.getElementById('checklist-progress-text').textContent = `${checkedCount} / ${total} (${pct}%)`;
+    }
+
+    function exportChecklistReport() {
+      const allItems = Object.values(checklistData).flat();
+      const completed = allItems.filter(i => checkedState[i.id]);
+      const uncompleted = allItems.filter(i => !checkedState[i.id]);
+
+      let reportText = `【電力安裝與安全防護點檢報告】\n`;
+      reportText += `檢測時間：${new Date().toLocaleString('zh-TW')}\n`;
+      reportText += `完成率：${completed.length} / ${allItems.length} (${Math.round((completed.length/allItems.length)*100)}%)\n\n`;
+      
+      reportText += `✅ 已合格項目 (${completed.length})：\n`;
+      completed.forEach(c => { reportText += ` [V] ${c.title} (${c.level})\n`; });
+
+      reportText += `\n⚠️ 待落實改善項目 (${uncompleted.length})：\n`;
+      uncompleted.forEach(u => { reportText += ` [ ] ${u.title} - ${u.desc}\n`; });
+
+      reportText += `\n-- 報告由電力安全互動指南產生 --`;
+
+      // 複製到剪貼簿相容寫法
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = reportText;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextArea);
+
+      showToast('點檢報告已複製至剪貼簿！');
+    }
+
+    /* 搜尋危險排查 */
+    function filterHazards() {
+      const query = document.getElementById('hazard-search').value.toLowerCase();
+      const cards = document.querySelectorAll('.hazard-card');
+      cards.forEach(c => {
+        const text = c.textContent.toLowerCase();
+        if (text.includes(query)) {
+          c.style.display = 'block';
+        } else {
+          c.style.display = 'none';
+        }
+      });
+    }
+
+    /* 緊急彈窗控制 */
+    function openEmergencyModal() {
+      document.getElementById('emergency-modal').classList.remove('hidden');
+      document.getElementById('emergency-modal').classList.add('flex');
+    }
+
+    function closeEmergencyModal() {
+      document.getElementById('emergency-modal').classList.add('hidden');
+      document.getElementById('emergency-modal').classList.remove('flex');
+    }
+
+    /* Toast 提示 */
+    function showToast(msg) {
+      const toast = document.getElementById('toast-box');
+      document.getElementById('toast-message').textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
