@@ -2529,5 +2529,389 @@ window.INITIAL_LABS_DATA = [
         "url": "https://tkyhkm.wda.gov.tw/"
       }
     ]
+  },
+  {
+    "id": "lab-13",
+    "labNumber": "13",
+    "title": "練習 4-2: 字串判斷 + read file 動態路徑讀檔與 image preview 秀照片",
+    "date": "2026-09-03",
+    "category": "基礎實作",
+    "summary": "學習在 Node-RED 中結合 JavaScript 條件判斷，依據輸入的人名或代號字串動態組裝圖片檔案路徑 (msg.filename)，驅動 read file (file in) 節點從本機磁碟動態載入對應圖片 Buffer，並透過 image preview 節點在流程畫布中直接呈現人物照片與圖資。",
+    "flowImage": "images_src/ok/20260903_02_dynamic_read_file_image_preview[flow].png",
+    "resultImage": "images_src/ok/20260903_02_dynamic_read_file_image_preview[result].png",
+    "objective": "1. 掌握在 Function 節點中透過 JavaScript 判斷字串內容並動態設定 msg.filename 檔案路徑。\n2. 學習「read file (file in)」節點接收來自 upstream 的 msg.filename 動態載入硬碟檔案。\n3. 掌握結合 debug 34 (路徑確認)、debug 35 (檔案資訊) 與 image preview 節點的完整多路偵錯結構。\n4. 應用於工業 SCADA 警報 SOP 圖資切換、人臉辨識員工身分卡片與智慧工廠工件動態圖片展示。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 註解與 7 組人員 Inject 節點",
+        "description": "在畫布上方建立兩個 Comment 標註「image preview實作」與「字串判斷 + read file + 秀照片」。拖入 7 個 Inject 節點，分別命名為「邊荷律」、「安芝儇」、「趙娟週」、「洪姐」、「霍諾德」、「openclaw」與「其他」，Payload 皆設為 string (字串)。"
+      },
+      {
+        "step": "2. 編寫「啦啦隊判斷」動態路徑 Function 節點",
+        "description": "拖入 Function 節點命名為「啦啦隊判斷」，撰寫 JavaScript 邏輯：依據 msg.payload 字串動態組合 msg.filename 實體硬碟路徑（例如：D:\\Test_Wugo\\拉拉隊\\霍諾德.png 或 D:\\Test_Wugo\\拉拉隊\\邊荷律.png），並分流輸出至 debug 34 節點確認路徑。"
+      },
+      {
+        "step": "3. 配置 read file 節點以動態讀取檔案",
+        "description": "拖入 read file 節點，檔名欄位留空（使其優先採用傳入的 msg.filename），輸出設為「a Buffer」。將 read file 輸出分別連接至 debug 35 與 image preview 節點。"
+      },
+      {
+        "step": "4. 部署並點擊 Inject 驗證動態秀圖",
+        "description": "點擊 Deploy 部署，點擊「霍諾德」Inject 節點。debug 35 輸出檔案路徑，image preview 節點下方將精準展開渲染出霍諾德攀爬與台北 101 的彩色照片！點選不同按鈕即可實現動態切換照片。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在機電整合丙級術科考試與 SCADA 人機界面中，當工件進料經過感測器辨識出形狀（如圓形料、方形料、金屬料）或故障代碼（E01、E02）時，Function 節點動態組裝對應的機構分解圖或電路排查圖路徑，即時透過 read file 與 image preview 在監控螢幕上彈出專屬 SOP 圖片，加速故障排除。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "晶圓廠人員進出管制與無塵室機台操作授權系統。當門禁感應卡刷入工號（如 Employee_007）時，Node-RED 接收工號字串並動態組裝證件照與合格證書圖檔路徑，自動讀取並顯示在防護閘門 HMI 螢幕上，供現場管理員比對臉孔與權限等級。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧快遞箱多快遞員身分識別與公司 Logo 展示。當快遞員在鍵盤輸入或掃描黑貓宅急便、新竹物流、順豐速運或郵局包裹條碼時，系統動態讀取對應物流公司的 Logo 與簽收模板圖片，顯示於物流箱觸控螢幕並發送簽收通知給住戶。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，用於動態路徑檔案讀取與畫布影像預覽：\n1. 包含 7 個 Inject 節點，名稱與 Payload 分別為「邊荷律」、「安芝儇」、「趙娟週」、「洪姐」、「霍諾德」、「openclaw」、「其他」。\n2. 包含一個 Function 節點 (名稱：啦啦隊判斷)，內部以 JavaScript 依據 msg.payload 賦予 msg.filename 對應的圖片路徑（如 'D:\\Test_Wugo\\拉拉隊\\' + msg.payload + '.png'）。\n3. 包含一個 read file (file in) 節點，接收 msg.filename 動態載入圖檔 Buffer。\n4. 包含一個 image preview (node-red-contrib-image-output) 節點即時預覽圖片。\n5. 包含兩個 Debug 節點 (debug 34 監控路徑，debug 35 監控讀檔輸出)。\n請以標準 Node-RED JSON 陣列格式回傳。",
+    "nodeRedJson": [
+      {
+        "id": "tab_dynamic_read_file",
+        "type": "tab",
+        "label": "練習 4-2: 字串判斷 + read file + 秀照片",
+        "disabled": false,
+        "info": ""
+      },
+      {
+        "id": "comment_preview_title",
+        "type": "comment",
+        "z": "tab_dynamic_read_file",
+        "name": "image preview實作",
+        "info": "",
+        "x": 150,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "comment_preview_desc",
+        "type": "comment",
+        "z": "tab_dynamic_read_file",
+        "name": "字串判斷 + read file + 秀照片",
+        "info": "",
+        "x": 180,
+        "y": 100,
+        "wires": []
+      },
+      {
+        "id": "inject_cheer_1",
+        "type": "inject",
+        "z": "tab_dynamic_read_file",
+        "name": "邊荷律",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "邊荷律",
+        "payloadType": "str",
+        "x": 110,
+        "y": 140,
+        "wires": [
+          [
+            "func_cheer_eval"
+          ]
+        ]
+      },
+      {
+        "id": "inject_cheer_2",
+        "type": "inject",
+        "z": "tab_dynamic_read_file",
+        "name": "安芝儇",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "安芝儇",
+        "payloadType": "str",
+        "x": 110,
+        "y": 180,
+        "wires": [
+          [
+            "func_cheer_eval"
+          ]
+        ]
+      },
+      {
+        "id": "inject_cheer_3",
+        "type": "inject",
+        "z": "tab_dynamic_read_file",
+        "name": "趙娟週",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "趙娟週",
+        "payloadType": "str",
+        "x": 110,
+        "y": 220,
+        "wires": [
+          [
+            "func_cheer_eval"
+          ]
+        ]
+      },
+      {
+        "id": "inject_cheer_4",
+        "type": "inject",
+        "z": "tab_dynamic_read_file",
+        "name": "洪姐",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "洪姐",
+        "payloadType": "str",
+        "x": 110,
+        "y": 260,
+        "wires": [
+          [
+            "func_cheer_eval"
+          ]
+        ]
+      },
+      {
+        "id": "inject_cheer_5",
+        "type": "inject",
+        "z": "tab_dynamic_read_file",
+        "name": "霍諾德",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "霍諾德",
+        "payloadType": "str",
+        "x": 110,
+        "y": 300,
+        "wires": [
+          [
+            "func_cheer_eval"
+          ]
+        ]
+      },
+      {
+        "id": "inject_cheer_6",
+        "type": "inject",
+        "z": "tab_dynamic_read_file",
+        "name": "openclaw",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "openclaw",
+        "payloadType": "str",
+        "x": 120,
+        "y": 340,
+        "wires": [
+          [
+            "func_cheer_eval"
+          ]
+        ]
+      },
+      {
+        "id": "inject_cheer_7",
+        "type": "inject",
+        "z": "tab_dynamic_read_file",
+        "name": "其他",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "其他",
+        "payloadType": "str",
+        "x": 110,
+        "y": 380,
+        "wires": [
+          [
+            "func_cheer_eval"
+          ]
+        ]
+      },
+      {
+        "id": "func_cheer_eval",
+        "type": "function",
+        "z": "tab_dynamic_read_file",
+        "name": "啦啦隊判斷",
+        "func": "// 動態判斷輸入人名並組裝圖片實體路徑\nvar basePath = \"D:\\\\Test_Wugo\\\\拉拉隊\\\\\";\nvar name = msg.payload;\n\nif (name === \"邊荷律\" || name === \"安芝儇\" || name === \"趙娟週\" || name === \"洪姐\" || name === \"霍諾德\" || name === \"openclaw\") {\n    msg.filename = basePath + name + \".png\";\n} else {\n    msg.filename = basePath + \"default.png\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 240,
+        "wires": [
+          [
+            "debug_34_node",
+            "file_in_dynamic_node"
+          ]
+        ]
+      },
+      {
+        "id": "debug_34_node",
+        "type": "debug",
+        "z": "tab_dynamic_read_file",
+        "name": "debug 34",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "filename",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 490,
+        "y": 180,
+        "wires": []
+      },
+      {
+        "id": "file_in_dynamic_node",
+        "type": "file in",
+        "z": "tab_dynamic_read_file",
+        "name": "read file",
+        "filename": "",
+        "filenameType": "str",
+        "format": "",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 480,
+        "y": 240,
+        "wires": [
+          [
+            "debug_35_node",
+            "image_preview_dynamic_node"
+          ]
+        ]
+      },
+      {
+        "id": "debug_35_node",
+        "type": "debug",
+        "z": "tab_dynamic_read_file",
+        "name": "debug 35",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "filename",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 180,
+        "wires": []
+      },
+      {
+        "id": "image_preview_dynamic_node",
+        "type": "image",
+        "z": "tab_dynamic_read_file",
+        "name": "image preview",
+        "width": "160",
+        "data": "payload",
+        "dataType": "msg",
+        "thumbnail": false,
+        "active": true,
+        "pass": false,
+        "outputs": 0,
+        "x": 660,
+        "y": 240,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - File in (讀檔節點) 使用說明",
+        "url": "https://nodered.org/docs/user-guide/nodes#file-in"
+      },
+      {
+        "title": "node-red-contrib-image-output 官方 npm 套件說明",
+        "url": "https://flows.nodered.org/node/node-red-contrib-image-output"
+      },
+      {
+        "title": "w3schools - JavaScript 字串拼接與條件運算",
+        "url": "https://www.w3schools.com/js/js_strings.asp"
+      }
+    ]
   }
 ];
