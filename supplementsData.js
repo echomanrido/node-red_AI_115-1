@@ -464,5 +464,76 @@ window.INITIAL_SUPPLEMENTS_DATA = [
     "images": [
       "images_src/ok/20260903_mechatronics_c_ladder_sfc_combo.png"
     ]
+  },
+  {
+    "id": "sup-12",
+    "number": "12",
+    "supNumber": "12",
+    "title": "JavaScript 變數深度解析：比較 var、let 與 const 差異",
+    "category": "JavaScript 核心概念",
+    "date": "2026-09-03",
+    "summary": "深度比較 JavaScript 三大變數宣告關鍵字 var、let 與 const 在有效作用域 (Scope)、重複宣告、重新賦值、變數提升 (Hoisting)、暫時性死區 (TDZ) 及全域物件 (window) 綁定上的核心差異，並透過生活譬喻（黑板、筆記本、房子門牌）、執行期互動實驗室與觀念測驗助您徹底掌握。",
+    "image": "images_src/ok/20260903_js_var_let_const_matrix.png",
+    "images": [
+      "images_src/ok/20260903_js_var_let_const_matrix.png"
+    ],
+    "flowImage": [
+      "images_src/ok/20260903_js_var_let_const_matrix.png"
+    ],
+    "objective": "1. 徹底釐清 var（函式作用域）、let 與 const（區塊作用域 {}）的底層邊界。\n2. 理解暫時性死區 (Temporal Dead Zone, TDZ) 與 Hoisting 提升機制的本質差異。\n3. 掌握 const 在物件與陣列宣告時，鎖定「記憶體位址/指針」而非內部屬性的不變性原理。\n4. 掌握現代前端與 Node-RED Function 節點最佳實踐：預設使用 const，需變更時用 let，徹底摒棄 var。",
+    "tutorialSteps": [
+      {
+        "step": "Step 1. 作用域維度比較 (Scope)",
+        "description": "var 僅具備函式作用域 (Function Scope)，在 if/for 大括號內宣告會洩漏至外層；let 與 const 具備嚴格的區塊作用域 (Block Scope {})，離開大括號即自動銷毀。"
+      },
+      {
+        "step": "Step 2. 宣告與賦值規則 (Declaration & Assignment)",
+        "description": "var 允許同作用域重複宣告與重複賦值；let 禁止重複宣告但允許重新賦值；const 宣告時必須立即初始化，且禁止重新指派記憶體位址 (TypeError)。"
+      },
+      {
+        "step": "Step 3. 提升機制與暫時性死區 (Hoisting & TDZ)",
+        "description": "var 提升時會自動初始化為 undefined；let 與 const 雖有提升但不會初始化，在宣告語句執行前讀取會被暫時性死區 (TDZ) 攔截並拋出 ReferenceError。"
+      },
+      {
+        "step": "Step 4. 生活譬喻與互動實戰",
+        "description": "公用黑板 (var 隨意覆蓋) ➔ 鉛筆筆記本 (let 擦拭修改) ➔ 房子門牌 (const 門牌固定，屋內家具可換)；透過獨立互動網頁親自驗證閉包、作用域隔離與觀念測驗。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "Node-RED Function 節點狀態維護",
+        "icon": "fa-solid fa-code",
+        "description": "在 Node-RED Function 節點中，一律使用 const 宣告固定參數與工具函式（如 msg.payload 物件結構），使用 let 宣告計數器或累加暫存變數，避免 var 造成的意外全域污染或閉包變數覆蓋。"
+      },
+      {
+        "scenario": "SCADA 數據流管道防呆與記憶體安全",
+        "icon": "fa-solid fa-industry",
+        "description": "工控系統處理高頻感測數據時，使用 const 鎖定來自 PLC 暫存器的常數陣列與協議設定，防止不同邏輯模組誤改基礎配置，大幅提升邊緣網關程式碼強健度。"
+      },
+      {
+        "scenario": "現代 JavaScript / TypeScript 前端工程",
+        "icon": "fa-solid fa-laptop-code",
+        "description": "遵循現代 ESLint 與 Airbnb 規範：以「const 優先」為原則，確保程式碼具備高可讀性與預測性，徹底消滅因變數提升 (Hoisting) 引起的隱晦 Bug。"
+      }
+    ],
+    "aiPrompt": "請扮演 JavaScript 語言專家與資深工程師，幫我詳細解說 var、let 與 const 的差異：\n1. 請以 Markdown 表格比較：作用域 (Scope)、重複宣告、重新賦值、Hoisting 提升行為、全域物件綁定。\n2. 用生活譬喻（如黑板、筆記本、房子）生動說明三者的行為。\n3. 給出三個經典程式碼範例：(a) if 區塊作用域洩漏、(b) for 迴圈 setTimeout 閉包陷阱、(c) const 物件內部屬性修改。\n4. 總結現代開發最佳實踐口訣。",
+    "references": [
+      {
+        "title": "互動教學系統：JavaScript 變數大解析 (var vs let vs const)",
+        "url": "js_var_let_const_guide.html"
+      },
+      {
+        "title": "MDN 官方文件 - var 敘述語法說明",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/var"
+      },
+      {
+        "title": "MDN 官方文件 - let 敘述語法說明",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/let"
+      },
+      {
+        "title": "MDN 官方文件 - const 敘述語法說明",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/const"
+      }
+    ]
   }
 ];

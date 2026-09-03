@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript 變數大解析：var vs let vs const 互動教學網頁</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons for navigation -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              var: '#f59e0b',
+              let: '#3b82f6',
+              const: '#10b981'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    pre, code, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .chalkboard {
+      background: radial-gradient(circle, #1a3325 0%, #0c1a12 100%);
+      border: 12px solid #6b4423;
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.8), 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .notebook-paper {
+      background: #fdfbf7;
+      background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- 頂部導航 -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <a href="supplements.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors flex items-center justify-center" title="返回補充教材列表">
+          <i class="ph ph-arrow-left text-lg"></i>
+        </a>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-blue-500 to-emerald-500 p-0.5 shadow-lg shadow-blue-500/20">
+          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center font-bold font-mono text-sm tracking-tighter">
+            JS
+          </div>
+        </div>
+        <div>
+          <h1 class="font-bold text-base sm:text-lg leading-tight">JS 變數宣告深度解析</h1>
+          <p class="text-xs text-slate-400">var・let・const 差異與底層原理實戰</p>
+        </div>
+      </div>
+
+      <!-- 分頁切換 -->
+      <nav class="flex space-x-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs sm:text-sm font-medium">
+        <button onclick="switchTab('comparison')" id="tab-comparison" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-white bg-indigo-600 shadow-sm">
+          速查矩陣
+        </button>
+        <button onclick="switchTab('metaphor')" id="tab-metaphor" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+          生活譬喻劇場
+        </button>
+        <button onclick="switchTab('lab')" id="tab-lab" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+          互動實驗室
+        </button>
+        <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+          挑戰測驗
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 主內容容器 -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- ==================== 頁籤 1：特性速查表 ==================== -->
+    <section id="section-comparison" class="space-y-8 block">
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">三大宣告關鍵字 核心差異矩陣</h2>
+        <p class="text-slate-400 text-sm sm:text-base">一眼搞懂底層作用域（Scope）、提升（Hoisting）與不可變性（Immutability）的規則。</p>
+      </div>
+
+      <!-- 核心表格 -->
+      <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/50 shadow-xl backdrop-blur">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="border-b border-slate-800 bg-slate-900/80 text-xs uppercase tracking-wider text-slate-400">
+              <th class="p-4 sm:p-5 font-semibold">比對維度</th>
+              <th class="p-4 sm:p-5 font-semibold text-amber-400">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
+                  var (舊時代 ES5)
+                </span>
+              </th>
+              <th class="p-4 sm:p-5 font-semibold text-blue-400">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-400 inline-block"></span>
+                  let (現代 ES6)
+                </span>
+              </th>
+              <th class="p-4 sm:p-5 font-semibold text-emerald-400">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+                  const (現代 ES6)
+                </span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 font-mono text-xs sm:text-sm">
+            <tr class="hover:bg-slate-800/30 transition-colors">
+              <td class="p-4 sm:p-5 font-sans font-medium text-slate-300">有效作用域 (Scope)</td>
+              <td class="p-4 sm:p-5 text-amber-300/90 font-semibold">函式作用域 (Function Scope)</td>
+              <td class="p-4 sm:p-5 text-blue-300/90 font-semibold">區塊作用域 (Block Scope `{}`)</td>
+              <td class="p-4 sm:p-5 text-emerald-300/90 font-semibold">區塊作用域 (Block Scope `{}`)</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition-colors">
+              <td class="p-4 sm:p-5 font-sans font-medium text-slate-300">重複宣告 (Re-declaration)</td>
+              <td class="p-4 sm:p-5 text-emerald-400"> 允許（容易引發意外覆蓋）</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-semibold">❌ 禁止（SyntaxError）</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-semibold">❌ 禁止（SyntaxError）</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition-colors">
+              <td class="p-4 sm:p-5 font-sans font-medium text-slate-300">重新賦值 (Re-assignment)</td>
+              <td class="p-4 sm:p-5 text-emerald-400"> 允許 (`x = 20`)</td>
+              <td class="p-4 sm:p-5 text-emerald-400"> 允許 (`x = 20`)</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-semibold">❌ 禁止（TypeError）</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition-colors">
+              <td class="p-4 sm:p-5 font-sans font-medium text-slate-300">變數提升 (Hoisting)</td>
+              <td class="p-4 sm:p-5 text-slate-300">提升並初始化為 <code class="text-amber-400">undefined</code></td>
+              <td class="p-4 sm:p-5 text-slate-300">提升但進入 <span class="text-blue-400 underline decoration-blue-500/50">暫時性死區 (TDZ)</span></td>
+              <td class="p-4 sm:p-5 text-slate-300">提升但進入 <span class="text-emerald-400 underline decoration-emerald-500/50">暫時性死區 (TDZ)</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition-colors">
+              <td class="p-4 sm:p-5 font-sans font-medium text-slate-300">全域物件綁定 (window)</td>
+              <td class="p-4 sm:p-5 text-amber-300">會成為 <code class="bg-slate-800 px-1.5 py-0.5 rounded">window.varName</code></td>
+              <td class="p-4 sm:p-5 text-slate-400">不會污染 window</td>
+              <td class="p-4 sm:p-5 text-slate-400">不會污染 window</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition-colors">
+              <td class="p-4 sm:p-5 font-sans font-medium text-slate-300">現代開發建議</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-bold font-sans"> 徹底捨棄不使用</td>
+              <td class="p-4 sm:p-5 text-blue-400 font-sans">僅在數值確定會改變時使用</td>
+              <td class="p-4 sm:p-5 text-emerald-400 font-bold font-sans"> 首選與預設使用</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 快速口訣卡片 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+        <div class="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 relative overflow-hidden">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-400 mb-2">var 口訣</div>
+          <h3 class="text-lg font-bold text-amber-200 mb-2">鬆散奔放・隨意覆蓋</h3>
+          <p class="text-sm text-amber-300/80 leading-relaxed font-sans">
+            只有 function 能關住它；任何地方都能重新覆蓋；沒賦值前讀取只會默默回傳 undefined，是除錯夢魘。
+          </p>
+        </div>
+        <div class="p-5 rounded-2xl bg-blue-500/10 border border-blue-500/30 relative overflow-hidden">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-400 mb-2">let 口訣</div>
+          <h3 class="text-lg font-bold text-blue-200 mb-2">遵守紀律・彈性修改</h3>
+          <p class="text-sm text-blue-300/80 leading-relaxed font-sans">
+            被 `{}` 牢牢鎖在小房間；同房間不可重複命名；適合計數器、累加狀態與暫存變數。
+          </p>
+        </div>
+        <div class="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 relative overflow-hidden">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">const 口訣</div>
+          <h3 class="text-lg font-bold text-emerald-200 mb-2">堅守承諾・鎖定指針</h3>
+          <p class="text-sm text-emerald-300/80 leading-relaxed font-sans">
+            一出世就必須給值；記憶體門牌綁定不可動；但如果裡面裝的是物件/陣列，裡頭的家具可以隨意換！
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 2：生活譬喻劇場 ==================== -->
+    <section id="section-metaphor" class="space-y-10 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">用生活物品秒懂變數行為</h2>
+        <p class="text-slate-400 text-sm sm:text-base">抽象的 JavaScript 記憶體機制，其實就像身邊這三樣物品！點擊按鈕親自體會。</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- 譬喻 1: var 黑板 -->
+        <div class="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">var</span>
+              <span class="text-xs text-slate-400 font-sans">公用黑板</span>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">教室的大黑板：誰都可以擦掉覆蓋</h3>
+            <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+              只要在同一間教室（函式），走廊路過的人都能看到黑板上的字。同學 A 寫了值日生，同學 B 不打招呼就能直接在同一格硬寫上去！
+            </p>
+
+            <!-- 黑板畫布 UI -->
+            <div class="chalkboard rounded-xl p-6 text-center min-h-[140px] flex flex-col items-center justify-center relative overflow-hidden transition-all duration-300">
+              <div id="blackboard-text" class="text-xl font-bold tracking-wider text-emerald-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-mono">
+                值日生: 小明
+              </div>
+              <div id="blackboard-sub" class="text-xs text-emerald-400/80 mt-1 font-mono">
+                var student = '小明';
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-800/80 flex gap-2">
+            <button onclick="tamperBlackboard()" class="flex-1 py-2.5 px-3 rounded-xl bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/40 text-xs font-medium transition active:scale-95">
+              ✏️ 重複宣告並覆蓋
+            </button>
+            <button onclick="resetBlackboard()" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition">
+              重設
+            </button>
+          </div>
+        </div>
+
+        <!-- 譬喻 2: let 活頁筆記本 -->
+        <div class="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40">let</span>
+              <span class="text-xs text-slate-400 font-sans">私人鉛筆筆記本</span>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">個人小筆記：鉛筆可擦改，帶出房間就失效</h3>
+            <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+              你在自己的房間（區塊 `{}`）用鉛筆記帳。數字可擦掉更新（賦值），但同一頁不准貼兩個一模一樣的標籤（不可重複宣告）。
+            </p>
+
+            <!-- 筆記本 UI -->
+            <div class="notebook-paper text-slate-800 rounded-xl p-6 min-h-[140px] flex flex-col justify-center border border-slate-300 shadow-inner font-mono text-center">
+              <div class="text-xs text-slate-500 mb-1">【我的小房間 `{}` 筆記頁】</div>
+              <div id="notebook-amount" class="text-2xl font-black text-blue-700">
+                存款: $1,000
+              </div>
+              <div id="notebook-code" class="text-xs text-slate-600 mt-1">
+                let savings = 1000;
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-800/80 flex flex-col gap-2">
+            <div class="flex gap-2">
+              <button onclick="spendMoney()" class="flex-1 py-2 px-3 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/40 text-xs font-medium transition active:scale-95">
+                ✏️ 擦掉修改 (消費$200)
+              </button>
+              <button onclick="tryReDeclareLet()" class="flex-1 py-2 px-3 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/40 text-xs font-medium transition active:scale-95">
+                ❌ 貼重複標籤 (報錯)
+              </button>
+            </div>
+            <div id="let-feedback" class="text-[11px] text-center text-slate-400 h-4"></div>
+          </div>
+        </div>
+
+        <!-- 譬喻 3: const 雷射金屬牌與房子 -->
+        <div class="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">const</span>
+              <span class="text-xs text-slate-400 font-sans">房子門牌與內部家具</span>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">門牌不可動，但屋內家具隨你換</h3>
+            <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+              `const` 鎖定的是「門牌號碼（記憶體位址）」。你不能把門牌換成別棟豪宅；但房子客廳裡的沙發（物件屬性）換幾次都沒問題！
+            </p>
+
+            <!-- 房子與門牌 UI -->
+            <div class="bg-gradient-to-b from-slate-800 to-slate-900 rounded-xl p-5 min-h-[140px] border border-slate-700 flex flex-col justify-between font-mono text-xs">
+              <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                <span class="text-slate-400">門牌 (記憶體位址 0x4F):</span>
+                <span id="house-address" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">幸福路 8 號</span>
+              </div>
+              <div class="my-2 space-y-1">
+                <div class="text-slate-300">屋內物件屬性：</div>
+                <div class="flex justify-between text-slate-400 pl-2">
+                  <span>客廳沙發 (sofa):</span>
+                  <span id="house-sofa" class="text-amber-300 font-bold">"皮質沙發"</span>
+                </div>
+              </div>
+              <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-800">
+                const house = { sofa: "皮質沙發" };
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-800/80 flex flex-col gap-2">
+            <div class="flex gap-2">
+              <button onclick="changeSofa()" class="flex-1 py-2 px-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 text-xs font-medium transition active:scale-95">
+                 更換沙發 (修改內部屬性)
+              </button>
+              <button onclick="tryReassignHouse()" class="flex-1 py-2 px-3 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/40 text-xs font-medium transition active:scale-95">
+                ❌ 換掉門牌 (整棟重指派)
+              </button>
+            </div>
+            <div id="const-feedback" class="text-[11px] text-center text-slate-400 h-4"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 3：互動程式碼實驗室 ==================== -->
+    <section id="section-lab" class="space-y-8 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">JavaScript 執行期互動實驗室</h2>
+        <p class="text-slate-400 text-sm sm:text-base">親自切換變數關鍵字並點擊執行，觀察作用域洩漏、閉包陷阱與暫時性死區。</p>
+      </div>
+
+      <!-- 實驗切換選單 -->
+      <div class="flex flex-wrap justify-center gap-2">
+        <button onclick="selectLab(1)" id="lab-btn-1" class="lab-selector-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-indigo-600 text-white shadow-lg transition">
+          實驗 1：大括號區塊作用域洩漏
+        </button>
+        <button onclick="selectLab(2)" id="lab-btn-2" class="lab-selector-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          實驗 2：for 迴圈非同步陷阱 (閉包)
+        </button>
+        <button onclick="selectLab(3)" id="lab-btn-3" class="lab-selector-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          實驗 3：暫時性死區 (TDZ) 觀察
+        </button>
+      </div>
+
+      <!-- 實驗主卡片 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- 左側：程式碼編輯區 (動態切換關鍵字) -->
+        <div class="lg:col-span-6 rounded-2xl border border-slate-800 bg-slate-900/90 shadow-2xl overflow-hidden flex flex-col">
+          <div class="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+              <span class="text-xs font-mono text-slate-400 pl-2">snippet.js</span>
+            </div>
+            <!-- 關鍵字微切換按鈕 -->
+            <div id="keyword-switcher-group" class="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs font-mono">
+              <button onclick="setLabKeyword('var')" class="kw-btn px-2.5 py-1 rounded text-amber-400 font-bold bg-amber-500/10">var</button>
+              <button onclick="setLabKeyword('let')" class="kw-btn px-2.5 py-1 rounded text-slate-400 hover:text-blue-400">let</button>
+              <button onclick="setLabKeyword('const')" class="kw-btn px-2.5 py-1 rounded text-slate-400 hover:text-emerald-400">const</button>
+            </div>
+          </div>
+
+          <!-- 程式碼視窗 -->
+          <div class="p-5 font-mono text-sm leading-relaxed overflow-x-auto bg-slate-950/60 min-h-[260px] flex items-center">
+            <div id="code-display" class="w-full">
+              <!-- 動態生成程式碼 -->
+            </div>
+          </div>
+
+          <!-- 底部控制列 -->
+          <div class="p-4 bg-slate-900/80 border-t border-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-400 font-sans">點擊按鈕模擬 JavaScript 引擎執行</span>
+            <button onclick="runLabSimulation()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-500/20 active:scale-95 transition flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              執行程式碼 (Run)
+            </button>
+          </div>
+        </div>
+
+        <!-- 右側：視覺化作用域動態呈現 + 終端機模擬 -->
+        <div class="lg:col-span-6 space-y-6">
+          
+          <!-- 視覺化動畫展示區 -->
+          <div class="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 min-h-[160px] flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">記憶體與作用域動態透視</span>
+              <span id="scope-badge" class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300">準備就緒</span>
+            </div>
+
+            <!-- 動態畫布 / 作用域方塊 -->
+            <div id="scope-canvas" class="py-4 flex items-center justify-center">
+              <div class="text-center text-slate-500 text-sm">點擊「執行程式碼」開始觀察記憶體狀態</div>
+            </div>
+
+            <div id="scope-explanation" class="text-xs text-slate-400 border-t border-slate-800/80 pt-2.5 leading-relaxed">
+              說明將在此處展開...
+            </div>
+          </div>
+
+          <!-- 模擬終端機 Console 輸出 -->
+          <div class="rounded-2xl border border-slate-800 bg-black/80 font-mono text-xs shadow-2xl overflow-hidden">
+            <div class="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-slate-400">
+              <span class="flex items-center gap-1.5 font-sans text-xs">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> 模擬瀏覽器 Console
+              </span>
+              <button onclick="clearConsole()" class="hover:text-white transition text-[11px]">Clear</button>
+            </div>
+            <div id="console-output" class="p-4 space-y-1.5 min-h-[120px] max-h-[160px] overflow-y-auto text-slate-300">
+              <div class="text-slate-600">// Console 輸出預備中...</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 4：觀念測驗 ==================== -->
+    <section id="section-quiz" class="space-y-8 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">變數宣告觀念挑戰賽</h2>
+        <p class="text-slate-400 text-sm sm:text-base">檢視一下你的理解程度！共 4 道經典前端面試考題。</p>
+      </div>
+
+      <!-- 測驗卡片輪播/列表 -->
+      <div class="max-w-3xl mx-auto space-y-6" id="quiz-container">
+        <!-- 動態渲染測驗問題 -->
+      </div>
+
+      <!-- 得分總計 -->
+      <div id="quiz-summary" class="max-w-3xl mx-auto p-6 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-center hidden space-y-3">
+        <h3 class="text-xl font-bold text-white">測驗完成！</h3>
+        <p id="quiz-score-text" class="text-indigo-300 font-mono text-lg font-bold"></p>
+        <button onclick="resetQuiz()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition">
+          重新挑戰
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁尾 -->
+  <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+    <p>JavaScript 深度教學指南・理解變數作用域與底層執行環境</p>
+  </footer>
+
+  <!-- 核心互動邏輯 JavaScript -->
+  <script>
+    /* ==========================================================================
+       1. 分頁切換 (Tabs Navigation)
+       ========================================================================== */
+    function switchTab(tabId) {
+      const tabs = ['comparison', 'metaphor', 'lab', 'quiz'];
+      tabs.forEach(t => {
+        const sec = document.getElementById(`section-${t}`);
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === tabId) {
+          sec.classList.remove('hidden');
+          sec.classList.add('block');
+          btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-white bg-indigo-600 shadow-sm';
+        } else {
+          sec.classList.add('hidden');
+          sec.classList.remove('block');
+          btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200';
+        }
+      });
+      if (tabId === 'lab') {
+        renderLab();
+      }
+      if (tabId === 'quiz') {
+        renderQuiz();
+      }
+    }
+
+    /* ==========================================================================
+       2. 生活譬喻劇場互動邏輯
+       ========================================================================== */
+    let blackboardTampered = false;
+    function tamperBlackboard() {
+      const boardText = document.getElementById('blackboard-text');
+      const boardSub = document.getElementById('blackboard-sub');
+      if (!blackboardTampered) {
+        boardText.innerHTML = `<span class="text-rose-400 line-through mr-2">小明</span><span class="text-amber-300 animate-pulse">小華 (已被覆蓋!)</span>`;
+        boardSub.innerHTML = `var student = '小明';<br><span class="text-amber-300 font-bold">var student = '小華'; // 毫無報錯！小明默默消失</span>`;
+        blackboardTampered = true;
+      } else {
+        boardText.innerHTML = `<span class="text-rose-300">值日生: 大牛 (又被換了)</span>`;
+        boardSub.innerHTML = `var student = '大牛'; // 任何地方都能隨意覆蓋`;
+      }
+    }
+
+    function resetBlackboard() {
+      document.getElementById('blackboard-text').innerHTML = `值日生: 小明`;
+      document.getElementById('blackboard-sub').innerHTML = `var student = '小明';`;
+      blackboardTampered = false;
+    }
+
+    let savings = 1000;
+    function spendMoney() {
+      if (savings > 0) {
+        savings -= 200;
+        document.getElementById('notebook-amount').innerText = `存款: $${savings}`;
+        document.getElementById('notebook-code').innerText = `savings = ${savings}; // 重新賦值成功`;
+        document.getElementById('let-feedback').innerHTML = `<span class="text-emerald-400 font-sans"> 鉛筆擦拭重新寫入：成功賦值為 ${savings} 元</span>`;
+      } else {
+        document.getElementById('let-feedback').innerHTML = `<span class="text-amber-400 font-sans">存款已經見底啦！</span>`;
+      }
+    }
+
+    function tryReDeclareLet() {
+      const fb = document.getElementById('let-feedback');
+      fb.innerHTML = `<span class="text-rose-400 font-sans font-bold">❌ Uncaught SyntaxError: Identifier 'savings' has already been declared</span>`;
+    }
+
+    let sofaIndex = 0;
+    const sofas = ['"皮質沙發"', '"北歐布沙發"', '"頂級按摩椅"', '"懶骨頭"'];
+    function changeSofa() {
+      sofaIndex = (sofaIndex + 1) % sofas.length;
+      document.getElementById('house-sofa').innerText = sofas[sofaIndex];
+      const fb = document.getElementById('const-feedback');
+      fb.innerHTML = `<span class="text-emerald-400 font-sans"> 成功換成 ${sofas[sofaIndex]}！門牌不變，內部可變。</span>`;
+    }
+
+    function tryReassignHouse() {
+      const fb = document.getElementById('const-feedback');
+      fb.innerHTML = `<span class="text-rose-400 font-sans font-bold">❌ Uncaught TypeError: Assignment to constant variable.</span>`;
+    }
+
+    /* ==========================================================================
+       3. 互動程式碼實驗室 (Lab Engine)
+       ========================================================================== */
+    let currentLabId = 1;
+    let currentKeyword = 'var';
+
+    const labTemplates = {
+      1: {
+        title: "實驗 1：大括號區塊作用域洩漏",
+        description: "測試如果在 if 條件句的大括號 `{}` 內部宣告變數，大括號外面能不能讀取得到？",
+        code: (kw) => `// 測試區塊作用域 (Block Scope)\nif (true) {\n  <span class="text-indigo-400 font-bold">${kw}</span> secretCode = "Pass7788";\n}\n\n// 走出大括號外面試圖讀取：\nconsole.log(secretCode);`
+      },
+      2: {
+        title: "實驗 2：for 迴圈非同步陷阱 (閉包問題)",
+        description: "非同步定時器 (setTimeout) 搭配迴圈時，每次迴圈迭代是否有自己的獨立變數？",
+        code: (kw) => `// 非同步迴圈測試\nfor (<span class="text-indigo-400 font-bold">${kw}</span> i = 0; i < 3; i++) {\n  setTimeout(() => {\n    console.log("當前 i 值: " + i);\n  }, 500);\n}`
+      },
+      3: {
+        title: "實驗 3：暫時性死區 (Temporal Dead Zone, TDZ)",
+        description: "在宣告敘述出現之前就搶先讀取變數，引擎會回傳 undefined 還是直接拋出例外錯誤？",
+        code: (kw) => `// 提升與 TDZ 測試\nconsole.log(username);\n\n<span class="text-indigo-400 font-bold">${kw}</span> username = "Alex_Dev";`
+      }
+    };
+
+    function selectLab(labId) {
+      currentLabId = labId;
+      for (let i = 1; i <= 3; i++) {
+        const btn = document.getElementById(`lab-btn-${i}`);
+        if (i === labId) {
+          btn.className = "lab-selector-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-indigo-600 text-white shadow-lg transition";
+        } else {
+          btn.className = "lab-selector-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition";
+        }
+      }
+      renderLab();
+    }
+
+    function setLabKeyword(kw) {
+      currentKeyword = kw;
+      const btns = document.querySelectorAll('.kw-btn');
+      btns.forEach(b => {
+        if (b.innerText === kw) {
+          b.className = `kw-btn px-2.5 py-1 rounded font-bold ${
+            kw === 'var' ? 'text-amber-400 bg-amber-500/10' :
+            kw === 'let' ? 'text-blue-400 bg-blue-500/10' :
+            'text-emerald-400 bg-emerald-500/10'
+          }`;
+        } else {
+          b.className = 'kw-btn px-2.5 py-1 rounded text-slate-400 hover:text-white';
+        }
+      });
+      renderLab();
+    }
+
+    function renderLab() {
+      const display = document.getElementById('code-display');
+      display.innerHTML = labTemplates[currentLabId].code(currentKeyword);
+      document.getElementById('scope-explanation').innerText = labTemplates[currentLabId].description;
+      resetCanvas();
+    }
+
+    function resetCanvas() {
+      const canvas = document.getElementById('scope-canvas');
+      const badge = document.getElementById('scope-badge');
+      badge.innerText = '待執行';
+      badge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300';
+      canvas.innerHTML = `<div class="text-center text-slate-500 text-sm">點擊「執行程式碼」開始觀察記憶體狀態</div>`;
+    }
+
+    function logConsole(msg, type = 'info') {
+      const consoleOut = document.getElementById('console-output');
+      const line = document.createElement('div');
+      const time = new Date().toLocaleTimeString().split(' ')[0];
+      
+      let colorClass = 'text-slate-300';
+      let icon = '>';
+      if (type === 'error') {
+        colorClass = 'text-rose-400 font-semibold';
+        icon = '✕';
+      } else if (type === 'success') {
+        colorClass = 'text-emerald-400 font-semibold';
+        icon = '';
+      } else if (type === 'warn') {
+        colorClass = 'text-amber-400';
+        icon = '⚠';
+      }
+
+      line.className = `flex items-start gap-2 ${colorClass}`;
+      line.innerHTML = `<span class="text-slate-600 select-none">[${time}]</span> <span class="select-none font-bold">${icon}</span> <span>${msg}</span>`;
+      consoleOut.appendChild(line);
+      consoleOut.scrollTop = consoleOut.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById('console-output').innerHTML = '';
+    }
+
+    function runLabSimulation() {
+      clearConsole();
+      const canvas = document.getElementById('scope-canvas');
+      const badge = document.getElementById('scope-badge');
+
+      // 實驗 1：區塊作用域洩漏
+      if (currentLabId === 1) {
+        if (currentKeyword === 'var') {
+          badge.innerText = ' 作用域洩漏 (Leak)';
+          badge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/40';
+          canvas.innerHTML = `
+            <div class="w-full flex flex-col items-center gap-3">
+              <div class="w-full max-w-sm border-2 border-dashed border-slate-700 rounded-xl p-3 bg-slate-900/40 text-center relative">
+                <span class="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">大括號區塊 { if block }</span>
+                <span class="text-xs text-slate-400">無法阻擋 var！</span>
+              </div>
+              <div class="animate-bounce">
+                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+              </div>
+              <div class="px-4 py-2 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold shadow-lg">
+                外洩至全域 Scope: secretCode = "Pass7788"
+              </div>
+            </div>
+          `;
+          logConsole('"Pass7788"', 'warn');
+          logConsole(' 警告：var 不受區塊作用域保護，在外層直接被取得！', 'warn');
+        } else {
+          // let or const
+          badge.innerText = ' 區塊隔離保護 (Safe)';
+          badge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-blue-500/20 text-blue-300 border border-blue-500/40';
+          canvas.innerHTML = `
+            <div class="w-full max-w-sm border-2 border-blue-500/40 rounded-xl p-4 bg-blue-950/20 text-center relative">
+              <span class="text-[10px] text-blue-400 font-bold uppercase tracking-wider block mb-2">大括號區塊 { if block }</span>
+              <div class="inline-block px-3 py-1.5 rounded-lg bg-blue-600/30 text-blue-300 text-xs font-mono font-bold border border-blue-500/30">
+                🔒 ${currentKeyword} secretCode = "Pass7788"
+              </div>
+              <p class="text-[11px] text-slate-400 mt-2">變數被安全鎖在區塊內，外層找不到！</p>
+            </div>
+          `;
+          logConsole('Uncaught ReferenceError: secretCode is not defined', 'error');
+        }
+      }
+
+      // 實驗 2：for 迴圈與非同步閉包
+      if (currentLabId === 2) {
+        if (currentKeyword === 'var') {
+          badge.innerText = '共享同一變數 (3, 3, 3)';
+          badge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-rose-500/20 text-rose-300 border border-rose-500/40';
+          canvas.innerHTML = `
+            <div class="w-full flex justify-center gap-3">
+              <div class="p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-center font-mono text-xs">定時器 1<br><span class="text-lg font-bold text-rose-300">i = 3</span></div>
+              <div class="p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-center font-mono text-xs">定時器 2<br><span class="text-lg font-bold text-rose-300">i = 3</span></div>
+              <div class="p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-center font-mono text-xs">定時器 3<br><span class="text-lg font-bold text-rose-300">i = 3</span></div>
+            </div>
+          `;
+          logConsole('等待 500ms 後非同步佇列觸發...', 'info');
+          setTimeout(() => {
+            logConsole('當前 i 值: 3', 'error');
+            logConsole('當前 i 值: 3', 'error');
+            logConsole('當前 i 值: 3', 'error');
+            logConsole(' 原因：var 只有一個共享的 i，迴圈跑完時 i 已經是 3！', 'warn');
+          }, 500);
+        } else if (currentKeyword === 'let') {
+          badge.innerText = '每輪各自擁有獨立作用域 (0, 1, 2)';
+          badge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+          canvas.innerHTML = `
+            <div class="w-full flex justify-center gap-3">
+              <div class="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-center font-mono text-xs">迴圈輪次 0<br><span class="text-lg font-bold text-emerald-300">i = 0</span></div>
+              <div class="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-center font-mono text-xs">迴圈輪次 1<br><span class="text-lg font-bold text-emerald-300">i = 1</span></div>
+              <div class="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-center font-mono text-xs">迴圈輪次 2<br><span class="text-lg font-bold text-emerald-300">i = 2</span></div>
+            </div>
+          `;
+          logConsole('等待 500ms 後非同步佇列觸發...', 'info');
+          setTimeout(() => {
+            logConsole('當前 i 值: 0', 'success');
+            logConsole('當前 i 值: 1', 'success');
+            logConsole('當前 i 值: 2', 'success');
+            logConsole(' 正確：let 於每一次迴圈迭代都建立了全新獨立的區塊環境！', 'success');
+          }, 500);
+        } else {
+          // const in for loop
+          badge.innerText = '語法錯誤 (不可累加)';
+          badge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-rose-500/20 text-rose-300 border border-rose-500/40';
+          canvas.innerHTML = `<div class="text-rose-400 text-xs font-mono text-center">const 無法在迴圈迭代中執行 i++（TypeError: Assignment to constant variable）</div>`;
+          logConsole('Uncaught TypeError: Assignment to constant variable.', 'error');
+        }
+      }
+
+      // 實驗 3：TDZ 與提升
+      if (currentLabId === 3) {
+        if (currentKeyword === 'var') {
+          badge.innerText = '提升並賦值 undefined';
+          badge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/40';
+          canvas.innerHTML = `
+            <div class="space-y-2 text-center">
+              <div class="px-3 py-1 rounded bg-slate-800 text-slate-300 font-mono text-xs inline-block">1. 記憶體分配階段：var username 初始化為 undefined</div>
+              <div class="text-xs text-amber-300 font-mono">2. console.log 成功印出 undefined</div>
+            </div>
+          `;
+          logConsole('undefined', 'warn');
+          logConsole(' var 在建立階段就被初始化為 undefined，因此不會報錯。', 'info');
+        } else {
+          badge.innerText = '墜入暫時性死區 (TDZ)';
+          badge.className = 'px-2 py-0.5 rounded text-[11px] font-mono bg-rose-500/20 text-rose-300 border border-rose-500/40';
+          canvas.innerHTML = `
+            <div class="border border-rose-500/30 bg-rose-950/20 p-3 rounded-xl text-center space-y-1">
+              <div class="text-rose-400 font-bold text-xs">⚠️ 暫時性死區 (Temporal Dead Zone) 攔截</div>
+              <div class="text-[11px] text-slate-400 font-mono">${currentKeyword} 有被提升，但尚未執行到宣告行之前嚴禁存取！</div>
+            </div>
+          `;
+          logConsole(`Uncaught ReferenceError: Cannot access 'username' before initialization`, 'error');
+        }
+      }
+    }
+
+    /* ==========================================================================
+       4. 觀念測驗互動模組 (Quiz Component)
+       ========================================================================== */
+    const quizData = [
+      {
+        question: "1. 關於變數宣告，下列哪一項敘述是正確的？",
+        options: [
+          "var 具有區塊作用域，只能在 if 或 for 的大括號內存取",
+          "let 與 const 在宣告前取值會回傳 undefined，不會報錯",
+          "const 保證的是變數指向的記憶體位址不變，而非物件內部不可修改",
+          "現代前端開發強烈建議以 var 作為主要宣告方式"
+        ],
+        answer: 2,
+        explanation: "const 保證的是記憶體位址（Reference）不變。如果是陣列或物件，其內部屬性依然是可以新增修改的；若要完全不可變可搭配 Object.freeze()。"
+      },
+      {
+        question: "2. 執行以下程式碼，主控台（Console）的輸出為何？",
+        code: `console.log(score);\nvar score = 100;`,
+        options: [
+          "100",
+          "undefined",
+          "ReferenceError: Cannot access 'score' before initialization",
+          "null"
+        ],
+        answer: 1,
+        explanation: "var 會發生 Hoisting（提升），且在建立階段會被初始化為 undefined，因此在宣告前讀取會輸出 undefined 而非報錯。"
+      },
+      {
+        question: "3. 執行以下程式碼，主控台輸出為何？",
+        code: `if (true) {\n  let level = 99;\n}\nconsole.log(level);`,
+        options: [
+          "99",
+          "undefined",
+          "ReferenceError: level is not defined",
+          "NaN"
+        ],
+        answer: 2,
+        explanation: "let 具備區塊作用域（Block Scope `{}`），離開 if 的大括號後該變數便不存在，外部讀取會拋出 ReferenceError。"
+      },
+      {
+        question: "4. 下列何者可以合法重複執行而「不會」引發語法錯誤？",
+        options: [
+          "let count = 1; let count = 2;",
+          "const PI = 3.14; const PI = 3.14159;",
+          "var name = 'Alice'; var name = 'Bob';",
+          "const user = {}; user = {};"
+        ],
+        answer: 2,
+        explanation: "var 允許重複宣告同名變數；而 let 與 const 在同作用域下重複宣告都會拋出 SyntaxError。"
+      }
+    ];
+
+    let userAnswers = {};
+
+    function renderQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = quizData.map((q, idx) => `
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
+          <div class="font-bold text-base text-slate-200">${q.question}</div>
+          ${q.code ? `<pre class="bg-slate-950 p-3 rounded-xl text-xs font-mono text-indigo-300 border border-slate-800">${q.code}</pre>` : ''}
+          <div class="space-y-2">
+            ${q.options.map((opt, oIdx) => `
+              <button onclick="selectOption(${idx}, ${oIdx})" id="opt-${idx}-${oIdx}" class="quiz-opt-btn w-full text-left p-3.5 rounded-xl border border-slate-800 bg-slate-800/40 hover:bg-slate-800 text-slate-300 text-xs sm:text-sm transition flex items-center justify-between">
+                <span>${opt}</span>
+                <span class="status-indicator font-mono font-bold text-xs"></span>
+              </button>
+            `).join('')}
+          </div>
+          <div id="quiz-exp-${idx}" class="text-xs p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-400 hidden leading-relaxed">
+            <span class="font-bold text-indigo-400 block mb-1"> 觀念解析：</span>
+            ${q.explanation}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectOption(qIdx, oIdx) {
+      if (userAnswers[qIdx] !== undefined) return; // 避免重複作答
+      userAnswers[qIdx] = oIdx;
+
+      const q = quizData[qIdx];
+      const isCorrect = (oIdx === q.answer);
+      const chosenBtn = document.getElementById(`opt-${qIdx}-${oIdx}`);
+      const expBox = document.getElementById(`quiz-exp-${qIdx}`);
+
+      // 標示選取的樣式
+      if (isCorrect) {
+        chosenBtn.className = "quiz-opt-btn w-full text-left p-3.5 rounded-xl border border-emerald-500/50 bg-emerald-950/30 text-emerald-200 text-xs sm:text-sm font-semibold flex items-center justify-between";
+        chosenBtn.querySelector('.status-indicator').innerText = ' 正確';
+      } else {
+        chosenBtn.className = "quiz-opt-btn w-full text-left p-3.5 rounded-xl border border-rose-500/50 bg-rose-950/30 text-rose-200 text-xs sm:text-sm font-semibold flex items-center justify-between";
+        chosenBtn.querySelector('.status-indicator').innerText = ' 錯誤';
+        // 標示出正解
+        const correctBtn = document.getElementById(`opt-${qIdx}-${q.answer}`);
+        correctBtn.className = "quiz-opt-btn w-full text-left p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-950/20 text-emerald-300 text-xs sm:text-sm flex items-center justify-between";
+        correctBtn.querySelector('.status-indicator').innerText = ' 正解在此';
+      }
+
+      expBox.classList.remove('hidden');
+
+      // 檢查是否全部完成
+      if (Object.keys(userAnswers).length === quizData.length) {
+        showQuizSummary();
+      }
+    }
+
+    function showQuizSummary() {
+      const summary = document.getElementById('quiz-summary');
+      const scoreText = document.getElementById('quiz-score-text');
+      let score = 0;
+      quizData.forEach((q, idx) => {
+        if (userAnswers[idx] === q.answer) score++;
+      });
+      scoreText.innerText = `得分：${score} / ${quizData.length} 題 (${(score / quizData.length) * 100} 分)`;
+      summary.classList.remove('hidden');
+      summary.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetQuiz() {
+      userAnswers = {};
+      document.getElementById('quiz-summary').classList.add('hidden');
+      renderQuiz();
+    }
+
+    // 初始化載入
+    window.addEventListener('DOMContentLoaded', () => {
+      renderLab();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>
