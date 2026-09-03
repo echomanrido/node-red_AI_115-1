@@ -183,13 +183,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <div class="image-card">
           <div class="image-header">
-            <span class="image-title"><i class="fa-solid fa-terminal"></i> 程式執行結果 (Debug 視窗)</span>
+            <span class="image-title"><i class="fa-solid fa-terminal"></i> 程式執行結果 (網頁 / Debug 視窗)</span>
             <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
           </div>
           <div class="image-wrapper" id="resultImgWrapper">
             <img src="${lab.resultImage}" alt="Result 執行結果截圖" onerror="this.src='https://via.placeholder.com/600x300?text=Result+Image+Not+Found'">
           </div>
         </div>
+
+        ${lab.funcImage ? `
+        <div class="image-card">
+          <div class="image-header">
+            <span class="image-title"><i class="fa-solid fa-code"></i> Function 函式程式碼截圖</span>
+            <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+          </div>
+          <div class="image-wrapper" id="funcImgWrapper">
+            <img src="${lab.funcImage}" alt="Function 程式碼截圖" onerror="this.src='https://via.placeholder.com/600x300?text=Function+Image+Not+Found'">
+          </div>
+        </div>
+        ` : ''}
       </section>
 
       <!-- (3) Lab 目標 -->
@@ -268,6 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 綁定 Lightbox 點擊事件
     const flowImgWrapper = document.getElementById('flowImgWrapper');
     const resultImgWrapper = document.getElementById('resultImgWrapper');
+    const funcImgWrapper = document.getElementById('funcImgWrapper');
 
     if (flowImgWrapper) {
       flowImgWrapper.addEventListener('click', () => {
@@ -278,6 +291,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (resultImgWrapper) {
       resultImgWrapper.addEventListener('click', () => {
         openLightbox(lab.resultImage, `Lab ${lab.labNumber} - 執行結果`);
+      });
+    }
+
+    if (funcImgWrapper && lab.funcImage) {
+      funcImgWrapper.addEventListener('click', () => {
+        openLightbox(lab.funcImage, `Lab ${lab.labNumber} - Function 程式碼`);
       });
     }
   }

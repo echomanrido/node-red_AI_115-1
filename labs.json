@@ -2913,5 +2913,157 @@
         "url": "https://www.w3schools.com/js/js_strings.asp"
       }
     ]
+  },
+  {
+    "id": "lab-14",
+    "labNumber": "14",
+    "title": "練習 4-3: write file 實作 - 動態時間格式化並寫入 HTML 報表檔案",
+    "date": "2026-09-03",
+    "category": "基礎實作",
+    "summary": "學習在 Node-RED 中使用 write file (寫入檔案) 節點，結合 JavaScript 的 toLocaleString (UTC+8 台北時間格式化) 與 ES6 模板字串 (Template Literals)，將設備異常訊息動態組裝成 HTML 網頁報表並寫入 XAMPP Web 伺服器目錄 (C:\\xampp\\htdocs\\output.html)，透過瀏覽器實現即時網頁報表發布。",
+    "flowImage": "images_src/ok/20260903_03_write_file_html_report[flow].png",
+    "resultImage": "images_src/ok/20260903_03_write_file_html_report[result].png",
+    "funcImage": "images_src/ok/20260903_03_write_file_html_report[func].png",
+    "objective": "1. 掌握 Node-RED 核心節點「write file (file out)」的本機路徑與寫入模式（覆寫 overwrite 或附加 append）。\n2. 學習在 Function 節點中利用 JavaScript Date 物件進行時區轉換 (Asia/Taipei UTC+8) 與 24 小時制時間格式化。\n3. 學習使用 ES6 模板字串 (Template Literals) 動態生成標準 HTML 網頁代碼。\n4. 結合 XAMPP / Apache Web 伺服器架構，實現「設備事件觸發 ➔ 時間字串格式化 ➔ 動態產出 HTML ➔ 瀏覽器遠端即時監看」的完整報表發布鏈路。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 註解與 Inject 觸發節點",
+        "description": "在畫布上方建立兩個 Comment 標註「write file 實作」與「訊息存成html檔案」。拖入一個 Inject 節點，命名為「五股機電整合班115-1AI機電班」，Payload 設為字串「五股機電整合班115-1AI機電班」，msg.topic 設為 timestamp (時間戳記)。"
+      },
+      {
+        "step": "2. 編寫「轉html格式」Function 節點",
+        "description": "拖入 Function 節點命名為「轉html格式」，撰寫 JavaScript 程式碼：將 msg.topic 轉為 Date 物件並以 toLocaleString 轉換為 Asia/Taipei 格式 (YYYY/MM/DD HH:mm:ss)。接著利用 ES6 模板字串組裝 HTML 代碼（包含 h1 標題「機丙機台異常報告」與 p 段落「Data received: 時間 : 訊息」），最後賦值給 msg.payload。"
+      },
+      {
+        "step": "3. 配置 write file (寫入檔案) 節點",
+        "description": "拖入 storage 分類下的「write file (file)」節點，將 Function 的輸出端連線至 write file。雙擊開啟設定：Filename 填入「C:\\xampp\\htdocs\\output.html」，Action 選擇「overwrite file (覆寫檔案)」，Create directory 勾選「若目錄不存在則自動建立」。"
+      },
+      {
+        "step": "4. 部署並於瀏覽器開啟 output.html 驗證",
+        "description": "點擊 Deploy 部署，點擊 Inject 注入觸發。開啟瀏覽器訪問 http://localhost/output.html，頁面將立即渲染出「機丙機台異常報告」以及即時精準的時間戳記與班級訊息，驗證 HTML 檔案動態發布成功！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在機電整合丙級術科考試與 SCADA 監控系統中，當 PLC 感測到機台極限異常、氣壓不足或工件卡料時，觸發 write file 自動生成當前異常報告 HTML 檔案，並儲存至本機 Web 伺服器。考官或技師只需在平板或手機瀏覽器輸入機台 IP 即可檢視最新異常紀錄與時間點。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "半導體廠房 SECS/GEM 機台當機事件自動化 HTML 報表生成。當設備 Gateway 接收到重大警報 (Alarm ID) 時，Node-RED 自動將警報時間、機台編號、閥門溫度與製程批號格式化為 HTML/PDF 格式，即時寫入廠務 Intranet 伺服器供產線主管與工程師查閱與簽核。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧快遞箱投遞日誌靜態網頁發布。每當快遞員投入包裹並關閉箱門時，中控主機透過 write file 將投遞時間、快遞單號與包裹重量自動寫入 NAS 或路由器 Web 目錄下的 status.html，住戶在區域網路內隨時開啟網頁即可掌握最新包裹狀態。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，用於將即時時間與字串訊息格式化並寫入 HTML 檔案：\n1. 包含兩個 Comment 節點，標註「write file 實作」與「訊息存成html檔案」。\n2. 包含一個 Inject 節點（名稱：五股機電整合班115-1AI機電班），msg.payload 設為字串「五股機電整合班115-1AI機電班」，msg.topic 設為 timestamp。\n3. 包含一個 Function 節點 (名稱：轉html格式)，內部將 msg.topic 格式化為 UTC+8 台北時間 (YYYY/MM/DD HH:mm:ss)，並組裝成完整的 HTML 結構（含 h1 標題「機丙機台異常報告」與 p 標籤資料）。\n4. 包含一個 write file 節點，檔案路徑設定為「C:\\\\xampp\\\\htdocs\\\\output.html」，寫入模式為覆寫 (overwrite)。\n請以標準 Node-RED JSON 陣列格式回傳。",
+    "nodeRedJson": [
+      {
+        "id": "tab_write_file",
+        "type": "tab",
+        "label": "練習 4-3: write file 實作",
+        "disabled": false,
+        "info": ""
+      },
+      {
+        "id": "comment_wf_title",
+        "type": "comment",
+        "z": "tab_write_file",
+        "name": "write file 實作",
+        "info": "",
+        "x": 130,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "comment_wf_sub",
+        "type": "comment",
+        "z": "tab_write_file",
+        "name": "訊息存成html檔案",
+        "info": "",
+        "x": 140,
+        "y": 100,
+        "wires": []
+      },
+      {
+        "id": "inject_msg_trigger",
+        "type": "inject",
+        "z": "tab_write_file",
+        "name": "五股機電整合班115-1AI機電班",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "date"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "五股機電整合班115-1AI機電班",
+        "payloadType": "str",
+        "x": 190,
+        "y": 160,
+        "wires": [
+          [
+            "func_to_html"
+          ]
+        ]
+      },
+      {
+        "id": "func_to_html",
+        "type": "function",
+        "z": "tab_write_file",
+        "name": "轉html格式",
+        "func": "var date = new Date(msg.topic);\n\n// 指定 UTC+8 (Asia/Taipei) 格式化\nvar localTime = date.toLocaleString(\"zh-TW\", {\n    timeZone: \"Asia/Taipei\",\n    year: \"numeric\",\n    month: \"2-digit\",\n    day: \"2-digit\",\n    hour: \"2-digit\",\n    minute: \"2-digit\",\n    second: \"2-digit\",\n    hour12: false\n});\n\nvar myData = localTime + \" : \" + msg.payload;\n\nvar htmlContent = `\n<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n<title>五股機電整合班</title>\n</head>\n<body>\n<h1>機丙機台異常報告</h1>\n<p>Data received: ${myData}</p>\n</body>\n</html>\n`;\n\nmsg.payload = htmlContent;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 160,
+        "wires": [
+          [
+            "file_out_html"
+          ]
+        ]
+      },
+      {
+        "id": "file_out_html",
+        "type": "file",
+        "z": "tab_write_file",
+        "name": "C:\\\\xampp\\\\htdocs\\\\output.html",
+        "filename": "C:\\\\xampp\\\\htdocs\\\\output.html",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "utf8",
+        "x": 730,
+        "y": 160,
+        "wires": [
+          []
+        ]
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - File 寫入節點 (write file) 使用說明",
+        "url": "https://nodered.org/docs/user-guide/nodes#file"
+      },
+      {
+        "title": "XAMPP 官方網站與 Apache 本機伺服器架構",
+        "url": "https://www.apachefriends.org/zh_tw/index.html"
+      }
+    ]
   }
 ]
