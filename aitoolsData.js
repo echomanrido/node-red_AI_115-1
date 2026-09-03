@@ -972,5 +972,69 @@ window.INITIAL_AITOOLS_DATA = [
         "url": "https://ai.google.dev/docs/gemini_api_overview"
       }
     ]
+  },
+  {
+    "id": "tool-gemini-rate-limits",
+    "toolNumber": "17",
+    "title": "Google AI Studio - 查詢 Gemini API Key 使用量與速率限制 (Rate Limits)",
+    "date": "2026-09-03",
+    "category": "Google AI 實用工具",
+    "summary": "在開發 Node-RED 或 AI 應用時，常會遇到 HTTP 429 請求過多或模型配額超額問題。本指南引導您如何在 Google AI Studio 儀表板中即時監控 Gemini 各模型之 RPM (每分鐘請求)、TPM (每分鐘 Token) 與 RPD (每日請求) 使用量，並掌握升級 Tier 1、設定自動重試與流量調步 (Rate Limiting) 的實務技巧。",
+    "webUrl": "https://ai.google.dev/gemini-api/docs/rate-limits?hl=zh-tw#tier-1",
+    "flowImage": [
+      "images_src/ok/20260903_gemini_rate_limits_dashboard.png",
+      "images_src/ok/20260903_gemini_rate_limits_doc.png"
+    ],
+    "objective": "1. 掌握在 Google AI Studio 儀表板 (Dashboard) 檢視專案 API Key 呼叫量與速率限制 (Rate Limits by Model) 的操作步驟。\n2. 理解三大核心限制維度：RPM (每分鐘請求數)、TPM (每分鐘 Token 總數) 與 RPD (每日請求配額)。\n3. 學習遇到 HTTP 429 (Too Many Requests / Resource Exhausted) 錯誤時的排查與應對策略。\n4. 掌握在 Node-RED 與邊緣網關中加入 Delay 流量調步節點與指數退避重試 (Exponential Backoff) 機制。",
+    "tutorialSteps": [
+      {
+        "step": "1. 登入 Google AI Studio 儀表板",
+        "description": "瀏覽 Google AI Studio (https://aistudio.google.com)，點擊左側選單的「Dashboard (儀表板)」進入「Usage & Billing (用量與帳單)」監控專區。"
+      },
+      {
+        "step": "2. 檢視 Rate limits by model 頻率限制表",
+        "description": "在儀表板中選取當前專案與時間範圍（如 28 Days），查看各模型（Gemini 2.5 Flash, 2.5 Pro, 2.0 Flash Lite 等）的 RPM (如 15 RPM)、TPM (如 1,000K TPM) 與 RPD (如 1,500 RPD) 即時峰值與使用條。"
+      },
+      {
+        "step": "3. 識別 HTTP 429 警告與超額原因",
+        "description": "若上方出現「You have reached a rate limit」警告或應用端回傳 HTTP 429，可比對表格確認是突發請求過密 (RPM 爆發)、單次傳入大型影像/長文字 (TPM 超額) 或是全天累積次數耗盡 (RPD 到頂)。"
+      },
+      {
+        "step": "4. 實施流量調步與升級 Tier 1 方案",
+        "description": "在 Node-RED 請求前端加入 Delay 節點限制每分鐘發送頻率；若為商用生產環境，可點擊「Set up billing」綁定 Google Cloud 結算帳戶，升級為 Tier 1 (Pay-as-you-go)，RPM 限制將立即躍升至 1,000~2,000 RPM！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "工業 SCADA 邊緣端 AI 影像推論頻率調步",
+        "icon": "fa-solid fa-industry",
+        "description": "產線 AOI 相機高頻率拍照時，透過 Node-RED Delay 節點將傳送給 Gemini 的頻率鎖定在 10 RPM 以內，確保在 Free Tier 額度下穩定辨識工件瑕疵而不觸發 429 斷線。"
+      },
+      {
+        "scenario": "多模型智慧降級與故障轉移 (Failover)",
+        "icon": "fa-solid fa-arrows-split",
+        "description": "在 Node-RED 中建立 Catch 節點監聽 429 狀態碼，當主模型 Gemini 2.5 Pro 達到限制時，自動將 Prompt 轉發至備援的 Gemini 2.0 Flash Lite 或本地端 Ollama，維持 24/7 不間斷監控。"
+      },
+      {
+        "scenario": "企業 API 成本預算與配額預警戰情室",
+        "icon": "fa-solid fa-chart-line",
+        "description": "廠務主管透過 AI Studio 儀表板掌握全廠 28 天內的 Token 消耗趨勢與費用預測，精準設定每月預算上限與警報門檻，避免雲端帳單超支。"
+      }
+    ],
+    "aiPrompt": "請扮演 Google Gemini API 與 Node-RED 架構專家，幫我撰寫一段 Node-RED JavaScript 函式代碼，用於處理呼叫 Gemini API 時遇到的 HTTP 429 (Rate Limit Exceeded) 錯誤：\n1. 當收到 statusCode === 429 時，啟動指數退避重試 (Exponential Backoff) 機制。\n2. 重試延遲時間公式：Math.pow(2, retryCount) * 1000 毫秒。\n3. 最大重試次數設為 3 次；若超過 3 次則輸出 node.error 並轉發給備援模型或發送 Line 警報。\n4. 請附上詳細中文註釋與 Node-RED 節點配置建議。",
+    "references": [
+      {
+        "title": "互動模擬工具：Gemini API 頻率限制 (Rate Limits) 監控戰情室",
+        "url": "gemini_rate_limit_calculator.html"
+      },
+      {
+        "title": "Google Gemini 官方文件 - 速率與頻率限制 (Rate Limits)",
+        "url": "https://ai.google.dev/gemini-api/docs/rate-limits?hl=zh-tw#tier-1"
+      },
+      {
+        "title": "Google AI Studio 官方儀表板 (Dashboard)",
+        "url": "https://aistudio.google.com"
+      }
+    ]
   }
 ];
