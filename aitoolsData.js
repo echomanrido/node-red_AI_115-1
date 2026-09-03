@@ -903,5 +903,74 @@ window.INITIAL_AITOOLS_DATA = [
         "url": "https://gemini.google.com"
       }
     ]
+  },
+  {
+    "id": "tool-nodered-flow-generator",
+    "toolNumber": "16",
+    "title": "Google AI Studio - New app: 圖片/文字輸入轉 Node-RED 流程與 JSON 程式碼",
+    "date": "2026-09-03",
+    "category": "Google AI 實用工具",
+    "summary": "在 Google AI Studio 透過「+ New app」建立專屬 Node-RED 流程生成器應用（AI Node-RED Flow Generator）。支援上傳手繪/截圖或輸入文字需求，由 Gemini 視覺模型自動識別節點拓撲，一鍵生成流程視覺圖 (SVG) 與標準 Node-RED JSON 程式碼。",
+    "webUrl": "https://aistudio.google.com",
+    "flowImage": [
+      "images_src/ok/20260903_ai_nodered_flow_gen_input.png",
+      "images_src/ok/20260903_ai_nodered_flow_gen_vis.png",
+      "images_src/ok/20260903_ai_nodered_flow_gen_json.png"
+    ],
+    "objective": "1. 掌握在 Google AI Studio 使用「+ New app」建立多模態視覺應用的全流程。\n2. 學習設定 Gemini 視覺模型提示詞，精確識別 Node-RED 截圖中的 Inject、Function、Debug 與 Switch 節點。\n3. 掌握自動解析節點連線拓撲關係並輸出標準合法 Node-RED JSON 陣列結構的技巧。\n4. 結合 SVG 視覺化即時渲染，實現「圖片截圖 ➔ 拓撲分析 ➔ 流程可視化 ➔ JSON 匯入 Node-RED」的一站式開發。",
+    "tutorialSteps": [
+      {
+        "step": "1. 在 Google AI Studio 建立「+ New app」專案",
+        "description": "前往 Google AI Studio (https://aistudio.google.com)，點擊左上角「+ New app」建立專屬 Web 應用。選擇 Gemini 3.1 Pro Preview 作為核心多模態視覺與程式碼推理模型，命名為「Node-RED Flow Generator」。"
+      },
+      {
+        "step": "2. 配置 System Instructions 與輸入介面",
+        "description": "在系統提示詞中定義 Node-RED 節點結構規範（Inject, Function, Debug, Comment 等必填欄位 x, y, z, wires）。在前端配置「Image Input (上傳截圖)」與「Text Input (文字描述)」雙輸入模式。"
+      },
+      {
+        "step": "3. 上傳流程截圖並啟動 AI 多模態識別",
+        "description": "上傳 Node-RED 流程截圖（如「練習3-2: if else判斷-氣壓缸應用」）。Gemini 視覺模型會逐行輸出分析日誌：識別 6 個 Inject 節點 (a0~c1)、Function 節點與 Debug 節點，並追蹤管線連接關係。"
+      },
+      {
+        "step": "4. 生成視覺化 SVG 與一鍵匯出 JSON 程式碼",
+        "description": "點擊「Generate Node-RED Flow」，系統自動渲染出互動流程圖 (支援下載 SVG)，並產出完整的 Node-RED JSON 陣列。點擊「Copy」後在 Node-RED 編輯器按 Ctrl+I 即可直接貼上匯入！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "教材手冊與黑板手繪草圖快速轉程式碼",
+        "icon": "fa-solid fa-camera",
+        "description": "老師在黑板手繪或講義上的 Node-RED 邏輯架構，拍照上傳即可在 3 秒內自動轉為標準 JSON 流程，節省手動拖拉節點與連線時間。"
+      },
+      {
+        "scenario": "機電整合與 PLC 轉 Node-RED 邏輯遷移",
+        "icon": "fa-solid fa-network-wired",
+        "description": "將 PLC 階梯圖或氣壓缸循序動作表截圖上傳，AI 自動將其轉為對應的 Inject、Function (if-else判斷) 與 Switch 節點，大幅降低工控 IT/OT 整合門檻。"
+      },
+      {
+        "scenario": "自動化測試與教育訓練工作坊",
+        "icon": "fa-solid fa-graduation-cap",
+        "description": "在教學現場中，學員只需以文字描述「我要監控 Modbus 溫濕度並發送 Line 警報」，AI 立即產出對應可執行的 Node-RED 流程原型供學員除錯與學習。"
+      }
+    ],
+    "aiPrompt": "請扮演 Node-RED 與 Google AI Studio 應用開發專家，幫我建立一個多模態視覺應用的 System Prompt：\\n任務：接收使用者上傳的 Node-RED 流程圖截圖或手繪草圖，進行精確解析並生成標準 Node-RED JSON。\\n1. 必須識別出所有的節點類型（comment, inject, function, debug, switch, mqtt 等）及其 label/name。\\n2. 必須精確分析節點之間的 wires 連接關係陣列。\\n3. 在 Function 節點內自動補齊與圖片相符的 JavaScript 邏輯代碼。\\n4. 輸出合法的 Node-RED JSON 格式陣列，並附帶逐步分析日誌（AI Analysis Log）。",
+    "references": [
+      {
+        "title": "互動模擬應用：AI Node-RED Flow Generator 流程與 JSON 生成器",
+        "url": "nodered_flow_generator_app.html"
+      },
+      {
+        "title": "Google AI Studio 官方平台",
+        "url": "https://aistudio.google.com"
+      },
+      {
+        "title": "Node-RED 官方文件 - 流程匯入與匯出 (JSON Format)",
+        "url": "https://nodered.org/docs/user-guide/editor/workspace/import-export"
+      },
+      {
+        "title": "Google Gemini API 多模態視覺開發指南",
+        "url": "https://ai.google.dev/docs/gemini_api_overview"
+      }
+    ]
   }
 ];

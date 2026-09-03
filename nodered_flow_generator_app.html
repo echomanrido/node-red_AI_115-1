@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Node-RED Flow Generator - 圖片/文字輸入轉 Node-RED 流程與 JSON | Google AI Studio 應用</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(236, 72, 153, 0.3); }
+      50% { box-shadow: 0 0 25px rgba(236, 72, 153, 0.6); }
+    }
+    .gemini-gradient {
+      background: linear-gradient(135deg, #4285F4 0%, #9B72CB 50%, #D96570 100%);
+    }
+    .gemini-text {
+      background: linear-gradient(135deg, #4285F4 0%, #9B72CB 50%, #D96570 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .wire-curve {
+      stroke-dasharray: 6;
+      animation: dashFlow 1.5s linear infinite;
+    }
+    @keyframes dashFlow {
+      to { stroke-dashoffset: -12; }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-pink-600 selection:text-white">
+
+  <!-- 頂部導覽列 (Google AI Studio 風格) -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 px-6 py-3.5 flex flex-wrap justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <a href="aitools.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors flex items-center justify-center" title="返回 AI 工具庫">
+        <i class="ph ph-arrow-left text-lg"></i>
+      </a>
+      <div class="w-9 h-9 rounded-lg gemini-gradient flex items-center justify-center text-white shadow-lg">
+        <i class="ph ph-sparkle text-xl"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold text-white tracking-wide">001-003.Node-RED Flow Generator_文字輸入_流程圖</h1>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-700 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping"></span> Gemini 3.1 Pro Preview
+          </span>
+        </div>
+        <p class="text-xs text-slate-400">AI Node-RED Flow Generator • 多模態視覺識別與 JSON 程式碼生成應用</p>
+      </div>
+    </div>
+
+    <!-- 右側操作狀態 -->
+    <div class="flex items-center gap-3 mt-2 sm:mt-0">
+      <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-xs text-slate-300 font-mono">
+        <i class="ph ph-cpu text-pink-400 text-sm"></i>
+        <span>AI Studio Vision Pipeline</span>
+      </div>
+      <a href="https://aistudio.google.com" target="_blank" class="px-3 py-1.5 rounded-lg bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-pink-600/30">
+        <i class="ph ph-arrow-up-right"></i> 開啟 Google AI Studio
+      </a>
+    </div>
+  </header>
+
+  <!-- 主內容區 -->
+  <main class="flex-1 p-4 lg:p-8 max-w-[1600px] w-full mx-auto flex flex-col gap-6">
+
+    <!-- 流程進度條 (3 Steps) -->
+    <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex items-center justify-between shadow-xl overflow-x-auto">
+      <div class="flex items-center gap-3 min-w-[200px]">
+        <div id="step-badge-1" class="w-7 h-7 rounded-full bg-pink-600 text-white font-bold text-xs flex items-center justify-center shadow-lg shadow-pink-600/40">1</div>
+        <div>
+          <div class="text-xs font-bold text-white">1. Provide Input</div>
+          <div class="text-[11px] text-slate-400">上傳截圖 / 輸入文字需求</div>
+        </div>
+      </div>
+      <div class="w-12 h-0.5 bg-slate-700 hidden sm:block"></div>
+
+      <div class="flex items-center gap-3 min-w-[200px]">
+        <div id="step-badge-2" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 font-bold text-xs flex items-center justify-center border border-slate-700">2</div>
+        <div>
+          <div class="text-xs font-bold text-slate-300">2. AI Analysis</div>
+          <div class="text-[11px] text-slate-400">視覺解析節點與管線拓撲</div>
+        </div>
+      </div>
+      <div class="w-12 h-0.5 bg-slate-700 hidden sm:block"></div>
+
+      <div class="flex items-center gap-3 min-w-[200px]">
+        <div id="step-badge-3" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 font-bold text-xs flex items-center justify-center border border-slate-700">3</div>
+        <div>
+          <div class="text-xs font-bold text-slate-300">3. Generate Flow</div>
+          <div class="text-[11px] text-slate-400">SVG 視覺化與 Node-RED JSON</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1 & 2: 輸入與 AI 分析日誌面板 (2 Columns) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- 左側：輸入選擇 (7 Cols) -->
+      <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="ph ph-image text-pink-400 text-base"></i> 1. Provide Input (選擇輸入來源)
+          </h2>
+          <!-- 模式切換按鈕 -->
+          <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+            <button id="btn-mode-image" class="px-3 py-1 rounded-md text-xs font-bold bg-pink-600 text-white transition flex items-center gap-1.5">
+              <i class="ph ph-file-image"></i> Image Input
+            </button>
+            <button id="btn-mode-text" class="px-3 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5">
+              <i class="ph ph-text-t"></i> Text Input
+            </button>
+          </div>
+        </div>
+
+        <!-- 預設範例快速載入列 -->
+        <div class="flex items-center gap-2 text-xs flex-wrap">
+          <span class="text-slate-400 font-medium flex items-center gap-1">
+            <i class="ph ph-bookmark-simple text-amber-400"></i> 快速載入實戰範例:
+          </span>
+          <button onclick="loadPreset('pneumatic')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs transition">
+            練習 3-2: 氣壓缸 if-else
+          </button>
+          <button onclick="loadPreset('modbus')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs transition">
+            Modbus 溫濕度監控
+          </button>
+          <button onclick="loadPreset('mqtt')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs transition">
+            MQTT 遙測與 Dashboard
+          </button>
+        </div>
+
+        <!-- 圖片輸入區域 -->
+        <div id="section-image-input" class="flex flex-col gap-3">
+          <div class="relative w-full h-[230px] bg-slate-950 border-2 border-dashed border-slate-700 hover:border-pink-500/60 rounded-xl flex flex-col items-center justify-center p-4 transition cursor-pointer group overflow-hidden" id="dropzone">
+            <input type="file" id="file-uploader" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-20">
+            <div id="upload-placeholder" class="flex flex-col items-center justify-center text-center gap-2 pointer-events-none">
+              <div class="w-12 h-12 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-pink-400 group-hover:scale-110 transition">
+                <i class="ph ph-cloud-arrow-up text-2xl"></i>
+              </div>
+              <div class="text-xs font-bold text-slate-300">拖放或點擊上傳 Node-RED 流程截圖或手繪草圖</div>
+              <div class="text-[11px] text-slate-500">支援 PNG, JPG, WebP 格式</div>
+            </div>
+            <!-- 預覽圖 -->
+            <img id="image-preview" src="images_src/ok/20260903_ai_nodered_flow_gen_input.png" alt="Node-RED 截圖預覽" class="w-full h-full object-contain z-10">
+          </div>
+        </div>
+
+        <!-- 文字輸入區域 (預設隱藏) -->
+        <div id="section-text-input" class="hidden flex-col gap-2">
+          <label class="text-xs text-slate-400 font-medium">請描述您想產生的 Node-RED 流程邏輯：</label>
+          <textarea id="text-prompt-input" rows="7" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-pink-500 leading-relaxed" placeholder="例如：建立一個流程，包含 6 個 inject 節點 (a0, a1, b0, b1, c0, c1)，全部連接至 function 節點進行 if-else 氣壓缸伸出/縮回判斷，最後將結果輸出至 debug 32 節點..."></textarea>
+        </div>
+
+        <!-- 觸發按鈕 -->
+        <button id="btn-generate" onclick="runAIGeneration()" class="w-full py-3 rounded-lg bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 hover:from-pink-500 hover:to-blue-500 active:scale-[0.99] text-white font-bold text-sm shadow-xl shadow-pink-600/20 transition flex items-center justify-center gap-2">
+          <i class="ph ph-sparkle text-lg"></i>
+          <span>Generate Node-RED Flow</span>
+        </button>
+      </div>
+
+      <!-- 右側：AI 分析日誌 (5 Cols) -->
+      <div class="lg:col-span-5 bg-slate-900/80 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="ph ph-terminal-window text-emerald-400 text-base"></i> 2. AI Analysis Log
+          </h2>
+          <span id="analysis-status" class="text-[11px] font-mono text-emerald-400 font-bold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> Ready
+          </span>
+        </div>
+
+        <div id="log-console" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-3.5 font-mono text-[11px] leading-relaxed text-slate-300 overflow-y-auto max-h-[300px] flex flex-col gap-1.5 shadow-inner">
+          <div class="text-slate-500">// 點擊「Generate Node-RED Flow」啟動 Gemini 視覺識別...</div>
+          <div class="text-slate-400">💡 系統就緒：支援自動識別 Comment, Inject, Function, Debug, Switch, MQTT 等標準 Node-RED 節點。</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Step 3: 生成結果區 (流程視覺化 SVG + JSON 程式碼) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6" id="result-section">
+
+      <!-- 左下：流程視覺化 (Flow Visualization) (6 Cols) -->
+      <div class="lg:col-span-6 bg-slate-900/80 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="ph ph-tree-structure text-cyan-400 text-base"></i> Flow Visualization (流程視覺圖)
+          </h3>
+          <button onclick="downloadSVG()" class="px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1.5">
+            <i class="ph ph-download-simple"></i> Download SVG
+          </button>
+        </div>
+
+        <!-- 畫布容器 -->
+        <div class="w-full h-[380px] bg-slate-950 border border-slate-800 rounded-lg overflow-hidden flex items-center justify-center p-4 relative" id="svg-container">
+          <svg id="flow-svg" class="w-full h-full" viewBox="0 0 700 360">
+            <!-- 網格背景 -->
+            <defs>
+              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" stroke-width="0.8"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+
+            <!-- 連接線 (Curves) -->
+            <path d="M 170 110 C 250 110, 260 200, 330 200" fill="none" stroke="#64748b" stroke-width="2" class="wire-curve" />
+            <path d="M 170 145 C 250 145, 260 200, 330 200" fill="none" stroke="#64748b" stroke-width="2" class="wire-curve" />
+            <path d="M 170 180 C 250 180, 260 200, 330 200" fill="none" stroke="#64748b" stroke-width="2" class="wire-curve" />
+            <path d="M 170 215 C 250 215, 260 200, 330 200" fill="none" stroke="#64748b" stroke-width="2" class="wire-curve" />
+            <path d="M 170 250 C 250 250, 260 200, 330 200" fill="none" stroke="#64748b" stroke-width="2" class="wire-curve" />
+            <path d="M 170 285 C 250 285, 260 200, 330 200" fill="none" stroke="#64748b" stroke-width="2" class="wire-curve" />
+            <path d="M 450 200 C 490 200, 490 200, 520 200" fill="none" stroke="#10b981" stroke-width="2.5" />
+
+            <!-- Comment 節點 -->
+            <g transform="translate(60, 35)">
+              <rect width="320" height="30" rx="4" fill="#334155" stroke="#475569" stroke-width="1.5" />
+              <text x="12" y="19" fill="#f8fafc" font-size="11" font-weight="bold">練習3-2: if else判斷-氣壓缸應用</text>
+            </g>
+
+            <!-- 6 個 Inject 節點 (a0 ~ c1) -->
+            <g transform="translate(60, 95)"><rect width="110" height="26" rx="4" fill="#047857" stroke="#10b981" stroke-width="1"/><text x="10" y="17" fill="#fff" font-size="11" font-weight="bold">a0</text><circle cx="110" cy="13" r="3.5" fill="#10b981"/></g>
+            <g transform="translate(60, 130)"><rect width="110" height="26" rx="4" fill="#047857" stroke="#10b981" stroke-width="1"/><text x="10" y="17" fill="#fff" font-size="11" font-weight="bold">a1</text><circle cx="110" cy="13" r="3.5" fill="#10b981"/></g>
+            <g transform="translate(60, 165)"><rect width="110" height="26" rx="4" fill="#047857" stroke="#10b981" stroke-width="1"/><text x="10" y="17" fill="#fff" font-size="11" font-weight="bold">b0</text><circle cx="110" cy="13" r="3.5" fill="#10b981"/></g>
+            <g transform="translate(60, 200)"><rect width="110" height="26" rx="4" fill="#047857" stroke="#10b981" stroke-width="1"/><text x="10" y="17" fill="#fff" font-size="11" font-weight="bold">b1</text><circle cx="110" cy="13" r="3.5" fill="#10b981"/></g>
+            <g transform="translate(60, 235)"><rect width="110" height="26" rx="4" fill="#047857" stroke="#10b981" stroke-width="1"/><text x="10" y="17" fill="#fff" font-size="11" font-weight="bold">c0</text><circle cx="110" cy="13" r="3.5" fill="#10b981"/></g>
+            <g transform="translate(60, 270)"><rect width="110" height="26" rx="4" fill="#047857" stroke="#10b981" stroke-width="1"/><text x="10" y="17" fill="#fff" font-size="11" font-weight="bold">c1</text><circle cx="110" cy="13" r="3.5" fill="#10b981"/></g>
+
+            <!-- Function 節點 (if-else判斷) -->
+            <g transform="translate(330, 185)">
+              <rect width="120" height="32" rx="4" fill="#d97706" stroke="#f59e0b" stroke-width="1.5" />
+              <circle cx="0" cy="16" r="3.5" fill="#f59e0b"/>
+              <text x="18" y="20" fill="#fff" font-size="11" font-weight="bold">if-else判斷</text>
+              <circle cx="120" cy="16" r="3.5" fill="#f59e0b"/>
+            </g>
+
+            <!-- Debug 節點 (debug 32) -->
+            <g transform="translate(520, 185)">
+              <rect width="110" height="32" rx="4" fill="#7c3aed" stroke="#a855f7" stroke-width="1.5" />
+              <circle cx="0" cy="16" r="3.5" fill="#a855f7"/>
+              <text x="16" y="20" fill="#fff" font-size="11" font-weight="bold">debug 32</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 右下：生成的 Node-RED JSON 程式碼 (6 Cols) -->
+      <div class="lg:col-span-6 bg-slate-900/80 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="ph ph-code text-pink-400 text-base"></i> Generated JSON (Node-RED 流程代碼)
+          </h3>
+          <div class="flex items-center gap-2">
+            <button onclick="copyJSON()" class="px-3 py-1.5 rounded-md bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow">
+              <i class="ph ph-copy" id="icon-copy"></i> <span id="txt-copy">Copy JSON</span>
+            </button>
+            <button onclick="downloadJSON()" class="px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1.5">
+              <i class="ph ph-download-simple"></i> Download .json
+            </button>
+          </div>
+        </div>
+
+        <!-- 程式碼視圖 -->
+        <pre id="json-code-box" class="w-full h-[380px] bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-[11px] text-pink-300 overflow-auto leading-relaxed shadow-inner select-all"></pre>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- 邏輯腳本 -->
+  <script>
+    // 預設資料集
+    const PRESETS = {
+      pneumatic: {
+        title: "練習3-2: if else判斷-氣壓缸應用",
+        img: "images_src/ok/20260903_ai_nodered_flow_gen_input.png",
+        prompt: "建立一個 Node-RED 流程：包含 1 個 Comment 標籤「練習3-2: if else判斷-氣壓缸應用」、6 個 Inject 節點 (a0, a1, b0, b1, c0, c1)，全部輸入至 Function 節點「if-else判斷」，最後輸出至 Debug 節點「debug 32」。",
+        logs: [
+          'Detecting comment node with title "練習3-2: if else判斷-氣壓缸應用".',
+          'Identifying 6 inject nodes labeled "a0", "a1", "b0", "b1", "c0", and "c1".',
+          'Identifying function node labeled "if-else判斷".',
+          'Identifying debug node labeled "debug 32".',
+          'Connecting inject nodes "a0", "a1", "b0", "b1", "c0", and "c1" to function node "if-else判斷".',
+          'Connecting function node "if-else判斷" to debug node "debug 32".',
+          'Constructing complete Node-RED flow JSON configuration.'
+        ],
+        json: [
+          {
+            "id": "comment_node_1",
+            "type": "comment",
+            "z": "flow_pneumatic",
+            "name": "練習3-2: if else判斷-氣壓缸應用",
+            "info": "",
+            "x": 200,
+            "y": 80,
+            "wires": []
+          },
+          {
+            "id": "inject_a0",
+            "type": "inject",
+            "z": "flow_pneumatic",
+            "name": "a0",
+            "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }],
+            "repeat": "",
+            "crontab": "",
+            "once": false,
+            "onceDelay": 0.1,
+            "topic": "",
+            "payload": "a0",
+            "payloadType": "str",
+            "x": 120,
+            "y": 120,
+            "wires": [["func_ifelse"]]
+          },
+          {
+            "id": "inject_a1",
+            "type": "inject",
+            "z": "flow_pneumatic",
+            "name": "a1",
+            "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }],
+            "repeat": "",
+            "crontab": "",
+            "once": false,
+            "onceDelay": 0.1,
+            "topic": "",
+            "payload": "a1",
+            "payloadType": "str",
+            "x": 120,
+            "y": 150,
+            "wires": [["func_ifelse"]]
+          },
+          {
+            "id": "inject_b0",
+            "type": "inject",
+            "z": "flow_pneumatic",
+            "name": "b0",
+            "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }],
+            "repeat": "",
+            "crontab": "",
+            "once": false,
+            "onceDelay": 0.1,
+            "topic": "",
+            "payload": "b0",
+            "payloadType": "str",
+            "x": 120,
+            "y": 180,
+            "wires": [["func_ifelse"]]
+          },
+          {
+            "id": "inject_b1",
+            "type": "inject",
+            "z": "flow_pneumatic",
+            "name": "b1",
+            "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }],
+            "repeat": "",
+            "crontab": "",
+            "once": false,
+            "onceDelay": 0.1,
+            "topic": "",
+            "payload": "b1",
+            "payloadType": "str",
+            "x": 120,
+            "y": 210,
+            "wires": [["func_ifelse"]]
+          },
+          {
+            "id": "inject_c0",
+            "type": "inject",
+            "z": "flow_pneumatic",
+            "name": "c0",
+            "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }],
+            "repeat": "",
+            "crontab": "",
+            "once": false,
+            "onceDelay": 0.1,
+            "topic": "",
+            "payload": "c0",
+            "payloadType": "str",
+            "x": 120,
+            "y": 240,
+            "wires": [["func_ifelse"]]
+          },
+          {
+            "id": "inject_c1",
+            "type": "inject",
+            "z": "flow_pneumatic",
+            "name": "c1",
+            "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }],
+            "repeat": "",
+            "crontab": "",
+            "once": false,
+            "onceDelay": 0.1,
+            "topic": "",
+            "payload": "c1",
+            "payloadType": "str",
+            "x": 120,
+            "y": 270,
+            "wires": [["func_ifelse"]]
+          },
+          {
+            "id": "func_ifelse",
+            "type": "function",
+            "z": "flow_pneumatic",
+            "name": "if-else判斷",
+            "func": "// 氣壓缸 if-else 邏輯判斷\nif (msg.payload === 'a0') {\n    msg.payload = 'A缸縮回 (a0檢出)';\n} else if (msg.payload === 'a1') {\n    msg.payload = 'A缸伸出 (a1檢出)';\n} else if (msg.payload === 'b0') {\n    msg.payload = 'B缸縮回 (b0檢出)';\n} else if (msg.payload === 'b1') {\n    msg.payload = 'B缸伸出 (b1檢出)';\n} else if (msg.payload === 'c0') {\n    msg.payload = 'C缸縮回 (c0檢出)';\n} else if (msg.payload === 'c1') {\n    msg.payload = 'C缸伸出 (c1檢出)';\n} else {\n    msg.payload = '未知狀態: ' + msg.payload;\n}\nreturn msg;",
+            "outputs": 1,
+            "noerr": 0,
+            "initialize": "",
+            "finalize": "",
+            "libs": [],
+            "x": 340,
+            "y": 200,
+            "wires": [["debug_32"]]
+          },
+          {
+            "id": "debug_32",
+            "type": "debug",
+            "z": "flow_pneumatic",
+            "name": "debug 32",
+            "active": true,
+            "tosidebar": true,
+            "console": false,
+            "tostatus": false,
+            "complete": "payload",
+            "targetType": "msg",
+            "statusVal": "",
+            "statusType": "auto",
+            "x": 520,
+            "y": 200,
+            "wires": []
+          }
+        ]
+      },
+      modbus: {
+        title: "Modbus 溫濕度感測讀取與警報",
+        img: "images_src/ok/20260903_ai_nodered_flow_gen_input.png",
+        prompt: "建立 Modbus TCP 溫濕度讀取流程：Modbus Read 定期讀取暫存器 40001 (溫度) 與 40002 (濕度)，經過 Function 解析數值，高於 35 度時觸發 Switch 輸出警報與 Debug 節點。",
+        logs: [
+          'Detecting Modbus Read node configured for TCP port 502.',
+          'Identifying parser function for registers 40001 (Temp) & 40002 (Humid).',
+          'Connecting to Switch rule node: temperature > 35°C.',
+          'Generating email/dashboard alert outputs and debug nodes.',
+          'Validating JSON node linkages and syntax.'
+        ],
+        json: [
+          { "id": "mb_read", "type": "modbus-read", "name": "讀取溫濕度", "unitid": "1", "dataType": "HoldingRegister", "adr": "0", "quantity": "2", "rate": "1", "rateUnit": "s", "wires": [["func_parse"]] },
+          { "id": "func_parse", "type": "function", "name": "解析數值", "func": "msg.temperature = msg.payload[0] / 10.0;\nmsg.humidity = msg.payload[1] / 10.0;\nmsg.payload = { temp: msg.temperature, humid: msg.humidity };\nreturn msg;", "wires": [["sw_alert", "dbg_val"]] },
+          { "id": "sw_alert", "type": "switch", "name": "溫度過高判斷", "property": "temperature", "rules": [{ "t": "gt", "v": "35", "vt": "num" }], "wires": [["dbg_warn"]] },
+          { "id": "dbg_val", "type": "debug", "name": "即時溫濕度", "wires": [] },
+          { "id": "dbg_warn", "type": "debug", "name": "高溫警報!", "wires": [] }
+        ]
+      },
+      mqtt: {
+        title: "MQTT 物聯網遙測與 Dashboard 儀表板",
+        img: "images_src/ok/20260903_ai_nodered_flow_gen_input.png",
+        prompt: "建立 MQTT 遙測流程：訂閱主題 factory/sensor/power，解析 JSON 負載後輸出至 UI Gauge (儀表板) 與 UI Chart 趨勢圖。",
+        logs: [
+          'Detecting MQTT in node subscribed to "factory/sensor/power".',
+          'Identifying JSON parser node.',
+          'Connecting to ui_gauge (即時功率) and ui_chart (24小時能耗趨勢).',
+          'Constructing Node-RED Dashboard v2 configuration payload.'
+        ],
+        json: [
+          { "id": "mqtt_in", "type": "mqtt in", "name": "工廠用電感測", "topic": "factory/sensor/power", "wires": [["json_parse"]] },
+          { "id": "json_parse", "type": "json", "name": "JSON 解析", "wires": [["ui_gauge", "ui_chart"]] },
+          { "id": "ui_gauge", "type": "ui_gauge", "name": "即時功率 (kW)", "min": 0, "max": 100, "wires": [] },
+          { "id": "ui_chart", "type": "ui_chart", "name": "24h 功耗趨勢", "wires": [] }
+        ]
+      }
+    };
+
+    let currentPreset = 'pneumatic';
+    let currentJSON = PRESETS.pneumatic.json;
+
+    // DOM 快取
+    const btnModeImage = document.getElementById('btn-mode-image');
+    const btnModeText = document.getElementById('btn-mode-text');
+    const sectionImageInput = document.getElementById('section-image-input');
+    const sectionTextInput = document.getElementById('section-text-input');
+    const textPromptInput = document.getElementById('text-prompt-input');
+    const imagePreview = document.getElementById('image-preview');
+    const logConsole = document.getElementById('log-console');
+    const jsonCodeBox = document.getElementById('json-code-box');
+    const fileUploader = document.getElementById('file-uploader');
+
+    // 模式切換
+    btnModeImage.addEventListener('click', () => {
+      btnModeImage.className = 'px-3 py-1 rounded-md text-xs font-bold bg-pink-600 text-white transition flex items-center gap-1.5';
+      btnModeText.className = 'px-3 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5';
+      sectionImageInput.classList.remove('hidden');
+      sectionTextInput.classList.add('hidden');
+    });
+
+    btnModeText.addEventListener('click', () => {
+      btnModeText.className = 'px-3 py-1 rounded-md text-xs font-bold bg-pink-600 text-white transition flex items-center gap-1.5';
+      btnModeImage.className = 'px-3 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5';
+      sectionTextInput.classList.remove('hidden');
+      sectionImageInput.classList.add('hidden');
+    });
+
+    // 載入預設範例
+    function loadPreset(key) {
+      currentPreset = key;
+      const data = PRESETS[key];
+      textPromptInput.value = data.prompt;
+      imagePreview.src = data.img;
+      runAIGeneration();
+    }
+
+    // 本地檔案上傳
+    fileUploader.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          imagePreview.src = evt.target.result;
+          runAIGeneration();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 執行 AI 視覺分析與生成流程
+    async function runAIGeneration() {
+      const data = PRESETS[currentPreset];
+      currentJSON = data.json;
+      
+      // 更新步驟徽章
+      document.getElementById('step-badge-2').className = 'w-7 h-7 rounded-full bg-pink-600 text-white font-bold text-xs flex items-center justify-center shadow-lg shadow-pink-600/40 animate-pulse';
+      document.getElementById('analysis-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping inline-block"></span> Analyzing...';
+      document.getElementById('analysis-status').className = 'text-[11px] font-mono text-amber-400 font-bold flex items-center gap-1';
+
+      logConsole.innerHTML = '';
+
+      // 動態輸出日誌行
+      for (let i = 0; i < data.logs.length; i++) {
+        await sleep(220);
+        const logLine = document.createElement('div');
+        logLine.className = 'text-slate-300 flex items-start gap-1.5';
+        logLine.innerHTML = `<span class="text-emerald-400">✓</span> <span>${data.logs[i]}</span>`;
+        logConsole.appendChild(logLine);
+        logConsole.scrollTop = logConsole.scrollHeight;
+      }
+
+      await sleep(200);
+      document.getElementById('step-badge-2').className = 'w-7 h-7 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow-lg shadow-emerald-600/40';
+      document.getElementById('step-badge-3').className = 'w-7 h-7 rounded-full bg-pink-600 text-white font-bold text-xs flex items-center justify-center shadow-lg shadow-pink-600/40';
+      document.getElementById('analysis-status').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> Complete (100%)';
+      document.getElementById('analysis-status').className = 'text-[11px] font-mono text-emerald-400 font-bold flex items-center gap-1';
+
+      // 渲染 JSON
+      jsonCodeBox.textContent = JSON.stringify(currentJSON, null, 2);
+    }
+
+    // 複製 JSON
+    function copyJSON() {
+      const text = JSON.stringify(currentJSON, null, 2);
+      navigator.clipboard.writeText(text).then(() => {
+        const btnTxt = document.getElementById('txt-copy');
+        const btnIcon = document.getElementById('icon-copy');
+        btnTxt.innerText = 'Copied!';
+        btnIcon.className = 'ph ph-check';
+        setTimeout(() => {
+          btnTxt.innerText = 'Copy JSON';
+          btnIcon.className = 'ph ph-copy';
+        }, 2000);
+      });
+    }
+
+    // 下載 JSON 檔案
+    function downloadJSON() {
+      const text = JSON.stringify(currentJSON, null, 2);
+      const blob = new Blob([text], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nodered_flow_${currentPreset}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // 下載 SVG 圖片
+    function downloadSVG() {
+      const svgEl = document.getElementById('flow-svg');
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(svgEl);
+      const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nodered_flow_${currentPreset}.svg`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // 初始化渲染
+    loadPreset('pneumatic');
+  </script>
+</body>
+</html>
