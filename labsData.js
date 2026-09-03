@@ -2374,5 +2374,160 @@ window.INITIAL_LABS_DATA = [
         "url": "https://www.w3schools.com/js/js_strings.asp"
       }
     ]
+  },
+  {
+    "id": "lab-12",
+    "labNumber": "12",
+    "title": "練習 4-1: read file 檔案讀取與 image preview 影像預覽實作",
+    "date": "2026-09-03",
+    "category": "基礎實作",
+    "summary": "學習在 Node-RED 中使用 read file (file in) 節點從本機硬碟讀取實體影像圖檔（如 JPG/PNG），並搭配 node-red-contrib-image-output (image preview) 節點直接在流程畫布中即時呈現影像預覽，掌握工控 SCADA 與視覺檢測中檔案讀取與 Buffer 影像串流處理技術。",
+    "flowImage": "images_src/ok/20260903_01_read_file_image_preview[flow].png",
+    "resultImage": "images_src/ok/20260903_01_read_file_image_preview[result].png",
+    "objective": "1. 掌握 Node-RED 核心節點「read file (file in)」的本機路徑設定與檔案讀取模式 (Buffer / String)。\n2. 學習安裝與使用第三方節點「node-red-contrib-image-output (image preview)」在流程畫布中直接呈現影像。\n3. 理解二進位緩衝區 (Buffer) 影像數據在 Node-RED 管道中的流動機制。\n4. 結合 SCADA 與工業視覺檢測情境，實現本機報表、圖資與相機辨識圖片的即時讀取與監控。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 註解與 Inject 觸發節點",
+        "description": "在畫布上方拖入兩個 Comment 註解節點，分別命名為「read file實作」與「讀檔」作為流程分類與標示。接著拖入一個 inject 節點，命名為「注入」，用於手動點擊觸發讀檔流程。"
+      },
+      {
+        "step": "2. 配置 read file (讀取檔案) 節點",
+        "description": "拖入 storage 分類下的「read file (file in)」節點，雙擊開啟設定。Filename 填入本機實體圖片路徑（如 D:\\\\Test Wugo\\\\北基宜花金馬分署.JPG），Output 選擇預設的「a Buffer」，使圖片以二進位 Buffer 格式傳遞至 msg.payload。"
+      },
+      {
+        "step": "3. 加入 image preview (影像預覽) 節點",
+        "description": "由調色盤或搜尋拖入「image preview (node-red-contrib-image-output)」節點，將 read file 的輸出端連線至 image preview 節點。"
+      },
+      {
+        "step": "4. 部署並點擊注入驗證影像預覽",
+        "description": "點擊右上角 Deploy 部署流程，按壓「注入」Inject 節點。read file 節點將瞬間讀入硬碟中的 JPG 圖檔，image preview 節點下方將直接在畫布上展開顯示高解析度的「勞動部勞動力發展署 北基宜花金馬分署」彩色圖片！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在機電整合丙級與 SCADA 檢定環境中，可用於載入機台 2D 配置圖、工件尺寸標準圖檔或異常排除 SOP 圖片。當 PLC 感測到警報代碼時，自動透過 read file 讀取對應的接線圖並呈現在人機介面上，輔助技師快速排除故障。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "半導體晶圓廠與 SMT 產線之光學自動檢測 (AOI) 瑕疵分析。AOI 工業相機在擷取晶圓表面照片並存於本地伺服器後，Node-RED Edge Gateway 透過 read file 讀取瑕疵晶圓圖片 Buffer，送入 AI 瑕疵分類模型推論，並於戰情室畫布或 Dashboard 即時預覽瑕疵圖。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧門禁與快遞物流箱拍照存證。當門鈴按下或快遞員放入包裹並關門後，USB 鏡頭自動拍攝存檔，Node-RED 透過 read file 讀取最新的簽收存證相片，經由 image preview 確認後，透過 LINE Notify 或 Telegram Bot 推送彩色簽收照片給屋主。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，用於讀取本機圖檔並進行畫布影像預覽：\n1. 包含兩個 Comment 節點，分別標註「read file實作」與「讀檔」。\n2. 包含一個 Inject 節點（名為「注入」）。\n3. 包含一個 read file (file in) 節點，檔名設定為「D:\\\\Test Wugo\\\\北基宜花金馬分署.JPG」，輸出型態為 Buffer。\n4. 包含一個 image preview (node-red-contrib-image-output) 節點，接收 Buffer 數據並在畫布預覽圖片。\n5. 將 Inject 連接至 read file，read file 連接至 image preview。\n請以標準 Node-RED JSON 陣列格式回傳。",
+    "nodeRedJson": [
+      {
+        "id": "tab_read_file",
+        "type": "tab",
+        "label": "練習 4-1: read file 實作",
+        "disabled": false,
+        "info": ""
+      },
+      {
+        "id": "comment_title",
+        "type": "comment",
+        "z": "tab_read_file",
+        "name": "read file實作",
+        "info": "",
+        "x": 140,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "comment_sub",
+        "type": "comment",
+        "z": "tab_read_file",
+        "name": "讀檔",
+        "info": "",
+        "x": 110,
+        "y": 100,
+        "wires": []
+      },
+      {
+        "id": "inject_trigger",
+        "type": "inject",
+        "z": "tab_read_file",
+        "name": "注入",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 160,
+        "wires": [
+          [
+            "file_in_node"
+          ]
+        ]
+      },
+      {
+        "id": "file_in_node",
+        "type": "file in",
+        "z": "tab_read_file",
+        "name": "read file",
+        "filename": "D:\\\\Test Wugo\\\\北基宜花金馬分署.JPG",
+        "filenameType": "str",
+        "format": "",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 280,
+        "y": 160,
+        "wires": [
+          [
+            "image_preview_node"
+          ]
+        ]
+      },
+      {
+        "id": "image_preview_node",
+        "type": "image",
+        "z": "tab_read_file",
+        "name": "image preview",
+        "width": "160",
+        "data": "payload",
+        "dataType": "msg",
+        "thumbnail": false,
+        "active": true,
+        "pass": false,
+        "outputs": 0,
+        "x": 460,
+        "y": 160,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - File in (讀檔節點) 使用說明",
+        "url": "https://nodered.org/docs/user-guide/nodes#file-in"
+      },
+      {
+        "title": "node-red-contrib-image-output 官方 npm 套件說明",
+        "url": "https://flows.nodered.org/node/node-red-contrib-image-output"
+      },
+      {
+        "title": "勞動部勞動力發展署北基宜花金馬分署",
+        "url": "https://tkyhkm.wda.gov.tw/"
+      }
+    ]
   }
 ];
