@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manus 桌面版 - PCB 視覺辨識與 Excel BOM 表生成模擬器</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    pre, code, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .manus-gradient {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+    }
+    .component-box {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .component-box:hover, .component-box.active {
+      border-color: #38bdf8 !important;
+      background-color: rgba(56, 189, 248, 0.25) !important;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+      transform: scale(1.02);
+      z-index: 30;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-indigo-600 selection:text-white">
+
+  <!-- 頂部導覽列 -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 px-6 py-3.5 flex flex-wrap justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <a href="aitools.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors flex items-center justify-center" title="返回 AI 工具庫">
+        <i class="ph ph-arrow-left text-lg"></i>
+      </a>
+      <div class="w-9 h-9 rounded-lg manus-gradient flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+        <i class="ph ph-cpu text-xl"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold text-white tracking-wide">Manus 桌面版 - 本地資料夾 PCB 視覺辨識與 Excel BOM 表生成</h1>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-700">Desktop Agent</span>
+        </div>
+        <p class="text-xs text-slate-400">授權本機資料夾讀寫 • 多模態視覺識別主晶片/連接器 • 一鍵產出標準物料清單 (BOM)</p>
+      </div>
+    </div>
+
+    <!-- 右側操作按鈕 -->
+    <div class="flex items-center gap-3 mt-2 sm:mt-0">
+      <a href="https://store.arduino.cc/products/uno-q-4gb" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-medium transition flex items-center gap-1.5">
+        <i class="ph ph-shopping-bag"></i> Arduino UNO Q 官方規格
+      </a>
+      <button onclick="exportToCSV()" class="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-emerald-700/20">
+        <i class="ph ph-file-csv"></i> 匯出 Excel (CSV)
+      </button>
+      <a href="https://manus.im" target="_blank" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-indigo-600/30">
+        <i class="ph ph-arrow-up-right"></i> Manus 官方網站
+      </a>
+    </div>
+  </header>
+
+  <!-- 主內容區 (三欄/雙欄佈局) -->
+  <main class="flex-1 p-4 lg:p-6 max-w-[1700px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- 左側：Manus 執行流程與 Agent 終端日誌 (4 Cols) -->
+    <div class="lg:col-span-4 flex flex-col gap-5">
+      
+      <!-- 本地資料夾授權狀態卡 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="ph ph-folder-open text-amber-400 text-lg"></i>
+            <span class="text-xs font-bold text-white">本地授權工作區</span>
+          </div>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> 已授權讀寫
+          </span>
+        </div>
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 font-mono text-xs flex items-center justify-between text-slate-300">
+          <span class="truncate">📁 D:\Test_Wugo\PCB_Bom表\</span>
+          <span class="text-[10px] text-slate-500">唯讀/寫入</span>
+        </div>
+        <div class="text-[11px] text-slate-400 leading-relaxed">
+          <b>指令提示詞 (Prompt)：</b><br>
+          <code class="text-purple-300 bg-slate-950 px-2 py-1 rounded block mt-1 font-mono text-[10px] border border-slate-800">
+            讀取 ABX00173_00.front_1000x750.jpg。辨識 PCB 上的電子元件，生成一個 excel 格式的 bom 表。
+          </code>
+        </div>
+      </div>
+
+      <!-- Manus Agent 思考與執行軌跡日誌 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl flex-1 flex flex-col justify-between gap-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div class="flex items-center gap-2">
+            <i class="ph ph-terminal-window text-indigo-400 text-lg"></i>
+            <span class="text-xs font-bold text-white">Manus Agent 思考推理日誌</span>
+          </div>
+          <span class="text-[10px] font-mono text-slate-400">Multi-modal Vision</span>
+        </div>
+
+        <!-- 日誌串流清單 -->
+        <div class="space-y-2 font-mono text-[11px] overflow-y-auto max-h-[320px] pr-1">
+          <div class="p-2 rounded-lg bg-slate-950 border border-slate-800/80 text-slate-300">
+            <span class="text-indigo-400 font-bold">[Step 1]</span> 確認工作區圖片：載入 <code>ABX00173_00.front_1000x750.jpg</code> (解析度 1000x750)。
+          </div>
+          <div class="p-2 rounded-lg bg-slate-950 border border-slate-800/80 text-slate-300">
+            <span class="text-purple-400 font-bold">[Step 2]</span> 視覺特徵提取：偵測到為 Arduino UNO Q 開發板，主控晶片具備高密度 BGA 封裝。
+          </div>
+          <div class="p-2 rounded-lg bg-slate-950 border border-slate-800/80 text-slate-300">
+            <span class="text-amber-400 font-bold">[Step 3]</span> OCR 絲印比對：主處理器為 <b>Qualcomm QRB2210</b>，電源管理晶片為 <b>PM4125</b>，無線模組為 <b>WCBN3536A</b>。
+          </div>
+          <div class="p-2 rounded-lg bg-slate-950 border border-slate-800/80 text-slate-300">
+            <span class="text-emerald-400 font-bold">[Step 4]</span> 周邊與被動元件清點：辨識出 QWIIC 介面、USB Type-C、3R3 功率電感及 7x13 LED 陣列。
+          </div>
+          <div class="p-2 rounded-lg bg-emerald-950/40 border border-emerald-500/40 text-emerald-300">
+            <span class="text-emerald-400 font-bold">[Step 5]</span> 檔案寫入完成：於資料夾內生成 <code>ABX00173_00_front_visual_BOM.xlsx</code> (包含 BOM 與說明雙工作表)。
+          </div>
+        </div>
+
+        <button onclick="simulateAnalysis()" class="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition active:scale-95 flex items-center justify-center gap-1.5">
+          <i class="ph ph-arrows-clockwise"></i> 重新模擬 AI 視覺掃描
+        </button>
+      </div>
+
+    </div>
+
+    <!-- 中右側：PCB 高解析度影像熱區疊加 + Excel BOM 表格 (8 Cols) -->
+    <div class="lg:col-span-8 flex flex-col gap-6">
+
+      <!-- PCB 視覺熱區檢測區 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="ph ph-circuit-board text-blue-400 text-lg"></i>
+            <span class="text-xs font-bold text-white">PCB 元件視覺辨識熱區檢視 (點擊方框高亮 BOM 項目)</span>
+          </div>
+          <span class="text-[11px] text-slate-400 font-mono">Arduino UNO Q 正面照片</span>
+        </div>
+
+        <!-- 圖片與座標方框容器 -->
+        <div class="relative w-full rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center max-h-[380px]">
+          <img src="images_src/ok/20260903_manus_pcb_arduino_uno_q.jpg" alt="Arduino UNO Q PCB" class="w-full h-auto object-contain max-h-[380px]" id="pcb-image">
+
+          <!-- 視覺辨識熱區方框 (Bounding Boxes) -->
+          <!-- 1. Qualcomm QRB2210 SoC -->
+          <div onclick="selectBOMItem(4)" class="component-box absolute border-2 border-amber-400/80 bg-amber-400/10 rounded" style="top: 36%; left: 34%; width: 15%; height: 19%;" title="主處理器/SoC: Qualcomm QRB2210">
+            <span class="absolute -top-5 left-0 bg-amber-500 text-black text-[9px] font-bold px-1.5 rounded shadow">SoC QRB2210</span>
+          </div>
+
+          <!-- 2. Qualcomm PM4125 PMIC -->
+          <div onclick="selectBOMItem(5)" class="component-box absolute border-2 border-purple-400/80 bg-purple-400/10 rounded" style="top: 37%; left: 51%; width: 11%; height: 14%;" title="電源管理: Qualcomm PM4125">
+            <span class="absolute -top-5 left-0 bg-purple-500 text-white text-[9px] font-bold px-1.5 rounded shadow">PMIC PM4125</span>
+          </div>
+
+          <!-- 3. 無線通訊模組 (WCBN3536A) -->
+          <div onclick="selectBOMItem(3)" class="component-box absolute border-2 border-emerald-400/80 bg-emerald-400/10 rounded" style="top: 10%; left: 47%; width: 16%; height: 18%;" title="無線通訊模組: WCBN3536A (Wi-Fi/BT)">
+            <span class="absolute -top-5 left-0 bg-emerald-500 text-black text-[9px] font-bold px-1.5 rounded shadow">Wi-Fi/BT</span>
+          </div>
+
+          <!-- 4. QWIIC 介面 -->
+          <div onclick="selectBOMItem(2)" class="component-box absolute border-2 border-blue-400/80 bg-blue-400/10 rounded" style="top: 14%; left: 24%; width: 9%; height: 12%;" title="QWIIC 介面連接器">
+            <span class="absolute -top-5 left-0 bg-blue-500 text-white text-[9px] font-bold px-1.5 rounded shadow">QWIIC</span>
+          </div>
+
+          <!-- 5. 3R3 功率電感 -->
+          <div onclick="selectBOMItem(6)" class="component-box absolute border-2 border-rose-400/80 bg-rose-400/10 rounded" style="top: 54%; left: 52%; width: 8%; height: 10%;" title="電感 3R3">
+            <span class="absolute -top-5 left-0 bg-rose-500 text-white text-[9px] font-bold px-1.5 rounded shadow">3R3 電感</span>
+          </div>
+
+          <!-- 6. 7x13 LED 矩陣 -->
+          <div onclick="selectBOMItem(10)" class="component-box absolute border-2 border-cyan-400/80 bg-cyan-400/10 rounded" style="top: 42%; left: 69%; width: 17%; height: 35%;" title="7x13 LED Matrix">
+            <span class="absolute -top-5 left-0 bg-cyan-500 text-black text-[9px] font-bold px-1.5 rounded shadow">LED Matrix</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Excel BOM 物料清單表格區 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-2">
+            <i class="ph ph-table text-emerald-400 text-lg"></i>
+            <span class="text-xs font-bold text-white">生成的 Excel BOM 表 (Worksheet: BOM)</span>
+          </div>
+          <!-- 篩選標籤 -->
+          <div class="flex items-center gap-1.5 text-[11px]">
+            <button onclick="filterBOM('all')" class="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-semibold">全部 (11)</button>
+            <button onclick="filterBOM('IC')" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700">晶片/模組</button>
+            <button onclick="filterBOM('連接器')" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700">連接器/排針</button>
+            <button onclick="filterBOM('被動元件')" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700">被動元件</button>
+          </div>
+        </div>
+
+        <!-- 表格主體 -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/60 max-h-[300px]">
+          <table class="w-full text-left text-xs font-mono" id="bom-table">
+            <thead class="bg-slate-900 text-slate-400 text-[11px] sticky top-0 border-b border-slate-800">
+              <tr>
+                <th class="p-2.5">項次</th>
+                <th class="p-2.5">類別</th>
+                <th class="p-2.5">元件 / 功能</th>
+                <th class="p-2.5">可見標示或型號</th>
+                <th class="p-2.5 text-center">數量</th>
+                <th class="p-2.5">參考位號</th>
+                <th class="p-2.5">辨識信心</th>
+                <th class="p-2.5">備註</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 text-slate-300" id="bom-tbody">
+              <!-- JS 動態生成 -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- JavaScript 互動腳本 -->
+  <script>
+    const BOM_DATA = [
+      { id: 1, category: "連接器", name: "QRB 介面排針", model: "多Pin排針", qty: "1 組", ref: "J_QRB", confidence: "高", note: "邊緣連接排針", type: "連接器" },
+      { id: 2, category: "連接器", name: "JSPI 介面排針", model: "多Pin排針", qty: "1 組", ref: "J_JSPI", confidence: "高", note: "除錯與燒錄介面", type: "連接器" },
+      { id: 3, category: "連接器", name: "QWIIC 介面連接器", model: "4-pin 4-wire", qty: "1", ref: "J_QWIIC", confidence: "高", note: "I2C 感測器擴充座", type: "連接器" },
+      { id: 4, category: "模組", name: "無線通訊模組", model: "WCBN3536A", qty: "1", ref: "MOD1", confidence: "高", note: "Wi-Fi + Bluetooth 模組", type: "IC" },
+      { id: 5, category: "IC", name: "主處理器 / SoC", model: "Qualcomm QRB2210", qty: "1", ref: "U_SOC", confidence: "高", note: "主運算核心 (高密度 BGA)", type: "IC" },
+      { id: 6, category: "IC", name: "電源管理 IC (PMIC)", model: "Qualcomm PM4125", qty: "1", ref: "U_PMIC", confidence: "高", note: "多路供電管理晶片", type: "IC" },
+      { id: 7, category: "被動元件", name: "功率電感", model: "3R3 (3.3uH)", qty: "2", ref: "L1, L2", confidence: "高", note: "DC-DC 降壓穩壓電感", type: "被動元件" },
+      { id: 8, category: "被動元件", name: "MLCC 貼片陶瓷電容", model: "多種封裝 (0402/0603)", qty: "多個", ref: "C1~Cn", confidence: "中", note: "去耦與濾波電容", type: "被動元件" },
+      { id: 9, category: "被動元件", name: "貼片電阻", model: "多種封裝", qty: "多個", ref: "R1~Rn", confidence: "中", note: "上拉/下拉與匹配電阻", type: "被動元件" },
+      { id: 10, category: "被動元件", name: "磁珠 / 濾波元件", model: "SMD 封裝", qty: "多個", ref: "FB1~FBn", confidence: "中", note: "高頻噪聲抑制", type: "被動元件" },
+      { id: 11, category: "顯示/LED", name: "7x13 LED 矩陣", model: "矩陣式貼片 LED", qty: "91 顆", ref: "LED_Matrix", confidence: "高", note: "正面圖形與文字點陣顯示", type: "被動元件" }
+    ];
+
+    let currentFilter = 'all';
+    let selectedItemId = null;
+
+    function renderBOMTable() {
+      const tbody = document.getElementById('bom-tbody');
+      tbody.innerHTML = '';
+
+      const filtered = BOM_DATA.filter(item => {
+        if (currentFilter === 'all') return true;
+        return item.type === currentFilter || item.category === currentFilter;
+      });
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        const isSelected = item.id === selectedItemId;
+        tr.className = `hover:bg-slate-800/40 transition cursor-pointer ${isSelected ? 'bg-indigo-950/60 border-l-4 border-indigo-400 text-white font-bold' : ''}`;
+        tr.onclick = () => selectBOMItem(item.id - 1);
+
+        tr.innerHTML = `
+          <td class="p-2.5 font-bold text-slate-400">${item.id}</td>
+          <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300">${item.category}</span></td>
+          <td class="p-2.5 font-semibold text-white">${item.name}</td>
+          <td class="p-2.5 text-purple-300 font-bold">${item.model}</td>
+          <td class="p-2.5 text-center text-slate-300">${item.qty}</td>
+          <td class="p-2.5 text-amber-300">${item.ref}</td>
+          <td class="p-2.5"><span class="px-1.5 py-0.5 rounded text-[10px] ${item.confidence === '高' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300'}">${item.confidence}</span></td>
+          <td class="p-2.5 text-slate-400 text-[11px]">${item.note}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterBOM(cat) {
+      currentFilter = cat;
+      renderBOMTable();
+    }
+
+    function selectBOMItem(index) {
+      selectedItemId = index + 1;
+      renderBOMTable();
+    }
+
+    function simulateAnalysis() {
+      const img = document.getElementById('pcb-image');
+      img.style.filter = 'brightness(1.3) contrast(1.2)';
+      setTimeout(() => {
+        img.style.filter = 'none';
+        alert('AI 視覺分析完成！已重新對齊絲印標示與 BOM 欄位。');
+      }, 600);
+    }
+
+    function exportToCSV() {
+      let csv = "項次,類別,元件/功能,可見標示或型號,數量,參考位號,辨識信心,備註\n";
+      BOM_DATA.forEach(row => {
+        csv += `"${row.id}","${row.category}","${row.name}","${row.model}","${row.qty}","${row.ref}","${row.confidence}","${row.note}"\n`;
+      });
+
+      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "ABX00173_00_front_visual_BOM.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // 初始化載入
+    window.addEventListener('DOMContentLoaded', () => {
+      renderBOMTable();
+    });
+  </script>
+</body>
+</html>

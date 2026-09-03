@@ -1036,5 +1036,71 @@ window.INITIAL_AITOOLS_DATA = [
         "url": "https://aistudio.google.com"
       }
     ]
+  },
+  {
+    "id": "tool-manus-desktop-pcb-bom",
+    "toolNumber": "18",
+    "title": "Manus 桌面版 - 本地資料夾讀寫與 PCB 影像視覺辨識自動生成 Excel BOM 表",
+    "date": "2026-09-03",
+    "category": "Manus AI Agent",
+    "summary": "掌握 Manus 桌面版（Desktop Agent）的核心能力：授權存取本地資料夾、直接讀取本機高解析度電路板 (PCB) 照片，透過多模態視覺 AI 自動辨識主控 SoC (Qualcomm)、無線晶片 (Wi-Fi/BT)、電源管理 IC、電感與被動元件，並直接於本機資料夾內生成標準 Excel (.xlsx) BOM 物料清單。",
+    "webUrl": "https://manus.im",
+    "flowImage": [
+      "images_src/ok/20260903_manus_pcb_bom_input.png",
+      "images_src/ok/20260903_manus_pcb_bom_output.png",
+      "images_src/ok/20260903_manus_pcb_arduino_uno_q.jpg",
+      "images_src/ok/20260903_manus_pcb_bom_excel_table.png"
+    ],
+    "objective": "1. 掌握 Manus 桌面版（Desktop Agent）「新增本地資料夾」與本機目錄檔案讀寫授權設定。\n2. 學習利用多模態視覺 AI 對高密度電路板 (PCB) 進行元件 OCR 絲印比對、IC 封裝識別與被動元件盤點。\n3. 掌握自動化將視覺辨識結果結構化整理為標準 Excel (.xlsx) BOM 物料清單（含項次、類別、型號、數量、位號、信心度與說明）。\n4. 理解 AI Agent 在硬體逆向工程、SMT 產線備料、打樣檢驗與 BOM 表自動化建檔的工業實務應用。",
+    "tutorialSteps": [
+      {
+        "step": "Step 1. 新增並授權本地工作區資料夾",
+        "description": "啟動 Manus 桌面版，點選「+」新增本地資料夾（例如：D:\\Test_Wugo\\PCB_Bom表\\），並於權限視窗中點擊「允許 Manus 修改資料夾中的檔案」，使 Agent 具備本機讀寫能力。"
+      },
+      {
+        "step": "Step 2. 放置 PCB 圖檔並下達結構化提示詞",
+        "description": "將待分析的電路板正面高解析度照片（如 ABX00173_00.front_1000x750.jpg）放入資料夾，在對話框輸入 Prompt：「讀取 ABX00173_00.front_1000x750.jpg。辨識 PCB 上的電子元件，生成一個 excel 格式的 bom 表。」"
+      },
+      {
+        "step": "Step 3. Manus AI 視覺辨識與絲印比對",
+        "description": "Manus 自動規劃執行計畫：(1) 讀取圖檔並分析電路板輪廓；(2) OCR 辨識核心晶片（如 Qualcomm QRB2210 SoC、PM4125 PMIC、WCBN3536A 模組、3R3 電感與 QWIIC 接口）；(3) 標註辨識信心與目視限制。"
+      },
+      {
+        "step": "Step 4. 自動生成並寫入本機 Excel BOM 檔案",
+        "description": "Manus 在工作區內自動建立「ABX00173_00_front_visual_BOM.xlsx」，內含「BOM」主表與「說明」備註表，完成後直接於本地資料夾內可開啟使用！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "電子硬體逆向工程與 SMT 打樣檢驗",
+        "icon": "fa-solid fa-microchip",
+        "description": "硬體工程師在收到樣品電路板時，無需人工拿著放大鏡逐一抄寫元件型號，透過 Manus 拍照後 30 秒自動產出初版 BOM 表，大幅縮短逆向分析與第二來源 (Second Source) 尋料時間。"
+      },
+      {
+        "scenario": "工控 SCADA 與 PLC 擴充板零件清點備料",
+        "icon": "fa-solid fa-industry",
+        "description": "自動化設備維修技師針對停產或無電路圖之舊型 PLC 模組/感測介面卡拍照，AI 自動辨識關鍵光電耦合晶片、繼電器與突波吸收器型號並輸出 Excel，加速維修備品採購。"
+      },
+      {
+        "scenario": "產線進料檢驗 (IQC) 與品質管理自動化",
+        "icon": "fa-solid fa-clipboard-check",
+        "description": "產線品管人員將每日抽檢的 PCBA 照片自動交由 Manus 批次掃描，自動比對 ERP 系統內的標準物料清單，即時抓出錯件、漏件或極性反向之異常。"
+      }
+    ],
+    "aiPrompt": "請扮演電子工程與 PCB 物料專家，幫我分析這張 PCB 正面照片並生成標準 Excel BOM 物料清單：\n1. 讀取工作區內的電路板圖片檔案。\n2. 識別所有可見之主控晶片 (SoC/MCU)、電源管理 IC (PMIC)、無線模組 (Wi-Fi/BT)、連接器 (Type-C/QWIIC/排針)、功率電感與被動元件。\n3. 請輸出包含以下欄位的 Excel 表格：項次、類別、元件/功能、可見標示或型號、數量(目視估計)、參考位號、辨識信心、備註。\n4. 額外建立一個「說明」工作表，說明照片解析度造成的辨識限制與後續建議。",
+    "references": [
+      {
+        "title": "互動模擬系統：Manus 桌面版 PCB 視覺辨識與 Excel BOM 表生成",
+        "url": "manus_pcb_bom_simulator.html"
+      },
+      {
+        "title": "Manus 官方網站與桌面版介紹",
+        "url": "https://manus.im"
+      },
+      {
+        "title": "Arduino 官方商店 - Arduino UNO Q (ABX00173) 產品與規格說明",
+        "url": "https://store.arduino.cc/products/uno-q-4gb"
+      }
+    ]
   }
 ];
