@@ -89,11 +89,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const item = document.createElement('a');
       item.className = `lab-item ${sup.id === currentSupId ? 'active' : ''}`;
       item.dataset.id = sup.id;
+      const numStr = sup.supNumber || sup.number || '';
       item.innerHTML = `
-        <div class="lab-badge" style="background: var(--primary-alpha); color: var(--primary); border-color: rgba(56,189,248,0.25);">${sup.supNumber}</div>
+        <div class="lab-badge" style="background: var(--primary-alpha); color: var(--primary); border-color: rgba(56,189,248,0.25);">${numStr || '•'}</div>
         <div class="lab-info">
-          <div class="lab-title-text">${sup.title}</div>
-          <div class="lab-meta-text">${sup.category} • ${sup.date}</div>
+          <div class="lab-title-text">${escapeHtml(sup.title)}</div>
+          <div class="lab-meta-text">${escapeHtml(sup.category)} • ${escapeHtml(sup.date)}</div>
         </div>
       `;
 
@@ -129,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 渲染補充教材詳細內容
   function renderSupplementContent(sup) {
+    const numStr = sup.supNumber || sup.number || '';
     const stepsHtml = sup.tutorialSteps.map(step => `
       <div class="step-card">
         <div class="step-header"><i class="fa-solid fa-circle-chevron-right" style="color: var(--primary); margin-right: 8px;"></i> ${escapeHtml(step.step)}</div>
@@ -151,13 +153,13 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="tag tag-cat" style="background: var(--primary-alpha); color: var(--primary);">${escapeHtml(sup.category)}</span>
           <span class="tag tag-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(sup.date)}</span>
         </div>
-        <h2 class="lab-main-title">補充 ${sup.supNumber}: ${escapeHtml(sup.title)}</h2>
+        <h2 class="lab-main-title">${numStr ? `補充 ${numStr}: ` : ''}${escapeHtml(sup.title)}</h2>
         <p class="lab-summary">${escapeHtml(sup.summary)}</p>
       </section>
 
-      <!-- (2) 教材圖片展示 (支援單張 sup.image 或多張 sup.images) -->
+      <!-- (2) 教材圖片展示 (支援單張 sup.image 或多張 sup.images / flowImage) -->
       ${(() => {
-        const imagesList = sup.images || (sup.image ? [sup.image] : []);
+        const imagesList = sup.images || (sup.flowImage ? (Array.isArray(sup.flowImage) ? sup.flowImage : [sup.flowImage]) : (sup.image ? [sup.image] : []));
         if (imagesList.length === 0) return '';
         const columns = imagesList.length > 1 ? 'repeat(auto-fit, minmax(400px, 1fr))' : '1fr';
         const cardsHtml = imagesList.map((imgSrc, idx) => `

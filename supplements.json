@@ -397,5 +397,72 @@
         "url": "https://www.smcworld.com/zh-tw/"
       }
     ]
+  },
+  {
+    "id": "sup-11",
+    "number": "11",
+    "title": "利用機丙第一圖動作模擬 \"and\"和\"or\"",
+    "category": "PLC 階梯圖與機電整合",
+    "date": "2026-09-03",
+    "summary": "以機電整合丙級技術士檢定第一題為實戰範例，深度解析如何利用 PLC 階梯圖模擬「AND 串聯邏輯」與「OR/IF-ELSE 分流邏輯」。探討輸送帶進料、有/無料感測器 s0(X002) 觸發 1 秒停止、形狀判別 s1(X003) 驅動龍門機械手臂送往圓料(上方)/方料(下方)出料處，以及 10 秒無料安全逾時回待機的完整步序。",
+    "flowImage": [
+      "images_src/ok/20260903_mechatronics_c_ladder_sfc_combo.png"
+    ],
+    "objective": "1. 理解機電丙級第一題中，步進階梯圖 (STL S20) 啟動輸送帶送料 (SET Y002)、運轉燈 (SET Y015) 與 10 秒計時器 (T0 K100) 的底層架構。\n2. 掌握「AND 邏輯」在階梯圖中的應用：未逾時 (/T0 常閉) 串聯 有料檢出 (X002 常開)，兩者皆成立才觸發 1 秒精確停止計時器 (T1 K10)。\n3. 掌握「OR / IF-ELSE 分流邏輯」在形狀分選中的應用：依據形狀感測器 s1(X003) 之常開與常閉接點，分別執行 SET M1 (圓料) 與 RST M1 (方料)，使龍門螺桿機械手臂精確送往上方或下方排料。\n4. 掌握逾時安全防護機制 (Timeout Fallback)：10 秒未檢出料件時自動停止輸送帶，RL 滅、GL 亮，安全回歸 S1 待機狀態。",
+    "tutorialSteps": [
+      {
+        "step": "Step 1. 步序 S20 啟動與待機計時",
+        "description": "按下啟動後進入 S20 步序，PLC 同步執行 SET Y002（輸送帶運轉送料）、SET Y015（運轉燈 RL 亮起，待機燈 GL 熄滅）並啟動 T0 K100（10 秒無料逾時計時器）。"
+      },
+      {
+        "step": "Step 2. 模擬 AND 邏輯：T0 未逾時 AND s0 料件檢出",
+        "description": "當料件運送至形狀判別處，有/無料光電感測器 s0 (X002) 檢出信號 ON。此時在階梯圖中，透過「T0 常閉接點（代表未逾時）」與「X002 常開接點（代表已檢出）」進行【串聯 (AND)】，兩者同時滿足即觸發 T1 K10（1 秒計時器）。"
+      },
+      {
+        "step": "Step 3. 模擬 OR / IF-ELSE 邏輯：s1 形狀判別與分支排料",
+        "description": "1 秒計時到達 (T1 成立) 後，執行 RST Y002 停止輸送帶。接著以形狀感測器 s1 (X003) 進行【分流 (OR / IF-ELSE)】：\\n• 圓形料：X003 常開導通 ➔ SET M1，龍門螺桿手臂夾取並送往【上方出料處】。\\n• 方形料：X003 常閉導通 ➔ RST M1，龍門螺桿手臂夾取並送往【下方出料處】。"
+      },
+      {
+        "step": "Step 4. 10 秒安全逾時機制 (Timeout Fallback)",
+        "description": "若輸送帶運轉超過 10 秒，s0 (X002) 始終沒有感測到料件，則 T0 常開接點導通，執行 SET S1 立即終止連續循環，運轉燈 RL 熄滅、待機燈 GL 亮起，安全回到待機狀態。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級術科考試高分實戰",
+        "icon": "fa-solid fa-graduation-cap",
+        "description": "機丙第一題是所有自動化學員的必考經典。透過本單元的階梯圖與 SFC 流程圖對照，學員能徹底釐清步序轉移條件、計時器串聯以及 M 輔助繼電器暫存記憶的技巧，杜絕程式死鎖。"
+      },
+      {
+        "scenario": "智慧工廠自動化分選與瑕疵剔除系統",
+        "icon": "fa-solid fa-boxes-stacked",
+        "description": "現代 SMT 與包裝產線上，利用光電檢知與相機視覺進行良品/不良品分流，其底層 PLC 控制架構完全採用此「進料檢出 ➔ 延時精確定位 ➔ 條件分支夾取」的標準範式。"
+      },
+      {
+        "scenario": "工業安全防護與無人待機節能管理",
+        "icon": "fa-solid fa-shield-halved",
+        "description": "透過 10 秒計時器 (T0) 防呆機制，當產線無料時自動切斷馬達動力回歸待機 (GL 亮)，大幅降低產線設備空轉磨損與電力浪費，體現綠色工廠智慧節能標準。"
+      }
+    ],
+    "aiPrompt": "請扮演三菱 PLC 與機電整合專家，幫我撰寫一段三菱 FX 系列 PLC 的 SFC/STL 步進階梯圖指令與 C 語言/Structured Text 對照代碼：\\n題目：機電整合丙級第一題。\\n1. 步序 S20 啟動輸送帶 (Y002) 與運轉燈 RL (Y015)，同時啟動 10 秒計時器 T0。\\n2. 若 10 秒未感測到料件 (T0到)，則回待機步序 S1 (RL滅，GL亮)。\\n3. 若在 10 秒內感測到料件 (s0/X002 ON)，則以 AND 邏輯啟動 1 秒計時器 T1。\\n4. 1 秒後停止輸送帶 (RST Y002)，並根據形狀感測器 s1 (X003) 進行 OR 分流判別：\\n   - 圓形 (X003 ON) ➔ SET M1 ➔ 龍門手臂夾送上方出料。\\n   - 方形 (X003 OFF) ➔ RST M1 ➔ 龍門手臂夾送下方出料。\\n5. 夾取完成後進入 S30 步序。請附上中文接點註釋。",
+    "references": [
+      {
+        "title": "互動模擬網頁：機丙第一題 PLC 階梯圖與龍門手臂分選系統",
+        "url": "conveyor_sorting_ladder_metaphor.html"
+      },
+      {
+        "title": "三菱電機官方網站 - FX 系列 PLC 程式設計與指令手冊",
+        "url": "https://www.mitsubishielectric.com/fa/products/cnt/plc/"
+      },
+      {
+        "title": "勞動部勞動力發展署 - 機電整合丙級技術士技能檢定規範",
+        "url": "https://www.wdasec.gov.tw/"
+      }
+    ],
+    "supNumber": "11",
+    "image": "images_src/ok/20260903_mechatronics_c_ladder_sfc_combo.png",
+    "images": [
+      "images_src/ok/20260903_mechatronics_c_ladder_sfc_combo.png"
+    ]
   }
 ]

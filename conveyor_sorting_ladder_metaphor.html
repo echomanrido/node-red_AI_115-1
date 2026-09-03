@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>利用機丙第一圖動作模擬 "and"和"or" | 互動教學系統</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @keyframes belt-move {
+      0% { background-position: 0 0; }
+      100% { background-position: 28px 0; }
+    }
+    .conveyor-running {
+      animation: belt-move 0.7s linear infinite;
+    }
+    /* 階梯圖導通高亮效果 */
+    .wire-active {
+      stroke: #10b981 !important;
+      stroke-width: 3px !important;
+      filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.8));
+    }
+    .contact-active {
+      stroke: #10b981 !important;
+      fill: #10b981 !important;
+    }
+    .coil-active {
+      stroke: #10b981 !important;
+      color: #10b981 !important;
+      border-color: #10b981 !important;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    }
+    /* 程式碼即時執行行高亮效果 */
+    .code-line-active {
+      background-color: rgba(16, 185, 129, 0.18) !important;
+      border-left: 3px solid #10b981 !important;
+      color: #f8fafc !important;
+      font-weight: 600;
+    }
+    .code-line-waiting {
+      background-color: rgba(59, 130, 246, 0.1) !important;
+      border-left: 3px solid #3b82f6 !important;
+    }
+    /* M1 判別浮動提示動畫 */
+    @keyframes popIn {
+      0% { transform: translate(-50%, 10px) scale(0.85); opacity: 0; }
+      100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+    }
+    .pop-badge {
+      animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+
+  <!-- 頂部導覽列 -->
+  <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700 px-6 py-3 flex flex-wrap justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <a href="supplements.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700/60 rounded-lg text-slate-300 transition-colors flex items-center justify-center" title="返回補充教材講義">
+        <i class="ph ph-arrow-left text-lg"></i>
+      </a>
+      <div class="p-2 bg-emerald-600/20 text-emerald-400 rounded-lg border border-emerald-500/30">
+        <i class="ph ph-cpu text-2xl"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-white flex items-center gap-2">
+          利用機丙第一圖動作模擬 "and"和"or"
+          <span class="text-xs font-medium px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700">PLC STL 階梯圖 / IF-ELSE 對照模擬</span>
+        </h1>
+        <p class="text-xs text-slate-400">模擬 S20 狀態、AND/OR 邏輯、M1 形狀判別與雙軸龍門螺桿機械手臂</p>
+      </div>
+    </div>
+
+    <!-- 狀態指示燈塔與速度控制按鈕 -->
+    <div class="flex items-center flex-wrap gap-4 mt-2 sm:mt-0">
+      
+      <!-- 輸送帶與模擬速度調整鈕 -->
+      <div class="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-700">
+        <span class="text-xs font-semibold text-amber-400 flex items-center gap-1">
+          <i class="ph ph-gauge text-sm"></i> 速度:
+        </span>
+        <div class="flex items-center gap-1" id="speed-btn-group">
+          <button data-speed="0.3" class="speed-btn px-2 py-0.5 text-xs rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium transition" title="極慢速教學：能仔細看清 M1 判別">0.3x (慢速)</button>
+          <button data-speed="0.6" class="speed-btn px-2 py-0.5 text-xs rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium transition">0.6x</button>
+          <button data-speed="1.0" class="speed-btn px-2 py-0.5 text-xs rounded bg-emerald-600 text-white font-bold transition">1.0x (標準)</button>
+          <button data-speed="1.5" class="speed-btn px-2 py-0.5 text-xs rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium transition">1.5x</button>
+        </div>
+        <!-- 微調滑桿 -->
+        <input type="range" id="slider-speed" min="0.2" max="2.0" step="0.1" value="1.0" class="w-16 accent-emerald-500 cursor-pointer ml-1" title="滑動自訂速度 (0.2x ~ 2.0x)">
+        <span id="txt-speed-val" class="text-xs font-mono text-emerald-400 font-bold w-9 text-right">1.0x</span>
+      </div>
+
+      <!-- 燈號狀態 -->
+      <div class="flex items-center gap-3 bg-slate-950/60 px-3 py-1.5 rounded-full border border-slate-700">
+        <div class="flex items-center gap-1.5">
+          <div id="led-gl" class="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981] transition-all duration-300"></div>
+          <span class="text-xs font-mono font-medium">GL 待機</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <div id="led-rl" class="w-4 h-4 rounded-full bg-red-950 border border-red-800 transition-all duration-300"></div>
+          <span class="text-xs font-mono font-medium">RL 運轉(Y015)</span>
+        </div>
+      </div>
+
+      <!-- 目前步驟顯示 -->
+      <div class="bg-blue-950/60 border border-blue-800/60 px-3 py-1.5 rounded-lg flex items-center gap-2">
+        <span class="text-xs text-blue-300 font-semibold">步進:</span>
+        <span id="txt-step" class="font-mono text-sm font-bold text-blue-400">S1 (待機)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主內容區 -->
+  <main class="flex-1 p-4 lg:p-6 grid grid-cols-1 xl:grid-cols-12 gap-6 max-w-[1850px] w-full mx-auto">
+
+    <!-- 左半部: 工業機構 2D 視覺化模擬 & 控制面板 (6 Cols) -->
+    <section class="xl:col-span-6 2xl:col-span-6 flex flex-col gap-5">
+      
+      <!-- 機械運動仿真視圖 -->
+      <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-5 shadow-xl relative overflow-hidden flex flex-col">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <i class="ph ph-gear-six text-emerald-400"></i>
+            實體機構即時動作仿真 (機構視圖)
+          </h2>
+          <div class="flex items-center gap-3 text-xs text-slate-400">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> s0 有無料感測</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span> s1 形狀感測</span>
+          </div>
+        </div>
+
+        <!-- 仿真畫布容器 -->
+        <div class="relative w-full h-[370px] bg-slate-950 rounded-lg border border-slate-700/80 overflow-hidden shadow-inner select-none" id="stage-box">
+          
+          <!-- 上方出料處: 圓形料出料處 (上方) -->
+          <div class="absolute right-4 top-4 w-44 h-16 bg-slate-900/90 border-2 border-dashed border-emerald-500/50 rounded-lg flex flex-col items-center justify-center p-2 z-10">
+            <span class="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+              <i class="ph ph-circle text-sm"></i> 圓形料出料處 (上方)
+            </span>
+            <span class="text-xs text-slate-300">已分類: <b id="count-circle" class="text-emerald-300 font-mono">0</b> 件</span>
+          </div>
+
+          <!-- 下方出料處: 方形料出料處 (下方) -->
+          <div class="absolute right-4 bottom-4 w-44 h-16 bg-slate-900/90 border-2 border-dashed border-amber-500/50 rounded-lg flex flex-col items-center justify-center p-2 z-10">
+            <span class="text-[11px] text-amber-400 font-bold flex items-center gap-1">
+              <i class="ph ph-square text-sm"></i> 方形料出料處 (下方)
+            </span>
+            <span class="text-xs text-slate-300">已分類: <b id="count-square" class="text-amber-300 font-mono">0</b> 件</span>
+          </div>
+
+          <!-- 輸送帶導軌與運行面 (上表面固定於 Y = 150px) -->
+          <div class="absolute left-6 top-[150px] w-[500px] h-[55px] z-10">
+            <!-- 輸送帶皮帶本體 (上邊緣 Y=150px，料件穩固平放於其上) -->
+            <div id="conveyor-belt" class="w-full h-10 bg-slate-700 rounded-md border-t-2 border-slate-500 border-b-2 border-slate-900 shadow-xl relative flex items-center overflow-hidden" 
+                 style="background-image: repeating-linear-gradient(90deg, #334155, #334155 14px, #475569 14px, #475569 28px);">
+              <div class="w-full h-0.5 bg-slate-500/30"></div>
+            </div>
+            <!-- 傳送帶支架底座 -->
+            <div class="w-full h-3.5 bg-slate-800 border-x border-b border-slate-600 rounded-b flex justify-between px-8">
+              <div class="w-4 h-12 bg-slate-700 border border-slate-600"></div>
+              <div class="w-4 h-12 bg-slate-700 border border-slate-600"></div>
+              <div class="w-4 h-12 bg-slate-700 border border-slate-600"></div>
+            </div>
+            <div class="absolute -bottom-6 left-2 text-[10px] text-slate-400 font-mono flex items-center gap-1">
+              <span>進料端 &rarr;</span>
+              <span class="text-slate-500">(皮帶運行上平面 Y=150px)</span>
+            </div>
+          </div>
+
+          <!-- 感測器 s0 (X002) - 有/無料光電檢測 (定位於輸送帶中段上方) -->
+          <div class="absolute left-[310px] top-[90px] flex flex-col items-center z-20 pointer-events-none">
+            <div class="text-[10px] font-mono font-bold px-1 py-0.5 rounded bg-amber-950/90 text-amber-300 border border-amber-600">
+              s0 進料感 (X002)
+            </div>
+            <div class="w-3.5 h-6 bg-amber-600 rounded-sm mt-0.5 shadow flex items-center justify-center">
+              <div class="w-1.5 h-1.5 bg-amber-300 rounded-full"></div>
+            </div>
+            <div id="beam-s0" class="w-0.5 h-[32px] bg-amber-400/40 transition-all"></div>
+          </div>
+
+          <!-- 感測器 s1 (X003) - 形狀辨別感測器 (定位於判別處 / 停止點上方) -->
+          <div class="absolute left-[390px] top-[90px] flex flex-col items-center z-20 pointer-events-none">
+            <div class="text-[10px] font-mono font-bold px-1 py-0.5 rounded bg-cyan-950/90 text-cyan-300 border border-cyan-600">
+              s1 方/圓辨別 (X003)
+            </div>
+            <div class="w-3.5 h-6 bg-cyan-600 rounded-sm mt-0.5 shadow flex items-center justify-center">
+              <div class="w-1.5 h-1.5 bg-cyan-300 rounded-full"></div>
+            </div>
+            <div id="beam-s1" class="w-0.5 h-[32px] bg-cyan-400/40 transition-all"></div>
+          </div>
+
+          <!-- 龍門螺桿機械手臂機構 (X/Y 兩軸 + 氣壓夾爪) -->
+          <div id="gantry-base" class="absolute left-[370px] top-4 w-[280px] h-[340px] pointer-events-none z-30">
+            <div class="w-full h-2.5 bg-slate-600 rounded border border-slate-500 shadow relative">
+              <div class="absolute right-0 -top-2 text-[9px] text-slate-400 font-mono">龍門螺桿機構</div>
+            </div>
+            <!-- 手臂滑塊 (X 軸移動) -->
+            <div id="arm-slider-x" class="absolute top-0 left-4 w-12 h-8 bg-slate-700 border border-slate-400 rounded flex flex-col items-center transition-transform duration-300">
+              <div class="w-4 h-4 bg-emerald-500/80 rounded-full mt-1"></div>
+              <!-- 螺桿垂直軸 (Z 軸升降) -->
+              <div id="arm-slider-z" class="w-2.5 h-20 bg-slate-400 border border-slate-500 relative transition-all duration-300">
+                <!-- 夾爪本體 -->
+                <div id="gripper-head" class="absolute -bottom-4 -left-3 w-8.5 h-6 bg-slate-800 border border-slate-500 rounded flex justify-between px-0.5 items-center">
+                  <div id="claw-l" class="w-1.5 h-5 bg-amber-400 rounded-b transition-transform duration-200"></div>
+                  <div id="claw-r" class="w-1.5 h-5 bg-amber-400 rounded-b transition-transform duration-200"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- M1 即時辨別浮動指示氣泡 (當到達 s1 判別點時直接浮現在工件正上方) -->
+          <div id="badge-m1-detect" class="absolute left-[390px] top-[72px] z-40 hidden -translate-x-1/2 px-2.5 py-1 rounded-full text-xs font-mono font-bold shadow-xl border select-none transition-all">
+            <!-- 內容由 JS 動態填入 -->
+          </div>
+
+          <!-- 運送工件 (Workpiece) - 始終放置在輸送帶上方 (Y=118px ~ 150px) -->
+          <div id="workpiece" class="absolute z-20 hidden items-center justify-center font-bold text-xs select-none transition-none"></div>
+
+          <!-- 運作提示與狀態訊息 -->
+          <div class="absolute bottom-2 left-3 bg-slate-900/90 border border-slate-700/80 px-3 py-1.5 rounded text-xs text-slate-300 flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            狀態說明: <span id="txt-status" class="text-emerald-400 font-medium">系統待機中，請放入料件</span>
+          </div>
+        </div>
+
+        <!-- 互動操作控制列 -->
+        <div class="mt-4 pt-3 border-t border-slate-700 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <button id="btn-feed-circle" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-semibold py-2.5 px-3 rounded-lg shadow transition">
+            <i class="ph ph-circle text-base"></i> 放入圓形料件
+          </button>
+          <button id="btn-feed-square" class="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 active:scale-95 text-white text-xs font-semibold py-2.5 px-3 rounded-lg shadow transition">
+            <i class="ph ph-square text-base"></i> 放入方形料件
+          </button>
+          <button id="btn-feed-random" class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-semibold py-2.5 px-3 rounded-lg shadow transition">
+            <i class="ph ph-shuffle text-base"></i> 隨機連續送料
+          </button>
+          <button id="btn-reset" class="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 text-xs font-semibold py-2.5 px-3 rounded-lg shadow transition">
+            <i class="ph ph-arrow-counter-clockwise text-base"></i> 重設復歸
+          </button>
+        </div>
+      </div>
+
+      <!-- I/O 點位即時監控面板 -->
+      <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-4 shadow-xl">
+        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center justify-between">
+          <span class="flex items-center gap-2"><i class="ph ph-plugs text-emerald-400"></i> PLC I/O 訊號即時監控 (FX系列)</span>
+          <span class="text-[11px] font-mono text-slate-400">Scan Time: 5ms</span>
+        </h3>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <!-- X002 -->
+          <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
+            <div>
+              <div class="font-mono font-bold text-slate-300">X002</div>
+              <div class="text-[10px] text-slate-400">s0 進料檢知</div>
+            </div>
+            <span id="io-x002" class="w-3 h-3 rounded-full bg-slate-700"></span>
+          </div>
+          <!-- X003 -->
+          <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
+            <div>
+              <div class="font-mono font-bold text-slate-300">X003</div>
+              <div class="text-[10px] text-slate-400">s1 形狀(圓=ON)</div>
+            </div>
+            <span id="io-x003" class="w-3 h-3 rounded-full bg-slate-700"></span>
+          </div>
+          <!-- Y002 -->
+          <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
+            <div>
+              <div class="font-mono font-bold text-slate-300">Y002</div>
+              <div class="text-[10px] text-slate-400">R 輸送帶馬達</div>
+            </div>
+            <span id="io-y002" class="w-3 h-3 rounded-full bg-slate-700"></span>
+          </div>
+          <!-- Y015 -->
+          <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
+            <div>
+              <div class="font-mono font-bold text-slate-300">Y015</div>
+              <div class="text-[10px] text-slate-400">RL 運轉紅燈</div>
+            </div>
+            <span id="io-y015" class="w-3 h-3 rounded-full bg-slate-700"></span>
+          </div>
+        </div>
+
+        <!-- 輔助繼電器與計時器數值 (強調 M1 顯示) -->
+        <div class="grid grid-cols-3 gap-3 mt-3 text-xs font-mono">
+          <div class="bg-slate-900/90 p-2 rounded border border-slate-700/60 flex items-center justify-between">
+            <span class="text-slate-400">T0 (逾時 10s):</span>
+            <span id="val-t0" class="text-amber-400 font-bold">0.0s / 10s</span>
+          </div>
+          <div class="bg-slate-900/90 p-2 rounded border border-slate-700/60 flex items-center justify-between">
+            <span class="text-slate-400">T1 (定位 1s):</span>
+            <span id="val-t1" class="text-emerald-400 font-bold">0.0s / 1s</span>
+          </div>
+          <!-- M1 (圓/方) 特別醒目面板 -->
+          <div id="panel-m1" class="bg-slate-900/90 p-2 rounded border border-slate-700/60 flex items-center justify-between transition-all duration-300">
+            <span class="text-slate-400 font-bold">M1 (圓/方):</span>
+            <span id="val-m1" class="text-amber-400 font-bold">FALSE (方料)</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 右半部: 階梯圖即時導通、IF-ELSE 寫法對照、AND/OR 邏輯剖析 (6 Cols) -->
+    <section class="xl:col-span-6 2xl:col-span-6 flex flex-col gap-5">
+      
+      <!-- 標籤頁導覽列 -->
+      <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-5 shadow-xl flex flex-col flex-1">
+        <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4 flex-wrap gap-2">
+          <div class="flex flex-wrap gap-2">
+            <button id="tab-btn-ladder" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 text-white flex items-center gap-1.5 transition">
+              <i class="ph ph-tree-structure"></i> 梯形圖即時導通 (第一圖)
+            </button>
+            <button id="tab-btn-ifelse" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 flex items-center gap-1.5 transition">
+              <i class="ph ph-code"></i> IF-ELSE 程式對照 (ST / C)
+            </button>
+            <button id="tab-btn-logic" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 flex items-center gap-1.5 transition">
+              <i class="ph ph-arrows-split"></i> AND / OR 邏輯剖析
+            </button>
+          </div>
+          <span class="text-[11px] text-slate-400 font-mono">Mitsubishi FX / IEC 61131-3</span>
+        </div>
+
+        <!-- ================= 分頁 1: 階梯圖 (SVG 精準重現第一圖) ================= -->
+        <div id="tab-content-ladder" class="flex-1 flex flex-col justify-start">
+          <p class="text-xs text-slate-400 mb-2">
+            ※ 當前步進進入 <code class="text-emerald-400 font-bold">S20</code> 時，左側 STL 母線得電。接點閉合時會亮起綠色導通電流。
+          </p>
+
+          <div class="bg-slate-950 p-4 rounded-lg border border-slate-700/80 overflow-x-auto text-xs font-mono select-none">
+            <svg class="w-full min-w-[480px] h-[360px]" viewBox="0 0 480 360" id="ladder-svg">
+              <line x1="20" y1="10" x2="20" y2="350" stroke="#64748b" stroke-width="3" id="wire-left-bus" />
+              <text x="5" y="32" fill="#94a3b8" font-size="11" font-weight="bold">S20</text>
+              <line x1="12" y1="38" x2="28" y2="38" stroke="#94a3b8" stroke-width="2" />
+              <text x="5" y="52" fill="#94a3b8" font-size="9">STL</text>
+
+              <line x1="20" y1="40" x2="60" y2="40" stroke="#64748b" stroke-width="2" id="wire-stl-main" />
+              <line x1="60" y1="40" x2="60" y2="195" stroke="#64748b" stroke-width="2" id="wire-s20-branch" />
+
+              <!-- R1: [SET Y002] 輸送帶 -->
+              <line x1="60" y1="40" x2="350" y2="40" stroke="#64748b" stroke-width="2" id="wire-r1" />
+              <g id="coil-y002" transform="translate(350, 30)">
+                <rect x="0" y="0" width="105" height="22" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1.5" id="box-y002"/>
+                <text x="10" y="15" fill="#f8fafc" font-size="10">[SET</text>
+                <text x="55" y="15" fill="#34d399" font-size="10" font-weight="bold">Y002 ]</text>
+                <text x="45" y="32" fill="#10b981" font-size="8">R 輸送帶</text>
+              </g>
+
+              <!-- R2: [SET Y015] RL 紅燈 -->
+              <line x1="60" y1="80" x2="350" y2="80" stroke="#64748b" stroke-width="2" id="wire-r2" />
+              <g id="coil-y015" transform="translate(350, 70)">
+                <rect x="0" y="0" width="105" height="22" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1.5" id="box-y015"/>
+                <text x="10" y="15" fill="#f8fafc" font-size="10">[SET</text>
+                <text x="55" y="15" fill="#f87171" font-size="10" font-weight="bold">Y015 ]</text>
+                <text x="45" y="32" fill="#10b981" font-size="8">RL 紅燈</text>
+              </g>
+
+              <!-- R3: (T0 K100) 10秒計時 -->
+              <line x1="60" y1="120" x2="350" y2="120" stroke="#64748b" stroke-width="2" id="wire-r3" />
+              <g id="timer-t0" transform="translate(350, 110)">
+                <path d="M 5,0 C 0,5 0,17 5,22 M 95,0 C 100,5 100,17 95,22" stroke="#64748b" stroke-width="2" fill="none" id="arc-t0"/>
+                <text x="15" y="15" fill="#e2e8f0" font-size="10">(T0</text>
+                <text x="50" y="15" fill="#fbbf24" font-size="10" font-weight="bold">K100 )</text>
+              </g>
+
+              <!-- R4: T0 (NO 接點) -> [SET S1] -->
+              <line x1="60" y1="160" x2="80" y2="160" stroke="#64748b" stroke-width="2" id="wire-r4-1" />
+              <g id="contact-t0-no" transform="translate(80, 150)">
+                <line x1="0" y1="10" x2="10" y2="10" stroke="#64748b" stroke-width="2" id="c-t0-l"/>
+                <line x1="10" y1="2" x2="10" y2="18" stroke="#64748b" stroke-width="2" id="c-t0-b1"/>
+                <line x1="20" y1="2" x2="20" y2="18" stroke="#64748b" stroke-width="2" id="c-t0-b2"/>
+                <line x1="20" y1="10" x2="30" y2="10" stroke="#64748b" stroke-width="2" id="c-t0-r"/>
+                <text x="6" y="-2" fill="#94a3b8" font-size="9">T0</text>
+              </g>
+              <line x1="110" y1="160" x2="350" y2="160" stroke="#64748b" stroke-width="2" id="wire-r4-2" />
+              <g id="coil-s1" transform="translate(350, 150)">
+                <rect x="0" y="0" width="105" height="22" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1.5" id="box-s1"/>
+                <text x="10" y="15" fill="#f8fafc" font-size="10">[SET</text>
+                <text x="55" y="15" fill="#60a5fa" font-size="10" font-weight="bold">S1 ]</text>
+              </g>
+
+              <!-- R5: /T0 (NC) + X002 (NO) 串聯 -> (T1 K10) -->
+              <line x1="60" y1="195" x2="75" y2="195" stroke="#64748b" stroke-width="2" id="wire-r5-1" />
+              <g id="contact-t0-nc" transform="translate(75, 185)">
+                <line x1="0" y1="10" x2="10" y2="10" stroke="#64748b" stroke-width="2" id="c-t0nc-l"/>
+                <line x1="10" y1="2" x2="10" y2="18" stroke="#64748b" stroke-width="2" id="c-t0nc-b1"/>
+                <line x1="20" y1="2" x2="20" y2="18" stroke="#64748b" stroke-width="2" id="c-t0nc-b2"/>
+                <line x1="7" y1="18" x2="23" y2="2" stroke="#64748b" stroke-width="2" id="c-t0nc-slash"/>
+                <line x1="20" y1="10" x2="30" y2="10" stroke="#64748b" stroke-width="2" id="c-t0nc-r"/>
+                <text x="6" y="-2" fill="#94a3b8" font-size="9">T0</text>
+              </g>
+              <line x1="105" y1="195" x2="125" y2="195" stroke="#64748b" stroke-width="2" id="wire-and-t0-x2" />
+              <g id="contact-x002" transform="translate(125, 185)">
+                <line x1="0" y1="10" x2="10" y2="10" stroke="#64748b" stroke-width="2" id="c-x2-l"/>
+                <line x1="10" y1="2" x2="10" y2="18" stroke="#64748b" stroke-width="2" id="c-x2-b1"/>
+                <line x1="20" y1="2" x2="20" y2="18" stroke="#64748b" stroke-width="2" id="c-x2-b2"/>
+                <line x1="20" y1="10" x2="30" y2="10" stroke="#64748b" stroke-width="2" id="c-x2-r"/>
+                <text x="2" y="-2" fill="#94a3b8" font-size="9">X002</text>
+                <text x="-4" y="27" fill="#10b981" font-size="8">s0進料感</text>
+              </g>
+              <line x1="155" y1="195" x2="350" y2="195" stroke="#64748b" stroke-width="2" id="wire-r5-3" />
+              <g id="timer-t1" transform="translate(350, 185)">
+                <path d="M 5,0 C 0,5 0,17 5,22 M 95,0 C 100,5 100,17 95,22" stroke="#64748b" stroke-width="2" fill="none" id="arc-t1"/>
+                <text x="15" y="15" fill="#e2e8f0" font-size="10">(T1</text>
+                <text x="50" y="15" fill="#10b981" font-size="10" font-weight="bold">K10 )</text>
+              </g>
+
+              <!-- R6: 下半部由 T1 常開觸發的分支 -->
+              <line x1="155" y1="195" x2="155" y2="230" stroke="#64748b" stroke-width="2" id="wire-down-t1" />
+              <line x1="155" y1="230" x2="175" y2="230" stroke="#64748b" stroke-width="2" id="wire-t1-in" />
+              <g id="contact-t1-no" transform="translate(175, 220)">
+                <line x1="0" y1="10" x2="10" y2="10" stroke="#64748b" stroke-width="2" id="c-t1-l"/>
+                <line x1="10" y1="2" x2="10" y2="18" stroke="#64748b" stroke-width="2" id="c-t1-b1"/>
+                <line x1="20" y1="2" x2="20" y2="18" stroke="#64748b" stroke-width="2" id="c-t1-b2"/>
+                <line x1="20" y1="10" x2="30" y2="10" stroke="#64748b" stroke-width="2" id="c-t1-r"/>
+                <text x="6" y="-2" fill="#94a3b8" font-size="9">T1</text>
+              </g>
+
+              <line x1="205" y1="230" x2="225" y2="230" stroke="#64748b" stroke-width="2" id="wire-t1-hub" />
+              <line x1="225" y1="230" x2="225" y2="340" stroke="#64748b" stroke-width="2" id="wire-t1-vbranch" />
+
+              <!-- 分支 1: [RST Y002] -->
+              <line x1="225" y1="230" x2="350" y2="230" stroke="#64748b" stroke-width="2" id="wire-rst-y2" />
+              <g id="coil-rst-y2" transform="translate(350, 220)">
+                <rect x="0" y="0" width="105" height="22" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1.5" id="box-rst-y2"/>
+                <text x="10" y="15" fill="#f8fafc" font-size="10">[RST</text>
+                <text x="55" y="15" fill="#f87171" font-size="10" font-weight="bold">Y002 ]</text>
+                <text x="45" y="32" fill="#10b981" font-size="8">R 輸送帶</text>
+              </g>
+
+              <!-- 分支 2: X003 (NO) -> [SET M1] (圓料) -->
+              <line x1="225" y1="270" x2="245" y2="270" stroke="#64748b" stroke-width="2" id="wire-x3-no-in" />
+              <g id="contact-x003-no" transform="translate(245, 260)">
+                <line x1="0" y1="10" x2="10" y2="10" stroke="#64748b" stroke-width="2" id="c-x3-l"/>
+                <line x1="10" y1="2" x2="10" y2="18" stroke="#64748b" stroke-width="2" id="c-x3-b1"/>
+                <line x1="20" y1="2" x2="20" y2="18" stroke="#64748b" stroke-width="2" id="c-x3-b2"/>
+                <line x1="20" y1="10" x2="30" y2="10" stroke="#64748b" stroke-width="2" id="c-x3-r"/>
+                <text x="2" y="-2" fill="#94a3b8" font-size="9">X003</text>
+                <text x="-4" y="27" fill="#10b981" font-size="8">s1方料圓</text>
+              </g>
+              <line x1="275" y1="270" x2="350" y2="270" stroke="#64748b" stroke-width="2" id="wire-set-m1" />
+              <g id="coil-set-m1" transform="translate(350, 260)">
+                <rect x="0" y="0" width="105" height="22" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1.5" id="box-set-m1"/>
+                <text x="10" y="15" fill="#f8fafc" font-size="10">[SET</text>
+                <text x="55" y="15" fill="#38bdf8" font-size="10" font-weight="bold">M1 ]</text>
+                <text x="55" y="32" fill="#10b981" font-size="8">圓/方</text>
+              </g>
+
+              <!-- 分支 3: /X003 (NC) -> [RST M1] (方料) -->
+              <line x1="225" y1="305" x2="245" y2="305" stroke="#64748b" stroke-width="2" id="wire-x3-nc-in" />
+              <g id="contact-x003-nc" transform="translate(245, 295)">
+                <line x1="0" y1="10" x2="10" y2="10" stroke="#64748b" stroke-width="2" id="c-x3nc-l"/>
+                <line x1="10" y1="2" x2="10" y2="18" stroke="#64748b" stroke-width="2" id="c-x3nc-b1"/>
+                <line x1="20" y1="2" x2="20" y2="18" stroke="#64748b" stroke-width="2" id="c-x3nc-b2"/>
+                <line x1="7" y1="18" x2="23" y2="2" stroke="#64748b" stroke-width="2" id="c-x3nc-slash"/>
+                <line x1="20" y1="10" x2="30" y2="10" stroke="#64748b" stroke-width="2" id="c-x3nc-r"/>
+                <text x="2" y="-2" fill="#94a3b8" font-size="9">X003</text>
+                <text x="-4" y="27" fill="#10b981" font-size="8">s1方料圓</text>
+              </g>
+              <line x1="275" y1="305" x2="350" y2="305" stroke="#64748b" stroke-width="2" id="wire-rst-m1" />
+              <g id="coil-rst-m1" transform="translate(350, 295)">
+                <rect x="0" y="0" width="105" height="22" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1.5" id="box-rst-m1"/>
+                <text x="10" y="15" fill="#f8fafc" font-size="10">[RST</text>
+                <text x="55" y="15" fill="#38bdf8" font-size="10" font-weight="bold">M1 ]</text>
+                <text x="55" y="32" fill="#10b981" font-size="8">圓/方</text>
+              </g>
+
+              <!-- 分支 4: -> [SET S30] -->
+              <line x1="225" y1="340" x2="350" y2="340" stroke="#64748b" stroke-width="2" id="wire-set-s30" />
+              <g id="coil-s30" transform="translate(350, 330)">
+                <rect x="0" y="0" width="105" height="22" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1.5" id="box-s30"/>
+                <text x="10" y="15" fill="#f8fafc" font-size="10">[SET</text>
+                <text x="55" y="15" fill="#c084fc" font-size="10" font-weight="bold">S30 ]</text>
+              </g>
+
+              <line x1="465" y1="10" x2="465" y2="350" stroke="#64748b" stroke-width="2" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- ================= 分頁 2: IF-ELSE 程式寫法對照 ================= -->
+        <div id="tab-content-ifelse" class="hidden flex-1 flex flex-col gap-4 text-xs font-mono">
+          <div class="flex items-center justify-between bg-slate-950 px-3 py-2 rounded-lg border border-slate-700/80">
+            <span class="text-slate-300 font-sans font-bold flex items-center gap-1.5">
+              <i class="ph ph-terminal-window text-emerald-400 text-sm"></i>
+              即時追蹤之 IF-ELSE 程式碼（隨運行亮起）:
+            </span>
+            <div class="flex gap-1">
+              <button id="btn-lang-st" class="px-2.5 py-1 text-[11px] rounded bg-emerald-700 text-white font-bold transition">IEC 61131-3 (ST)</button>
+              <button id="btn-lang-c" class="px-2.5 py-1 text-[11px] rounded bg-slate-800 text-slate-400 hover:text-white transition">C / JS 語法</button>
+            </div>
+          </div>
+
+          <!-- ST 語言 -->
+          <div id="code-view-st" class="bg-slate-950 p-3.5 rounded-lg border border-slate-700/80 overflow-x-auto text-[11px] leading-relaxed shadow-inner">
+            <div id="st-line-1" class="px-2 py-0.5 rounded text-slate-400">// 步進狀態 S20: 進料與判別循環</div>
+            <div id="st-line-2" class="px-2 py-0.5 rounded transition-colors duration-150"><span class="text-purple-400 font-bold">IF</span> <span class="text-blue-300">Step</span> = <span class="text-amber-300 font-bold">S20</span> <span class="text-purple-400 font-bold">THEN</span></div>
+            <div id="st-line-3" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150"><span class="text-emerald-400">Y002</span> := <span class="text-amber-400">TRUE</span>;  <span class="text-slate-500">// [SET Y002] 輸送帶運轉</span></div>
+            <div id="st-line-4" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150"><span class="text-red-400">Y015</span> := <span class="text-amber-400">TRUE</span>;  <span class="text-slate-500">// [SET Y015] RL 運轉紅燈亮</span></div>
+            
+            <div id="st-line-5" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150 text-slate-500">// 10秒逾時計時器 (無料時累加)</div>
+            <div id="st-line-6" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150"><span class="text-purple-400 font-bold">IF</span> <span class="text-purple-400 font-bold">NOT</span> <span class="text-cyan-300">X002</span> <span class="text-purple-400 font-bold">THEN</span> T0 := T0 + ScanTime; <span class="text-purple-400 font-bold">ELSE</span> T0 := <span class="text-amber-300">0</span>; <span class="text-purple-400 font-bold">END_IF</span>;</div>
+            
+            <div id="st-line-7" class="px-2 py-0.5 rounded ml-4 mt-1 transition-colors duration-150 text-slate-500">// (A) 逾時 10 秒條件分支: 終止循環回待機</div>
+            <div id="st-line-8" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150"><span class="text-purple-400 font-bold">IF</span> <span class="text-cyan-300">T0</span> &gt;= <span class="text-amber-300">10.0</span> <span class="text-purple-400 font-bold">THEN</span></div>
+            <div id="st-line-9" class="px-2 py-0.5 rounded ml-8 transition-colors duration-150"><span class="text-blue-300">Step</span> := <span class="text-amber-300 font-bold">S1</span>;  <span class="text-slate-500">// [SET S1] 回到待機狀態，RL滅，GL亮</span></div>
+            
+            <div id="st-line-10" class="px-2 py-0.5 rounded ml-4 mt-1 transition-colors duration-150 text-slate-500">// (B) AND 串聯條件: NOT T0 AND X002 (未逾時 且 s0進料感測)</div>
+            <div id="st-line-11" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150"><span class="text-purple-400 font-bold">ELSIF</span> (<span class="text-purple-400 font-bold">NOT</span> <span class="text-cyan-300">T0_Done</span>) <span class="text-purple-400 font-bold">AND</span> <span class="text-emerald-400">X002</span> <span class="text-purple-400 font-bold">THEN</span></div>
+            <div id="st-line-12" class="px-2 py-0.5 rounded ml-8 transition-colors duration-150"><span class="text-cyan-300">T1</span> := <span class="text-cyan-300">T1</span> + ScanTime;  <span class="text-slate-500">// 啟動 (T1 K10) 1秒計時器</span></div>
+            
+            <div id="st-line-13" class="px-2 py-0.5 rounded ml-8 mt-1 transition-colors duration-150"><span class="text-purple-400 font-bold">IF</span> <span class="text-cyan-300">T1</span> &gt;= <span class="text-amber-300">1.0</span> <span class="text-purple-400 font-bold">THEN</span>  <span class="text-slate-500">// 1秒到位，觸發 T1 常開接點</span></div>
+            <div id="st-line-14" class="px-2 py-0.5 rounded ml-12 transition-colors duration-150"><span class="text-emerald-400">Y002</span> := <span class="text-red-400">FALSE</span>;  <span class="text-slate-500">// [RST Y002] 輸送帶停止</span></div>
+            
+            <div id="st-line-15" class="px-2 py-0.5 rounded ml-12 text-slate-500">// 形狀判別 IF-ELSE: 圓形(X003=1) vs 方形(X003=0)</div>
+            <div id="st-line-16" class="px-2 py-0.5 rounded ml-12 transition-colors duration-150"><span class="text-purple-400 font-bold">IF</span> <span class="text-cyan-300 font-bold">X003</span> <span class="text-purple-400 font-bold">THEN</span></div>
+            <div id="st-line-17" class="px-2 py-0.5 rounded ml-16 transition-colors duration-150"><span class="text-cyan-300">M1</span> := <span class="text-amber-400 font-bold">TRUE</span>;   <span class="text-slate-500">// [SET M1] 標記為圓形料件 (送往上方)</span></div>
+            <div id="st-line-18" class="px-2 py-0.5 rounded ml-12 transition-colors duration-150"><span class="text-purple-400 font-bold">ELSE</span></div>
+            <div id="st-line-19" class="px-2 py-0.5 rounded ml-16 transition-colors duration-150"><span class="text-cyan-300">M1</span> := <span class="text-red-400 font-bold">FALSE</span>;  <span class="text-slate-500">// [RST M1] 標記為方形料件 (送往下方)</span></div>
+            <div id="st-line-20" class="px-2 py-0.5 rounded ml-12 transition-colors duration-150"><span class="text-purple-400 font-bold">END_IF</span>;</div>
+            
+            <div id="st-line-21" class="px-2 py-0.5 rounded ml-12 mt-0.5 transition-colors duration-150"><span class="text-blue-300">Step</span> := <span class="text-amber-300 font-bold">S30</span>;   <span class="text-slate-500">// [SET S30] 移交至龍門手臂夾取</span></div>
+            <div id="st-line-22" class="px-2 py-0.5 rounded ml-8 transition-colors duration-150"><span class="text-purple-400 font-bold">END_IF</span>;</div>
+            <div id="st-line-23" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150"><span class="text-purple-400 font-bold">END_IF</span>;</div>
+            <div id="st-line-24" class="px-2 py-0.5 rounded text-purple-400 font-bold">END_IF;</div>
+          </div>
+
+          <!-- C / JS 語法 -->
+          <div id="code-view-c" class="hidden bg-slate-950 p-3.5 rounded-lg border border-slate-700/80 overflow-x-auto text-[11px] leading-relaxed shadow-inner">
+            <div id="c-line-1" class="px-2 py-0.5 rounded text-slate-400">// 機丙第一站主狀態機 - S20 進料與判別循環</div>
+            <div id="c-line-2" class="px-2 py-0.5 rounded transition-colors duration-150"><span class="text-purple-400 font-bold">if</span> (step === <span class="text-amber-300 font-bold">'S20'</span>) {</div>
+            <div id="c-line-3" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150">Y002 = <span class="text-amber-400">true</span>;  <span class="text-slate-500">// 啟動輸送帶馬達</span></div>
+            <div id="c-line-4" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150">Y015 = <span class="text-amber-400">true</span>;  <span class="text-slate-500">// RL 運轉紅燈亮</span></div>
+            
+            <div id="c-line-5" class="px-2 py-0.5 rounded ml-4 mt-1 transition-colors duration-150 text-slate-500">// 1. 逾時判定分支 (OR 條件 1)</div>
+            <div id="c-line-6" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150"><span class="text-purple-400 font-bold">if</span> (T0 &gt;= <span class="text-amber-300">10000</span>) {</div>
+            <div id="c-line-7" class="px-2 py-0.5 rounded ml-8 transition-colors duration-150">step = <span class="text-amber-300 font-bold">'S1'</span>;  <span class="text-slate-500">// 逾時無待料，終止循環回待機</span></div>
+            
+            <div id="c-line-8" class="px-2 py-0.5 rounded ml-4 mt-1 transition-colors duration-150 text-slate-500">// 2. AND 串聯邏輯: (!T0_timeout &amp;&amp; s0_sensor)</div>
+            <div id="c-line-9" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150">} <span class="text-purple-400 font-bold">else if</span> (!T0_done &amp;&amp; X002_s0) {</div>
+            <div id="c-line-10" class="px-2 py-0.5 rounded ml-8 transition-colors duration-150">T1 += deltaTime;  <span class="text-slate-500">// s0 感測到料件後開始計時 1 秒</span></div>
+            
+            <div id="c-line-11" class="px-2 py-0.5 rounded ml-8 mt-1 transition-colors duration-150"><span class="text-purple-400 font-bold">if</span> (T1 &gt;= <span class="text-amber-300">1000</span>) {  <span class="text-slate-500">// 定位完成 (T1 K10)</span></div>
+            <div id="c-line-12" class="px-2 py-0.5 rounded ml-12 transition-colors duration-150">Y002 = <span class="text-red-400">false</span>;  <span class="text-slate-500">// 輸送帶停止</span></div>
+            
+            <div id="c-line-13" class="px-2 py-0.5 rounded ml-12 mt-1 transition-colors duration-150 text-slate-500">// 3. 形狀判別 IF-ELSE 結構</div>
+            <div id="c-line-14" class="px-2 py-0.5 rounded ml-12 transition-colors duration-150"><span class="text-purple-400 font-bold">if</span> (X003_s1) {</div>
+            <div id="c-line-15" class="px-2 py-0.5 rounded ml-16 transition-colors duration-150">M1 = <span class="text-amber-400 font-bold">true</span>;   <span class="text-slate-500">// 圓形料件 (s1 檢出 ON)</span></div>
+            <div id="c-line-16" class="px-2 py-0.5 rounded ml-12 transition-colors duration-150">} <span class="text-purple-400 font-bold">else</span> {</div>
+            <div id="c-line-17" class="px-2 py-0.5 rounded ml-16 transition-colors duration-150">M1 = <span class="text-red-400 font-bold">false</span>;  <span class="text-slate-500">// 方形料件 (s1 檢出 OFF)</span></div>
+            <div id="c-line-18" class="px-2 py-0.5 rounded ml-12 transition-colors duration-150">}</div>
+            <div id="c-line-19" class="px-2 py-0.5 rounded ml-12 mt-1 transition-colors duration-150">step = <span class="text-amber-300 font-bold">'S30'</span>;  <span class="text-slate-500">// 轉移至機械手臂取料排料</span></div>
+            <div id="c-line-20" class="px-2 py-0.5 rounded ml-8 transition-colors duration-150">}</div>
+            <div id="c-line-21" class="px-2 py-0.5 rounded ml-4 transition-colors duration-150">}</div>
+            <div id="c-line-22" class="px-2 py-0.5 rounded">}</div>
+          </div>
+
+          <!-- 觀念對照速查表 -->
+          <div class="bg-slate-900/90 p-3.5 rounded-lg border border-slate-700 font-sans text-xs">
+            <h4 class="font-bold text-slate-200 mb-2 flex items-center gap-1.5">
+              <i class="ph ph-table text-emerald-400"></i>
+              階梯圖線路 與 IF-ELSE 程式碼語法對照表
+            </h4>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-[11px]">
+                <thead>
+                  <tr class="border-b border-slate-700 text-slate-400">
+                    <th class="py-1 px-2">機構 / 電路邏輯</th>
+                    <th class="py-1 px-2">階梯圖寫法 (第一圖)</th>
+                    <th class="py-1 px-2">IF-ELSE 程式寫法</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-slate-300 font-mono">
+                  <tr>
+                    <td class="py-1.5 px-2 font-sans text-amber-300">AND 串聯判斷</td>
+                    <td class="py-1.5 px-2">[/T0] 接 [X002] 串聯</td>
+                    <td class="py-1.5 px-2 text-emerald-400">IF (NOT T0) AND X002 THEN</td>
+                  </tr>
+                  <tr>
+                    <td class="py-1.5 px-2 font-sans text-cyan-300">形狀二選一分支</td>
+                    <td class="py-1.5 px-2">[X003] $\rightarrow$ SET M1<br>[/X003] $\rightarrow$ RST M1</td>
+                    <td class="py-1.5 px-2 text-cyan-400">IF X003 THEN M1:=1 ELSE M1:=0</td>
+                  </tr>
+                  <tr>
+                    <td class="py-1.5 px-2 font-sans text-purple-300">逾時狀態跳轉</td>
+                    <td class="py-1.5 px-2">[T0] $\rightarrow$ [SET S1]</td>
+                    <td class="py-1.5 px-2 text-purple-400">IF T0 &gt;= 10.0 THEN Step := S1</td>
+                  </tr>
+                  <tr>
+                    <td class="py-1.5 px-2 font-sans text-emerald-300">STL 母線並聯驅動</td>
+                    <td class="py-1.5 px-2">母線同時分流多個線圈</td>
+                    <td class="py-1.5 px-2 text-slate-300">Y002:=1; Y015:=1; 同步賦值</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ================= 分頁 3: AND / OR 邏輯專題教學剖析 ================= -->
+        <div id="tab-content-logic" class="hidden flex-1 flex flex-col gap-4 text-xs font-sans">
+          <div class="bg-slate-950 p-4 rounded-lg border border-emerald-500/30">
+            <h4 class="font-bold text-emerald-400 text-sm mb-2 flex items-center gap-1.5">
+              <i class="ph ph-intersect"></i> AND（及）邏輯：串聯接點
+            </h4>
+            <p class="text-slate-300 mb-3 leading-relaxed">
+              在梯形圖第 5 列中，計時器 <code class="text-amber-300">T1</code> 的驅動條件為：
+              <b class="text-emerald-300 font-mono">/T0 (未逾時) AND X002 (s0進料感測)</b>。
+            </p>
+            <div class="bg-slate-900 p-3 rounded border border-slate-800 flex items-center justify-around font-mono">
+              <div class="text-center">
+                <span class="text-slate-400 block text-[10px]">NC 接點 /T0</span>
+                <span id="logic-t0-nc" class="text-emerald-400 font-bold">1 (導通)</span>
+              </div>
+              <span class="text-slate-500 font-bold">AND</span>
+              <div class="text-center">
+                <span class="text-slate-400 block text-[10px]">NO 接點 X002</span>
+                <span id="logic-x002" class="text-red-400 font-bold">0 (未導通)</span>
+              </div>
+              <span class="text-slate-500 font-bold">=</span>
+              <div class="text-center">
+                <span class="text-slate-400 block text-[10px]">T1 啟動條件</span>
+                <span id="logic-t1-out" class="text-slate-400 font-bold">0 (停止)</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2">
+              ★ <b>意義</b>：只有在「尚未超過 10 秒等待逾時」<b>且</b>「料件確實到達 s0 感測位置」時，才允許啟動 1 秒定位停止計時器。
+            </p>
+          </div>
+
+          <div class="bg-slate-950 p-4 rounded-lg border border-cyan-500/30">
+            <h4 class="font-bold text-cyan-400 text-sm mb-2 flex items-center gap-1.5">
+              <i class="ph ph-git-fork"></i> OR（或）邏輯 / 分支判別架構
+            </h4>
+            <p class="text-slate-300 mb-2 leading-relaxed">
+              本梯形圖中包含兩種重要的並聯結構：
+            </p>
+            <ol class="list-decimal pl-4 space-y-2 text-slate-300 leading-relaxed">
+              <li>
+                <b class="text-cyan-300">STL 母線並聯驅動 (並聯執行)</b>：進入 S20 後，母線同時對
+                <code>SET Y002</code>、<code>SET Y015</code> 與 <code>T0</code> 得電，三者同步執行。
+              </li>
+              <li>
+                <b class="text-amber-300">形狀互斥分支判別 (條件分流)</b>：
+                當 T1 計時 1 秒到達後：
+                <ul class="list-disc pl-4 mt-1 text-[11px] text-slate-400">
+                  <li>若 <span class="text-cyan-300">X003 = 1</span> (形狀辨別感測到圓形) $\rightarrow$ <code class="text-emerald-300">[SET M1]</code> 標記為圓料。</li>
+                  <li>若 <span class="text-amber-300">X003 = 0</span> (形狀辨別常閉接點導通，為方形) $\rightarrow$ <code class="text-amber-300">[RST M1]</code> 標記為方料。</li>
+                </ul>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- 狀態與核心邏輯腳本 -->
+  <script>
+    // --- 速度變數 (支援 0.2x ~ 2.0x 慢速與無段調整) ---
+    let simSpeed = 1.0;
+
+    // --- 系統模擬狀態變數 (PLC 內部記憶體) ---
+    const PLC = {
+      step: 'S1', // S1: 待機, S20: 傳送與判別, S30: 龍門手臂夾取與分類
+      
+      // 輸入點 (X)
+      X002: false, // s0 有無料檢知 (進料感測)
+      X003: false, // s1 形狀判別 (圓=ON, 方=OFF)
+
+      // 輸出點 (Y)
+      Y002: false, // R 輸送帶馬達
+      Y015: false, // RL 運轉指示紅燈
+      Y016: true,  // GL 待機指示綠燈
+
+      // 內部標籤與計時器
+      M1: false,   // 圓/方料標記 (True=圓, False=方)
+      T0: 0,       // 10s 逾時計時器 (ms)
+      T0_Done: false,
+      T1: 0,       // 1s 定位計時器 (ms)
+      T1_Done: false,
+
+      // 統計數據
+      countCircle: 0,
+      countSquare: 0
+    };
+
+    // --- 工件實體物件與動畫狀態 ---
+    const BELT_SURFACE_Y = 150;
+    const WORKPIECE_HEIGHT = 32;
+    const ON_BELT_Y = BELT_SURFACE_Y - WORKPIECE_HEIGHT; // 118px
+
+    const Workpiece = {
+      active: false,
+      shape: 'circle',
+      x: 35,
+      y: ON_BELT_Y,
+      state: 'idle',
+      color: '#10b981'
+    };
+
+    // --- 龍門螺桿機械手臂狀態 ---
+    const Arm = {
+      x: 390,
+      currentX: 390,
+      z: 0,
+      currentZ: 0,
+      gripper: 'open',
+      moving: false
+    };
+
+    let autoFeedInterval = null;
+    let currentLang = 'st';
+
+    // --- DOM 元素快取 ---
+    const dom = {
+      ledGl: document.getElementById('led-gl'),
+      ledRl: document.getElementById('led-rl'),
+      txtStep: document.getElementById('txt-step'),
+      txtStatus: document.getElementById('txt-status'),
+      conveyorBelt: document.getElementById('conveyor-belt'),
+      beamS0: document.getElementById('beam-s0'),
+      beamS1: document.getElementById('beam-s1'),
+      workpiece: document.getElementById('workpiece'),
+      badgeM1Detect: document.getElementById('badge-m1-detect'),
+      armSliderX: document.getElementById('arm-slider-x'),
+      armSliderZ: document.getElementById('arm-slider-z'),
+      clawL: document.getElementById('claw-l'),
+      clawR: document.getElementById('claw-r'),
+      
+      // I/O & Timers
+      ioX002: document.getElementById('io-x002'),
+      ioX003: document.getElementById('io-x003'),
+      ioY002: document.getElementById('io-y002'),
+      ioY015: document.getElementById('io-y015'),
+      valT0: document.getElementById('val-t0'),
+      valT1: document.getElementById('val-t1'),
+      valM1: document.getElementById('val-m1'),
+      panelM1: document.getElementById('panel-m1'),
+      countCircle: document.getElementById('count-circle'),
+      countSquare: document.getElementById('count-square'),
+
+      // 速度控制 UI
+      sliderSpeed: document.getElementById('slider-speed'),
+      txtSpeedVal: document.getElementById('txt-speed-val'),
+      speedBtns: document.querySelectorAll('.speed-btn'),
+
+      // 梯形圖 SVG 元素
+      wireLeftBus: document.getElementById('wire-left-bus'),
+      wireStlMain: document.getElementById('wire-stl-main'),
+      wireS20Branch: document.getElementById('wire-s20-branch'),
+      wireR1: document.getElementById('wire-r1'),
+      boxY002: document.getElementById('box-y002'),
+      wireR2: document.getElementById('wire-r2'),
+      boxY015: document.getElementById('box-y015'),
+      wireR3: document.getElementById('wire-r3'),
+      arcT0: document.getElementById('arc-t0'),
+      wireR4_1: document.getElementById('wire-r4-1'),
+      wireR4_2: document.getElementById('wire-r4-2'),
+      boxS1: document.getElementById('box-s1'),
+      cT0_b1: document.getElementById('c-t0-b1'),
+      cT0_b2: document.getElementById('c-t0-b2'),
+
+      wireR5_1: document.getElementById('wire-r5-1'),
+      wireAndT0X2: document.getElementById('wire-and-t0-x2'),
+      wireR5_3: document.getElementById('wire-r5-3'),
+      arcT1: document.getElementById('arc-t1'),
+      cT0nc_slash: document.getElementById('c-t0nc-slash'),
+      cX2_b1: document.getElementById('c-x2-b1'),
+      cX2_b2: document.getElementById('c-x2-b2'),
+
+      wireDownT1: document.getElementById('wire-down-t1'),
+      wireT1In: document.getElementById('wire-t1-in'),
+      cT1_b1: document.getElementById('c-t1-b1'),
+      cT1_b2: document.getElementById('c-t1-b2'),
+      wireT1Hub: document.getElementById('wire-t1-hub'),
+      wireT1Vbranch: document.getElementById('wire-t1-vbranch'),
+
+      wireRstY2: document.getElementById('wire-rst-y2'),
+      boxRstY2: document.getElementById('box-rst-y2'),
+      
+      wireX3NoIn: document.getElementById('wire-x3-no-in'),
+      wireSetM1: document.getElementById('wire-set-m1'),
+      boxSetM1: document.getElementById('box-set-m1'),
+      cX3_b1: document.getElementById('c-x3-b1'),
+      cX3_b2: document.getElementById('c-x3-b2'),
+
+      wireX3NcIn: document.getElementById('wire-x3-nc-in'),
+      wireRstM1: document.getElementById('wire-rst-m1'),
+      boxRstM1: document.getElementById('box-rst-m1'),
+      cX3nc_slash: document.getElementById('c-x3nc-slash'),
+
+      wireSetS30: document.getElementById('wire-set-s30'),
+      boxS30: document.getElementById('box-s30'),
+
+      // AND / OR 教學邏輯
+      logicT0Nc: document.getElementById('logic-t0-nc'),
+      logicX002: document.getElementById('logic-x002'),
+      logicT1Out: document.getElementById('logic-t1-out')
+    };
+
+    // --- 設定速度函式 ---
+    function setSimulationSpeed(newSpeed) {
+      simSpeed = parseFloat(newSpeed);
+      dom.txtSpeedVal.innerText = `${simSpeed.toFixed(1)}x`;
+      dom.sliderSpeed.value = simSpeed;
+
+      // 更新按鈕樣式
+      dom.speedBtns.forEach(btn => {
+        const btnSpd = parseFloat(btn.getAttribute('data-speed'));
+        if (Math.abs(btnSpd - simSpeed) < 0.05) {
+          btn.className = 'speed-btn px-2 py-0.5 text-xs rounded bg-emerald-600 text-white font-bold transition';
+        } else {
+          btn.className = 'speed-btn px-2 py-0.5 text-xs rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium transition';
+        }
+      });
+
+      // 同步動態更新輸送帶滾動 CSS 動畫速度
+      dom.conveyorBelt.style.animationDuration = `${(0.7 / simSpeed).toFixed(2)}s`;
+    }
+
+    // 監聽速度按鈕與滑桿
+    dom.speedBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        setSimulationSpeed(btn.getAttribute('data-speed'));
+      });
+    });
+
+    dom.sliderSpeed.addEventListener('input', (e) => {
+      setSimulationSpeed(e.target.value);
+    });
+
+    // --- 放置料件函式 ---
+    function feedWorkpiece(shapeType) {
+      if (Workpiece.active) {
+        setStatus('當前已有料件在輸送線上，請稍候！', 'text-amber-400');
+        return;
+      }
+
+      Workpiece.active = true;
+      Workpiece.shape = shapeType;
+      Workpiece.x = 35;
+      Workpiece.y = ON_BELT_Y;
+      Workpiece.state = 'moving';
+      dom.badgeM1Detect.classList.add('hidden');
+
+      if (PLC.step === 'S1') {
+        transitionTo('S20');
+      }
+
+      PLC.T0 = 0;
+      PLC.T0_Done = false;
+
+      renderWorkpieceDOM();
+      setStatus(`料件置於輸送帶上方，速度 ${simSpeed.toFixed(1)}x 送料中...`, 'text-emerald-400');
+    }
+
+    // --- 步進狀態轉移 ---
+    function transitionTo(nextStep) {
+      PLC.step = nextStep;
+      
+      if (nextStep === 'S1') {
+        PLC.Y002 = false;
+        PLC.Y015 = false;
+        PLC.Y016 = true;
+        PLC.T0 = 0;
+        PLC.T0_Done = false;
+        PLC.T1 = 0;
+        PLC.T1_Done = false;
+        dom.badgeM1Detect.classList.add('hidden');
+        setStatus('逾時 10 秒無待料，系統回到 S1 待機狀態', 'text-slate-400');
+      } 
+      else if (nextStep === 'S20') {
+        PLC.Y002 = true;
+        PLC.Y015 = true;
+        PLC.Y016 = false;
+        PLC.T0 = 0;
+        PLC.T0_Done = false;
+        PLC.T1 = 0;
+        PLC.T1_Done = false;
+      }
+      else if (nextStep === 'S30') {
+        PLC.Y002 = false;
+        startArmSequence();
+      }
+    }
+
+    // --- 龍門機械手臂動作流程 (S30) ---
+    async function startArmSequence() {
+      // 顯示顯眼的 M1 判別結果浮動氣泡標籤
+      showM1FloatingBadge(PLC.M1);
+
+      setStatus(`【M1 判別完成: ${PLC.M1 ? 'TRUE 圓料' : 'FALSE 方料'}】手臂定位夾取中`, 'text-cyan-400');
+      Arm.moving = true;
+
+      // 停頓供觀察（隨速度縮放，慢速時給予更充分時間看清 M1）
+      await sleep(550);
+
+      // 1. 手臂移至輸送帶停止點上方 (X: 390)
+      Arm.currentX = 390;
+      updateArmVisuals();
+      await sleep(350);
+
+      // 2. 氣壓缸下降 (Z 伸出 65px)
+      Arm.currentZ = 65;
+      updateArmVisuals();
+      await sleep(400);
+
+      // 3. 夾爪合攏夾緊
+      Arm.gripper = 'closed';
+      updateArmVisuals();
+      Workpiece.state = 'gripped';
+      await sleep(300);
+
+      // 4. 氣壓缸上升 (Z 縮回至 0，將料件自皮帶上方懸空抬起)
+      Arm.currentZ = 0;
+      updateArmVisuals();
+      await sleep(400);
+
+      // 5. 依 M1 決定送出路徑
+      if (PLC.M1) {
+        // 圓形料 M1=TRUE: 送往圓形出料處 (上方)
+        Arm.currentX = 520;
+        updateArmVisuals();
+        await sleep(500);
+
+        Arm.gripper = 'open';
+        updateArmVisuals();
+        Workpiece.active = false;
+        Workpiece.state = 'sorted';
+        dom.badgeM1Detect.classList.add('hidden');
+        PLC.countCircle++;
+        dom.countCircle.innerText = PLC.countCircle;
+        setStatus('圓形料件 (M1=TRUE) 成功送達【上方出料處】！', 'text-emerald-400');
+      } else {
+        // 方形料 M1=FALSE: 送往方形出料處 (下方)
+        Arm.currentX = 520;
+        updateArmVisuals();
+        await sleep(400);
+        
+        Arm.currentZ = 160;
+        updateArmVisuals();
+        await sleep(400);
+
+        Arm.gripper = 'open';
+        updateArmVisuals();
+        Workpiece.active = false;
+        Workpiece.state = 'sorted';
+        dom.badgeM1Detect.classList.add('hidden');
+        PLC.countSquare++;
+        dom.countSquare.innerText = PLC.countSquare;
+        setStatus('方形料件 (M1=FALSE) 成功送達【下方出料處】！', 'text-amber-400');
+      }
+
+      await sleep(350);
+      Arm.currentZ = 0;
+      Arm.currentX = 390;
+      updateArmVisuals();
+      Arm.moving = false;
+
+      // 分類完成後回到 S20 循環
+      transitionTo('S20');
+    }
+
+    // 顯示工件正上方顯眼的 M1 判別氣泡
+    function showM1FloatingBadge(isCircle) {
+      dom.badgeM1Detect.classList.remove('hidden', 'bg-emerald-950/90', 'border-emerald-400', 'text-emerald-300', 'bg-amber-950/90', 'border-amber-400', 'text-amber-300');
+      dom.badgeM1Detect.classList.add('pop-badge');
+
+      if (isCircle) {
+        dom.badgeM1Detect.className = 'absolute left-[390px] top-[68px] z-40 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-mono font-bold shadow-[0_0_15px_rgba(16,185,129,0.7)] border border-emerald-400 bg-emerald-950 text-emerald-300 flex items-center gap-1.5 select-none';
+        dom.badgeM1Detect.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> M1 = TRUE (圓料 &rarr; 送上方)';
+      } else {
+        dom.badgeM1Detect.className = 'absolute left-[390px] top-[68px] z-40 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-mono font-bold shadow-[0_0_15px_rgba(245,158,11,0.7)] border border-amber-400 bg-amber-950 text-amber-300 flex items-center gap-1.5 select-none';
+        dom.badgeM1Detect.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> M1 = FALSE (方料 &rarr; 送下方)';
+      }
+    }
+
+    // --- PLC 掃描主循環 (支援速度動態加權) ---
+    const BASE_SCAN_INTERVAL_MS = 20;
+
+    setInterval(() => {
+      const dt = BASE_SCAN_INTERVAL_MS * simSpeed;
+
+      // 1. 工件傳送帶運動 (速度按 simSpeed 縮放)
+      if (Workpiece.active && Workpiece.state === 'moving' && PLC.Y002) {
+        Workpiece.x += 2.2 * simSpeed;
+        if (Workpiece.x >= 390) {
+          Workpiece.x = 390;
+        }
+      }
+
+      // 2. 感測器訊號擷取
+      PLC.X002 = (Workpiece.active && Workpiece.x >= 300 && Workpiece.x <= 405);
+      PLC.X003 = (Workpiece.active && Workpiece.x >= 375 && Workpiece.x <= 405 && Workpiece.shape === 'circle');
+
+      // 3. 執行 STL S20 階梯圖邏輯
+      if (PLC.step === 'S20') {
+        
+        // (A) 計時器 T0 (10s 逾時計時器，無料時累加)
+        if (!PLC.X002) {
+          PLC.T0 += dt;
+          if (PLC.T0 >= 10000) {
+            PLC.T0 = 10000;
+            PLC.T0_Done = true;
+          }
+        } else {
+          PLC.T0 = 0;
+          PLC.T0_Done = false;
+        }
+
+        if (PLC.T0_Done) {
+          transitionTo('S1');
+          return;
+        }
+
+        // (B) 串聯 AND: NOT T0 AND X002 -> 啟動 T1 (1s)
+        if (!PLC.T0_Done && PLC.X002) {
+          PLC.T1 += dt;
+          if (PLC.T1 >= 1000) {
+            PLC.T1 = 1000;
+            PLC.T1_Done = true;
+          }
+        } else {
+          PLC.T1 = 0;
+          PLC.T1_Done = false;
+        }
+
+        // (C) T1 到達 1 秒 -> 停止輸送帶並進行形狀判別
+        if (PLC.T1_Done) {
+          PLC.Y002 = false; // [RST Y002]
+          
+          // 形狀判別: X003 導通則 SET M1(圓)，否則 RST M1(方)
+          PLC.M1 = PLC.X003;
+
+          transitionTo('S30');
+          return;
+        }
+
+      } else {
+        PLC.T0 = 0;
+        PLC.T0_Done = false;
+        PLC.T1 = 0;
+        PLC.T1_Done = false;
+      }
+
+      // 4. 更新畫面 UI、梯形圖導通與 IF-ELSE 行號高亮
+      updateUI();
+
+    }, BASE_SCAN_INTERVAL_MS);
+
+    // --- 更新 UI 與高亮效果 ---
+    function updateUI() {
+      dom.ledRl.className = PLC.Y015 
+        ? 'w-4 h-4 rounded-full bg-red-500 shadow-[0_0_12px_#ef4444] transition-all'
+        : 'w-4 h-4 rounded-full bg-red-950 border border-red-800 transition-all';
+
+      dom.ledGl.className = PLC.Y016 
+        ? 'w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_12px_#10b981] transition-all'
+        : 'w-4 h-4 rounded-full bg-emerald-950 border border-emerald-800 transition-all';
+
+      dom.txtStep.innerText = `${PLC.step} (${getStepName(PLC.step)})`;
+
+      if (PLC.Y002) dom.conveyorBelt.classList.add('conveyor-running');
+      else dom.conveyorBelt.classList.remove('conveyor-running');
+
+      dom.beamS0.style.opacity = PLC.X002 ? '1' : '0.25';
+      dom.beamS0.style.backgroundColor = PLC.X002 ? '#fbbf24' : '#64748b';
+      dom.beamS1.style.opacity = PLC.X003 ? '1' : '0.25';
+      dom.beamS1.style.backgroundColor = PLC.X003 ? '#22d3ee' : '#64748b';
+
+      setLed(dom.ioX002, PLC.X002, 'bg-amber-400');
+      setLed(dom.ioX003, PLC.X003, 'bg-cyan-400');
+      setLed(dom.ioY002, PLC.Y002, 'bg-emerald-400');
+      setLed(dom.ioY015, PLC.Y015, 'bg-red-400');
+
+      dom.valT0.innerText = `${(PLC.T0 / 1000).toFixed(1)}s / 10s`;
+      dom.valT1.innerText = `${(PLC.T1 / 1000).toFixed(1)}s / 1s`;
+
+      // M1 數值與閃爍光暈面板
+      if (PLC.M1) {
+        dom.valM1.innerText = 'TRUE (圓料)';
+        dom.valM1.className = 'text-emerald-400 font-bold';
+        dom.panelM1.className = 'bg-emerald-950/40 p-2 rounded border border-emerald-500/50 shadow-[0_0_8px_rgba(16,185,129,0.3)] flex items-center justify-between transition-all';
+      } else {
+        dom.valM1.innerText = 'FALSE (方料)';
+        dom.valM1.className = 'text-amber-400 font-bold';
+        dom.panelM1.className = 'bg-amber-950/40 p-2 rounded border border-amber-500/50 shadow-[0_0_8px_rgba(245,158,11,0.3)] flex items-center justify-between transition-all';
+      }
+
+      renderWorkpieceDOM();
+      renderLadderWires();
+      renderCodeHighlighting();
+
+      dom.logicT0Nc.innerText = !PLC.T0_Done ? '1 (導通)' : '0 (斷開)';
+      dom.logicT0Nc.className = !PLC.T0_Done ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold';
+      dom.logicX002.innerText = PLC.X002 ? '1 (導通)' : '0 (未檢知)';
+      dom.logicX002.className = PLC.X002 ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold';
+
+      const andResult = (!PLC.T0_Done && PLC.X002);
+      dom.logicT1Out.innerText = andResult ? '1 (計時中)' : '0 (停止)';
+      dom.logicT1Out.className = andResult ? 'text-emerald-400 font-bold' : 'text-slate-400 font-bold';
+    }
+
+    // --- 即時動態標記 IF-ELSE 程式碼執行位置 ---
+    function renderCodeHighlighting() {
+      const isS20 = (PLC.step === 'S20');
+      const isS1 = (PLC.step === 'S1');
+      const isS30 = (PLC.step === 'S30');
+
+      const allLines = document.querySelectorAll('[id^="st-line-"], [id^="c-line-"]');
+      allLines.forEach(el => {
+        el.classList.remove('code-line-active', 'code-line-waiting');
+      });
+
+      if (isS20) {
+        highlightLine('st-line-2', 'c-line-2');
+        highlightLine('st-line-3', 'c-line-3');
+        highlightLine('st-line-4', 'c-line-4');
+
+        if (!PLC.X002) {
+          highlightLine('st-line-6', 'c-line-6', true);
+        }
+
+        if (PLC.T0_Done) {
+          highlightLine('st-line-8', 'c-line-6');
+          highlightLine('st-line-9', 'c-line-7');
+        } else if (PLC.X002) {
+          highlightLine('st-line-11', 'c-line-9');
+          highlightLine('st-line-12', 'c-line-10');
+
+          if (PLC.T1_Done) {
+            highlightLine('st-line-13', 'c-line-11');
+            highlightLine('st-line-14', 'c-line-12');
+
+            if (PLC.X003) {
+              highlightLine('st-line-16', 'c-line-14');
+              highlightLine('st-line-17', 'c-line-15');
+            } else {
+              highlightLine('st-line-18', 'c-line-16');
+              highlightLine('st-line-19', 'c-line-17');
+            }
+            highlightLine('st-line-21', 'c-line-19');
+          }
+        }
+      } else if (isS1) {
+        highlightLine('st-line-9', 'c-line-7');
+      } else if (isS30) {
+        // S30 時保持高亮 M1 分支與 S30 步進行
+        if (PLC.M1) {
+          highlightLine('st-line-16', 'c-line-14');
+          highlightLine('st-line-17', 'c-line-15');
+        } else {
+          highlightLine('st-line-18', 'c-line-16');
+          highlightLine('st-line-19', 'c-line-17');
+        }
+        highlightLine('st-line-21', 'c-line-19');
+      }
+    }
+
+    function highlightLine(stId, cId, isWaiting = false) {
+      const elSt = document.getElementById(stId);
+      const elC = document.getElementById(cId);
+      const cls = isWaiting ? 'code-line-waiting' : 'code-line-active';
+      if (elSt) elSt.classList.add(cls);
+      if (elC) elC.classList.add(cls);
+    }
+
+    function setLed(element, isOn, activeColorClass) {
+      if (isOn) {
+        element.className = `w-3 h-3 rounded-full ${activeColorClass} shadow-[0_0_8px_currentColor]`;
+      } else {
+        element.className = 'w-3 h-3 rounded-full bg-slate-700';
+      }
+    }
+
+    function getStepName(step) {
+      switch(step) {
+        case 'S1': return '待機狀態';
+        case 'S20': return '進料與判別中';
+        case 'S30': return '機械手臂分類中';
+        default: return '';
+      }
+    }
+
+    // --- 繪製梯形圖高亮線路 ---
+    function renderLadderWires() {
+      const isS20 = (PLC.step === 'S20');
+      
+      toggleActive(dom.wireLeftBus, isS20);
+      toggleActive(dom.wireStlMain, isS20);
+      toggleActive(dom.wireS20Branch, isS20);
+
+      // R1: SET Y002
+      toggleActive(dom.wireR1, isS20 && PLC.Y002);
+      toggleBox(dom.boxY002, isS20 && PLC.Y002);
+
+      // R2: SET Y015
+      toggleActive(dom.wireR2, isS20 && PLC.Y015);
+      toggleBox(dom.boxY015, isS20 && PLC.Y015);
+
+      // R3: Timer T0 (10s)
+      const t0Running = isS20 && !PLC.X002 && PLC.T0 > 0;
+      toggleActive(dom.wireR3, isS20);
+      toggleArc(dom.arcT0, t0Running);
+
+      // R4: T0 (NO) -> SET S1
+      const t0Closed = PLC.T0_Done;
+      toggleActive(dom.wireR4_1, isS20);
+      toggleContact(dom.cT0_b1, dom.cT0_b2, t0Closed);
+      toggleActive(dom.wireR4_2, isS20 && t0Closed);
+      toggleBox(dom.boxS1, isS20 && t0Closed);
+
+      // R5: /T0 (NC) + X002 (NO) -> (T1 K10)
+      const t0NcClosed = !PLC.T0_Done;
+      const x002Closed = PLC.X002;
+      toggleActive(dom.wireR5_1, isS20);
+      toggleNc(dom.cT0nc_slash, t0NcClosed);
+      toggleActive(dom.wireAndT0X2, isS20 && t0NcClosed);
+      toggleContact(dom.cX2_b1, dom.cX2_b2, x002Closed);
+      
+      const t1BranchActive = isS20 && t0NcClosed && x002Closed;
+      toggleActive(dom.wireR5_3, t1BranchActive);
+      toggleArc(dom.arcT1, t1BranchActive && PLC.T1 > 0);
+
+      // R6: T1 NO 接點觸發之後續分流 (S30 期間依然保持高亮便於觀摩)
+      const t1Closed = PLC.T1_Done || (PLC.step === 'S30');
+      toggleActive(dom.wireDownT1, t1BranchActive || (PLC.step === 'S30'));
+      toggleActive(dom.wireT1In, t1BranchActive || (PLC.step === 'S30'));
+      toggleContact(dom.cT1_b1, dom.cT1_b2, t1Closed);
+      
+      const t1SubBusActive = t1Closed;
+      toggleActive(dom.wireT1Hub, t1SubBusActive);
+      toggleActive(dom.wireT1Vbranch, t1SubBusActive);
+
+      // RST Y002
+      toggleActive(dom.wireRstY2, t1SubBusActive && !PLC.Y002);
+      toggleBox(dom.boxRstY2, t1SubBusActive && !PLC.Y002);
+
+      // X003 NO -> SET M1
+      const x3Closed = PLC.M1;
+      toggleActive(dom.wireX3NoIn, t1SubBusActive);
+      toggleContact(dom.cX3_b1, dom.cX3_b2, x3Closed);
+      toggleActive(dom.wireSetM1, t1SubBusActive && x3Closed);
+      toggleBox(dom.boxSetM1, t1SubBusActive && x3Closed);
+
+      // /X003 NC -> RST M1
+      const x3NcClosed = !PLC.M1;
+      toggleActive(dom.wireX3NcIn, t1SubBusActive);
+      toggleNc(dom.cX3nc_slash, x3NcClosed);
+      toggleActive(dom.wireRstM1, t1SubBusActive && x3NcClosed);
+      toggleBox(dom.boxRstM1, t1SubBusActive && x3NcClosed);
+
+      // SET S30
+      toggleActive(dom.wireSetS30, t1SubBusActive);
+      toggleBox(dom.boxS30, t1SubBusActive);
+    }
+
+    function toggleActive(el, active) {
+      if (!el) return;
+      if (active) el.classList.add('wire-active');
+      else el.classList.remove('wire-active');
+    }
+    function toggleBox(el, active) {
+      if (!el) return;
+      if (active) {
+        el.setAttribute('stroke', '#10b981');
+        el.setAttribute('fill', '#064e3b');
+      } else {
+        el.setAttribute('stroke', '#64748b');
+        el.setAttribute('fill', '#1e293b');
+      }
+    }
+    function toggleContact(b1, b2, closed) {
+      if (!b1 || !b2) return;
+      const color = closed ? '#10b981' : '#64748b';
+      b1.setAttribute('stroke', color);
+      b2.setAttribute('stroke', color);
+    }
+    function toggleNc(slash, closed) {
+      if (!slash) return;
+      slash.setAttribute('stroke', closed ? '#10b981' : '#64748b');
+    }
+    function toggleArc(arc, active) {
+      if (!arc) return;
+      arc.setAttribute('stroke', active ? '#10b981' : '#64748b');
+      arc.setAttribute('stroke-width', active ? '3' : '2');
+    }
+
+    // --- 工件與手臂 DOM 位置更新 ---
+    function renderWorkpieceDOM() {
+      if (!Workpiece.active) {
+        dom.workpiece.style.display = 'none';
+        return;
+      }
+      dom.workpiece.style.display = 'flex';
+
+      let targetX = Workpiece.x;
+      let targetY = ON_BELT_Y;
+
+      if (Workpiece.state === 'gripped') {
+        targetX = Arm.currentX;
+        targetY = 53 + Arm.currentZ;
+      }
+
+      dom.workpiece.style.left = `${targetX}px`;
+      dom.workpiece.style.top = `${targetY}px`;
+
+      if (Workpiece.shape === 'circle') {
+        dom.workpiece.className = 'absolute z-20 flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-b from-emerald-400 to-emerald-600 text-white font-bold text-[10px] border-2 border-emerald-200 shadow-[0_4px_6px_rgba(0,0,0,0.45)]';
+        dom.workpiece.innerHTML = '圓';
+      } else {
+        dom.workpiece.className = 'absolute z-20 flex items-center justify-center w-8 h-8 rounded-md bg-gradient-to-b from-amber-400 to-amber-600 text-white font-bold text-[10px] border-2 border-amber-200 shadow-[0_4px_6px_rgba(0,0,0,0.45)]';
+        dom.workpiece.innerHTML = '方';
+      }
+    }
+
+    function updateArmVisuals() {
+      const xOffset = Arm.currentX - 370; 
+      dom.armSliderX.style.transform = `translateX(${xOffset}px)`;
+      dom.armSliderZ.style.height = `${30 + Arm.currentZ}px`;
+
+      if (Arm.gripper === 'closed') {
+        dom.clawL.style.transform = 'translateX(4px)';
+        dom.clawR.style.transform = 'translateX(-4px)';
+      } else {
+        dom.clawL.style.transform = 'translateX(0px)';
+        dom.clawR.style.transform = 'translateX(0px)';
+      }
+    }
+
+    function setStatus(msg, colorClass) {
+      dom.txtStatus.innerText = msg;
+      dom.txtStatus.className = `font-medium ${colorClass}`;
+    }
+
+    // 機械手臂與動作延時隨速度縮放
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, Math.max(80, ms / simSpeed)));
+    }
+
+    // --- 事件監聽器設定 ---
+    document.getElementById('btn-feed-circle').addEventListener('click', () => {
+      feedWorkpiece('circle');
+    });
+
+    document.getElementById('btn-feed-square').addEventListener('click', () => {
+      feedWorkpiece('square');
+    });
+
+    document.getElementById('btn-feed-random').addEventListener('click', function() {
+      if (autoFeedInterval) {
+        clearInterval(autoFeedInterval);
+        autoFeedInterval = null;
+        this.innerHTML = '<i class="ph ph-shuffle text-base"></i> 隨機連續送料';
+        this.classList.remove('bg-rose-600', 'hover:bg-rose-500');
+        this.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
+        setStatus('已停止隨機連續送料', 'text-slate-400');
+      } else {
+        const shapes = ['circle', 'square'];
+        this.innerHTML = '<i class="ph ph-stop text-base"></i> 停止連續送料';
+        this.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
+        this.classList.add('bg-rose-600', 'hover:bg-rose-500');
+        
+        if (!Workpiece.active) {
+          feedWorkpiece(shapes[Math.floor(Math.random() * shapes.length)]);
+        }
+
+        autoFeedInterval = setInterval(() => {
+          if (!Workpiece.active && PLC.step !== 'S30') {
+            feedWorkpiece(shapes[Math.floor(Math.random() * shapes.length)]);
+          }
+        }, Math.max(3000, 5500 / simSpeed));
+      }
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      if (autoFeedInterval) {
+        clearInterval(autoFeedInterval);
+        autoFeedInterval = null;
+        const btnRand = document.getElementById('btn-feed-random');
+        btnRand.innerHTML = '<i class="ph ph-shuffle text-base"></i> 隨機連續送料';
+        btnRand.classList.remove('bg-rose-600');
+        btnRand.classList.add('bg-indigo-600');
+      }
+      Workpiece.active = false;
+      Workpiece.state = 'idle';
+      dom.badgeM1Detect.classList.add('hidden');
+      Arm.moving = false;
+      Arm.currentX = 390;
+      Arm.currentZ = 0;
+      Arm.gripper = 'open';
+      updateArmVisuals();
+      transitionTo('S1');
+      setStatus('系統手動復歸完成，進入 S1 待機狀態', 'text-slate-400');
+    });
+
+    // 主分頁切換邏輯
+    const tabBtnLadder = document.getElementById('tab-btn-ladder');
+    const tabBtnIfElse = document.getElementById('tab-btn-ifelse');
+    const tabBtnLogic = document.getElementById('tab-btn-logic');
+
+    const tabContentLadder = document.getElementById('tab-content-ladder');
+    const tabContentIfElse = document.getElementById('tab-content-ifelse');
+    const tabContentLogic = document.getElementById('tab-content-logic');
+
+    function setActiveTab(activeBtn, activeContent) {
+      [tabBtnLadder, tabBtnIfElse, tabBtnLogic].forEach(b => {
+        b.className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 flex items-center gap-1.5 transition';
+      });
+      [tabContentLadder, tabContentIfElse, tabContentLogic].forEach(c => {
+        c.classList.add('hidden');
+      });
+
+      activeBtn.className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 text-white flex items-center gap-1.5 transition';
+      activeContent.classList.remove('hidden');
+    }
+
+    tabBtnLadder.addEventListener('click', () => setActiveTab(tabBtnLadder, tabContentLadder));
+    tabBtnIfElse.addEventListener('click', () => setActiveTab(tabBtnIfElse, tabContentIfElse));
+    tabBtnLogic.addEventListener('click', () => setActiveTab(tabBtnLogic, tabContentLogic));
+
+    // ST vs C 語法切換
+    const btnLangSt = document.getElementById('btn-lang-st');
+    const btnLangC = document.getElementById('btn-lang-c');
+    const codeViewSt = document.getElementById('code-view-st');
+    const codeViewC = document.getElementById('code-view-c');
+
+    btnLangSt.addEventListener('click', () => {
+      currentLang = 'st';
+      btnLangSt.className = 'px-2.5 py-1 text-[11px] rounded bg-emerald-700 text-white font-bold transition';
+      btnLangC.className = 'px-2.5 py-1 text-[11px] rounded bg-slate-800 text-slate-400 hover:text-white transition';
+      codeViewSt.classList.remove('hidden');
+      codeViewC.classList.add('hidden');
+    });
+
+    btnLangC.addEventListener('click', () => {
+      currentLang = 'c';
+      btnLangC.className = 'px-2.5 py-1 text-[11px] rounded bg-emerald-700 text-white font-bold transition';
+      btnLangSt.className = 'px-2.5 py-1 text-[11px] rounded bg-slate-800 text-slate-400 hover:text-white transition';
+      codeViewC.classList.remove('hidden');
+      codeViewSt.classList.add('hidden');
+    });
+
+    // 初始化重繪手臂與速度動畫
+    setSimulationSpeed(1.0);
+    updateArmVisuals();
+  </script>
+</body>
+</html>
