@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manus 串接 LINE 通訊軟體 | 互動模擬器與配置指南</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    pre, code, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .line-green {
+      background-color: #06C755;
+    }
+    .line-bg {
+      background-color: #849EB8;
+    }
+    .line-bubble-user {
+      background-color: #85E249;
+    }
+    .manus-gradient {
+      background: linear-gradient(135deg, #06C755 0%, #3b82f6 50%, #8b5cf6 100%);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+
+  <!-- 頂部導覽列 -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 px-6 py-3.5 flex flex-wrap justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <a href="aitools.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors flex items-center justify-center" title="返回 AI 工具庫">
+        <i class="ph ph-arrow-left text-lg"></i>
+      </a>
+      <div class="w-9 h-9 rounded-lg manus-gradient flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+        <i class="ph ph-chat-teardrop-text text-xl"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold text-white tracking-wide">Manus - 串接 LINE 通訊軟體隨身助理</h1>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700">Messaging App</span>
+        </div>
+        <p class="text-xs text-slate-400">5 步快速綁定 • 24 小時隨身 AI Agent • 行動端下達任務與即時通知</p>
+      </div>
+    </div>
+
+    <!-- 右側操作按鈕 -->
+    <div class="flex items-center gap-3 mt-2 sm:mt-0">
+      <a href="https://help.manus.im/zh-TW/articles/14432549-%E5%A6%82%E4%BD%95%E5%9C%A8-line-%E4%B8%AD%E8%A8%AD%E5%AE%9A-%E9%80%A3%E6%8E%A5%E4%B8%A6%E4%BD%BF%E7%94%A8-manus-agent" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-medium transition flex items-center gap-1.5">
+        <i class="ph ph-book-open"></i> LINE 設定官方指南
+      </a>
+      <a href="https://manus.im" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/30">
+        <i class="ph ph-arrow-up-right"></i> Manus 官方網站
+      </a>
+    </div>
+  </header>
+
+  <!-- 主內容區 (雙欄佈局) -->
+  <main class="flex-1 p-4 lg:p-8 max-w-[1600px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+    <!-- 左側：5 步串接教學與圖解步驟 (7 Cols) -->
+    <div class="lg:col-span-7 flex flex-col gap-6">
+
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+        <h2 class="text-base font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+          <i class="ph ph-steps text-emerald-400 text-xl"></i> Manus 串接 LINE 完整 5 大步驟 SOP
+        </h2>
+
+        <!-- 步驟切換按鈕組 -->
+        <div class="grid grid-cols-5 gap-2 font-mono text-xs">
+          <button onclick="setStep(1)" id="step-btn-1" class="step-btn py-2 px-1 rounded-xl bg-emerald-600 text-white font-bold text-center transition">
+            1. Agent設定
+          </button>
+          <button onclick="setStep(2)" id="step-btn-2" class="step-btn py-2 px-1 rounded-xl bg-slate-800 text-slate-400 hover:text-white text-center transition">
+            2. 選取LINE
+          </button>
+          <button onclick="setStep(3)" id="step-btn-3" class="step-btn py-2 px-1 rounded-xl bg-slate-800 text-slate-400 hover:text-white text-center transition">
+            3. 掃描QR
+          </button>
+          <button onclick="setStep(4)" id="step-btn-4" class="step-btn py-2 px-1 rounded-xl bg-slate-800 text-slate-400 hover:text-white text-center transition">
+            4. 加為好友
+          </button>
+          <button onclick="setStep(5)" id="step-btn-5" class="step-btn py-2 px-1 rounded-xl bg-slate-800 text-slate-400 hover:text-white text-center transition">
+            5. 驗證成功
+          </button>
+        </div>
+
+        <!-- 步驟詳細圖文卡 -->
+        <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 flex flex-col gap-4" id="step-content">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider" id="step-title">步驟 1：開啟 Manus Agent 設定</span>
+            <span class="text-[11px] text-slate-500 font-mono" id="step-number">Step 1 / 5</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed" id="step-desc">
+            在 Manus 桌面版或網頁版右上角，點擊使用者頭像旁的「<b>打開 Agent 設定</b>」按鈕（圖示為齒輪與小人像），進入 Agent 的整合功能清單。
+          </p>
+          <div class="rounded-xl overflow-hidden border border-slate-800 bg-slate-900 flex items-center justify-center max-h-[300px]">
+            <img id="step-img" src="images_src/ok/20260905_manus_line_01_agent_settings.png" alt="步驟示意圖" class="w-full h-auto object-contain max-h-[300px]">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 應用情境與優勢 -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex flex-col gap-1.5 shadow-lg">
+          <div class="text-emerald-400 font-bold text-xs flex items-center gap-1.5">
+            <i class="ph ph-bell-ringing text-base"></i> 1. 24/7 行動推播
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">任務執行完畢時，Manus 直接在 LINE 推播結果與下載連結，無需守在電腦前。</p>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex flex-col gap-1.5 shadow-lg">
+          <div class="text-blue-400 font-bold text-xs flex items-center gap-1.5">
+            <i class="ph ph-microphone text-base"></i> 2. 隨手語音下指令
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">在 LINE 中發送語音或短文字，Manus 即刻啟動多步驟搜尋、整理與產出報表。</p>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-xl flex flex-col gap-1.5 shadow-lg">
+          <div class="text-purple-400 font-bold text-xs flex items-center gap-1.5">
+            <i class="ph ph-shield-check text-base"></i> 3. 雙向安全認證
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">專屬一次性 <code>:bind</code> 授權碼綁定個人帳號，確保對話與工作區資料絕對隱私。</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 右側：LINE 行動手機聊天室模擬器 (5 Cols) -->
+    <div class="lg:col-span-5 flex justify-center">
+
+      <!-- 手機外框 -->
+      <div class="w-full max-w-[380px] bg-slate-900 border-4 border-slate-800 rounded-[38px] shadow-2xl overflow-hidden flex flex-col h-[650px] relative">
+        
+        <!-- 手機頂部瀏海/狀態列 -->
+        <div class="bg-slate-950 px-6 py-2 flex justify-between items-center text-[10px] text-slate-400 font-mono select-none">
+          <span>09:41</span>
+          <div class="w-16 h-3 bg-slate-800 rounded-full mx-auto"></div>
+          <div class="flex items-center gap-1">
+            <i class="ph ph-wifi-high"></i>
+            <i class="ph ph-battery-full"></i>
+          </div>
+        </div>
+
+        <!-- LINE 聊天室 Header -->
+        <div class="line-green text-white px-4 py-3 flex items-center justify-between shadow-md">
+          <div class="flex items-center gap-2.5">
+            <i class="ph ph-caret-left text-lg cursor-pointer"></i>
+            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-900 font-black text-xs shadow">
+              M
+            </div>
+            <div>
+              <div class="text-xs font-bold flex items-center gap-1">
+                Manus AI <i class="ph ph-seal-check-fill text-emerald-200"></i>
+              </div>
+              <div class="text-[9px] text-emerald-100">官方帳號 • 24h 線上</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 text-lg">
+            <i class="ph ph-magnifying-glass cursor-pointer"></i>
+            <i class="ph ph-list cursor-pointer"></i>
+          </div>
+        </div>
+
+        <!-- 聊天室訊息內容區 -->
+        <div class="flex-1 line-bg p-3 overflow-y-auto space-y-3 font-sans text-xs" id="chat-box">
+          
+          <!-- 時間標籤 -->
+          <div class="text-center">
+            <span class="bg-black/20 text-white/90 text-[10px] px-2.5 py-0.5 rounded-full">上午 09:30</span>
+          </div>
+
+          <!-- 使用者發送綁定碼 -->
+          <div class="flex justify-end">
+            <div class="line-bubble-user text-slate-900 p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[80%] font-mono text-[11px] break-all">
+              :bind+fdTu4G987qWeRtx...
+            </div>
+          </div>
+
+          <!-- Manus 綁定成功回覆 -->
+          <div class="flex items-start gap-2">
+            <div class="w-7 h-7 rounded-full bg-white flex-shrink-0 flex items-center justify-center text-slate-900 font-bold text-[10px] shadow">
+              M
+            </div>
+            <div class="bg-white text-slate-800 p-2.5 rounded-2xl rounded-tl-none shadow-sm max-w-[80%] space-y-1">
+              <p class="font-bold text-emerald-600 flex items-center gap-1">
+                <i class="ph ph-check-circle-fill"></i> Successfully connected to Manus!
+              </p>
+              <p class="text-[11px] text-slate-600">
+                您好！已成功綁定 Manus 帳號。您可以直接在此傳送訊息或下達任務指令！
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 快捷指令點選列 -->
+        <div class="bg-slate-900 px-3 py-1.5 border-t border-slate-800 flex items-center gap-1.5 overflow-x-auto text-[10px] select-none">
+          <span class="text-slate-400 whitespace-nowrap">快捷測試：</span>
+          <button onclick="sendQuickPrompt('產線 SCADA 警報彙整')" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded whitespace-nowrap">產線 SCADA 警報</button>
+          <button onclick="sendQuickPrompt('PCB 零件辨識與 BOM 查詢')" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded whitespace-nowrap">PCB BOM 查詢</button>
+          <button onclick="sendQuickPrompt('早晨科技新聞重點摘要')" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded whitespace-nowrap">科技新聞摘要</button>
+        </div>
+
+        <!-- 底部輸入框 -->
+        <div class="bg-white p-2.5 flex items-center gap-2">
+          <i class="ph ph-plus-circle text-slate-500 text-xl cursor-pointer"></i>
+          <i class="ph ph-camera text-slate-500 text-xl cursor-pointer"></i>
+          <input type="text" id="chat-input" placeholder="在 LINE 輸入指令給 Manus..." onkeypress="handleKeyPress(event)" class="flex-1 bg-slate-100 border border-slate-300 rounded-full px-3 py-1 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 font-sans">
+          <button onclick="sendMessage()" class="w-7 h-7 rounded-full line-green text-white flex items-center justify-center hover:opacity-90 transition">
+            <i class="ph ph-paper-plane-right-fill text-xs"></i>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- 腳本 -->
+  <script>
+    const STEPS = [
+      {
+        id: 1,
+        title: "步驟 1：開啟 Manus Agent 設定",
+        desc: "在 Manus 桌面版或網頁版右上角，點擊使用者頭像旁的「<b>打開 Agent 設定</b>」按鈕（圖示為齒輪與小人像），進入 Agent 的整合功能清單。",
+        img: "images_src/ok/20260905_manus_line_01_agent_settings.png"
+      },
+      {
+        id: 2,
+        title: "步驟 2：選擇已連接訊息應用程式 (LINE)",
+        desc: "在設定彈窗的「已連接訊息應用程式」中，將狀態切換為開啟，並在下拉選單中選取「<b>Line</b>」（另外支援 Telegram 與 Slack）。",
+        img: "images_src/ok/20260905_manus_line_02_select_line.png"
+      },
+      {
+        id: 3,
+        title: "步驟 3：掃描 QR Code 或點擊在 LINE 繼續",
+        desc: "畫面將顯示專屬的 <b>LINE 官方 QR Code</b>。您可以使用手機相機掃描，或若已安裝電腦版 LINE，可直接點擊「在 LINE 繼續」。",
+        img: "images_src/ok/20260905_manus_line_03_scan_qrcode.png"
+      },
+      {
+        id: 4,
+        title: "步驟 4：加入 Manus AI LINE 官方好友",
+        desc: "開啟 LINE 後將引導至「<b>Manus AI</b>」官方帳號頁面，點擊「加入好友」或直接點選「聊天」進入對話視窗。",
+        img: "images_src/ok/20260905_manus_line_04_add_friend.png"
+      },
+      {
+        id: 5,
+        title: "步驟 5：發送 :bind 驗證碼完成雙向綁定",
+        desc: "系統會自動帶入專屬綁定碼（如 <code>:bind+fdTu4G...</code>）。點擊發送後，Manus 將回傳「<b>Successfully connected to Manus!</b>」，即刻啟用隨身 AI 助理！",
+        img: "images_src/ok/20260905_manus_line_05_bind_success.png"
+      }
+    ];
+
+    function setStep(stepNum) {
+      const step = STEPS[stepNum - 1];
+      document.getElementById('step-title').innerHTML = step.title;
+      document.getElementById('step-desc').innerHTML = step.desc;
+      document.getElementById('step-number').innerText = `Step ${step.id} / 5`;
+      document.getElementById('step-img').src = step.img;
+
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`step-btn-${i}`);
+        if (i === stepNum) {
+          btn.className = "step-btn py-2 px-1 rounded-xl bg-emerald-600 text-white font-bold text-center transition";
+        } else {
+          btn.className = "step-btn py-2 px-1 rounded-xl bg-slate-800 text-slate-400 hover:text-white text-center transition";
+        }
+      }
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    }
+
+    function sendQuickPrompt(text) {
+      document.getElementById('chat-input').value = text;
+      sendMessage();
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('chat-input');
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const chatBox = document.getElementById('chat-box');
+
+      // 使用者發送
+      const userBubble = document.createElement('div');
+      userBubble.className = 'flex justify-end';
+      userBubble.innerHTML = `
+        <div class="line-bubble-user text-slate-900 p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[80%] font-sans text-xs">
+          ${msg}
+        </div>
+      `;
+      chatBox.appendChild(userBubble);
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Manus 思考動畫與回覆
+      setTimeout(() => {
+        const replyBubble = document.createElement('div');
+        replyBubble.className = 'flex items-start gap-2';
+        
+        let replyText = "";
+        if (msg.includes("SCADA") || msg.includes("警報")) {
+          replyText = " <b>[Manus 產線監控報告]</b><br>已為您連線至 SCADA Edge 閘道：目前 3 號輸送帶正常運轉，A 氣壓缸無異常警報，今日產能已達 1,250 件。";
+        } else if (msg.includes("BOM") || msg.includes("PCB")) {
+          replyText = " <b>[Manus PCB 辨識結果]</b><br>已在資料夾中為您分析 <code>Arduino UNO Q</code>：主晶片為 Qualcomm QRB2210，電源管理 IC 為 PM4125。Excel BOM 表已更新至本機目錄。";
+        } else if (msg.includes("新聞") || msg.includes("摘要")) {
+          replyText = " <b>[Manus 早晨科技快訊]</b><br>1. Google 發布最新 Gemini 2.5 系列模型。<br>2. 邊緣運算與 SCADA 物聯網結合案例增長 40%。<br>3. 全球半導體先進製程產能滿載。";
+        } else {
+          replyText = `收到您的指令：「${msg}」。Manus Agent 已在背景啟動任務，完成後將立即在 LINE 推播詳細報表給您！`;
+        }
+
+        replyBubble.innerHTML = `
+          <div class="w-7 h-7 rounded-full bg-white flex-shrink-0 flex items-center justify-center text-slate-900 font-bold text-[10px] shadow">
+            M
+          </div>
+          <div class="bg-white text-slate-800 p-2.5 rounded-2xl rounded-tl-none shadow-sm max-w-[80%] space-y-1">
+            <p class="text-[11px] text-slate-700 leading-relaxed">${replyText}</p>
+          </div>
+        `;
+        chatBox.appendChild(replyBubble);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 700);
+    }
+  </script>
+</body>
+</html>

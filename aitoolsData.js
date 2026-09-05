@@ -1102,5 +1102,76 @@ window.INITIAL_AITOOLS_DATA = [
         "url": "https://store.arduino.cc/products/uno-q-4gb"
       }
     ]
+  },
+  {
+    "id": "tool-manus-line-integration",
+    "toolNumber": "19",
+    "title": "Manus - 串接 LINE 通訊軟體打造 24 小時隨身 AI 智能助理",
+    "date": "2026-09-05",
+    "category": "Manus AI Agent",
+    "summary": "學習如何將 Manus AI Agent 與台灣最普及的通訊軟體 LINE 進行雙向綁定。透過掃描 QR Code 與輸入專屬授權碼，即可在 LINE 聊天室中隨時隨地向 Manus 下達複雜任務、查詢資料、自動化處理檔案與接收執行進度通知，實現無縫的行動端 AI 助理體驗。",
+    "webUrl": "https://manus.im",
+    "flowImage": [
+      "images_src/ok/20260905_manus_line_01_agent_settings.png",
+      "images_src/ok/20260905_manus_line_02_select_line.png",
+      "images_src/ok/20260905_manus_line_03_scan_qrcode.png",
+      "images_src/ok/20260905_manus_line_04_add_friend.png",
+      "images_src/ok/20260905_manus_line_05_bind_success.png"
+    ],
+    "objective": "1. 掌握 Manus Agent 系統中「已連接訊息應用程式」之啟用與 LINE 頻道配置方法。\n2. 學習透過 LINE 官方 QR Code 掃描與專屬一次性驗證指令 (:bind 授權碼) 完成雙向安全綁定。\n3. 體驗在 LINE 聊天室中直接以文字或語音向 Manus Agent 指派多步驟任務 (如網路搜尋、產線狀態彙整、報告產出)。\n4. 掌握行動通訊推播與 AI 智能體深度結合在工控 SCADA 巡檢、日常商務與團隊協作中的實務應用。",
+    "tutorialSteps": [
+      {
+        "step": "Step 1. 打開 Manus Agent 設定選單",
+        "description": "登入 Manus 桌面版或網頁版，點擊右上角使用者頭像旁的「打開 Agent 設定」圖示，進入 Agent 整合設定視窗。"
+      },
+      {
+        "step": "Step 2. 啟用並選取「Line」通訊軟體",
+        "description": "在設定面板的「已連接訊息應用程式」區塊，將開關切換為開啟，並由下拉選單中選取「Line」（系統亦支援 Telegram 與 Slack）。"
+      },
+      {
+        "step": "Step 3. 掃描 LINE 官方 QR Code",
+        "description": "畫面上將彈出專屬的 LINE 連線 QR Code，使用手機 LINE 相機掃描條碼，或點擊「在 LINE 繼續」開啟電腦版 LINE。"
+      },
+      {
+        "step": "Step 4. 加入 Manus AI 官方帳號好友",
+        "description": "系統引導跳轉至 LINE 官方帳號頁面，點選「加入好友」並進入聊天對話視窗。"
+      },
+      {
+        "step": "Step 5. 發送 :bind 授權碼完成綁定",
+        "description": "在對話框中發送自動帶入的「:bind+授權碼」，收到「Successfully connected to Manus!」回覆即代表綁定成功，可直接於 LINE 中開始與 Manus 互動！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "遠端工控 SCADA 警報推播與即時問答",
+        "icon": "fa-solid fa-industry",
+        "description": "產線工程師外出巡檢或下班時，只需在 LINE 傳送「查詢 3 號產線運轉狀態」，Manus Agent 自動在雲端讀取 SCADA 與 Node-RED 數據並以圖文即時回報。"
+      },
+      {
+        "scenario": "行動端語音派工與市場情報即時蒐集",
+        "icon": "fa-solid fa-mobile-screen-button",
+        "description": "商務主管在通勤途中以 LINE 語音交代「整理今日半導體產業重大動態並列出重點」，Manus 在背景自動完成跨網頁檢索並回傳條列式摘要。"
+      },
+      {
+        "scenario": "多平台協同與即時檔案產出通知",
+        "icon": "fa-solid fa-bell",
+        "description": "當 Manus 在電腦端完成大型專案（如 PCB BOM 表生成、程式代碼重構）後，第一時間在 LINE 傳送完成通知與下載連結，大幅提升工作彈性。"
+      }
+    ],
+    "aiPrompt": "請扮演智能通訊與 AI Agent 整合架構師，幫我設計一套 Manus 與 LINE 通訊軟體協同作業的標準作業程序 (SOP)：\n1. 請說明如何在 Manus Agent 設定中開啟「已連接訊息應用程式」並綁定 LINE。\n2. 列出 5 個最適合透過 LINE 指派給 Manus 的高頻實務指令範例（包含產線監控、資料整理與每日排程）。\n3. 說明專屬 :bind 授權碼的安全性機制與多裝置授權管理建議。",
+    "references": [
+      {
+        "title": "互動模擬系統：Manus 串接 LINE 通訊軟體隨身助理模擬器",
+        "url": "manus_line_integration_simulator.html"
+      },
+      {
+        "title": "Manus 官方網站與功能介紹",
+        "url": "https://manus.im"
+      },
+      {
+        "title": "Manus 官方說明中心 - 如何在 LINE 中設定、連接並使用 Manus Agent",
+        "url": "https://help.manus.im/zh-TW/articles/14432549-%E5%A6%82%E4%BD%95%E5%9C%A8-line-%E4%B8%AD%E8%A8%AD%E5%AE%9A-%E9%80%A3%E6%8E%A5%E4%B8%A6%E4%BD%BF%E7%94%A8-manus-agent"
+      }
+    ]
   }
 ];
