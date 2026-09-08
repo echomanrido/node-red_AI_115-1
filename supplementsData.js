@@ -535,5 +535,74 @@ window.INITIAL_SUPPLEMENTS_DATA = [
         "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/const"
       }
     ]
+  },
+  {
+    "id": "sup-13",
+    "number": "13",
+    "supNumber": "13",
+    "title": "JavaScript 與 Node-RED 跳脫字元 (Escape Character) 與路徑斜線全面解析",
+    "category": "JavaScript 核心概念",
+    "date": "2026-09-08",
+    "summary": "在電腦科學與遠端通訊中，當跳脫字元（Escape Character）放在字元序列時，它將對它後續的幾個字元進行替代並解釋。跳脫字元是元字元的一種特殊情況。通常，判定某字元是否為跳脫字元由上下文確定。 本篇深入解析在 JavaScript 字串、JSON 格式與 Node-RED 檔案節點中反斜線 (\\) 的運作機制，並重點解密 Windows 檔案路徑中「正斜線 (/)」與「雙反斜線 (\\\\)」的最佳實踐與除錯防坑指南。",
+    "image": "images_src/ok/20260908_escape_chars_path_comparison.png",
+    "images": [
+      "images_src/ok/20260908_escape_chars_path_comparison.png",
+      "images_src/ok/20260908_escape_chars_table_wiki.png"
+    ],
+    "flowImage": [
+      "images_src/ok/20260908_escape_chars_path_comparison.png",
+      "images_src/ok/20260908_escape_chars_table_wiki.png"
+    ],
+    "objective": "1. 掌握反斜線 (\\) 在程式語言與字串系統中作為「跳脫字元 (Escape Character)」的核心原理。\n2. 理解常見特殊符號：\\n (換行)、\\t (Tab 定位點)、\\r (回車)、\\' (單引號)、\\\" (雙引號) 與 \\\\ (反斜線本體)。\n3. 徹底釐清 Windows 檔案路徑中正斜線 (/) 與雙反斜線 (\\\\) 的差異，避免 ENOENT 找不到檔案之隱形錯誤。\n4. 掌握在 Node-RED Function 節點、read file 讀檔與 CSV 報表輸出中的標準路徑與跳脫最佳實踐。",
+    "tutorialSteps": [
+      {
+        "step": "Step 1. 認識跳脫字元的本質與運作機制",
+        "description": "在電腦科學與遠端通訊中，當跳脫字元（Escape Character）放在字元序列時，它將對它後續的幾個字元進行替代並解釋。跳脫字元是元字元的一種特殊情況。通常，判定某字元是否為跳脫字元由上下文確定。 在 JavaScript、C、Python 與 JSON 中，反斜線「\\」被定義為跳脫前綴符號，用於將後方的字元轉譯為不可見的控制代碼（如 \\n 換行、\\t 跳格）或保留符號（如 \\\"、\\'）。"
+      },
+      {
+        "step": "Step 2. 剖析 Windows 單反斜線路徑的致命陷阱",
+        "description": "若在 Function 節點內寫入 msg.filename = \"D:\\Test\\temp.png\"，字串中的 \\t 會被自動轉譯為「Tab 水平定位點空白」，導致實際傳給作業系統的路徑變成 \"D:   est  emp.png\"，進而引發 ENOENT 找不到檔案錯誤。"
+      },
+      {
+        "step": "Step 3. 掌握雙反斜線 \\\\ 的跳脫防護寫法",
+        "description": "若必須在 JS 程式碼中使用 Windows 反斜線，必須使用「雙反斜線 \\\\」進行跳脫（例如：msg.filename = \"D:\\\\Test_Wugo\\\\拉拉隊\\\\霍諾德.png\"），第一個反斜線作為跳脫標記，第二個才會被記憶體正確識別為反斜線路徑分隔符號。"
+      },
+      {
+        "step": "Step 4. 採用最佳通用實踐：全平台正斜線 /",
+        "description": "Node.js 底層的 path 與 fs 模組在 Windows 環境下完全相容「正斜線 /」（例如：msg.filename = \"D:/Test_Wugo/拉拉隊/霍諾德.png\"）。此寫法代碼最簡潔，完全杜絕跳脫干擾，且能無縫跨平台運行於 Windows、Linux 與 macOS！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "Node-RED 工業讀檔與相片圖資動態載入",
+        "icon": "fa-solid fa-folder-open",
+        "description": "在工控 SCADA 與 AOI 視覺檢測中，動態載入本地瑕疵圖檔或 SOP 指南時，全面採用正斜線 / 組裝路徑，防止產線因 Windows 路徑跳脫異常造成斷線。"
+      },
+      {
+        "scenario": "SCADA 數據日誌寫入 CSV 檔案換行",
+        "icon": "fa-solid fa-file-csv",
+        "description": "在 write file 節點中組裝即時機台狀態報表時，利用 \\r\\n (CRLF) 確保在 Windows Excel 中開啟 CSV 檔案時能正確按行換列，避免整行黏連。"
+      },
+      {
+        "scenario": "JSON 通訊協議與字串特殊符號轉義",
+        "icon": "fa-solid fa-code",
+        "description": "在 MQTT 或 HTTP 通訊中發送含有引號的字串數據時，使用 \\\" 進行標準轉義，確保 JSON.parse() 順暢解析，維持物聯網通訊強健性。"
+      }
+    ],
+    "aiPrompt": "請扮演 JavaScript 與 Node.js 系統架構專家，幫我深入解說「跳脫字元 (Escape Character)」與 Windows 檔案路徑最佳實踐：\n1. 請以表格整理常見的跳脫字元（\\n, \\t, \\r, \\', \\\", \\\\, \\uXXXX）與其十六進制 ASCII 編碼。\n2. 詳細分析為何在 JavaScript 字串中寫入 \"D:\\temp\\new.txt\" 會引發錯誤（\\t 與 \\n 被轉義），並給出「雙反斜線 \\\\」與「正斜線 /」兩種正確解決方案。\n3. 給出在 Node-RED Function 節點中組裝動態路徑與 CSV 換行寫入的標準範例代碼。",
+    "references": [
+      {
+        "title": "互動模擬系統：JavaScript & Node-RED 跳脫字元與路徑實驗室",
+        "url": "escape_character_simulator.html"
+      },
+      {
+        "title": "維基百科 - 跳脫字元 (Escape Character) 官方說明",
+        "url": "https://zh.wikipedia.org/zh-tw/%E8%BD%AC%E4%B9%89%E5%AD%97%E7%AC%A6"
+      },
+      {
+        "title": "MDN 官方文件 - JavaScript 字串特殊字元與跳脫序列",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Global_Objects/String#escape_notation"
+      }
+    ]
   }
 ];

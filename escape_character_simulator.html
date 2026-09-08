@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript & Node-RED 跳脫字元 (Escape Characters) 互動實驗室</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    pre, code, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .escape-gradient {
+      background: linear-gradient(135deg, #f59e0b 0%, #ec4899 50%, #8b5cf6 100%);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-white">
+
+  <!-- 頂部導覽列 -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 px-6 py-3.5 flex flex-wrap justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <a href="supplements.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors flex items-center justify-center" title="返回補充教材列表">
+        <i class="ph ph-arrow-left text-lg"></i>
+      </a>
+      <div class="w-9 h-9 rounded-lg escape-gradient flex items-center justify-center text-white shadow-lg shadow-amber-500/20 font-mono font-black text-base">
+        \n
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold text-white tracking-wide">JS & Node-RED 跳脫字元 (Escape Character) 實驗室</h1>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700">字串處理與路徑規範</span>
+        </div>
+        <p class="text-xs text-slate-400">解密反斜線 \ 轉義機制 • Windows 路徑正斜線 / 與雙反斜線 \\ 除錯實戰</p>
+      </div>
+    </div>
+
+    <!-- 右側分頁切換 -->
+    <nav class="flex space-x-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs font-medium mt-2 sm:mt-0">
+      <button onclick="switchTab('path')" id="tab-path" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-white bg-amber-600 shadow-sm font-bold">
+        路徑轉義實驗
+      </button>
+      <button onclick="switchTab('matrix')" id="tab-matrix" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+        跳脫字元矩陣
+      </button>
+      <button onclick="switchTab('nodered')" id="tab-nodered" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+        Node-RED 實戰
+      </button>
+      <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+        觀念測驗
+      </button>
+    </nav>
+  </header>
+
+  <!-- 主內容區 -->
+  <main class="flex-1 p-4 lg:p-8 max-w-[1500px] w-full mx-auto space-y-8">
+
+    <!-- ==================== 頁籤 1：路徑轉義與 Bug 偵測實驗室 ==================== -->
+    <section id="section-path" class="space-y-6 block">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">Windows 檔案路徑與反斜線轉義除錯器</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">在輸入框輸入或修改 Windows 檔案路徑，即時觀察單反斜線造成的隱形 Bug 與正確寫法！</p>
+      </div>
+
+      <!-- 權威定義橫幅 -->
+      <div class="bg-amber-950/30 border border-amber-500/40 rounded-2xl p-4 sm:p-5 shadow-lg flex items-start gap-3.5">
+        <div class="p-2 rounded-xl bg-amber-500/20 text-amber-300 flex-shrink-0 mt-0.5">
+          <i class="ph ph-info text-xl"></i>
+        </div>
+        <div class="space-y-1 text-xs sm:text-sm leading-relaxed">
+          <span class="font-bold text-amber-300 block">💡 跳脫字元 (Escape Character) 核心定義：</span>
+          <p class="text-slate-200">
+            在電腦科學與遠端通訊中，當跳脫字元（Escape Character）放在字元序列時，它將對它後續的幾個字元進行替代並解釋。跳脫字元是元字元的一種特殊情況。通常，判定某字元是否為跳脫字元由上下文確定。
+          </p>
+        </div>
+      </div>
+
+      <!-- 輸入控制列 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex flex-col gap-2">
+          <label class="text-xs font-bold text-slate-300 flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><i class="ph ph-folder text-amber-400 text-base"></i> 請輸入 Windows 本地檔案路徑 (測試 \t、\n、\r 轉義)：</span>
+            <span class="text-[11px] text-slate-500 font-mono">支援即時變更</span>
+          </label>
+          <div class="flex gap-2">
+            <input type="text" id="input-raw-path" value="D:\Test_Wugo\拉拉隊\霍諾德.png" oninput="updatePathAnalysis()" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 font-mono text-xs sm:text-sm text-amber-300 focus:outline-none focus:border-amber-500">
+            <button onclick="setSamplePath('D:\\Test_Wugo\\拉拉隊\\邊荷律.png')" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl transition whitespace-nowrap">範例 1: 啦啦隊</button>
+            <button onclick="setSamplePath('C:\\temp\\new_report\\2026_data.csv')" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl transition whitespace-nowrap">範例 2: 致命 \t \n</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 三大寫法即時對照卡片 (3 Columns) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- 卡片 1: 致命錯誤 (單反斜線直接寫入 JS 字串) -->
+        <div class="bg-rose-950/20 border-2 border-rose-500/40 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-xl relative overflow-hidden">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-400 flex items-center gap-1">
+                <i class="ph ph-x-circle-fill text-base"></i> ❌ 致命錯誤：單反斜線 \
+              </span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-rose-900/60 text-rose-300 font-mono">容易觸發 ENOENT</span>
+            </div>
+            <p class="text-[11px] text-slate-400">在 JS 程式碼中直接用單反斜線宣告字串，會導致 <code class="text-rose-300 font-bold">\T</code>、<code class="text-rose-300 font-bold">\n</code>、<code class="text-rose-300 font-bold">\t</code> 被誤判為特殊字元：</p>
+            
+            <!-- 程式碼範例 -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-rose-900/50 font-mono text-xs text-slate-300">
+              <span class="text-slate-500">// 程式碼撰寫</span><br>
+              <span class="text-purple-400">msg.filename</span> = <span class="text-rose-400 font-bold" id="txt-bad-code">"..."</span>;
+            </div>
+
+            <!-- 實際執行期字串解析 -->
+            <div class="bg-black/60 p-3 rounded-xl border border-slate-800 font-mono text-[11px]">
+              <span class="text-slate-400 block mb-1"> 實際記憶體解析結果：</span>
+              <div id="txt-bad-evaluated" class="text-rose-300 font-bold break-all whitespace-pre-wrap"></div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-rose-300/80 border-t border-rose-900/40 pt-2" id="txt-bad-reason">
+            原因：\t 被解析為 Tab 水平定位點，造成路徑破碎！
+          </div>
+        </div>
+
+        <!-- 卡片 2: 正確寫法一 (雙反斜線 \\ 轉義) -->
+        <div class="bg-blue-950/20 border-2 border-blue-500/40 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-xl">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-blue-400 flex items-center gap-1">
+                <i class="ph ph-check-circle-fill text-base"></i>  解法一：雙反斜線 \\
+              </span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-blue-900/60 text-blue-300 font-mono">JS Function 節點</span>
+            </div>
+            <p class="text-[11px] text-slate-400">在 JavaScript 中，第一個 <code class="text-blue-300 font-bold">\</code> 代表跳脫標記，第二個 <code class="text-blue-300 font-bold">\</code> 才是真正的反斜線字元：</p>
+            
+            <div class="bg-slate-950 p-3 rounded-xl border border-blue-900/50 font-mono text-xs text-slate-300">
+              <span class="text-slate-500">// 程式碼撰寫</span><br>
+              <span class="text-purple-400">msg.filename</span> = <span class="text-blue-400 font-bold" id="txt-escaped-code">"..."</span>;
+            </div>
+
+            <div class="bg-black/60 p-3 rounded-xl border border-slate-800 font-mono text-[11px]">
+              <span class="text-slate-400 block mb-1"> 實際記憶體解析結果：</span>
+              <div id="txt-escaped-evaluated" class="text-blue-300 font-bold break-all"></div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-blue-300/80 border-t border-blue-900/40 pt-2">
+            適用：純 Windows 本地環境、嚴格遵循反斜線語法之場合。
+          </div>
+        </div>
+
+        <!-- 卡片 3: 最佳通用寫法 (正斜線 / 跨平台通用) -->
+        <div class="bg-emerald-950/20 border-2 border-emerald-500/40 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-xl">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                <i class="ph ph-star-fill text-base"></i> ⭐ 最佳實踐：正斜線 /
+              </span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 font-mono">跨平台通用推薦</span>
+            </div>
+            <p class="text-[11px] text-slate-400">Node.js（包括 Node-RED）底層的 <code>fs</code> 與 <code>path</code> 模組在 Windows 環境下完全相容正斜線 <code>/</code>：</p>
+            
+            <div class="bg-slate-950 p-3 rounded-xl border border-emerald-900/50 font-mono text-xs text-slate-300">
+              <span class="text-slate-500">// 程式碼撰寫 (極度簡潔)</span><br>
+              <span class="text-purple-400">msg.filename</span> = <span class="text-emerald-400 font-bold" id="txt-slash-code">"..."</span>;
+            </div>
+
+            <div class="bg-black/60 p-3 rounded-xl border border-slate-800 font-mono text-[11px]">
+              <span class="text-slate-400 block mb-1"> 實際記憶體解析結果：</span>
+              <div id="txt-slash-evaluated" class="text-emerald-300 font-bold break-all"></div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-emerald-300/80 border-t border-emerald-900/40 pt-2">
+            優勢：完全杜絕跳脫字元轉義問題，同時相容 Windows、Linux 與 macOS！
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 2：跳脫字元速查矩陣 ==================== -->
+    <section id="section-matrix" class="space-y-6 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">常見跳脫字元 (Escape Characters) 規格速查</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">整理維基百科與各程式語言（C、JavaScript、Python、JSON）通用的轉義符號。</p>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/50 shadow-xl">
+        <table class="w-full text-left text-xs sm:text-sm font-mono">
+          <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider text-xs border-b border-slate-800">
+            <tr>
+              <th class="p-4">跳脫符號 (Escape Code)</th>
+              <th class="p-4">字元名稱 (Name)</th>
+              <th class="p-4">ASCII / Unicode 十六進制</th>
+              <th class="p-4">功能說明與實務應用</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 text-slate-300">
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 text-amber-400 font-bold text-base">\\</td>
+              <td class="p-4 text-white font-sans font-semibold">反斜線 (Backslash)</td>
+              <td class="p-4 text-slate-400">0x5C (\u005C)</td>
+              <td class="p-4 font-sans text-xs">輸出單一反斜線符號本身，常用於 Windows 檔案路徑與正規表達式。</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 text-amber-400 font-bold text-base">\n</td>
+              <td class="p-4 text-white font-sans font-semibold">換行符 (Newline / Line Feed)</td>
+              <td class="p-4 text-slate-400">0x0A (\u000A)</td>
+              <td class="p-4 font-sans text-xs">在字串中換至下一行（Unix/Linux 換行格式）。在 Node-RED 寫入 CSV 或文字檔時必備。</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 text-amber-400 font-bold text-base">\r</td>
+              <td class="p-4 text-white font-sans font-semibold">回車符 (Carriage Return)</td>
+              <td class="p-4 text-slate-400">0x0D (\u000D)</td>
+              <td class="p-4 font-sans text-xs">將游標移回行首。Windows 系統標準換行為 <code>\r\n</code> (CRLF)。</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 text-amber-400 font-bold text-base">\t</td>
+              <td class="p-4 text-white font-sans font-semibold">水平定位點 (Horizontal Tab)</td>
+              <td class="p-4 text-slate-400">0x09 (\u0009)</td>
+              <td class="p-4 font-sans text-xs">插入一個 Tab 跳格空白（通常為 4 或 8 個字元寬），常用於對齊報表數據。</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 text-amber-400 font-bold text-base">\'</td>
+              <td class="p-4 text-white font-sans font-semibold">單引號 (Single Quote)</td>
+              <td class="p-4 text-slate-400">0x27 (\u0027)</td>
+              <td class="p-4 font-sans text-xs">在單引號包裹的字串中插入單引號（如 <code>'It\'s OK'</code>），避免字串提早閉合。</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 text-amber-400 font-bold text-base">\"</td>
+              <td class="p-4 text-white font-sans font-semibold">雙引號 (Double Quote)</td>
+              <td class="p-4 text-slate-400">0x22 (\u0022)</td>
+              <td class="p-4 font-sans text-xs">在雙引號包裹的字串或標準 JSON 格式中插入雙引號（如 <code>"He said: \"Hi\""</code>）。</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 text-amber-400 font-bold text-base">\b</td>
+              <td class="p-4 text-white font-sans font-semibold">退格 (Backspace)</td>
+              <td class="p-4 text-slate-400">0x08 (\u0008)</td>
+              <td class="p-4 font-sans text-xs">使游標回退一格，刪除前一個字元。</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-4 text-amber-400 font-bold text-base">\uXXXX</td>
+              <td class="p-4 text-white font-sans font-semibold">Unicode 萬國碼</td>
+              <td class="p-4 text-slate-400">4 位十六進制</td>
+              <td class="p-4 font-sans text-xs">以 Unicode 編碼表示特定字元，如 <code>\u4e94\u80a1</code> 代表「五股」。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 3：Node-RED 實戰代碼 ==================== -->
+    <section id="section-nodered" class="space-y-6 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">Node-RED 實戰中的跳脫字元最佳實踐</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">掌握 Function 節點組裝路徑、UI 節點顯示與 JSON 格式轉換的避坑秘笈。</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- 實戰 1: Function 節點組裝動態路徑 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+              <i class="ph ph-code text-base"></i> 1. Function 節點動態讀圖路徑組裝
+            </span>
+            <span class="text-[10px] font-mono text-slate-400">JavaScript</span>
+          </div>
+          <p class="text-xs text-slate-300">
+            在 Function 節點內組裝圖片路徑時，<b>強烈推薦使用正斜線 <code>/</code></b>，代碼最乾淨且完全不會產生跳脫錯誤：
+          </p>
+          <pre class="bg-slate-950 p-4 rounded-xl font-mono text-xs text-slate-300 border border-slate-800 leading-relaxed overflow-x-auto">
+<span class="text-slate-500">//  推薦寫法：使用正斜線 / (簡潔且跨平台)</span>
+<span class="text-purple-400 font-bold">const</span> basePath = <span class="text-emerald-400">"D:/Test_Wugo/拉拉隊/"</span>;
+<span class="text-purple-400 font-bold">const</span> memberName = msg.payload; <span class="text-slate-500">// 如 "霍諾德"</span>
+msg.filename = basePath + memberName + <span class="text-emerald-400">".png"</span>;
+
+<span class="text-purple-400 font-bold">return</span> msg;
+          </pre>
+        </div>
+
+        <!-- 實戰 2: JSON 格式與 CSV 換行輸出 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <span class="text-xs font-bold text-blue-400 flex items-center gap-1.5">
+              <i class="ph ph-file-text text-base"></i> 2. 寫入 CSV 檔案與 \r\n 換行
+            </span>
+            <span class="text-[10px] font-mono text-slate-400">Write File</span>
+          </div>
+          <p class="text-xs text-slate-300">
+            當利用 <code>write file</code> 節點將 SCADA 數據串接為 CSV 報表時，利用 <code>\n</code> 或 <code>\r\n</code> 實現換行：
+          </p>
+          <pre class="bg-slate-950 p-4 rounded-xl font-mono text-xs text-slate-300 border border-slate-800 leading-relaxed overflow-x-auto">
+<span class="text-slate-500">// 產線每筆數據加上換行符 \r\n 寫入 CSV</span>
+<span class="text-purple-400 font-bold">const</span> timestamp = <span class="text-purple-400 font-bold">new</span> Date().toISOString();
+<span class="text-purple-400 font-bold">const</span> logLine = `${timestamp},${msg.topic},${msg.payload}<span class="text-amber-400 font-bold">\r\n</span>`;
+
+msg.payload = logLine;
+<span class="text-purple-400 font-bold">return</span> msg;
+          </pre>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 4：觀念測驗 ==================== -->
+    <section id="section-quiz" class="space-y-6 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">跳脫字元觀念測驗</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">測試您對反斜線、正斜線與跳脫字元特性的掌握程度！</p>
+      </div>
+
+      <div class="max-w-3xl mx-auto space-y-4" id="quiz-container">
+        <!-- JS 動態渲染 -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 邏輯腳本 -->
+  <script>
+    function switchTab(tabId) {
+      const tabs = ['path', 'matrix', 'nodered', 'quiz'];
+      tabs.forEach(t => {
+        const sec = document.getElementById(`section-${t}`);
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === tabId) {
+          sec.classList.remove('hidden');
+          sec.classList.add('block');
+          btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-white bg-amber-600 shadow-sm font-bold';
+        } else {
+          sec.classList.add('hidden');
+          sec.classList.remove('block');
+          btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200';
+        }
+      });
+      if (tabId === 'quiz') {
+        renderQuiz();
+      }
+    }
+
+    function setSamplePath(p) {
+      document.getElementById('input-raw-path').value = p;
+      updatePathAnalysis();
+    }
+
+    function updatePathAnalysis() {
+      const raw = document.getElementById('input-raw-path').value;
+
+      // 1. 單反斜線壞寫法
+      document.getElementById('txt-bad-code').innerText = `"${raw}"`;
+      
+      // 模擬 JS 直譯單反斜線
+      let evaluatedBad = "";
+      try {
+        evaluatedBad = JSON.parse(`"${raw.replace(/"/g, '\\"')}"`);
+      } catch (e) {
+        evaluatedBad = raw;
+      }
+      document.getElementById('txt-bad-evaluated').innerText = evaluatedBad;
+
+      // 檢查是否含有 \t, \n 等問題
+      const badReason = document.getElementById('txt-bad-reason');
+      if (raw.toLowerCase().includes('\\t')) {
+        badReason.innerHTML = '⚠️ <b>警報：</b>路徑中偵測到 <code>\\t</code>，在字串中會被解析為 <b>Tab 水平定位點空白</b>，導致檔案系統無法識別路徑！';
+      } else if (raw.toLowerCase().includes('\\n')) {
+        badReason.innerHTML = '⚠️ <b>警報：</b>路徑中偵測到 <code>\\n</code>，會被解析為 <b>換行符</b>，導致路徑折斷報錯！';
+      } else {
+        badReason.innerHTML = '⚠️ <b>注意：</b>單反斜線在字串中屬於跳脫標記，容易隨機吞掉後面的字元造成路徑錯誤。';
+      }
+
+      // 2. 雙反斜線解法
+      const escapedPath = raw.replace(/\\/g, '\\\\');
+      document.getElementById('txt-escaped-code').innerText = `"${escapedPath}"`;
+      document.getElementById('txt-escaped-evaluated').innerText = raw;
+
+      // 3. 正斜線解法 (最佳實踐)
+      const slashPath = raw.replace(/\\/g, '/');
+      document.getElementById('txt-slash-code').innerText = `"${slashPath}"`;
+      document.getElementById('txt-slash-evaluated').innerText = slashPath;
+    }
+
+    // 測驗題庫
+    const QUIZ_DATA = [
+      {
+        q: "1. 在 Node-RED 的 Function 節點中，撰寫 Windows 檔案路徑的最佳跨平台寫法為何？",
+        options: [
+          "使用單反斜線：\"D:\\Test\\data.csv\"",
+          "使用正斜線：\"D:/Test/data.csv\"（Node.js 完全支援且無轉義問題）",
+          "使用三反斜線：\"D:\\\\\\Test\\\\\\data.csv\"",
+          "只能在 Windows 根目錄運作，無法使用路徑"
+        ],
+        ans: 1,
+        exp: "Node.js 的 fs 與 path 模組在 Windows 環境下完全相容正斜線 /，且不會觸發字串轉義，是官方最推薦的寫法。"
+      },
+      {
+        q: "2. 執行字串 \"C:\\temp\\notes.txt\" 時，為什麼讀檔節點會噴出 ENOENT (找不到檔案) 錯誤？",
+        options: [
+          "因為 C 槽不存在",
+          "因為 \\t 被 JavaScript 解析為 Tab 水平定位點，路徑實質變為 \"C:   emp\\notes.txt\"",
+          "因為副檔名 .txt 必須大寫",
+          "因為檔案被鎖定"
+        ],
+        ans: 1,
+        exp: "在 JS 字串中，\\t 代表 Tab 跳格符號，因此字串中的 \\t 會被轉譯為空白跳格，破壞了原本的目錄名稱 temp。"
+      },
+      {
+        q: "3. 若一定要在 JavaScript 字串中表達一個純粹的「反斜線字元 (\\)」，應該如何撰寫？",
+        options: [
+          "寫一個：\"\\\"",
+          "寫兩個雙反斜線：\"\\\\\"",
+          "寫斜線：\"/\"",
+          "用括號包住：\"(\\)\""
+        ],
+        ans: 1,
+        exp: "反斜線本身是跳脫字元，若要輸出反斜線本體，必須透過雙反斜線 \\\\ 進行跳脫轉義。"
+      }
+    ];
+
+    let userAnswers = {};
+
+    function renderQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = QUIZ_DATA.map((item, idx) => `
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+          <div class="font-bold text-sm text-slate-200">${item.q}</div>
+          <div class="space-y-2">
+            ${item.options.map((opt, oIdx) => `
+              <button onclick="selectOption(${idx}, ${oIdx})" id="q-${idx}-${oIdx}" class="w-full text-left p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800 text-slate-300 text-xs transition flex items-center justify-between">
+                <span>${opt}</span>
+                <span class="status font-bold text-xs"></span>
+              </button>
+            `).join('')}
+          </div>
+          <div id="exp-${idx}" class="text-xs p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hidden leading-relaxed">
+            <span class="text-amber-400 font-bold block mb-1">💡 解析說明：</span>
+            ${item.exp}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectOption(qIdx, oIdx) {
+      if (userAnswers[qIdx] !== undefined) return;
+      userAnswers[qIdx] = oIdx;
+
+      const item = QUIZ_DATA[qIdx];
+      const isCorrect = (oIdx === item.ans);
+      const chosenBtn = document.getElementById(`q-${qIdx}-${oIdx}`);
+      const expBox = document.getElementById(`exp-${qIdx}`);
+
+      if (isCorrect) {
+        chosenBtn.className = "w-full text-left p-3 rounded-xl border border-emerald-500/50 bg-emerald-950/30 text-emerald-200 text-xs font-semibold flex items-center justify-between";
+        chosenBtn.querySelector('.status').innerText = ' 正確';
+      } else {
+        chosenBtn.className = "w-full text-left p-3 rounded-xl border border-rose-500/50 bg-rose-950/30 text-rose-200 text-xs font-semibold flex items-center justify-between";
+        chosenBtn.querySelector('.status').innerText = ' 錯誤';
+        const correctBtn = document.getElementById(`q-${qIdx}-${item.ans}`);
+        correctBtn.className = "w-full text-left p-3 rounded-xl border border-emerald-500/40 bg-emerald-950/20 text-emerald-300 text-xs flex items-center justify-between";
+        correctBtn.querySelector('.status').innerText = ' 正解在此';
+      }
+
+      expBox.classList.remove('hidden');
+    }
+
+    // 初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      updatePathAnalysis();
+    });
+  </script>
+</body>
+</html>
