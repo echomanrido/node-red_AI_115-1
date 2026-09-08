@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCart 開源電商系統安裝與 Node-RED 派工整合模擬器</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    pre, code, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .opencart-blue {
+      background-color: #23A1D1;
+    }
+    .opencart-gradient {
+      background: linear-gradient(135deg, #23A1D1 0%, #0284C7 50%, #0369A1 100%);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
+
+  <!-- 頂部導覽列 -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 px-6 py-3.5 flex flex-wrap justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <a href="supplements.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors flex items-center justify-center" title="返回補充教材列表">
+        <i class="ph ph-arrow-left text-lg"></i>
+      </a>
+      <div class="w-9 h-9 rounded-lg opencart-gradient flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 font-black text-base">
+        <i class="ph ph-shopping-cart text-xl"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold text-white tracking-wide">OpenCart 安裝與 Node-RED 工業派工模擬器</h1>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-700">E-Commerce & Smart Factory</span>
+        </div>
+        <p class="text-xs text-slate-400">4 步安裝嚮導 • MySQL 訂單資料庫 • Node-RED 雙向連線 PLC 自動備料生產</p>
+      </div>
+    </div>
+
+    <!-- 右側分頁切換 -->
+    <nav class="flex space-x-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs font-medium mt-2 sm:mt-0">
+      <button onclick="switchTab('installer')" id="tab-installer" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-white bg-cyan-600 shadow-sm font-bold">
+        安裝嚮導模擬
+      </button>
+      <button onclick="switchTab('store')" id="tab-store" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+        前台零件下單
+      </button>
+      <button onclick="switchTab('nodered')" id="tab-nodered" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+        Node-RED 自動派工
+      </button>
+      <button onclick="switchTab('faq')" id="tab-faq" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+        安裝避坑指南
+      </button>
+    </nav>
+  </header>
+
+  <!-- 主內容區 -->
+  <main class="flex-1 p-4 lg:p-8 max-w-[1600px] w-full mx-auto space-y-8">
+
+    <!-- ==================== 頁籤 1：OpenCart 網頁安裝精靈實機模擬 ==================== -->
+    <section id="section-installer" class="space-y-6 block">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">OpenCart 網頁安裝導引實機模擬 (http://localhost/opencart/)</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">體驗 OpenCart 經典 4 步安裝流程：授權合約 ➔ 環境檢查 ➔ MySQL 連線設定 ➔ 安裝完成！</p>
+      </div>
+
+      <!-- 安裝精靈視窗 -->
+      <div class="max-w-3xl mx-auto bg-slate-900 border-2 border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        
+        <!-- 安裝精靈 Header -->
+        <div class="opencart-blue text-white px-6 py-4 flex items-center justify-between shadow-md">
+          <div class="flex items-center gap-3">
+            <i class="ph ph-shopping-cart-simple text-2xl font-bold"></i>
+            <div>
+              <div class="text-base font-bold tracking-wide">OpenCart Installation Wizard</div>
+              <div class="text-xs text-cyan-100 font-mono">OpenCart 4.x / 3.x Community Edition</div>
+            </div>
+          </div>
+          <!-- 步驟進度標籤 -->
+          <div class="text-xs font-mono font-bold bg-black/20 px-3 py-1 rounded-full text-white" id="wizard-step-label">
+            Step 1 / 4: License
+          </div>
+        </div>
+
+        <!-- 步驟內容區 -->
+        <div class="p-6 space-y-6" id="wizard-body">
+
+          <!-- Step 1: License Agreement -->
+          <div id="wizard-step-1" class="space-y-4">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="ph ph-file-text text-cyan-400 text-lg"></i> 1. GNU General Public License (授權合約條款)
+            </h3>
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 font-mono h-40 overflow-y-auto leading-relaxed">
+              OpenCart is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.<br><br>
+              OpenCart 是一套自由開源的電子商務平台軟體，授權給廣大開發者與企業免費建立線上商店、工業零件型錄與 ERP 資料庫雙向整合...
+            </div>
+            <div class="flex justify-end">
+              <button onclick="nextWizardStep(2)" class="px-6 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 transition flex items-center gap-1.5">
+                <span>Continue (同意並繼續)</span> <i class="ph ph-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Pre-Installation Check -->
+          <div id="wizard-step-2" class="space-y-4 hidden">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="ph ph-check-square-offset text-emerald-400 text-lg"></i> 2. Pre-Installation (系統環境與權限檢測)
+            </h3>
+            
+            <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950">
+              <table class="w-full text-left text-xs font-mono">
+                <thead class="bg-slate-900 text-slate-400 text-[11px] border-b border-slate-800">
+                  <tr>
+                    <th class="p-2.5">檢查項目</th>
+                    <th class="p-2.5">系統需求</th>
+                    <th class="p-2.5">當前 XAMPP 環境</th>
+                    <th class="p-2.5 text-center">檢測狀態</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-slate-300 text-[11px]">
+                  <tr>
+                    <td class="p-2.5">PHP Version</td>
+                    <td class="p-2.5 text-slate-400">8.0+</td>
+                    <td class="p-2.5 text-white">8.2.12</td>
+                    <td class="p-2.5 text-center text-emerald-400 font-bold"><i class="ph ph-check-circle-fill"></i> OK</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5">cURL, GD, ZIP, Mbstring</td>
+                    <td class="p-2.5 text-slate-400">On</td>
+                    <td class="p-2.5 text-white">On (已啟用)</td>
+                    <td class="p-2.5 text-center text-emerald-400 font-bold"><i class="ph ph-check-circle-fill"></i> OK</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5">C:\xampp\htdocs\opencart\config.php</td>
+                    <td class="p-2.5 text-slate-400">Writable</td>
+                    <td class="p-2.5 text-white">Writable (已重命名)</td>
+                    <td class="p-2.5 text-center text-emerald-400 font-bold"><i class="ph ph-check-circle-fill"></i> OK</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5">C:\xampp\htdocs\opencart\admin\config.php</td>
+                    <td class="p-2.5 text-slate-400">Writable</td>
+                    <td class="p-2.5 text-white">Writable (已重命名)</td>
+                    <td class="p-2.5 text-center text-emerald-400 font-bold"><i class="ph ph-check-circle-fill"></i> OK</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="flex justify-between">
+              <button onclick="nextWizardStep(1)" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">Back</button>
+              <button onclick="nextWizardStep(3)" class="px-6 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 transition flex items-center gap-1.5">
+                <span>Continue (進入資料庫設定)</span> <i class="ph ph-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Database & Admin Configuration -->
+          <div id="wizard-step-3" class="space-y-4 hidden">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="ph ph-database text-amber-400 text-lg"></i> 3. Configuration (MySQL 資料庫與管理員帳號設定)
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
+              <div class="space-y-1.5">
+                <label class="text-slate-400">DB Driver:</label>
+                <input type="text" value="MySQLi / PDO_MySQL" readonly class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-300">
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-slate-400">DB Hostname:</label>
+                <input type="text" value="localhost" readonly class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-emerald-400 font-bold">
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-slate-400">DB Username:</label>
+                <input type="text" value="root" readonly class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-slate-400">DB Password:</label>
+                <input type="text" value="(空白，XAMPP 預設無密碼)" readonly class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-500">
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-slate-400">DB Database Name:</label>
+                <input type="text" value="opencart_db" readonly class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-amber-300 font-bold">
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-slate-400">DB Port:</label>
+                <input type="text" value="3306" readonly class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-300">
+              </div>
+            </div>
+
+            <!-- 管理員帳號 -->
+            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2 text-xs">
+              <span class="font-bold text-cyan-400 block">管理者登入帳密 (Administrator)：</span>
+              <div class="grid grid-cols-2 gap-3 font-mono">
+                <div>帳號：<span class="text-white font-bold">admin</span></div>
+                <div>密碼：<span class="text-amber-300 font-bold">admin123</span></div>
+              </div>
+            </div>
+
+            <div class="flex justify-between">
+              <button onclick="nextWizardStep(2)" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">Back</button>
+              <button onclick="nextWizardStep(4)" class="px-6 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center gap-1.5">
+                <i class="ph ph-gear-fine"></i> <span>Start Install (開始安裝並建立資料表)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 4: Installation Complete -->
+          <div id="wizard-step-4" class="space-y-5 hidden text-center py-4">
+            <div class="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-3xl shadow-lg shadow-emerald-500/20">
+              <i class="ph ph-check-fat-fill"></i>
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-lg font-black text-white">恭喜！OpenCart 安裝已順利完成！</h3>
+              <p class="text-xs text-slate-400">已自動在 MySQL 資料庫 <code>opencart_db</code> 內建立 120+ 張標準電商資料表。</p>
+            </div>
+
+            <!-- 資安提醒 -->
+            <div class="p-3.5 bg-rose-950/30 border border-rose-500/40 rounded-xl text-xs text-rose-300 text-left flex items-start gap-2 max-w-lg mx-auto">
+              <i class="ph ph-warning text-lg flex-shrink-0 mt-0.5"></i>
+              <span><b>重要資安步驟：</b>安裝完成後，請務必手動刪除 <code>C:\xampp\htdocs\opencart\install</code> 目錄，以避免系統被惡意重複覆蓋安裝！</span>
+            </div>
+
+            <!-- 操作按鈕 -->
+            <div class="flex justify-center gap-3 pt-2">
+              <button onclick="switchTab('store')" class="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg transition flex items-center gap-1.5">
+                <i class="ph ph-storefront"></i> 進入前台零件商城
+              </button>
+              <button onclick="switchTab('nodered')" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition flex items-center gap-1.5">
+                <i class="ph ph-plugs"></i> 前往 Node-RED 自動派工
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 2：前台零件目錄與下單模擬 ==================== -->
+    <section id="section-store" class="space-y-6 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">OpenCart 工業零件型錄商城 (Storefront)</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">點選商品模擬客戶下單，即時在 MySQL 資料庫生成 <code>oc_order</code> 訂單資料！</p>
+      </div>
+
+      <!-- 商品展示網格 -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        
+        <!-- 商品 1: 工業步進馬達 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-xl">
+          <div class="space-y-2">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">MODEL: NEMA-23</span>
+            <h3 class="text-base font-bold text-white">NEMA 23 閉迴路步進馬達</h3>
+            <p class="text-xs text-slate-400">適用於 CNC 與自動化輸送帶之高扭力步進驅動模組。</p>
+            <div class="text-lg font-black text-amber-400 font-mono">NT$ 2,800</div>
+          </div>
+          <button onclick="placeOrder('NEMA 23 閉迴路步進馬達', 2, 5600)" class="w-full py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
+            <i class="ph ph-shopping-bag"></i> 立即下單 (Qty: 2)
+          </button>
+        </div>
+
+        <!-- 商品 2: 工業溫濕度感測器 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-xl">
+          <div class="space-y-2">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">MODEL: SHT30-IND</span>
+            <h3 class="text-base font-bold text-white">RS485 Modbus 溫濕度變送器</h3>
+            <p class="text-xs text-slate-400">防塵防水 IP65 等級，支援標準 Modbus RTU 協議。</p>
+            <div class="text-lg font-black text-amber-400 font-mono">NT$ 1,200</div>
+          </div>
+          <button onclick="placeOrder('RS485 溫濕度變送器', 5, 6000)" class="w-full py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
+            <i class="ph ph-shopping-bag"></i> 立即下單 (Qty: 5)
+          </button>
+        </div>
+
+        <!-- 商品 3: PLC 核心控制模組 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-xl">
+          <div class="space-y-2">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">MODEL: FX5U-32MT</span>
+            <h3 class="text-base font-bold text-white">工業級微型 PLC 主機 (32點)</h3>
+            <p class="text-xs text-slate-400">具備高速計數與脈衝輸出，內建 Ethernet 通訊埠。</p>
+            <div class="text-lg font-black text-amber-400 font-mono">NT$ 12,500</div>
+          </div>
+          <button onclick="placeOrder('微型 PLC 主機 (32點)', 1, 12500)" class="w-full py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
+            <i class="ph ph-shopping-bag"></i> 立即下單 (Qty: 1)
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 3：Node-RED 訂單監聽與自動派工 ==================== -->
+    <section id="section-nodered" class="space-y-6 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">Node-RED 監聽 OpenCart 訂單並自動下發 PLC 產線</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">資料流閉環：電商下單 ➔ MySQL <code>oc_order</code> ➔ Node-RED 輪詢 ➔ Modbus 指令派工 ➔ 更新生產狀態！</p>
+      </div>
+
+      <!-- 訂單派工佇列監控看板 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <span class="text-xs font-bold text-white flex items-center gap-1.5">
+            <i class="ph ph-broadcast text-emerald-400 text-base"></i> 即時訂單派工佇列 (Polling: <code>SELECT * FROM oc_order WHERE order_status_id=1</code>)
+          </span>
+          <button onclick="dispatchAllOrders()" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1">
+            <i class="ph ph-paper-plane-tilt"></i> 執行 Node-RED 自動派工給 PLC
+          </button>
+        </div>
+
+        <!-- 訂單清單表格 -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950">
+          <table class="w-full text-left text-xs font-mono" id="order-table">
+            <thead class="bg-slate-900 text-slate-400 text-[10px] border-b border-slate-800">
+              <tr>
+                <th class="p-2.5">訂單編號 (Order ID)</th>
+                <th class="p-2.5">產品品名</th>
+                <th class="p-2.5 text-center">數量</th>
+                <th class="p-2.5 text-right">總金額</th>
+                <th class="p-2.5 text-center">訂單狀態</th>
+                <th class="p-2.5">PLC 派工狀態</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 text-slate-300" id="order-tbody">
+              <!-- JS 動態生成 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 4：安裝避坑指南 FAQ ==================== -->
+    <section id="section-faq" class="space-y-6 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">OpenCart 安裝常見問題與避坑指南</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">解決 config.php 未改名、install 目錄安全警報與 Storage 目錄保護技巧。</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-2">
+          <div class="text-xs font-bold text-amber-400 flex items-center gap-1.5 border-b border-slate-800 pb-2">
+            <i class="ph ph-file-dashed text-base"></i> 1. 為何安裝時提示「config.php is not writable」？
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <b>原因：</b>OpenCart 原始碼預設檔名為 <code>config-dist.php</code> 與 <code>admin/config-dist.php</code>。<br>
+            <b>解法：</b>手動將這兩個檔案改名為 <code>config.php</code> 即可順暢通過 Step 2 檢測。
+          </p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-2">
+          <div class="text-xs font-bold text-rose-400 flex items-center gap-1.5 border-b border-slate-800 pb-2">
+            <i class="ph ph-shield-warning text-base"></i> 2. 安裝完成後後台跳出紅字資安警告？
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <b>原因：</b>若未刪除 <code>install</code> 安裝引導目錄，任何人都可以重新執行安裝覆蓋資料庫。<br>
+            <b>解法：</b>至 <code>C:\xampp\htdocs\opencart\</code> 手動刪除 <code>install</code> 資料夾。
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 腳本 -->
+  <script>
+    let currentStep = 1;
+    let orders = [
+      { id: 1001, product: "NEMA 23 閉迴路步進馬達", qty: 2, total: "NT$ 5,600", status: "待處理", plc: "未派工" }
+    ];
+
+    function switchTab(tabId) {
+      const tabs = ['installer', 'store', 'nodered', 'faq'];
+      tabs.forEach(t => {
+        const sec = document.getElementById(`section-${t}`);
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === tabId) {
+          sec.classList.remove('hidden');
+          sec.classList.add('block');
+          btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-white bg-cyan-600 shadow-sm font-bold';
+        } else {
+          sec.classList.add('hidden');
+          sec.classList.remove('block');
+          btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200';
+        }
+      });
+      if (tabId === 'nodered') renderOrders();
+    }
+
+    function nextWizardStep(stepNum) {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`wizard-step-${i}`).classList.add('hidden');
+      }
+      document.getElementById(`wizard-step-${stepNum}`).classList.remove('hidden');
+      
+      const labels = [
+        "Step 1 / 4: License",
+        "Step 2 / 4: Pre-Installation",
+        "Step 3 / 4: Configuration",
+        "Step 4 / 4: Complete"
+      ];
+      document.getElementById('wizard-step-label').innerText = labels[stepNum - 1];
+    }
+
+    function placeOrder(name, qty, price) {
+      const newId = 1000 + orders.length + 1;
+      orders.unshift({
+        id: newId,
+        product: name,
+        qty: qty,
+        total: `NT$ ${price.toLocaleString()}`,
+        status: "待處理",
+        plc: "未派工"
+      });
+      alert(`已成功在 OpenCart 下單！\n訂單編號：#${newId}\n品項：${name} x ${qty}`);
+      switchTab('nodered');
+    }
+
+    function renderOrders() {
+      const tbody = document.getElementById('order-tbody');
+      tbody.innerHTML = orders.map(o => `
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="p-2.5 font-bold text-cyan-400">#${o.id}</td>
+          <td class="p-2.5 font-semibold text-white">${o.product}</td>
+          <td class="p-2.5 text-center text-slate-300">${o.qty}</td>
+          <td class="p-2.5 text-right font-bold text-amber-300">${o.total}</td>
+          <td class="p-2.5 text-center"><span class="px-2 py-0.5 rounded text-[10px] ${o.status === '待處理' ? 'bg-amber-950 text-amber-300 border border-amber-800' : 'bg-emerald-950 text-emerald-300'}">${o.status}</span></td>
+          <td class="p-2.5 font-mono ${o.plc === '已派工至 PLC 產線' ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${o.plc}</td>
+        </tr>
+      `).join('');
+    }
+
+    function dispatchAllOrders() {
+      let count = 0;
+      orders.forEach(o => {
+        if (o.status === "待處理") {
+          o.status = "已確認生產";
+          o.plc = "已派工至 PLC 產線";
+          count++;
+        }
+      });
+      renderOrders();
+      alert(`Node-RED 數據中台已成功輪詢並派工 ${count} 筆訂單至工控 PLC！`);
+    }
+
+    // 初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      renderOrders();
+    });
+  </script>
+</body>
+</html>
