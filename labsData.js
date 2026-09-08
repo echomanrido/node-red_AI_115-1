@@ -3720,5 +3720,264 @@ window.INITIAL_LABS_DATA = [
         "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Expressions_and_operators"
       }
     ]
+  },
+  {
+    "id": "lab-18",
+    "labNumber": "18",
+    "title": "練習 4-2: switch 節點實作 - 使用「在之間 (is between)」進行區間過濾",
+    "date": "2026-09-08",
+    "category": "基礎操作",
+    "summary": "學習在 Node-RED switch 節點中使用「在之間 (is between)」規則進行數值範圍過濾。設定條件為 msg.payload 介於 14 與 115 之間，當傳入 71、99、14 時符合區間順利通過；而低於下限的 8 與高於上限的 116 則被自動攔截過濾，實現免寫代碼的邊界防護與區間篩選。",
+    "flowImage": "images_src/ok/20260908_flow_lab18_switch_between_14_115.png",
+    "resultImage": "images_src/ok/20260908_result_lab18_switch_between_debug.png",
+    "funcImage": "images_src/ok/20260908_function_lab18_switch_between_dialog.png",
+    "objective": "1. 掌握 switch 節點中「在之間 (is between)」條件運算子的設定方法與雙邊界判定特性。\n2. 學習無程式碼 (No-Code) 快速定義有效數值區間 (14 ~ 115) 並過濾異常偏高或偏低的離群值。\n3. 理解 switch 節點區間過濾對邊界數值（如 14）的判定行為與封包阻斷邏輯。\n4. 掌握工控 SCADA 製程容許公差區間（如溫度 14°C~115°C、壓力/液位安全帶）自動警報與放行控制。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 註釋與 5 組測試 Inject 節點",
+        "description": "在畫布上方建立 Comment 標記「練習4-2. switch (使用 在之間)」，並依序建立 5 個 Inject 節點，payload 分別設定為 number 71、99、8、14 與 116。"
+      },
+      {
+        "step": "2. 配置 switch 節點設定「在之間 14 與 115」",
+        "description": "加入 switch 節點命名為「switch(在之間)」，Property 設為 msg.payload，運算子下拉選取「在之間 (is between)」，輸入區間下限「14」與上限「115」。"
+      },
+      {
+        "step": "3. 連接 Debug 38 節點並部署流程",
+        "description": "將 5 個 Inject 節點輸出均拉線至 switch 節點輸入端，switch 輸出端連接至 Debug 節點 (debug 38)，點擊右上角 Deploy 部署流程。"
+      },
+      {
+        "step": "4. 點擊測試驗證區間過濾行為",
+        "description": "依序點擊 5 個 Inject 按鈕：71、99、14 皆落於 [14, 115] 區間內故順利輸出；而 8 (< 14) 與 116 (> 115) 因超出區間被 switch 自動攔截，Debug 視窗完全不印出，驗證區間過濾完全正確！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "SCADA 恆溫/恆壓控制系統安全操作帶 (Operating Band)",
+        "icon": "fa-solid fa-temperature-half",
+        "description": "製程反應爐溫度設定在 14°C~115°C 之間為正常運作區間，透過 switch (在之間) 放行正常數據記錄，超出該區間之異常訊號分流至緊急降溫或加熱連鎖保護。"
+      },
+      {
+        "scenario": "工業產線電子元件電阻/電容容差 (Tolerance) 篩選",
+        "icon": "fa-solid fa-microchip",
+        "description": "自動化測試治具 (ICT) 測量被動元件數值，利用 switch (在之間) 判斷是否落在 ±5% 合格公差區間，自動驅動分選機推桿進行良品歸類。"
+      },
+      {
+        "scenario": "車輛物聯網 (Fleet IoT) 胎壓與電壓正常範圍監控",
+        "icon": "fa-solid fa-truck-moving",
+        "description": "車隊遠端診斷系統讀取電瓶電壓或胎壓數值，過濾掉正常區間數值，僅在數值跳出安全範圍時向後端雲端中控台發送推播警報。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「練習4-2. switch 節點使用『在之間 (is between)』進行區間過濾」功能：\n1. 包含一個 Comment 節點，標註「練習4-2. switch (使用 在之間)」。\n2. 包含 5 個 Inject 節點，分別傳送 number 數值：71、99、8、14、116。\n3. 包含一個 switch 節點命名為「switch(在之間)」，設定 Property 為 msg.payload，規則為「在之間」14 與 115。\n4. 包含一個 Debug 節點 (debug 38) 輸出符合區間的 msg.payload。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab18",
+        "type": "comment",
+        "z": "tab_lab18",
+        "name": "練習4-2. switch (使用 在之間)",
+        "info": "",
+        "x": 230,
+        "y": 100,
+        "wires": []
+      },
+      {
+        "id": "inject_71_lab18",
+        "type": "inject",
+        "z": "tab_lab18",
+        "name": "71",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "71",
+        "payloadType": "num",
+        "x": 170,
+        "y": 160,
+        "wires": [
+          [
+            "switch_between_node"
+          ]
+        ]
+      },
+      {
+        "id": "inject_99_lab18",
+        "type": "inject",
+        "z": "tab_lab18",
+        "name": "99",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "99",
+        "payloadType": "num",
+        "x": 170,
+        "y": 220,
+        "wires": [
+          [
+            "switch_between_node"
+          ]
+        ]
+      },
+      {
+        "id": "inject_8_lab18",
+        "type": "inject",
+        "z": "tab_lab18",
+        "name": "8",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "8",
+        "payloadType": "num",
+        "x": 170,
+        "y": 280,
+        "wires": [
+          [
+            "switch_between_node"
+          ]
+        ]
+      },
+      {
+        "id": "inject_14_lab18",
+        "type": "inject",
+        "z": "tab_lab18",
+        "name": "14",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "14",
+        "payloadType": "num",
+        "x": 170,
+        "y": 340,
+        "wires": [
+          [
+            "switch_between_node"
+          ]
+        ]
+      },
+      {
+        "id": "inject_116_lab18",
+        "type": "inject",
+        "z": "tab_lab18",
+        "name": "116",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "116",
+        "payloadType": "num",
+        "x": 170,
+        "y": 400,
+        "wires": [
+          [
+            "switch_between_node"
+          ]
+        ]
+      },
+      {
+        "id": "switch_between_node",
+        "type": "switch",
+        "z": "tab_lab18",
+        "name": "switch(在之間)",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+          {
+            "t": "btwn",
+            "v": "14",
+            "vt": "str",
+            "v2": "115",
+            "v2t": "str"
+          }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 390,
+        "y": 280,
+        "wires": [
+          [
+            "debug_38"
+          ]
+        ]
+      },
+      {
+        "id": "debug_38",
+        "type": "debug",
+        "z": "tab_lab18",
+        "name": "debug 38",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 280,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - switch 節點使用手冊",
+        "url": "https://nodered.org/docs/user-guide/nodes#switch"
+      },
+      {
+        "title": "MDN 官方文件 - JavaScript 運算式與比較運算子",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Expressions_and_operators"
+      }
+    ]
   }
 ];
