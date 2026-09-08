@@ -202,6 +202,18 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
         ` : ''}
+
+        ${lab.extraImages ? lab.extraImages.map(extra => `
+        <div class="image-card">
+          <div class="image-header">
+            <span class="image-title"><i class="${escapeHtml(extra.icon || 'fa-solid fa-image')}"></i> ${escapeHtml(extra.title || '設定截圖')}</span>
+            <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+          </div>
+          <div class="image-wrapper extra-img-wrapper" data-src="${extra.image}" data-title="${escapeHtml(extra.title || '')}">
+            <img src="${extra.image}" alt="${escapeHtml(extra.title || '截圖')}" onerror="this.src='https://via.placeholder.com/600x300?text=Image+Not+Found'">
+          </div>
+        </div>
+        `).join('') : ''}
       </section>
 
       <!-- (3) Lab 目標 -->
@@ -299,6 +311,12 @@ document.addEventListener('DOMContentLoaded', () => {
         openLightbox(lab.funcImage, `Lab ${lab.labNumber} - Function 程式碼`);
       });
     }
+
+    document.querySelectorAll('.extra-img-wrapper').forEach(wrapper => {
+      wrapper.addEventListener('click', () => {
+        openLightbox(wrapper.dataset.src, `Lab ${lab.labNumber} - ${wrapper.dataset.title}`);
+      });
+    });
   }
 
   // 跨瀏覽器相容全功能複製函式

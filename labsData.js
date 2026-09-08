@@ -3979,5 +3979,336 @@ window.INITIAL_LABS_DATA = [
         "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Expressions_and_operators"
       }
     ]
+  },
+  {
+    "id": "lab-19",
+    "labNumber": "19",
+    "title": "練習 3&4: function 與 switch 綜合練習 - 條件分流運算與 Dashboard 儀表板 (民國轉西元)",
+    "date": "2026-09-08",
+    "category": "基礎實作",
+    "summary": "學習結合 switch 多路分流節點與 Function 算術運算節點，實現無程式碼 (No-Code) 判斷與 JavaScript 精準運算的混合架構。輸入之民國年份透過 switch 判定：若 >= 18 則分流至「+ 1911」節點換算為西元年份；若 < 18 則分流至「= 0」節點歸零，並雙向整合 Node-RED Dashboard 網頁介面 (民國輸入與西元輸出)。",
+    "flowImage": "images_src/ok/20260908_flow_lab19_function_switch_combo.png",
+    "resultImage": "images_src/ok/20260908_dashboard_tree_lab19_widgets.png",
+    "funcImage": "images_src/ok/20260908_function_code_lab19_plus_1911.png",
+    "extraImages": [
+      {
+        "title": "switch 節點條件分流設定 (>= 18 與 < 18)",
+        "image": "images_src/ok/20260908_switch_config_lab19_ge_lt_18.png",
+        "icon": "fa-solid fa-shuffle"
+      },
+      {
+        "title": "UI Number Input 民國輸入節點設定",
+        "image": "images_src/ok/20260908_ui_input_config_lab19.png",
+        "icon": "fa-solid fa-sliders"
+      }
+    ],
+    "objective": "1. 掌握 switch 條件分流節點與 Function 算術運算節點的跨模組整合方法。\n2. 理解多路輸出 (Multiple Outputs) 路由機制：>= 18 導向換算分支 (+ 1911)，< 18 導向歸零分支 (= 0)。\n3. 學習 Node-RED Dashboard 儀表板節點 (ui_numeric 與 ui_text) 之群組設定與雙向互動。\n4. 掌握多來源輸入 (Inject 手動測試點 + UI 網頁輸入元件) 匯流至單一 switch 判斷核心的架構設計。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 註解與 3 組測試 Inject 節點",
+        "description": "在畫布上方建立 Comment 標註「練習3&4 function/switch綜合練習」，並新增 3 個 Inject 節點，payload 分別設定為 number 71、99 與 8。"
+      },
+      {
+        "step": "2. 加入 UI Number Input 民國輸入節點",
+        "description": "從左側 dashboard 面板拖曳 ui_numeric 節點，Label 設為「民國輸入」，Group 指派為「[115_機電AI班_01期] 民國轉西元」，使其可從 Dashboard 網頁直接輸入年份。"
+      },
+      {
+        "step": "3. 配置 switch 節點設定雙條件分流 (>= 18 與 < 18)",
+        "description": "加入 switch 節點，Property 設為 msg.payload，設定兩條規則：\n- 規則 1：>= 18 ➔ 導向輸出埠 1 (Port 1)\n- 規則 2：< 18 ➔ 導向輸出埠 2 (Port 2)"
+      },
+      {
+        "step": "4. 建立兩組 Function 運算節點 (+ 1911 與 = 0)",
+        "description": "輸出埠 1 連接至 Function 節點「+ 1911」，撰寫 JavaScript 程式碼：msg.payload = msg.payload + 1911; return msg;；輸出埠 2 連接至 Function 節點「= 0」，程式碼為：msg.payload = 0; return msg;。"
+      },
+      {
+        "step": "5. 連接 Debug 39 與 UI 西元輸出節點並驗證",
+        "description": "將兩組 Function 節點的輸出端同時連接至「debug 39」節點與 Dashboard「西元輸出」節點。點擊 Deploy 部署後，觸發 71 輸出 1982、觸發 99 輸出 2010、觸發 8 輸出 0，且 Dashboard 網頁即時同步呈現！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / PLC 氣壓缸動作區間安全聯鎖",
+        "icon": "fa-solid fa-gears",
+        "description": "SCADA 系統接收 PLC 機台感測器傳入之氣壓磅數或伺服位置，switch 判定壓力 >= 18 bar 導向正常加壓運算與作動指令；低於 18 bar 則導向歸零與安全停機保護，避免氣壓不足導致夾爪掉料。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 廠務純水水質分級處理與加藥控制",
+        "icon": "fa-solid fa-microchip",
+        "description": "晶圓製程超純水 (UPW) 監控系統讀取水質阻抗係數 (MΩ·cm)，switch 判斷達到 18 MΩ·cm 以上則導向合格生產線並計算流速配比；低於標準則直接歸零並導入廢水回收再處理槽，確保晶圓無瑕疵。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧快遞箱重量分流與計費儀表板",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "社區智慧快遞櫃秤重感測器將包裹公斤數上傳至 Dashboard，switch 判定 >= 18kg 之大型包裹分流至大儲格並加計超重費用 (+超重費)；< 18kg 則維持標準費用 (=0)，儀表板即時顯示應收總額。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「練習 3&4: function 與 switch 綜合練習 (民國轉西元 Dashboard 儀表板)」：\n1. 包含一個 Comment 節點，名稱為「練習3&4 function/switch綜合練習」。\n2. 包含 3 個 Inject 節點，payload 分別為 number 71、99、8。\n3. 包含一個 UI Number Input 節點 (ui_numeric)，Label 為「民國輸入」，歸屬於「[115_機電AI班_01期] 民國轉西元」群組。\n4. 包含一個 switch 節點，接收上述 3 個 Inject 與民國輸入，設定 Property 為 msg.payload：\n   - 規則 1：>= 18 (輸出埠 1)\n   - 規則 2：< 18 (輸出埠 2)\n5. 輸出埠 1 連接至 Function 節點「+ 1911」，內容為 msg.payload = msg.payload + 1911; return msg;\n6. 輸出埠 2 連接至 Function 節點「= 0」，內容為 msg.payload = 0; return msg;\n7. 兩組 Function 節點均連接至 Debug 節點 (debug 39) 與 UI Text 節點 (西元輸出)。\n請輸出標準可匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab19",
+        "type": "comment",
+        "z": "tab_lab19",
+        "name": "練習3&4 function/switch綜合練習",
+        "info": "",
+        "x": 210,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "inject_71_lab19",
+        "type": "inject",
+        "z": "tab_lab19",
+        "name": "71",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "71",
+        "payloadType": "num",
+        "x": 110,
+        "y": 120,
+        "wires": [
+          [
+            "switch_combo_node"
+          ]
+        ]
+      },
+      {
+        "id": "inject_99_lab19",
+        "type": "inject",
+        "z": "tab_lab19",
+        "name": "99",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "99",
+        "payloadType": "num",
+        "x": 110,
+        "y": 180,
+        "wires": [
+          [
+            "switch_combo_node"
+          ]
+        ]
+      },
+      {
+        "id": "inject_8_lab19",
+        "type": "inject",
+        "z": "tab_lab19",
+        "name": "8",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "8",
+        "payloadType": "num",
+        "x": 110,
+        "y": 240,
+        "wires": [
+          [
+            "switch_combo_node"
+          ]
+        ]
+      },
+      {
+        "id": "ui_numeric_roc_input",
+        "type": "ui_numeric",
+        "z": "tab_lab19",
+        "name": "",
+        "label": "民國輸入",
+        "tooltip": "",
+        "group": "group_roc_to_ad",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 200,
+        "step": 1,
+        "className": "",
+        "x": 270,
+        "y": 240,
+        "wires": [
+          [
+            "switch_combo_node"
+          ]
+        ]
+      },
+      {
+        "id": "switch_combo_node",
+        "type": "switch",
+        "z": "tab_lab19",
+        "name": "switch",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+          {
+            "t": "gte",
+            "v": "18",
+            "vt": "num"
+          },
+          {
+            "t": "lt",
+            "v": "18",
+            "vt": "num"
+          }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 280,
+        "y": 140,
+        "wires": [
+          [
+            "func_plus_1911"
+          ],
+          [
+            "func_set_zero"
+          ]
+        ]
+      },
+      {
+        "id": "func_plus_1911",
+        "type": "function",
+        "z": "tab_lab19",
+        "name": "+ 1911",
+        "func": "msg.payload = msg.payload + 1911;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 120,
+        "wires": [
+          [
+            "debug_39",
+            "ui_text_ad_output"
+          ]
+        ]
+      },
+      {
+        "id": "func_set_zero",
+        "type": "function",
+        "z": "tab_lab19",
+        "name": "= 0",
+        "func": "msg.payload = 0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 180,
+        "wires": [
+          [
+            "debug_39",
+            "ui_text_ad_output"
+          ]
+        ]
+      },
+      {
+        "id": "debug_39",
+        "type": "debug",
+        "z": "tab_lab19",
+        "name": "debug 39",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 120,
+        "wires": []
+      },
+      {
+        "id": "ui_text_ad_output",
+        "type": "ui_text",
+        "z": "tab_lab19",
+        "group": "group_roc_to_ad",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "西元輸出",
+        "label": "西元輸出",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 540,
+        "y": 240,
+        "wires": []
+      },
+      {
+        "id": "group_roc_to_ad",
+        "type": "ui_group",
+        "name": "民國轉西元",
+        "tab": "tab_ai_class",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+      },
+      {
+        "id": "tab_ai_class",
+        "type": "ui_tab",
+        "name": "115_機電AI班_01期",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - switch 節點使用手冊",
+        "url": "https://nodered.org/docs/user-guide/nodes#switch"
+      },
+      {
+        "title": "Node-RED Dashboard 官方節點套件 (@flowfuse/node-red-dashboard)",
+        "url": "https://flows.nodered.org/node/@flowfuse/node-red-dashboard"
+      },
+      {
+        "title": "MDN 官方文件 - JavaScript 運算式與比較運算子",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Expressions_and_operators"
+      }
+    ]
   }
 ];
