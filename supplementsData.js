@@ -609,20 +609,22 @@ window.INITIAL_SUPPLEMENTS_DATA = [
     "id": "sup-14",
     "number": "14",
     "supNumber": "14",
-    "title": "XAMPP 整合開發環境安裝、服務管理與 MySQL/htdocs 實務指南",
+    "title": "XAMPP 整合開發環境安裝、歡迎儀表板 (Dashboard) 與 MySQL/htdocs 實務指南",
     "category": "資料庫與後端整合",
     "date": "2026-09-08",
-    "summary": "完整解析 XAMPP 整合伺服器套件（Apache Web 伺服器、MySQL/MariaDB 資料庫、PHP 與 phpMyAdmin 網頁管理介面）的運作架構、實機服務啟動、連接埠管理與網站根目錄（htdocs）部署機制。本單元引導學員掌握 XAMPP Control Panel 控制台操作、排查常見 Port 80/3306 衝突與權限警示、理解 Apache 網頁發布目錄（C:\\xampp\\htdocs）與 Node-RED write file 實作之整合應用，並透過 phpMyAdmin 建置 SCADA 工控感測資料庫，為物聯網全鏈路數據落地與報表發布奠定核心基礎。",
+    "summary": "完整解析 XAMPP 整合伺服器套件（Apache Web 伺服器、MySQL/MariaDB 資料庫、PHP 與 phpMyAdmin 網頁管理介面）的運作架構、實機服務啟動、官方歡迎首頁（Dashboard）、連接埠管理與網站根目錄（htdocs）部署機制。本單元引導學員掌握 XAMPP Control Panel 控制台操作、驗證 Apache 啟動後的 Welcome Dashboard 頁面（http://localhost/）、排查常見 Port 80/3306 衝突與權限警示、理解 Apache 網頁發布目錄（C:\\xampp\\htdocs）與 Node-RED write file 實作之整合應用，並透過 phpMyAdmin 建置 SCADA 工控感測資料庫，為物聯網全鏈路數據落地與報表發布奠定核心基礎。",
     "image": "images_src/ok/20260908_xampp_control_panel_running.png",
     "images": [
       "images_src/ok/20260908_xampp_control_panel_running.png",
+      "images_src/ok/20260908_xampp_welcome_dashboard.png",
       "images_src/ok/20260908_xampp_htdocs_folder.png"
     ],
     "flowImage": [
       "images_src/ok/20260908_xampp_control_panel_running.png",
+      "images_src/ok/20260908_xampp_welcome_dashboard.png",
       "images_src/ok/20260908_xampp_htdocs_folder.png"
     ],
-    "objective": "1. 理解 XAMPP 核心組件（Apache 網頁伺服器、MySQL/MariaDB 資料庫、phpMyAdmin）之運作機制與工控物聯網角色。\n2. 熟練操作 XAMPP Control Panel 控制台，掌握 Apache（Port 80/443）與 MySQL（Port 3306）之服務啟動、PID/Port 監控與執行狀態辨識。\n3. 掌握 Windows 檔案總管中 C:\\xampp\\htdocs 網頁根目錄架構，理解 Node-RED 如何透過 write file 輸出動態 HTML 報表至 htdocs 並由瀏覽器透過 localhost 存取。\n4. 學會解讀控制台錯誤日誌（如 blocked port、improper privileges、crash 提示），並具備 Port 80（IIS/Skype 佔用）與 Port 3306 衝突之排查與設定檔修改（httpd.conf / my.ini）能力。\n5. 透過 phpMyAdmin 視覺化介面建立 SCADA 資料庫與感測器歷史記錄資料表（sensor_logs），為 Node-RED 串接 MySQL 做好準備。",
+    "objective": "1. 理解 XAMPP 核心組件（Apache 網頁伺服器、MySQL/MariaDB 資料庫、phpMyAdmin、PHP/Perl 運行環境）之運作機制與工控物聯網角色。\n2. 熟練操作 XAMPP Control Panel 控制台，掌握 Apache（Port 80/443）與 MySQL（Port 3306）之服務啟動、PID/Port 監控與執行狀態辨識。\n3. 驗證 Apache 伺服器運作，透過瀏覽器開啟 http://localhost/ 檢視 XAMPP 官方歡迎首頁 (Dashboard)，掌握頂部導覽列之 PHPInfo、HOW-TO Guides 與 phpMyAdmin 入口。\n4. 掌握 Windows 檔案總管中 C:\\xampp\\htdocs 網頁根目錄架構，理解 Node-RED 如何透過 write file 輸出動態 HTML 報表至 htdocs 並由瀏覽器透過 localhost 存取。\n5. 學會解讀控制台錯誤日誌（如 blocked port、improper privileges、crash 提示），並具備 Port 80（IIS/Skype 佔用）與 Port 3306 衝突之排查與設定檔修改（httpd.conf / my.ini）能力。\n6. 透過 phpMyAdmin 視覺化介面建立 SCADA 資料庫與感測器歷史記錄資料表（sensor_logs），為 Node-RED 串接 MySQL 做好準備。",
     "tutorialSteps": [
       {
         "step": "Step 1. XAMPP 安裝目錄架構與 C:\\xampp\\htdocs 網頁根目錄解析",
@@ -633,12 +635,16 @@ window.INITIAL_SUPPLEMENTS_DATA = [
         "description": "以系統管理員身分開啟 xampp-control.exe。在主介面中點擊 Apache 與 MySQL 旁的「Start」按鈕。當模組名稱背景轉為綠色、顯示對應 PID（例如 Apache: 38140/34572、MySQL: 40360）與監聽連接埠（Apache: 80, 443；MySQL: 3306），且下方 Console 顯示「Status change detected: running」時，代表本機網頁伺服器與資料庫服務皆已成功啟動並常駐運作。"
       },
       {
-        "step": "Step 3. 控制台日誌警示分析與常見 Port 80/3306 衝突排除 SOP",
+        "step": "Step 3. 瀏覽器驗證 XAMPP Welcome 歡迎首頁 (Dashboard)",
+        "description": "當 Apache 啟動後，於瀏覽器網址列輸入 http://localhost/ 或 http://127.0.0.1/，系統會自動導向 http://localhost/dashboard/ 並呈現「Welcome to XAMPP for Windows」官方歡迎儀表板。畫面頂部提供快捷功能列：\n• phpMyAdmin：直接進入 MySQL 網頁視覺化資料庫管理後台。\n• PHPInfo：檢視目前伺服器 PHP 版本（如 PHP 8.0.30）、模組擴充與環境配置。\n• HOW-TO Guides：查看 PHP 與應用程式部署教學。"
+      },
+      {
+        "step": "Step 4. 控制台日誌警示分析與常見 Port 80/3306 衝突排除 SOP",
         "description": "若控制台下方出現紅色訊息（如「This may be due to a blocked port, missing dependencies, improper privileges, a crash...」），代表遭遇常見連線問題：\n• Port 80 遭佔用：通常因 Windows 內建 IIS (World Wide Web Publishing Service) 或 Skype 佔用。可暫時關閉 IIS 服務，或點擊 Apache 旁「Config」-> 開啟 httpd.conf 將「Listen 80」修改為「Listen 8080」，改用 http://localhost:8080/ 存取。\n• Port 3306 衝突：電腦若已有常駐之獨立 MySQL 服務，可點擊 MySQL 旁「Config」-> 開啟 my.ini 將兩處「port=3306」修改為「port=3307」。\n• 權限不足：確認是否已使用「以系統管理員身分執行」啟動 XAMPP 控制台。"
       },
       {
-        "step": "Step 4. 透過 phpMyAdmin 建置 SCADA 工控感測資料庫與 Node-RED 串接",
-        "description": "點擊 MySQL 模組旁的「Admin」按鈕或於瀏覽器開啟 http://localhost/phpmyadmin/。點選左側「+ 新增」建立名為 scada_factory_db 的資料庫，並建立包含 id (主鍵 AUTO_INCREMENT)、sensor_name、temperature、humidity、current_val 與 created_at (TIMESTAMP DEFAULT CURRENT_TIMESTAMP) 的感測器數據表記錄表 (sensor_logs)。隨後即可在 Node-RED 安裝 node-red-node-mysql 擴充節點，將產線感測數據即時 INSERT 寫入資料庫！"
+        "step": "Step 5. 透過 phpMyAdmin 建置 SCADA 工控感測資料庫與 Node-RED 串接",
+        "description": "點擊 Dashboard 頂部的「phpMyAdmin」或控制台 MySQL 模組旁的「Admin」按鈕進入 http://localhost/phpmyadmin/。點選左側「+ 新增」建立名為 scada_factory_db 的資料庫，並建立包含 id (主鍵 AUTO_INCREMENT)、sensor_name、temperature、humidity、current_val 與 created_at (TIMESTAMP DEFAULT CURRENT_TIMESTAMP) 的感測器數據表記錄表 (sensor_logs)。隨後即可在 Node-RED 安裝 node-red-node-mysql 擴充節點，將產線感測數據即時 INSERT 寫入資料庫！"
       }
     ],
     "applications": [
@@ -658,7 +664,7 @@ window.INITIAL_SUPPLEMENTS_DATA = [
         "description": "將 XAMPP 作為地端邊緣核心伺服器，前端 Dashboard 或 Grafana 連線 MySQL 資料庫繪製趨勢圖，同時由 Apache 託管前端網頁應用程式，建構完整的工控監控大屏。"
       }
     ],
-    "aiPrompt": "請扮演工控物聯網與邊緣伺服器架構專家，針對「XAMPP 整合環境安裝、控制台服務管理、htdocs 網頁部署與 MySQL 資料庫建置」提供深度指導：\n1. 解釋 XAMPP 控制台中 Apache (80/443) 與 MySQL (3306) 的運作狀態指示，以及當控制台日誌出現 'blocked port / missing dependencies / improper privileges' 警示時的逐步排查與修正 SOP。\n2. 說明 C:\\xampp\\htdocs 在 Apache Web 伺服器中的角色，並寫出一段 Node-RED Function 與 write file 節點的配置邏輯，說明如何將動態感測器 HTML 報表寫入該目錄供區域網路瀏覽。\n3. 提供一套完整的 SCADA 感測記錄表 (sensor_logs) SQL 建立語法與 Node-RED node-red-node-mysql 連線參數設定教學。",
+    "aiPrompt": "請扮演工控物聯網與邊緣伺服器架構專家，針對「XAMPP 整合環境安裝、控制台服務管理、Welcome Dashboard 驗證、htdocs 網頁部署與 MySQL 資料庫建置」提供深度指導：\n1. 解釋 XAMPP 控制台中 Apache (80/443) 與 MySQL (3306) 的運作指示，以及當瀏覽器開啟 http://localhost/ 看到 Welcome Dashboard 時代表的伺服器運作意義。\n2. 分析控制台日誌出現 'blocked port / missing dependencies / improper privileges' 警示時的逐步排查與修正 SOP。\n3. 說明 C:\\xampp\\htdocs 在 Apache Web 伺服器中的角色，並寫出一段 Node-RED Function 與 write file 節點的配置邏輯，說明如何將動態感測器 HTML 報表寫入該目錄供區域網路瀏覽。\n4. 提供一套完整的 SCADA 感測記錄表 (sensor_logs) SQL 建立語法與 Node-RED node-red-node-mysql 連線參數設定教學。",
     "references": [
       {
         "title": "互動模擬系統：XAMPP 安裝與 MySQL 資料庫管理模擬器",
