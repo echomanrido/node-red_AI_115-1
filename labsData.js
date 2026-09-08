@@ -3453,5 +3453,272 @@ window.INITIAL_LABS_DATA = [
         "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/var"
       }
     ]
+  },
+  {
+    "id": "lab-17",
+    "labNumber": "17",
+    "title": "練習 4-1: switch 節點實作 - 使用大於等於 (>=) 進行條件過濾與數值分流",
+    "date": "2026-09-08",
+    "category": "基礎操作",
+    "summary": "學習使用 Node-RED 原生核心「switch」節點進行無程式碼 (No-Code) 條件判斷。設定規則為 msg.payload >= 14，當傳入之民國年份大於等於 14 (如 71、99、14、116) 時順利通過並由輸出埠 1 傳遞至 Debug 節點；未滿 14 (如 8) 則被自動攔截過濾。",
+    "flowImage": "images_src/ok/20260908_flow_lab17_switch_filter_ge14.png",
+    "resultImage": "images_src/ok/20260908_result_lab17_switch_filter_debug.png",
+    "funcImage": "images_src/ok/20260908_function_lab17_switch_config_dialog.png",
+    "objective": "1. 掌握 Node-RED 原生核心「switch」節點的用途與免寫程式碼 (No-Code) 的條件判斷優勢。\n2. 學習在 switch 節點中設定大於等於 (>=) 比較運算子與門檻值 (14)。\n3. 理解 switch 節點的過濾與放行機制（符合條件才發送訊息，不符條件直接阻斷）。\n4. 掌握工控 SCADA 感測器雜訊低通濾波 (Low-pass Filter) 與門檻觸發分流之實務架構。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 註釋與 5 組測試 Inject 節點",
+        "description": "在畫布上方建立 Comment 節點註明「練習4-1. switch實作」與「使用>=」，並依序建立 5 個 Inject 節點，payload 分別設定為 number: 71、99、8、14、116。"
+      },
+      {
+        "step": "2. 配置 switch 節點設定 >= 14 規則",
+        "description": "拉入 switch 節點並命名為「民國轉西元」，Property 設為 msg.payload，條件運算子下拉選取「>=」，右側輸入「14」，產生一個輸出端口。"
+      },
+      {
+        "step": "3. 連接 Debug 37 節點並部署流程",
+        "description": "將 5 個 Inject 節點的輸出端全部拉線至 switch 節點的輸入端，switch 的第 1 輸出端連接至 Debug 節點 (debug 37)，點擊右上角 Deploy 部署。"
+      },
+      {
+        "step": "4. 點擊測試驗證條件過濾機制",
+        "description": "依序點擊 5 個 Inject 按鈕：71、99、14、116 均 >= 14 故順利輸出；而輸入 8 時因未達 14 門檻被 switch 節點靜默過濾，Debug 視窗不印出任何內容，驗證過濾邏輯完全成功！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "工控 SCADA 感測器低訊噪比 (SNR) 門檻濾波",
+        "icon": "fa-solid fa-filter",
+        "description": "產線振動或壓力感測器在待機時會產生微小底噪，透過 switch 節點設定 >= 門檻值，將待機雜訊直接過濾，只在設備啟動高負載時傳遞有效數據。"
+      },
+      {
+        "scenario": "產線工件計數與合格品/瑕疵品路由分流",
+        "icon": "fa-solid fa-arrows-split-up-and-left",
+        "description": "視覺檢測或測重計回傳重量，switch 節點依據標準重量範圍進行多路分流，合格品導向包裝流程，過輕或過重分流至異常報警流程。"
+      },
+      {
+        "scenario": "自動化門禁合法年份與等級權限放行",
+        "icon": "fa-solid fa-door-open",
+        "description": "門禁系統讀取卡片或工號等級，switch 節點檢驗權限值 >= 14 即放行開啟電動閘門，低於權限等級者不予放行，實現無程式碼快速分級管制。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「練習4-1. switch 節點使用 >= 進行數值條件過濾」功能：\n1. 包含兩個 Comment 節點，分別標註「練習4-1. switch實作」與「使用>=」。\n2. 包含 5 個 Inject 節點，分別傳送 number 數值：71、99、8、14、116。\n3. 包含一個 switch 節點命名為「民國轉西元」，設定 Property 為 msg.payload，規則為 >= \"14\"。\n4. 包含一個 Debug 節點 (debug 37) 輸出符合條件的 msg.payload。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab17_title",
+        "type": "comment",
+        "z": "tab_lab17",
+        "name": "練習4-1. switch實作",
+        "info": "",
+        "x": 190,
+        "y": 80,
+        "wires": []
+      },
+      {
+        "id": "comment_lab17_sub",
+        "type": "comment",
+        "z": "tab_lab17",
+        "name": "使用>=",
+        "info": "",
+        "x": 170,
+        "y": 120,
+        "wires": []
+      },
+      {
+        "id": "inject_71_lab17",
+        "type": "inject",
+        "z": "tab_lab17",
+        "name": "71",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "71",
+        "payloadType": "num",
+        "x": 170,
+        "y": 180,
+        "wires": [
+          [
+            "switch_roc_to_ad"
+          ]
+        ]
+      },
+      {
+        "id": "inject_99_lab17",
+        "type": "inject",
+        "z": "tab_lab17",
+        "name": "99",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "99",
+        "payloadType": "num",
+        "x": 170,
+        "y": 240,
+        "wires": [
+          [
+            "switch_roc_to_ad"
+          ]
+        ]
+      },
+      {
+        "id": "inject_8_lab17",
+        "type": "inject",
+        "z": "tab_lab17",
+        "name": "8",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "8",
+        "payloadType": "num",
+        "x": 170,
+        "y": 300,
+        "wires": [
+          [
+            "switch_roc_to_ad"
+          ]
+        ]
+      },
+      {
+        "id": "inject_14_lab17",
+        "type": "inject",
+        "z": "tab_lab17",
+        "name": "14",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "14",
+        "payloadType": "num",
+        "x": 170,
+        "y": 360,
+        "wires": [
+          [
+            "switch_roc_to_ad"
+          ]
+        ]
+      },
+      {
+        "id": "inject_116_lab17",
+        "type": "inject",
+        "z": "tab_lab17",
+        "name": "116",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "116",
+        "payloadType": "num",
+        "x": 170,
+        "y": 420,
+        "wires": [
+          [
+            "switch_roc_to_ad"
+          ]
+        ]
+      },
+      {
+        "id": "switch_roc_to_ad",
+        "type": "switch",
+        "z": "tab_lab17",
+        "name": "民國轉西元",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+          {
+            "t": "gte",
+            "v": "14",
+            "vt": "str"
+          }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 390,
+        "y": 300,
+        "wires": [
+          [
+            "debug_37"
+          ]
+        ]
+      },
+      {
+        "id": "debug_37",
+        "type": "debug",
+        "z": "tab_lab17",
+        "name": "debug 37",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 300,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - switch 節點使用手冊",
+        "url": "https://nodered.org/docs/user-guide/nodes#switch"
+      },
+      {
+        "title": "MDN 官方文件 - JavaScript 運算式與比較運算子",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Expressions_and_operators"
+      }
+    ]
   }
 ];
