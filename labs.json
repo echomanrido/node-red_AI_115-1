@@ -3259,5 +3259,199 @@
         "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Expressions_and_operators"
       }
     ]
+  },
+  {
+    "id": "lab-16",
+    "labNumber": "16",
+    "title": "練習 3-5: if-else 複合條件邏輯 (&&) 與變數宣告 (var) - 合法民國年份換算",
+    "date": "2026-09-08",
+    "category": "基礎操作",
+    "summary": "學習在 Node-RED Function 節點中宣告變數 (var year = msg.payload;) 暫存輸入數據，並結合邏輯與 (&&) 運算子建構區間條件判斷 (year > 14 && year < 115)。當輸入之民國年份落於合法區間 (15~114 年) 時，自動換算為西元年份輸出；超出範圍則輸出警告字串 \"!!!!!\"。",
+    "flowImage": "images_src/ok/20260908_flow_lab16_roc_range_and_var.png",
+    "resultImage": "images_src/ok/20260908_result_lab16_roc_range_debug.png",
+    "funcImage": "images_src/ok/20260908_function_lab16_roc_range_code.png",
+    "objective": "1. 掌握在 Function 節點中使用 var 關鍵字進行變數宣告與賦值 (var year = msg.payload;)。\n2. 學習 JavaScript 邏輯與運算子 (&&) 在數值區間過濾 (14 < year < 115) 中的複合條件應用。\n3. 理解數值有效性檢驗 (Data Validation) 與例外處理（超出範圍時輸出字串 \"!!!!!\"）。\n4. 掌握工控 SCADA 感測器安全操作範圍 (Safe Operating Window) 警報與數據清洗之核心設計。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 與多組測試 Inject 節點",
+        "description": "在畫布上方放置 Comment 節點標註「if/else + 條件邏輯 + 變數宣告」，並建立三組 Inject 節點，分別設定 payload 為數值 (number) 8、71 與 99。"
+      },
+      {
+        "step": "2. 撰寫 Function 變數宣告與 && 區間邏輯",
+        "description": "加入 Function 節點命名為「民國轉西元」，撰寫 JavaScript 代碼：宣告 var year = msg.payload;，若 year > 14 && year < 115 則執行 msg.payload = year + 1911；否則輸出警告字串 msg.payload = \"!!!!!\"。"
+      },
+      {
+        "step": "3. 連接 Debug 36 節點並部署流程",
+        "description": "將三個 Inject 節點輸出均連接至 Function 節點，Function 節點輸出連接至 Debug 節點 (debug 36)，點擊右上角 Deploy 部署流程。"
+      },
+      {
+        "step": "4. 點擊測試並比對 Debug 輸出結果",
+        "description": "點擊 8 時因小於等於 14 輸出 \"!!!!!\" (無效年份)；點擊 71 時符合區間輸出 1982；點擊 99 時輸出 2010，驗證複合邏輯與變數運算精準無誤。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "工控設備安全操作區間 (Safe Window) 濾波與警報",
+        "icon": "fa-solid fa-gauge-high",
+        "description": "產線溫度感測器讀取值宣告為變數後，檢驗是否介於合理工作區間 (如 20°C < temp < 85°C)，若超出上下限則立即發出 \"ALARM\" 異常警告。"
+      },
+      {
+        "scenario": "工業自動化產線零件尺寸公差檢驗 (Go/No-Go)",
+        "icon": "fa-solid fa-ruler-combined",
+        "description": "光學測厚儀檢測加工件厚度，透過 (thick > 9.8 && thick < 10.2) 複合條件判斷是否合格，不合格者標註 \"REJECT\" 並觸發氣缸剔除。"
+      },
+      {
+        "scenario": "人員與設備有效授權期限動態比對",
+        "icon": "fa-solid fa-calendar-check",
+        "description": "將刷卡機讀取之民國年份進行邊界檢查，過濾掉輸入錯誤或超出系統合法運作年代之無效資料，確保資料庫資料完整性。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「if/else + 條件邏輯 (&&) + 變數宣告」功能：\n1. 包含一個 Comment 節點，標註「if/else + 條件邏輯 + 變數宣告」。\n2. 包含三個 Inject 節點，分別傳送 number 數值：8、71、99。\n3. 包含一個 Function 節點命名為「民國轉西元」，內部撰寫 JavaScript 代碼：宣告 var year = msg.payload;，若 year > 14 && year < 115 則加上 1911，否則將 msg.payload 設為 \"!!!!!\"。\n4. 包含一個 Debug 節點 (debug 36) 輸出結果。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab16",
+        "type": "comment",
+        "z": "tab_lab16",
+        "name": "if/else + 條件邏輯 + 變數宣告",
+        "info": "",
+        "x": 220,
+        "y": 100,
+        "wires": []
+      },
+      {
+        "id": "inject_8_lab16",
+        "type": "inject",
+        "z": "tab_lab16",
+        "name": "8",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "8",
+        "payloadType": "num",
+        "x": 170,
+        "y": 160,
+        "wires": [
+          [
+            "function_roc_range"
+          ]
+        ]
+      },
+      {
+        "id": "inject_71_lab16",
+        "type": "inject",
+        "z": "tab_lab16",
+        "name": "71",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "71",
+        "payloadType": "num",
+        "x": 170,
+        "y": 220,
+        "wires": [
+          [
+            "function_roc_range"
+          ]
+        ]
+      },
+      {
+        "id": "inject_99_lab16",
+        "type": "inject",
+        "z": "tab_lab16",
+        "name": "99",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "99",
+        "payloadType": "num",
+        "x": 170,
+        "y": 280,
+        "wires": [
+          [
+            "function_roc_range"
+          ]
+        ]
+      },
+      {
+        "id": "function_roc_range",
+        "type": "function",
+        "z": "tab_lab16",
+        "name": "民國轉西元",
+        "func": "var year = msg.payload;\n\nif(year >14 && year <115)  // 大於民國14年，並且小於民國115年\n{\n    msg.payload = year + 1911;\n}else\n{\n    msg.payload = \"!!!!!\"\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 220,
+        "wires": [
+          [
+            "debug_36"
+          ]
+        ]
+      },
+      {
+        "id": "debug_36",
+        "type": "debug",
+        "z": "tab_lab16",
+        "name": "debug 36",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 220,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "MDN 官方文件 - JavaScript 運算式與邏輯運算子 (&&, ||)",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Expressions_and_operators"
+      },
+      {
+        "title": "MDN 官方文件 - JavaScript 變數宣告與 var 敘述",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/var"
+      }
+    ]
   }
 ]
