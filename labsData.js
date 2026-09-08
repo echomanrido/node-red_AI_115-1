@@ -3065,5 +3065,199 @@ window.INITIAL_LABS_DATA = [
         "url": "https://www.apachefriends.org/zh_tw/index.html"
       }
     ]
+  },
+  {
+    "id": "lab-15",
+    "labNumber": "15",
+    "title": "練習 3-4: if else 數字運算與年齡門檻判斷 (民國轉西元)",
+    "date": "2026-09-08",
+    "category": "基礎操作",
+    "summary": "學習在 Node-RED Function 節點中使用 JavaScript if-else 進行數值大小比較 (>= 18) 與算術加法運算 (+ 1911)。當輸入之民國年份大於等於 18 時，自動換算為西元年份輸出；否則輸出 0 作為未達門檻之防呆標記。",
+    "flowImage": "images_src/ok/20260908_flow_lab15_roc_to_ad_year.png",
+    "resultImage": "images_src/ok/20260908_result_lab15_roc_to_ad_debug.png",
+    "funcImage": "images_src/ok/20260908_function_lab15_roc_to_ad_code.png",
+    "objective": "1. 掌握 JavaScript 數值型態 (Number) 的大小比較運算子 (>=) 與條件分支 (if-else) 邏輯。\n2. 學習在 Function 節點中進行算術加法運算（民國年份加上 1911 換算為西元年份）。\n3. 掌握條件判斷下的防呆機制（未達 18 歲門檻時輸出預設值 0）。\n4. 理解工業 SCADA 數據換算（如感測器類比電壓/電流換算工程物理量）與警報門檻判斷的核心邏輯。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 標記與多組 Inject 觸發節點",
+        "description": "在畫布上方放置 Comment 節點標記「練習3-4: if else/數字運算(民國轉西元)」，並建立三組 Inject 節點，分別設定 payload 為數值 (number) 71、99 與 8。"
+      },
+      {
+        "step": "2. 配置 Function 節點撰寫年份換算與門檻判斷邏輯",
+        "description": "加入 Function 節點命名為「民國轉西元」，撰寫 JavaScript 代碼：若 msg.payload >= 18 則執行 msg.payload = msg.payload + 1911；否則執行 msg.payload = 0。"
+      },
+      {
+        "step": "3. 連接 Debug 33 節點並部署流程",
+        "description": "將三個 Inject 節點輸出均連接至 Function 節點，Function 節點輸出連接至 Debug 節點 (debug 33)，點擊右上角 Deploy 部署流程。"
+      },
+      {
+        "step": "4. 點擊觸發並在 Debug 視窗驗證換算成果",
+        "description": "依序點擊 Inject 按鈕：輸入 71 輸出西元 1982；輸入 99 輸出西元 2010；輸入 8 時因小於 18 輸出 0，驗證條件判斷與算術運算完全正確。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "工控 SCADA 類比訊號工程物理量線性換算",
+        "icon": "fa-solid fa-calculator",
+        "description": "PLC 讀取到 4~20mA 或 0~10V 原始數值 (0~4000) 後，透過 Function 節點進行線性比例放大 (+ 補償偏置 offset)，精準換算為現場溫度與壓力值。"
+      },
+      {
+        "scenario": "人員門禁刷卡年齡與證件有效性檢查",
+        "icon": "fa-solid fa-id-card",
+        "description": "廠區管制區域讀取員工刷卡出生民國年份，AI/SCADA 系統自動換算西元並檢驗是否符合法定成年 (>=18) 工作資格，未達門檻即發出警報並拒絕通行。"
+      },
+      {
+        "scenario": "工業設備製造年份與保固/耗損週期推算",
+        "icon": "fa-solid fa-clock-rotate-left",
+        "description": "將銘牌上標示之民國出廠年份自動轉換為西元標準 ISO 格式，與當前系統時間相減計算設備運轉總年數，驅動預防性維護保養排程。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「if else 數字運算與民國轉西元年份」功能：\n1. 包含一個 Comment 節點，標註「練習3-4: if else/數字運算(民國轉西元)」。\n2. 包含三個 Inject 節點，分別傳送 number 數值：71、99、8。\n3. 包含一個 Function 節點命名為「民國轉西元」，內部撰寫 JavaScript 判斷邏輯：若 msg.payload >= 18 則加上 1911，否則將 msg.payload 設為 0。\n4. 包含一個 Debug 節點 (debug 33) 輸出完整 msg.payload 換算結果。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab15",
+        "type": "comment",
+        "z": "tab_lab15",
+        "name": "練習3-4: if else/數字運算(民國轉西元)",
+        "info": "",
+        "x": 230,
+        "y": 100,
+        "wires": []
+      },
+      {
+        "id": "inject_71",
+        "type": "inject",
+        "z": "tab_lab15",
+        "name": "71",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "71",
+        "payloadType": "num",
+        "x": 170,
+        "y": 160,
+        "wires": [
+          [
+            "function_roc_to_ad"
+          ]
+        ]
+      },
+      {
+        "id": "inject_99",
+        "type": "inject",
+        "z": "tab_lab15",
+        "name": "99",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "99",
+        "payloadType": "num",
+        "x": 170,
+        "y": 220,
+        "wires": [
+          [
+            "function_roc_to_ad"
+          ]
+        ]
+      },
+      {
+        "id": "inject_8",
+        "type": "inject",
+        "z": "tab_lab15",
+        "name": "8",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "8",
+        "payloadType": "num",
+        "x": 170,
+        "y": 280,
+        "wires": [
+          [
+            "function_roc_to_ad"
+          ]
+        ]
+      },
+      {
+        "id": "function_roc_to_ad",
+        "type": "function",
+        "z": "tab_lab15",
+        "name": "民國轉西元",
+        "func": "if (msg.payload >= 18)\n{\n    msg.payload = msg.payload + 1911;\n}\nelse{\n    msg.payload = 0;\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 220,
+        "wires": [
+          [
+            "debug_33"
+          ]
+        ]
+      },
+      {
+        "id": "debug_33",
+        "type": "debug",
+        "z": "tab_lab15",
+        "name": "debug 33",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 220,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "MDN 官方文件 - JavaScript if...else 條件陳述式",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/if...else"
+      },
+      {
+        "title": "MDN 官方文件 - JavaScript 運算式與比較運算子 (>=)",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Expressions_and_operators"
+      }
+    ]
   }
 ];
