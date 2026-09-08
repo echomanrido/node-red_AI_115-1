@@ -140,13 +140,18 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `).join('');
 
-    const referencesHtml = lab.references ? lab.references.map(ref => `
-      <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="ref-item">
-        <i class="fa-solid fa-book-bookmark"></i>
-        <span>${escapeHtml(ref.title)}</span>
-        <i class="fa-solid fa-arrow-up-right-from-square external-icon"></i>
-      </a>
-    `).join('') : '<p style="color:var(--text-dim);">無延伸連結</p>';
+    const referencesHtml = lab.references ? lab.references.map(ref => {
+      const isInteractive = ref.url.endsWith('.html') || ref.title.includes('互動') || ref.title.includes('編輯器') || ref.title.includes('模擬');
+      const iconClass = isInteractive ? 'fa-solid fa-laptop-code' : 'fa-solid fa-book-bookmark';
+      const badgeHtml = isInteractive ? '<span style="font-size:0.7rem; background:rgba(6,182,212,0.15); color:var(--primary); padding:2px 6px; border-radius:4px; margin-left:6px; border:1px solid rgba(6,182,212,0.3);">互動工具</span>' : '';
+      return `
+        <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="ref-item" style="${isInteractive ? 'border-color: rgba(6,182,212,0.4); background: rgba(6,182,212,0.05);' : ''}">
+          <i class="${iconClass}" style="${isInteractive ? 'color: var(--primary);' : ''}"></i>
+          <span>${escapeHtml(ref.title)} ${badgeHtml}</span>
+          <i class="fa-solid fa-arrow-up-right-from-square external-icon"></i>
+        </a>
+      `;
+    }).join('') : '<p style="color:var(--text-dim);">無延伸連結</p>';
     
     const appsHtml = lab.applications ? lab.applications.map(app => `
       <div class="app-scenario-card">

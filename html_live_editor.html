@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML 即時預覽編輯器 (Live HTML & JS Sandbox) - Node-RED 講義輔助工具</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    pre, code, textarea, .font-mono {
+      font-family: 'Fira Code', monospace;
+    }
+    
+    /* 編輯器自訂滾動條 */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    .editor-gradient {
+      background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
+    }
+
+    .line-numbers {
+      counter-reset: line;
+      user-select: none;
+    }
+    
+    .editor-textarea {
+      tab-size: 2;
+      -moz-tab-size: 2;
+      line-height: 1.6;
+    }
+
+    /* 浮動提示 Toast */
+    #toast {
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
+
+  <!-- ================= 頂部導覽與控制列 ================= -->
+  <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 lg:px-6 py-2.5 flex flex-wrap justify-between items-center sticky top-0 z-40 gap-3">
+    <!-- 左側標題與返回 -->
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 hover:text-white transition-colors flex items-center justify-center shadow-sm" title="返回 Lab 列表">
+        <i class="ph ph-arrow-left text-lg"></i>
+      </a>
+      <div class="w-9 h-9 rounded-lg editor-gradient flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 font-black text-lg">
+        <i class="ph ph-code"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-sm sm:text-base font-bold text-white tracking-wide">HTML 即時預覽編輯器</h1>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-700 font-semibold">JSBin / CodePen 風格</span>
+          <span class="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Lab 14 write file 專用</span>
+        </div>
+        <p class="text-[11px] text-slate-400 hidden sm:block">即時編輯 HTML / CSS / JS 報表網頁 • 模擬 Node-RED 動態時間注入 • 一鍵轉換 ES6 模板</p>
+      </div>
+    </div>
+
+    <!-- 中間範本切換 -->
+    <div class="flex items-center gap-2">
+      <div class="flex items-center bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs">
+        <i class="ph ph-files text-cyan-400 mr-1.5"></i>
+        <span class="text-slate-400 mr-1.5 hidden md:inline">範本：</span>
+        <select id="templateSelect" onchange="loadTemplate(this.value)" class="bg-transparent text-white font-medium focus:outline-none cursor-pointer">
+          <option value="lab14_alarm" selected>📑 Lab 14 原版教材結構 (預設)</option>
+          <option value="lab14_styled">🎨 Lab 14 現代工控報表 (美化版)</option>
+          <option value="scada_dashboard">⚡ SCADA 工業即時監控卡片</option>
+          <option value="smart_locker">📦 智慧家庭快遞箱投遞日誌</option>
+          <option value="esg_carbon">🌿 ESG 碳盤查即時排放警報</option>
+          <option value="blank_html5">📄 空白標準 HTML5 架構</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 右側功能按鈕列 -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- 立即執行按鈕 -->
+      <button onclick="runCode()" class="px-3.5 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold rounded-lg shadow-md shadow-cyan-600/20 flex items-center gap-1.5 transition-all active:scale-95">
+        <i class="ph ph-play font-bold text-sm"></i>
+        <span>執行 (Ctrl+↵)</span>
+      </button>
+
+      <!-- 自動執行切換 -->
+      <label class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700/80 border border-slate-700 rounded-lg text-xs text-slate-300 cursor-pointer select-none transition">
+        <input type="checkbox" id="autoRunCheckbox" checked onchange="toggleAutoRun(this.checked)" class="accent-cyan-500 rounded">
+        <span>即時預覽</span>
+      </label>
+
+      <!-- 動態時間注入測試按鈕 -->
+      <button onclick="injectDynamicTime()" class="px-2.5 py-1.5 bg-amber-950/60 hover:bg-amber-900 border border-amber-600/60 text-amber-300 hover:text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition shadow-sm" title="模擬 Node-RED Function 注入當前 UTC+8 時間">
+        <i class="ph ph-clock text-amber-400 text-sm"></i>
+        <span class="hidden md:inline">注入台北時間</span>
+      </button>
+
+      <!-- 轉為 Node-RED 模板按鈕 -->
+      <button onclick="openNodeRedModal()" class="px-2.5 py-1.5 bg-purple-950/60 hover:bg-purple-900 border border-purple-600/60 text-purple-300 hover:text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition shadow-sm" title="產生 Node-RED Function 節點程式碼">
+        <i class="ph ph-robot text-purple-400 text-sm"></i>
+        <span class="hidden md:inline">轉 Node-RED 模板</span>
+      </button>
+
+      <!-- 下載 output.html -->
+      <button onclick="downloadHtmlFile()" class="p-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 hover:text-cyan-400 transition" title="下載 output.html 檔案 (可直接置於 XAMPP htdocs)">
+        <i class="ph ph-download-simple text-base"></i>
+      </button>
+
+      <!-- 複製代碼 -->
+      <button onclick="copyCurrentCode()" class="p-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 hover:text-cyan-400 transition" title="複製全部 HTML 代碼">
+        <i class="ph ph-copy text-base"></i>
+      </button>
+
+      <!-- 版面切換 -->
+      <div class="hidden lg:flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5">
+        <button onclick="setLayout('split-h')" id="btn-layout-h" class="p-1 rounded text-cyan-400 bg-slate-800" title="左右分割">
+          <i class="ph ph-columns text-sm"></i>
+        </button>
+        <button onclick="setLayout('split-v')" id="btn-layout-v" class="p-1 rounded text-slate-400 hover:text-white" title="上下分割">
+          <i class="ph ph-rows text-sm"></i>
+        </button>
+        <button onclick="setLayout('code-only')" id="btn-layout-code" class="p-1 rounded text-slate-400 hover:text-white" title="純代碼">
+          <i class="ph ph-code text-sm"></i>
+        </button>
+        <button onclick="setLayout('preview-only')" id="btn-layout-preview" class="p-1 rounded text-slate-400 hover:text-white" title="純預覽">
+          <i class="ph ph-eye text-sm"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= 主工作區 (Editor + Live Preview) ================= -->
+  <main id="mainWorkspace" class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-950">
+    
+    <!-- 左側 / 上半部：程式碼編輯區 -->
+    <section id="editorSection" class="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-800 min-w-0 bg-[#0d131f]">
+      <!-- 編輯器頂部工具列 -->
+      <div class="bg-slate-900/80 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-xs select-none">
+        <div class="flex items-center gap-2">
+          <span class="flex items-center gap-1.5 font-bold text-slate-200">
+            <i class="ph ph-file-html text-amber-400 text-sm"></i> output.html (HTML5 源代碼)
+          </span>
+          <span id="charCountBadge" class="text-[10px] font-mono text-slate-500 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">0 字元 • 0 行</span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-400">
+          <label class="flex items-center gap-1 cursor-pointer hover:text-slate-200">
+            <input type="checkbox" id="wrapToggle" onchange="toggleWordWrap(this.checked)" class="accent-cyan-500 rounded text-xs">
+            <span class="text-[11px]">自動換行</span>
+          </label>
+          <div class="flex items-center gap-1 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800 text-[11px]">
+            <button onclick="adjustFontSize(-1)" class="hover:text-cyan-400 px-1 font-mono font-bold">-</button>
+            <span id="fontSizeDisplay" class="font-mono text-[10px] text-slate-300">13px</span>
+            <button onclick="adjustFontSize(1)" class="hover:text-cyan-400 px-1 font-mono font-bold">+</button>
+          </div>
+          <button onclick="formatHtmlCode()" class="hover:text-cyan-400 text-[11px] flex items-center gap-0.5" title="簡單縮排格式化">
+            <i class="ph ph-magic-wand"></i> 排版
+          </button>
+          <button onclick="resetTemplate()" class="hover:text-red-400 text-[11px] flex items-center gap-0.5" title="重設回預設範本">
+            <i class="ph ph-arrows-counter-clockwise"></i> 重設
+          </button>
+        </div>
+      </div>
+
+      <!-- 編輯器核心主體 (行號 + Textarea) -->
+      <div class="flex-1 relative flex overflow-hidden">
+        <!-- 行號欄 -->
+        <div id="lineNumbers" class="w-12 bg-slate-900/60 text-slate-600 font-mono text-xs text-right pr-2.5 py-3 select-none border-r border-slate-800/80 leading-[1.6] overflow-hidden">
+          1
+        </div>
+        <!-- 程式碼輸入區 -->
+        <textarea id="codeEditor" spellcheck="false" class="editor-textarea flex-1 bg-transparent text-slate-100 font-mono text-[13px] p-3 focus:outline-none resize-none overflow-y-auto leading-[1.6] selection:bg-cyan-500/30 selection:text-cyan-200" placeholder="在此輸入或貼上 HTML 原始碼..."></textarea>
+      </div>
+
+      <!-- 底部提示條 -->
+      <div class="bg-slate-900/90 px-4 py-1.5 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between font-mono">
+        <div class="flex items-center gap-2 text-slate-500">
+          <span><kbd class="px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700">Tab</kbd> 縮排 2 空格</span>
+          <span>•</span>
+          <span><kbd class="px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700">Ctrl+Enter</kbd> 立即編譯</span>
+        </div>
+        <div class="text-cyan-400 flex items-center gap-1">
+          <i class="ph ph-lightning text-xs"></i>
+          <span>UTF-8 編碼保證 (無中文亂碼)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右側 / 下半部：即時預覽區 (Live Sandbox Preview) -->
+    <section id="previewSection" class="flex-1 flex flex-col min-w-0 bg-slate-900">
+      <!-- 預覽器頂部模擬網址列 -->
+      <div class="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-xs select-none">
+        <div class="flex items-center gap-2 flex-1 max-w-md">
+          <button onclick="runCode()" class="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800" title="重新整理預覽">
+            <i class="ph ph-arrow-clockwise text-sm"></i>
+          </button>
+          <div class="flex-1 flex items-center bg-slate-950 border border-slate-800 rounded-md px-2.5 py-1 text-[11px] text-slate-400 font-mono gap-1.5 shadow-inner">
+            <i class="ph ph-lock-key text-emerald-400 text-xs"></i>
+            <span class="text-slate-500">http://</span>
+            <span class="text-slate-300">localhost</span>
+            <span class="text-amber-400">/output.html</span>
+            <span class="ml-auto text-[10px] text-emerald-500 font-sans font-semibold">200 OK</span>
+          </div>
+        </div>
+
+        <!-- 視窗尺寸模擬 & 獨立開啟 -->
+        <div class="flex items-center gap-1 text-slate-400 ml-2">
+          <button onclick="setViewportWidth('100%')" id="vp-full" class="p-1 rounded text-cyan-400 bg-slate-800" title="桌面全寬度 (100%)">
+            <i class="ph ph-desktop text-sm"></i>
+          </button>
+          <button onclick="setViewportWidth('768px')" id="vp-tablet" class="p-1 rounded hover:text-white hover:bg-slate-800" title="平板視角 (768px)">
+            <i class="ph ph-device-tablet text-sm"></i>
+          </button>
+          <button onclick="setViewportWidth('375px')" id="vp-mobile" class="p-1 rounded hover:text-white hover:bg-slate-800" title="手機視角 (375px)">
+            <i class="ph ph-device-mobile text-sm"></i>
+          </button>
+          <span class="text-slate-700">|</span>
+          <button onclick="openInNewTab()" class="p-1 rounded hover:text-cyan-400 hover:bg-slate-800" title="在新分頁開啟獨立完整網頁">
+            <i class="ph ph-arrow-square-out text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 預覽容器 (含置中與視角限制) -->
+      <div class="flex-1 bg-slate-950/80 flex items-center justify-center p-2 sm:p-4 overflow-hidden relative">
+        <div id="previewContainer" class="w-full h-full bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-300 border border-slate-700/50 flex flex-col">
+          <iframe id="previewFrame" class="w-full h-full border-none bg-white"></iframe>
+        </div>
+      </div>
+
+      <!-- 內建除錯 Console 視窗 (可收合) -->
+      <div id="consoleContainer" class="border-t border-slate-800 bg-slate-950 flex flex-col transition-all duration-200" style="height: 120px;">
+        <!-- Console 頂部標題列 -->
+        <div class="bg-slate-900/90 px-4 py-1.5 border-b border-slate-800/80 flex items-center justify-between text-xs select-none">
+          <div class="flex items-center gap-2 cursor-pointer" onclick="toggleConsole()">
+            <i id="consoleChevron" class="ph ph-caret-down text-slate-400 text-xs"></i>
+            <span class="font-bold text-slate-300 flex items-center gap-1.5">
+              <i class="ph ph-terminal-window text-cyan-400"></i> 內建 JavaScript Console 終端除錯
+            </span>
+            <span id="logCountBadge" class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">0 logs</span>
+            <span id="errCountBadge" class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-red-950 text-red-400 border border-red-800 hidden">0 errors</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearConsole()" class="text-[11px] text-slate-400 hover:text-slate-200 px-1.5 py-0.5 rounded hover:bg-slate-800">
+              <i class="ph ph-trash"></i> 清空
+            </button>
+          </div>
+        </div>
+        <!-- Console 輸出訊息列表 -->
+        <div id="consoleLogs" class="flex-1 p-2 font-mono text-[11px] overflow-y-auto space-y-1 bg-[#090d16] text-slate-300">
+          <div class="text-slate-600 italic">系統就緒，JavaScript 執行記錄與錯誤將顯示於此...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= 核心觀念對照教學 Drawer / Footer ================= -->
+  <footer class="bg-slate-900 border-t border-slate-800 px-4 lg:px-6 py-3">
+    <div class="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+      <div class="flex items-start gap-2.5 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+        <div class="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 flex-shrink-0 mt-0.5 font-bold">1</div>
+        <div>
+          <span class="font-bold text-cyan-300 block mb-0.5">時區精準格式化 (Asia/Taipei)</span>
+          <p class="text-slate-400 text-[11px] leading-relaxed">
+            透過 <code class="text-cyan-300 font-mono">Date.toLocaleString("zh-TW", {timeZone: "Asia/Taipei", hour12: false})</code> 確保網頁時間永遠精準顯示 UTC+8 台北時間。
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-2.5 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+        <div class="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 flex-shrink-0 mt-0.5 font-bold">2</div>
+        <div>
+          <span class="font-bold text-purple-300 block mb-0.5">ES6 模板字串 (Template Literals)</span>
+          <p class="text-slate-400 text-[11px] leading-relaxed">
+            使用反引號 <code class="text-purple-300 font-mono">`...`</code> 包裹 HTML 源碼，並以 <code class="text-purple-300 font-mono">${myData}</code> 實現動態數據插值與排版。
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-2.5 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+        <div class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 flex-shrink-0 mt-0.5 font-bold">3</div>
+        <div>
+          <span class="font-bold text-amber-300 block mb-0.5">XAMPP Apache 檔案落地</span>
+          <p class="text-slate-400 text-[11px] leading-relaxed">
+            Node-RED write file 寫入 <code class="text-amber-300 font-mono">C:\xampp\htdocs\output.html</code>，瀏覽器即可透過 <code class="text-amber-300 font-mono">http://localhost/output.html</code> 監控。
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= Modal: Node-RED Function 模板程式碼生成 ================= -->
+  <div id="nodeRedModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30">
+            <i class="ph ph-robot text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-sm sm:text-base">Node-RED Function 節點程式碼自動生成</h3>
+            <p class="text-xs text-slate-400">已自動將當前編輯之 HTML 包裝為標準 JavaScript ES6 模板字串</p>
+          </div>
+        </div>
+        <button onclick="closeNodeRedModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i class="ph ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 flex-1 overflow-y-auto space-y-4">
+        <div class="bg-purple-950/30 border border-purple-800/40 rounded-xl p-3 text-xs text-purple-200 flex items-center gap-2">
+          <i class="ph ph-info text-base text-purple-400"></i>
+          <span>請在 Node-RED 雙擊「Function」節點，將下列程式碼完整貼入「On Message」程式區塊內即可運作！</span>
+        </div>
+
+        <div class="relative">
+          <pre id="nodeRedCodeBlock" class="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-cyan-300 overflow-x-auto leading-relaxed max-h-[400px] selection:bg-purple-500/40"></pre>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-3.5 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+        <span class="text-xs text-slate-500 font-mono">支援直接貼回 Lab 14 Function 節點</span>
+        <div class="flex items-center gap-2">
+          <button onclick="closeNodeRedModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition">
+            關閉
+          </button>
+          <button onclick="copyNodeRedCode()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-purple-600/20 flex items-center gap-1.5 transition active:scale-95">
+            <i class="ph ph-copy"></i>
+            <span>一鍵複製 Node-RED 程式碼</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-slate-800 border border-slate-700 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 z-50 translate-y-20 opacity-0 pointer-events-none">
+    <i id="toastIcon" class="ph ph-check-circle text-emerald-400 text-lg"></i>
+    <span id="toastMsg" class="font-medium">操作成功</span>
+  </div>
+
+  <!-- ================= 載入核心 JS 腳本 ================= -->
+  <script src="html_live_editor.js"></script>
+</body>
+</html>
