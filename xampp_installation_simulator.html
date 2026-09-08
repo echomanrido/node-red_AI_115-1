@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XAMPP 安裝與 MySQL 資料庫管理模擬器</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    pre, code, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .xampp-orange {
+      background-color: #FB7A00;
+    }
+    .xampp-gradient {
+      background: linear-gradient(135deg, #FB7A00 0%, #EA580C 50%, #C2410C 100%);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-orange-500 selection:text-white">
+
+  <!-- 頂部導覽列 -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 px-6 py-3.5 flex flex-wrap justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <a href="supplements.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors flex items-center justify-center" title="返回補充教材列表">
+        <i class="ph ph-arrow-left text-lg"></i>
+      </a>
+      <div class="w-9 h-9 rounded-lg xampp-gradient flex items-center justify-center text-white shadow-lg shadow-orange-500/20 font-black text-base">
+        <i class="ph ph-database text-xl"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold text-white tracking-wide">XAMPP 安裝與 MySQL 資料庫管理模擬器</h1>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-700">Database & Web Server</span>
+        </div>
+        <p class="text-xs text-slate-400">Apache & MySQL 服務啟動 • phpMyAdmin 資料庫建表 • Node-RED 工控數據持久化存儲</p>
+      </div>
+    </div>
+
+    <!-- 右側分頁切換 -->
+    <nav class="flex space-x-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs font-medium mt-2 sm:mt-0">
+      <button onclick="switchTab('control')" id="tab-control" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-white bg-orange-600 shadow-sm font-bold">
+        Control Panel 模擬
+      </button>
+      <button onclick="switchTab('phpmyadmin')" id="tab-phpmyadmin" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+        phpMyAdmin 介面
+      </button>
+      <button onclick="switchTab('nodered')" id="tab-nodered" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+        Node-RED 串接
+      </button>
+      <button onclick="switchTab('troubleshoot')" id="tab-troubleshoot" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+        Port 衝突排查
+      </button>
+    </nav>
+  </header>
+
+  <!-- 主內容區 -->
+  <main class="flex-1 p-4 lg:p-8 max-w-[1600px] w-full mx-auto space-y-8">
+
+    <!-- ==================== 頁籤 1：XAMPP Control Panel 控制面板模擬器 ==================== -->
+    <section id="section-control" class="space-y-6 block">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">XAMPP Control Panel v3.3.0 控制台實機模擬</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">點選「Start」啟動 Apache 與 MySQL 模組，體驗即時 Port 監聽、綠燈狀態與 Console 系統日誌！</p>
+      </div>
+
+      <!-- XAMPP 控制面板主視窗 -->
+      <div class="max-w-4xl mx-auto bg-slate-900 border-2 border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        
+        <!-- 視窗標題列 -->
+        <div class="bg-slate-800 px-4 py-2.5 border-b border-slate-700 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+            <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+            <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+            <span class="text-xs font-bold text-slate-200 font-mono ml-2">XAMPP Control Panel v3.3.0 [ Compiled: Apr 6th 2021 ]</span>
+          </div>
+          <span class="text-[10px] font-mono text-orange-400 bg-orange-950 px-2 py-0.5 rounded border border-orange-800">C:\xampp\</span>
+        </div>
+
+        <!-- 服務模組清單表格 -->
+        <div class="p-5 space-y-4">
+          <div class="overflow-x-auto rounded-xl border border-slate-700/80 bg-slate-950/60">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-800/90 text-slate-300 text-[11px] border-b border-slate-700">
+                <tr>
+                  <th class="p-3">模組名稱 (Module)</th>
+                  <th class="p-3 text-center">PID(s)</th>
+                  <th class="p-3 text-center">連接埠 (Port(s))</th>
+                  <th class="p-3 text-center">服務狀態 (Actions)</th>
+                  <th class="p-3 text-center">管理介面 (Admin)</th>
+                  <th class="p-3 text-center">設定檔 (Config)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 text-slate-300">
+                
+                <!-- 1. Apache 伺服器 -->
+                <tr id="row-apache" class="transition-colors">
+                  <td class="p-3 font-bold text-white flex items-center gap-2">
+                    <span id="badge-apache" class="w-2.5 h-2.5 rounded-full bg-slate-600"></span> Apache
+                  </td>
+                  <td id="pid-apache" class="p-3 text-center text-slate-500 font-bold">-</td>
+                  <td id="port-apache" class="p-3 text-center text-slate-500 font-bold">-</td>
+                  <td class="p-3 text-center">
+                    <button onclick="toggleService('apache')" id="btn-apache" class="px-4 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-600 transition shadow">
+                      Start
+                    </button>
+                  </td>
+                  <td class="p-3 text-center">
+                    <button onclick="openAdmin('apache')" id="admin-apache" class="px-3 py-1 rounded bg-slate-800/50 text-slate-500 text-xs border border-slate-700 cursor-not-allowed" disabled>
+                      Admin
+                    </button>
+                  </td>
+                  <td class="p-3 text-center">
+                    <button onclick="alert('Apache 設定檔路徑：C:\\xampp\\apache\\conf\\httpd.conf')" class="px-2.5 py-1 rounded bg-slate-800 text-slate-400 hover:text-white text-xs border border-slate-700">
+                      Config
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- 2. MySQL / MariaDB 資料庫 -->
+                <tr id="row-mysql" class="transition-colors">
+                  <td class="p-3 font-bold text-white flex items-center gap-2">
+                    <span id="badge-mysql" class="w-2.5 h-2.5 rounded-full bg-slate-600"></span> MySQL
+                  </td>
+                  <td id="pid-mysql" class="p-3 text-center text-slate-500 font-bold">-</td>
+                  <td id="port-mysql" class="p-3 text-center text-slate-500 font-bold">-</td>
+                  <td class="p-3 text-center">
+                    <button onclick="toggleService('mysql')" id="btn-mysql" class="px-4 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-600 transition shadow">
+                      Start
+                    </button>
+                  </td>
+                  <td class="p-3 text-center">
+                    <button onclick="switchTab('phpmyadmin')" id="admin-mysql" class="px-3 py-1 rounded bg-slate-800/50 text-slate-500 text-xs border border-slate-700 cursor-not-allowed" disabled>
+                      phpMyAdmin
+                    </button>
+                  </td>
+                  <td class="p-3 text-center">
+                    <button onclick="alert('MySQL 設定檔路徑：C:\\xampp\\mysql\\bin\\my.ini')" class="px-2.5 py-1 rounded bg-slate-800 text-slate-400 hover:text-white text-xs border border-slate-700">
+                      Config
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- 3. FileZilla (FTP) -->
+                <tr class="opacity-40">
+                  <td class="p-3 font-medium text-slate-400 flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span> FileZilla
+                  </td>
+                  <td class="p-3 text-center">-</td>
+                  <td class="p-3 text-center">-</td>
+                  <td class="p-3 text-center"><button class="px-3 py-1 rounded bg-slate-800 text-slate-500 text-xs" disabled>Start</button></td>
+                  <td class="p-3 text-center"><button class="px-2.5 py-1 rounded bg-slate-800 text-slate-500 text-xs" disabled>Admin</button></td>
+                  <td class="p-3 text-center"><button class="px-2 py-1 rounded bg-slate-800 text-slate-500 text-xs" disabled>Config</button></td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 控制台 Console Log 視窗 -->
+          <div class="bg-black/90 rounded-xl p-3 border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1 max-h-44 overflow-y-auto" id="console-logs">
+            <div class="text-slate-500">[System] Initializing Control Panel...</div>
+            <div class="text-slate-500">[System] Windows Version: Windows 10/11 64-bit</div>
+            <div class="text-slate-500">[System] XAMPP Installation Directory: "C:\xampp\"</div>
+            <div class="text-amber-400">[System] Ready to start Apache (Web) and MySQL (Database) services.</div>
+          </div>
+
+          <!-- 一鍵全啟動快捷按鈕 -->
+          <div class="flex items-center justify-between pt-2">
+            <div class="flex items-center gap-2">
+              <button onclick="startAllServices()" class="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow-lg shadow-orange-600/30 transition flex items-center gap-1.5">
+                <i class="ph ph-play-fill"></i> 一鍵啟動 Apache + MySQL
+              </button>
+              <button onclick="stopAllServices()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                全部停止
+              </button>
+            </div>
+            <div class="text-[11px] text-slate-400 font-mono">
+              💡 提示：啟動成功後，點擊「phpMyAdmin」即可前往資料庫介面！
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 2：phpMyAdmin 網頁資料庫介面模擬 ==================== -->
+    <section id="section-phpmyadmin" class="space-y-6 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">phpMyAdmin 網頁資料庫管理平台 (http://localhost/phpmyadmin/)</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">在網頁介面中建立資料庫、設計資料表結構，並為 Node-RED 準備資料寫入環境！</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- 左側資料庫導覽樹狀清單 (4 Cols) -->
+        <div class="lg:col-span-4 bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="text-xs font-bold text-white flex items-center gap-1.5">
+              <i class="ph ph-tree-structure text-orange-400 text-base"></i> 資料庫清單 (Databases)
+            </span>
+            <button onclick="createDatabasePrompt()" class="px-2 py-0.5 rounded bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-bold">
+              + 新增資料庫
+            </button>
+          </div>
+
+          <div class="space-y-1 font-mono text-xs" id="db-list">
+            <div class="p-2 rounded-lg bg-orange-950/40 border border-orange-600/40 text-orange-300 font-bold flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-1.5"><i class="ph ph-database"></i> scada_factory_db</span>
+              <span class="text-[9px] bg-orange-900/80 px-1.5 rounded">1 表</span>
+            </div>
+            <div class="p-2 rounded-lg hover:bg-slate-800 text-slate-400 flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-1.5"><i class="ph ph-database text-slate-500"></i> information_schema</span>
+              <span class="text-[9px] text-slate-600">系統</span>
+            </div>
+            <div class="p-2 rounded-lg hover:bg-slate-800 text-slate-400 flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-1.5"><i class="ph ph-database text-slate-500"></i> mysql</span>
+              <span class="text-[9px] text-slate-600">系統</span>
+            </div>
+            <div class="p-2 rounded-lg hover:bg-slate-800 text-slate-400 flex items-center justify-between cursor-pointer">
+              <span class="flex items-center gap-1.5"><i class="ph ph-database text-slate-500"></i> phpmyadmin</span>
+              <span class="text-[9px] text-slate-600">系統</span>
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+            <b>連線預設帳密：</b><br>
+            主機：<code>127.0.0.1</code> / <code>localhost</code><br>
+            帳號：<code>root</code><br>
+            密碼：<code>(預設為空白無密碼)</code>
+          </div>
+        </div>
+
+        <!-- 右側資料表結構與 SQL 查詢區 (8 Cols) -->
+        <div class="lg:col-span-8 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+              <i class="ph ph-table text-emerald-400 text-lg"></i>
+              <span class="text-xs font-bold text-white">資料表結構：<code>scada_factory_db.sensor_logs</code></span>
+            </div>
+            <button onclick="insertSampleLog()" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1">
+              <i class="ph ph-plus"></i> 模擬寫入一筆感測數據
+            </button>
+          </div>
+
+          <!-- 欄位結構定義 -->
+          <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/60">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900 text-slate-400 text-[11px] border-b border-slate-800">
+                <tr>
+                  <th class="p-2.5">欄位名稱 (Field)</th>
+                  <th class="p-2.5">資料型態 (Type)</th>
+                  <th class="p-2.5">主鍵/自動遞增</th>
+                  <th class="p-2.5">功能說明</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 text-slate-300">
+                <tr>
+                  <td class="p-2.5 text-amber-300 font-bold">id</td>
+                  <td class="p-2.5">INT(11)</td>
+                  <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 text-[10px]">PRIMARY KEY AUTO_INCREMENT</span></td>
+                  <td class="p-2.5 text-slate-400">流水號識別碼</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 text-white font-bold">sensor_name</td>
+                  <td class="p-2.5">VARCHAR(50)</td>
+                  <td class="p-2.5 text-slate-500">-</td>
+                  <td class="p-2.5 text-slate-400">感測器名稱 (如 Temp_A1)</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 text-emerald-300 font-bold">temperature</td>
+                  <td class="p-2.5">FLOAT</td>
+                  <td class="p-2.5 text-slate-500">-</td>
+                  <td class="p-2.5 text-slate-400">機台即時溫度 (°C)</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 text-blue-300 font-bold">humidity</td>
+                  <td class="p-2.5">FLOAT</td>
+                  <td class="p-2.5 text-slate-500">-</td>
+                  <td class="p-2.5 text-slate-400">環境相對濕度 (%)</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 text-purple-300 font-bold">created_at</td>
+                  <td class="p-2.5">DATETIME</td>
+                  <td class="p-2.5"><span class="text-[10px] text-purple-400">CURRENT_TIMESTAMP</span></td>
+                  <td class="p-2.5 text-slate-400">採集寫入時間戳記</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 即時數據預覽 -->
+          <div class="space-y-2">
+            <span class="text-xs font-bold text-slate-300"> 數據表記錄 (最新前 5 筆)：</span>
+            <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950">
+              <table class="w-full text-left text-xs font-mono" id="records-table">
+                <thead class="bg-slate-900 text-slate-400 text-[10px] border-b border-slate-800">
+                  <tr>
+                    <th class="p-2"># ID</th>
+                    <th class="p-2">Sensor</th>
+                    <th class="p-2">Temp (°C)</th>
+                    <th class="p-2">Humidity (%)</th>
+                    <th class="p-2">Created At</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 text-slate-300" id="records-tbody">
+                  <tr>
+                    <td class="p-2 text-amber-400 font-bold">1</td>
+                    <td class="p-2 text-white">Station_A1</td>
+                    <td class="p-2 text-emerald-400 font-bold">26.4</td>
+                    <td class="p-2 text-blue-400 font-bold">58.2</td>
+                    <td class="p-2 text-slate-400">2026-09-08 10:45:12</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 3：Node-RED 串接 MySQL 實戰代碼 ==================== -->
+    <section id="section-nodered" class="space-y-6 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">Node-RED 與 MySQL 資料庫串接實戰</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">使用官方 <code>node-red-node-mysql</code> 節點，實現 SCADA 數據自動寫入與歷史查詢。</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- 步驟 1: 安裝節點與連線設定 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <span class="text-xs font-bold text-orange-400 flex items-center gap-1.5">
+              <i class="ph ph-plug text-base"></i> 1. 連線設定檔 (MySQL Connection Config)
+            </span>
+            <span class="text-[10px] font-mono text-slate-400">node-red-node-mysql</span>
+          </div>
+          <p class="text-xs text-slate-300">
+            在 Node-RED 節點管理中安裝 <code>node-red-node-mysql</code>，並於 MySQL 節點中填入連線參數：
+          </p>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs space-y-1.5 text-slate-300">
+            <div><span class="text-slate-500">Host:</span> <span class="text-emerald-400 font-bold">127.0.0.1</span> (或 localhost)</div>
+            <div><span class="text-slate-500">Port:</span> <span class="text-emerald-400 font-bold">3306</span></div>
+            <div><span class="text-slate-500">User:</span> <span class="text-emerald-400 font-bold">root</span></div>
+            <div><span class="text-slate-500">Password:</span> <span class="text-slate-500">(留空，XAMPP 預設無密碼)</span></div>
+            <div><span class="text-slate-500">Database:</span> <span class="text-amber-400 font-bold">scada_factory_db</span></div>
+            <div><span class="text-slate-500">Charset:</span> <span class="text-purple-400 font-bold">UTF8_GENERAL_CI</span></div>
+          </div>
+        </div>
+
+        <!-- 步驟 2: Function 節點組裝 SQL 寫入語法 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+              <i class="ph ph-code text-base"></i> 2. Function 節點組裝 INSERT 語法
+            </span>
+            <span class="text-[10px] font-mono text-slate-400">JavaScript</span>
+          </div>
+          <p class="text-xs text-slate-300">
+            在 Function 節點中將感測器數據組裝為 SQL 語法，輸出給 MySQL 節點執行寫入：
+          </p>
+          <pre class="bg-slate-950 p-4 rounded-xl font-mono text-xs text-slate-300 border border-slate-800 leading-relaxed overflow-x-auto">
+<span class="text-slate-500">// 取得感測器即時數據</span>
+<span class="text-purple-400 font-bold">const</span> sensor = msg.payload.sensor || <span class="text-emerald-400">"Station_A1"</span>;
+<span class="text-purple-400 font-bold">const</span> temp = msg.payload.temp || 25.8;
+<span class="text-purple-400 font-bold">const</span> humi = msg.payload.humidity || 60.5;
+
+<span class="text-slate-500">// 組裝標準 SQL INSERT 語法</span>
+msg.topic = `INSERT INTO sensor_logs (sensor_name, temperature, humidity) 
+             VALUES ('${sensor}', ${temp}, ${humi})`;
+
+<span class="text-purple-400 font-bold">return</span> msg;
+          </pre>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 4：常見 Port 衝突與排查 FAQ ==================== -->
+    <section id="section-troubleshoot" class="space-y-6 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">常見安裝錯誤與 Port 連接埠衝突排除指南</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">解決 Apache 啟動失敗 (Port 80/443 被佔用) 與 MySQL 啟動失敗 (Port 3306 衝突) 的標準 SOP。</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- FAQ 1: Apache Port 80 衝突 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+          <div class="text-xs font-bold text-rose-400 flex items-center gap-1.5 border-b border-slate-800 pb-2.5">
+            <i class="ph ph-warning-octagon text-lg"></i> 狀況 1：Apache 啟動報錯 "Port 80 in use by PID..."
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <b>原因：</b>Windows 的 IIS 伺服器、World Wide Web 服務或 Skype 佔用了 Port 80。<br>
+            <b>標準解法 (修改 Apache 連接埠至 8080)：</b>
+          </p>
+          <ol class="list-decimal list-inside text-xs text-slate-400 space-y-1.5 font-mono">
+            <li>點擊 Apache 旁的「<span class="text-slate-200">Config</span>」➔ 選擇 <code>httpd.conf</code>。</li>
+            <li>搜尋 <code>Listen 80</code> ➔ 修改為 <code>Listen 8080</code>。</li>
+            <li>搜尋 <code>ServerName localhost:80</code> ➔ 修改為 <code>ServerName localhost:8080</code>。</li>
+            <li>存檔重啟 Apache，網址改為 <code>http://localhost:8080/phpmyadmin/</code> 即可！</li>
+          </ol>
+        </div>
+
+        <!-- FAQ 2: MySQL Port 3306 衝突 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+          <div class="text-xs font-bold text-amber-400 flex items-center gap-1.5 border-b border-slate-800 pb-2.5">
+            <i class="ph ph-warning-circle text-lg"></i> 狀況 2：MySQL 啟動失敗 (Port 3306 被佔用)
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <b>原因：</b>電腦先前曾安裝過獨立版 MySQL 服務，開機已自動常駐。<br>
+            <b>標準解法 (修改 MySQL 連接埠至 3307)：</b>
+          </p>
+          <ol class="list-decimal list-inside text-xs text-slate-400 space-y-1.5 font-mono">
+            <li>點擊 MySQL 旁的「<span class="text-slate-200">Config</span>」➔ 選擇 <code>my.ini</code>。</li>
+            <li>搜尋 <code>port=3306</code> (共有兩處) ➔ 皆改為 <code>port=3307</code>。</li>
+            <li>存檔並啟動 MySQL，Node-RED 連線 Port 同步設定為 <code>3307</code>。</li>
+          </ol>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 腳本邏輯 -->
+  <script>
+    let serviceState = {
+      apache: false,
+      mysql: false
+    };
+
+    let sampleLogs = [
+      { id: 1, sensor: "Station_A1", temp: 26.4, humi: 58.2, time: "2026-09-08 10:45:12" }
+    ];
+
+    function switchTab(tabId) {
+      const tabs = ['control', 'phpmyadmin', 'nodered', 'troubleshoot'];
+      tabs.forEach(t => {
+        const sec = document.getElementById(`section-${t}`);
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === tabId) {
+          sec.classList.remove('hidden');
+          sec.classList.add('block');
+          btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-white bg-orange-600 shadow-sm font-bold';
+        } else {
+          sec.classList.add('hidden');
+          sec.classList.remove('block');
+          btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200';
+        }
+      });
+    }
+
+    function toggleService(service) {
+      serviceState[service] = !serviceState[service];
+      const isRunning = serviceState[service];
+      const btn = document.getElementById(`btn-${service}`);
+      const badge = document.getElementById(`badge-${service}`);
+      const row = document.getElementById(`row-${service}`);
+      const pidEl = document.getElementById(`pid-${service}`);
+      const portEl = document.getElementById(`port-${service}`);
+      const adminBtn = document.getElementById(`admin-${service}`);
+      const consoleBox = document.getElementById('console-logs');
+
+      if (isRunning) {
+        btn.innerText = 'Stop';
+        btn.className = 'px-4 py-1 rounded bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition shadow';
+        badge.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
+        row.className = 'bg-emerald-950/20';
+
+        if (service === 'apache') {
+          pidEl.innerText = Math.floor(Math.random() * 5000 + 3000);
+          portEl.innerText = '80, 443';
+          adminBtn.disabled = false;
+          adminBtn.className = 'px-3 py-1 rounded bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition shadow cursor-pointer';
+          logConsole(`[Apache] Service started successfully. Listening on ports 80, 443.`, 'text-emerald-400');
+        } else if (service === 'mysql') {
+          pidEl.innerText = Math.floor(Math.random() * 5000 + 4000);
+          portEl.innerText = '3306';
+          adminBtn.disabled = false;
+          adminBtn.className = 'px-3 py-1 rounded bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition shadow cursor-pointer';
+          logConsole(`[MySQL] Server started. Listening on TCP/IP port 3306. Ready for Node-RED connections.`, 'text-emerald-400');
+        }
+      } else {
+        btn.innerText = 'Start';
+        btn.className = 'px-4 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-600 transition shadow';
+        badge.className = 'w-2.5 h-2.5 rounded-full bg-slate-600';
+        row.className = '';
+        pidEl.innerText = '-';
+        portEl.innerText = '-';
+        adminBtn.disabled = true;
+        adminBtn.className = 'px-3 py-1 rounded bg-slate-800/50 text-slate-500 text-xs border border-slate-700 cursor-not-allowed';
+        logConsole(`[${service.toUpperCase()}] Service stopped.`, 'text-rose-400');
+      }
+    }
+
+    function startAllServices() {
+      if (!serviceState.apache) toggleService('apache');
+      if (!serviceState.mysql) toggleService('mysql');
+    }
+
+    function stopAllServices() {
+      if (serviceState.apache) toggleService('apache');
+      if (serviceState.mysql) toggleService('mysql');
+    }
+
+    function logConsole(msg, colorClass = 'text-slate-300') {
+      const consoleBox = document.getElementById('console-logs');
+      const time = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+      const line = document.createElement('div');
+      line.className = colorClass;
+      line.innerHTML = `[${time}] ${msg}`;
+      consoleBox.appendChild(line);
+      consoleBox.scrollTop = consoleBox.scrollHeight;
+    }
+
+    function openAdmin(service) {
+      if (service === 'apache') {
+        alert('Apache 本地首頁：http://localhost/ (XAMPP Dashboard)');
+      }
+    }
+
+    function insertSampleLog() {
+      const newId = sampleLogs.length + 1;
+      const stations = ["Station_A1", "Station_B2", "RoboArm_03", "CNC_01"];
+      const sName = stations[Math.floor(Math.random() * stations.length)];
+      const tVal = (24 + Math.random() * 8).toFixed(1);
+      const hVal = (50 + Math.random() * 20).toFixed(1);
+      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+      sampleLogs.unshift({ id: newId, sensor: sName, temp: tVal, humi: hVal, time: now });
+      renderRecords();
+    }
+
+    function renderRecords() {
+      const tbody = document.getElementById('records-tbody');
+      tbody.innerHTML = sampleLogs.slice(0, 5).map(item => `
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="p-2 text-amber-400 font-bold">${item.id}</td>
+          <td class="p-2 text-white">${item.sensor}</td>
+          <td class="p-2 text-emerald-400 font-bold">${item.temp}</td>
+          <td class="p-2 text-blue-400 font-bold">${item.humi}</td>
+          <td class="p-2 text-slate-400">${item.time}</td>
+        </tr>
+      `).join('');
+    }
+
+    function createDatabasePrompt() {
+      const dbName = prompt("請輸入新資料庫名稱 (例如：iot_smart_factory)：", "iot_smart_factory");
+      if (dbName) {
+        alert(`已成功建立資料庫「${dbName}」！\nCollation: utf8mb4_unicode_ci`);
+      }
+    }
+  </script>
+</body>
+</html>
