@@ -40,14 +40,17 @@
           <h1 class="text-base font-bold text-white tracking-wide">XAMPP 安裝與 MySQL 資料庫管理模擬器</h1>
           <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-700">Database & Web Server</span>
         </div>
-        <p class="text-xs text-slate-400">Apache & MySQL 服務啟動 • phpMyAdmin 資料庫建表 • Node-RED 工控數據持久化存儲</p>
+        <p class="text-xs text-slate-400">Apache & MySQL 服務啟動 • htdocs 網頁根目錄 • phpMyAdmin 資料庫 • Node-RED 工控數據持久化</p>
       </div>
     </div>
 
     <!-- 右側分頁切換 -->
-    <nav class="flex space-x-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs font-medium mt-2 sm:mt-0">
+    <nav class="flex flex-wrap gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs font-medium mt-2 sm:mt-0">
       <button onclick="switchTab('control')" id="tab-control" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-white bg-orange-600 shadow-sm font-bold">
         Control Panel 模擬
+      </button>
+      <button onclick="switchTab('htdocs')" id="tab-htdocs" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+        htdocs 網頁根目錄
       </button>
       <button onclick="switchTab('phpmyadmin')" id="tab-phpmyadmin" class="tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
         phpMyAdmin 介面
@@ -184,7 +187,7 @@
               </button>
             </div>
             <div class="text-[11px] text-slate-400 font-mono">
-              💡 提示：啟動成功後，點擊「phpMyAdmin」即可前往資料庫介面！
+              💡 提示：啟動成功後，點擊「htdocs」或「phpMyAdmin」體驗網站發布與資料庫！
             </div>
           </div>
         </div>
@@ -192,7 +195,166 @@
       </div>
     </section>
 
-    <!-- ==================== 頁籤 2：phpMyAdmin 網頁資料庫介面模擬 ==================== -->
+    <!-- ==================== 頁籤 2：C:\xampp\htdocs 網頁根目錄與 Lab 14 實作模擬 ==================== -->
+    <section id="section-htdocs" class="space-y-6 hidden">
+      <div class="text-center max-w-2xl mx-auto space-y-1.5">
+        <h2 class="text-2xl font-black text-white">C:\xampp\htdocs 網站根目錄與 Lab 14 動態 HTML 發布</h2>
+        <p class="text-slate-400 text-xs sm:text-sm">解析 Apache 預設 Web Root 目錄架構、Node-RED write file 落地路徑與瀏覽器 localhost 即時監控聯動。</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- 左側：Windows 檔案總管 C:\xampp 目錄結構 (5 Cols) -->
+        <div class="lg:col-span-5 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <div class="flex items-center gap-2">
+              <i class="ph ph-folder text-amber-400 text-lg"></i>
+              <span class="text-xs font-bold text-white font-mono">本機 &gt; OS (C:) &gt; xampp &gt;</span>
+            </div>
+            <span class="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">Windows Explorer</span>
+          </div>
+
+          <!-- 模擬檔案總管列表 -->
+          <div class="space-y-1 font-mono text-xs max-h-[380px] overflow-y-auto">
+            <div class="p-2 rounded-lg hover:bg-slate-800/60 text-slate-400 flex items-center justify-between">
+              <span class="flex items-center gap-2"><i class="ph ph-folder text-amber-400"></i> anonymous</span>
+              <span class="text-[10px] text-slate-600">資料夾</span>
+            </div>
+            <div class="p-2 rounded-lg hover:bg-slate-800/60 text-slate-400 flex items-center justify-between">
+              <span class="flex items-center gap-2"><i class="ph ph-folder text-amber-400"></i> apache</span>
+              <span class="text-[10px] text-slate-600">Web 服務</span>
+            </div>
+            <div class="p-2 rounded-lg hover:bg-slate-800/60 text-slate-400 flex items-center justify-between">
+              <span class="flex items-center gap-2"><i class="ph ph-folder text-amber-400"></i> cgi-bin</span>
+              <span class="text-[10px] text-slate-600">指令檔</span>
+            </div>
+            <div class="p-2 rounded-lg hover:bg-slate-800/60 text-slate-400 flex items-center justify-between">
+              <span class="flex items-center gap-2"><i class="ph ph-folder text-amber-400"></i> FileZillaFTP</span>
+              <span class="text-[10px] text-slate-600">FTP 服務</span>
+            </div>
+
+            <!-- 核心聚焦項目：htdocs -->
+            <div class="p-2.5 rounded-xl bg-orange-950/60 border-2 border-orange-500/80 text-orange-200 font-bold flex items-center justify-between shadow-lg shadow-orange-950/50">
+              <div class="flex items-center gap-2">
+                <i class="ph ph-folder-open text-orange-400 text-base animate-pulse"></i>
+                <span>htdocs (網頁發布根目錄)</span>
+              </div>
+              <span class="text-[10px] bg-orange-600 text-white px-2 py-0.5 rounded-full font-bold">Web Root</span>
+            </div>
+
+            <div class="p-2 rounded-lg hover:bg-slate-800/60 text-slate-400 flex items-center justify-between">
+              <span class="flex items-center gap-2"><i class="ph ph-folder text-amber-400"></i> img</span>
+              <span class="text-[10px] text-slate-600">圖庫</span>
+            </div>
+            <div class="p-2 rounded-lg hover:bg-slate-800/60 text-slate-400 flex items-center justify-between">
+              <span class="flex items-center gap-2"><i class="ph ph-folder text-amber-400"></i> mysql</span>
+              <span class="text-[10px] text-slate-600">資料庫引擎</span>
+            </div>
+            <div class="p-2 rounded-lg hover:bg-slate-800/60 text-slate-400 flex items-center justify-between">
+              <span class="flex items-center gap-2"><i class="ph ph-folder text-amber-400"></i> phpMyAdmin</span>
+              <span class="text-[10px] text-slate-600">資料庫 UI</span>
+            </div>
+          </div>
+
+          <!-- htdocs 檔案清單 -->
+          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs space-y-2">
+            <div class="text-orange-400 font-bold flex items-center gap-1.5 border-b border-slate-800 pb-1.5">
+              <i class="ph ph-browsers"></i> C:\xampp\htdocs\ 內檔案對照：
+            </div>
+            <div class="font-mono text-[11px] space-y-1 text-slate-300">
+              <div class="flex justify-between items-center text-emerald-400 bg-emerald-950/40 p-1.5 rounded border border-emerald-800/50">
+                <span class="flex items-center gap-1"><i class="ph ph-file-html"></i> output.html (Lab 14)</span>
+                <span class="text-[10px] text-slate-400">http://localhost/output.html</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-400 p-1">
+                <span class="flex items-center gap-1"><i class="ph ph-file-code"></i> index.php (XAMPP 首頁)</span>
+                <span class="text-[10px] text-slate-500">http://localhost/</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-400 p-1">
+                <span class="flex items-center gap-1"><i class="ph ph-folder"></i> dashboard/ (儀表板)</span>
+                <span class="text-[10px] text-slate-500">http://localhost/dashboard/</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側：Lab 14 全鏈路實機動態預覽 (7 Cols) -->
+        <div class="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+            <div class="flex items-center gap-2">
+              <i class="ph ph-arrows-merge text-orange-400 text-lg"></i>
+              <span class="text-xs font-bold text-white">Lab 14：Node-RED 寫入 HTML ➜ Apache 發布預覽</span>
+            </div>
+            <button onclick="simulateNodeRedWriteHtml()" class="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition shadow flex items-center gap-1.5">
+              <i class="ph ph-arrow-counter-clockwise"></i> 模擬 Node-RED 寫入 output.html
+            </button>
+          </div>
+
+          <!-- Apache 服務狀態指示器 -->
+          <div id="htdocs-apache-status-card" class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span id="htdocs-status-dot" class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
+              <span id="htdocs-status-text" class="text-slate-400">Apache 狀態：<span class="text-rose-400 font-bold">未啟動</span> (無法透過 localhost 存取)</span>
+            </div>
+            <button onclick="switchTab('control')" class="text-[11px] text-orange-400 hover:underline font-bold">
+              前往 Control Panel 啟動 &rarr;
+            </button>
+          </div>
+
+          <!-- 模擬瀏覽器視窗 (http://localhost/output.html) -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-inner">
+            <!-- 瀏覽器網址列 -->
+            <div class="bg-slate-800 px-3 py-2 border-b border-slate-700 flex items-center gap-2 text-xs font-mono">
+              <div class="flex gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+              </div>
+              <div class="flex-1 bg-slate-900 px-3 py-1 rounded border border-slate-700 text-slate-300 flex items-center justify-between">
+                <span>http://localhost/output.html</span>
+                <i class="ph ph-arrow-clockwise text-slate-500"></i>
+              </div>
+            </div>
+
+            <!-- 報表內容渲染區 -->
+            <div class="p-5" id="html-report-render-box">
+              <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 text-center space-y-4">
+                <div class="inline-block px-3 py-1 rounded-full bg-orange-950 text-orange-400 border border-orange-800 text-xs font-bold">
+                  🏭 五股智慧工廠機電 SCADA 監控即時報表
+                </div>
+                <h3 class="text-xl font-black text-white" id="report-title">產線 A1 區溫濕度與運作數據</h3>
+                <div class="grid grid-cols-3 gap-3 text-center">
+                  <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div class="text-[11px] text-slate-400">機台即時溫度</div>
+                    <div class="text-lg font-black text-emerald-400" id="report-temp">26.8 °C</div>
+                  </div>
+                  <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div class="text-[11px] text-slate-400">環境相對濕度</div>
+                    <div class="text-lg font-black text-blue-400" id="report-humi">58.4 %</div>
+                  </div>
+                  <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div class="text-[11px] text-slate-400">運轉狀態</div>
+                    <div class="text-lg font-black text-amber-400" id="report-status">運轉中 (Normal)</div>
+                  </div>
+                </div>
+                <div class="text-[11px] text-slate-500 font-mono" id="report-timestamp">
+                  最後更新時間：2026-09-08 15:45:00
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 說明 -->
+          <div class="p-3.5 bg-orange-950/30 rounded-xl border border-orange-800/40 text-xs text-orange-200 leading-relaxed">
+            <b>💡 核心概念小結：</b><br>
+            Node-RED 的 <code>write file</code> 節點將 HTML 寫入至 <code>C:\xampp\htdocs\output.html</code>。當 Apache 服務在 Port 80 運作時，任何處於同一個局域網路（LAN）的裝置，只需輸入 <code>http://&lt;伺服器IP&gt;/output.html</code>，即可免裝任何套件即時查看機台狀態！
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 頁籤 3：phpMyAdmin 網頁資料庫介面模擬 ==================== -->
     <section id="section-phpmyadmin" class="space-y-6 hidden">
       <div class="text-center max-w-2xl mx-auto space-y-1.5">
         <h2 class="text-2xl font-black text-white">phpMyAdmin 網頁資料庫管理平台 (http://localhost/phpmyadmin/)</h2>
@@ -299,7 +461,7 @@
 
           <!-- 即時數據預覽 -->
           <div class="space-y-2">
-            <span class="text-xs font-bold text-slate-300"> 數據表記錄 (最新前 5 筆)：</span>
+            <span class="text-xs font-bold text-slate-300">📊 數據表記錄 (最新前 5 筆)：</span>
             <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950">
               <table class="w-full text-left text-xs font-mono" id="records-table">
                 <thead class="bg-slate-900 text-slate-400 text-[10px] border-b border-slate-800">
@@ -328,7 +490,7 @@
       </div>
     </section>
 
-    <!-- ==================== 頁籤 3：Node-RED 串接 MySQL 實戰代碼 ==================== -->
+    <!-- ==================== 頁籤 4：Node-RED 串接 MySQL 實戰代碼 ==================== -->
     <section id="section-nodered" class="space-y-6 hidden">
       <div class="text-center max-w-2xl mx-auto space-y-1.5">
         <h2 class="text-2xl font-black text-white">Node-RED 與 MySQL 資料庫串接實戰</h2>
@@ -386,7 +548,7 @@ msg.topic = `INSERT INTO sensor_logs (sensor_name, temperature, humidity)
       </div>
     </section>
 
-    <!-- ==================== 頁籤 4：常見 Port 衝突與排查 FAQ ==================== -->
+    <!-- ==================== 頁籤 5：常見 Port 衝突與排查 FAQ ==================== -->
     <section id="section-troubleshoot" class="space-y-6 hidden">
       <div class="text-center max-w-2xl mx-auto space-y-1.5">
         <h2 class="text-2xl font-black text-white">常見安裝錯誤與 Port 連接埠衝突排除指南</h2>
@@ -445,18 +607,20 @@ msg.topic = `INSERT INTO sensor_logs (sensor_name, temperature, humidity)
     ];
 
     function switchTab(tabId) {
-      const tabs = ['control', 'phpmyadmin', 'nodered', 'troubleshoot'];
+      const tabs = ['control', 'htdocs', 'phpmyadmin', 'nodered', 'troubleshoot'];
       tabs.forEach(t => {
         const sec = document.getElementById(`section-${t}`);
         const btn = document.getElementById(`tab-${t}`);
-        if (t === tabId) {
-          sec.classList.remove('hidden');
-          sec.classList.add('block');
-          btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-white bg-orange-600 shadow-sm font-bold';
-        } else {
-          sec.classList.add('hidden');
-          sec.classList.remove('block');
-          btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200';
+        if (sec && btn) {
+          if (t === tabId) {
+            sec.classList.remove('hidden');
+            sec.classList.add('block');
+            btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-white bg-orange-600 shadow-sm font-bold';
+          } else {
+            sec.classList.add('hidden');
+            sec.classList.remove('block');
+            btn.className = 'tab-btn px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200';
+          }
         }
       });
     }
@@ -484,6 +648,7 @@ msg.topic = `INSERT INTO sensor_logs (sensor_name, temperature, humidity)
           adminBtn.disabled = false;
           adminBtn.className = 'px-3 py-1 rounded bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition shadow cursor-pointer';
           logConsole(`[Apache] Service started successfully. Listening on ports 80, 443.`, 'text-emerald-400');
+          updateHtdocsStatus(true);
         } else if (service === 'mysql') {
           pidEl.innerText = Math.floor(Math.random() * 5000 + 4000);
           portEl.innerText = '3306';
@@ -501,6 +666,23 @@ msg.topic = `INSERT INTO sensor_logs (sensor_name, temperature, humidity)
         adminBtn.disabled = true;
         adminBtn.className = 'px-3 py-1 rounded bg-slate-800/50 text-slate-500 text-xs border border-slate-700 cursor-not-allowed';
         logConsole(`[${service.toUpperCase()}] Service stopped.`, 'text-rose-400');
+        if (service === 'apache') {
+          updateHtdocsStatus(false);
+        }
+      }
+    }
+
+    function updateHtdocsStatus(isApacheRunning) {
+      const dot = document.getElementById('htdocs-status-dot');
+      const text = document.getElementById('htdocs-status-text');
+      if (!dot || !text) return;
+
+      if (isApacheRunning) {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
+        text.innerHTML = 'Apache 狀態：<span class="text-emerald-400 font-bold">已啟動 (Port 80/443)</span>，可由瀏覽器直接存取！';
+      } else {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-600';
+        text.innerHTML = 'Apache 狀態：<span class="text-rose-400 font-bold">未啟動</span> (無法透過 localhost 存取)';
       }
     }
 
@@ -528,6 +710,21 @@ msg.topic = `INSERT INTO sensor_logs (sensor_name, temperature, humidity)
       if (service === 'apache') {
         alert('Apache 本地首頁：http://localhost/ (XAMPP Dashboard)');
       }
+    }
+
+    function simulateNodeRedWriteHtml() {
+      const t = (24 + Math.random() * 6).toFixed(1);
+      const h = (50 + Math.random() * 20).toFixed(1);
+      const now = new Date().toLocaleString('zh-TW', { hour12: false });
+
+      document.getElementById('report-temp').innerText = `${t} °C`;
+      document.getElementById('report-humi').innerText = `${h} %`;
+      document.getElementById('report-timestamp').innerText = `最後更新時間：${now} (由 Node-RED 自動輸出)`;
+      
+      const renderBox = document.getElementById('html-report-render-box');
+      renderBox.classList.add('ring-2', 'ring-orange-500');
+      setTimeout(() => renderBox.classList.remove('ring-2', 'ring-orange-500'), 600);
+      alert('已模擬 Node-RED 將最新感測數據 HTML 寫入至 C:\\xampp\\htdocs\\output.html！');
     }
 
     function insertSampleLog() {
