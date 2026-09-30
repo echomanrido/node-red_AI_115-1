@@ -35,9 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
         initApp(data);
       })
       .catch(err => {
-        console.warn('fetch aitools.json 失敗，改用本機備援資料 INITIAL_AITOOLS_DATA:', err);
-        if (window.INITIAL_AITOOLS_DATA && window.INITIAL_AITOOLS_DATA.length > 0) {
-          initApp(window.INITIAL_AITOOLS_DATA);
+        console.warn('fetch aitools.json 失敗，改用本機備援資料 INITIAL_AITOOLS_DATA / INITIAL_TOOLS_DATA:', err);
+        const fallbackData = window.INITIAL_AITOOLS_DATA || window.INITIAL_TOOLS_DATA;
+        if (fallbackData && fallbackData.length > 0) {
+          initApp(fallbackData);
         } else {
           contentBodyEl.innerHTML = `
             <div class="section-card" style="text-align:center; padding: 40px;">

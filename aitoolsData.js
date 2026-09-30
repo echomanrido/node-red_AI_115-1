@@ -1,4 +1,4 @@
-window.INITIAL_AITOOLS_DATA = [
+window.INITIAL_AITOOLS_DATA = window.INITIAL_TOOLS_DATA = [
   {
     "id": "tool-suno",
     "toolNumber": "01",
@@ -1171,6 +1171,76 @@ window.INITIAL_AITOOLS_DATA = [
       {
         "title": "Manus 官方說明中心 - 如何在 LINE 中設定、連接並使用 Manus Agent",
         "url": "https://help.manus.im/zh-TW/articles/14432549-%E5%A6%82%E4%BD%95%E5%9C%A8-line-%E4%B8%AD%E8%A8%AD%E5%AE%9A-%E9%80%A3%E6%8E%A5%E4%B8%A6%E4%BD%BF%E7%94%A8-manus-agent"
+      }
+    ]
+  },
+  {
+    "id": "tool-gemini-skills",
+    "toolNumber": "20",
+    "title": "Gemini 技能 (Skills) - 自訂重複性指令與斜線指令 (/node-red助教) 實務指南",
+    "date": "2026-09-30",
+    "category": "Gemini 智慧協作",
+    "summary": "Google Gemini 全新推出的「技能 (Skills)」功能，允許使用者建立可重複調用的自訂專家指令集。Gemini 會在對話時自動判斷並運用相關技能，使用者亦可在對話框輸入「/」斜線符號手動精準套用。本教學示範如何手動建立「node-red助教」技能，設定 5W1H 教學原則與 Flow JSON 程式碼產出規範，並搭配多模態圖片上傳進行節點解析，實現極速、精準的 AI 專案輔助。",
+    "webUrl": "https://gemini.google.com/u/1/skills",
+    "flowImage": [
+      "images_src/ok/20260930_gemini_skills_overview.png",
+      "images_src/ok/20260930_gemini_skills_create_nodered_assistant.png",
+      "images_src/ok/20260930_gemini_skills_list_active.png",
+      "images_src/ok/20260930_gemini_skills_slash_command_usage.png"
+    ],
+    "objective": "1. 理解 Google Gemini「技能 (Skills)」功能的核心機制，掌握自動調用與手動斜線指令 (/) 的靈活應用。\n2. 學習「手動建立」技能流程，設定清楚的技能名稱、功能說明與高約束力系統使用說明 (System Instructions)。\n3. 實作建立「node-red助教」專屬技能，規範 AI 以 5W1H 框架說明、附帶生活實例並輸出可直接匯入 Node-RED 的 Flow JSON。\n4. 掌握多模態 (Multimodal) 圖片上傳結合斜線指令（如 /node-red助教 解釋圖片switch用法）之實戰技巧。",
+    "tutorialSteps": [
+      {
+        "step": "1. 前往 Gemini 技能中心 (Skills)",
+        "description": "登入 Google 帳戶並開啟 Gemini 技能頁面 (https://gemini.google.com/u/1/skills 或透過左側選單進入)。在此可檢視「使用中」技能清單與官方「建議」技能（如模仿寫作風格、集中精力、激發新靈感）。"
+      },
+      {
+        "step": "2. 選擇「手動建立」自訂技能",
+        "description": "點擊頂部的「手動建立」按鈕進入設定編輯頁面（亦可選擇「用 Gemini 建立」由 AI 智慧對話協助生成系統指令）。"
+      },
+      {
+        "step": "3. 設定「node-red助教」名稱與使用說明",
+        "description": "在欄位中填入對應資訊：\n• 名稱：node-red助教\n• 說明：node-red說明並產生程式碼\n• 使用說明：你是一個node-red的老師。我是一個新手。回答問題時，用5W1H方式回答我。並且簡單例子說明。還需要一個完整的程式，讓我可以直接匯入到node-red\n填寫完成後點擊右上角「建立」按鈕存檔。"
+      },
+      {
+        "step": "4. 驗證「使用中」技能列表",
+        "description": "返回技能管理主頁，確認「使用中」區塊已成功新增「node-red助教」技能卡片，隨時準備於對話中調用。"
+      },
+      {
+        "step": "5. 在對話框透過斜線指令 (/) 呼叫技能並搭配圖片分析",
+        "description": "進入 Gemini 對話頁面，上傳 Node-RED 節點截圖（例如 switch 節點設定圖），在輸入框輸入「/」選擇「/node-red助教」，輸入「/node-red助教 解釋圖片switch用法」。Gemini 即會嚴格依照 5W1H 架構詳細解說圖片中的屬性設定，並隨附輸出可直接匯入的 Flow JSON！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / PLC 階梯圖與 Node-RED 雙向對照助教",
+        "icon": "fa-solid fa-gears",
+        "description": "建立「/node-red助教」或「/plc助教」技能，將丙級術科題目的氣壓缸時序圖或 PLC 階梯圖拍照上傳，AI 自動將階梯圖邏輯轉換為 Node-RED 的 switch/function 流程與 Flow JSON。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 設備 SECS/GEM 協議與警報代碼即時翻譯員",
+        "icon": "fa-solid fa-microchip",
+        "description": "建立「/secs-gem專家」技能，工程師於現場截圖機台警報封包，輸入斜線指令快速解析 SxFy 訊息結構，並自動生成對應的 Node-RED 解析轉換流程。"
+      },
+      {
+        "scenario": "智慧居家與工廠專案 / 快速代碼模板生成器",
+        "icon": "fa-solid fa-wand-magic-sparkles",
+        "description": "建立「/iot模板大師」技能，定義產出標準必須包含 MQTT 連線、Dashboard 2.0 介面與防呆機制，每次發問只需一行需求描述即可快速獲得企業級標準化 Flow。"
+      }
+    ],
+    "aiPrompt": "# Gemini 技能 (Skills) 專用系統指令設定檔\n技能名稱：node-red助教\n說明：node-red說明並產生程式碼\n使用說明：\n你是一個node-red的老師。我是一個新手。回答問題時，用5W1H方式回答我。並且簡單例子說明。還需要一個完整的程式，讓我可以直接匯入到node-red\n\n---\n【對話框實機呼叫範例】\n（上傳 Node-RED switch 節點截圖）\n/node-red助教 解釋圖片switch用法",
+    "references": [
+      {
+        "title": "Google Gemini 技能 (Skills) 管理中心",
+        "url": "https://gemini.google.com/u/1/skills"
+      },
+      {
+        "title": "Google Gemini 官方網站與功能介紹",
+        "url": "https://gemini.google.com/"
+      },
+      {
+        "title": "Google DeepMind - Gemini 提示詞工程與自訂指令設計指南",
+        "url": "https://ai.google.dev/gemini-api/docs/prompting-strategies"
       }
     ]
   }

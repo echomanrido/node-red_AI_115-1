@@ -4550,5 +4550,174 @@ window.INITIAL_LABS_DATA = [
         "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace"
       }
     ]
+  },
+  {
+    "id": "lab-21",
+    "labNumber": "21",
+    "number": "21",
+    "title": "練習 5-2: 格式轉換 - Unix 毫秒時間戳轉 ISO/UTC 標準時間 (change 節點實作)",
+    "date": "2026-09-30",
+    "category": "基礎實作",
+    "summary": "深入探討 Node-RED 中 change 節點強大的內建格式化與 JSONata 時間運算能力。本實作示範將 Inject 節點觸發產生的 Unix 毫秒時間戳記（Milliseconds since epoch），透過 change 節點的「設定 (Set)」規則與內建日期時間運算式（Date/Time Format），一鍵轉換為標準 ISO 8601 / UTC 時間格式字串（如 \"2026-09-30T00:37:10.468Z\"），免去撰寫繁瑣 JavaScript 程式碼，達成工控 IoT 數據時間戳的高效標準化。",
+    "flowImage": "images_src/ok/20260930_flow_lab21_change_unix_to_utc.png",
+    "resultImage": "images_src/ok/20260930_debug_result_lab21_utc_output.png",
+    "extraImages": [
+      {
+        "title": "Inject 節點時間戳記設定 (milliseconds since epoch)",
+        "image": "images_src/ok/20260930_inject_config_lab21_timestamp.png",
+        "icon": "fa-regular fa-clock"
+      },
+      {
+        "title": "change 節點時間格式轉換設定 (YYYY-MM-DDTHH:mm:ss.sssZ)",
+        "image": "images_src/ok/20260930_change_config_lab21_iso_format.png",
+        "icon": "fa-solid fa-calendar-days"
+      }
+    ],
+    "objective": "1. 理解 Unix 毫秒時間戳記 (Epoch Time / Timestamp) 與國際標準 ISO 8601 / UTC 時間格式的差異與應用場景。\n2. 掌握 Inject 節點輸出 milliseconds since epoch 原始時間戳的配置方式。\n3. 熟練使用 change 節點的「設定 (Set)」規則搭配內建日期格式化格式（YYYY-MM-DDTHH:mm:ss.sssZ），實現低代碼 (Low-Code) 時間格式轉換。\n4. 學習工控 SCADA、歷史資料庫 (Historian) 與雲端資料湖對於 ISO 8601 時間戳格式的相容性優勢。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 標註與時間戳 Inject 節點",
+        "description": "在工作區建立兩個 Comment 節點，分別標註「練習5-2. 格式轉換」與「Unix時間轉UTC時間」。新增一個 Inject 節點，名稱命名為「時間戳」，payload 屬性選擇「milliseconds since epoch」（自 1970/1/1 起算之毫秒數）。"
+      },
+      {
+        "step": "2. 加入 change 節點並配置時間格式化規則",
+        "description": "從左側面板拖曳 change 節點至畫布，在規則中選擇「設定 (Set)」msg.payload，值類型選擇日期時間格式（Date/Time），填入格式字串「YYYY-MM-DDTHH:mm:ss.sssZ」。"
+      },
+      {
+        "step": "3. 連接 Debug 44 節點並部署流程",
+        "description": "將 Inject「時間戳」節點連接至 change「設定 msg.payload」節點，change 節點輸出端連接至名為「debug 44」的除錯節點。點擊右上角「Deploy」部署。"
+      },
+      {
+        "step": "4. 點擊觸發並於 Debug 視窗驗證轉換結果",
+        "description": "點擊 Inject「時間戳」節點左側按鈕，觀察 Debug 44 側邊欄輸出：原本為長整數數字的 Unix 毫秒時間戳已成功自動轉換為長度 24 字元的標準 ISO 8601 UTC 時間字串（如 \"2026-09-30T00:37:10.468Z\"）！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / PLC 故障事件日誌 (Event Log) 時間標準化",
+        "icon": "fa-solid fa-gears",
+        "description": "PLC 控制器內部計時器僅記錄相對運行毫秒數或 Epoch 時間戳，SCADA 系統接收到機台警報時，透過 change 節點即時將數字時間戳轉換為標準年月日時分秒 UTC 格式，自動寫入機台履歷日誌，便於檢修人員精確對照故障發生時刻。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 廠務監控與 SECS/GEM 數據封包時間對時",
+        "icon": "fa-solid fa-microchip",
+        "description": "晶圓製造設備採集高頻振動與溫度數據，各機台以 Epoch Milliseconds 標記採樣點。邊緣閘道透過 change 節點統一格式化為國際標準 ISO 8601 字串（YYYY-MM-DDTHH:mm:ss.sssZ），確保數據寫入 InfluxDB / Historian 與半導體 MES 系統時，跨機台時間軸完全精準對齊。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧快遞箱收件簽收與推播時序記錄",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧快遞箱紅外線感測器偵測包裹放入時觸發毫秒時間戳，透過 change 節點格式化為標準時間字串後，寫入後端資料庫並推播給住戶手機，讓住戶在 LINE / App 上清楚看到精確至毫秒的取件與投遞時標。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「練習 5-2: 格式轉換 - Unix 毫秒時間戳轉 ISO/UTC 時間 (change 節點實作)」：\n1. 包含兩個 Comment 節點，名稱分別為「練習5-2. 格式轉換」與「Unix時間轉UTC時間」。\n2. 包含一個 Inject 節點，名稱為「時間戳」，payload 設為 milliseconds since epoch (date)。\n3. 包含一個 change 節點，名稱為「設定 msg.payload」，規則為設定 (set) msg.payload 為 (date) \"YYYY-MM-DDTHH:mm:ss.sssZ\"。\n4. 包含一個 Debug 節點，名稱為「debug 44」，用以輸出 msg.payload。\n5. 節點依序連線：時間戳 ➔ 設定 msg.payload ➔ debug 44。\n請輸出標準可直接匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab21_1",
+        "type": "comment",
+        "z": "tab_lab21",
+        "name": "練習5-2. 格式轉換",
+        "info": "",
+        "x": 170,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "comment_lab21_2",
+        "type": "comment",
+        "z": "tab_lab21",
+        "name": "Unix時間轉UTC時間",
+        "info": "",
+        "x": 370,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "inject_timestamp_lab21",
+        "type": "inject",
+        "z": "tab_lab21",
+        "name": "時間戳",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 140,
+        "wires": [
+          [
+            "change_format_time_lab21"
+          ]
+        ]
+      },
+      {
+        "id": "change_format_time_lab21",
+        "type": "change",
+        "z": "tab_lab21",
+        "name": "設定 msg.payload",
+        "rules": [
+          {
+            "t": "set",
+            "p": "payload",
+            "pt": "msg",
+            "to": "$fromMillis(payload, 'YYYY-MM-DDTHH:mm:ss.sssZ')",
+            "tot": "jsonata"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 350,
+        "y": 140,
+        "wires": [
+          [
+            "debug_44_lab21"
+          ]
+        ]
+      },
+      {
+        "id": "debug_44_lab21",
+        "type": "debug",
+        "z": "tab_lab21",
+        "name": "debug 44",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 550,
+        "y": 140,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - Change 節點與 JSONata 日期時間函式手冊",
+        "url": "https://nodered.org/docs/user-guide/nodes#change"
+      },
+      {
+        "title": "JSONata 官方文件 - $fromMillis() 時間格式轉換函式",
+        "url": "https://docs.jsonata.org/date-time-functions#frommillis"
+      },
+      {
+        "title": "ISO 8601 國際標準時間格式規格說明 (W3C Date and Time Formats)",
+        "url": "https://www.w3.org/TR/NOTE-datetime"
+      }
+    ]
   }
 ];
