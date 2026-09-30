@@ -4323,5 +4323,232 @@ window.INITIAL_LABS_DATA = [
         "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Expressions_and_operators"
       }
     ]
+  },
+  {
+    "id": "lab-20",
+    "labNumber": "20",
+    "number": "20",
+    "title": "練習 5-1: change 實作 - 修改字串搜尋與替代 (Search & Replace)",
+    "date": "2026-09-30",
+    "category": "基礎實作",
+    "summary": "深入學習 Node-RED 核心節點 change 的「修改 (Change / Search & Replace)」規則模式。無須撰寫複雜 JavaScript 程式碼，即可在傳遞流程中對 msg.payload 進行多組規則之字串搜尋與全域替換。本實作示範將輸入的 \"Hello\" 替換為 \"Hello Omron !!\"，將 \"Hi\" 替換為 \"One more...\"，而未匹配規則的 \"你好\" 則原樣無損通過，掌握輕量化資料清理與格式轉換技術。",
+    "flowImage": "images_src/ok/20260930_flow_lab20_change_string_replace.png",
+    "resultImage": "images_src/ok/20260930_debug_result_lab20_replace_output.png",
+    "extraImages": [
+      {
+        "title": "change 節點「修改 (搜尋與替代)」多重規則設定",
+        "image": "images_src/ok/20260930_change_config_lab20_rules.png",
+        "icon": "fa-solid fa-sliders"
+      }
+    ],
+    "objective": "1. 理解 Node-RED change 節點的核心運作機制，特別是「修改 (Search and Replace)」規則的工作原理。\n2. 掌握多規則依序執行 (Sequential Execution) 與字串精準匹配替換技巧（如將 Hello 替換為 Hello Omron !!、Hi 替換為 One more...）。\n3. 理解未命中規則字串的「透通 (Passthrough)」特性（如 \"你好\" 不符合前兩條規則時，原樣直接輸出）。\n4. 學習相較於撰寫 Function 節點程式碼，使用 change 節點以低代碼 (Low-Code) 方式提升流程執行效率與可維護性。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 標註與 3 組測試字串 Inject 節點",
+        "description": "在工作區上方建立 Comment 節點，標註「練習5-1: change 實作 - 修改」。新增 3 個 Inject 節點，payload 型態皆設為 string，內容分別填入 \"Hello\"、\"Hi\" 與 \"你好\"。"
+      },
+      {
+        "step": "2. 拖曳並配置 change 節點（命名：修改字串）",
+        "description": "從左側 function 節點群組拖入 change 節點至畫布中，節點名稱命名為「修改字串」。"
+      },
+      {
+        "step": "3. 設定多重字串修改（搜尋與替代）規則",
+        "description": "雙擊打開 change 節點屬性面板，點擊「+ 新增」建立兩條「修改」規則：\n• 規則 1：【修改】msg.payload ➔ 【搜索】(string) \"Hello\" ➔ 【替代為】(string) \"Hello Omron !!\"\n• 規則 2：【修改】msg.payload ➔ 【搜索】(string) \"Hi\" ➔ 【替代為】(string) \"One more...\""
+      },
+      {
+        "step": "4. 連接 Debug 43 節點並完成部署",
+        "description": "將 3 個 Inject 節點的輸出端同時連接至 change「修改字串」節點輸入端；change 節點輸出端連接至名為「debug 43」的除錯節點。點擊右上角「Deploy」部署。"
+      },
+      {
+        "step": "5. 觸發測試並驗證 Debug 視窗輸出結果",
+        "description": "點擊各 Inject 節點按鈕進行測試：\n• 點擊 \"Hello\" ➔ Debug 輸出替換後的 \"Hello Omron !!\"（string[14]）。\n• 點擊 \"Hi\" ➔ Debug 輸出替換後的 \"One more...\"（string[11]）。\n• 點擊 \"你好\" ➔ 因未符合任何搜尋規則，直接保持原值 \"你好\"（string[2]）透通輸出。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / PLC 警報代碼與設備品牌字串轉換",
+        "icon": "fa-solid fa-gears",
+        "description": "SCADA 系統接收 Omron 或三菱 PLC 傳出的英數機台狀態代碼（如 \"ERR_01\"、\"Hello\"），透過 change 節點將代碼快速替換為易讀之廠牌與狀態中文提示（如 \"Hello Omron !!\"、\"氣壓缸作動超時\"），提升人機操作介面 (HMI) 故障排除反應速度。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 晶圓機台 SECS/GEM 事件與通訊標籤標準化",
+        "icon": "fa-solid fa-microchip",
+        "description": "晶圓製造產線跨廠區接收不同半導體機台傳入之通訊標頭與狀態字串（如 \"Hi\" 或舊版 Vendor Tag），透過 change 節點於閘道端進行字串替換清洗，統一代換為 MES/CIM 要求的標準通訊標籤（如 \"One more...\" 或標準 Station ID），避免不符合格式的封包進入 Historian 大數據分析庫。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧門禁與外送包裹狀態多語系轉換",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "社區物流中控系統接收各家外送平台與智慧快遞櫃傳來之狀態標籤，利用 change 節點將英文事件關鍵字（\"Hello\"、\"DELIVERED\"）批次替換為住戶推播通告（如 \"包裹已配達 Omron 智慧櫃 !!\"），未定義之自訂訊息（\"你好\"）則原樣推播至住戶 LINE / Telegram。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「練習 5-1: change 實作 - 修改 (字串搜尋與替代)」：\n1. 包含一個 Comment 節點，名稱為「練習5-1: change 實作 - 修改」。\n2. 包含 3 個 Inject 節點，payload 分別為 string \"Hello\"、\"Hi\"、\"你好\"。\n3. 包含一個 change 節點，名稱為「修改字串」，設定兩條規則：\n   - 規則 1：修改 (change) msg.payload，搜索 string \"Hello\"，替代為 string \"Hello Omron !!\"\n   - 規則 2：修改 (change) msg.payload，搜索 string \"Hi\"，替代為 string \"One more...\"\n4. 3 個 Inject 節點均連接至 change 節點。\n5. change 節點連接至一個 Debug 節點 (debug 43)，用以輸出 msg.payload。\n請輸出標準可直接匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab20",
+        "type": "comment",
+        "z": "tab_lab20",
+        "name": "練習5-1: change 實作 - 修改",
+        "info": "",
+        "x": 190,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "inject_hello_lab20",
+        "type": "inject",
+        "z": "tab_lab20",
+        "name": "Hello",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello",
+        "payloadType": "str",
+        "x": 110,
+        "y": 120,
+        "wires": [
+          [
+            "change_replace_node_lab20"
+          ]
+        ]
+      },
+      {
+        "id": "inject_hi_lab20",
+        "type": "inject",
+        "z": "tab_lab20",
+        "name": "Hi",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hi",
+        "payloadType": "str",
+        "x": 110,
+        "y": 180,
+        "wires": [
+          [
+            "change_replace_node_lab20"
+          ]
+        ]
+      },
+      {
+        "id": "inject_nihao_lab20",
+        "type": "inject",
+        "z": "tab_lab20",
+        "name": "你好",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "你好",
+        "payloadType": "str",
+        "x": 110,
+        "y": 240,
+        "wires": [
+          [
+            "change_replace_node_lab20"
+          ]
+        ]
+      },
+      {
+        "id": "change_replace_node_lab20",
+        "type": "change",
+        "z": "tab_lab20",
+        "name": "修改字串",
+        "rules": [
+          {
+            "t": "change",
+            "p": "payload",
+            "pt": "msg",
+            "from": "Hello",
+            "fromt": "str",
+            "to": "Hello Omron !!",
+            "tot": "str"
+          },
+          {
+            "t": "change",
+            "p": "payload",
+            "pt": "msg",
+            "from": "Hi",
+            "fromt": "str",
+            "to": "One more...",
+            "tot": "str"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 310,
+        "y": 140,
+        "wires": [
+          [
+            "debug_43_lab20"
+          ]
+        ]
+      },
+      {
+        "id": "debug_43_lab20",
+        "type": "debug",
+        "z": "tab_lab20",
+        "name": "debug 43",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 510,
+        "y": 140,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - Change 節點使用手冊 (core change node)",
+        "url": "https://nodered.org/docs/user-guide/nodes#change"
+      },
+      {
+        "title": "FlowFuse - Node-RED Change Node 完全解析指南",
+        "url": "https://flowfuse.com/node-red/core-nodes/change/"
+      },
+      {
+        "title": "MDN Web Docs - JavaScript String.prototype.replace() 字串替換方法",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace"
+      }
+    ]
   }
 ];
