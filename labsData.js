@@ -3991,14 +3991,19 @@ window.INITIAL_LABS_DATA = [
   {
     "id": "lab-19",
     "labNumber": "19",
-    "title": "練習 3&4: function 與 switch 綜合練習 - 條件分流運算與 Dashboard 儀表板 (民國轉西元)",
+    "title": "練習 3&4: function 與 switch 綜合練習 - 條件分流運算與 Dashboard 2.0 儀表板 (民國轉西元)",
     "date": "2026-09-08",
     "category": "基礎實作",
-    "summary": "學習結合 switch 多路分流節點與 Function 算術運算節點，實現無程式碼 (No-Code) 判斷與 JavaScript 精準運算的混合架構。輸入之民國年份透過 switch 判定：若 >= 18 則分流至「+ 1911」節點換算為西元年份；若 < 18 則分流至「= 0」節點歸零，並雙向整合 Node-RED Dashboard 網頁介面 (民國輸入與西元輸出)。",
+    "summary": "學習結合 switch 多路分流節點與 Function 算術運算節點，實現無程式碼 (No-Code) 判斷與 JavaScript 精準運算的混合架構。輸入之民國年份透過 switch 判定：若 >= 18 則分流至「+ 1911」節點換算為西元年份；若 < 18 則分流至「= 0」節點歸零，並雙向整合 Node-RED Dashboard 2.0 網頁介面 (在網頁中輸入民國 100 即時換算並輸出西元 2011)。",
     "flowImage": "images_src/ok/20260908_flow_lab19_function_switch_combo.png",
-    "resultImage": "images_src/ok/20260908_dashboard_tree_lab19_widgets.png",
+    "resultImage": "images_src/ok/20260930_dashboard2_result_lab19_roc_to_ad.png",
     "funcImage": "images_src/ok/20260908_function_code_lab19_plus_1911.png",
     "extraImages": [
+      {
+        "title": "Dashboard 2.0 儀表板階層與節點配置 (Layout Tree)",
+        "image": "images_src/ok/20260908_dashboard_tree_lab19_widgets.png",
+        "icon": "fa-solid fa-layer-group"
+      },
       {
         "title": "switch 節點條件分流設定 (>= 18 與 < 18)",
         "image": "images_src/ok/20260908_switch_config_lab19_ge_lt_18.png",
@@ -4010,15 +4015,15 @@ window.INITIAL_LABS_DATA = [
         "icon": "fa-solid fa-sliders"
       }
     ],
-    "objective": "1. 掌握 switch 條件分流節點與 Function 算術運算節點的跨模組整合方法。\n2. 理解多路輸出 (Multiple Outputs) 路由機制：>= 18 導向換算分支 (+ 1911)，< 18 導向歸零分支 (= 0)。\n3. 學習 Node-RED Dashboard 儀表板節點 (ui_numeric 與 ui_text) 之群組設定與雙向互動。\n4. 掌握多來源輸入 (Inject 手動測試點 + UI 網頁輸入元件) 匯流至單一 switch 判斷核心的架構設計。",
+    "objective": "1. 掌握 switch 條件分流節點與 Function 算術運算節點的跨模組整合方法。\n2. 理解多路輸出 (Multiple Outputs) 路由機制：>= 18 導向換算分支 (+ 1911)，< 18 導向歸零分支 (= 0)。\n3. 學習 Node-RED Dashboard 2.0 儀表板節點 (民國輸入與西元輸出) 之群組設定、即時雙向數據綁定與介面渲染。\n4. 掌握多來源輸入 (Inject 手動測試點 + Dashboard 2.0 網頁輸入元件) 匯流至單一 switch 判斷核心的架構設計。",
     "tutorialSteps": [
       {
         "step": "1. 建立 Comment 註解與 3 組測試 Inject 節點",
         "description": "在畫布上方建立 Comment 標註「練習3&4 function/switch綜合練習」，並新增 3 個 Inject 節點，payload 分別設定為 number 71、99 與 8。"
       },
       {
-        "step": "2. 加入 UI Number Input 民國輸入節點",
-        "description": "從左側 dashboard 面板拖曳 ui_numeric 節點，Label 設為「民國輸入」，Group 指派為「[115_機電AI班_01期] 民國轉西元」，使其可從 Dashboard 網頁直接輸入年份。"
+        "step": "2. 加入 Dashboard 2.0 UI Number Input 民國輸入節點",
+        "description": "從左側 dashboard 節點面板拖曳 ui_numeric / ui-numeric 節點，Label 設為「民國輸入」，Group 指派為「[115_機電AI班_01期] 民國轉西元」，使其可從 Dashboard 2.0 網頁直接輸入年份。"
       },
       {
         "step": "3. 配置 switch 節點設定雙條件分流 (>= 18 與 < 18)",
@@ -4029,8 +4034,8 @@ window.INITIAL_LABS_DATA = [
         "description": "輸出埠 1 連接至 Function 節點「+ 1911」，撰寫 JavaScript 程式碼：msg.payload = msg.payload + 1911; return msg;；輸出埠 2 連接至 Function 節點「= 0」，程式碼為：msg.payload = 0; return msg;。"
       },
       {
-        "step": "5. 連接 Debug 39 與 UI 西元輸出節點並驗證",
-        "description": "將兩組 Function 節點的輸出端同時連接至「debug 39」節點與 Dashboard「西元輸出」節點。點擊 Deploy 部署後，觸發 71 輸出 1982、觸發 99 輸出 2010、觸發 8 輸出 0，且 Dashboard 網頁即時同步呈現！"
+        "step": "5. 連接 Debug 39 與 UI 西元輸出節點，驗證 Dashboard 2.0 執行結果",
+        "description": "將兩組 Function 節點的輸出端同時連接至「debug 39」節點與 Dashboard「西元輸出」節點。點擊 Deploy 部署後，於 Dashboard 2.0 網頁輸入民國「100」，下方西元輸出即時響應並顯示「2011」；觸發 Inject 8 則歸零輸出「0」，流程與網頁儀表板完美連動！"
       }
     ],
     "applications": [
