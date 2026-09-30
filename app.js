@@ -176,25 +176,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
       <!-- (2) 程式 flow 照片 & 執行結果 -->
       <section class="gallery-section">
+        ${lab.flowImage ? `
         <div class="image-card">
           <div class="image-header">
-            <span class="image-title"><i class="fa-solid fa-diagram-project"></i> Node-RED 程式 Flow 截圖</span>
+            <span class="image-title"><i class="fa-solid fa-diagram-project"></i> ${escapeHtml(lab.flowTitle || 'Node-RED 程式 Flow / 架構截圖')}</span>
             <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
           </div>
           <div class="image-wrapper" id="flowImgWrapper">
             <img src="${lab.flowImage}" alt="Flow 程式截圖" onerror="this.src='https://via.placeholder.com/600x300?text=Flow+Image+Not+Found'">
           </div>
         </div>
+        ` : ''}
 
+        ${lab.resultImage && lab.resultImage !== lab.flowImage ? `
         <div class="image-card">
           <div class="image-header">
-            <span class="image-title"><i class="fa-solid fa-terminal"></i> 程式執行結果 (網頁 / Debug 視窗)</span>
+            <span class="image-title"><i class="fa-solid fa-terminal"></i> ${escapeHtml(lab.resultTitle || '程式執行結果 (網頁 / Debug 視窗)')}</span>
             <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
           </div>
           <div class="image-wrapper" id="resultImgWrapper">
             <img src="${lab.resultImage}" alt="Result 執行結果截圖" onerror="this.src='https://via.placeholder.com/600x300?text=Result+Image+Not+Found'">
           </div>
         </div>
+        ` : ''}
 
         ${lab.funcImage ? `
         <div class="image-card">
