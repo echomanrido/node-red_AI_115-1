@@ -5204,5 +5204,517 @@
         "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed"
       }
     ]
+  },
+  {
+    "id": "lab-24",
+    "labNumber": "24",
+    "number": "24",
+    "title": "練習 8: Dashboard 2.0 綜合實作 - 溫度轉換與多元視覺化儀表板 (Slider / Chart / Tank / Battery / Gauge)",
+    "date": "2026-09-30",
+    "category": "進階實作",
+    "summary": "本實作將 change 節點的 JSONata 數學轉換與 function 節點格式化技術全面整合進 Node-RED Dashboard 2.0 視覺化體系。利用 ui-slider (滑桿) 模擬華氏溫度動態輸入，並將換算後的攝氏溫度同時推播至 7 種不同型態的 Dashboard 2.0 視覺化元件：包含 ui-text (文字顯示)、ui-chart (歷史趨勢折線圖)、3/4 Gauge、Half Gauge、Battery Level (電池量)、Tank Level (液位槽) 及 Tile (狀態方塊)，同時結合 switch 門檻比對觸發溫度異常警告通知 (ui-notification)，建構工業級 SCADA 監控儀表板。",
+    "flowImage": "images_src/ok/20260930_flow_lab24_dashboard2_temperature_gauges.png",
+    "resultImage": "images_src/ok/20260930_result_lab24_dashboard2_temperature_hmi.png",
+    "objective": "1. 掌握 Node-RED Dashboard 2.0 中各種控制與視覺化元件的配置方式 (ui-slider, ui-text, ui-chart, ui-gauge, ui-notification)。\n2. 學習在同一儀表板頁面中，透過單一輸入源 (Slider 滑桿) 連動多個輸出 Widget 的資料流架構。\n3. 熟練 ui-gauge 節點的多種儀表顯示模式設定（包含 3/4 Gauge、Half Gauge、Battery Level、Tank Level、Tile）。\n4. 掌握使用 switch 節點設定數值警報門檻，並透過 ui-notification 實現即時 Toast 彈窗警報。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Dashboard 2.0 頁面與群組",
+        "description": "在 Node-RED 右側側邊欄切換至「DASHBOARD 2.0」面板的「Layout」標籤，確認已有 Page，並在該 Page 下點擊「+ Group」新增群組，命名為「溫度」。"
+      },
+      {
+        "step": "2. 配置華氏溫度輸入與連動元件",
+        "description": "拖曳 ui-slider 節點命名為「華氏溫度輸入」（指派至「溫度」群組，範圍設為 -20~200），輸出端分別連線至 ui-text 節點「目前溫度(華氏)」、ui-text-input 節點「°F」、switch 門檻判斷節點，以及上方的 change 運算節點。"
+      },
+      {
+        "step": "3. 配置溫度換算與格式化流程",
+        "description": "沿用 change 節點（JSONata 表達式 `(msg.payload-32)*5/9`）與 function 節點（小數點兩位 `msg.payload = msg.payload.toFixed(2); return msg;`），將輸入的華氏溫度即時轉換為攝氏數值。"
+      },
+      {
+        "step": "4. 配置多元視覺化儀表 (Chart & Gauges)",
+        "description": "將 Function 節點輸出端同時連接至 7 組視覺化元件（均指派於「溫度」群組中）：\n- ui-text:「目前溫度(攝氏)」\n- ui-chart:「目前溫度(攝氏)」歷史趨勢折線圖\n- ui-gauge:「攝氏(Tile)」狀態方塊\n- ui-gauge:「攝氏(3/4 Gauage)」3/4 圓指針儀表\n- ui-gauge:「攝氏(Half Gauage)」半圓指針儀表\n- ui-gauge:「攝氏(Battery Level)」電池電量條\n- ui-gauge:「攝氏(Tank Level)」水槽液位條"
+      },
+      {
+        "step": "5. 配置 switch 門檻與溫度警告通知",
+        "description": "加入 switch 節點設定溫度警報條件（如華氏 >= 100°F），輸出連接至 ui-notification 節點「溫度警告」，當溫度過高時於儀表板右上角跳出 Toast 警示通知。"
+      },
+      {
+        "step": "6. 開啟 Dashboard 部署並驗證",
+        "description": "點擊右側側邊欄「Open Dashboard」按鈕開啟 Web 儀表板，拖動「華氏溫度輸入」滑桿至 100，觀察攝氏數值 (37.78)、折線圖、水槽、電池條與指針儀表同步即時跳動響應。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / PLC 爐溫控制與人機介面 (HMI) 多重視覺化",
+        "icon": "fa-solid fa-gears",
+        "description": "SCADA 系統接收熱處理爐 PLC 溫度感測訊號，在 HMI 畫面上以 Half Gauge 顯示即時爐溫、以 Tank Level 顯示冷卻水槽水位、以 Chart 繪製連續 24 小時升降溫曲線，並在超溫時即時跳出 Toast 警報通知現場技術員。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 廠務化學品槽與無塵室環境整合監控看板",
+        "icon": "fa-solid fa-microchip",
+        "description": "晶圓廠中央戰情室將化學品儲槽即時液位 (Tank Level)、備用不斷電系統電池狀態 (Battery Level) 及各區無塵室溫濕度趨勢圖 (Chart) 集中呈現在 Dashboard 2.0 電視牆，達成廠務全域即時監控與預警聯鎖。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧儲能快遞櫃多功能狀態資訊儀表板",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "太陽能智慧快遞站將光伏發電蓄電量 (Battery Level)、冷藏格溫度 (Gauge/Chart) 與警報日誌推播 (Notification) 整合於物業管理端 Dashboard，管理員可一目了然站點能耗與設備健康度。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「練習 8: Dashboard 2.0 綜合實作 (溫度轉換與多元視覺化儀表板)」：\n1. 規劃 Dashboard 2.0 Group「溫度」。\n2. 包含一個 ui-slider 節點「華氏溫度輸入」，輸出連接至：\n   - ui-text 節點「目前溫度(華氏)」\n   - ui-text-input 節點「°F」\n   - switch 節點（門檻比對）➔ ui-notification 節點「溫度警告」\n   - change 節點（JSONata 表達式 (msg.payload-32)*5/9 華氏轉攝氏）\n3. change 節點連接至 Function 節點「小數點兩位」（msg.payload = msg.payload.toFixed(2); return msg;）。\n4. Function 節點輸出同時連接至：\n   - debug 48\n   - ui-text 節點「目前溫度(攝氏)」\n   - ui-chart 節點「目前溫度(攝氏)」\n   - ui-gauge 節點「攝氏(Tile)」\n   - ui-gauge 節點「攝氏(3/4 Gauage)」\n   - ui-gauge 節點「攝氏(Half Gauage)」\n   - ui-gauge 節點「攝氏(Battery Level)」\n   - ui-gauge 節點「攝氏(Tank Level)」\n請輸出標準可匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab24_top",
+        "type": "comment",
+        "z": "tab_lab24",
+        "name": "練習7: change實作 - expression",
+        "info": "",
+        "x": 150,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "comment_lab24_dash",
+        "type": "comment",
+        "z": "tab_lab24",
+        "name": "練習8: Dashboard",
+        "info": "",
+        "x": 130,
+        "y": 320,
+        "wires": []
+      },
+      {
+        "id": "inject_100_lab24",
+        "type": "inject",
+        "z": "tab_lab24",
+        "name": "100",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "100",
+        "payloadType": "num",
+        "x": 110,
+        "y": 140,
+        "wires": [
+          [
+            "change_jsonata_lab24"
+          ]
+        ]
+      },
+      {
+        "id": "ui_slider_fahrenheit",
+        "type": "ui-slider",
+        "z": "tab_lab24",
+        "group": "group_temperature",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "name": "華氏溫度輸入",
+        "label": "華氏溫度輸入",
+        "tooltip": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": -20,
+        "max": 200,
+        "step": 1,
+        "passthru": true,
+        "outs": "all",
+        "className": "",
+        "x": 360,
+        "y": 380,
+        "wires": [
+          [
+            "change_jsonata_lab24",
+            "ui_text_fahrenheit",
+            "ui_text_input_f",
+            "switch_alarm_lab24"
+          ]
+        ]
+      },
+      {
+        "id": "change_jsonata_lab24",
+        "type": "change",
+        "z": "tab_lab24",
+        "name": "設定 msg.payload",
+        "rules": [
+          {
+            "t": "set",
+            "p": "payload",
+            "pt": "msg",
+            "to": "(msg.payload-32)*5/9",
+            "tot": "jsonata"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 140,
+        "wires": [
+          [
+            "func_tofixed_lab24"
+          ]
+        ]
+      },
+      {
+        "id": "func_tofixed_lab24",
+        "type": "function",
+        "z": "tab_lab24",
+        "name": "小數點兩位",
+        "func": "msg.payload = msg.payload.toFixed(2);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 140,
+        "wires": [
+          [
+            "debug_48_lab24",
+            "ui_text_celsius",
+            "ui_chart_celsius",
+            "ui_gauge_tile",
+            "ui_gauge_34",
+            "ui_gauge_half",
+            "ui_gauge_battery",
+            "ui_gauge_tank"
+          ]
+        ]
+      },
+      {
+        "id": "debug_48_lab24",
+        "type": "debug",
+        "z": "tab_lab24",
+        "name": "debug 48",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 140,
+        "wires": []
+      },
+      {
+        "id": "ui_text_fahrenheit",
+        "type": "ui-text",
+        "z": "tab_lab24",
+        "group": "group_temperature",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "name": "目前溫度(華氏)",
+        "label": "目前溫度(華氏)",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 370,
+        "y": 320,
+        "wires": []
+      },
+      {
+        "id": "ui_text_input_f",
+        "type": "ui-text-input",
+        "z": "tab_lab24",
+        "group": "group_temperature",
+        "order": 3,
+        "width": "0",
+        "height": "0",
+        "name": "°F",
+        "label": "°F",
+        "tooltip": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "mode": "number",
+        "passthru": true,
+        "sendOnBlur": true,
+        "className": "",
+        "x": 530,
+        "y": 380,
+        "wires": []
+      },
+      {
+        "id": "switch_alarm_lab24",
+        "type": "switch",
+        "z": "tab_lab24",
+        "name": "switch",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+          {
+            "t": "gte",
+            "v": "100",
+            "vt": "num"
+          }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 530,
+        "y": 440,
+        "wires": [
+          [
+            "ui_notification_temp"
+          ]
+        ]
+      },
+      {
+        "id": "ui_notification_temp",
+        "type": "ui-notification",
+        "z": "tab_lab24",
+        "ui": "ui_base_lab24",
+        "position": "top right",
+        "displayTime": "3",
+        "name": "溫度警告",
+        "className": "",
+        "x": 680,
+        "y": 440,
+        "wires": []
+      },
+      {
+        "id": "ui_text_celsius",
+        "type": "ui-text",
+        "z": "tab_lab24",
+        "group": "group_temperature",
+        "order": 4,
+        "width": "0",
+        "height": "0",
+        "name": "目前溫度(攝氏)",
+        "label": "目前溫度(攝氏)",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 860,
+        "y": 320,
+        "wires": []
+      },
+      {
+        "id": "ui_chart_celsius",
+        "type": "ui-chart",
+        "z": "tab_lab24",
+        "group": "group_temperature",
+        "order": 5,
+        "width": "0",
+        "height": "0",
+        "name": "目前溫度(攝氏)",
+        "label": "目前溫度(攝氏)",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#aec7e8",
+          "#ff7f0e",
+          "#2ca02c",
+          "#98df8a",
+          "#d62728",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 860,
+        "y": 370,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "ui_gauge_tile",
+        "type": "ui-gauge",
+        "z": "tab_lab24",
+        "name": "攝氏(Tile)",
+        "group": "group_temperature",
+        "order": 6,
+        "width": "0",
+        "height": "0",
+        "gtype": "tile",
+        "title": "攝氏(Tile)",
+        "label": "units",
+        "format": "{{value}}",
+        "min": -20,
+        "max": 100,
+        "colors": [
+          "#00B500",
+          "#E6E600",
+          "#CA3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 840,
+        "y": 420,
+        "wires": []
+      },
+      {
+        "id": "ui_gauge_34",
+        "type": "ui-gauge",
+        "z": "tab_lab24",
+        "name": "攝氏(3/4 Gauage)",
+        "group": "group_temperature",
+        "order": 7,
+        "width": "0",
+        "height": "0",
+        "gtype": "gage",
+        "title": "攝氏(3/4 Gauage)",
+        "label": "units",
+        "format": "{{value}}",
+        "min": -20,
+        "max": 100,
+        "colors": [
+          "#00B500",
+          "#E6E600",
+          "#CA3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 870,
+        "y": 470,
+        "wires": []
+      },
+      {
+        "id": "ui_gauge_half",
+        "type": "ui-gauge",
+        "z": "tab_lab24",
+        "name": "攝氏(Half Gauage)",
+        "group": "group_temperature",
+        "order": 8,
+        "width": "0",
+        "height": "0",
+        "gtype": "half-gage",
+        "title": "攝氏(Half Gauage)",
+        "label": "units",
+        "format": "{{value}}",
+        "min": -20,
+        "max": 100,
+        "colors": [
+          "#00B500",
+          "#E6E600",
+          "#CA3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 870,
+        "y": 520,
+        "wires": []
+      },
+      {
+        "id": "ui_gauge_battery",
+        "type": "ui-gauge",
+        "z": "tab_lab24",
+        "name": "攝氏(Battery Level)",
+        "group": "group_temperature",
+        "order": 9,
+        "width": "0",
+        "height": "0",
+        "gtype": "battery",
+        "title": "攝氏(Battery Level)",
+        "label": "%",
+        "format": "{{value}}%",
+        "min": 0,
+        "max": 100,
+        "colors": [
+          "#CA3838",
+          "#E6E600",
+          "#00B500"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 880,
+        "y": 570,
+        "wires": []
+      },
+      {
+        "id": "ui_gauge_tank",
+        "type": "ui-gauge",
+        "z": "tab_lab24",
+        "name": "攝氏(Tank Level)",
+        "group": "group_temperature",
+        "order": 10,
+        "width": "0",
+        "height": "0",
+        "gtype": "tank",
+        "title": "攝氏(Tank Level)",
+        "label": "%",
+        "format": "{{value}}%",
+        "min": 0,
+        "max": 100,
+        "colors": [
+          "#00B500",
+          "#E6E600",
+          "#CA3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 870,
+        "y": 620,
+        "wires": []
+      },
+      {
+        "id": "group_temperature",
+        "type": "ui_group",
+        "name": "溫度",
+        "tab": "tab_dashboard_main",
+        "order": 1,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED Dashboard 2.0 官方手冊 - Layouts 版面與頁面群組配置",
+        "url": "https://dashboard.flowfuse.com/layouts/"
+      },
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-gauge 儀表節點官方手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-gauge.html"
+      },
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-chart 趨勢圖節點官方手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-chart.html"
+      },
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-slider 滑桿節點官方手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-slider.html"
+      },
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-notification 彈窗通知節點手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-notification.html"
+      }
+    ]
   }
 ]
