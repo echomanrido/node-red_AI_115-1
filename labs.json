@@ -4015,8 +4015,8 @@
         "icon": "fa-solid fa-shuffle"
       },
       {
-        "title": "UI Number Input 民國輸入節點設定",
-        "image": "images_src/ok/20260908_ui_input_config_lab19.png",
+        "title": "Dashboard 2.0 UI Number Input 民國輸入節點設定 (Range: 0~120)",
+        "image": "images_src/ok/20260930_ui_number_input_config_lab19.png",
         "icon": "fa-solid fa-sliders"
       }
     ],
@@ -4032,7 +4032,7 @@
       },
       {
         "step": "3. 配置 UI Number Input 數值輸入節點",
-        "description": "由左側節點庫拖曳 ui-number-input (或 ui_numeric) 節點至畫布，雙擊進入設定：將 Group 指派至步驟 2 建立的「[115_機電AI班_01期] 民國轉西元」，Label 設為「民國輸入」，Min/Max 設定合理範圍 (如 0~200)，Step 設為 1，並勾選即時觸發送出。"
+        "description": "由左側節點庫拖曳 Dashboard 2.0 的 ui-number-input 節點至畫布，雙擊進入設定：將 Group 指派至步驟 2 建立的「[115_機電AI班_01期] 民國轉西元」，Size 設為 auto，Label 設為「民國輸入」，Range 設定 min 0、max 120、step 1。"
       },
       {
         "step": "4. 配置 switch 節點設定條件分流 (>= 18 與 < 18)",
@@ -4731,6 +4731,298 @@
       {
         "title": "ISO 8601 國際標準時間格式規格說明 (W3C Date and Time Formats)",
         "url": "https://www.w3.org/TR/NOTE-datetime"
+      }
+    ]
+  },
+  {
+    "id": "lab-22",
+    "labNumber": "22",
+    "number": "22",
+    "title": "練習 6: switch、change 綜合實作 - 字串等值分流與動態搜尋替代 / 強制賦值",
+    "date": "2026-09-30",
+    "category": "基礎實作",
+    "summary": "綜合演練 Node-RED 的 switch 條件分流節點與 change 資料轉換節點。透過 switch 判斷輸入字串是否等於 \"Hello\"：命中者導向第一個 change 節點以「修改 (Search and Replace)」模式將 \"Hello\" 擴充為 \"Hello Wugo!!\"；非 \"Hello\" 字串 (如 \"Hi\" 與 \"你好\") 則導向第二個 change 節點以「設定 (Set)」模式強制覆寫為 \"One more...\"。最後兩路匯流至 debug 46 節點輸出，體驗低代碼 (Low-Code) 條件分支與靈活字串轉換的強大組合。",
+    "flowImage": "images_src/ok/20260930_flow_lab22_switch_change_combo.png",
+    "resultImage": "images_src/ok/20260930_debug_result_lab22_switch_change.png",
+    "extraImages": [
+      {
+        "title": "switch 節點字串等值/非等值分流設定 (== / != Hello)",
+        "image": "images_src/ok/20260930_switch_config_lab22_equal_notequal_hello.png",
+        "icon": "fa-solid fa-shuffle"
+      },
+      {
+        "title": "change 節點 1:「修改 (搜尋與替代)」Hello ➔ Hello Wugo!!",
+        "image": "images_src/ok/20260930_change_config_lab22_search_replace_wugo.png",
+        "icon": "fa-solid fa-sliders"
+      },
+      {
+        "title": "change 節點 2:「設定 (Set)」覆寫 msg.payload 為 One more...",
+        "image": "images_src/ok/20260930_change_config_lab22_set_onemore.png",
+        "icon": "fa-solid fa-pen-to-square"
+      }
+    ],
+    "objective": "1. 掌握 switch 節點中字串「等於 (==)」與「不等於 (!=)」條件運算子的設定方法與邏輯分支分配。\n2. 學習 change 節點「修改 (Change / Search & Replace)」規則，在不破壞原始資料脈絡下進行局部字串擴充與替換。\n3. 學習 change 節點「設定 (Set)」規則，將不符合特定條件的雜湊資料或不同字串強制統整為指定常數。\n4. 體驗以 No-Code / Low-Code 視覺化節點組合取代傳統 if-else 與 JavaScript 程式碼，提升工控流程可讀性與維護效率。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 註解與 3 組測試字串 Inject 節點",
+        "description": "在工作區畫布上方建立 Comment 節點並命名為「練習6: switch、change」；接著依序建立 3 個 Inject 節點，payload 型態皆設為 string (字串)，內容分別填入「Hello」、「Hi」與「你好」，作為不同語系的觸發輸入源。"
+      },
+      {
+        "step": "2. 配置 switch 節點設定字串 == 與 != 條件分流",
+        "description": "由左側節點庫拖曳 switch 節點至畫布，設定 Property 為 msg.payload。新增 2 條字串規則：\n- 規則 1：運算子選取「== (等於)」，右側型態選「string」，值填入「Hello」（導向輸出埠 1）。\n- 規則 2：運算子選取「!= (不等於)」，右側型態選「string」，值填入「Hello」（導向輸出埠 2）。"
+      },
+      {
+        "step": "3. 配置第一個 change 節點 (+ Wugo!!) 進行搜尋與替代",
+        "description": "將 switch 輸出埠 1 連接至新增的 change 節點，節點名稱命名為「+ Wugo!!」。規則下拉選取「修改 (Change)」，目標屬性設為 msg.payload，搜尋「Hello」，替代為「Hello Wugo!!」。"
+      },
+      {
+        "step": "4. 配置第二個 change 節點 (One more...) 進行強制賦值",
+        "description": "將 switch 輸出埠 2 連接至新增的 change 節點，節點名稱命名為「One more...」。規則下拉選取「設定 (Set)」，目標屬性設為 msg.payload，to the value 填入 string「One more...」。"
+      },
+      {
+        "step": "5. 連接 Debug 節點 (debug 46) 部署並驗證輸出結果",
+        "description": "將「+ Wugo!!」與「One more...」兩個 change 節點的輸出端共同連接至 debug 46 節點。點擊「部署」後依序點擊 3 個 Inject 節點：\n- 點擊「Hello」➔ Debug 輸出「\"Hello Wugo!!\"」 (string[12])\n- 點擊「Hi」➔ Debug 輸出「\"One more...\"」 (string[11])\n- 點擊「你好」➔ Debug 輸出「\"One more...\"」 (string[11])"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / PLC 狀態字元分流與警報文字統一",
+        "icon": "fa-solid fa-gears",
+        "description": "SCADA 系統接收 PLC 機台通訊回傳之運轉狀態字串 (如 \"RUN\"、\"IDLE\"、\"ALARM\")，switch 判斷若等於 \"RUN\" 則透過 change (修改) 附加產線編號轉換為 \"Line 1 RUNNING\"；若非 \"RUN\" (如未就緒或故障) 則透過 change (設定) 強制重設為安全警告代碼 \"Check Device...\"，確保現場指示燈號與日誌格式整齊一致。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 廠務 SECS/GEM 機台指令校驗與標準化處理",
+        "icon": "fa-solid fa-microchip",
+        "description": "晶圓廠設備自動化通訊閘道接收機台握手訊號，switch 節點比對通訊標頭是否為標準 \"READY\"。若是標準協議則利用 change 替換加上機台 UUID 與時間標記；若收到非標準指令或舊版韌體封包，則經由 != 分支統一覆寫為 \"STANDBY_RETRY\" 重新觸發握手請求，防止錯誤指令傳入 MES 製造執行系統。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧快遞箱投遞事件辨識與狀態回報",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧儲物櫃掃描器讀取物流員或住戶操作事件，switch 比對條碼前綴是否為特約物流廠商 \"SF_EXPRESS\"，若符合則透過 change 動態補上綠色通行代碼 \"SF_EXPRESS (Verified)\"；若是其餘未知廠商或一般訪客，則統一轉換為待確認訊息 \"One more scan...\"，提示操作者再次刷卡驗證。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「練習 6: switch 與 change 綜合實作 (條件字串分流與動態搜尋替代 / 強制賦值)」：\n1. 包含一個 Comment 節點，名稱為「練習6: switch、change」。\n2. 包含 3 個 Inject 節點，payload 型態皆為 string，內容分別為「Hello」、「Hi」與「你好」。\n3. 包含一個 switch 節點接收上述 3 個 Inject 的輸出，Property 為 msg.payload：\n   - 規則 1：== \"Hello\" (輸出埠 1)\n   - 規則 2：!= \"Hello\" (輸出埠 2)\n4. 包含第一個 change 節點，名稱為「+ Wugo!!」，連接至 switch 的輸出埠 1：\n   - 規則為「修改 (Change)」msg.payload，搜尋 \"Hello\"，替代為 \"Hello Wugo!!\"。\n5. 包含第二個 change 節點，名稱為「One more...」，連接至 switch 的輸出埠 2：\n   - 規則為「設定 (Set)」msg.payload 為 string \"One more...\"。\n6. 包含一個 Debug 節點 (debug 46)，同時接收上述兩個 change 節點的輸出。\n請輸出標準可匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab22",
+        "type": "comment",
+        "z": "tab_lab22",
+        "name": "練習6: switch、change",
+        "info": "",
+        "x": 150,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "inject_hello_lab22",
+        "type": "inject",
+        "z": "tab_lab22",
+        "name": "Hello",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello",
+        "payloadType": "str",
+        "x": 110,
+        "y": 120,
+        "wires": [
+          [
+            "switch_lab22"
+          ]
+        ]
+      },
+      {
+        "id": "inject_hi_lab22",
+        "type": "inject",
+        "z": "tab_lab22",
+        "name": "Hi",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hi",
+        "payloadType": "str",
+        "x": 110,
+        "y": 180,
+        "wires": [
+          [
+            "switch_lab22"
+          ]
+        ]
+      },
+      {
+        "id": "inject_nihao_lab22",
+        "type": "inject",
+        "z": "tab_lab22",
+        "name": "你好",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "你好",
+        "payloadType": "str",
+        "x": 110,
+        "y": 240,
+        "wires": [
+          [
+            "switch_lab22"
+          ]
+        ]
+      },
+      {
+        "id": "switch_lab22",
+        "type": "switch",
+        "z": "tab_lab22",
+        "name": "switch",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+          {
+            "t": "eq",
+            "v": "Hello",
+            "vt": "str"
+          },
+          {
+            "t": "neq",
+            "v": "Hello",
+            "vt": "str"
+          }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 280,
+        "y": 160,
+        "wires": [
+          [
+            "change_wugo_lab22"
+          ],
+          [
+            "change_onemore_lab22"
+          ]
+        ]
+      },
+      {
+        "id": "change_wugo_lab22",
+        "type": "change",
+        "z": "tab_lab22",
+        "name": "+ Wugo!!",
+        "rules": [
+          {
+            "t": "change",
+            "p": "payload",
+            "pt": "msg",
+            "from": "Hello",
+            "fromt": "str",
+            "to": "Hello Wugo!!",
+            "tot": "str"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 480,
+        "y": 120,
+        "wires": [
+          [
+            "debug_46_lab22"
+          ]
+        ]
+      },
+      {
+        "id": "change_onemore_lab22",
+        "type": "change",
+        "z": "tab_lab22",
+        "name": "One more...",
+        "rules": [
+          {
+            "t": "set",
+            "p": "payload",
+            "pt": "msg",
+            "to": "One more...",
+            "tot": "str"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 480,
+        "y": 200,
+        "wires": [
+          [
+            "debug_46_lab22"
+          ]
+        ]
+      },
+      {
+        "id": "debug_46_lab22",
+        "type": "debug",
+        "z": "tab_lab22",
+        "name": "debug 46",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 690,
+        "y": 140,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "Node-RED 官方 Docs - switch 節點核心使用手冊",
+        "url": "https://nodered.org/docs/user-guide/nodes#switch"
+      },
+      {
+        "title": "Node-RED 官方 Docs - change 節點使用手冊 (Set / Change 規則)",
+        "url": "https://nodered.org/docs/user-guide/nodes#change"
+      },
+      {
+        "title": "MDN 官方文件 - JavaScript 相等性比較 (== 與 !=)",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Operators/Equality"
+      },
+      {
+        "title": "MDN 官方文件 - JavaScript String.prototype.replace() 字串替換方法",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace"
       }
     ]
   }
