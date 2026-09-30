@@ -5907,5 +5907,305 @@
         "url": "https://dashboard.flowfuse.com/layouts/"
       }
     ]
+  },
+  {
+    "id": "lab-26",
+    "labNumber": "26",
+    "number": "26",
+    "title": "Dashboard 練習: random 亂數與 ui-chart 多軌趨勢圖 (透過 msg.topic 繪製多曲線)",
+    "date": "2026-09-30",
+    "category": "基礎實作",
+    "summary": "學習在 Node-RED Dashboard 2.0 中利用 ui-chart 繪製多通道即時歷史趨勢圖 (Multi-Series Line Chart)。透過定時週期 Inject 節點同時觸發 3 組不同數值區間的 random 亂數節點，並利用 change 節點分別為封包標記 msg.topic 為 \"A\"、\"B\"、\"C\"。ui-chart 節點會自動辨識 topic 並繪製出獨立的藍色 (A)、紅色 (B)、橘色 (C) 三條動態折線與圖例 (Legend)，掌握 SCADA 多感測點同步趨勢監測技術。",
+    "flowImage": "images_src/ok/20260930_flow_lab26_dashboard_random_multichart.png",
+    "resultImage": "images_src/ok/20260930_result_lab26_dashboard_random_multichart.png",
+    "objective": "1. 掌握 Node-RED 內建 random (亂數產生器) 節點的配置與數值上下限設定。\n2. 理解 ui-chart 節點的核心運作機制：如何透過 msg.topic 區分不同曲線通道 (Series)。\n3. 學習使用 change 節點設定 msg.topic（\"A\"、\"B\"、\"C\"）以標記數據來源與圖例名稱。\n4. 掌握多通道時間序列數據在 Dashboard 2.0 折線圖上的即時滾動渲染與工控多點監控應用。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 註解標記",
+        "description": "在畫布上方建立 Comment 節點，命名為「Dashboard練習- random」，定義實驗區塊。"
+      },
+      {
+        "step": "2. 配置週期定時 Inject 節點",
+        "description": "拖曳 Inject 節點命名為「時間戳 ↻」，設定 Repeat 為每 1 秒 (interval: 1 second) 持續自動觸發。"
+      },
+      {
+        "step": "3. 配置 3 組 random 亂數節點",
+        "description": "建立 3 個 random 節點，分別設定不同的整數範圍（例如第一組 0~100、第二組 0~50、第三組 100~300），模擬多路感測器數據。"
+      },
+      {
+        "step": "4. 配置 3 組 change 節點標記 msg.topic",
+        "description": "分別在 3 個 random 節點後方連接 change 節點：\n- 第一個 change 節點命名為「A」，規則設定 `msg.topic` 為 string \"A\"\n- 第二個 change 節點命名為「B」，規則設定 `msg.topic` 為 string \"B\"\n- 第三個 change 節點命名為「C」，規則設定 `msg.topic` 為 string \"C\""
+      },
+      {
+        "step": "5. 配置 ui-chart (random) 趨勢圖節點",
+        "description": "拖曳 ui-chart 節點命名為「random」，圖表類型選取 Line Chart (折線圖)，啟用 Legend (圖例)，將 3 個 change 節點的輸出端同時連接至 ui-chart。"
+      },
+      {
+        "step": "6. 部署並於 Web Dashboard 上驗證多曲線圖表",
+        "description": "點擊「部署」後開啟 Web Dashboard，觀察「random」圖表上方自動產生 A (藍)、B (紅)、C (橘) 三個圖例標籤，並以秒級頻率即時繪製 3 條不同高低起伏的動態折線。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / 三相馬達三相電流 (R/S/T 相) 即時平衡監測",
+        "icon": "fa-solid fa-gears",
+        "description": "SCADA 系統自 PLC 類比模組讀取三相感應馬達之 R、S、T 三相即時電流，分別賦予 topic \"Phase_R\"、\"Phase_S\"、\"Phase_T\" 傳入 ui-chart，同時繪出三相電流波動曲線，操作員可直觀判斷是否有欠相、三相不平衡或突波超載。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 晶圓製程三軸震動 (X/Y/Z) 即時頻譜趨勢",
+        "icon": "fa-solid fa-microchip",
+        "description": "微影設備防震機台安裝三軸加速度規，閘道器將 X、Y、Z 軸微震動訊號分別加上 topic 標籤推播至 Dashboard 2.0 折線圖，即時監控奈米級防震台穩定度，遇異常震動立即預警停止曝光。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧冷鏈三溫層 (常溫/冷藏/冷凍) 即時溫度多軌圖",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧多元溫控快遞櫃將常溫格、冷藏格 (2~8°C)、冷凍格 (-18°C) 三處溫度感測值分別賦予 topic \"Ambient\"、\"Chill\"、\"Freeze\" 匯入同張 Chart，管理者可於單一螢幕同時掌握全櫃溫控狀態。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「Dashboard 練習: random 亂數與 ui-chart 多軌趨勢圖 (透過 msg.topic 繪製多曲線)」：\n1. 包含一個 Comment 節點，名稱為「Dashboard練習- random」。\n2. 包含一個 Inject 節點「時間戳 ↻」，設定每 1 秒重複觸發一次。\n3. Inject 節點同時連接 3 個 random 節點：\n   - random 節點 1 (範圍 0~100)\n   - random 節點 2 (範圍 0~50)\n   - random 節點 3 (範圍 100~300)\n4. 3 個 random 節點分別連接 1 個 change 節點：\n   - change 節點 1：名稱「A」，設定 msg.topic = \"A\"\n   - change 節點 2：名稱「B」，設定 msg.topic = \"B\"\n   - change 節點 3：名稱「C」，設定 msg.topic = \"C\"\n5. 包含一個 ui-chart 節點，名稱為「random」，同時接收上述 3 個 change 節點的輸出。\n請輸出標準可匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab26",
+        "type": "comment",
+        "z": "tab_lab26",
+        "name": "Dashboard練習- random",
+        "info": "",
+        "x": 150,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "inject_timestamp_loop",
+        "type": "inject",
+        "z": "tab_lab26",
+        "name": "時間戳 ↻",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 140,
+        "wires": [
+          [
+            "random_a",
+            "random_b",
+            "random_c"
+          ]
+        ]
+      },
+      {
+        "id": "random_a",
+        "type": "random",
+        "z": "tab_lab26",
+        "name": "random",
+        "low": "0",
+        "high": "100",
+        "inte": "true",
+        "property": "payload",
+        "x": 280,
+        "y": 80,
+        "wires": [
+          [
+            "change_topic_a"
+          ]
+        ]
+      },
+      {
+        "id": "random_b",
+        "type": "random",
+        "z": "tab_lab26",
+        "name": "random",
+        "low": "0",
+        "high": "50",
+        "inte": "true",
+        "property": "payload",
+        "x": 280,
+        "y": 140,
+        "wires": [
+          [
+            "change_topic_b"
+          ]
+        ]
+      },
+      {
+        "id": "random_c",
+        "type": "random",
+        "z": "tab_lab26",
+        "name": "random",
+        "low": "100",
+        "high": "300",
+        "inte": "true",
+        "property": "payload",
+        "x": 280,
+        "y": 200,
+        "wires": [
+          [
+            "change_topic_c"
+          ]
+        ]
+      },
+      {
+        "id": "change_topic_a",
+        "type": "change",
+        "z": "tab_lab26",
+        "name": "A",
+        "rules": [
+          {
+            "t": "set",
+            "p": "topic",
+            "pt": "msg",
+            "to": "A",
+            "tot": "str"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 430,
+        "y": 80,
+        "wires": [
+          [
+            "ui_chart_random"
+          ]
+        ]
+      },
+      {
+        "id": "change_topic_b",
+        "type": "change",
+        "z": "tab_lab26",
+        "name": "B",
+        "rules": [
+          {
+            "t": "set",
+            "p": "topic",
+            "pt": "msg",
+            "to": "B",
+            "tot": "str"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 430,
+        "y": 140,
+        "wires": [
+          [
+            "ui_chart_random"
+          ]
+        ]
+      },
+      {
+        "id": "change_topic_c",
+        "type": "change",
+        "z": "tab_lab26",
+        "name": "C",
+        "rules": [
+          {
+            "t": "set",
+            "p": "topic",
+            "pt": "msg",
+            "to": "C",
+            "tot": "str"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 430,
+        "y": 200,
+        "wires": [
+          [
+            "ui_chart_random"
+          ]
+        ]
+      },
+      {
+        "id": "ui_chart_random",
+        "type": "ui-chart",
+        "z": "tab_lab26",
+        "group": "group_random_lab26",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "random",
+        "label": "random",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": true,
+        "ymin": "0",
+        "ymax": "300",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#d62728",
+          "#ff7f0e",
+          "#2ca02c",
+          "#98df8a",
+          "#aec7e8",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 620,
+        "y": 140,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "group_random_lab26",
+        "type": "ui_group",
+        "name": "隨機趨勢",
+        "tab": "tab_random_lab26",
+        "order": 1,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+      }
+    ],
+    "references": [
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-chart 多軌趨勢圖 (Multi-Series) 官方手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-chart.html"
+      },
+      {
+        "title": "Node-RED 官方 Docs - change 節點設定 msg.topic 使用手冊",
+        "url": "https://nodered.org/docs/user-guide/nodes#change"
+      },
+      {
+        "title": "Node-RED 官方 Docs - random 亂數節點手冊",
+        "url": "https://flows.nodered.org/node/node-red-node-random"
+      }
+    ]
   }
 ]
