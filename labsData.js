@@ -5025,5 +5025,184 @@ window.INITIAL_LABS_DATA = [
         "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace"
       }
     ]
+  },
+  {
+    "id": "lab-23",
+    "labNumber": "23",
+    "number": "23",
+    "title": "練習 7: change 實作 - JSONata Expression 表達式運算與 toFixed() 小數點格式化 (華氏轉攝氏)",
+    "date": "2026-09-30",
+    "category": "基礎實作",
+    "summary": "學習使用 Node-RED change 節點強大的「JSONata 表達式 (Expression / J:)」功能進行即時數學公式運算。透過輸入華氏溫度 100°F，利用 JSONata 表達式 (msg.payload-32)*5/9 免寫 JavaScript 代碼即可直接完成單位換算；後續串接 Function 節點調用 msg.payload.toFixed(2) 將無限小數四捨五入格式化為小數點後兩位 (\"37.78\")，體驗低代碼公式運算與 JavaScript 精準格式化控制的完美結合。",
+    "flowImage": "images_src/ok/20260930_flow_lab23_change_jsonata_expression.png",
+    "resultImage": "images_src/ok/20260930_debug_result_lab23_fahrenheit_to_celsius.png",
+    "funcImage": "images_src/ok/20260930_function_code_lab23_tofixed2.png",
+    "extraImages": [
+      {
+        "title": "change 節點 JSONata Expression (J:) 華氏轉攝氏運算設定",
+        "image": "images_src/ok/20260930_change_config_lab23_jsonata_fahrenheit.png",
+        "icon": "fa-solid fa-calculator"
+      },
+      {
+        "title": "function 節點 toFixed(2) 保留小數點兩位程式碼設定",
+        "image": "images_src/ok/20260930_function_code_lab23_tofixed2.png",
+        "icon": "fa-solid fa-code"
+      }
+    ],
+    "objective": "1. 掌握 change 節點中「JSONata 表達式 (J: / Expression)」的運作模式與數值四則運算語法。\n2. 學習免寫 JavaScript 函式即可在 change 節點內直接套用工程轉換公式（如 (msg.payload-32)*5/9 華氏轉攝氏）。\n3. 學習 JavaScript 原生 Number.prototype.toFixed(n) 函式，掌握浮點數四捨五入至指定小數位數之字串格式化技巧。\n4. 理解工控感測器物理量轉換 (Scaling/Calibration) 與儀表板數值規整的標準管線架構。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 註釋與測試數值 Inject 節點",
+        "description": "在工作區畫布上方建立 Comment 節點並命名為「練習7: change實作 - expression」；接著建立一個 Inject 節點，payload 型態設定為 number (數字)，內容填入 100，模擬讀取到 100°F 華氏溫度。"
+      },
+      {
+        "step": "2. 配置 change 節點設定 JSONata Expression 表達式",
+        "description": "拖曳 change 節點至畫布，規則選取「設定 (Set)」，目標屬性為 msg.payload；右側型態下拉選取「J: (JSONata 表達式)」，在運算式欄位填入「(msg.payload-32)*5/9」。"
+      },
+      {
+        "step": "3. 建立 Function 節點「小數點兩位」",
+        "description": "拖曳 Function 節點連接於 change 節點後方，命名為「小數點兩位」。在函式編輯區輸入：`msg.payload = msg.payload.toFixed(2); return msg;`。"
+      },
+      {
+        "step": "4. 連接 Debug 節點 (debug 48) 部署並驗證",
+        "description": "連接 debug 48 節點，點擊「部署」後觸發 Inject 100 節點。Debug 視窗即時輸出字串型態 \"37.78\" (string[5])，確認運算與格式化完全正確。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / PLC 熱電偶溫度轉換與儀表數值格式化",
+        "icon": "fa-solid fa-gears",
+        "description": "SCADA 系統自 PLC 類比輸入模組讀取未校準或美規華氏熱電偶數值 (如 100°F)，透過 change 節點的 JSONata Expression 即時套用校正公式轉換為攝氏，再以 toFixed(2) 格式化為定點小數，傳送至人機介面 (HMI) 與溫控警報系統，防止浮點小數過長影響操作員判讀。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 廠務冰水機組與無塵室溫濕度標準化轉換",
+        "icon": "fa-solid fa-microchip",
+        "description": "晶圓廠中央空調 (HVAC) 監控系統接收歐美進口冰水主機傳回之華氏冷卻水溫數據，利用 change 節點的 JSONata 免程式碼特性進行即時批量換算，經 toFixed(2) 規整數值精度後，統一寫入 Historian 時序資料庫，確保跨國設備監控數據單位一致。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧溫控冷鏈快遞櫃即時溫控監測",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "低溫生鮮快遞櫃之進口冷凍機組感測器上傳華氏溫度，透過 Node-RED 後端以 JSONata 表達式迅速換算為攝氏溫度，並格式化為小數點兩位字串推播至管理員 LINE / 手機 App，即時掌握食品冷鏈品質與安全狀態。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「練習 7: change 實作 - JSONata Expression 表達式運算與 toFixed() 小數點格式化 (華氏轉攝氏)」：\n1. 包含一個 Comment 節點，名稱為「練習7: change實作 - expression」。\n2. 包含一個 Inject 節點，payload 為 number 100。\n3. 包含一個 change 節點，規則為「設定 (Set)」msg.payload 為 JSONata Expression「(msg.payload-32)*5/9」。\n4. 包含一個 Function 節點，名稱為「小數點兩位」，內容為：\n   msg.payload = msg.payload.toFixed(2);\n   return msg;\n5. 包含一個 Debug 節點 (debug 48)，接收 Function 節點的輸出。\n請輸出標準可匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab23",
+        "type": "comment",
+        "z": "tab_lab23",
+        "name": "練習7: change實作 - expression",
+        "info": "",
+        "x": 150,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "inject_100_lab23",
+        "type": "inject",
+        "z": "tab_lab23",
+        "name": "100",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "100",
+        "payloadType": "num",
+        "x": 110,
+        "y": 140,
+        "wires": [
+          [
+            "change_jsonata_lab23"
+          ]
+        ]
+      },
+      {
+        "id": "change_jsonata_lab23",
+        "type": "change",
+        "z": "tab_lab23",
+        "name": "設定 msg.payload",
+        "rules": [
+          {
+            "t": "set",
+            "p": "payload",
+            "pt": "msg",
+            "to": "(msg.payload-32)*5/9",
+            "tot": "jsonata"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 360,
+        "y": 140,
+        "wires": [
+          [
+            "func_tofixed_lab23"
+          ]
+        ]
+      },
+      {
+        "id": "func_tofixed_lab23",
+        "type": "function",
+        "z": "tab_lab23",
+        "name": "小數點兩位",
+        "func": "msg.payload = msg.payload.toFixed(2);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 570,
+        "y": 140,
+        "wires": [
+          [
+            "debug_48_lab23"
+          ]
+        ]
+      },
+      {
+        "id": "debug_48_lab23",
+        "type": "debug",
+        "z": "tab_lab23",
+        "name": "debug 48",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 760,
+        "y": 140,
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "JSONata 官方文檔 - 運算式與數值運算語法 (Numeric Expressions)",
+        "url": "https://docs.jsonata.org/numeric-operators"
+      },
+      {
+        "title": "Node-RED 官方 Docs - change 節點 JSONata 表達式使用手冊",
+        "url": "https://nodered.org/docs/user-guide/nodes#change"
+      },
+      {
+        "title": "MDN 官方文件 - JavaScript Number.prototype.toFixed() 方法",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed"
+      }
+    ]
   }
 ];
