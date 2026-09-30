@@ -5716,5 +5716,196 @@ window.INITIAL_LABS_DATA = [
         "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-notification.html"
       }
     ]
+  },
+  {
+    "id": "lab-25",
+    "labNumber": "25",
+    "number": "25",
+    "title": "Dashboard 練習: ui-slider 滑桿控制與 ui-chart 即時趨勢圖 / 數值同步",
+    "date": "2026-09-30",
+    "category": "基礎實作",
+    "summary": "學習 Node-RED Dashboard 2.0 最核心的動態輸入與視覺化連動技術。透過配置 ui-slider（滑桿）作為連續數值控制器，拖曳調整溫度數值（如 23°C），同時驅動 ui-chart（折線趨勢圖）即時繪製波形，並同步更新至 ui-number-input（溫度輸出輸入框），掌握人機介面 (HMI) 多元件雙向數據同步與動態圖表呈現技巧。",
+    "flowImage": "images_src/ok/20260930_flow_lab25_dashboard_slider_chart.png",
+    "resultImage": "images_src/ok/20260930_result_lab25_dashboard_slider_chart.png",
+    "objective": "1. 掌握 Node-RED Dashboard 2.0 中 ui-slider (滑桿) 節點的連續數值發送與範圍設定。\n2. 學習 ui-chart (趨勢圖) 節點接收時間序列數據並即時動態繪製折線圖。\n3. 學習 ui-number-input (數值輸入/輸出) 節點同步接收滑桿數據並支援微調控制。\n4. 理解 SCADA 人機介面單一控制源驅動多元件的事件廣播機制與響應式資料流架構。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Comment 註解標記",
+        "description": "在工作區畫布上方建立 Comment 節點並命名為「Dashboard練習-slider」，建立乾淨獨立的實驗流程區塊。"
+      },
+      {
+        "step": "2. 建立 Dashboard 2.0 群組與頁面",
+        "description": "切換至右側 DASHBOARD 2.0 側邊欄 Layout 標籤，確認已建立 Page 與 Group（如「溫度」群組），供後續視覺化節點指派。"
+      },
+      {
+        "step": "3. 配置 ui-slider (溫度輸入) 滑桿節點",
+        "description": "拖曳 ui-slider 節點至畫布，命名與標籤設為「溫度輸入」，指派 Group 至「溫度」，設定 Min/Max 數值範圍 (如 -90 ~ 60)，Step 設為 1，並啟用即時滑動發送 (passthru: true)。"
+      },
+      {
+        "step": "4. 配置 ui-chart (溫度) 趨勢折線圖節點",
+        "description": "拖曳 ui-chart 節點命名與標籤設為「溫度」，指派於同一「溫度」群組，圖表類型選取「Line Chart (折線圖)」，X 軸時間格式設為 HH:mm:ss，Y 軸範圍自適應或固定 (-90 ~ 60)。"
+      },
+      {
+        "step": "5. 配置 ui-number-input (溫度輸出) 數值微調節點",
+        "description": "拖曳 ui-number-input (或 ui_numeric) 節點命名與標籤設為「溫度輸出」，指派於同一群組，作為同步顯示與數值微調控制框。"
+      },
+      {
+        "step": "6. 建立連線、部署並在 Dashboard 上實機操作",
+        "description": "將「溫度輸入」滑桿的輸出端同時連線至「溫度」折線圖與「溫度輸出」數值框。點擊「部署」後開啟 Web Dashboard，拖動滑桿，觀察下方折線圖即時繪製波形，數值框同步顯示當前數值（如 23）。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / PLC 伺服馬達轉速動態調節與電流趨勢監控",
+        "icon": "fa-solid fa-gears",
+        "description": "SCADA 系統操作員透過人機介面的 Slider 滑桿動態給定 PLC 變頻器頻率或伺服轉速，下方即時繪製馬達運轉電流折線圖 (Chart)，並在數值框精確顯示當前轉速 (RPM)，實現直覺無級調速與即時負載監控。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 廠務氣體流量即時調節與時序波形監測",
+        "icon": "fa-solid fa-microchip",
+        "description": "晶圓製程特氣供應系統利用 Slider 模擬質量流量控制器 (MFC) 開度調整，Dashboard 2.0 折線圖即時以秒級頻率呈現流量衝擊與穩定波形，協助製程工程師快速抓取氣壓突波與穩態反應時間。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧冷鏈快遞櫃溫控模擬與波動曲線分析",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "低溫快遞櫃測試系統透過 Slider 滑桿模擬外部環境氣溫劇烈變化（如 -90°C ~ 60°C），即時在 Chart 上記錄櫃體內部溫度緩衝曲線，驗證保溫箱隔熱性能與壓縮機動態啟閉頻率。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「Dashboard 練習: ui-slider 滑桿控制與 ui-chart 即時趨勢圖 / 數值同步」：\n1. 包含一個 Comment 節點，名稱為「Dashboard練習-slider」。\n2. 規劃 Dashboard 2.0 Group「溫度」。\n3. 包含一個 ui-slider 節點，名稱與標籤為「溫度輸入」，歸屬於「溫度」群組。\n4. 包含一個 ui-chart 節點，名稱與標籤為「溫度」，圖表類型為折線圖 (line)，歸屬於「溫度」群組。\n5. 包含一個 ui-number-input 節點，名稱與標籤為「溫度輸出」，歸屬於「溫度」群組。\n6. ui-slider 的輸出同時連接至 ui-chart 與 ui-number-input。\n請輸出標準可匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab25",
+        "type": "comment",
+        "z": "tab_lab25",
+        "name": "Dashboard練習-slider",
+        "info": "",
+        "x": 150,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "ui_slider_temp_in",
+        "type": "ui-slider",
+        "z": "tab_lab25",
+        "group": "group_temp_lab25",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "溫度輸入",
+        "label": "溫度輸入",
+        "tooltip": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": -90,
+        "max": 60,
+        "step": 1,
+        "passthru": true,
+        "outs": "all",
+        "className": "",
+        "x": 170,
+        "y": 140,
+        "wires": [
+          [
+            "ui_chart_temp_out",
+            "ui_number_temp_out"
+          ]
+        ]
+      },
+      {
+        "id": "ui_chart_temp_out",
+        "type": "ui-chart",
+        "z": "tab_lab25",
+        "group": "group_temp_lab25",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "溫度",
+        "label": "溫度",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "-90",
+        "ymax": "60",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#aec7e8",
+          "#ff7f0e",
+          "#2ca02c",
+          "#98df8a",
+          "#d62728",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 370,
+        "y": 120,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "ui_number_temp_out",
+        "type": "ui-number-input",
+        "z": "tab_lab25",
+        "group": "group_temp_lab25",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "溫度輸出",
+        "label": "溫度輸出",
+        "tooltip": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": -90,
+        "max": 60,
+        "step": 1,
+        "passthru": true,
+        "className": "",
+        "x": 380,
+        "y": 180,
+        "wires": []
+      },
+      {
+        "id": "group_temp_lab25",
+        "type": "ui_group",
+        "name": "溫度",
+        "tab": "tab_temp_lab25",
+        "order": 1,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+      }
+    ],
+    "references": [
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-slider 滑桿節點官方手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-slider.html"
+      },
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-chart 趨勢圖節點官方手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-chart.html"
+      },
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-text-input 數值輸入節點手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-text-input.html"
+      },
+      {
+        "title": "Node-RED Dashboard 2.0 官方手冊 - Layouts 版面與頁面群組配置",
+        "url": "https://dashboard.flowfuse.com/layouts/"
+      }
+    ]
   }
 ];
