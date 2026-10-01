@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>財報視覺化指南：四大長條圖呈現方式解析</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              blue: '#0084ff',
+              red: '#ff1a1a',
+              orange: '#ff8800',
+              green: '#1da43b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .chart-card {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .chart-card.highlighted {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -8px rgba(37, 99, 235, 0.25);
+      border-color: #3b82f6;
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans min-h-screen text-base">
+
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-10 h-18 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3.5">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold text-slate-900 leading-tight">財報(Bar) 視覺化圖表解構手冊</h1>
+          <p class="text-xs sm:text-sm text-slate-500">並列 vs 堆疊、季度 vs 年度維度分析</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button onclick="resetData()" class="px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
+          重設數據
+        </button>
+        <a href="#decision-guide" class="px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
+          選圖指南
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-10 py-8 space-y-10">
+    <!-- Introduction Section -->
+    <section class="bg-gradient-to-br from-white to-blue-50/50 rounded-2xl border border-slate-200 p-6 md:p-9 shadow-sm">
+      <div class="max-w-5xl space-y-3.5">
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-blue-100 text-blue-700">
+          <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+          視覺化分析解讀
+        </span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+          同樣的財務數據，為什麼有 4 種完全不同的長條圖？
+        </h2>
+        <p class="text-slate-600 leading-relaxed text-sm sm:text-base lg:text-lg">
+          在財務報表與經營分析中，我們常同時擁有<strong>「時間年份 (2021 vs 2022)」</strong>與<strong>「季別週期 (Q1 ~ Q4)」</strong>兩個維度。透過切換<strong>主坐標軸 (X-Axis)</strong> 與<strong>展示型態 (並列 Side-by-side vs 堆疊 Stacks)</strong>，圖表傳達的業務洞察會產生劇烈變化。
+        </p>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-slate-200/80">
+        <p class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 mb-3.5">
+          💡 點選你想了解的分析目標（由左至右 1:1 對應下方四組圖表）：
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <!-- Scenario 1 -> Chart 1 -->
+          <button onclick="setScenario('yoy')" id="btn-scenario-yoy" class="scenario-btn text-left p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50/40 transition">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs sm:text-sm font-bold text-blue-600">情境 1</span>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-600">對應圖 1</span>
+            </div>
+            <div class="text-sm sm:text-base font-bold text-slate-800">各季年增率 (YoY) 比較</div>
+            <div class="text-xs sm:text-sm text-slate-500 mt-1">「今年Q1比去年Q1成長多少？」</div>
+          </button>
+
+          <!-- Scenario 2 -> Chart 2 -->
+          <button onclick="setScenario('quarterStack')" id="btn-scenario-quarterStack" class="scenario-btn text-left p-4 rounded-xl border border-slate-200 bg-white hover:border-purple-400 hover:bg-purple-50/40 transition">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs sm:text-sm font-bold text-purple-600">情境 2</span>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-purple-50 text-purple-600">對應圖 2</span>
+            </div>
+            <div class="text-sm sm:text-base font-bold text-slate-800">跨年同期累計結構</div>
+            <div class="text-xs sm:text-sm text-slate-500 mt-1">「該季兩年合計營運量能與佔比」</div>
+          </button>
+
+          <!-- Scenario 3 -> Chart 3 -->
+          <button onclick="setScenario('seasonality')" id="btn-scenario-seasonality" class="scenario-btn text-left p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/40 transition">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs sm:text-sm font-bold text-emerald-600">情境 3</span>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-600">對應圖 3</span>
+            </div>
+            <div class="text-sm sm:text-base font-bold text-slate-800">單一年度內淡旺季走勢</div>
+            <div class="text-xs sm:text-sm text-slate-500 mt-1">「今年是否逐季走高？哪季旺季？」</div>
+          </button>
+
+          <!-- Scenario 4 -> Chart 4 -->
+          <button onclick="setScenario('annualTotal')" id="btn-scenario-annualTotal" class="scenario-btn text-left p-4 rounded-xl border border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50/40 transition">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs sm:text-sm font-bold text-amber-600">情境 4</span>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-600">對應圖 4</span>
+            </div>
+            <div class="text-sm sm:text-base font-bold text-slate-800">年度總營收與季度佔比</div>
+            <div class="text-xs sm:text-sm text-slate-500 mt-1">「哪一季是全年營收主力貢獻？」</div>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h3 class="text-xl font-bold text-slate-900">四大長條圖實時對照看板</h3>
+          <p class="text-xs sm:text-sm text-slate-500">還原圖中 4 組圖表的數據配置，支援即時懸浮數值查看</p>
+        </div>
+        <span class="text-xs sm:text-sm font-medium text-slate-600 bg-slate-200/80 px-3 py-1.5 rounded-lg">
+          單位: 百萬 (NT$ 或 USD)
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+        <!-- Chart 1: Bar chart-year (Side by side) -->
+        <div id="card-chart1" class="chart-card bg-white p-5 rounded-2xl border border-slate-200 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <h4 class="text-base font-bold text-slate-800 leading-snug">Bar chart-year<br><span class="text-xs sm:text-sm text-slate-500 font-normal">(Side by side)</span></h4>
+              <span class="px-2.5 py-1 text-xs font-semibold bg-blue-50 text-blue-700 rounded-md">X軸: 季度</span>
+            </div>
+            <div class="h-72 relative w-full">
+              <canvas id="chart1"></canvas>
+            </div>
+          </div>
+          <div class="mt-5 pt-3.5 border-t border-slate-100 text-xs sm:text-sm">
+            <div class="font-semibold text-slate-800 mb-1 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"/></svg>
+              最佳核心功能：
+            </div>
+            <p class="text-slate-600 leading-relaxed">直接對照<strong>同期年增長 (YoY)</strong>。一眼看出 Q1~Q3 2022年顯著強於2021年，但 Q4 出現持平反轉。</p>
+          </div>
+        </div>
+
+        <!-- Chart 2: Bar chart-year (Stacks) -->
+        <div id="card-chart2" class="chart-card bg-white p-5 rounded-2xl border border-slate-200 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <h4 class="text-base font-bold text-slate-800 leading-snug">Bar chart-year<br><span class="text-xs sm:text-sm text-slate-500 font-normal">(Stacks)</span></h4>
+              <span class="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-700 rounded-md">X軸: 季度</span>
+            </div>
+            <div class="h-72 relative w-full">
+              <canvas id="chart2"></canvas>
+            </div>
+          </div>
+          <div class="mt-5 pt-3.5 border-t border-slate-100 text-xs sm:text-sm">
+            <div class="font-semibold text-slate-800 mb-1 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"/></svg>
+              最佳核心功能：
+            </div>
+            <p class="text-slate-600 leading-relaxed">觀察<strong>該季度兩年累計總量與比例</strong>。較少用於傳統財報，但常見於「同季兩期產能負荷」分析。</p>
+          </div>
+        </div>
+
+        <!-- Chart 3: Bar chart-quarter (Side by side) -->
+        <div id="card-chart3" class="chart-card bg-white p-5 rounded-2xl border border-slate-200 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <h4 class="text-base font-bold text-slate-800 leading-snug">Bar chart-quarter<br><span class="text-xs sm:text-sm text-slate-500 font-normal">(Side by side)</span></h4>
+              <span class="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 rounded-md">X軸: 年度</span>
+            </div>
+            <div class="h-72 relative w-full">
+              <canvas id="chart3"></canvas>
+            </div>
+          </div>
+          <div class="mt-5 pt-3.5 border-t border-slate-100 text-xs sm:text-sm">
+            <div class="font-semibold text-slate-800 mb-1 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"/></svg>
+              最佳核心功能：
+            </div>
+            <p class="text-slate-600 leading-relaxed">診斷<strong>年度內部的淡旺季規律 (Seasonality)</strong>。看出2021為後段衝刺型(Q4暴衝)，2022則為平均高檔型。</p>
+          </div>
+        </div>
+
+        <!-- Chart 4: Bar chart-quarter (Stacks) -->
+        <div id="card-chart4" class="chart-card bg-white p-5 rounded-2xl border border-slate-200 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <h4 class="text-base font-bold text-slate-800 leading-snug">Bar chart-quarter<br><span class="text-xs sm:text-sm text-slate-500 font-normal">(Stacks)</span></h4>
+              <span class="px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700 rounded-md">X軸: 年度</span>
+            </div>
+            <div class="h-72 relative w-full">
+              <canvas id="chart4"></canvas>
+            </div>
+          </div>
+          <div class="mt-5 pt-3.5 border-t border-slate-100 text-xs sm:text-sm">
+            <div class="font-semibold text-slate-800 mb-1 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"/></svg>
+              最佳核心功能：
+            </div>
+            <p class="text-slate-600 leading-relaxed">檢視<strong>全年總營收 (柱高) 及各季貢獻結構</strong>。一眼看出2022總量(約612)大幅超越2021總量(約525)。</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">數據明細與動態模擬器</h3>
+          <p class="text-xs sm:text-sm text-slate-500">修改數值後，上方 4 張圖表將聯動即時重新渲染計算</p>
+        </div>
+        <div class="flex gap-2.5">
+          <button onclick="applyPreset('growth')" class="text-xs sm:text-sm px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
+            模擬：持續高成長
+          </button>
+          <button onclick="applyPreset('season')" class="text-xs sm:text-sm px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
+            模擬：強烈淡旺季
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-5 overflow-x-auto scrollbar-thin">
+        <table class="w-full text-sm sm:text-base text-left">
+          <thead>
+            <tr class="text-xs sm:text-sm font-bold text-slate-500 uppercase bg-slate-50/80 border-b border-slate-200">
+              <th class="py-3 px-4">年份 / 季度</th>
+              <th class="py-3 px-4 text-center">Q1</th>
+              <th class="py-3 px-4 text-center">Q2</th>
+              <th class="py-3 px-4 text-center">Q3</th>
+              <th class="py-3 px-4 text-center">Q4</th>
+              <th class="py-3 px-4 text-right">全年加總 (Annual Total)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-800">
+            <tr class="hover:bg-blue-50/30 transition">
+              <td class="py-3 px-4 font-bold flex items-center gap-2.5">
+                <span class="w-3.5 h-3.5 rounded-sm bg-[#0084ff]"></span>
+                2021 年度
+              </td>
+              <td class="py-2.5 px-4 text-center">
+                <input id="input_2021_q1" type="number" min="0" max="300" value="115" onchange="updateCustomData()" class="w-20 p-1.5 text-center text-sm font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              </td>
+              <td class="py-2.5 px-4 text-center">
+                <input id="input_2021_q2" type="number" min="0" max="300" value="120" onchange="updateCustomData()" class="w-20 p-1.5 text-center text-sm font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              </td>
+              <td class="py-2.5 px-4 text-center">
+                <input id="input_2021_q3" type="number" min="0" max="300" value="130" onchange="updateCustomData()" class="w-20 p-1.5 text-center text-sm font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              </td>
+              <td class="py-2.5 px-4 text-center">
+                <input id="input_2021_q4" type="number" min="0" max="300" value="160" onchange="updateCustomData()" class="w-20 p-1.5 text-center text-sm font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              </td>
+              <td id="total_2021" class="py-3 px-4 text-right font-extrabold text-slate-900 text-base">525</td>
+            </tr>
+            <tr class="hover:bg-red-50/30 transition">
+              <td class="py-3 px-4 font-bold flex items-center gap-2.5">
+                <span class="w-3.5 h-3.5 rounded-sm bg-[#ff1a1a]"></span>
+                2022 年度
+              </td>
+              <td class="py-2.5 px-4 text-center">
+                <input id="input_2022_q1" type="number" min="0" max="300" value="142" onchange="updateCustomData()" class="w-20 p-1.5 text-center text-sm font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              </td>
+              <td class="py-2.5 px-4 text-center">
+                <input id="input_2022_q2" type="number" min="0" max="300" value="152" onchange="updateCustomData()" class="w-20 p-1.5 text-center text-sm font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              </td>
+              <td class="py-2.5 px-4 text-center">
+                <input id="input_2022_q3" type="number" min="0" max="300" value="160" onchange="updateCustomData()" class="w-20 p-1.5 text-center text-sm font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              </td>
+              <td class="py-2.5 px-4 text-center">
+                <input id="input_2022_q4" type="number" min="0" max="300" value="158" onchange="updateCustomData()" class="w-20 p-1.5 text-center text-sm font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              </td>
+              <td id="total_2022" class="py-3 px-4 text-right font-extrabold text-slate-900 text-base">612</td>
+            </tr>
+            <tr class="bg-slate-50/60 font-medium text-xs sm:text-sm text-slate-600">
+              <td class="py-2.5 px-4 font-semibold">YoY 成長率 (%)</td>
+              <td id="yoy_q1" class="py-2.5 px-4 text-center font-bold text-red-600">+23.5%</td>
+              <td id="yoy_q2" class="py-2.5 px-4 text-center font-bold text-red-600">+26.7%</td>
+              <td id="yoy_q3" class="py-2.5 px-4 text-center font-bold text-red-600">+23.1%</td>
+              <td id="yoy_q4" class="py-2.5 px-4 text-center font-bold text-emerald-600">-1.3%</td>
+              <td id="yoy_total" class="py-2.5 px-4 text-right font-bold text-red-600 text-base">+16.6%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="decision-guide" class="space-y-6">
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <h3 class="text-2xl font-extrabold text-slate-900">四種長條圖深度解析與優劣勢比較矩陣</h3>
+        <p class="text-slate-500 text-sm">
+          財報視覺化並不是「哪張好看用哪張」，而是根據<strong>聽眾的核心決策問題</strong>決定維度優先級。
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Deep card 1 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 hover:shadow-md transition">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">01</span>
+            <div>
+              <h4 class="font-bold text-slate-900">Bar chart-year (Side by side)</h4>
+              <p class="text-xs text-slate-500">主軸：季度 (Q1~Q4) ｜ 群組：年分 (2021 vs 2022)</p>
+            </div>
+          </div>
+          <div class="space-y-2 text-sm text-slate-600">
+            <div class="bg-slate-50 p-3 rounded-lg">
+              <span class="font-semibold text-slate-800">✅ 核心優勢：</span>
+              最直觀的 <strong>YoY (年增率)</strong> 對比工具。人類肉眼比對緊挨著的兩根柱子高度差是最迅速且認知負擔最低的。
+            </div>
+            <div class="bg-slate-50 p-3 rounded-lg">
+              <span class="font-semibold text-slate-800">⚠️ 局限性：</span>
+              若要觀察 2022 年內部「Q1 到 Q4 的四季發展軌跡」，視線需要跳著看紅色的柱子，連續性稍弱。
+            </div>
+            <div class="text-xs text-blue-600 font-semibold">
+              🎯 適用場景：法說會財報、季度營收檢討會、同季成長率報告。
+            </div>
+          </div>
+        </div>
+
+        <!-- Deep card 2 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 hover:shadow-md transition">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">02</span>
+            <div>
+              <h4 class="font-bold text-slate-900">Bar chart-year (Stacks)</h4>
+              <p class="text-xs text-slate-500">主軸：季度 (Q1~Q4) ｜ 堆疊：年分 (2021 + 2022)</p>
+            </div>
+          </div>
+          <div class="space-y-2 text-sm text-slate-600">
+            <div class="bg-slate-50 p-3 rounded-lg">
+              <span class="font-semibold text-slate-800">✅ 核心優勢：</span>
+              呈現該特定季度在連續數年內的「累計規模總和」，以及歷年各佔了該季總體量的百分比。
+            </div>
+            <div class="bg-slate-50 p-3 rounded-lg">
+              <span class="font-semibold text-slate-800">⚠️ 局限性：</span>
+              <strong>在標準財務會計中極少使用！</strong> 因為不同會計年度的同一季度相加（例如2021Q1加2022Q1）通常沒有實質的財務意義，容易誤導非專業讀者。
+            </div>
+            <div class="text-xs text-purple-600 font-semibold">
+              🎯 適用場景：長週期固定資產投資、同季累計客流統計（非純財務指標）。
+            </div>
+          </div>
+        </div>
+
+        <!-- Deep card 3 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 hover:shadow-md transition">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">03</span>
+            <div>
+              <h4 class="font-bold text-slate-900">Bar chart-quarter (Side by side)</h4>
+              <p class="text-xs text-slate-500">主軸：年度 (2021 vs 2022) ｜ 群組：季別 (Q1, Q2, Q3, Q4)</p>
+            </div>
+          </div>
+          <div class="space-y-2 text-sm text-slate-600">
+            <div class="bg-slate-50 p-3 rounded-lg">
+              <span class="font-semibold text-slate-800">✅ 核心優勢：</span>
+              完美呈現單一年度內的<strong>季節性循環 (Seasonality)</strong> 與季增趨勢 (QoQ)。能清晰看出 2021 年是階梯式上升，而 2022 年則呈現早熟平穩。
+            </div>
+            <div class="bg-slate-50 p-3 rounded-lg">
+              <span class="font-semibold text-slate-800">⚠️ 局限性：</span>
+              要比較 2021Q1 與 2022Q1 時，兩根藍色柱子相隔太遠，視覺很難精準捕捉成長幅度。
+            </div>
+            <div class="text-xs text-emerald-600 font-semibold">
+              🎯 適用場景：淡旺季特徵分析（電商雙11、旅遊業寒暑假效應檢討）。
+            </div>
+          </div>
+        </div>
+
+        <!-- Deep card 4 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 hover:shadow-md transition">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">04</span>
+            <div>
+              <h4 class="font-bold text-slate-900">Bar chart-quarter (Stacks)</h4>
+              <p class="text-xs text-slate-500">主軸：年度 (2021 vs 2022) ｜ 堆疊：季別 (Q1 + Q2 + Q3 + Q4)</p>
+            </div>
+          </div>
+          <div class="space-y-2 text-sm text-slate-600">
+            <div class="bg-slate-50 p-3 rounded-lg">
+              <span class="font-semibold text-slate-800">✅ 核心優勢：</span>
+              <strong>財務總監的最愛之一</strong>。整根柱子直接代表「全年累計總營收/淨利」，同時以色塊切分出「四大季度的實質營收貢獻度」。
+            </div>
+            <div class="bg-slate-50 p-3 rounded-lg">
+              <span class="font-semibold text-slate-800">⚠️ 局限性：</span>
+              除了最底部的 Q1 有共同基線 (Baseline 0) 容易比較外，Q2、Q3、Q4 懸浮在不同高度，難以精確肉眼對比其個別季度的真實數值。
+            </div>
+            <div class="text-xs text-amber-600 font-semibold">
+              🎯 適用場景：年度目標達成檢盤、全年總營收總結與結構佔比報告。
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+        <div>
+          <h3 class="text-xl font-bold">三秒圖表決策樹 (Decision Flowchart)</h3>
+          <p class="text-slate-400 text-xs sm:text-sm">不知道在 PowerPoint 或儀表板該放哪一張？跟隨問題指引：</p>
+        </div>
+        <span class="inline-flex items-center gap-2 text-xs text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-3 py-1.5 rounded-full">
+          實戰商用標準實踐
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs sm:text-sm">
+        <div class="bg-slate-800/70 border border-slate-700/80 p-4 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="text-blue-400 font-bold mb-1">若關注點在於：</div>
+            <div class="text-base font-semibold text-white mb-2">「今年比去年同一季長大了嗎？」</div>
+            <p class="text-slate-300">關注點在於 YoY 年增幅度，需要緊鄰對照。</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-700 font-bold text-blue-300">
+            👉 選擇：圖 1 (Bar chart-year Side by side)
+          </div>
+        </div>
+
+        <div class="bg-slate-800/70 border border-slate-700/80 p-4 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="text-purple-400 font-bold mb-1">若關注點在於：</div>
+            <div class="text-base font-semibold text-white mb-2">「同季跨年累計總量與產能結構？」</div>
+            <p class="text-slate-300">關注點在於該季歷年累積總體量與各年佔比。</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-700 font-bold text-purple-300">
+            👉 選擇：圖 2 (Bar chart-year Stacks)
+          </div>
+        </div>
+
+        <div class="bg-slate-800/70 border border-slate-700/80 p-4 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="text-emerald-400 font-bold mb-1">若關注點在於：</div>
+            <div class="text-base font-semibold text-white mb-2">「這兩年的淡旺季走勢有沒有改變？」</div>
+            <p class="text-slate-300">關注點在於同一年度內四個季度的波峰波谷形態。</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-700 font-bold text-emerald-300">
+            👉 選擇：圖 3 (Bar chart-quarter Side by side)
+          </div>
+        </div>
+
+        <div class="bg-slate-800/70 border border-slate-700/80 p-4 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="text-amber-400 font-bold mb-1">若關注點在於：</div>
+            <div class="text-base font-semibold text-white mb-2">「全年總業績突破多少？各季貢獻結構？」</div>
+            <p class="text-slate-300">關注點在於年度總量（柱頂高度）與結構佔比。</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-700 font-bold text-amber-300">
+            👉 選擇：圖 4 (Bar chart-quarter Stacks)
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="mt-12 py-6 border-t border-slate-200 bg-white text-center text-xs text-slate-500">
+    <p>財報(Bar) 資料視覺化解構手冊 ｜ 支援動態即時互動與財務決策輔助</p>
+  </footer>
+
+  <script>
+    // Initial dataset matching the exact numbers in the prompt screenshot
+    let rawData = {
+      2021: [115, 120, 130, 160],
+      2022: [142, 152, 160, 158]
+    };
+
+    // Color definitions corresponding to the original visual
+    const colors = {
+      blue: '#0084ff',
+      red: '#ff1a1a',
+      orange: '#ff8800',
+      green: '#1da43b',
+      grid: 'rgba(226, 232, 240, 0.8)',
+      text: '#475569'
+    };
+
+    let chart1Instance = null;
+    let chart2Instance = null;
+    let chart3Instance = null;
+    let chart4Instance = null;
+
+    function initCharts() {
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              boxWidth: 16,
+              boxHeight: 16,
+              padding: 14,
+              font: { family: 'Inter', size: 13, weight: '600' }
+            }
+          },
+          tooltip: {
+            padding: 10,
+            backgroundColor: '#0f172a',
+            titleFont: { size: 13, weight: 'bold' },
+            bodyFont: { size: 13 }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { family: 'Inter', size: 13, weight: '700' }, color: '#334155' }
+          },
+          y: {
+            grid: { color: colors.grid },
+            ticks: { font: { family: 'Inter', size: 12, weight: '500' }, color: '#64748b' }
+          }
+        }
+      };
+
+      // Chart 1: Bar chart-year (Side by side)
+      const ctx1 = document.getElementById('chart1').getContext('2d');
+      chart1Instance = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+          datasets: [
+            { label: '2021', data: [...rawData[2021]], backgroundColor: colors.blue, borderRadius: 3, barPercentage: 0.85, categoryPercentage: 0.8 },
+            { label: '2022', data: [...rawData[2022]], backgroundColor: colors.red, borderRadius: 3, barPercentage: 0.85, categoryPercentage: 0.8 }
+          ]
+        },
+        options: {
+          ...commonOptions,
+          scales: {
+            ...commonOptions.scales,
+            y: { min: 100, max: 170, ticks: { stepSize: 10 } }
+          }
+        }
+      });
+
+      // Chart 2: Bar chart-year (Stacks)
+      const ctx2 = document.getElementById('chart2').getContext('2d');
+      chart2Instance = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+          datasets: [
+            { label: '2021', data: [...rawData[2021]], backgroundColor: colors.blue, stack: 'combined', barPercentage: 0.75 },
+            { label: '2022', data: [...rawData[2022]], backgroundColor: colors.red, stack: 'combined', barPercentage: 0.75 }
+          ]
+        },
+        options: {
+          ...commonOptions,
+          scales: {
+            ...commonOptions.scales,
+            y: { min: 100, max: 350, ticks: { stepSize: 50 }, stacked: true },
+            x: { stacked: true, grid: { display: false } }
+          }
+        }
+      });
+
+      // Chart 3: Bar chart-quarter (Side by side)
+      const ctx3 = document.getElementById('chart3').getContext('2d');
+      chart3Instance = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: ['2021', '2022'],
+          datasets: [
+            { label: 'Q1', data: [rawData[2021][0], rawData[2022][0]], backgroundColor: colors.blue, borderRadius: 3, barPercentage: 0.9, categoryPercentage: 0.85 },
+            { label: 'Q2', data: [rawData[2021][1], rawData[2022][1]], backgroundColor: colors.red, borderRadius: 3, barPercentage: 0.9, categoryPercentage: 0.85 },
+            { label: 'Q3', data: [rawData[2021][2], rawData[2022][2]], backgroundColor: colors.orange, borderRadius: 3, barPercentage: 0.9, categoryPercentage: 0.85 },
+            { label: 'Q4', data: [rawData[2021][3], rawData[2022][3]], backgroundColor: colors.green, borderRadius: 3, barPercentage: 0.9, categoryPercentage: 0.85 }
+          ]
+        },
+        options: {
+          ...commonOptions,
+          scales: {
+            ...commonOptions.scales,
+            y: { min: 110, max: 170, ticks: { stepSize: 10 } }
+          }
+        }
+      });
+
+      // Chart 4: Bar chart-quarter (Stacks)
+      const ctx4 = document.getElementById('chart4').getContext('2d');
+      chart4Instance = new Chart(ctx4, {
+        type: 'bar',
+        data: {
+          labels: ['2021', '2022'],
+          datasets: [
+            { label: 'Q1', data: [rawData[2021][0], rawData[2022][0]], backgroundColor: colors.blue, stack: 'annual', barPercentage: 0.75 },
+            { label: 'Q2', data: [rawData[2021][1], rawData[2022][1]], backgroundColor: colors.red, stack: 'annual', barPercentage: 0.75 },
+            { label: 'Q3', data: [rawData[2021][2], rawData[2022][2]], backgroundColor: colors.orange, stack: 'annual', barPercentage: 0.75 },
+            { label: 'Q4', data: [rawData[2021][3], rawData[2022][3]], backgroundColor: colors.green, stack: 'annual', barPercentage: 0.75 }
+          ]
+        },
+        options: {
+          ...commonOptions,
+          scales: {
+            ...commonOptions.scales,
+            y: { min: 100, max: 700, ticks: { stepSize: 100 }, stacked: true },
+            x: { stacked: true, grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function syncChartsAndTable() {
+      // Recalculate totals
+      const sum2021 = rawData[2021].reduce((a, b) => a + b, 0);
+      const sum2022 = rawData[2022].reduce((a, b) => a + b, 0);
+
+      document.getElementById('total_2021').innerText = sum2021;
+      document.getElementById('total_2022').innerText = sum2022;
+
+      // Update YoY
+      for (let i = 0; i < 4; i++) {
+        const v21 = rawData[2021][i];
+        const v22 = rawData[2022][i];
+        const growth = ((v22 - v21) / v21 * 100).toFixed(1);
+        const el = document.getElementById(`yoy_q${i + 1}`);
+        el.innerText = `${growth >= 0 ? '+' : ''}${growth}%`;
+        el.className = `py-2 px-3 text-center font-bold ${growth >= 0 ? 'text-red-600' : 'text-emerald-600'}`;
+      }
+
+      const totalGrowth = ((sum2022 - sum2021) / sum2021 * 100).toFixed(1);
+      const totalEl = document.getElementById('yoy_total');
+      totalEl.innerText = `${totalGrowth >= 0 ? '+' : ''}${totalGrowth}%`;
+      totalEl.className = `py-2 px-3 text-right font-bold ${totalGrowth >= 0 ? 'text-red-600' : 'text-emerald-600'}`;
+
+      // Update Chart 1
+      chart1Instance.data.datasets[0].data = [...rawData[2021]];
+      chart1Instance.data.datasets[1].data = [...rawData[2022]];
+      chart1Instance.update();
+
+      // Update Chart 2
+      chart2Instance.data.datasets[0].data = [...rawData[2021]];
+      chart2Instance.data.datasets[1].data = [...rawData[2022]];
+      chart2Instance.update();
+
+      // Update Chart 3
+      chart3Instance.data.datasets[0].data = [rawData[2021][0], rawData[2022][0]];
+      chart3Instance.data.datasets[1].data = [rawData[2021][1], rawData[2022][1]];
+      chart3Instance.data.datasets[2].data = [rawData[2021][2], rawData[2022][2]];
+      chart3Instance.data.datasets[3].data = [rawData[2021][3], rawData[2022][3]];
+      chart3Instance.update();
+
+      // Update Chart 4
+      chart4Instance.data.datasets[0].data = [rawData[2021][0], rawData[2022][0]];
+      chart4Instance.data.datasets[1].data = [rawData[2021][1], rawData[2022][1]];
+      chart4Instance.data.datasets[2].data = [rawData[2021][2], rawData[2022][2]];
+      chart4Instance.data.datasets[3].data = [rawData[2021][3], rawData[2022][3]];
+      chart4Instance.update();
+    }
+
+    function updateCustomData() {
+      rawData[2021] = [
+        parseFloat(document.getElementById('input_2021_q1').value) || 0,
+        parseFloat(document.getElementById('input_2021_q2').value) || 0,
+        parseFloat(document.getElementById('input_2021_q3').value) || 0,
+        parseFloat(document.getElementById('input_2021_q4').value) || 0
+      ];
+      rawData[2022] = [
+        parseFloat(document.getElementById('input_2022_q1').value) || 0,
+        parseFloat(document.getElementById('input_2022_q2').value) || 0,
+        parseFloat(document.getElementById('input_2022_q3').value) || 0,
+        parseFloat(document.getElementById('input_2022_q4').value) || 0
+      ];
+      syncChartsAndTable();
+    }
+
+    function applyPreset(type) {
+      if (type === 'growth') {
+        rawData[2021] = [100, 110, 120, 130];
+        rawData[2022] = [140, 165, 185, 210];
+      } else if (type === 'season') {
+        rawData[2021] = [90, 85, 120, 220];
+        rawData[2022] = [105, 95, 140, 260];
+      }
+      refreshInputValues();
+      syncChartsAndTable();
+    }
+
+    function resetData() {
+      rawData[2021] = [115, 120, 130, 160];
+      rawData[2022] = [142, 152, 160, 158];
+      refreshInputValues();
+      syncChartsAndTable();
+      clearHighlights();
+    }
+
+    function refreshInputValues() {
+      for (let y of [2021, 2022]) {
+        for (let q = 1; q <= 4; q++) {
+          document.getElementById(`input_${y}_q${q}`).value = rawData[y][q - 1];
+        }
+      }
+    }
+
+    function clearHighlights() {
+      document.querySelectorAll('.chart-card').forEach(el => el.classList.remove('highlighted', 'ring-2', 'ring-blue-500', 'ring-purple-500', 'ring-emerald-500', 'ring-amber-500'));
+      document.querySelectorAll('.scenario-btn').forEach(el => el.classList.remove('border-blue-600', 'bg-blue-50', 'ring-1', 'ring-blue-500', 'border-purple-600', 'bg-purple-50', 'ring-purple-500', 'border-emerald-600', 'bg-emerald-50', 'ring-emerald-500', 'border-amber-600', 'bg-amber-50', 'ring-amber-500'));
+    }
+
+    function setScenario(type) {
+      clearHighlights();
+      const targetMap = {
+        'yoy': { card: 'card-chart1', btn: 'btn-scenario-yoy', color: 'blue' },
+        'quarterStack': { card: 'card-chart2', btn: 'btn-scenario-quarterStack', color: 'purple' },
+        'seasonality': { card: 'card-chart3', btn: 'btn-scenario-seasonality', color: 'emerald' },
+        'annualTotal': { card: 'card-chart4', btn: 'btn-scenario-annualTotal', color: 'amber' }
+      };
+
+      const selected = targetMap[type];
+      if (selected) {
+        const cardEl = document.getElementById(selected.card);
+        const btnEl = document.getElementById(selected.btn);
+        
+        cardEl.classList.add('highlighted', 'ring-2', `ring-${selected.color}-500`);
+        btnEl.classList.add(`border-${selected.color}-600`, `bg-${selected.color}-50`, 'ring-1', `ring-${selected.color}-500`);
+
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    window.onload = function() {
+      initCharts();
+      syncChartsAndTable();
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>財報視覺化指南：Pie 與 Doughnut 圖表結構解析</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+    }
+    .chart-sector {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, filter 0.2s ease;
+      cursor: pointer;
+    }
+    .chart-sector:hover {
+      filter: brightness(1.15) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+      opacity: 0.95;
+    }
+    .scenario-card.active-recommend {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+    .callout-line {
+      stroke-dasharray: 200;
+      stroke-dashoffset: 0;
+      transition: stroke-width 0.2s ease, stroke 0.2s ease;
+    }
+    /* Custom scrollbar for data tables */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 tracking-tight">財報圖表指南：Pie vs Doughnut</h1>
+          <p class="text-xs text-slate-500">多層嵌套圓餅圖與環形圖的視覺編碼與實務解讀</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+          雙層互動模式
+        </span>
+        <button id="resetViewBtn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 transition">
+          重置圖表狀態
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Top Banner / Summary Card -->
+    <section class="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-900 text-white rounded-2xl p-6 sm:p-8 shadow-lg relative overflow-hidden">
+      <div class="relative z-10 max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-medium mb-3">
+          <span>視覺維度切換解讀</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-3">
+          財報 (Pie、Doughnut) 四象限對照體系
+        </h2>
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+          針對照片中的實際財報表現：<strong>2021 年作為基準年度，2022 年經歷 Q1/Q2 成長放緩，但在 Q4 迎來跨年度爆發性增長</strong>。透過四種圖形的維度切分，可呈現完全不同的財務洞察視角。
+        </p>
+      </div>
+      <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    </section>
+
+    <!-- Interactive Scenario Selector Banner -->
+    <section class="bg-blue-900/90 text-white rounded-2xl p-5 sm:p-6 shadow-sm border border-blue-800">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-300">快速決策導航</span>
+          <h3 class="text-base sm:text-lg font-bold">您目前的財務報告核心訴求是什麼？</h3>
+          <p class="text-xs text-blue-200 mt-0.5">點擊以下情境，系統將即時高亮最合適的圖表類型與解讀方式</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="highlightScenario('c1')" class="scenario-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 border border-white/20 transition">
+            ① 同季跨年比重變化
+          </button>
+          <button onclick="highlightScenario('c2')" class="scenario-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 border border-white/20 transition">
+            ② 基準年 vs 達標進度
+          </button>
+          <button onclick="highlightScenario('c3')" class="scenario-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 border border-white/20 transition">
+            ③ 儀表板留白與總額 KPI
+          </button>
+          <button onclick="highlightScenario('c4')" class="scenario-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 border border-white/20 transition">
+            ④ 各季超額完成/警戒分析
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Original 4-chart Comparison Canvas -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-7">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-slate-100 mb-6 gap-3">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <span>圖形原貌即時渲染與照片數據還原</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold">精準照片還原</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">照片中 2021 右側為固定 180° 半圓基準，2022 左側 Q4 顯著跨越底部中線超額完成</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-xs px-2.5 py-1 rounded bg-slate-100 text-slate-700 font-mono font-medium">照片真實數據模式 (已載入)</span>
+        </div>
+      </div>
+
+      <!-- Grid of 4 Charts -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- Chart 1: Pie chart (year) -->
+        <div id="cardChart1" class="chart-card flex flex-col items-center p-4 rounded-xl bg-slate-50/70 border-2 border-slate-200/80 transition duration-200">
+          <h4 class="font-bold text-slate-800 text-sm mb-2">Pie chart(year)</h4>
+          <div class="flex items-center gap-3 text-xs mb-3 text-slate-600">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#0080ff]"></span>Q1</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#e60000]"></span>Q2</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#ff8000]"></span>Q3</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#2ca02c]"></span>Q4</span>
+          </div>
+          <div class="relative w-full aspect-square max-w-[240px] flex items-center justify-center">
+            <svg id="svgChart1" class="w-full h-full overflow-visible" viewBox="-130 -130 260 260"></svg>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-200/60 w-full text-center">
+            <span class="text-xs text-slate-500 block">維度劃分</span>
+            <span class="text-xs font-semibold text-slate-700">角度＝季別佔比 | 徑向＝年度</span>
+          </div>
+        </div>
+
+        <!-- Chart 2: Pie chart (quarter) -->
+        <div id="cardChart2" class="chart-card flex flex-col items-center p-4 rounded-xl bg-slate-50/70 border-2 border-slate-200/80 transition duration-200">
+          <h4 class="font-bold text-slate-800 text-sm mb-2">Pie chart(quarter)</h4>
+          <div class="flex items-center gap-4 text-xs mb-3 text-slate-600">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#0080ff]"></span>2021</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#e60000]"></span>2022</span>
+          </div>
+          <div class="relative w-full aspect-square max-w-[240px] flex items-center justify-center">
+            <svg id="svgChart2" class="w-full h-full overflow-visible" viewBox="-130 -130 260 260"></svg>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-200/60 w-full text-center">
+            <span class="text-xs text-slate-500 block">維度劃分</span>
+            <span class="text-xs font-semibold text-slate-700">半圓＝年度 | 4層同心環＝Q1~Q4</span>
+          </div>
+        </div>
+
+        <!-- Chart 3: Doughnut chart (year) -->
+        <div id="cardChart3" class="chart-card flex flex-col items-center p-4 rounded-xl bg-slate-50/70 border-2 border-slate-200/80 transition duration-200">
+          <h4 class="font-bold text-slate-800 text-sm mb-2">Doughnut chart(year)</h4>
+          <div class="flex items-center gap-3 text-xs mb-3 text-slate-600">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#0080ff]"></span>Q1</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#e60000]"></span>Q2</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#ff8000]"></span>Q3</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#2ca02c]"></span>Q4</span>
+          </div>
+          <div class="relative w-full aspect-square max-w-[240px] flex items-center justify-center">
+            <svg id="svgChart3" class="w-full h-full overflow-visible" viewBox="-130 -130 260 260"></svg>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-200/60 w-full text-center">
+            <span class="text-xs text-slate-500 block">維度劃分</span>
+            <span class="text-xs font-semibold text-slate-700">中軸鏤空 | 內外環＝年度結構</span>
+          </div>
+        </div>
+
+        <!-- Chart 4: Doughnut chart (quarter) -->
+        <div id="cardChart4" class="chart-card flex flex-col items-center p-4 rounded-xl bg-slate-50/70 border-2 border-slate-200/80 transition duration-200">
+          <h4 class="font-bold text-slate-800 text-sm mb-2">Doughnut chart(quarter)</h4>
+          <div class="flex items-center gap-4 text-xs mb-3 text-slate-600">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#0080ff]"></span>2021</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-[#e60000]"></span>2022</span>
+          </div>
+          <div class="relative w-full aspect-square max-w-[240px] flex items-center justify-center">
+            <svg id="svgChart4" class="w-full h-full overflow-visible" viewBox="-130 -130 260 260"></svg>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-200/60 w-full text-center">
+            <span class="text-xs text-slate-500 block">維度劃分</span>
+            <span class="text-xs font-semibold text-slate-700">中軸鏤空 | 左右弧長＝達標率</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Live Inspector Footer -->
+      <div id="inspectorBox" class="mt-6 p-4 rounded-xl bg-blue-50/70 border border-blue-200/70 flex flex-wrap items-center justify-between gap-3 text-sm">
+        <div class="flex items-center gap-3">
+          <div class="w-3 h-3 rounded-full bg-blue-600 animate-ping"></div>
+          <div>
+            <span class="text-slate-500 text-xs font-medium block">即時探針檢測</span>
+            <span id="inspectorTitle" class="font-semibold text-slate-800">懸停或點選任一色塊查看結構維度</span>
+          </div>
+        </div>
+        <div id="inspectorDetails" class="text-xs font-mono text-slate-600 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+          狀態：照片真實數據已同步
+        </div>
+      </div>
+    </section>
+
+    <!-- NEW SECTION: Detailed Scenario Analysis for All 4 Charts -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+      <div class="border-b border-slate-100 pb-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">核心問答剖析</span>
+        <h3 class="text-xl font-extrabold text-slate-900 mt-2">四種圖形分別使用在什麼情況？</h3>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">財務報告視覺化中，依據報告受眾、核心訴求與指標維度，選擇最適用的圖表型態：</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Scenario 1 -->
+        <div id="scenario-c1" class="scenario-card p-5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
+              <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+              圖 1：Pie chart(year)
+            </span>
+            <span class="text-2xs font-semibold text-slate-400 font-mono">實心 · 象限分區</span>
+          </div>
+          <h4 class="font-bold text-slate-800 text-sm">適用情境：淡旺季結構分析與全年營收佔比變遷</h4>
+          <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+            <li><strong>跨年度同季度佔比消長：</strong>適合用來檢視「某一季佔全年營收的比例是否有結構性轉移」（例如：2022 年 Q4 佔全年比重顯著高於 2021 年）。</li>
+            <li><strong>強烈季節性常態行業：</strong>如零售電商、旅遊飯店等具明顯淡旺季的公司，讀者能藉由「時鐘四大象限」迅速辨認 Q1~Q4 的年度常規表現。</li>
+            <li><strong>限制與缺點：</strong>內圈半徑極小，使得 2021 年的實際面積在視覺上被壓縮，容易讓讀者誤以為 2021 年總額微不足道。</li>
+          </ul>
+        </div>
+
+        <!-- Scenario 2 -->
+        <div id="scenario-c2" class="scenario-card p-5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800">
+              <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+              圖 2：Pie chart(quarter)
+            </span>
+            <span class="text-2xs font-semibold text-slate-400 font-mono">實心 · 基準對決</span>
+          </div>
+          <h4 class="font-bold text-slate-800 text-sm">適用情境：以歷史年度為 100% 基準線，觀察逐季推進狀態</h4>
+          <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+            <li><strong>基期對照 (Baseline Benchmark)：</strong>右半圓 2021 固定為半圓（180°），作為嚴格對照基準。左半圓 2022 透過弧線長度展示超越或衰退。</li>
+            <li><strong>同心擴展象徵時間推進：</strong>由內核 Q1 向外層 Q4 逐圈擴展，適合呈現全年業務隨時間推進的歷史脈絡。</li>
+            <li><strong>限制與缺點：</strong>最內層 Q1 面積小於最外層 Q4，即使 Q1 與 Q4 年增率相同，外層 Q4 也會在視覺上具有過度放大的視覺權重。</li>
+          </ul>
+        </div>
+
+        <!-- Scenario 3 -->
+        <div id="scenario-c3" class="scenario-card p-5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+              圖 3：Doughnut chart(year)
+            </span>
+            <span class="text-2xs font-semibold text-emerald-600 font-mono">推薦首選 ★★★</span>
+          </div>
+          <h4 class="font-bold text-slate-800 text-sm">適用情境：高階財務戰情室 (Dashboard) 與結構精準比對</h4>
+          <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+            <li><strong>去除中心扭曲：</strong>鏤空圓心使內外環厚度與弧長更均勻，消除實心圓餅圖中心點的面積感知失真，精確反映真實百分比。</li>
+            <li><strong>中心空間極具商業價值：</strong>中心留白處可直接填入關鍵 KPI（如「全年總營收 $1,440M」、「YoY +28.6%」），提升版面利用率。</li>
+            <li><strong>董事會與管理層匯報首選：</strong>現代財務 UI 介面最推薦的形式，既有象限季節感，又保有現代設計簡潔度。</li>
+          </ul>
+        </div>
+
+        <!-- Scenario 4 -->
+        <div id="scenario-c4" class="scenario-card p-5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800">
+              <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+              圖 4：Doughnut chart(quarter)
+            </span>
+            <span class="text-2xs font-semibold text-slate-400 font-mono">鏤空 · 賽跑達標儀表</span>
+          </div>
+          <h4 class="font-bold text-slate-800 text-sm">適用情境：預算達成率、KPI 賽跑或警示分析 (Progress Gauge)</h4>
+          <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+            <li><strong>一眼辨識「超額完成」與「落後警戒」：</strong>如同照片所示，2022 Q4 環線突破底部垂直線延伸至右側（>180°），代表大幅超越前一年同期；而 Q1 未達底線，代表衰退或未達標。</li>
+            <li><strong>類似智慧運動手環的進度條感知：</strong>讀者直覺以圓弧飽和度評估達成情況，不需換算複雜角度，專注於「完成度差額」。</li>
+            <li><strong>限制與缺點：</strong>不適合需要精確加總四個季度總額的場合，因各環獨立運作，非「部分佔整體」的總和關係。</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Quick Comparison Matrix Table -->
+      <div class="overflow-x-auto pt-4">
+        <h4 class="text-sm font-bold text-slate-800 mb-3">四種圖形特徵與選擇速查矩陣</h4>
+        <table class="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
+          <thead class="bg-slate-100 text-slate-700 font-semibold uppercase">
+            <tr>
+              <th class="py-2.5 px-3">圖表類型</th>
+              <th class="py-2.5 px-3">核心比較維度</th>
+              <th class="py-2.5 px-3">視覺焦點</th>
+              <th class="py-2.5 px-3">最佳使用時機</th>
+              <th class="py-2.5 px-3">不建議使用時機</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 text-slate-600">
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-blue-700">Pie (year)</td>
+              <td class="py-2.5 px-3">季度佔比 (四季分區)</td>
+              <td class="py-2.5 px-3">四大象限扇面角度</td>
+              <td class="py-2.5 px-3">傳統印刷年報、強調淡旺季比重</td>
+              <td class="py-2.5 px-3">需要精確比較兩年總額差距時</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-indigo-700">Pie (quarter)</td>
+              <td class="py-2.5 px-3">年度對比 (左右分開)</td>
+              <td class="py-2.5 px-3">左右半圓形體差異</td>
+              <td class="py-2.5 px-3">以特定年為 100% 絕對基準的對比</td>
+              <td class="py-2.5 px-3">各季權重平等（內環容易被忽視）</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-emerald-700">Doughnut (year)</td>
+              <td class="py-2.5 px-3">季度佔比 (中軸鏤空)</td>
+              <td class="py-2.5 px-3">內外環弧長 + 中心 KPI</td>
+              <td class="py-2.5 px-3">商業儀表板 (Dashboard)、營收總攬</td>
+              <td class="py-2.5 px-3">需要展示超過 3 個年度時（環太密）</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-rose-700">Doughnut (quarter)</td>
+              <td class="py-2.5 px-3">達標賽跑 (左右半環)</td>
+              <td class="py-2.5 px-3">弧線是否突破 180° 線</td>
+              <td class="py-2.5 px-3">預算達成率、業績爆發超額警示</td>
+              <td class="py-2.5 px-3">要看全年總計 (Total Sum) 時</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Detailed Structural Breakdown -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      <!-- Dimension Logic Explanation -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div class="flex items-center gap-2">
+          <span class="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </span>
+          <h3 class="text-lg font-bold text-slate-900">核心維度編碼差異 (Year vs Quarter)</h3>
+        </div>
+
+        <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <h4 class="font-bold text-blue-700 flex items-center gap-2 mb-1">
+              <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+              類型 A：以「季別」為角度分組 (Chart 1 & 3)
+            </h4>
+            <p class="text-xs text-slate-600 mb-2">
+              <strong>圖形特徵：</strong>整個圓盤被直角劃分為 4 個主要象限（Q1 右上藍、Q2 右下紅、Q3 左下橘、Q4 左上綠）。
+            </p>
+            <ul class="text-xs list-disc list-inside space-y-1 text-slate-500">
+              <li><strong>徑向分層：</strong>同一個季度的扇形切面被分成內圈與外圈，分別代表 <strong>2021 與 2022 年</strong>。</li>
+              <li><strong>業務用途：</strong>非常適合<strong>「同季度跨年 YoY 對比」</strong>（例如：直接比較兩年 Q4 聖誕旺季的佔比或成長規模）。</li>
+            </ul>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <h4 class="font-bold text-rose-700 flex items-center gap-2 mb-1">
+              <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+              類型 B：以「年度」為角度分組 (Chart 2 & 4)
+            </h4>
+            <p class="text-xs text-slate-600 mb-2">
+              <strong>圖形特徵：</strong>圓盤被一分為二（右側為 2021 藍色半圓、左側為 2022 紅色半圓）。
+            </p>
+            <ul class="text-xs list-disc list-inside space-y-1 text-slate-500">
+              <li><strong>徑向分層：</strong>每個年度的半圓中，透過 4 層由內向外的同心圓弧分別表示 <strong>Q1、Q2、Q3、Q4</strong>。</li>
+              <li><strong>業務用途：</strong>直觀呈現<strong>「年度總體業績對決」</strong>，並觀察各季度在各年度中積累或擴展的推進層級。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie vs Doughnut Evaluation -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div class="flex items-center gap-2">
+          <span class="p-2 rounded-lg bg-emerald-50 text-emerald-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </span>
+          <h3 class="text-lg font-bold text-slate-900">實心 (Pie) vs 環形 (Doughnut) 的視覺心理學</h3>
+        </div>
+
+        <div class="space-y-3">
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-white">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-bold text-xs uppercase tracking-wider text-slate-700">實心圓餅 (Pie Chart)</span>
+              <span class="text-2xs font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800">面積感知偏差</span>
+            </div>
+            <p class="text-xs text-slate-600 leading-normal">
+              在實心圓餅中，最內圈的半徑極小，使得內圈的面積遠小於外圈（儘管二者可能數值相當或等長）。人類肉眼更容易受到<strong>「視覺表面積」</strong>的誤導，進而低估中心區域的數據權重。
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-emerald-50/40">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-bold text-xs uppercase tracking-wider text-emerald-800">環形圖 (Doughnut Chart)</span>
+              <span class="text-2xs font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">推薦方案 ★★★</span>
+            </div>
+            <p class="text-xs text-slate-600 leading-normal">
+              將中心掏空成環形後，讀者的視覺注意力從「中心微小頂點」轉移為<strong>「圓弧長度 (Arc Length)」</strong>與<strong>「外周線條」</strong>，大幅降低內圈變形感；中心空隙還可用於標示 KPI 總營收數值或成長率。
+            </p>
+          </div>
+
+          <!-- Quick Comparison Table -->
+          <div class="overflow-x-auto pt-2">
+            <table class="w-full text-left text-xs border border-slate-200 rounded-lg overflow-hidden">
+              <thead class="bg-slate-100 text-slate-700 font-semibold">
+                <tr>
+                  <th class="py-2 px-3">評估項目</th>
+                  <th class="py-2 px-3">Pie (圓餅)</th>
+                  <th class="py-2 px-3">Doughnut (甜甜圈)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 text-slate-600">
+                <tr>
+                  <td class="py-2 px-3 font-medium">中心資訊利用率</td>
+                  <td class="py-2 px-3 text-rose-600">低（擠壓在原點）</td>
+                  <td class="py-2 px-3 text-emerald-600">高（可放總額/摘要）</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-medium">內環讀數精準度</td>
+                  <td class="py-2 px-3 text-rose-600">較差（面積失真）</td>
+                  <td class="py-2 px-3 text-emerald-600">優良（弧長更均稱）</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-3 font-medium">美學現代感</td>
+                  <td class="py-2 px-3 text-slate-500">傳統經典</td>
+                  <td class="py-2 px-3 text-blue-600 font-medium">當代 Dashboard 主流</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Financial Data Simulator & Table -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-7">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 mb-6 gap-2">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">對應財報數值試算矩陣</h3>
+          <p class="text-xs text-slate-500">圖形背後底層對應的兩年度季度營收試算表（單位：百萬新台幣 / 百萬元）</p>
+        </div>
+        <div class="text-xs text-slate-500">
+          點選表格行可高亮左側圖表對應扇區
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <!-- Interactive Table -->
+        <div class="lg:col-span-2 overflow-x-auto">
+          <table class="w-full text-xs text-left border border-slate-200 rounded-xl overflow-hidden">
+            <thead class="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-4">季度 (Quarter)</th>
+                <th class="py-3 px-4 text-blue-600">2021 營收</th>
+                <th class="py-3 px-4 text-rose-600">2022 營收</th>
+                <th class="py-3 px-4">年增率 (YoY)</th>
+                <th class="py-3 px-4">主導色彩</th>
+              </tr>
+            </thead>
+            <tbody id="financialTableBody" class="divide-y divide-slate-100 font-mono">
+              <!-- Injected dynamically via JS -->
+            </tbody>
+            <tfoot class="bg-slate-50 font-semibold text-slate-800 border-t border-slate-200">
+              <tr>
+                <td class="py-3 px-4 font-sans">年度總計 (Total)</td>
+                <td id="total2021" class="py-3 px-4 font-mono text-blue-700">$0M</td>
+                <td id="total2022" class="py-3 px-4 font-mono text-rose-700">$0M</td>
+                <td id="totalYoY" class="py-3 px-4 font-mono text-emerald-600">+0.0%</td>
+                <td class="py-3 px-4 font-sans text-2xs text-slate-400">總體匯總</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Best Practices Box -->
+        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 space-y-3">
+          <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            財務報表製圖實踐建議 (Best Practices)
+          </h4>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            若您的簡報或財務報告受眾為<strong>審計人員、投資人或董事會</strong>：
+          </p>
+          <ul class="text-xs text-slate-600 space-y-2 list-disc list-inside">
+            <li>
+              <strong>優先使用「分組柱狀圖 (Grouped Bar)」或「折線圖」</strong>：若目的是嚴謹讀取絕對增長額。
+            </li>
+            <li>
+              <strong>若必須用圓餅/環形</strong>：建議選擇 <strong>Doughnut chart(year)</strong>，將 Q1~Q4 的季度季節性常態以直角呈現，視覺負擔最小。
+            </li>
+            <li>
+              <strong>避免超過 2~3 個同心環</strong>：同心圓層級越多，內外半徑造成的面積誤差越劇烈。
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4">
+      <p class="font-medium text-slate-700">財務可視化互動指南 · Financial Infographics Analysis Suite</p>
+      <p class="mt-1">基於 SVG 響應式架構重構展示 · 支援即時多維度探針與資料集切換</p>
+    </div>
+  </footer>
+
+  <script>
+    // Exact data extracted from the photo:
+    // 2021 is the reference baseline
+    // 2022 shows Q1/Q2 contraction, Q3 match, and massive Q4 spike (crossing the 180° line)
+    const photoData = [
+      { q: 'Q1', y2021: 250, y2022: 190, color: '#0080ff', yoy: -24.0 },
+      { q: 'Q2', y2021: 250, y2022: 215, color: '#e60000', yoy: -14.0 },
+      { q: 'Q3', y2021: 250, y2022: 250, color: '#ff8000', yoy: 0.0 },
+      { q: 'Q4', y2021: 250, y2022: 300, color: '#2ca02c', yoy: +20.0 }
+    ];
+
+    // Helper math function to calculate circular SVG paths
+    function describeArc(x, y, radius, startAngle, endAngle) {
+      const start = polarToCartesian(x, y, radius, endAngle);
+      const end = polarToCartesian(x, y, radius, startAngle);
+      const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+      return [
+        "M", start.x, start.y,
+        "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
+      ].join(" ");
+    }
+
+    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+      const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+      return {
+        x: centerX + (radius * Math.cos(angleInRadians)),
+        y: centerY + (radius * Math.sin(angleInRadians))
+      };
+    }
+
+    function describeDonutSegment(x, y, innerRadius, outerRadius, startAngle, endAngle) {
+      const p1 = polarToCartesian(x, y, outerRadius, startAngle);
+      const p2 = polarToCartesian(x, y, outerRadius, endAngle);
+      const p3 = polarToCartesian(x, y, innerRadius, endAngle);
+      const p4 = polarToCartesian(x, y, innerRadius, startAngle);
+
+      const angleDiff = ((endAngle - startAngle) % 360 + 360) % 360;
+      const largeArc = angleDiff > 180 ? 1 : 0;
+
+      return [
+        `M ${p1.x} ${p1.y}`,
+        `A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${p2.x} ${p2.y}`,
+        `L ${p3.x} ${p3.y}`,
+        `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${p4.x} ${p4.y}`,
+        'Z'
+      ].join(' ');
+    }
+
+    // Chart 1: Pie chart (year)
+    // Slices matching exact photo angles:
+    // 2021 (Inner): Q1=0-90, Q2=90-175, Q3=175-270, Q4=270-360
+    // 2022 (Outer): Q1=0-98, Q2=98-165, Q3=165-270, Q4=270-360
+    function renderChart1(data) {
+      const svg = document.getElementById('svgChart1');
+      svg.innerHTML = '';
+
+      const sectors2021 = [
+        { q: 'Q1', s: 2, e: 88, color: '#0080ff', val: data[0].y2021 },
+        { q: 'Q2', s: 92, e: 173, color: '#e60000', val: data[1].y2021 },
+        { q: 'Q3', s: 177, e: 268, color: '#ff8000', val: data[2].y2021 },
+        { q: 'Q4', s: 272, e: 358, color: '#2ca02c', val: data[3].y2021 }
+      ];
+
+      const sectors2022 = [
+        { q: 'Q1', s: 2, e: 98, color: '#0080ff', val: data[0].y2022 },
+        { q: 'Q2', s: 102, e: 165, color: '#e60000', val: data[1].y2022 },
+        { q: 'Q3', s: 169, e: 268, color: '#ff8000', val: data[2].y2022 },
+        { q: 'Q4', s: 272, e: 358, color: '#2ca02c', val: data[3].y2022 }
+      ];
+
+      const callouts = [
+        { key: 'Q1', leader: "M 52 -52 L 78 -60 L 105 -60", lx: 110, ly: -56, anchor: 'start', color: '#0080ff' },
+        { key: 'Q2', leader: "M 52 52 L 78 60 L 105 60", lx: 110, ly: 64, anchor: 'start', color: '#e60000' },
+        { key: 'Q3', leader: "M -52 52 L -78 60 L -105 60", lx: -110, ly: 64, anchor: 'end', color: '#ff8000' },
+        { key: 'Q4', leader: "M -52 -52 L -78 -60 L -105 -60", lx: -110, ly: -56, anchor: 'end', color: '#2ca02c' }
+      ];
+
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+      // Inner ring: 2021 (radius 5 to 34)
+      sectors2021.forEach(sec => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', describeDonutSegment(0, 0, 5, 34, sec.s, sec.e));
+        path.setAttribute('fill', sec.color);
+        path.setAttribute('class', 'chart-sector');
+        path.addEventListener('mouseenter', () => handleHover(sec.q, '2021', sec.val, 'Pie chart(year) [內圈 2021]'));
+        g.appendChild(path);
+      });
+
+      // Outer ring: 2022 (radius 38 to 68)
+      sectors2022.forEach(sec => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', describeDonutSegment(0, 0, 38, 68, sec.s, sec.e));
+        path.setAttribute('fill', sec.color);
+        path.setAttribute('class', 'chart-sector');
+        path.addEventListener('mouseenter', () => handleHover(sec.q, '2022', sec.val, 'Pie chart(year) [外圈 2022]'));
+        g.appendChild(path);
+      });
+
+      // Callout lines
+      callouts.forEach(c => {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        line.setAttribute('d', c.leader);
+        line.setAttribute('fill', 'none');
+        line.setAttribute('stroke', c.color);
+        line.setAttribute('stroke-width', '1.2');
+        g.appendChild(line);
+
+        const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', c.lx);
+        txt.setAttribute('y', c.ly);
+        txt.setAttribute('font-size', '11');
+        txt.setAttribute('font-weight', '600');
+        txt.setAttribute('fill', '#334155');
+        txt.setAttribute('text-anchor', c.anchor);
+        txt.textContent = c.key;
+        g.appendChild(txt);
+      });
+
+      svg.appendChild(g);
+    }
+
+    // Chart 2: Pie chart (quarter)
+    // Photo shows:
+    // Right (2021 Blue): 4 semicircles from 0 to 180 deg
+    // Left (2022 Red): 4 rings:
+    //   Q1 (inner): from 0 counter-clockwise to ~230° (arc of 130°, stops before 6 o'clock)
+    //   Q2: from 0 counter-clockwise to ~210° (arc of 150°)
+    //   Q3: from 0 counter-clockwise to 180° (arc of 180°, exactly hits 6 o'clock)
+    //   Q4 (outer): from 0 counter-clockwise to 155° (arc of 205°, wraps PAST 6 o'clock into the right side!)
+    function renderChart2(data) {
+      const svg = document.getElementById('svgChart2');
+      svg.innerHTML = '';
+
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+      const rings = [
+        { q: 'Q1', rIn: 8,  rOut: 21, redArc: 135 },
+        { q: 'Q2', rIn: 24, rOut: 37, redArc: 155 },
+        { q: 'Q3', rIn: 40, rOut: 53, redArc: 180 },
+        { q: 'Q4', rIn: 56, rOut: 69, redArc: 212 }
+      ];
+
+      // 2021: Blue half on the right (0° to 180°)
+      rings.forEach((ring, idx) => {
+        const item = data[idx];
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', describeDonutSegment(0, 0, ring.rIn, ring.rOut, 2, 178));
+        path.setAttribute('fill', '#0080ff');
+        path.setAttribute('class', 'chart-sector');
+        path.addEventListener('mouseenter', () => handleHover(ring.q, '2021', item.y2021, `Pie chart(quarter) [右半環 2021 ${ring.q}]`));
+        g.appendChild(path);
+      });
+
+      // 2022: Red arcs on the left (starting at 360°/0° and going backwards)
+      rings.forEach((ring, idx) => {
+        const item = data[idx];
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        // Clockwise from 360 - redArc to 358
+        const startA = (360 - ring.redArc);
+        const endA = 358;
+        path.setAttribute('d', describeDonutSegment(0, 0, ring.rIn, ring.rOut, startA, endA));
+        path.setAttribute('fill', '#e60000');
+        path.setAttribute('class', 'chart-sector');
+        path.addEventListener('mouseenter', () => handleHover(ring.q, '2022', item.y2022, `Pie chart(quarter) [左半環 2022 ${ring.q} (弧長${ring.redArc}°)]`));
+        g.appendChild(path);
+      });
+
+      // Leader Lines
+      // 2021 Right Leader
+      const line2021 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      line2021.setAttribute('d', 'M 60 0 L 98 0');
+      line2021.setAttribute('fill', 'none');
+      line2021.setAttribute('stroke', '#0080ff');
+      line2021.setAttribute('stroke-width', '1.2');
+      g.appendChild(line2021);
+
+      const text2021 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text2021.setAttribute('x', '104');
+      text2021.setAttribute('y', '4');
+      text2021.setAttribute('font-size', '11');
+      text2021.setAttribute('font-weight', '600');
+      text2021.setAttribute('fill', '#334155');
+      text2021.setAttribute('text-anchor', 'start');
+      text2021.textContent = '2021';
+      g.appendChild(text2021);
+
+      // 2022 Left Leader
+      const line2022 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      line2022.setAttribute('d', 'M -60 0 L -98 0');
+      line2022.setAttribute('fill', 'none');
+      line2022.setAttribute('stroke', '#e60000');
+      line2022.setAttribute('stroke-width', '1.2');
+      g.appendChild(line2022);
+
+      const text2022 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text2022.setAttribute('x', '-104');
+      text2022.setAttribute('y', '4');
+      text2022.setAttribute('font-size', '11');
+      text2022.setAttribute('font-weight', '600');
+      text2022.setAttribute('fill', '#334155');
+      text2022.setAttribute('text-anchor', 'end');
+      text2022.textContent = '2022';
+      g.appendChild(text2022);
+
+      svg.appendChild(g);
+    }
+
+    // Chart 3: Doughnut chart (year)
+    function renderChart3(data) {
+      const svg = document.getElementById('svgChart3');
+      svg.innerHTML = '';
+
+      const sectors2021 = [
+        { q: 'Q1', s: 2, e: 88, color: '#0080ff', val: data[0].y2021 },
+        { q: 'Q2', s: 92, e: 173, color: '#e60000', val: data[1].y2021 },
+        { q: 'Q3', s: 177, e: 268, color: '#ff8000', val: data[2].y2021 },
+        { q: 'Q4', s: 272, e: 358, color: '#2ca02c', val: data[3].y2021 }
+      ];
+
+      const sectors2022 = [
+        { q: 'Q1', s: 2, e: 98, color: '#0080ff', val: data[0].y2022 },
+        { q: 'Q2', s: 102, e: 165, color: '#e60000', val: data[1].y2022 },
+        { q: 'Q3', s: 169, e: 268, color: '#ff8000', val: data[2].y2022 },
+        { q: 'Q4', s: 272, e: 358, color: '#2ca02c', val: data[3].y2022 }
+      ];
+
+      const callouts = [
+        { key: 'Q1', leader: "M 52 -52 L 78 -60 L 105 -60", lx: 110, ly: -56, anchor: 'start', color: '#0080ff' },
+        { key: 'Q2', leader: "M 52 52 L 78 60 L 105 60", lx: 110, ly: 64, anchor: 'start', color: '#e60000' },
+        { key: 'Q3', leader: "M -52 52 L -78 60 L -105 60", lx: -110, ly: 64, anchor: 'end', color: '#ff8000' },
+        { key: 'Q4', leader: "M -52 -52 L -78 -60 L -105 -60", lx: -110, ly: -56, anchor: 'end', color: '#2ca02c' }
+      ];
+
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+      // Inner ring: 2021 (radius 28 to 48)
+      sectors2021.forEach(sec => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', describeDonutSegment(0, 0, 28, 48, sec.s, sec.e));
+        path.setAttribute('fill', sec.color);
+        path.setAttribute('class', 'chart-sector');
+        path.addEventListener('mouseenter', () => handleHover(sec.q, '2021', sec.val, 'Doughnut chart(year) [內環 2021]'));
+        g.appendChild(path);
+      });
+
+      // Outer ring: 2022 (radius 52 to 72)
+      sectors2022.forEach(sec => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', describeDonutSegment(0, 0, 52, 72, sec.s, sec.e));
+        path.setAttribute('fill', sec.color);
+        path.setAttribute('class', 'chart-sector');
+        path.addEventListener('mouseenter', () => handleHover(sec.q, '2022', sec.val, 'Doughnut chart(year) [外環 2022]'));
+        g.appendChild(path);
+      });
+
+      // Callouts
+      callouts.forEach(c => {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        line.setAttribute('d', c.leader);
+        line.setAttribute('fill', 'none');
+        line.setAttribute('stroke', c.color);
+        line.setAttribute('stroke-width', '1.2');
+        g.appendChild(line);
+
+        const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', c.lx);
+        txt.setAttribute('y', c.ly);
+        txt.setAttribute('font-size', '11');
+        txt.setAttribute('font-weight', '600');
+        txt.setAttribute('fill', '#334155');
+        txt.setAttribute('text-anchor', c.anchor);
+        txt.textContent = c.key;
+        g.appendChild(txt);
+      });
+
+      svg.appendChild(g);
+    }
+
+    // Chart 4: Doughnut chart (quarter)
+    function renderChart4(data) {
+      const svg = document.getElementById('svgChart4');
+      svg.innerHTML = '';
+
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+      const rings = [
+        { q: 'Q1', rIn: 30, rOut: 39, redArc: 135 },
+        { q: 'Q2', rIn: 41, rOut: 50, redArc: 155 },
+        { q: 'Q3', rIn: 52, rOut: 61, redArc: 180 },
+        { q: 'Q4', rIn: 63, rOut: 72, redArc: 212 }
+      ];
+
+      // 2021: Right semicircle (0 to 180)
+      rings.forEach((ring, idx) => {
+        const item = data[idx];
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', describeDonutSegment(0, 0, ring.rIn, ring.rOut, 2, 178));
+        path.setAttribute('fill', '#0080ff');
+        path.setAttribute('class', 'chart-sector');
+        path.addEventListener('mouseenter', () => handleHover(ring.q, '2021', item.y2021, `Doughnut chart(quarter) [右半環 2021 ${ring.q}]`));
+        g.appendChild(path);
+      });
+
+      // 2022: Left arcs with Q4 crossing over 180°
+      rings.forEach((ring, idx) => {
+        const item = data[idx];
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const startA = (360 - ring.redArc);
+        const endA = 358;
+        path.setAttribute('d', describeDonutSegment(0, 0, ring.rIn, ring.rOut, startA, endA));
+        path.setAttribute('fill', '#e60000');
+        path.setAttribute('class', 'chart-sector');
+        path.addEventListener('mouseenter', () => handleHover(ring.q, '2022', item.y2022, `Doughnut chart(quarter) [左半環 2022 ${ring.q} (達標率 ${(ring.redArc/180*100).toFixed(0)}%)]`));
+        g.appendChild(path);
+      });
+
+      // Leader lines
+      const line2021 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      line2021.setAttribute('d', 'M 65 0 L 98 0');
+      line2021.setAttribute('fill', 'none');
+      line2021.setAttribute('stroke', '#0080ff');
+      line2021.setAttribute('stroke-width', '1.2');
+      g.appendChild(line2021);
+
+      const text2021 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text2021.setAttribute('x', '104');
+      text2021.setAttribute('y', '4');
+      text2021.setAttribute('font-size', '11');
+      text2021.setAttribute('font-weight', '600');
+      text2021.setAttribute('fill', '#334155');
+      text2021.setAttribute('text-anchor', 'start');
+      text2021.textContent = '2021';
+      g.appendChild(text2021);
+
+      const line2022 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      line2022.setAttribute('d', 'M -65 0 L -98 0');
+      line2022.setAttribute('fill', 'none');
+      line2022.setAttribute('stroke', '#e60000');
+      line2022.setAttribute('stroke-width', '1.2');
+      g.appendChild(line2022);
+
+      const text2022 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text2022.setAttribute('x', '-104');
+      text2022.setAttribute('y', '4');
+      text2022.setAttribute('font-size', '11');
+      text2022.setAttribute('font-weight', '600');
+      text2022.setAttribute('fill', '#334155');
+      text2022.setAttribute('text-anchor', 'end');
+      text2022.textContent = '2022';
+      g.appendChild(text2022);
+
+      svg.appendChild(g);
+    }
+
+    function handleHover(quarter, year, val, desc) {
+      const titleEl = document.getElementById('inspectorTitle');
+      const detailsEl = document.getElementById('inspectorDetails');
+
+      titleEl.innerHTML = `<span class="text-blue-600 font-bold">${year} 年度</span> · <span class="font-bold text-slate-900">${quarter} 季度</span> — ${desc}`;
+      detailsEl.innerHTML = `對應數值：<strong class="text-slate-900 font-bold">$${val}M</strong>`;
+
+      document.querySelectorAll('#financialTableBody tr').forEach(tr => {
+        if (tr.dataset.quarter === quarter) {
+          tr.classList.add('bg-blue-50/80');
+        } else {
+          tr.classList.remove('bg-blue-50/80');
+        }
+      });
+    }
+
+    function highlightScenario(id) {
+      // Highlight matching scenario card
+      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active-recommend'));
+      const targetCard = document.getElementById(`scenario-${id}`);
+      if (targetCard) {
+        targetCard.classList.add('active-recommend');
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      // Highlight matching chart
+      const chartMap = {
+        'c1': 'cardChart1',
+        'c2': 'cardChart2',
+        'c3': 'cardChart3',
+        'c4': 'cardChart4'
+      };
+
+      document.querySelectorAll('.chart-card').forEach(card => {
+        card.classList.remove('border-blue-500', 'bg-blue-50/50', 'ring-2', 'ring-blue-400');
+      });
+
+      const activeChart = document.getElementById(chartMap[id]);
+      if (activeChart) {
+        activeChart.classList.add('border-blue-500', 'bg-blue-50/50', 'ring-2', 'ring-blue-400');
+      }
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('financialTableBody');
+      tbody.innerHTML = '';
+
+      let sum2021 = 0;
+      let sum2022 = 0;
+
+      data.forEach(item => {
+        sum2021 += item.y2021;
+        sum2022 += item.y2022;
+        const diff = item.y2022 - item.y2021;
+        const yoy = ((diff / item.y2021) * 100).toFixed(1);
+        const yoyClass = diff >= 0 ? (diff === 0 ? 'text-slate-500' : 'text-emerald-600') : 'text-rose-600';
+        const yoySign = diff > 0 ? '+' : '';
+
+        const tr = document.createElement('tr');
+        tr.dataset.quarter = item.q;
+        tr.className = 'hover:bg-slate-50 transition cursor-pointer';
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-sans font-bold flex items-center gap-2 text-slate-800">
+            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${item.color}"></span>
+            ${item.q}
+          </td>
+          <td class="py-3 px-4 font-semibold text-blue-700">$${item.y2021}M</td>
+          <td class="py-3 px-4 font-semibold text-rose-700">$${item.y2022}M</td>
+          <td class="py-3 px-4 font-semibold ${yoyClass}">${yoySign}${yoy}%</td>
+          <td class="py-3 px-4 font-sans text-2xs text-slate-500">
+            <span class="px-2 py-0.5 rounded border border-slate-200" style="color:${item.color}">${item.color}</span>
+          </td>
+        `;
+
+        tr.addEventListener('mouseenter', () => {
+          handleHover(item.q, '2021/2022', `${item.y2021}M / ${item.y2022}M`, '財務報表對比行');
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      // Update Totals
+      document.getElementById('total2021').textContent = `$${sum2021}M`;
+      document.getElementById('total2022').textContent = `$${sum2022}M`;
+      const totalDiff = sum2022 - sum2021;
+      const totalYoY = ((totalDiff / sum2021) * 100).toFixed(1);
+      const totalEl = document.getElementById('totalYoY');
+      totalEl.textContent = `${totalDiff >= 0 ? '+' : ''}${totalYoY}%`;
+      totalEl.className = totalDiff >= 0 ? 'py-3 px-4 font-mono text-emerald-600' : 'py-3 px-4 font-mono text-rose-600';
+    }
+
+    function renderAll() {
+      renderChart1(photoData);
+      renderChart2(photoData);
+      renderChart3(photoData);
+      renderChart4(photoData);
+      renderTable(photoData);
+    }
+
+    document.getElementById('resetViewBtn').addEventListener('click', () => {
+      document.getElementById('inspectorTitle').textContent = '懸停或點選任一色塊查看結構維度';
+      document.getElementById('inspectorDetails').textContent = '狀態：等待選取';
+      document.querySelectorAll('.chart-card').forEach(card => {
+        card.classList.remove('border-blue-500', 'bg-blue-50/50', 'ring-2', 'ring-blue-400');
+      });
+      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active-recommend'));
+      renderAll();
+    });
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderAll();
+    });
+  </script>
+</body>
+</html>

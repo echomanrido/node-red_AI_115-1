@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>品質統計與直方圖解析教學指南</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN for interactive visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+  <!-- Top Banner / Navbar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+        </span>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 tracking-tight">品質製程數據分析與直方圖指南</h1>
+          <p class="text-xs text-slate-500">Quality Analytics & SPC Histogram Interpretation</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <a href="#section-weight" class="text-xs sm:text-sm px-3 py-1.5 rounded-md text-slate-600 hover:text-blue-600 hover:bg-slate-100 font-medium transition">重量分布比對</a>
+        <a href="#section-shifts" class="text-xs sm:text-sm px-3 py-1.5 rounded-md text-slate-600 hover:text-blue-600 hover:bg-slate-100 font-medium transition">白班 vs 夜班分析</a>
+        <a href="#section-takeaways" class="text-xs sm:text-sm px-3 py-1.5 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold transition">品管核心指引</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Summary Section -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+    <section class="bg-gradient-to-r from-blue-700 via-indigo-700 to-sky-800 rounded-2xl text-white p-6 sm:p-10 shadow-lg relative overflow-hidden">
+      <div class="relative z-10 max-w-3xl space-y-3">
+        <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md text-white border border-white/30 tracking-wide uppercase">圖表解讀專題報告</span>
+        <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">直方圖在品管監控中的兩大核心課題</h2>
+        <p class="text-slate-200 text-sm sm:text-base leading-relaxed">
+          從您提供的圖表中，揭示了製造現場數據呈現與分析的兩大關鍵技術：
+          <strong>「連續區間 (Bins) 與類別標籤 (Categorical) 的陷阱」</strong>，以及
+          <strong>「利用直方圖洞察白班與夜班生產線異常的真因」</strong>。
+        </p>
+      </div>
+      <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+    </section>
+
+    <!-- SECTION 1: Product Filling Weight (Bins vs Categorical) -->
+    <section id="section-weight" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+      <div class="border-b border-slate-100 pb-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <span class="text-xs font-bold text-blue-600 tracking-wider uppercase">案例一・圖表型態比較</span>
+            <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">「產品充填重量」的分布（理想重量：500g）</h3>
+          </div>
+          <div class="inline-flex items-center px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
+            製程目標中心值：500g (A1產線)
+          </div>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">
+          比較同一組充填數據在 <strong>Histogram chart (Bins 區間分組)</strong> 與 <strong>Histogram chart (Categorical 類別分組)</strong> 呈現下的本質差異。
+        </p>
+      </div>
+
+      <!-- Chart Display Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        <!-- Sub-chart 1: Bins -->
+        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-slate-800 text-sm sm:text-base flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+              <span>Histogram chart (Bins 連續區間)</span>
+            </h4>
+            <span class="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-medium">推薦正規做法</span>
+          </div>
+          <div class="relative h-64 w-full">
+            <canvas id="chartWeightBins"></canvas>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-200 text-xs text-slate-600 space-y-1">
+            <p><strong>X軸特性：</strong> 具備等距連續的數值刻度（495~505g），保持嚴謹的幾何順序。</p>
+            <p><strong>判讀優勢：</strong> 清晰呈現出以 500g 為中心的對稱鐘形分佈（常態分布形貌）。</p>
+          </div>
+        </div>
+
+        <!-- Sub-chart 2: Categorical -->
+        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-slate-800 text-sm sm:text-base flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+              <span>Histogram chart (Categorical 離散類別)</span>
+            </h4>
+            <span class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-medium">易產生誤導</span>
+          </div>
+          <div class="relative h-64 w-full">
+            <canvas id="chartWeightCategorical"></canvas>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-200 text-xs text-slate-600 space-y-1">
+            <p><strong>X軸特性：</strong> 將數字視為純文字標籤（498, 500, 501, 499, 502... 順序混亂）。</p>
+            <p><strong>判讀盲點：</strong> 破壞了數值大小的拓撲連續性，無法辨識真正的常態性、偏態或極端值。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparative Analysis Table & Deep Dive -->
+      <div class="bg-blue-50/60 rounded-xl p-5 border border-blue-100 space-y-4">
+        <h4 class="font-bold text-blue-900 text-base flex items-center">
+          <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          為什麼「充填重量」必須使用 Bins（數值區間）？
+        </h4>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div class="bg-white p-4 rounded-lg shadow-2xs border border-blue-100">
+            <h5 class="font-bold text-slate-900 mb-1.5 text-blue-800 flex items-center">
+              <span class="text-emerald-500 mr-1.5 font-black">✓</span> Bins 數值區間分組原理
+            </h5>
+            <ul class="text-slate-600 space-y-1.5 text-xs sm:text-sm list-disc list-inside">
+              <li><strong>保留尺度距離：</strong> 499g 與 500g 距離 1g，495g 與 505g 間距 10g，圖形嚴格遵循等距比例。</li>
+              <li><strong>空白區間亦能表達資訊：</strong> 例如 495-496 為 0，可證明製程在該界線內沒有發生極端下限缺陷。</li>
+              <li><strong>支援 SPC 製程能力計算：</strong> 可直觀對齊規格上限 (USL) 與規格下限 (LSL)，快速推估 Cp 與 Cpk。</li>
+            </ul>
+          </div>
+
+          <div class="bg-white p-4 rounded-lg shadow-2xs border border-blue-100">
+            <h5 class="font-bold text-slate-900 mb-1.5 text-rose-800 flex items-center">
+              <span class="text-rose-500 mr-1.5 font-black">✗</span> Categorical 類別分組的風險
+            </h5>
+            <ul class="text-slate-600 space-y-1.5 text-xs sm:text-sm list-disc list-inside">
+              <li><strong>數值順序錯置：</strong> 圖中出現「498 → 500 → 501 → 499」，數值跳躍導致大腦無法直覺評估重心。</li>
+              <li><strong>無法表現物理間隔：</strong> 數值被當成如同「蘋果、香蕉」的名目尺度 (Nominal Scale)，喪失連續性。</li>
+              <li><strong>極易掩蓋雙峰或孤島：</strong> 若有斷層數值，Categorical 會直接忽略空白刻度，製造虛假的平滑或分布。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Production Line Defect Comparison (Day Shift vs Night Shift) -->
+    <section id="section-shifts" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+      <div class="border-b border-slate-100 pb-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <span class="text-xs font-bold text-red-600 tracking-wider uppercase">案例二・雙變數製程對比</span>
+            <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">生產線次數：不良數分佈（白班 vs 夜班）</h3>
+          </div>
+          <div class="flex items-center space-x-3 text-xs font-medium">
+            <span class="flex items-center space-x-1.5 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
+              <span class="w-3 h-3 rounded-sm bg-blue-500 inline-block"></span>
+              <span>白班 (Day Shift)</span>
+            </span>
+            <span class="flex items-center space-x-1.5 text-red-700 bg-red-50 px-2.5 py-1 rounded-md border border-red-200">
+              <span class="w-3 h-3 rounded-sm bg-red-600 inline-block"></span>
+              <span>夜班 (Night Shift)</span>
+            </span>
+          </div>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">
+          X 軸為「不良數區間」（0-1 到 9-10），Y 軸為出現的「批次/檢驗次數」。直方圖生動呈現兩班制的品質穩定度斷層。
+        </p>
+      </div>
+
+      <!-- Main Combined Shift Chart -->
+      <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div>
+            <h4 class="font-bold text-slate-800 text-sm sm:text-base">不良數區間直方對比 (Grouped Bins Histogram)</h4>
+            <p class="text-xs text-slate-500">點擊右上圖例可獨立開關「白班」或「夜班」以單獨觀察分佈形狀</p>
+          </div>
+          <div class="flex space-x-2">
+            <button id="btnFilterAll" onclick="filterShiftData('all')" class="text-xs px-3 py-1 bg-white border border-slate-300 rounded font-semibold text-slate-700 hover:bg-slate-100 shadow-2xs">全顯示</button>
+            <button id="btnFilterDay" onclick="filterShiftData('day')" class="text-xs px-3 py-1 bg-blue-50 border border-blue-200 rounded font-semibold text-blue-700 hover:bg-blue-100 shadow-2xs">僅看白班</button>
+            <button id="btnFilterNight" onclick="filterShiftData('night')" class="text-xs px-3 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-700 hover:bg-red-100 shadow-2xs">僅看夜班</button>
+          </div>
+        </div>
+        <div class="relative h-72 sm:h-80 w-full">
+          <canvas id="chartShifts"></canvas>
+        </div>
+      </div>
+
+      <!-- Quantitative Comparison Metrics -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-blue-700 uppercase">白班品質指標</span>
+              <span class="px-2 py-0.5 bg-blue-200 text-blue-800 text-[10px] font-bold rounded">受控良好</span>
+            </div>
+            <div class="mt-2 text-2xl font-black text-blue-900">1.44 <span class="text-xs font-normal text-blue-600">件/批 (估算均值)</span></div>
+            <p class="text-xs text-blue-800 mt-2">
+              不良數 100% 侷限在 <strong>1-3 個</strong> 內（1-2件佔28次、2-3件佔22次），3件以上完全為 0。
+            </p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-blue-200 text-[11px] text-blue-700">
+            變異極小 (Low Variance)，製程高度受控穩定。
+          </div>
+        </div>
+
+        <div class="bg-red-50/70 p-4 rounded-xl border border-red-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-red-700 uppercase">夜班品質指標</span>
+              <span class="px-2 py-0.5 bg-red-200 text-red-800 text-[10px] font-bold rounded">嚴重失控/發散</span>
+            </div>
+            <div class="mt-2 text-2xl font-black text-red-900">5.58 <span class="text-xs font-normal text-red-600">件/批 (估算均值)</span></div>
+            <p class="text-xs text-red-800 mt-2">
+              不良數呈現<strong>多峰、大幅右偏 (Positive Skewness)</strong>，高峰落在 <strong>6-7 件 (13次)</strong> 與 <strong>8-9 件 (7次)</strong>。
+            </p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-red-200 text-[11px] text-red-700">
+            變異極大 (High Variance)，存在強烈特殊原因變異。
+          </div>
+        </div>
+
+        <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-700 uppercase">品管工程判讀結論</span>
+              <span class="px-2 py-0.5 bg-amber-200 text-amber-800 text-[10px] font-bold rounded">層別法 (Stratification)</span>
+            </div>
+            <div class="mt-2 text-xl font-bold text-amber-950">存在班別系統性差異</div>
+            <p class="text-xs text-amber-900 mt-2">
+              若未依「班別」進行分層 (Stratify)，兩者混合將呈現出怪異的扁平多峰分佈，掩蓋夜班問題的真相。
+            </p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-amber-200 text-[11px] text-amber-800">
+            建議依「人、機、料、法、環」立即對夜班展開要因調查。
+          </div>
+        </div>
+      </div>
+
+      <!-- 4M1E RCA Action Plan -->
+      <div class="border border-slate-200 rounded-xl p-5 bg-white">
+        <h4 class="font-bold text-slate-900 text-base mb-3 flex items-center">
+          <svg class="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+          夜班異常原因推演與品管改善對策 (4M1E 分析)
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+            <span class="font-bold text-slate-800 block text-sm mb-1 text-blue-700">1. 人 (Man) - 生理疲勞與經驗</span>
+            <p class="text-slate-600">
+              夜間注意力下降、輪班資淺作業員較多，或夜班缺乏即時品管檢驗員 (QC) 的現場巡檢阻卻。
+            </p>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+            <span class="font-bold text-slate-800 block text-sm mb-1 text-emerald-700">2. 機 (Machine) - 熱機與衰退</span>
+            <p class="text-slate-600">
+              充填機經白天長時間高溫連續運轉後，夜間機構件熱膨脹、閥門磨損或氣壓供應不足造成滴漏或計量失準。
+            </p>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+            <span class="font-bold text-slate-800 block text-sm mb-1 text-amber-700">3. 法 (Method) - 交接作業標準</span>
+            <p class="text-slate-600">
+              交接班參數未校正回歸、夜間自主檢查頻率降低、停機換線清洗未徹底遵照 SOP 執行。
+            </p>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+            <span class="font-bold text-slate-800 block text-sm mb-1 text-purple-700">4. 環 (Environment) - 溫濕度劇變</span>
+            <p class="text-slate-600">
+              夜間環境氣溫驟降導致充填原料黏度 (Viscosity) 改變，流動性變差導致重量控制困難與不良激增。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Knowledge Takeaways & Interactive Quiz -->
+    <section id="section-takeaways" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Quick Knowledge Summary -->
+      <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center">
+          <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+          品管工程師必背：直方圖判讀 3 大金科玉律
+        </h3>
+        <div class="space-y-3 text-slate-600 text-sm">
+          <div class="flex items-start space-x-3">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs mt-0.5">1</span>
+            <div>
+              <strong class="text-slate-900">連續變數堅決使用 Bins 區間：</strong>
+              長度、重量、溫度、時間等連續計量型數據，必須劃分等寬 Bins 且 X 軸需由小到大連續排列，否則圖表失去幾何統計學意義。
+            </div>
+          </div>
+          <div class="flex items-start space-x-3">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs mt-0.5">2</span>
+            <div>
+              <strong class="text-slate-900">出現雙峰 (Bimodal) 必有混雜因數：</strong>
+              當直方圖出現兩個峰值（如夜班與白班混在一起，或兩台機台混用），第一時間務必運用<strong>層別法 (Stratification)</strong> 拆解分析。
+            </div>
+          </div>
+          <div class="flex items-start space-x-3">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs mt-0.5">3</span>
+            <div>
+              <strong class="text-slate-900">中心度與離散度並重：</strong>
+              單看充填平均值接近 500g 還不夠，若變異過寬 (如散布在 490~510g) 依然是不良品。製程改善追求「瞄準中心，壓縮變異」。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Mini Quiz -->
+      <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold text-sky-400 tracking-wider uppercase">隨堂測驗</span>
+            <span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded">實務考驗</span>
+          </div>
+          <h4 class="font-bold text-white text-sm mb-2">請問從夜班直方圖（紅條）能得出何項正確結論？</h4>
+          <div class="space-y-2 text-xs" id="quizOptions">
+            <button onclick="checkQuiz(1)" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition">
+              A. 夜班的平均品質優於白班
+            </button>
+            <button onclick="checkQuiz(2)" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition">
+              B. 夜班不僅不良件數偏高，且變異大、穩定度差
+            </button>
+            <button onclick="checkQuiz(3)" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition">
+              C. 兩班品質差異主要只是抽樣次數不足的巧合
+            </button>
+          </div>
+        </div>
+        <div id="quizResult" class="mt-3 p-2.5 rounded-lg text-xs hidden"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-12 border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+    品質控制 (QC) 與統計製程管制 (SPC) 直方圖教學模組 &bull; 資料視覺化最佳實踐
+  </footer>
+
+  <script>
+    /* Initialize Weight Bins Chart */
+    const ctxWeightBins = document.getElementById('chartWeightBins').getContext('2d');
+    const chartWeightBins = new Chart(ctxWeightBins, {
+      type: 'bar',
+      data: {
+        labels: ['495-496', '496-497', '497-498', '498-499', '499-500', '500-501', '501-502', '502-503', '503-504', '504-505'],
+        datasets: [{
+          label: 'A1 頻次 (Bins)',
+          data: [0, 0, 1, 1, 1, 4, 1, 1, 0, 1],
+          backgroundColor: '#0ea5e9',
+          borderColor: '#0284c7',
+          borderWidth: 1,
+          borderRadius: 2,
+          barPercentage: 0.95,
+          categoryPercentage: 0.98
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (ctx) => `重量區間: ${ctx[0].label} g`,
+              label: (ctx) => `出現次數: ${ctx.raw} 次`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 4,
+            ticks: { stepSize: 1, color: '#64748b' },
+            grid: { color: '#e2e8f0' }
+          },
+          x: {
+            ticks: { color: '#64748b', font: { size: 10 } },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+
+    /* Initialize Weight Categorical Chart */
+    const ctxWeightCat = document.getElementById('chartWeightCategorical').getContext('2d');
+    const chartWeightCat = new Chart(ctxWeightCat, {
+      type: 'bar',
+      data: {
+        // Reflecting the unordered categorical sequence shown in the screenshot
+        labels: ['498', '500', '501', '499', '502', '497', '503'],
+        datasets: [{
+          label: 'A1 頻次 (Categorical)',
+          data: [1, 4, 1, 1, 1, 1, 1],
+          backgroundColor: '#0ea5e9',
+          borderColor: '#0284c7',
+          borderWidth: 1,
+          borderRadius: 2,
+          barPercentage: 0.8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (ctx) => `類別標籤: ${ctx[0].label}`,
+              label: (ctx) => `計數: ${ctx.raw} 筆`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 4,
+            ticks: { stepSize: 1, color: '#64748b' },
+            grid: { color: '#e2e8f0' }
+          },
+          x: {
+            ticks: { color: '#64748b', font: { size: 11, weight: 'bold' } },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+
+    /* Shift Comparison Chart (Day vs Night) */
+    const ctxShifts = document.getElementById('chartShifts').getContext('2d');
+    const shiftLabels = ['0-1', '1-2', '2-3', '3-4', '4-5', '5-6', '6-7', '7-8', '8-9', '9-10'];
+    const dayData = [0, 28, 22, 0, 0, 0, 0, 0, 0, 0];
+    const nightData = [0, 9, 7, 1, 4, 6, 13, 3, 7, 0];
+
+    const chartShifts = new Chart(ctxShifts, {
+      type: 'bar',
+      data: {
+        labels: shiftLabels,
+        datasets: [
+          {
+            label: '白班 (Day Shift)',
+            data: dayData,
+            backgroundColor: '#0284c7',
+            borderColor: '#0369a1',
+            borderWidth: 1,
+            borderRadius: 3,
+            barPercentage: 0.85,
+            categoryPercentage: 0.8
+          },
+          {
+            label: '夜班 (Night Shift)',
+            data: nightData,
+            backgroundColor: '#ef4444',
+            borderColor: '#b91c1c',
+            borderWidth: 1,
+            borderRadius: 3,
+            barPercentage: 0.85,
+            categoryPercentage: 0.8
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              color: '#334155',
+              font: { weight: 'bold', size: 12 },
+              usePointStyle: true,
+              pointStyle: 'rectRounded'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              title: (ctx) => `不良數區間: ${ctx[0].label} 件`,
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} 次生產批`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 30,
+            ticks: { stepSize: 5, color: '#64748b' },
+            grid: { color: '#e2e8f0' },
+            title: {
+              display: true,
+              text: '次數 (Frequency)',
+              color: '#475569',
+              font: { size: 11, weight: 'bold' }
+            }
+          },
+          x: {
+            ticks: { color: '#475569', font: { size: 11, weight: 'bold' } },
+            grid: { color: '#f1f5f9' },
+            title: {
+              display: true,
+              text: '不良數 (Defects Range)',
+              color: '#475569',
+              font: { size: 11, weight: 'bold' }
+            }
+          }
+        }
+      }
+    });
+
+    /* Interactive Shift Filtering */
+    function filterShiftData(mode) {
+      if (mode === 'all') {
+        chartShifts.data.datasets[0].hidden = false;
+        chartShifts.data.datasets[1].hidden = false;
+      } else if (mode === 'day') {
+        chartShifts.data.datasets[0].hidden = false;
+        chartShifts.data.datasets[1].hidden = true;
+      } else if (mode === 'night') {
+        chartShifts.data.datasets[0].hidden = true;
+        chartShifts.data.datasets[1].hidden = false;
+      }
+      chartShifts.update();
+    }
+
+    /* Mini Quiz logic */
+    function checkQuiz(choice) {
+      const resultBox = document.getElementById('quizResult');
+      resultBox.classList.remove('hidden', 'bg-emerald-900/80', 'text-emerald-200', 'bg-rose-900/80', 'text-rose-200');
+      
+      if (choice === 2) {
+        resultBox.classList.add('bg-emerald-900/80', 'text-emerald-200', 'border', 'border-emerald-600');
+        resultBox.innerHTML = '<strong>恭喜答對！🎉</strong><br>夜班不僅不良數高峰位移到 6-7 件，且分佈跨越 1-9 件，表示生產條件受到嚴重干擾，必須即刻進行 4M1E 根因調查。';
+      } else {
+        resultBox.classList.add('bg-rose-900/80', 'text-rose-200', 'border', 'border-rose-600');
+        resultBox.innerHTML = '<strong>不正確喔！再思考一下：</strong><br>白班的不良品全數在 1-3 件之內，而夜班高達 13 次落在 6-7 件且甚至有 8-9 件，明顯夜班品質顯著劣化且極不穩定。';
+      }
+    }
+  </script>
+</body>
+</html>
