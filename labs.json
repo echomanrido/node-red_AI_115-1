@@ -7217,5 +7217,339 @@
         "url": "https://www.chartjs.org/docs/latest/charts/"
       }
     ]
+  },
+  {
+    "id": "lab-30",
+    "labNumber": "30",
+    "number": "30",
+    "title": "Dashboard 實作: Histogram 直方圖品質統計 (數值分箱 Bins、離散類別與白夜班不良率對比)",
+    "date": "2026-10-01",
+    "category": "進階實作",
+    "summary": "深入學習 Node-RED Dashboard 2.0 中直方圖 (Histogram Chart) 在工控 SPC (統計製程控制) 與品質管理中的實戰應用。本實作分為兩大核心模組：\n1.「產品充填重量分佈」：輸入以 500g 為中心的抽檢數據，對比數值連續分箱 (Bins: 495-496, 498-499...) 與離散類別 (Categorical) 兩種直方圖呈現方式。\n2.「生產線不良次數 (白班 vs 夜班)」：透過定時 Function 亂數模擬產生白班（不良數集中於 1~3）與夜班（不良數分散於 2~9）之抽樣數據，在直方圖上按 0-1, 1-2, 2-3... 等 10 個分箱 (Bins) 並列雙色長條圖，直觀定位班次品質變異與製程改善方向。",
+    "flowImage": "images_src/ok/20261001_flow_lab30_dashboard_histogram_charts.png",
+    "resultImage": "images_src/ok/20261001_result_lab30_dashboard_histogram_charts.png",
+    "objective": "1. 掌握 Node-RED Dashboard 2.0 中 ui-chart 直方圖 (Histogram) 模式之設定方式與參數配置。\n2. 理解直方圖「數值區間分箱 (Bins)」與「離散類別 (Categorical)」在連續數據與離散數據分析上的差異。\n3. 學習多組數據 (白班 vs. 夜班) 透過 msg.topic 在同一組直方圖分箱座標軸上並列對比的統計呈現技巧。\n4. 掌握工廠品管 SPC、常態分佈鐘形曲線分析與產線換班良率監控戰情室的建置流程。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Dashboard 2.0 直方圖專用群組",
+        "description": "在 Layout 面板中建立兩組 Group：左側群組命名為「「產品充填重量」的分佈，理想重量是 500g」，右側群組命名為「生產線次數」。"
+      },
+      {
+        "step": "2. 模組一 (充填重量): 配置抽檢數據 Inject 節點",
+        "description": "建立 Inject 節點命名為「注入」，payload 設定為包含 500g 附近產品抽樣實測重量數據（如包含 498, 500, 501, 499, 500, 502, 497, 500, 503, 500 等值之陣列）。"
+      },
+      {
+        "step": "3. 配置充填重量直方圖 (Bins vs Categorical)",
+        "description": "建立 2 組直方圖節點歸屬於充填重量群組：\n- 節點 1:「Histogram chart(Bins)」— 設定為 Bins 數值區間自動分箱模式 (495-496, 498-499, 501-502, 504-505)\n- 節點 2:「Histogram chart(Categorical)」— 設定為 Categorical 離散數值標籤分類模式 (498, 500, 501, 499, 502, 497, 503)"
+      },
+      {
+        "step": "4. 模組二 (白夜班不良次數): 配置基準數據與定時觸發",
+        "description": "建立 Inject 節點「生產線不良次數 (白班 vs 夜班)」提供初始歷史數據，並建立定時 Inject 節點「時間戳 ↻」連接至 Function 節點「白夜班不良數亂數產生」。"
+      },
+      {
+        "step": "5. 撰寫白夜班不良數亂數產生函式",
+        "description": "在 Function 節點中撰寫 JavaScript：隨機產生白班（低不良率，集中於 1~3 件）與夜班（高不良率，分散於 2~9 件）數據，分別賦予 `msg.topic = \"白班\"` 與 `msg.topic = \"夜班\"`，並將輸出連接至「Histogram chart(Bins)」。"
+      },
+      {
+        "step": "6. 部署並於 Web Dashboard 驗證 SPC 品質統計直方圖",
+        "description": "點擊「部署」後於網頁觀察充填重量在 500g 處顯著集中，以及右側白班 (藍色) 與夜班 (紅色) 在 0-1 ~ 9-10 各分箱區間的顯著品質差異。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / 包裝機定量充填重量公差帶常態分佈分析",
+        "icon": "fa-solid fa-gears",
+        "description": "SCADA 系統收集自動充填包裝機秤重感測器每萬件產品數據，即時以 Histogram chart(Bins) 繪製重量分佈直方圖，品管人員一眼即可辨識是否偏離 500g 目標值或存在雙峰異常。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 晶圓晶粒 (Die) 缺陷數與機台換班良率統計",
+        "icon": "fa-solid fa-microchip",
+        "description": "晶圓檢測機 (AOI) 將白班與夜班生產之晶粒瑕疵數傳入直方圖，透過 Bins 分箱比對不同操作班次或溫濕度變化下的缺陷分佈偏移，協助良率工程師 (YE) 精準鎖定制程瓶頸。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧冷鏈物流箱配送時效與延遲次數分箱統計",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "物流中心將全台外送車隊各站點配送耗時 (如 0-15分、15-30分、30-45分...) 以直方圖統計，對比平日與連假班次準點率，動態優化派單演算法。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「Dashboard 實作: Histogram 直方圖品質統計 (充填重量與白夜班不良數對比)」：\n1. 規劃兩組 Dashboard 2.0 Group：「「產品充填重量」的分佈，理想重量是 500g」與「生產線次數」。\n2. 模組 1（產品充填重量）：\n   - 包含一個 Inject 節點「注入」，輸出 500g 附近的實測重量陣列。\n   - 連接至 ui-chart「Histogram chart(Bins)」與 ui-chart「Histogram chart(Categorical)」。\n3. 模組 2（生產線不良次數）：\n   - 包含 Inject 節點「生產線不良次數 (白班 vs 夜班)」與定時 Inject「時間戳 ↻」。\n   - 連接至 Function 節點「白夜班不良數亂數產生」，產生 topic 為 \"白班\" 與 \"夜班\" 的不良數數據。\n   - 輸出連接至 ui-chart 節點「Histogram chart(Bins)」（歸屬於「生產線次數」群組）。\n請輸出標準可匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_group_fill",
+        "type": "comment",
+        "z": "tab_lab30",
+        "name": "產品充填重量",
+        "info": "",
+        "x": 160,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "inject_fill_weights",
+        "type": "inject",
+        "z": "tab_lab30",
+        "name": "注入",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "A1",
+        "payload": "[498,500,501,499,500,502,497,500,503,500,500,498,499,501]",
+        "payloadType": "json",
+        "x": 130,
+        "y": 120,
+        "wires": [
+          [
+            "chart_histo_bins",
+            "chart_histo_cat"
+          ]
+        ]
+      },
+      {
+        "id": "chart_histo_bins",
+        "type": "ui-chart",
+        "z": "tab_lab30",
+        "group": "group_fill_lab30",
+        "order": 1,
+        "width": "6",
+        "height": "5",
+        "name": "Histogram chart(Bins)",
+        "label": "Histogram chart(Bins)",
+        "chartType": "bar",
+        "legend": "true",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "4",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#0080ff",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 450,
+        "y": 100,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "chart_histo_cat",
+        "type": "ui-chart",
+        "z": "tab_lab30",
+        "group": "group_fill_lab30",
+        "order": 2,
+        "width": "6",
+        "height": "5",
+        "name": "Histogram chart(Categorical)",
+        "label": "Histogram chart(Categorical)",
+        "chartType": "bar",
+        "legend": "true",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "4",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#0080ff",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 470,
+        "y": 160,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "comment_group_defect",
+        "type": "comment",
+        "z": "tab_lab30",
+        "name": "生產線不良次數 (白班 vs 夜班)",
+        "info": "",
+        "x": 200,
+        "y": 240,
+        "wires": []
+      },
+      {
+        "id": "inject_defect_data",
+        "type": "inject",
+        "z": "tab_lab30",
+        "name": "生產線不良次數 (白班 vs 夜班)",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 230,
+        "y": 300,
+        "wires": [
+          [
+            "chart_defect_histo"
+          ]
+        ]
+      },
+      {
+        "id": "inject_defect_loop",
+        "type": "inject",
+        "z": "tab_lab30",
+        "name": "時間戳 ↻",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 360,
+        "wires": [
+          [
+            "func_defect_gen"
+          ]
+        ]
+      },
+      {
+        "id": "func_defect_gen",
+        "type": "function",
+        "z": "tab_lab30",
+        "name": "白夜班不良數亂數產生",
+        "func": "// 模擬白班（不良數低：1~3）\nlet dayDefect = Math.floor(Math.random() * 3) + 1;\n// 模擬夜班（不良數較高且分散：2~9）\nlet nightDefect = Math.floor(Math.random() * 8) + 2;\n\nlet msg1 = { topic: \"白班\", payload: dayDefect };\nlet msg2 = { topic: \"夜班\", payload: nightDefect };\n\nreturn [[msg1, msg2]];",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 360,
+        "wires": [
+          [
+            "chart_defect_histo"
+          ]
+        ]
+      },
+      {
+        "id": "chart_defect_histo",
+        "type": "ui-chart",
+        "z": "tab_lab30",
+        "group": "group_defect_lab30",
+        "order": 1,
+        "width": "12",
+        "height": "5",
+        "name": "Histogram chart(Bins)",
+        "label": "Histogram chart(Bins)",
+        "chartType": "bar",
+        "legend": "true",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "30",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#0080ff",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 670,
+        "y": 300,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "group_fill_lab30",
+        "type": "ui_group",
+        "name": "「產品充填重量」的分佈，理想重量是 500g",
+        "tab": "tab_qc_lab30",
+        "order": 1,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+      },
+      {
+        "id": "group_defect_lab30",
+        "type": "ui_group",
+        "name": "生產線次數",
+        "tab": "tab_qc_lab30",
+        "order": 2,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+      }
+    ],
+    "references": [
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-chart 直方圖 (Histogram) 官方配置手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-chart.html"
+      },
+      {
+        "title": "Node-RED Dashboard 2.0 - Layouts 版面與群組排版指南",
+        "url": "https://dashboard.flowfuse.com/layouts/"
+      },
+      {
+        "title": "品質管制 (QC) 直方圖與製程能力分析指南",
+        "url": "https://zh.wikipedia.org/zh-tw/%E7%9B%B4%E6%96%B9%E5%9B%BE"
+      }
+    ]
   }
 ]
