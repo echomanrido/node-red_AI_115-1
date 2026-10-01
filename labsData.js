@@ -6395,5 +6395,389 @@ window.INITIAL_LABS_DATA = [
       }
     ],
     "flowTitle": "Dashboard 2.0 Pages、Group、Widget 架構解析"
+  },
+  {
+    "id": "lab-28",
+    "labNumber": "28",
+    "number": "28",
+    "title": "Dashboard 練習: ui-chart 三大圖表形態比較 (Line 折線圖 / Area 面積圖 / Scatter 散佈圖)",
+    "date": "2026-10-01",
+    "category": "基礎實作",
+    "summary": "深入學習 Node-RED Dashboard 2.0 中 ui-chart 節點的多種視覺化圖表形態 (Chart Types)。透過定時週期 Inject 節點觸發 3 組 random 亂數（通道 A、B、C），並同時將資料分流發送至 Line chart (折線圖)、Area chart (面積圖) 與 Scatter chart (散佈圖)。本實作深入對比三大圖表在趨勢追蹤、累積總量視覺化與離散分佈分析上的不同特性，掌握工控 SCADA 多維度數據視覺化選型與配置技能。",
+    "flowImage": "images_src/ok/20261001_flow_lab28_dashboard_chart_types.png",
+    "resultImage": "images_src/ok/20261001_result_lab28_dashboard_chart_types.png",
+    "objective": "1. 掌握 Node-RED Dashboard 2.0 中 ui-chart 節點的 Chart Type（圖表類型）屬性切換與配置方法。\n2. 理解 Line chart (折線圖)、Area chart (面積圖) 與 Scatter chart (散佈圖) 三者的數據呈現特徵與適用工控情境。\n3. 學習單一多通道數據源（msg.topic = A/B/C）同時廣播推播至多個圖表節點的扇出 (Fan-out) 架構。\n4. 掌握在同一 Dashboard Group 中並列排版多圖表並設定統一時間座標軸 (X 軸) 與數值量程 (Y 軸) 的實戰技巧。",
+    "tutorialSteps": [
+      {
+        "step": "1. 配置定時觸發與 3 通道亂數源",
+        "description": "建立一個 Inject 節點「時間戳 ↻」（設定每 1 秒重複觸發），同時連接至 3 個 random 節點（分別產生不同範圍的隨機數值，如 0~100、0~50、100~300）。"
+      },
+      {
+        "step": "2. 配置 3 組 change 節點標記通道 topic",
+        "description": "在 3 個 random 節點後方分別串接 change 節點，設定目標屬性 msg.topic 分別為 string \"A\"、\"B\"、\"C\"。"
+      },
+      {
+        "step": "3. 建立並配置 Line chart (折線圖) 節點",
+        "description": "拖曳 ui-chart 節點命名為「Line chart」，圖表類型選取「Line (折線圖)」，啟用圖例 (Legend: true)，指派至「chart」群組。"
+      },
+      {
+        "step": "4. 建立並配置 Area chart (面積圖) 節點",
+        "description": "拖曳第二個 ui-chart 節點命名為「Area chart」，圖表類型選取「Area (面積圖)」，啟用圖例，指派至同一「chart」群組。"
+      },
+      {
+        "step": "5. 建立並配置 Scatter chart (散佈圖) 節點",
+        "description": "拖曳第三個 ui-chart 節點命名為「Scatter chart」，圖表類型選取「Scatter (散點/散佈圖)」，啟用圖例，指派至同一「chart」群組。"
+      },
+      {
+        "step": "6. 交叉連線、部署並於 Web Dashboard 進行對比觀察",
+        "description": "將 3 個 change 節點 (A/B/C) 的輸出端同時連線至這 3 個 ui-chart 節點。點擊「部署」後開啟 Web Dashboard，觀察左側 Line chart 的連續折線、中間 Area chart 的色彩填滿區域、以及右側 Scatter chart 的離散點陣同步跳動呈現。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / 產線三軸伺服電流與動態功耗多維監控",
+        "icon": "fa-solid fa-gears",
+        "description": "SCADA 系統監控機械手臂 X/Y/Z 三軸馬達，以 Line chart 即時呈現連續三軸電流波動；以 Area chart 視覺化三軸總能耗累積覆蓋面積；以 Scatter chart 捕捉馬達啟動瞬間的突波離群點，精準診斷機構卡滯。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 晶圓廠潔淨室微塵顆粒與氣體流量統計",
+        "icon": "fa-solid fa-microchip",
+        "description": "無塵室環境監控系統將不同粒徑微塵 (0.1μm, 0.3μm, 0.5μm) 數據傳入：以 Scatter chart 掌握突發落塵離散事件；以 Line chart 觀察全天候落塵趨勢；以 Area chart 評估整體落塵累積負載。"
+      },
+      {
+        "scenario": "家庭物流網 / 多站點智慧快遞箱日吞吐量與熱點分佈",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "社區物業中控利用 Line chart 監控 A/B/C 三棟快遞櫃每小時存件量曲線；以 Area chart 對比各棟總存量佔比；以 Scatter chart 分析住戶取件時間密集度，靈活調配櫃格資源。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「Dashboard 練習: ui-chart 三大圖表形態比較 (Line / Area / Scatter)」：\n1. 規劃 Dashboard 2.0 Group「chart」。\n2. 包含一個 Inject 節點「時間戳 ↻」，設定每 1 秒重複觸發一次。\n3. Inject 節點同時連接 3 個 random 節點（亂數產生器）。\n4. 3 個 random 節點分別連接 1 個 change 節點，設定 msg.topic 分別為 \"A\"、\"B\"、\"C\"。\n5. 包含 3 個 ui-chart 節點（均歸屬於「chart」群組）：\n   - 第一個 ui-chart 節點：名稱「Line chart」，chartType 為 \"line\"\n   - 第二個 ui-chart 節點：名稱「Area chart」，chartType 為 \"area\"\n   - 第三個 ui-chart 節點：名稱「Scatter chart」，chartType 為 \"scatter\"\n6. 3 個 change 節點的輸出端同時連接至上述 3 個 ui-chart 節點。\n請輸出標準可匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "inject_timestamp_chart3",
+        "type": "inject",
+        "z": "tab_lab28",
+        "name": "時間戳 ↻",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 140,
+        "wires": [
+          [
+            "random_a_28",
+            "random_b_28",
+            "random_c_28"
+          ]
+        ]
+      },
+      {
+        "id": "random_a_28",
+        "type": "random",
+        "z": "tab_lab28",
+        "name": "random",
+        "low": "0",
+        "high": "100",
+        "inte": "true",
+        "property": "payload",
+        "x": 280,
+        "y": 80,
+        "wires": [
+          [
+            "change_a_28"
+          ]
+        ]
+      },
+      {
+        "id": "random_b_28",
+        "type": "random",
+        "z": "tab_lab28",
+        "name": "random",
+        "low": "0",
+        "high": "50",
+        "inte": "true",
+        "property": "payload",
+        "x": 280,
+        "y": 140,
+        "wires": [
+          [
+            "change_b_28"
+          ]
+        ]
+      },
+      {
+        "id": "random_c_28",
+        "type": "random",
+        "z": "tab_lab28",
+        "name": "random",
+        "low": "100",
+        "high": "300",
+        "inte": "true",
+        "property": "payload",
+        "x": 280,
+        "y": 200,
+        "wires": [
+          [
+            "change_c_28"
+          ]
+        ]
+      },
+      {
+        "id": "change_a_28",
+        "type": "change",
+        "z": "tab_lab28",
+        "name": "A",
+        "rules": [
+          {
+            "t": "set",
+            "p": "topic",
+            "pt": "msg",
+            "to": "A",
+            "tot": "str"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 430,
+        "y": 80,
+        "wires": [
+          [
+            "ui_chart_line",
+            "ui_chart_area",
+            "ui_chart_scatter"
+          ]
+        ]
+      },
+      {
+        "id": "change_b_28",
+        "type": "change",
+        "z": "tab_lab28",
+        "name": "B",
+        "rules": [
+          {
+            "t": "set",
+            "p": "topic",
+            "pt": "msg",
+            "to": "B",
+            "tot": "str"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 430,
+        "y": 140,
+        "wires": [
+          [
+            "ui_chart_line",
+            "ui_chart_area",
+            "ui_chart_scatter"
+          ]
+        ]
+      },
+      {
+        "id": "change_c_28",
+        "type": "change",
+        "z": "tab_lab28",
+        "name": "C",
+        "rules": [
+          {
+            "t": "set",
+            "p": "topic",
+            "pt": "msg",
+            "to": "C",
+            "tot": "str"
+          }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 430,
+        "y": 200,
+        "wires": [
+          [
+            "ui_chart_line",
+            "ui_chart_area",
+            "ui_chart_scatter"
+          ]
+        ]
+      },
+      {
+        "id": "ui_chart_line",
+        "type": "ui-chart",
+        "z": "tab_lab28",
+        "group": "group_chart_types",
+        "order": 1,
+        "width": "4",
+        "height": "4",
+        "name": "Line chart",
+        "label": "Line chart",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": true,
+        "ymin": "0",
+        "ymax": "300",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#d62728",
+          "#ff7f0e",
+          "#2ca02c",
+          "#98df8a",
+          "#aec7e8",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 620,
+        "y": 80,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "ui_chart_area",
+        "type": "ui-chart",
+        "z": "tab_lab28",
+        "group": "group_chart_types",
+        "order": 2,
+        "width": "4",
+        "height": "4",
+        "name": "Area chart",
+        "label": "Area chart",
+        "chartType": "area",
+        "legend": "true",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": true,
+        "ymin": "0",
+        "ymax": "500",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#d62728",
+          "#ff7f0e",
+          "#2ca02c",
+          "#98df8a",
+          "#aec7e8",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 620,
+        "y": 140,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "ui_chart_scatter",
+        "type": "ui-chart",
+        "z": "tab_lab28",
+        "group": "group_chart_types",
+        "order": 3,
+        "width": "4",
+        "height": "4",
+        "name": "Scatter chart",
+        "label": "Scatter chart",
+        "chartType": "scatter",
+        "legend": "true",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": true,
+        "ymin": "0",
+        "ymax": "300",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#d62728",
+          "#ff7f0e",
+          "#2ca02c",
+          "#98df8a",
+          "#aec7e8",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 630,
+        "y": 200,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "group_chart_types",
+        "type": "ui_group",
+        "name": "chart",
+        "tab": "tab_chart_lab28",
+        "order": 1,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+      }
+    ],
+    "references": [
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-chart 多型態圖表官方手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-chart.html"
+      },
+      {
+        "title": "Node-RED 官方 Docs - change 節點設定 msg.topic 使用手冊",
+        "url": "https://nodered.org/docs/user-guide/nodes#change"
+      },
+      {
+        "title": "Node-RED 官方 Docs - random 亂數節點手冊",
+        "url": "https://flows.nodered.org/node/node-red-node-random"
+      }
+    ]
   }
 ];
