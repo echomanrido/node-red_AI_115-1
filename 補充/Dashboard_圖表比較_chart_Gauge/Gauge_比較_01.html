@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gauge 儀表型態與人機介面應用互動教學</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .needle-transition {
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-origin: 100px 100px;
+    }
+    .water-wave {
+      animation: waveMove 3s infinite linear;
+    }
+    @keyframes waveMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- 頂部導覽列 -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
+          <i class="fa-solid fa-gauge-high text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight tracking-wide text-white">Gauge 儀表型態與應用指南</h1>
+          <p class="text-xs text-slate-400">工業 SCADA / HMI 與生活物聯網設計互動教學</p>
+        </div>
+      </div>
+      <div class="hidden sm:flex items-center space-x-2 text-xs bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-slate-300 font-medium">即時動態模擬引擎運作中</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+
+    <!-- 頂部教學簡介 -->
+    <div class="rounded-2xl bg-gradient-to-r from-sky-950/60 via-slate-800/60 to-slate-900/80 border border-sky-900/40 p-6 md:p-8 relative overflow-hidden">
+      <div class="absolute -right-12 -top-12 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="relative z-10 max-w-3xl">
+        <span class="px-3 py-1 text-xs font-semibold tracking-wider text-sky-400 uppercase bg-sky-950/80 border border-sky-800 rounded-full">
+          HMI / UX Visual Guide
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-3 mb-2">
+          掌握不同儀表（Gauge）的空間佔比與人因讀數哲學
+        </h2>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          在工業中控室與智慧終端中，選擇合適的儀表能讓操作者在 <strong>0.5 秒內</strong> 判斷異常。點擊下方表格任一儀表或「啟動模擬」，即可在下方的動態實驗室觀察其指針響應、容積警示與專屬的<span class="text-amber-400 font-semibold underline decoration-amber-500/50">設計重點提示</span>。
+        </p>
+      </div>
+    </div>
+
+    <!-- 核心動態模擬實驗室 (Interactive Simulation Arena) -->
+    <section id="simulator-section" class="scroll-mt-20">
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+        
+        <!-- 實驗室標題列與圖形切換選單 -->
+        <div class="bg-slate-800 px-6 py-4 border-b border-slate-700 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center space-x-3">
+              <span class="flex h-3 w-3 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+              </span>
+              <h3 class="font-bold text-white text-base">動態模擬實驗室</h3>
+            </div>
+
+            <!-- 儀表 Type 下拉選單（比照控制面板選單樣式） -->
+            <div class="flex items-center gap-2 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-sky-500/40 shadow-inner">
+              <label for="gauge-type-select" class="text-xs font-bold text-sky-400 flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-list-ul text-sky-400"></i>
+                <span>Type</span>
+              </label>
+              <div class="relative">
+                <select id="gauge-type-select" onchange="selectGauge(this.value, false)" 
+                        class="bg-slate-800 text-white text-xs font-semibold pl-2.5 pr-8 py-1 rounded-lg border border-slate-600 hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50 appearance-none cursor-pointer">
+                  <option value="tile">Tile</option>
+                  <option value="three_quarter" selected>3/4 Gauge</option>
+                  <option value="half">Half Gauge</option>
+                  <option value="battery">Battery Level</option>
+                  <option value="tank">Tank Level</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
+              </div>
+            </div>
+
+            <!-- 當前作用徽章 -->
+            <span id="sim-active-title" class="hidden sm:inline-block text-xs px-2.5 py-1 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30">
+              3/4 Gauge (270度圓弧儀表)
+            </span>
+          </div>
+
+          <!-- 情境切換按鈕 -->
+          <div class="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-700 text-xs">
+            <button id="scenario-life-btn" onclick="setScenario('life')" class="px-3 py-1.5 rounded-lg font-medium transition text-white bg-sky-600 shadow">
+              <i class="fa-solid fa-house-laptop mr-1.5"></i>生活情境
+            </button>
+            <button id="scenario-ind-btn" onclick="setScenario('industrial')" class="px-3 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white">
+              <i class="fa-solid fa-industry mr-1.5"></i>工業情境
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-slate-700">
+          
+          <!-- 左側：儀表動態畫布與控制 -->
+          <div class="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between items-center bg-slate-850">
+            
+            <!-- 當前情境說明標籤 -->
+            <div class="w-full flex justify-between items-center mb-6">
+              <span id="sim-scenario-badge" class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded bg-slate-900 text-slate-300 border border-slate-700">
+                <i class="fa-solid fa-tag text-sky-400"></i>
+                <span id="sim-context-name">汽機車時速錶</span>
+              </span>
+              <div class="text-xs font-mono text-slate-400">
+                當前讀數：<span id="sim-val-display" class="text-sky-400 font-bold text-sm">65</span> <span id="sim-unit-display">km/h</span>
+              </div>
+            </div>
+
+            <!-- 視覺主體：動態 SVG 儀表容器 -->
+            <div class="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center my-4" id="gauge-container">
+              <!-- SVG 將由 JS 動態更新內容 -->
+            </div>
+
+            <!-- 控制滑桿面板 -->
+            <div class="w-full max-w-md mt-6 space-y-3 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+              <div class="flex justify-between text-xs text-slate-400 font-medium">
+                <span>變量調節 (Value)</span>
+                <span class="font-mono text-slate-300"><span id="slider-min">0</span> ~ <span id="slider-max">120</span></span>
+              </div>
+              <input id="gauge-slider" type="range" min="0" max="100" value="50" step="1" 
+                     class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50">
+              <div class="flex justify-between items-center pt-1">
+                <div class="flex gap-2">
+                  <button onclick="setQuickVal(0.1)" class="px-2 py-0.5 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">極低</button>
+                  <button onclick="setQuickVal(0.5)" class="px-2 py-0.5 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">正常 (50%)</button>
+                  <button onclick="setQuickVal(0.88)" class="px-2 py-0.5 text-[11px] bg-slate-800 hover:bg-slate-700 text-rose-300 rounded border border-rose-900/50">臨界警告</button>
+                </div>
+                <button onclick="toggleAutoPlay()" id="autoplay-btn" class="text-xs px-2.5 py-1 rounded bg-sky-950 text-sky-400 border border-sky-800/80 hover:bg-sky-900 flex items-center gap-1.5 transition">
+                  <i class="fa-solid fa-play text-[10px]" id="autoplay-icon"></i>
+                  <span id="autoplay-text">自動擾動模擬</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 右側：此圖形重點提示 (Pedagogical Callout & UX Insights) -->
+          <div class="lg:col-span-5 p-6 sm:p-8 bg-slate-900/90 flex flex-col justify-between">
+            <div class="space-y-6">
+              
+              <!-- 提示標題卡 -->
+              <div class="border-l-4 border-amber-400 pl-4 py-1">
+                <div class="text-amber-400 font-mono text-xs uppercase tracking-wider font-bold">Key Insights & Takeaways</div>
+                <h4 id="tip-title" class="text-lg font-bold text-white mt-0.5">3/4 Gauge 的設計人因重點提示</h4>
+                <p id="tip-subtitle" class="text-xs text-slate-400 mt-1">270 度旋轉弧度提供了極佳的動態解析度</p>
+              </div>
+
+              <!-- 重點提示卡片列表 -->
+              <div class="space-y-3.5">
+                <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fa-solid fa-check text-xs"></i>
+                  </div>
+                  <div>
+                    <h5 class="text-xs font-bold text-slate-200" id="tip-point1-title">視角空間與解析力</h5>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed" id="tip-point1-desc">
+                      擁有超過 270 度的長指針移動行程，操作人員可在餘光中透過角度位移迅速察覺數值劇烈爬升或異常衰減。
+                    </p>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fa-solid fa-eye text-xs"></i>
+                  </div>
+                  <div>
+                    <h5 class="text-xs font-bold text-slate-200" id="tip-point2-title">心理讀數模型</h5>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed" id="tip-point2-desc">
+                      模擬物理指針鐘錶，天然具備「九點鐘方向到三點鐘方向」的視覺直覺，非常適合需要劃分安全色帶（綠/黃/紅）的場合。
+                    </p>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+                  </div>
+                  <div>
+                    <h5 class="text-xs font-bold text-slate-200" id="tip-point3-title">設計禁忌與注意事項</h5>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed" id="tip-point3-desc">
+                      底部 90 度的缺口為指針旋轉盲區，零刻度與滿刻度在此交界，標註必須保留安全間距避免誤讀為滿檔或斷電。
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 應用建議摘要標籤 -->
+              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <i class="fa-solid fa-bullseye text-sky-400"></i> 推薦應用場景速查
+                </div>
+                <div class="flex flex-wrap gap-2" id="tip-tags">
+                  <span class="text-xs bg-slate-800 text-sky-300 px-2.5 py-1 rounded border border-slate-700">汽車時速表</span>
+                  <span class="text-xs bg-slate-800 text-sky-300 px-2.5 py-1 rounded border border-slate-700">空壓機壓力表</span>
+                  <span class="text-xs bg-slate-800 text-sky-300 px-2.5 py-1 rounded border border-slate-700">馬達扭矩轉速</span>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="pt-6 border-t border-slate-800 text-[11px] text-slate-400 flex justify-between items-center">
+              <span>* 支援滑桿無段調校與自動震盪波形測試</span>
+              <button onclick="smoothScrollToTable()" class="text-sky-400 hover:text-sky-300 font-semibold underline underline-offset-2">查看完整對照表 ↓</button>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 完整對照表格 (Table with Mini Icons & Applications) -->
+    <section id="table-section" class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <h3 class="text-xl font-bold text-white flex items-center gap-2">
+            <span>5 大 Gauge 型態應用與特性全景表</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">點擊右側「立刻模擬」或圖示即可將該儀表載入上方實驗室進行動態測試</p>
+        </div>
+        <div class="text-xs text-slate-400">
+          共 5 種標準 HMI 視覺組件
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-slate-700 bg-slate-800/80 shadow-xl custom-scroll">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-900/90 border-b border-slate-700 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+              <th scope="col" class="py-4 px-4 sm:px-6 min-w-[200px]">Gauge 類型與圖形</th>
+              <th scope="col" class="py-4 px-4 min-w-[190px]">顯示外觀與讀數特點</th>
+              <th scope="col" class="py-4 px-4 min-w-[240px]">生活應用場景</th>
+              <th scope="col" class="py-4 px-4 min-w-[260px]">工業自動化 / 監控應用</th>
+              <th scope="col" class="py-4 px-4 text-center min-w-[120px]">互動操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-700/70 text-slate-300">
+
+            <!-- 1. Tile -->
+            <tr class="hover:bg-slate-750 transition-colors group cursor-pointer" onclick="selectGauge('tile')">
+              <td class="py-4 px-4 sm:px-6">
+                <div class="flex items-center space-x-3">
+                  <!-- Mini SVG Icon: Tile -->
+                  <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center shrink-0 p-1.5 shadow-inner group-hover:border-sky-500 transition-colors">
+                    <svg class="w-full h-full" viewBox="0 0 40 40" fill="none">
+                      <rect x="2" y="2" width="36" height="36" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                      <text x="20" y="20" font-size="11" font-weight="bold" fill="#38bdf8" text-anchor="middle" font-family="monospace">24.5</text>
+                      <text x="20" y="30" font-size="7" fill="#94a3b8" text-anchor="middle">COUNT / °C</text>
+                      <circle cx="8" cy="8" r="2" fill="#38bdf8"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-bold text-white group-hover:text-sky-400 flex items-center gap-1.5 transition">
+                      Tile (卡片/數值方塊)
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-mono">Digital Tile Block</span>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed text-slate-300">
+                以超大數字結合單位或微型趨勢線，<strong class="text-white">零弧度死角</strong>，無指針遮擋。強調整體即時性與高密度佈局。
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed">
+                <ul class="space-y-1">
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-house-chimney text-sky-400 text-[10px]"></i> 智慧家庭室溫與環境濕度</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-heart-pulse text-rose-400 text-[10px]"></i> 智慧手環每日步數 / 即時心率</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-weight-scale text-emerald-400 text-[10px]"></i> 體重計與料理電子秤數值</li>
+                </ul>
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed">
+                <ul class="space-y-1">
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-boxes-stacked text-amber-400 text-[10px]"></i> 產線當日累計生產良品數 (Count)</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-stopwatch text-sky-400 text-[10px]"></i> 機台單件週期時間 (Cycle Time)</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-chart-line text-indigo-400 text-[10px]"></i> 戰情室總覽全廠即時稼動率 (OEE %)</li>
+                </ul>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <button class="px-3 py-1.5 bg-sky-500/10 hover:bg-sky-500 text-sky-400 hover:text-white rounded-lg text-xs font-semibold border border-sky-500/30 transition shadow-sm">
+                  模擬此圖
+                </button>
+              </td>
+            </tr>
+
+            <!-- 2. 3/4 Gauge -->
+            <tr class="hover:bg-slate-750 transition-colors group cursor-pointer" onclick="selectGauge('three_quarter')">
+              <td class="py-4 px-4 sm:px-6">
+                <div class="flex items-center space-x-3">
+                  <!-- Mini SVG Icon: 3/4 Gauge -->
+                  <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center shrink-0 p-1.5 shadow-inner group-hover:border-sky-500 transition-colors">
+                    <svg class="w-full h-full" viewBox="0 0 40 40" fill="none">
+                      <circle cx="20" cy="20" r="15" stroke="#334155" stroke-width="3" stroke-dasharray="70 25" stroke-linecap="round" transform="rotate(135 20 20)"/>
+                      <circle cx="20" cy="20" r="15" stroke="#38bdf8" stroke-width="3" stroke-dasharray="45 50" stroke-linecap="round" transform="rotate(135 20 20)"/>
+                      <line x1="20" y1="20" x2="27" y2="12" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="20" cy="20" r="3" fill="#cbd5e1"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-bold text-white group-hover:text-sky-400 flex items-center gap-1.5 transition">
+                      3/4 Gauge (270度圓弧)
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-mono">270° Circular Dial</span>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed text-slate-300">
+                傳統機械表圓盤視覺，指針位移範圍廣（約270°），動態加速度感強烈，直覺辨識連續變量。
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed">
+                <ul class="space-y-1">
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-car text-sky-400 text-[10px]"></i> 汽車 / 機車儀表（時速表、轉速表 RPM）</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-fire text-amber-400 text-[10px]"></i> 瓦斯桶壓力調節閥壓力表頭</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-mug-hot text-emerald-400 text-[10px]"></i> 義式咖啡機萃取壓力表 (9 Bar)</li>
+                </ul>
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed">
+                <ul class="space-y-1">
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-gauge text-rose-400 text-[10px]"></i> 蒸氣鍋爐與空壓機主管壓力 (Bar / psi)</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-rotate text-sky-400 text-[10px]"></i> 大容量馬達旋轉轉速與過載扭力</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-bolt text-yellow-400 text-[10px]"></i> 配電盤三相交流電壓與負載電流表</li>
+                </ul>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <button class="px-3 py-1.5 bg-sky-500/10 hover:bg-sky-500 text-sky-400 hover:text-white rounded-lg text-xs font-semibold border border-sky-500/30 transition shadow-sm">
+                  模擬此圖
+                </button>
+              </td>
+            </tr>
+
+            <!-- 3. Half Gauge -->
+            <tr class="hover:bg-slate-750 transition-colors group cursor-pointer" onclick="selectGauge('half')">
+              <td class="py-4 px-4 sm:px-6">
+                <div class="flex items-center space-x-3">
+                  <!-- Mini SVG Icon: Half Gauge -->
+                  <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center shrink-0 p-1.5 shadow-inner group-hover:border-sky-500 transition-colors">
+                    <svg class="w-full h-full" viewBox="0 0 40 40" fill="none">
+                      <path d="M 6 26 A 14 14 0 0 1 34 26" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+                      <path d="M 6 26 A 14 14 0 0 1 20 12" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+                      <line x1="20" y1="26" x2="20" y2="13" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="20" cy="26" r="3" fill="#cbd5e1"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-bold text-white group-hover:text-sky-400 flex items-center gap-1.5 transition">
+                      Half Gauge (180度半圓)
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-mono">180° Semicircular</span>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed text-slate-300">
+                橫向扁平化展開，節省垂直高度50%。具天然的「中心平衡感」，特別適合居中平衡讀數或偏載警示。
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed">
+                <ul class="space-y-1">
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-temperature-half text-sky-400 text-[10px]"></i> 汽車引擎冷卻水溫表（低溫 C 到高溫 H）</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-leaf text-emerald-400 text-[10px]"></i> 節能駕駛輔助指針 (Eco Indicator)</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-compass text-amber-400 text-[10px]"></i> 指針式濕度計或左右聲道音量平衡 VU</li>
+                </ul>
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed">
+                <ul class="space-y-1">
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-arrows-split-up-and-left text-sky-400 text-[10px]"></i> 冷卻水塔進水/出水溫差監控 (ΔT)</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-scale-balanced text-indigo-400 text-[10px]"></i> 輸送帶變頻馬達負載百分比 (0–100%)</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-filter text-rose-400 text-[10px]"></i> 無塵室集塵濾網壓差微差計 (ΔP)</li>
+                </ul>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <button class="px-3 py-1.5 bg-sky-500/10 hover:bg-sky-500 text-sky-400 hover:text-white rounded-lg text-xs font-semibold border border-sky-500/30 transition shadow-sm">
+                  模擬此圖
+                </button>
+              </td>
+            </tr>
+
+            <!-- 4. Battery Level -->
+            <tr class="hover:bg-slate-750 transition-colors group cursor-pointer" onclick="selectGauge('battery')">
+              <td class="py-4 px-4 sm:px-6">
+                <div class="flex items-center space-x-3">
+                  <!-- Mini SVG Icon: Battery Level -->
+                  <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center shrink-0 p-1.5 shadow-inner group-hover:border-sky-500 transition-colors">
+                    <svg class="w-full h-full" viewBox="0 0 40 40" fill="none">
+                      <rect x="5" y="12" width="26" height="16" rx="4" stroke="#94a3b8" stroke-width="2"/>
+                      <path d="M 32 17 L 34 17 C 34.5 17 35 17.5 35 18 L 35 22 C 35 22.5 34.5 23 34 23 L 32 23" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+                      <rect x="8" y="15" width="5" height="10" rx="1" fill="#10b981"/>
+                      <rect x="15" y="15" width="5" height="10" rx="1" fill="#10b981"/>
+                      <rect x="22" y="15" width="5" height="10" rx="1" fill="#10b981"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-bold text-white group-hover:text-sky-400 flex items-center gap-1.5 transition">
+                      Battery Level (電池電量計)
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-mono">Segmented Energy Pill</span>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed text-slate-300">
+                階梯式條狀或分段色塊，心理預期性強，常伴隨顏色由綠轉橙、紅，觸發防護焦慮與充電反饋。
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed">
+                <ul class="space-y-1">
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-mobile-screen text-sky-400 text-[10px]"></i> 手機、平板、手錶狀態列電量</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-headphones text-purple-400 text-[10px]"></i> 藍牙耳機及充電盒燈號百分比</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-motorcycle text-emerald-400 text-[10px]"></i> Gogoro / 特斯拉電動車電池荷電狀態 (SoC)</li>
+                </ul>
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed">
+                <ul class="space-y-1">
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-robot text-sky-400 text-[10px]"></i> AGV / AMR 無人搬運車續航與回充狀態</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-battery-three-quarters text-amber-400 text-[10px]"></i> 控制箱不斷電系統 (UPS) 備援電池</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-tower-broadcast text-emerald-400 text-[10px]"></i> 遠端戶外 LoRa/NB-IoT 感測節點電量</li>
+                </ul>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <button class="px-3 py-1.5 bg-sky-500/10 hover:bg-sky-500 text-sky-400 hover:text-white rounded-lg text-xs font-semibold border border-sky-500/30 transition shadow-sm">
+                  模擬此圖
+                </button>
+              </td>
+            </tr>
+
+            <!-- 5. Tank Level -->
+            <tr class="hover:bg-slate-750 transition-colors group cursor-pointer" onclick="selectGauge('tank')">
+              <td class="py-4 px-4 sm:px-6">
+                <div class="flex items-center space-x-3">
+                  <!-- Mini SVG Icon: Tank Level -->
+                  <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center shrink-0 p-1.5 shadow-inner group-hover:border-sky-500 transition-colors">
+                    <svg class="w-full h-full" viewBox="0 0 40 40" fill="none">
+                      <rect x="10" y="5" width="20" height="30" rx="4" stroke="#94a3b8" stroke-width="2"/>
+                      <path d="M 12 24 L 28 24 L 28 31 C 28 32.5 26.5 33 25 33 L 15 33 C 13.5 33 12 32.5 12 31 Z" fill="#0284c7"/>
+                      <line x1="26" y1="12" x2="29" y2="12" stroke="#64748b" stroke-width="1.5"/>
+                      <line x1="24" y1="18" x2="29" y2="18" stroke="#64748b" stroke-width="1.5"/>
+                      <line x1="26" y1="24" x2="29" y2="24" stroke="#64748b" stroke-width="1.5"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-bold text-white group-hover:text-sky-400 flex items-center gap-1.5 transition">
+                      Tank Level (液位/儲槽計)
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-mono">Vertical Fluid Vessel</span>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed text-slate-300">
+                垂直柱狀或圓筒容積擬真，直觀映射物理重力與液體高度，避免體積非線性失真，上下溢流警戒直覺。
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed">
+                <ul class="space-y-1">
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-faucet-drip text-sky-400 text-[10px]"></i> 開飲機 / 熱水瓶透明水位視窗</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-gas-pump text-amber-400 text-[10px]"></i> 汽車油箱剩餘油量直條指示 (E - F)</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-building text-blue-400 text-[10px]"></i> 社區頂樓自來水塔沉水式儲水槽</li>
+                </ul>
+              </td>
+              <td class="py-4 px-4 text-xs leading-relaxed">
+                <ul class="space-y-1">
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-flask text-emerald-400 text-[10px]"></i> 石化儲油槽、酸鹼化學藥液槽 (m / %)</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-wheat-awn text-yellow-400 text-[10px]"></i> 射出成型機原料斗與粉粒料倉位計</li>
+                  <li class="flex items-center gap-1.5"><i class="fa-solid fa-water text-rose-400 text-[10px]"></i> 廠務廢水處理中和池防溢流高位報警</li>
+                </ul>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <button class="px-3 py-1.5 bg-sky-500/10 hover:bg-sky-500 text-sky-400 hover:text-white rounded-lg text-xs font-semibold border border-sky-500/30 transition shadow-sm">
+                  模擬此圖
+                </button>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 設計抉擇速查卡片 (HMI Quick Rules) -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+      <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5">
+        <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-3">
+          <i class="fa-solid fa-arrows-left-right text-sm"></i>
+        </div>
+        <h4 class="font-bold text-white text-sm mb-1.5">空間與維度抉擇</h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          若儀表板水平垂直高度受限（如長條狹縫），優選 <strong>Half Gauge</strong> 或 <strong>Tile</strong>；圓形完整空間則採用 <strong>3/4 Gauge</strong> 以獲取最大旋轉行程。
+        </p>
+      </div>
+
+      <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5">
+        <div class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 flex items-center justify-center mb-3">
+          <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+        </div>
+        <h4 class="font-bold text-white text-sm mb-1.5">趨勢感 vs 精確值</h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          純數字 <strong>Tile</strong> 適合紀錄結果與靜態盤點；若需要操作者「隨時預警失控趨勢」，指針表（3/4 & Half）的角速度可提供下意識的神經直覺。
+        </p>
+      </div>
+
+      <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5">
+        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mb-3">
+          <i class="fa-solid fa-fill-drip text-sm"></i>
+        </div>
+        <h4 class="font-bold text-white text-sm mb-1.5">物理重力直覺映射</h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          水、油、散裝粒料一律優先採用 <strong>Tank Level</strong>。垂直高低能直接映射真實重力液位，減少工程師在大腦中進行二次幾何轉換的耗時。
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁腳 -->
+  <footer class="border-t border-slate-800 mt-16 py-8 text-center text-xs text-slate-500">
+    <p>Gauge Type Interactive HMI Learning Laboratory • 工業人因工程與生活 UI 設計實戰教學</p>
+  </footer>
+
+  <script>
+    // 儀表定義資料庫（包含生活與工業兩種情境之設定、單位、數值範圍與重點提示）
+    const GAUGE_DATA = {
+      tile: {
+        id: 'tile',
+        name: 'Tile (卡片/數值方塊)',
+        tipTitle: 'Tile 的設計人因重點提示',
+        tipSubtitle: '高資訊密度與零認知負擔的現代數位呈現',
+        point1: {
+          title: '數值獲取零延遲 (0-Lag Readout)',
+          desc: '以大字體高對比度直接呈現精確數字，消除機械指針刻度估讀產生的視差與換算心智負荷。'
+        },
+        point2: {
+          title: '靈活的模組化網格排版',
+          desc: '在 SCADA 總覽戰情室中，多個 Tile 能以 Grid 矩陣大量平鋪，適合監看全廠數十台設備的關鍵 KPI。'
+        },
+        point3: {
+          title: '⚠️️ 設計禁忌與陷阱',
+          desc: '缺乏指針的上下限比例感。如果沒有加上臨界色變（如變紅）或微型進度條，使用者無法直覺看出數值是否已逼近極限。'
+        },
+        tags: ['工廠即時稼動率 (OEE)', '室內環境溫濕度', '智慧穿戴心率', '產線良品計數器'],
+        scenarios: {
+          life: {
+            title: '智慧家居：客廳環境感測器',
+            unit: '°C',
+            min: 15,
+            max: 35,
+            default: 26,
+            label: 'ROOM TEMP',
+            subtext: '空氣品質良好 • 舒適'
+          },
+          industrial: {
+            title: 'SMT 自動化產線：當日累計產能',
+            unit: 'PCS',
+            min: 0,
+            max: 2000,
+            default: 1420,
+            label: 'PRODUCTION COUNT',
+            subtext: '工令目標 1,500 PCS • 達成率 94.6%'
+          }
+        }
+      },
+      three_quarter: {
+        id: 'three_quarter',
+        name: '3/4 Gauge (270度圓弧儀表)',
+        tipTitle: '3/4 Gauge 的設計人因重點提示',
+        tipSubtitle: '具備最廣視角位移與強烈動態趨勢感',
+        point1: {
+          title: '270° 長指針行程與解析力',
+          desc: '指針旋轉角度長，位移顯著。即便在餘光中，操作員也能單憑指針所處的鐘點方位，瞬間判別是否進入危險區。'
+        },
+        point2: {
+          title: '連續物理量的最佳媒介',
+          desc: '適用於壓力、轉速、扭矩等需要「連續動態觀察」的數值，指針的抖動與加速能預報系統不穩定。'
+        },
+        point3: {
+          title: '⚠️ 設計禁忌與陷阱',
+          desc: '下方 90 度的盲區為起點與終點交會處。刻度起迄點必須保有安全區隔，否則儀表停電歸零時易被誤判為滿刻度爆炸。'
+        },
+        tags: ['汽車/機車轉速表', '蒸汽鍋爐壓力 Bar', '空壓機管網監控', '高壓配電交流電壓'],
+        scenarios: {
+          life: {
+            title: '公路巡航：機車時速錶',
+            unit: 'km/h',
+            min: 0,
+            max: 140,
+            default: 68,
+            label: 'SPEEDOMETER',
+            subtext: '巡航狀態 • 道路速限 70 km/h'
+          },
+          industrial: {
+            title: '動力廠區：蒸氣管路主壓力',
+            unit: 'Bar',
+            min: 0,
+            max: 16,
+            default: 9.8,
+            label: 'STEAM PRESSURE',
+            subtext: '安全工作區間 (8.5 ~ 11.5 Bar)'
+          }
+        }
+      },
+      half: {
+        id: 'half',
+        name: 'Half Gauge (180度半圓儀表)',
+        tipTitle: 'Half Gauge 的設計人因重點提示',
+        tipSubtitle: '節省 50% 垂直高度與居中平衡平衡特徵',
+        point1: {
+          title: '極致的水平空間利用率',
+          desc: '將圓形表頭砍半，高度大幅縮減，能在狹窄的儀表頂部（如汽車儀表中央水溫）或緊湊中控台水平並排多組。'
+        },
+        point2: {
+          title: '天然具備「中心錨定 (Center Balance)」',
+          desc: '90度直立正上方是人類視覺最穩定的位置。常用於基準值居中、左右偏擺代表偏冷/過熱或過載/欠載的情境。'
+        },
+        point3: {
+          title: '⚠️ 設計禁忌與陷阱',
+          desc: '旋轉路徑僅 180°，有效半徑較短，若刻度過密會導致字體太小。不適合精度要求達到 0.1% 的高解析度儀表。'
+        },
+        tags: ['引擎水溫表 (C-H)', '變頻馬達負載率', '濾網微差壓 ΔP', '節能駕駛指數'],
+        scenarios: {
+          life: {
+            title: '汽車儀表：引擎冷卻水溫監控',
+            unit: '°C',
+            min: 40,
+            max: 120,
+            default: 90,
+            label: 'COOLANT TEMP',
+            subtext: '引擎運轉達工作溫度 (正常直立)'
+          },
+          industrial: {
+            title: '集塵排風系統：濾網壓差計',
+            unit: 'kPa',
+            min: 0,
+            max: 10,
+            default: 3.2,
+            label: 'FILTER ΔP',
+            subtext: '濾袋阻力正常 • 未達反洗臨界'
+          }
+        }
+      },
+      battery: {
+        id: 'battery',
+        name: 'Battery Level (電池電量計)',
+        tipTitle: 'Battery Level 的設計人因重點提示',
+        tipSubtitle: '分段式非線性反饋與防護焦慮引導',
+        point1: {
+          title: '心理防線色彩語義 (Semantic Colors)',
+          desc: '強烈綁定綠（充裕）、黃（警惕）、紅（瀕危）的國際通用警示語義，能下意識促使人員進行充電或安排排程維護。'
+        },
+        point2: {
+          title: '容許非線性放電曲線',
+          desc: '鋰電池放電電壓平台平緩，純看電壓容易誤判。電量計通常將 SoC 算法包裝成分段條狀，提升讀數親和力。'
+        },
+        point3: {
+          title: '⚠️ 設計禁忌與陷阱',
+          desc: '最後 10% 的低電量必須具有視覺動態（如呼吸燈或閃爍），避免因現場強光或作業繁忙忽略而導致系統斷電死機。'
+        },
+        tags: ['AGV 無人搬運車 SoC', '手機筆電續航', 'UPS 備援電瓶', '無線感測節點'],
+        scenarios: {
+          life: {
+            title: '個人穿戴：真無線耳機充電艙',
+            unit: '%',
+            min: 0,
+            max: 100,
+            default: 78,
+            label: 'BATTERY SoC',
+            subtext: '剩餘約可使用 24 小時'
+          },
+          industrial: {
+            title: '智慧物流倉：AGV 搬運機器人',
+            unit: '%',
+            min: 0,
+            max: 100,
+            default: 35,
+            label: 'AGV FLEET #04',
+            subtext: '建議於完成本批運送後自動返航回充'
+          }
+        }
+      },
+      tank: {
+        id: 'tank',
+        name: 'Tank Level (液位/儲槽計)',
+        tipTitle: 'Tank Level 的設計人因重點提示',
+        tipSubtitle: '垂直重力映射與大容積防溢流警報',
+        point1: {
+          title: '重力直覺垂直對齊 (Vertical Affinity)',
+          desc: '上下方向自然契合液體在地心引力下的聚集方向，操作員不需要在腦中將水平線或指針旋轉角度抽象折算成高度。'
+        },
+        point2: {
+          title: '防溢流與防空抽安全線',
+          desc: '天然適合在 10% 處設置 Low-Low 泵浦防空抽線，在 90% 處設置 High-High 防溢流警戒線，保證化工安全。'
+        },
+        point3: {
+          title: '⚠️ 設計禁忌與陷阱',
+          desc: '非規則截面槽體（如圓柱臥式儲槽）高度與實際容積非線性。UI 需特別標註「真實高度 (m)」還是「總容量 (m³ / %)」。'
+        },
+        tags: ['石化化學儲槽', '汽車燃油箱', '自來水塔沉水液位', '塑膠射出原料斗'],
+        scenarios: {
+          life: {
+            title: '汽車駕駛艙：燃油箱存量',
+            unit: '%',
+            min: 0,
+            max: 100,
+            default: 52,
+            label: 'FUEL LEVEL',
+            subtext: '估計尚可續航 380 公里'
+          },
+          industrial: {
+            title: '純水處理廠：中和酸鹼儲罐',
+            unit: '%',
+            min: 0,
+            max: 100,
+            default: 82,
+            label: 'CHEMICAL TANK #2',
+            subtext: '液位逼近 85% 警戒，請準備切換儲槽'
+          }
+        }
+      }
+    };
+
+    // 當前全域狀態
+    let currentGaugeKey = 'three_quarter';
+    let currentScenario = 'life'; // 'life' or 'industrial'
+    let currentValue = 68;
+    let autoPlayInterval = null;
+
+    // 初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      selectGauge('three_quarter');
+      
+      const slider = document.getElementById('gauge-slider');
+      slider.addEventListener('input', (e) => {
+        if (autoPlayInterval) stopAutoPlay();
+        updateValue(parseFloat(e.target.value));
+      });
+    });
+
+    // 切換選取的儀表
+    function selectGauge(key, shouldScroll = true) {
+      if (!GAUGE_DATA[key]) return;
+      currentGaugeKey = key;
+      const data = GAUGE_DATA[key];
+
+      // 同步頂部下拉選單
+      const typeSelect = document.getElementById('gauge-type-select');
+      if (typeSelect) {
+        typeSelect.value = key;
+      }
+
+      // 同步快速切換 Pill 按鈕外觀
+      ['tile', 'three_quarter', 'half', 'battery', 'tank'].forEach(k => {
+        const pill = document.getElementById(`pill-${k}`);
+        if (pill) {
+          if (k === key) {
+            pill.className = 'px-2.5 py-1 rounded-lg text-xs font-medium text-sky-400 bg-slate-800 border border-sky-500/40 shadow transition';
+          } else {
+            pill.className = 'px-2.5 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition';
+          }
+        }
+      });
+
+      // 更新實驗室標題與提示卡
+      document.getElementById('sim-active-title').innerText = data.name;
+      document.getElementById('tip-title').innerText = data.tipTitle;
+      document.getElementById('tip-subtitle').innerText = data.tipSubtitle;
+
+      document.getElementById('tip-point1-title').innerText = data.point1.title;
+      document.getElementById('tip-point1-desc').innerText = data.point1.desc;
+
+      document.getElementById('tip-point2-title').innerText = data.point2.title;
+      document.getElementById('tip-point2-desc').innerText = data.point2.desc;
+
+      document.getElementById('tip-point3-title').innerText = data.point3.title;
+      document.getElementById('tip-point3-desc').innerText = data.point3.desc;
+
+      // 更新標籤
+      const tagContainer = document.getElementById('tip-tags');
+      tagContainer.innerHTML = '';
+      data.tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'text-xs bg-slate-800 text-sky-300 px-2.5 py-1 rounded border border-slate-700';
+        span.innerText = t;
+        tagContainer.appendChild(span);
+      });
+
+      // 設定滑桿範圍與預設值
+      const sc = data.scenarios[currentScenario];
+      const slider = document.getElementById('gauge-slider');
+      slider.min = sc.min;
+      slider.max = sc.max;
+      slider.step = (sc.max - sc.min) > 100 ? '5' : '1';
+      document.getElementById('slider-min').innerText = sc.min;
+      document.getElementById('slider-max').innerText = sc.max;
+
+      currentValue = sc.default;
+      slider.value = currentValue;
+
+      // 更新情境標籤與資訊
+      updateScenarioLabels();
+
+      // 重繪 SVG 儀表
+      renderGaugeGraphic();
+
+      // 若由下方表格點擊則滑動至實驗室
+      if (shouldScroll) {
+        const simSec = document.getElementById('simulator-section');
+        if (simSec) {
+          simSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }
+
+    // 切換生活或工業情境
+    function setScenario(scType) {
+      currentScenario = scType;
+      const lifeBtn = document.getElementById('scenario-life-btn');
+      const indBtn = document.getElementById('scenario-ind-btn');
+
+      if (scType === 'life') {
+        lifeBtn.className = 'px-3 py-1.5 rounded-lg font-medium transition text-white bg-sky-600 shadow';
+        indBtn.className = 'px-3 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white';
+      } else {
+        indBtn.className = 'px-3 py-1.5 rounded-lg font-medium transition text-white bg-indigo-600 shadow';
+        lifeBtn.className = 'px-3 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white';
+      }
+
+      const data = GAUGE_DATA[currentGaugeKey];
+      const sc = data.scenarios[currentScenario];
+      const slider = document.getElementById('gauge-slider');
+      slider.min = sc.min;
+      slider.max = sc.max;
+      document.getElementById('slider-min').innerText = sc.min;
+      document.getElementById('slider-max').innerText = sc.max;
+      
+      currentValue = sc.default;
+      slider.value = currentValue;
+
+      updateScenarioLabels();
+      renderGaugeGraphic();
+    }
+
+    // 更新情境輔助文字
+    function updateScenarioLabels() {
+      const data = GAUGE_DATA[currentGaugeKey];
+      const sc = data.scenarios[currentScenario];
+      document.getElementById('sim-context-name').innerText = sc.title;
+      document.getElementById('sim-unit-display').innerText = sc.unit;
+      document.getElementById('sim-val-display').innerText = currentValue;
+    }
+
+    // 更新數值並重繪
+    function updateValue(val) {
+      currentValue = Math.round(val * 10) / 10;
+      document.getElementById('sim-val-display').innerText = currentValue;
+      document.getElementById('gauge-slider').value = currentValue;
+      renderGaugeGraphic();
+    }
+
+    // 快捷跳轉按鈕
+    function setQuickVal(ratio) {
+      if (autoPlayInterval) stopAutoPlay();
+      const sc = GAUGE_DATA[currentGaugeKey].scenarios[currentScenario];
+      const range = sc.max - sc.min;
+      updateValue(sc.min + range * ratio);
+    }
+
+    // 自動播放擾動動畫
+    function toggleAutoPlay() {
+      if (autoPlayInterval) {
+        stopAutoPlay();
+      } else {
+        startAutoPlay();
+      }
+    }
+
+    function startAutoPlay() {
+      const btn = document.getElementById('autoplay-btn');
+      const icon = document.getElementById('autoplay-icon');
+      const txt = document.getElementById('autoplay-text');
+      btn.className = 'text-xs px-2.5 py-1 rounded bg-amber-950 text-amber-300 border border-amber-800 flex items-center gap-1.5 transition';
+      icon.className = 'fa-solid fa-pause text-[10px]';
+      txt.innerText = '停止擾動';
+
+      let step = 0;
+      autoPlayInterval = setInterval(() => {
+        step += 0.08;
+        const sc = GAUGE_DATA[currentGaugeKey].scenarios[currentScenario];
+        const range = sc.max - sc.min;
+        const sinWave = (Math.sin(step) + 1) / 2; // 0 ~ 1
+        const targetVal = sc.min + range * (0.2 + 0.6 * sinWave);
+        updateValue(targetVal);
+      }, 50);
+    }
+
+    function stopAutoPlay() {
+      if (autoPlayInterval) {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+      }
+      const btn = document.getElementById('autoplay-btn');
+      const icon = document.getElementById('autoplay-icon');
+      const txt = document.getElementById('autoplay-text');
+      btn.className = 'text-xs px-2.5 py-1 rounded bg-sky-950 text-sky-400 border border-sky-800/80 hover:bg-sky-900 flex items-center gap-1.5 transition';
+      icon.className = 'fa-solid fa-play text-[10px]';
+      txt.innerText = '自動擾動模擬';
+    }
+
+    function smoothScrollToTable() {
+      document.getElementById('table-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 渲染主畫布 SVG 向量內容
+    function renderGaugeGraphic() {
+      const container = document.getElementById('gauge-container');
+      const sc = GAUGE_DATA[currentGaugeKey].scenarios[currentScenario];
+      const percent = Math.min(Math.max((currentValue - sc.min) / (sc.max - sc.min), 0), 1);
+
+      let html = '';
+
+      if (currentGaugeKey === 'tile') {
+        // 1. TILE 數值方塊
+        html = `
+          <div class="w-full h-full p-4 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-sky-500/40 shadow-2xl flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl"></div>
+            
+            <div class="flex justify-between items-center z-10">
+              <span class="text-[11px] font-mono font-bold tracking-wider text-sky-400 bg-sky-950/80 border border-sky-800/60 px-2 py-0.5 rounded">
+                ${sc.label}
+              </span>
+              <span class="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-mono">
+                <i class="fa-solid fa-circle text-[7px] animate-pulse"></i> LIVE
+              </span>
+            </div>
+
+            <div class="my-auto text-center z-10">
+              <div class="text-5xl sm:text-6xl font-black font-mono tracking-tight text-white drop-shadow">
+                ${currentValue}
+              </div>
+              <div class="text-sm font-semibold text-slate-400 mt-1 uppercase tracking-widest font-mono">
+                ${sc.unit}
+              </div>
+            </div>
+
+            <div class="z-10 bg-slate-900/90 rounded-xl p-2.5 border border-slate-800">
+              <div class="flex justify-between text-[11px] text-slate-400 mb-1 font-mono">
+                <span>容量佔比</span>
+                <span class="text-sky-300 font-bold">${Math.round(percent * 100)}%</span>
+              </div>
+              <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-gradient-to-r from-sky-400 to-indigo-500 h-full transition-all duration-200" style="width: ${percent * 100}%"></div>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-1.5 text-center truncate">
+                ${sc.subtext}
+              </div>
+            </div>
+          </div>
+        `;
+      } 
+      else if (currentGaugeKey === 'three_quarter') {
+        // 2. 3/4 GAUGE (270度圓弧)
+        // 角度範圍：135度 到 405度 (總共 270度)
+        const startAngle = 135;
+        const totalAngle = 270;
+        const currentAngle = startAngle + totalAngle * percent;
+        
+        // 周長計算 (半徑 = 75, 圓周 = 2 * PI * 75 ≈ 471.24)
+        const radius = 75;
+        const circumference = 2 * Math.PI * radius;
+        // 270度弧長 = 471.24 * (270 / 360) = 353.43
+        const arcLength = circumference * (270 / 360);
+        const strokeFill = arcLength * percent;
+
+        // 計算指針座標
+        const rad = (currentAngle * Math.PI) / 180;
+        const needleX = 100 + 62 * Math.cos(rad);
+        const needleY = 100 + 62 * Math.sin(rad);
+
+        html = `
+          <svg class="w-full h-full filter drop-shadow-xl" viewBox="0 0 200 200">
+            <!-- 外裝飾環 -->
+            <circle cx="100" cy="100" r="92" fill="#0f172a" stroke="#1e293b" stroke-width="3"/>
+            
+            <!-- 底色刻度軌道 (270度) -->
+            <circle cx="100" cy="100" r="${radius}" fill="none" stroke="#334155" stroke-width="12"
+                    stroke-dasharray="${arcLength} ${circumference}"
+                    stroke-linecap="round"
+                    transform="rotate(135 100 100)"/>
+
+            <!-- 安全/警告色帶 (漸層指針條) -->
+            <defs>
+              <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="60%" stop-color="#10b981"/>
+                <stop offset="85%" stop-color="#f59e0b"/>
+                <stop offset="100%" stop-color="#f43f5e"/>
+              </linearGradient>
+            </defs>
+
+            <!-- 動態填充條 -->
+            <circle cx="100" cy="100" r="${radius}" fill="none" stroke="url(#arcGrad)" stroke-width="12"
+                    stroke-dasharray="${strokeFill} ${circumference}"
+                    stroke-linecap="round"
+                    transform="rotate(135 100 100)"
+                    style="transition: stroke-dasharray 0.2s ease;"/>
+
+            <!-- 主要刻度點 -->
+            <g stroke="#94a3b8" stroke-width="1.5">
+              <line x1="47" y1="153" x2="54" y2="146"/> <!-- 0% -->
+              <line x1="28" y1="100" x2="38" y2="100"/> <!-- 25% -->
+              <line x1="100" y1="28" x2="100" y2="38"/> <!-- 50% -->
+              <line x1="172" y1="100" x2="162" y2="100"/> <!-- 75% -->
+              <line x1="153" y1="153" x2="146" y2="146"/> <!-- 100% -->
+            </g>
+
+            <!-- 中心數值與單位標記 -->
+            <text x="100" y="92" text-anchor="middle" font-size="22" font-weight="900" fill="#ffffff" font-family="monospace">
+              ${currentValue}
+            </text>
+            <text x="100" y="108" text-anchor="middle" font-size="9" font-weight="bold" fill="#38bdf8" font-family="sans-serif">
+              ${sc.unit}
+            </text>
+            <text x="100" y="145" text-anchor="middle" font-size="8" fill="#64748b" font-family="sans-serif">
+              270° SWEEP
+            </text>
+
+            <!-- 動態旋轉指針 -->
+            <line x1="100" y1="100" x2="${needleX}" y2="${needleY}" stroke="#f43f5e" stroke-width="3.5" stroke-linecap="round" style="transition: all 0.2s ease-out;"/>
+            <!-- 轉軸中心蓋 -->
+            <circle cx="100" cy="100" r="7" fill="#f8fafc" stroke="#f43f5e" stroke-width="2"/>
+            <circle cx="100" cy="100" r="2.5" fill="#0f172a"/>
+          </svg>
+        `;
+      }
+      else if (currentGaugeKey === 'half') {
+        // 3. HALF GAUGE (180度半圓)
+        // 角度範圍：180度 到 360度 (總共 180度)
+        const startAngle = 180;
+        const totalAngle = 180;
+        const currentAngle = startAngle + totalAngle * percent;
+
+        const radius = 75;
+        const circumference = 2 * Math.PI * radius;
+        const arcLength = circumference * (180 / 360); // 180度弧長
+        const strokeFill = arcLength * percent;
+
+        const rad = (currentAngle * Math.PI) / 180;
+        const needleX = 100 + 64 * Math.cos(rad);
+        const needleY = 125 + 64 * Math.sin(rad);
+
+        html = `
+          <svg class="w-full h-full filter drop-shadow-xl" viewBox="0 0 200 160">
+            <rect x="5" y="10" width="190" height="145" rx="16" fill="#0f172a" stroke="#1e293b" stroke-width="2"/>
+
+            <!-- 半圓底軌 (180度) -->
+            <path d="M 25 125 A 75 75 0 0 1 175 125" fill="none" stroke="#334155" stroke-width="12" stroke-linecap="round"/>
+
+            <!-- 漸層色彩半圓 -->
+            <defs>
+              <linearGradient id="halfGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="50%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#f43f5e"/>
+              </linearGradient>
+            </defs>
+
+            <!-- 動態推進弧線 -->
+            <circle cx="100" cy="125" r="${radius}" fill="none" stroke="url(#halfGrad)" stroke-width="12"
+                    stroke-dasharray="${strokeFill} ${circumference}"
+                    stroke-linecap="round"
+                    transform="rotate(180 100 125)"
+                    style="transition: stroke-dasharray 0.2s ease;"/>
+
+            <!-- 中心垂直指標錨 (90度頂點 - 理想平衡位置) -->
+            <line x1="100" y1="50" x2="100" y2="40" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+            <text x="100" y="35" text-anchor="middle" font-size="8" fill="#f59e0b" font-weight="bold">OPTIMAL</text>
+
+            <!-- 兩端文字標記 -->
+            <text x="30" y="142" font-size="10" font-weight="bold" fill="#64748b">C (Min)</text>
+            <text x="170" y="142" text-anchor="end" font-size="10" font-weight="bold" fill="#64748b">H (Max)</text>
+
+            <!-- 數值文字 -->
+            <text x="100" y="98" text-anchor="middle" font-size="20" font-weight="900" fill="#ffffff" font-family="monospace">
+              ${currentValue}
+            </text>
+            <text x="100" y="112" text-anchor="middle" font-size="9" font-weight="bold" fill="#38bdf8">
+              ${sc.unit}
+            </text>
+
+            <!-- 動態指針 -->
+            <line x1="100" y1="125" x2="${needleX}" y2="${needleY}" stroke="#f43f5e" stroke-width="3.5" stroke-linecap="round" style="transition: all 0.2s ease-out;"/>
+            <circle cx="100" cy="125" r="7" fill="#f8fafc" stroke="#f43f5e" stroke-width="2"/>
+          </svg>
+        `;
+      }
+      else if (currentGaugeKey === 'battery') {
+        // 4. BATTERY LEVEL (分段式電池電量)
+        const totalBars = 5;
+        const activeBars = Math.ceil(percent * totalBars);
+
+        let barColor = '#10b981'; // 綠色
+        if (percent < 0.2) barColor = '#f43f5e'; // 紅色
+        else if (percent < 0.45) barColor = '#f59e0b'; // 黃色
+
+        let barsSvg = '';
+        for (let i = 0; i < totalBars; i++) {
+          const x = 32 + i * 26;
+          const isActive = i < activeBars;
+          const fill = isActive ? barColor : '#1e293b';
+          const opacity = isActive ? '1' : '0.4';
+          barsSvg += `<rect x="${x}" y="78" width="20" height="44" rx="4" fill="${fill}" opacity="${opacity}" style="transition: fill 0.3s ease;"/>`;
+        }
+
+        html = `
+          <svg class="w-full h-full filter drop-shadow-xl" viewBox="0 0 200 200">
+            <!-- 外圍背景底卡 -->
+            <rect x="10" y="20" width="180" height="160" rx="16" fill="#0f172a" stroke="#1e293b" stroke-width="2"/>
+
+            <!-- 電池本體外框 -->
+            <rect x="24" y="70" width="144" height="60" rx="10" fill="#090d16" stroke="#475569" stroke-width="3"/>
+            <!-- 電池正極突起凸點 -->
+            <path d="M 168 88 L 174 88 C 176 88 178 90 178 92 L 178 108 C 178 110 176 112 174 112 L 168 112 Z" fill="#64748b"/>
+
+            <!-- 動態電池電量格 -->
+            ${barsSvg}
+
+            <!-- 頂部與底部狀態文字 -->
+            <text x="100" y="52" text-anchor="middle" font-size="18" font-weight="900" fill="${barColor}" font-family="monospace">
+              ${Math.round(percent * 100)}%
+            </text>
+            <text x="100" y="152" text-anchor="middle" font-size="10" font-weight="bold" fill="#94a3b8" font-family="sans-serif">
+              ${percent < 0.2 ? '⚠️ 電量嚴重不足 • 需即刻充電' : '系統供電運作正常'}
+            </text>
+          </svg>
+        `;
+      }
+      else if (currentGaugeKey === 'tank') {
+        // 5. TANK LEVEL (直立槽體液位計)
+        const tankHeight = 100;
+        const fillHeight = tankHeight * percent;
+        const liquidY = 140 - fillHeight;
+
+        let liquidColor = '#0284c7';
+        if (percent > 0.85) liquidColor = '#f43f5e'; // 溢流預警
+        else if (percent < 0.15) liquidColor = '#f59e0b'; // 低位警戒
+
+        html = `
+          <svg class="w-full h-full filter drop-shadow-xl" viewBox="0 0 200 200">
+            <!-- 槽體支架外裝 -->
+            <rect x="20" y="15" width="160" height="170" rx="16" fill="#0f172a" stroke="#1e293b" stroke-width="2"/>
+
+            <!-- 垂直儲罐外框 (圓頂圓底封頭) -->
+            <rect x="55" y="40" width="90" height="100" rx="12" fill="#0a101d" stroke="#475569" stroke-width="3"/>
+
+            <!-- 內部液體剪裁路徑 -->
+            <clipPath id="tankClip">
+              <rect x="56.5" y="41.5" width="87" height="97" rx="10"/>
+            </clipPath>
+
+            <!-- 液體本體 -->
+            <g clip-path="url(#tankClip)">
+              <rect x="50" y="${liquidY}" width="100" height="${fillHeight + 20}" fill="${liquidColor}" style="transition: y 0.2s ease, height 0.2s ease; opacity: 0.85;"/>
+              
+              <!-- 表面微波浪裝飾線條 -->
+              <path d="M 50 ${liquidY} Q 75 ${liquidY - 3} 100 ${liquidY} T 150 ${liquidY}" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
+            </g>
+
+            <!-- 垂直高度刻度標尺 -->
+            <g stroke="#64748b" stroke-width="1.5">
+              <line x1="148" y1="45" x2="155" y2="45"/>
+              <text x="160" y="48" font-size="8" fill="#64748b">100%</text>
+
+              <line x1="148" y1="65" x2="152" y2="65"/>
+              <line x1="148" y1="90" x2="155" y2="90"/>
+              <text x="160" y="93" font-size="8" fill="#64748b">50%</text>
+
+              <line x1="148" y1="115" x2="152" y2="115"/>
+              <line x1="148" y1="135" x2="155" y2="135"/>
+              <text x="160" y="138" font-size="8" fill="#64748b">0%</text>
+            </g>
+
+            <!-- 高位溢流警示線 (90%) -->
+            <line x1="56" y1="50" x2="144" y2="50" stroke="#f43f5e" stroke-width="1" stroke-dasharray="3 3"/>
+            <text x="75" y="48" font-size="6" fill="#f43f5e" font-weight="bold">HI-HI ALARM</text>
+
+            <!-- 中心大型數位讀數 -->
+            <text x="100" y="95" text-anchor="middle" font-size="16" font-weight="900" fill="#ffffff" font-family="monospace" stroke="#000" stroke-width="0.5">
+              ${currentValue} ${sc.unit}
+            </text>
+            <text x="100" y="165" text-anchor="middle" font-size="10" font-weight="bold" fill="${liquidColor}" font-family="sans-serif">
+              ${percent > 0.85 ? '🚨 接近滿液位 (溢流警報)' : percent < 0.15 ? '⚠️ 低液位警戒 (泵浦防空抽)' : '常態儲液高度'}
+            </text>
+          </svg>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+  </script>
+</body>
+</html>

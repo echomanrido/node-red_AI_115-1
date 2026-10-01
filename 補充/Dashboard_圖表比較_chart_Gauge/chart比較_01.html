@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChartLab - 圖表型態互動式教學指南</title>
+  
+  <!-- Tailwind CSS & Lucide Icons & Chart.js -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: rgba(156, 163, 175, 0.5);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+  <header class="border-b border-slate-800/80 bg-slate-900/70 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+          <i data-lucide="bar-chart-3" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            ChartLab <span class="text-xs bg-indigo-500/20 text-indigo-400 font-medium px-2 py-0.5 rounded-full border border-indigo-500/30">互動教學</span>
+          </h1>
+          <p class="text-xs text-slate-400">生活日常 vs 工業製造 圖表視覺化實例</p>
+        </div>
+      </div>
+      
+      <!-- Right actions / Quick guide modal button -->
+      <div class="flex items-center gap-3">
+        <button id="openSummaryBtn" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition-all shadow-sm">
+          <i data-lucide="table" class="w-4 h-4 text-indigo-400"></i>
+          <span>應用對照表</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- Sidebar: Chart Type Selector -->
+    <aside class="lg:col-span-3 flex flex-col gap-2">
+      <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl">
+        <div class="flex items-center justify-between mb-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          <span class="flex items-center gap-1.5"><i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i> 圖表型態選單</span>
+          <span class="text-[11px] bg-slate-800 px-2 py-0.5 rounded-md text-slate-300">7 種</span>
+        </div>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-2" id="chartTypeNav">
+          <!-- Dynamic Button Items inserted via JS -->
+        </div>
+      </div>
+
+      <!-- Quick Tips Card -->
+      <div class="p-4 bg-gradient-to-br from-indigo-950/40 to-slate-900 border border-indigo-900/30 rounded-2xl text-xs space-y-2">
+        <div class="flex items-center gap-1.5 text-indigo-300 font-semibold">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>圖表選擇金律</span>
+        </div>
+        <p class="text-slate-400 leading-relaxed" id="goldRuleTip">
+          選取左側各圖表型態，並在右側切換「生活日常」與「工業工程」兩種模式，觀察數據與維度結構！
+        </p>
+      </div>
+    </aside>
+
+    <div class="lg:col-span-9 flex flex-col gap-5">
+      
+      <!-- Top Context Banner & Domain Switcher -->
+      <div class="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3">
+            <h2 id="currentChartTitle" class="text-2xl font-bold text-white tracking-tight">Line Chart</h2>
+            <span id="chartTagZh" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-300 border border-indigo-500/30">折線圖</span>
+          </div>
+          <p id="currentChartSummary" class="text-sm text-slate-400 mt-1 max-w-xl leading-relaxed">
+            顯示數據隨時間或連續順序的變化趨勢與波動狀態。
+          </p>
+        </div>
+
+        <!-- Mode Toggle (Lifestyle vs Industrial) -->
+        <div class="inline-flex p-1 bg-slate-950 border border-slate-800 rounded-xl w-full sm:w-auto shadow-inner">
+          <button id="modeLifestyleBtn" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all text-white bg-indigo-600 shadow-md">
+            <i data-lucide="coffee" class="w-4 h-4"></i>
+            <span>生活日常情境</span>
+          </button>
+          <button id="modeIndustrialBtn" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 transition-all">
+            <i data-lucide="factory" class="w-4 h-4"></i>
+            <span>工業工程情境</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Visualizer Canvas Container -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 flex flex-col gap-4 shadow-xl">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-3">
+          <div class="flex items-center gap-2 text-sm text-slate-300">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="font-semibold text-slate-200" id="scenarioHeading">即時情境案例</span>
+            <span class="text-xs text-slate-500">|</span>
+            <span class="text-xs text-slate-400 font-mono" id="scenarioSub">動態即時模擬</span>
+          </div>
+
+          <!-- Dynamic Action Buttons (e.g., randomize data, trigger anomaly) -->
+          <div class="flex items-center gap-2 self-end sm:self-auto">
+            <button id="refreshDataBtn" class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-md shadow-indigo-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300 animate-spin" style="animation-duration: 4s;"></i>
+              <span>隨機模擬數據</span>
+            </button>
+            <button id="toggleAnomalyBtn" class="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-medium transition">
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+              <span>觸發異常警訊</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Canvas Wrapper with minimum responsive height and dynamic highlight overlay -->
+        <div class="relative w-full h-80 sm:h-96 flex items-center justify-center">
+          <canvas id="interactiveCanvas" class="w-full h-full"></canvas>
+
+          <!-- Floating Simulation Highlight Card -->
+          <div id="simulationHighlightBadge" class="absolute top-3 right-3 max-w-xs sm:max-w-sm bg-slate-900/95 backdrop-blur-md border border-indigo-500/40 rounded-xl p-3 shadow-2xl transition-all duration-300 z-10 flex flex-col gap-1.5 opacity-0 pointer-events-none transform translate-y-2">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+              <div class="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
+                <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i>
+                <span id="badgeHeadline">本次模擬重點提示</span>
+              </div>
+              <button id="closeHighlightBadgeBtn" class="text-slate-400 hover:text-white p-0.5 rounded transition">
+                <i data-lucide="x" class="w-3 h-3"></i>
+              </button>
+            </div>
+            <div id="badgeDynamicStats" class="grid grid-cols-2 gap-1.5 py-1 text-[11px] font-mono">
+              <!-- Dynamically populated key metrics -->
+            </div>
+            <p id="badgeTakeaway" class="text-[11px] text-slate-300 leading-relaxed bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
+              <!-- Dynamically populated cue -->
+            </p>
+          </div>
+        </div>
+
+        <!-- Live Insight Banner with Structured Reading Guide -->
+        <div class="flex flex-col gap-2.5">
+          <div id="insightBox" class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800/90 text-xs flex items-start gap-3 text-slate-300 transition-all">
+            <div class="p-1 rounded bg-indigo-500/20 text-indigo-400 shrink-0 mt-0.5">
+              <i data-lucide="info" class="w-4 h-4"></i>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-white mr-1.5" id="insightTitle">專家解析：</span>
+                <span id="readingCueTag" class="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">視覺焦點已鎖定</span>
+              </div>
+              <p id="insightText" class="mt-1 leading-relaxed">此圖表非常適合觀察連續週期波動，可清楚分辨常態基準線與超標偏離。</p>
+            </div>
+          </div>
+
+          <!-- Highlight Checklist Container -->
+          <div id="readingPointsContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800/90 flex flex-col gap-1">
+              <div class="flex items-center gap-1.5 text-indigo-400 font-semibold text-[11px]">
+                <i data-lucide="target" class="w-3.5 h-3.5"></i>
+                <span>第一眼視覺焦點</span>
+              </div>
+              <p id="cueFocus" class="text-slate-300 text-[11px] leading-relaxed">即時觀察趨勢走勢與轉折點。</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800/90 flex flex-col gap-1">
+              <div class="flex items-center gap-1.5 text-amber-400 font-semibold text-[11px]">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                <span>異常警訊辨識</span>
+              </div>
+              <p id="cueAnomaly" class="text-slate-300 text-[11px] leading-relaxed">注意偏離常態範圍的突波或尖峰值。</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800/90 flex flex-col gap-1">
+              <div class="flex items-center gap-1.5 text-sky-400 font-semibold text-[11px]">
+                <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                <span>決策應用價值</span>
+              </div>
+              <p id="cueValue" class="text-slate-300 text-[11px] leading-relaxed">輔助排程調整與預防性改善措施。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Lifestyle Card -->
+        <div class="p-5 bg-slate-900/60 border border-slate-800 rounded-2xl hover:border-slate-700 transition">
+          <div class="flex items-center gap-2 mb-3 text-indigo-400 font-semibold text-sm">
+            <i data-lucide="coffee" class="w-4 h-4"></i>
+            <span>生活日常典型案例</span>
+          </div>
+          <ul class="text-xs space-y-2 text-slate-300" id="lifeExampleList">
+            <!-- Dynamic Items -->
+          </ul>
+        </div>
+
+        <!-- Industrial Card -->
+        <div class="p-5 bg-slate-900/60 border border-slate-800 rounded-2xl hover:border-slate-700 transition">
+          <div class="flex items-center gap-2 mb-3 text-sky-400 font-semibold text-sm">
+            <i data-lucide="factory" class="w-4 h-4"></i>
+            <span>工業製造典型案例</span>
+          </div>
+          <ul class="text-xs space-y-2 text-slate-300" id="indExampleList">
+            <!-- Dynamic Items -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Pros and Cons Badges -->
+      <div class="p-5 bg-slate-900/40 border border-slate-800/80 rounded-2xl flex flex-col md:flex-row gap-4">
+        <div class="flex-1 space-y-2">
+          <div class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <span>優點與最佳適用</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed" id="prosText"></p>
+        </div>
+        <div class="w-px bg-slate-800 hidden md:block"></div>
+        <div class="flex-1 space-y-2">
+          <div class="text-xs font-semibold text-rose-400 flex items-center gap-1.5">
+            <i data-lucide="alert-circle" class="w-4 h-4"></i>
+            <span>避免誤用與限制</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed" id="consText"></p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Comprehensive Modal: Full Matrix Table -->
+  <div id="summaryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600/30 text-indigo-400 flex items-center justify-center">
+            <i data-lucide="table" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">7 種圖表型態應用完整對照表</h3>
+            <p class="text-xs text-slate-400">生活與工業領域應用快速索引</p>
+          </div>
+        </div>
+        <button id="closeModalBtn" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Table Body -->
+      <div class="p-6 overflow-y-auto custom-scrollbar">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300 border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 uppercase text-[11px] font-semibold bg-slate-950/50">
+                <th class="p-3.5">圖表型態</th>
+                <th class="p-3.5">核心目的</th>
+                <th class="p-3.5">生活日常範例</th>
+                <th class="p-3.5">工業製造範例</th>
+                <th class="p-3.5">關鍵維度</th>
+              </tr>
+            </thead>
+            <tbody id="modalTableBody" class="divide-y divide-slate-800/60">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
+        <span class="text-xs text-slate-400">點擊任意圖表類型可立即切換進入互動檢視</span>
+        <button id="closeModalBottomBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition">
+          關閉
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Detailed registry of all 7 chart types with interactive configs
+    const CHART_REGISTRY = {
+      Line: {
+        id: 'Line',
+        nameZh: '折線圖',
+        icon: 'trending-up',
+        summary: '用線段連接各連續數據點，最能直觀展現時間序列的演進走勢與波動週期。',
+        rule: '適合連續型變數（如時間、溫度）。當點過多時折線比長條更簡潔，但若點少於 3 個則意義不大。',
+        pros: '能極度清晰地呈現數據隨時間或進度的斜率走勢、拐點與峰谷值。',
+        cons: '不適合離散型類別（如人名、部門），連線會產生「連續變化」的錯誤心理暗示。',
+        lifestyle: {
+          title: '個人心率與單日作息活動追蹤 (bpm)',
+          sub: '24 小時健康監控手環數據',
+          insight: '靜息心率維持於 62-68 bpm，晚間慢跑期間迅速達到有氧峰值 148 bpm。',
+          examples: [
+            '每日環境氣溫與濕度 24 小時趨勢',
+            '減肥歷程中的體重與體脂逐月記錄',
+            '年度家庭用電度數每月增減分析'
+          ],
+          labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
+          baseData: [62, 59, 64, 88, 76, 82, 142, 70],
+          anomalyData: [62, 59, 64, 88, 76, 82, 185, 70], // Spiked anomaly
+          chartConfig: {
+            type: 'line',
+            label: '心率 (BPM)',
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            fill: false,
+            tension: 0.35,
+            yLabel: 'BPM'
+          }
+        },
+        industrial: {
+          title: 'SCADA 即時反應爐腔體溫度監控 (°C)',
+          sub: 'SPC 統計製程監控 (X-bar 管制圖)',
+          insight: '製程基準線維持在 175°C ± 5°C。觸發異常時冷卻失效，突破管制上限 (UCL)。',
+          examples: [
+            '機台主軸即時轉速 (RPM) 與電壓波形追蹤',
+            '半導體化學氣相沉積 (CVD) 腔體氣壓曲線',
+            'SMT 迴焊爐各溫區 (Reflow Zones) 熱電偶曲線'
+          ],
+          labels: ['08:00', '08:15', '08:30', '08:45', '09:00', '09:15', '09:30', '09:45'],
+          baseData: [173, 175, 174, 176, 175, 173, 174, 175],
+          anomalyData: [173, 175, 174, 176, 198, 205, 182, 175],
+          chartConfig: {
+            type: 'line',
+            label: '腔體溫度 (°C)',
+            borderColor: '#0284c7',
+            backgroundColor: 'rgba(2, 132, 199, 0.1)',
+            fill: false,
+            tension: 0.1,
+            yLabel: '溫度 (°C)'
+          }
+        }
+      },
+      Area: {
+        id: 'Area',
+        nameZh: '面積圖',
+        icon: 'mountain',
+        summary: '在折線圖下方填充色塊，強調總量體積感的累積以及各組成部分隨時間的演化。',
+        rule: '適合展示累積總量或多層次堆疊佔比。若層數過多且交叉嚴重時，易造成視覺遮擋。',
+        pros: '強烈傳達「容量」、「累積規模」與「佔比結構」隨時間推移的關係。',
+        cons: '多系列非堆疊時色塊會重疊遮蔽，堆疊時則不易精準讀取中間層的絕對高度。',
+        lifestyle: {
+          title: '每月家庭主要開銷結構累積 (NT$)',
+          sub: '房租、生活雜支與儲蓄分配累積',
+          insight: '固定房租平穩維持，下半年因為休假旅行導致娛樂及生活雜支佔比大幅擴增。',
+          examples: [
+            '手機各類 App 每日螢幕累積使用時長',
+            '家庭太陽能發電與自用/回售累積度數',
+            '年度跑步累積里程目標達成面積'
+          ],
+          labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+          baseData: [32000, 34000, 31000, 38000, 42000, 46000],
+          anomalyData: [32000, 34000, 31000, 38000, 72000, 46000],
+          chartConfig: {
+            type: 'line',
+            label: '每月總開銷 (NT$)',
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.25)',
+            fill: true,
+            tension: 0.4,
+            yLabel: '金額 (NT$)'
+          }
+        },
+        industrial: {
+          title: '廠區甲棟產線全天動力能耗堆疊 (kWh)',
+          sub: '電力系統削峰填谷監測',
+          insight: '日班 09:00 至 17:00 機台全載運轉，能耗迅速攀高；觸發異常時空調回路出現嚴重短路漏電。',
+          examples: [
+            '水力發電廠各機組每小時發電量累積',
+            '晶圓廠超純水 (UPW) 每小時總消耗與回收體積',
+            '自動化立體倉儲 (AS/RS) 總物料吞吐負荷'
+          ],
+          labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+          baseData: [210, 205, 540, 890, 840, 430],
+          anomalyData: [210, 205, 540, 1420, 840, 430],
+          chartConfig: {
+            type: 'line',
+            label: '全廠能耗 (kWh)',
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.3)',
+            fill: true,
+            tension: 0.3,
+            yLabel: '耗電量 (kWh)'
+          }
+        }
+      },
+      Bar: {
+        id: 'Bar',
+        nameZh: '長條圖 / 柱狀圖',
+        icon: 'bar-chart-2',
+        summary: '用水平或垂直柱體長度表示數值，是比對多個離散分類大小最具說服力的圖表。',
+        rule: 'Y 軸數值必須強制從 0 開始以防誤導；類別名稱過長時宜改用水平長條圖。',
+        pros: '肉眼對長度差異極度敏銳，非常適合清楚排序、對比不同群組數值。',
+        cons: '當分類過多（> 25 類）會顯得極度擁擠混亂，不宜用來描繪連續趨勢。',
+        lifestyle: {
+          title: '日常記帳類別月度支出排行榜 (NT$)',
+          sub: '飲食、交通、住家、娛樂比對',
+          insight: '外食伙食費為最大宗支出（14,200 元），其次為租金與通勤交通。',
+          examples: [
+            '個人每週 7 天平均步行步數統計',
+            '最常造訪的串流平台觀影時長評比',
+            '各品牌手機電池續航力評測比較'
+          ],
+          labels: ['伙食外食', '房租水電', '交通通勤', '休閒娛樂', '數位訂閱', '服飾購物'],
+          baseData: [14200, 12500, 2800, 4500, 980, 2200],
+          anomalyData: [14200, 12500, 2800, 16800, 980, 2200], // Entertainment blew up
+          chartConfig: {
+            type: 'bar',
+            label: '支出金額 (NT$)',
+            backgroundColor: ['#6366f1', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899'],
+            yLabel: '支出 (NT$)'
+          }
+        },
+        industrial: {
+          title: '產線各工作站稼動率評比 (OEE %)',
+          sub: '瓶頸工站 (Bottleneck) 稽核辨識',
+          insight: 'SMT-02 站稼動率達 92%，但測試段 (ICT) 僅 63%，識別為整體產線節奏瓶頸點。',
+          examples: [
+            '柏拉圖 (Pareto Chart) 不良品瑕疵類型頻次排序',
+            '各工班（早班/中班/大夜班）產出良品數量比對',
+            '廠房主要機台維修工時 (MTTR) 評鑑'
+          ],
+          labels: ['印刷站', '貼片 SMT-01', '貼片 SMT-02', '迴焊站', 'AOI檢測', 'ICT測試'],
+          baseData: [88, 91, 93, 85, 78, 64],
+          anomalyData: [88, 91, 38, 85, 78, 64], // machine failure
+          chartConfig: {
+            type: 'bar',
+            label: '稼動率 (%)',
+            backgroundColor: ['#10b981', '#10b981', '#10b981', '#10b981', '#f59e0b', '#ef4444'],
+            yLabel: '百分比 (%)'
+          }
+        }
+      },
+      Scatter: {
+        id: 'Scatter',
+        nameZh: '散布圖',
+        icon: 'dot',
+        summary: '將兩組連續變數映射至 X 與 Y 座標，用來探勘兩者間的正負相關、離群值與群聚現象。',
+        rule: '需要大量成對數據才能辨識規律；相關性不等於因果性，切忌妄下因果斷言。',
+        pros: '能一覽無遺地揪出異常離群點 (Outliers)，並視覺化揭示數據集中的群聚現象。',
+        cons: '非專業人士較難瞬間理解；若資料量高達數十萬筆，點會過度疊加 (Overplotting)。',
+        lifestyle: {
+          title: '每日運動步數 vs 燃燒卡路里相關性',
+          sub: '個人智慧手環連續 20 天運動紀錄',
+          insight: '呈明顯正相關 (r ≈ 0.88)。步數每增加 2,000 步，卡路里消耗約遞增 120-150 kcal。',
+          examples: [
+            '住宅室內實坪 vs 房屋成交總價',
+            '睡眠時長 vs 隔日專注力自評分數',
+            '汽車行駛排氣量 vs 市區每公升油耗'
+          ],
+          labels: [],
+          baseData: [
+            {x: 3200, y: 1650}, {x: 4500, y: 1800}, {x: 6200, y: 1980}, {x: 7100, y: 2050},
+            {x: 8400, y: 2200}, {x: 9500, y: 2340}, {x: 10800, y: 2500}, {x: 12000, y: 2680},
+            {x: 5100, y: 1880}, {x: 7800, y: 2150}, {x: 9000, y: 2310}, {x: 11400, y: 2600}
+          ],
+          anomalyData: [
+            {x: 3200, y: 1650}, {x: 4500, y: 1800}, {x: 6200, y: 1980}, {x: 7100, y: 2050},
+            {x: 8400, y: 2200}, {x: 9500, y: 2340}, {x: 10800, y: 2500}, {x: 12000, y: 2680},
+            {x: 5100, y: 1880}, {x: 7800, y: 2150}, {x: 12500, y: 1400}, {x: 11400, y: 2600} // extreme outlier
+          ],
+          chartConfig: {
+            type: 'scatter',
+            label: '步數 vs 消耗大卡',
+            backgroundColor: '#f59e0b',
+            xLabel: '步數 (Steps)',
+            yLabel: '卡路里 (kcal)'
+          }
+        },
+        industrial: {
+          title: '塑膠射出保壓壓力 vs 成品收縮率 (%)',
+          sub: '製程六標準差 (Six Sigma) 相關性迴歸',
+          insight: '保壓壓力小於 85 MPa 時收縮率急劇增加；高於 110 MPa 時收縮率平穩收斂在 0.45% 公差帶內。',
+          examples: [
+            '晶圓電漿蝕刻功率 (W) 與關鍵線寬 CD (nm) 散布',
+            '五軸加工中心刀具磨損長度 vs 切削力 (N)',
+            '高精密機械手臂重複定位誤差 X 軸 vs Y 軸分佈'
+          ],
+          labels: [],
+          baseData: [
+            {x: 70, y: 1.25}, {x: 75, y: 1.12}, {x: 80, y: 0.95}, {x: 85, y: 0.78},
+            {x: 90, y: 0.65}, {x: 95, y: 0.58}, {x: 100, y: 0.52}, {x: 105, y: 0.48},
+            {x: 110, y: 0.46}, {x: 115, y: 0.45}, {x: 120, y: 0.44}, {x: 125, y: 0.44}
+          ],
+          anomalyData: [
+            {x: 70, y: 1.25}, {x: 75, y: 1.12}, {x: 80, y: 0.95}, {x: 85, y: 0.78},
+            {x: 90, y: 0.65}, {x: 95, y: 0.58}, {x: 100, y: 0.52}, {x: 105, y: 1.45}, // Anomaly Defect
+            {x: 110, y: 0.46}, {x: 115, y: 0.45}, {x: 120, y: 0.44}, {x: 125, y: 0.44}
+          ],
+          chartConfig: {
+            type: 'scatter',
+            label: '保壓壓力 (MPa) vs 收縮率 (%)',
+            backgroundColor: '#06b6d4',
+            xLabel: '射出保壓 (MPa)',
+            yLabel: '收縮率 (%)'
+          }
+        }
+      },
+      Pie: {
+        id: 'Pie',
+        nameZh: '圓餅圖',
+        icon: 'pie-chart',
+        summary: '將圓形面積切塊，呈現各部分佔整體的比例，強調「局部對全體」的相對份額。',
+        rule: '分類嚴格限制在 5-7 項以內；總和必須精準等於 100%；避免使用 3D 傾斜視角。',
+        pros: '非專業讀者能瞬間理解佔比概念，極適合展現「過半支配型」的單一項目。',
+        cons: '人眼對「角度」與「弧長」敏感度極低，數值接近時（如 23% vs 26%）極難分辨差異。',
+        lifestyle: {
+          title: '個人年度資產配置比例總覽',
+          sub: '投資理財整體分佈 (%)',
+          insight: '指數型 ETF 與台美龍頭股票合計佔比 65%，符合穩健型長期成長理財策略。',
+          examples: [
+            '週末 24 小時作息分配（睡眠/工作/休閒）',
+            '年度薪資獎金各項花費結餘佔比',
+            '社交聚餐各類菜系喜好比例'
+          ],
+          labels: ['指數ETF', '科技龍頭股', '高評級債券', '台幣/美元定存', '加密資產'],
+          baseData: [40, 25, 15, 15, 5],
+          anomalyData: [20, 15, 10, 10, 45], // Cryptos ballooned out of bounds
+          chartConfig: {
+            type: 'pie',
+            backgroundColor: ['#4f46e5', '#38bdf8', '#10b981', '#f59e0b', '#ec4899']
+          }
+        },
+        industrial: {
+          title: 'SMT 自動化線非計劃停機 (Downtime) 原因分析',
+          sub: '月度設備工程損失工時分佈',
+          insight: '「等待物料送達 (38%)」與「吸嘴堵塞 (27%)」合計超過 65%，為設備工程改善首要任務。',
+          examples: [
+            '全工廠動力設備能源耗損分類（空壓/冰水主機/製程機台）',
+            '供應鏈來料檢驗不良品原因佔比',
+            '年度工安事故等級分類'
+          ],
+          labels: ['缺料等料', '吸嘴堵塞異常', '鋼網清洗換模', '感測器誤警報', '電路驅動故障'],
+          baseData: [38, 27, 18, 12, 5],
+          anomalyData: [15, 12, 10, 8, 55], // Major mechanical blowout
+          chartConfig: {
+            type: 'pie',
+            backgroundColor: ['#ef4444', '#f97316', '#eab308', '#64748b', '#8b5cf6']
+          }
+        }
+      },
+      Doughnut: {
+        id: 'Doughnut',
+        nameZh: '甜甜圈圖 / 環形圖',
+        icon: 'circle-dot',
+        summary: '將圓餅圖中心鏤空，在保有佔比視覺的同時，中央可用來放置最關鍵的 KPI 總量數值。',
+        rule: '相較圓餅圖更能將閱讀焦點集中於「中心指標」，亦常作為進度達成率儀表板。',
+        pros: '中央留白大幅降低視覺壓迫感，能兼顧局部佔比與關鍵彙總總量。',
+        cons: '同樣繼承圓餅圖無法敏銳分辨微小角度差異的限制，不適合項目繁多的情境。',
+        lifestyle: {
+          title: '智慧手錶單日活動燃燒目標進度',
+          sub: '當前消耗 680 / 目標 800 kcal (85%)',
+          insight: '今日基礎代謝消耗 480 kcal，慢跑運動消耗 200 kcal，距離達標僅差 120 kcal。',
+          examples: [
+            '月度薪資預算消耗比例環形儀表',
+            '手機內部儲存空間容量剩餘佔比',
+            '手搖飲甜度與冰塊客製比例統計'
+          ],
+          labels: ['基礎代謝', '動態運動', '剩餘達標差額'],
+          baseData: [480, 200, 120],
+          anomalyData: [480, 60, 260], // lazy day
+          chartConfig: {
+            type: 'doughnut',
+            backgroundColor: ['#6366f1', '#10b981', '#334155']
+          }
+        },
+        industrial: {
+          title: '晶圓廠當班產能目標達成進度',
+          sub: '目標 2,000 片 / 實際良品 1,740 片',
+          insight: '中心 KPI 達成率為 87%，報廢不良片僅 60 片，整體良率高達 96.6%。',
+          examples: [
+            '自動化倉儲貨架儲位滿載率 (Fill Rate)',
+            'MES 工單批次即時出貨完成率儀表',
+            '風力發電機組當日額定發電功率達標率'
+          ],
+          labels: ['合格良品產出', '返工檢驗中', '報廢不良品', '未完成額度'],
+          baseData: [1740, 100, 60, 100],
+          anomalyData: [1200, 250, 350, 200], // High scrap defect
+          chartConfig: {
+            type: 'doughnut',
+            backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#1e293b']
+          }
+        }
+      },
+      Histogram: {
+        id: 'Histogram',
+        nameZh: '直方圖',
+        icon: 'align-vertical-distribute-center',
+        summary: '將連續數值劃分為均等的「區間組 (Bins)」，統計各區間發生的頻率，是探索數據機率分佈的利器。',
+        rule: '柱與柱之間通常緊密相連不留間距；組距 (Bin size) 設定過寬或過窄都會掩蓋特徵。',
+        pros: '清晰展示數據是常態分佈、雙峰分佈還是偏態，能評估變異度與偏離基準程度。',
+        cons: '常被初學者與長條圖 (Bar Chart) 混淆；直方圖 X 軸必為數值區間，不可任意重新排序。',
+        lifestyle: {
+          title: '程式設計課程期末測驗分數分佈區間',
+          sub: '80 名學生成績分佈 (Bins of 10 pts)',
+          insight: '呈常態分佈，眾數落在 70-80 分區間；低於 50 分需要補考者共計 4 人。',
+          examples: [
+            '社群網站註冊使用者年齡層分組分佈',
+            '外送平台每筆訂單送達等待時間分佈',
+            '健身房會員每週鍛鍊時長分佈'
+          ],
+          labels: ['40-49分', '50-59分', '60-69分', '70-79分', '80-89分', '90-100分'],
+          baseData: [4, 9, 21, 28, 14, 4],
+          anomalyData: [18, 22, 16, 12, 8, 4], // Bi-modal / failure trend
+          chartConfig: {
+            type: 'bar', // Rendered as tight bar chart representing bins
+            label: '學生人數',
+            backgroundColor: '#8b5cf6',
+            categoryPercentage: 1.0,
+            barPercentage: 0.95,
+            yLabel: '人數 (頻率)'
+          }
+        },
+        industrial: {
+          title: 'CNC 車削金屬軸外徑尺寸公差分佈 (mm)',
+          sub: '製程能力指數評估 (Cp, Cpk = 1.67)',
+          insight: '中心規格為 25.00mm，公差 ±0.03mm。數據緊湊集中於規格中心，無偏態超標。',
+          examples: [
+            '被動元件貼片電阻阻值 (Ω) 批次公差分佈',
+            '塗裝噴漆膜厚 (μm) 均勻性檢驗',
+            '封裝測試打線拉力測試 (Gram Force) 破壞破斷強度分佈'
+          ],
+          labels: ['24.96-24.97', '24.98-24.99', '25.00 (目標)', '25.01-25.02', '25.03-25.04', '>25.04 (超差)'],
+          baseData: [2, 18, 54, 21, 5, 0],
+          anomalyData: [0, 4, 15, 30, 36, 15], // Process drifted upwards!
+          chartConfig: {
+            type: 'bar',
+            label: '工件抽檢數 (個)',
+            backgroundColor: '#0284c7',
+            categoryPercentage: 1.0,
+            barPercentage: 0.96,
+            yLabel: '抽樣個數'
+          }
+        }
+      }
+    };
+
+    // Application State
+    let currentChartKey = 'Line';
+    let currentMode = 'lifestyle'; // 'lifestyle' | 'industrial'
+    let isAnomalyActive = false;
+    let chartInstance = null;
+
+    const canvasEl = document.getElementById('interactiveCanvas');
+    const chartTypeNav = document.getElementById('chartTypeNav');
+    const currentChartTitle = document.getElementById('currentChartTitle');
+    const chartTagZh = document.getElementById('chartTagZh');
+    const currentChartSummary = document.getElementById('currentChartSummary');
+    const goldRuleTip = document.getElementById('goldRuleTip');
+    const scenarioHeading = document.getElementById('scenarioHeading');
+    const scenarioSub = document.getElementById('scenarioSub');
+    const insightText = document.getElementById('insightText');
+    const lifeExampleList = document.getElementById('lifeExampleList');
+    const indExampleList = document.getElementById('indExampleList');
+    const prosText = document.getElementById('prosText');
+    const consText = document.getElementById('consText');
+
+    const simulationHighlightBadge = document.getElementById('simulationHighlightBadge');
+    const badgeHeadline = document.getElementById('badgeHeadline');
+    const badgeDynamicStats = document.getElementById('badgeDynamicStats');
+    const badgeTakeaway = document.getElementById('badgeTakeaway');
+    const closeHighlightBadgeBtn = document.getElementById('closeHighlightBadgeBtn');
+    const cueFocus = document.getElementById('cueFocus');
+    const cueAnomaly = document.getElementById('cueAnomaly');
+    const cueValue = document.getElementById('cueValue');
+    const readingCueTag = document.getElementById('readingCueTag');
+
+    const modeLifestyleBtn = document.getElementById('modeLifestyleBtn');
+    const modeIndustrialBtn = document.getElementById('modeIndustrialBtn');
+    const refreshDataBtn = document.getElementById('refreshDataBtn');
+    const toggleAnomalyBtn = document.getElementById('toggleAnomalyBtn');
+
+    const summaryModal = document.getElementById('summaryModal');
+    const openSummaryBtn = document.getElementById('openSummaryBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const closeModalBottomBtn = document.getElementById('closeModalBottomBtn');
+    const modalTableBody = document.getElementById('modalTableBody');
+
+    // Chart-type specific reading guide checklists
+    const CHART_READING_GUIDES = {
+      Line: {
+        focus: '觀察曲線「斜率陡峭度」與「拐點出現時機」，第一眼先找全域最高峰與最低谷。',
+        anomaly: '注意數值連續數點往單方向漂移，或出現瞬間超過 ±3 個標準差的突波。',
+        value: '用於預測後續週期規律、設定上下管制界限 (UCL/LCL) 與預防性維護時程。'
+      },
+      Area: {
+        focus: '先看「色塊面積飽和厚度」以感受總體累積規模，次看不同時段的波型膨脹程度。',
+        anomaly: '色塊急劇垂直拉高代表局部總負載驟升，可能造成系統過載或能耗超標。',
+        value: '評估總容量負載上限、能源「削峰填谷」以及資源總存量的演化節奏。'
+      },
+      Bar: {
+        focus: '柱長即量值，直接依柱長視覺排序，快速找出第一名（最高）與落後者。',
+        anomaly: '注意個別柱體異常高於其他項（單一獨大）或嚴重低於基準目標（瓶頸點）。',
+        value: '柏拉圖 80/20 法則關鍵因素排序、工站產能平衡 (Line Balancing) 優化。'
+      },
+      Scatter: {
+        focus: '觀察點群的分佈密度與走向：呈斜向分佈代表強相關；分散成圓形代表無相關。',
+        anomaly: '孤立在主群體之外的「離群孤點 (Outliers)」，往往是設備突發故障或輸入異常。',
+        value: '驗證兩變數間的因果假說、建立迴歸預測模型及界定最佳操作參數窗口。'
+      },
+      Pie: {
+        focus: '尋找有無單一佔比「過半 (大於 50%)」的支配性主項，以及前兩名合計份額。',
+        anomaly: '次要或雜項佔比若異常膨脹，表示分類定義模糊或發生非預期突發損耗。',
+        value: '確立資源重新分配優先順序，聚焦佔比最高的前 2-3 項進行重點改進。'
+      },
+      Doughnut: {
+        focus: '閱讀視線直達「中心核心 KPI / 達成百分比」，再看外環切塊份額進行交叉比對。',
+        anomaly: '剩餘未達標缺口大於預期進度，或廢品/警示切塊比例達到紅線閾值。',
+        value: '作為高階儀表板 (Dashboard) 核心進度指標，清楚兼顧宏觀目標與微觀佔比。'
+      },
+      Histogram: {
+        focus: '觀察數據輪廓是否呈現對稱的鐘形常態分佈，並尋找最高頻率的「眾數區間 (Mode)」。',
+        anomaly: '出現「雙峰 (Bimodal)」表示混入不同批次原料；柱體集中在單側偏斜則顯示製程漂移。',
+        value: '計算製程能力指數 (Cp/Cpk)，確認產品加工公差是否穩定收斂在客戶規範內。'
+      }
+    };
+
+    // Close button for highlight badge
+    closeHighlightBadgeBtn.addEventListener('click', () => {
+      simulationHighlightBadge.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+    });
+
+    // Helper function to calculate data insights on current plot dataset
+    function generateSimulationCues(labels, plotData, chartType) {
+      let statsHtml = '';
+      let takeaway = '';
+
+      if (chartType === 'scatter') {
+        const xVals = plotData.map(p => p.x);
+        const yVals = plotData.map(p => p.y);
+        const avgX = Math.round(xVals.reduce((a, b) => a + b, 0) / xVals.length);
+        const avgY = (yVals.reduce((a, b) => a + b, 0) / yVals.length).toFixed(1);
+        const maxY = Math.max(...yVals);
+
+        statsHtml = `
+          <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+            <span class="text-slate-400 block text-[10px]">資料群聚重心</span>
+            <span class="text-sky-300 font-bold">${avgX} / ${avgY}</span>
+          </div>
+          <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+            <span class="text-slate-400 block text-[10px]">極值頂點 (Y)</span>
+            <span class="text-amber-300 font-bold">${maxY}</span>
+          </div>
+        `;
+        takeaway = isAnomalyActive
+          ? '⚠️ 偵測到嚴重偏離主迴歸群體的離群值 (Outlier)！請確認此點是否為量測誤差或機台突發異狀。'
+          : '💡 點群分佈呈現穩定相關走勢，未見大幅偏離常軌的孤立雜訊點。';
+      } else if (chartType === 'pie' || chartType === 'doughnut') {
+        const total = plotData.reduce((a, b) => a + b, 0);
+        let maxVal = -Infinity;
+        let maxIdx = 0;
+        plotData.forEach((v, i) => {
+          if (v > maxVal) { maxVal = v; maxIdx = i; }
+        });
+        const maxPct = ((maxVal / total) * 100).toFixed(1);
+        const maxName = labels[maxIdx] || '主要項目';
+
+        statsHtml = `
+          <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+            <span class="text-slate-400 block text-[10px]">最大佔比項目</span>
+            <span class="text-indigo-300 font-bold truncate block">${maxName}</span>
+          </div>
+          <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+            <span class="text-slate-400 block text-[10px]">佔比份額</span>
+            <span class="text-emerald-300 font-bold">${maxPct}% (${maxVal})</span>
+          </div>
+        `;
+        takeaway = isAnomalyActive
+          ? `⚠️ 異常警訊狀態！特定分類份額劇烈暴增至 ${maxPct}%，打亂了原先的平衡結構。`
+          : `💡 「${maxName}」為本輪模擬中最具支配性的成分 (${maxPct}%)，是資源配置與決策的核心焦點。`;
+      } else {
+        // Line, Area, Bar, Histogram
+        let maxVal = -Infinity;
+        let minVal = Infinity;
+        let maxIdx = 0;
+        let minIdx = 0;
+        let sum = 0;
+
+        plotData.forEach((v, idx) => {
+          sum += v;
+          if (v > maxVal) { maxVal = v; maxIdx = idx; }
+          if (v < minVal) { minVal = v; minIdx = idx; }
+        });
+
+        const maxLabel = labels[maxIdx] || `#${maxIdx + 1}`;
+        const minLabel = labels[minIdx] || `#${minIdx + 1}`;
+        const spread = maxVal - minVal;
+
+        if (chartType === 'bar') {
+          statsHtml = `
+            <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+              <span class="text-slate-400 block text-[10px]">首位榜首</span>
+              <span class="text-emerald-300 font-bold truncate block">${maxLabel}: ${maxVal}</span>
+            </div>
+            <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+              <span class="text-slate-400 block text-[10px]">相對落後 / 瓶頸</span>
+              <span class="text-rose-300 font-bold truncate block">${minLabel}: ${minVal}</span>
+            </div>
+          `;
+          takeaway = isAnomalyActive
+            ? `⚠️ 異常觸發：工站/分類「${minLabel}」出現大幅崩跌滑落，形成明顯產能瓶頸！`
+            : `💡 柱體高低落差幅度達 ${spread}，建議優先將優化資源投入改善最低項「${minLabel}」。`;
+        } else if (chartType === 'area') {
+          statsHtml = `
+            <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+              <span class="text-slate-400 block text-[10px]">累積全量總計</span>
+              <span class="text-sky-300 font-bold">${sum.toLocaleString()}</span>
+            </div>
+            <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+              <span class="text-slate-400 block text-[10px]">峰值區間 (${maxLabel})</span>
+              <span class="text-amber-300 font-bold">${maxVal.toLocaleString()}</span>
+            </div>
+          `;
+          takeaway = isAnomalyActive
+            ? `⚠️ 能耗/開銷在「${maxLabel}」處出現非預期巨額突波，導致整體累積面積急劇擴張！`
+            : `💡 面積總量達 ${sum.toLocaleString()}，全波段以「${maxLabel}」為最高承載峰值區間。`;
+        } else if (chartType === 'histogram') {
+          statsHtml = `
+            <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+              <span class="text-slate-400 block text-[10px]">最高頻率眾數組</span>
+              <span class="text-indigo-300 font-bold truncate block">${maxLabel}</span>
+            </div>
+            <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+              <span class="text-slate-400 block text-[10px]">眾數頻次 / 總抽樣</span>
+              <span class="text-emerald-300 font-bold">${maxVal} / ${sum}</span>
+            </div>
+          `;
+          takeaway = isAnomalyActive
+            ? '⚠️ 分佈重心發生單邊嚴重偏斜 (Skewness)，已偏離目標中心基準，需調校製程設備！'
+            : `💡 數據高度集中於「${maxLabel}」，展現典型的常態聚集特徵，離散變異在可控範圍內。`;
+        } else {
+          // Line Chart
+          statsHtml = `
+            <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+              <span class="text-slate-400 block text-[10px]">最高峰值 (${maxLabel})</span>
+              <span class="text-indigo-300 font-bold">${maxVal}</span>
+            </div>
+            <div class="bg-slate-800/80 p-1.5 rounded border border-slate-700">
+              <span class="text-slate-400 block text-[10px]">波段全距震幅</span>
+              <span class="text-amber-300 font-bold">Δ ${spread}</span>
+            </div>
+          `;
+          takeaway = isAnomalyActive
+            ? `⚠️ 警報響起！時間點「${maxLabel}」數值飆升至 ${maxVal}，已超出設定的管制安全閾值！`
+            : `💡 曲線在「${maxLabel}」達到峰值 ${maxVal}，波段震幅為 ${spread}，整體維持連續週期規律。`;
+        }
+      }
+
+      return { statsHtml, takeaway };
+    }
+
+    // Build sidebar buttons
+    function renderNav() {
+      chartTypeNav.innerHTML = '';
+      Object.keys(CHART_REGISTRY).forEach((key) => {
+        const item = CHART_REGISTRY[key];
+        const isActive = key === currentChartKey;
+        const btn = document.createElement('button');
+        btn.className = `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-left transition-all ${
+          isActive 
+            ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' 
+            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+        }`;
+        btn.innerHTML = `
+          <div class="w-6 h-6 rounded-lg ${isActive ? 'bg-white/20' : 'bg-slate-800 text-slate-300'} flex items-center justify-center shrink-0">
+            <i data-lucide="${item.icon}" class="w-3.5 h-3.5"></i>
+          </div>
+          <div class="truncate">
+            <div class="font-bold leading-tight">${item.id}</div>
+            <div class="text-[10px] ${isActive ? 'text-indigo-200' : 'text-slate-500'} font-normal">${item.nameZh}</div>
+          </div>
+        `;
+        btn.addEventListener('click', () => {
+          selectChart(key);
+        });
+        chartTypeNav.appendChild(btn);
+      });
+      lucide.createIcons();
+    }
+
+    function selectChart(key) {
+      currentChartKey = key;
+      isAnomalyActive = false;
+      renderNav();
+      updateView();
+    }
+
+    modeLifestyleBtn.addEventListener('click', () => {
+      currentMode = 'lifestyle';
+      isAnomalyActive = false;
+      modeLifestyleBtn.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all text-white bg-indigo-600 shadow-md';
+      modeIndustrialBtn.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 transition-all';
+      updateView();
+    });
+
+    modeIndustrialBtn.addEventListener('click', () => {
+      currentMode = 'industrial';
+      isAnomalyActive = false;
+      modeIndustrialBtn.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all text-white bg-sky-600 shadow-md';
+      modeLifestyleBtn.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 transition-all';
+      updateView();
+    });
+
+    // Random noise variation
+    refreshDataBtn.addEventListener('click', () => {
+      isAnomalyActive = false;
+      updateChart(true, true);
+    });
+
+    // Anomaly simulation
+    toggleAnomalyBtn.addEventListener('click', () => {
+      isAnomalyActive = !isAnomalyActive;
+      updateChart(false, true);
+    });
+
+    // Modal Events
+    openSummaryBtn.addEventListener('click', () => {
+      summaryModal.classList.remove('hidden');
+    });
+    closeModalBtn.addEventListener('click', () => {
+      summaryModal.classList.add('hidden');
+    });
+    closeModalBottomBtn.addEventListener('click', () => {
+      summaryModal.classList.add('hidden');
+    });
+
+    // Populate comparison table inside modal
+    function populateModalTable() {
+      modalTableBody.innerHTML = '';
+      Object.keys(CHART_REGISTRY).forEach((key) => {
+        const item = CHART_REGISTRY[key];
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition cursor-pointer';
+        tr.innerHTML = `
+          <td class="p-3.5 font-bold text-white whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              <span class="p-1 rounded bg-indigo-500/20 text-indigo-400"><i data-lucide="${item.icon}" class="w-3.5 h-3.5"></i></span>
+              <span>${item.id}</span>
+              <span class="text-slate-400 font-normal text-[11px]">(${item.nameZh})</span>
+            </div>
+          </td>
+          <td class="p-3.5 text-slate-300 max-w-xs">${item.summary}</td>
+          <td class="p-3.5 text-slate-300">
+            <div class="font-medium text-indigo-300">${item.lifestyle.examples[0]}</div>
+            <div class="text-[11px] text-slate-400">${item.lifestyle.examples[1]}</div>
+          </td>
+          <td class="p-3.5 text-slate-300">
+            <div class="font-medium text-sky-300">${item.industrial.examples[0]}</div>
+            <div class="text-[11px] text-slate-400">${item.industrial.examples[1]}</div>
+          </td>
+          <td class="p-3.5 text-slate-400 text-[11px] whitespace-nowrap">
+            ${item.id === 'Line' || item.id === 'Area' ? '時間 / 連續序列' : ''}
+            ${item.id === 'Bar' ? '離散獨立分類' : ''}
+            ${item.id === 'Scatter' ? '雙連續變數 (X vs Y)' : ''}
+            ${item.id === 'Pie' || item.id === 'Doughnut' ? '部分相對於全體 (%)' : ''}
+            ${item.id === 'Histogram' ? '數值區間階元 (Bins)' : ''}
+          </td>
+        `;
+        tr.addEventListener('click', () => {
+          selectChart(key);
+          summaryModal.classList.add('hidden');
+        });
+        modalTableBody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function updateView() {
+      const data = CHART_REGISTRY[currentChartKey];
+      const scenario = data[currentMode];
+
+      currentChartTitle.textContent = `${data.id} Chart`;
+      chartTagZh.textContent = data.nameZh;
+      currentChartSummary.textContent = data.summary;
+      goldRuleTip.textContent = data.rule;
+
+      scenarioHeading.textContent = scenario.title;
+      scenarioSub.textContent = scenario.sub;
+      insightText.textContent = scenario.insight;
+
+      // Populate example lists
+      lifeExampleList.innerHTML = data.lifestyle.examples.map(ex => `
+        <li class="flex items-start gap-2">
+          <i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5"></i>
+          <span>${ex}</span>
+        </li>
+      `).join('');
+
+      indExampleList.innerHTML = data.industrial.examples.map(ex => `
+        <li class="flex items-start gap-2">
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-sky-400 shrink-0 mt-0.5"></i>
+          <span>${ex}</span>
+        </li>
+      `).join('');
+
+      prosText.textContent = data.pros;
+      consText.textContent = data.cons;
+
+      // Update Reading Guides
+      const guide = CHART_READING_GUIDES[currentChartKey];
+      if (guide) {
+        cueFocus.textContent = guide.focus;
+        cueAnomaly.textContent = guide.anomaly;
+        cueValue.textContent = guide.value;
+      }
+
+      // Update button state for anomaly
+      if (isAnomalyActive) {
+        toggleAnomalyBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/20 text-rose-300 border border-rose-500/50 rounded-lg text-xs font-semibold transition animate-pulse';
+        toggleAnomalyBtn.querySelector('span').textContent = '異常狀態中 (點擊重設)';
+      } else {
+        toggleAnomalyBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-medium transition';
+        toggleAnomalyBtn.querySelector('span').textContent = '觸發異常警訊';
+      }
+
+      updateChart(false, false);
+      lucide.createIcons();
+    }
+
+    function updateChart(addRandomNoise = false, showHighlightBadge = false) {
+      const data = CHART_REGISTRY[currentChartKey];
+      const scenario = data[currentMode];
+      const cfg = scenario.chartConfig;
+
+      let plotData;
+      if (isAnomalyActive) {
+        plotData = JSON.parse(JSON.stringify(scenario.anomalyData));
+      } else {
+        plotData = JSON.parse(JSON.stringify(scenario.baseData));
+      }
+
+      // Add mild random variance if requested
+      if (addRandomNoise) {
+        if (cfg.type === 'scatter') {
+          plotData = plotData.map(pt => ({
+            x: Math.round(pt.x + (Math.random() - 0.5) * (pt.x * 0.08)),
+            y: Number((pt.y + (Math.random() - 0.5) * (pt.y * 0.1)).toFixed(2))
+          }));
+        } else {
+          plotData = plotData.map(v => Math.max(1, Math.round(v + (Math.random() - 0.5) * (v * 0.15))));
+        }
+      }
+
+      // Compute live simulation cue metrics
+      const { statsHtml, takeaway } = generateSimulationCues(scenario.labels, plotData, cfg.type);
+      badgeDynamicStats.innerHTML = statsHtml;
+      badgeTakeaway.innerHTML = takeaway;
+      badgeHeadline.textContent = isAnomalyActive ? '🚨 異常檢測重點' : '✨ 模擬圖形重點提示';
+
+      // Show/Hide badge animation
+      if (showHighlightBadge) {
+        simulationHighlightBadge.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+        readingCueTag.textContent = '最新模擬已標註';
+        readingCueTag.className = 'text-[10px] font-medium text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full animate-pulse';
+      } else {
+        simulationHighlightBadge.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+        readingCueTag.textContent = '標準常態基準';
+        readingCueTag.className = 'text-[10px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full';
+      }
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      // Base Chart.js styling variables
+      const gridColor = 'rgba(51, 65, 85, 0.4)';
+      const textColor = '#94a3b8';
+
+      const chartDataset = {
+        label: cfg.label || scenario.title,
+        data: plotData,
+        backgroundColor: cfg.backgroundColor || '#6366f1',
+        borderColor: cfg.borderColor || '#818cf8',
+        borderWidth: cfg.type === 'line' ? 3 : 1,
+        fill: cfg.fill !== undefined ? cfg.fill : false,
+        tension: cfg.tension || 0.2,
+        pointRadius: cfg.type === 'line' || cfg.type === 'scatter' ? 5 : 0,
+        pointHoverRadius: 8,
+        pointBackgroundColor: isAnomalyActive ? '#f43f5e' : (cfg.borderColor || '#6366f1'),
+      };
+
+      if (cfg.categoryPercentage) chartDataset.categoryPercentage = cfg.categoryPercentage;
+      if (cfg.barPercentage) chartDataset.barPercentage = cfg.barPercentage;
+
+      const isCircular = cfg.type === 'pie' || cfg.type === 'doughnut';
+
+      const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 750,
+          easing: 'easeOutQuart'
+        },
+        plugins: {
+          legend: {
+            display: isCircular || cfg.type === 'line',
+            position: 'top',
+            labels: {
+              color: textColor,
+              font: { family: 'Plus Jakarta Sans', size: 11 }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            titleColor: '#f8fafc',
+            bodyColor: '#cbd5e1',
+            borderColor: '#334155',
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8
+          }
+        },
+        scales: isCircular ? {} : {
+          x: {
+            title: {
+              display: Boolean(cfg.xLabel),
+              text: cfg.xLabel || '',
+              color: textColor,
+              font: { size: 11, weight: 'bold' }
+            },
+            grid: { color: gridColor },
+            ticks: { color: textColor, font: { size: 11 } }
+          },
+          y: {
+            title: {
+              display: Boolean(cfg.yLabel),
+              text: cfg.yLabel || '',
+              color: textColor,
+              font: { size: 11, weight: 'bold' }
+            },
+            grid: { color: gridColor },
+            ticks: { color: textColor, font: { size: 11 } },
+            beginAtZero: cfg.type === 'bar' // Ensure bar charts zero baseline rule
+          }
+        }
+      };
+
+      chartInstance = new Chart(canvasEl, {
+        type: cfg.type,
+        data: {
+          labels: scenario.labels,
+          datasets: [chartDataset]
+        },
+        options: options
+      });
+      lucide.createIcons();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderNav();
+      populateModalTable();
+      updateView();
+    });
+  </script>
+</body>
+</html>

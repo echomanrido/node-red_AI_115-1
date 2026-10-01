@@ -196,14 +196,57 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </section>
 
-      <!-- (5) 參考資源 -->
+      <!-- (5) SCADA 實務應用情境 (若有提供) -->
+      ${sup.applications && sup.applications.length > 0 ? `
+      <section class="section-card">
+        <h3 class="section-title" style="border-bottom: 2px solid var(--primary-alpha);"><i class="fa-solid fa-industry" style="color: var(--primary);"></i> SCADA 實務應用情境</h3>
+        <div class="applications-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
+          ${sup.applications.map(app => `
+            <div class="app-card" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.15); border-radius: 12px; padding: 16px;">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--primary-alpha); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                  <i class="${app.icon || 'fa-solid fa-gear'}"></i>
+                </div>
+                <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0;">${escapeHtml(app.scenario)}</h4>
+              </div>
+              <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin: 0;">${escapeHtml(app.description)}</p>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+      ` : ''}
+
+      <!-- (6) AI 提示詞 (若有提供) -->
+      ${sup.aiPrompt ? `
+      <section class="section-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-alpha); padding-bottom: 8px; margin-bottom: 12px;">
+          <h3 class="section-title" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;"><i class="fa-solid fa-robot" style="color: var(--primary);"></i> AI 生成式提示詞 (LLM Prompt)</h3>
+          <button class="copy-btn" id="copyAiPromptBtn" style="background: var(--primary-alpha); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--primary); padding: 5px 12px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600;">
+            <i class="fa-regular fa-copy"></i> 複製提示詞
+          </button>
+        </div>
+        <pre style="background: #090d16; border: 1px solid rgba(56, 189, 248, 0.15); border-radius: 8px; padding: 14px; color: #38bdf8; font-family: 'Fira Code', monospace; font-size: 0.8rem; white-space: pre-wrap; word-break: break-word; line-height: 1.6;">${escapeHtml(sup.aiPrompt)}</pre>
+      </section>
+      ` : ''}
+
+      <!-- (7) 參考資源 -->
       <section class="section-card" style="margin-bottom: 40px;">
-        <h3 class="section-title" style="border-bottom: 2px solid var(--primary-alpha);"><i class="fa-solid fa-link" style="color: var(--primary);"></i> 延伸參考連結</h3>
+        <h3 class="section-title" style="border-bottom: 2px solid var(--primary-alpha);"><i class="fa-solid fa-link" style="color: var(--primary);"></i> 延伸參考連結 (含互動系統與原始版本)</h3>
         <div class="references-list">
           ${referencesHtml}
         </div>
       </section>
     `;
+
+    // 綁定 AI 提示詞複製按鈕
+    const copyAiPromptBtn = document.getElementById('copyAiPromptBtn');
+    if (copyAiPromptBtn && sup.aiPrompt) {
+      copyAiPromptBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(sup.aiPrompt).then(() => {
+          alert('已成功複製 AI 提示詞！');
+        });
+      });
+    }
 
     // 重新綁定 Lightbox 放大事件
     document.querySelectorAll('.sup-img-wrapper-class').forEach(wrapper => {

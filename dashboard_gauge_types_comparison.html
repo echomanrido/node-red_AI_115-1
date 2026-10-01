@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node-RED Dashboard 2.0 - Gauge 各類儀表型態完整深度比較與人因指南</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome & Phosphor Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .font-brand {
+      font-family: 'Outfit', sans-serif;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+    .glass-card:hover {
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.15);
+    }
+    .gauge-needle {
+      transform-origin: 50% 100%;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .wave-anim {
+      animation: waveMove 3s infinite linear;
+    }
+    @keyframes waveMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gauge: {
+              safe: '#10b981',
+              warn: '#f59e0b',
+              danger: '#ef4444',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+
+  <!-- 頂部導航列 -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 px-4 sm:px-6 py-3 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="supplements.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors flex items-center justify-center" title="返回補充教材選單">
+          <i class="ph ph-arrow-left text-lg"></i>
+        </a>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-600 p-0.5 shadow-lg shadow-emerald-500/20">
+          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center text-emerald-400">
+            <i class="fa-solid fa-gauge-high text-lg"></i>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold text-white font-brand">Gauge 儀表型態深度比較與人因工程實驗室</h1>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 hidden sm:inline-block">Dashboard 2.0 & HMI</span>
+          </div>
+          <p class="text-xs text-slate-400">6 大儀表型態 • 動態聯動模擬 • 人因讀數視角 • 警報三色映射 • 原始版本對照</p>
+        </div>
+      </div>
+
+      <!-- 快速版本切換選單 (包含 4 個未修改原始網頁的直達捷徑) -->
+      <div class="flex items-center gap-2">
+        <div class="relative group">
+          <button class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-emerald-400 rounded-lg flex items-center gap-1.5 transition-colors">
+            <i class="fa-solid fa-folder-open"></i>
+            <span>切換補充版本</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+          </button>
+          <div class="absolute right-0 mt-2 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 hidden group-hover:block z-50">
+            <div class="text-[11px] font-bold text-slate-400 px-2 py-1 border-b border-slate-800">Gauge 儀表比較版本：</div>
+            <a href="補充/Dashboard_圖表比較_chart_Gauge/Gauge_比較_01.html" target="_blank" class="block px-2.5 py-2 text-xs text-amber-400 hover:bg-slate-800 rounded-lg transition-colors">
+              <span class="font-bold">📄 原始版本 01：</span>Gauge HMI 應用指南 (人機版)
+            </a>
+            <a href="補充/Dashboard_圖表比較_chart_Gauge/Gauge_比較_02.html" target="_blank" class="block px-2.5 py-2 text-xs text-emerald-400 hover:bg-slate-800 rounded-lg transition-colors">
+              <span class="font-bold">📄 原始版本 02：</span>Gauge 動態驗證台 (模擬版)
+            </a>
+            <div class="text-[11px] font-bold text-slate-400 px-2 py-1 mt-1 border-b border-slate-800">Chart 圖表比較版本：</div>
+            <a href="dashboard_chart_types_comparison.html" class="block px-2.5 py-2 text-xs text-cyan-400 hover:bg-slate-800 rounded-lg transition-colors">
+              <span class="font-bold">⚡ Chart 圖表型態完整比較</span>
+            </a>
+            <a href="補充/Dashboard_圖表比較_chart_Gauge/chart比較_01.html" target="_blank" class="block px-2.5 py-2 text-xs text-slate-200 hover:bg-slate-800 rounded-lg transition-colors">
+              <span class="text-cyan-400 font-bold">📄 原始版本 01：</span>ChartLab 互動指南
+            </a>
+            <a href="補充/Dashboard_圖表比較_chart_Gauge/chart比較_02.html" target="_blank" class="block px-2.5 py-2 text-xs text-slate-200 hover:bg-slate-800 rounded-lg transition-colors">
+              <span class="text-indigo-400 font-bold">📄 原始版本 02：</span>圖表決策實驗室
+            </a>
+          </div>
+        </div>
+        <a href="supplements.html" class="px-3 py-1.5 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/60 text-xs text-emerald-300 rounded-lg transition-colors flex items-center gap-1">
+          <i class="fa-solid fa-list"></i>
+          <span>補充教材列表</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主內容容器 -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 space-y-10">
+
+    <!-- 頂部 Hero Banner -->
+    <section class="glass-card rounded-2xl p-6 sm:p-8 relative overflow-hidden glow-emerald border border-emerald-500/20">
+      <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
+        <div class="space-y-3 max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+            <i class="fa-solid fa-tachograph-digital"></i>
+            <span>人因工程與 SCADA HMI 儀表設計準則</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+            Node-RED Dashboard 2.0 <br class="hidden sm:inline">
+            <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">6 大 Gauge 儀表型態與即時動態模擬</span>
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            儀表（Gauge）是人機介面中表達「<strong class="text-emerald-300">單點物理量相對於安全極限邊界</strong>」最直觀的元件。不同儀表在人眼讀數耗時、角速度感知、垂直空間佈局與警報辨識上有極大差異。本頁面提供同屏 6 大儀表連動模擬與人因選型指引。
+          </p>
+        </div>
+        <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto">
+          <a href="#simulator" class="px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-center shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2 text-sm">
+            <i class="fa-solid fa-play"></i> 開啟動態連動驗證台
+          </a>
+          <a href="#hmi-principles" class="px-5 py-3 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-semibold rounded-xl text-center transition-all flex items-center justify-center gap-2 text-sm">
+            <i class="fa-solid fa-eye"></i> 人因讀數哲學
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 模組：Gauge Type 核心型態與生活/工控應用比較表 -->
+    <section class="glass-card rounded-2xl p-6 sm:p-8 space-y-6 border border-emerald-500/20">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div>
+          <div class="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+            <i class="fa-solid fa-table-list"></i> Gauge Type Specification
+          </div>
+          <h3 class="text-xl sm:text-2xl font-bold text-white mt-1">Gauge Type 核心型態、顯示特點與應用對照表</h3>
+        </div>
+        <a href="images_src/ok/20261001_gauge_type_comparison_table.jpg" target="_blank" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-300 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors self-start md:self-auto">
+          <i class="fa-solid fa-magnifying-glass-plus"></i> 開啟高解析圖表
+        </a>
+      </div>
+
+      <!-- 講義原始圖表圖片 -->
+      <div class="rounded-xl overflow-hidden border border-slate-800 bg-slate-900/90 shadow-2xl">
+        <div class="p-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <span class="font-bold text-emerald-400"><i class="fa-solid fa-image mr-1"></i> Gauge Type 講義指南原圖</span>
+          <span class="text-[11px] text-slate-500">點擊可另開高解析大圖</span>
+        </div>
+        <div class="p-2 sm:p-4 bg-slate-950 flex justify-center items-center">
+          <a href="images_src/ok/20261001_gauge_type_comparison_table.jpg" target="_blank" class="block max-w-full hover:opacity-95 transition-opacity">
+            <img src="images_src/ok/20261001_gauge_type_comparison_table.jpg" alt="Gauge Type 比較表" class="w-full h-auto rounded-lg shadow-lg border border-slate-800">
+          </a>
+        </div>
+      </div>
+
+      <!-- 結構化對照表格 -->
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-900 text-emerald-300 font-bold border-b border-slate-800">
+            <tr>
+              <th class="p-3.5 whitespace-nowrap">Gauge 類型</th>
+              <th class="p-3.5">顯示特點</th>
+              <th class="p-3.5">生活應用場景</th>
+              <th class="p-3.5">工業自動化 / 監控應用</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 bg-slate-950/60">
+            <tr class="hover:bg-slate-900/40">
+              <td class="p-3.5 font-bold text-emerald-400 whitespace-nowrap"><i class="fa-solid fa-square mr-1.5"></i> Tile (卡片/數值方塊)</td>
+              <td class="p-3.5 text-slate-300">以大字體數字結合單位或微型趨勢呈現，強調<strong class="text-white">即時、直觀</strong>，不佔用指針弧度空間。</td>
+              <td class="p-3.5 text-slate-300">• 智慧家庭室內溫濕度顯示<br>• 穿戴裝置每日步數、心率即時讀數<br>• 電子秤或體重計數值</td>
+              <td class="p-3.5 text-slate-300">• 產線當日累計生產良品數 (Count)<br>• 機台當前運行週期時間 (Cycle Time)<br>• SCADA 總覽儀表板之工廠即時稼動率 (OEE)</td>
+            </tr>
+            <tr class="hover:bg-slate-900/40">
+              <td class="p-3.5 font-bold text-cyan-400 whitespace-nowrap"><i class="fa-solid fa-gauge mr-1.5"></i> 3/4 Gauge (270度圓弧儀表)</td>
+              <td class="p-3.5 text-slate-300">視角接近傳統<strong class="text-white">圓形指針表</strong>，量程廣、動態指針位移明顯，適合連續變量監控。</td>
+              <td class="p-3.5 text-slate-300">• 汽車/機車儀表板 (時速表、轉速表 RPM)<br>• 瓦斯桶壓力調節閥表頭<br>• 家用義式咖啡機萃取壓力表</td>
+              <td class="p-3.5 text-slate-300">• 鍋爐/空壓機管路壓力監控 (Bar / psi)<br>• 馬達運轉轉速與過載扭力監控<br>• 配電盤三相交流電壓與電流表</td>
+            </tr>
+            <tr class="hover:bg-slate-900/40">
+              <td class="p-3.5 font-bold text-teal-400 whitespace-nowrap"><i class="fa-solid fa-gauge-simple mr-1.5"></i> Half Gauge (180度半圓儀表)</td>
+              <td class="p-3.5 text-slate-300">橫向展開節省垂直高度，指針左右偏擺直觀，常用於<strong class="text-white">居中平衡或有限上下限</strong>的指標。</td>
+              <td class="p-3.5 text-slate-300">• 汽車水溫表 (低溫 C 到高溫 H)<br>• 汽車即時油耗經濟指針 (Eco Indicator)<br>• 簡易指針式室內溫度計</td>
+              <td class="p-3.5 text-slate-300">• 冷卻水塔進出水溫差監控<br>• 輸送帶伺服馬達負載百分比 (0-100%)<br>• 排風/集塵設備濾網壓差計 (ΔP)</td>
+            </tr>
+            <tr class="hover:bg-slate-900/40">
+              <td class="p-3.5 font-bold text-amber-400 whitespace-nowrap"><i class="fa-solid fa-battery-half mr-1.5"></i> Battery Level (電池電量計)</td>
+              <td class="p-3.5 text-slate-300">階梯式或分段條狀圖示，色彩通常隨<strong class="text-white">電量下降由綠轉黃、紅</strong>。</td>
+              <td class="p-3.5 text-slate-300">• 手機、筆電或平板狀態列電量<br>• 無線藍牙耳機充電盒電量燈號<br>• 電動機車/電動車剩餘電量 (SoC)</td>
+              <td class="p-3.5 text-slate-300">• AGV / AMR 無人搬運車電池續航狀態<br>• 控制箱不斷電系統 (UPS) 備援蓄電量<br>• 現場無線感測節點 (LoRa/Zigbee) 供電狀況</td>
+            </tr>
+            <tr class="hover:bg-slate-900/40">
+              <td class="p-3.5 font-bold text-blue-400 whitespace-nowrap"><i class="fa-solid fa-bars-progress mr-1.5"></i> Tank Level (液位/儲槽計)</td>
+              <td class="p-3.5 text-slate-300">垂直柱狀或圓筒容積模擬真圖，直觀反映容器內部物料或<strong class="text-white">液體充填高度</strong>。</td>
+              <td class="p-3.5 text-slate-300">• 家用開飲機/熱水瓶儲水水位窗<br>• 汽車油箱剩餘油量指示<br>• 頂樓自來水塔儲水量監控</td>
+              <td class="p-3.5 text-slate-300">• 化工槽、儲油罐即時液位監控<br>• 射出成型機塑料原料顆粒儲斗料位<br>• 廠務廢水處理池沉降槽液位安全警戒線</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 模組一：即時 6 大儀表動態聯動驗證台 (Live Simulator) -->
+    <section id="simulator" class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+        <div>
+          <div class="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+            <i class="fa-solid fa-sliders"></i> Master Value Controller
+          </div>
+          <h3 class="text-xl sm:text-2xl font-bold text-white mt-1">儀表動態連動模擬驗證台</h3>
+        </div>
+        
+        <!-- 主控制項：主滑桿與自動擺動 -->
+        <div class="flex flex-wrap items-center gap-4 bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400 font-semibold">主控數值:</span>
+            <input type="range" id="masterSlider" min="0" max="100" value="45" oninput="updateAllGauges(this.value)" class="w-36 accent-emerald-500 cursor-pointer">
+            <span class="font-mono text-base font-black text-emerald-400 min-w-[42px]" id="sliderValDisplay">45%</span>
+          </div>
+          <button id="autoOscillateBtn" onclick="toggleOscillate()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-emerald-700/60 text-emerald-300 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors">
+            <i class="fa-solid fa-wave-square"></i>
+            <span id="autoBtnText">啟動自動正弦波動</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 6 大儀表同屏展示網格 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- 1. 標準半圓指針儀表 Standard Gauge -->
+        <div class="bg-slate-900/90 rounded-xl p-5 border border-slate-800 flex flex-col items-center justify-between relative overflow-hidden">
+          <div class="w-full flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-gauge text-emerald-400 mr-1"></i> 1. 標準半圓指針 (Gauge)</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800" id="gaugeStatusBadge">正常安全</span>
+          </div>
+          
+          <!-- SVG 指針儀表 -->
+          <div class="relative w-48 h-28 flex items-end justify-center my-2">
+            <svg viewBox="0 0 200 120" class="w-full h-full overflow-visible">
+              <!-- 背景圓弧分區 -->
+              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round"/>
+              <!-- 綠色安全區 0~60 -->
+              <path d="M 20 100 A 80 80 0 0 1 116 23" fill="none" stroke="#10b981" stroke-width="16" stroke-linecap="round" opacity="0.8"/>
+              <!-- 黃色警戒區 60~85 -->
+              <path d="M 116 23 A 80 80 0 0 1 165 52" fill="none" stroke="#f59e0b" stroke-width="16" opacity="0.8"/>
+              <!-- 紅色危險區 85~100 -->
+              <path d="M 165 52 A 80 80 0 0 1 180 100" fill="none" stroke="#ef4444" stroke-width="16" stroke-linecap="round" opacity="0.8"/>
+              <!-- 指針 -->
+              <line id="standardNeedle" x1="100" y1="100" x2="100" y2="30" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" style="transform-origin: 100px 100px; transform: rotate(-90deg); transition: transform 0.15s ease-out;"/>
+              <circle cx="100" cy="100" r="8" fill="#38bdf8"/>
+            </svg>
+            <div class="absolute bottom-0 text-center">
+              <span class="text-xl font-mono font-black text-white" id="standardValText">45.0</span>
+              <span class="text-xs text-slate-400">°C</span>
+            </div>
+          </div>
+
+          <div class="w-full text-[11px] text-slate-400 text-center mt-2 border-t border-slate-800/80 pt-2">
+            <strong>核心特點：</strong>指針角度偏轉極快，0.2秒內可感知是否逼近臨界紅區。
+          </div>
+        </div>
+
+        <!-- 2. 甜甜圈 / 環形進度儀表 Donut Gauge -->
+        <div class="bg-slate-900/90 rounded-xl p-5 border border-slate-800 flex flex-col items-center justify-between relative overflow-hidden">
+          <div class="w-full flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-circle-notch text-cyan-400 mr-1"></i> 2. 甜甜圈/環形 (Donut)</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">現代簡約</span>
+          </div>
+
+          <!-- SVG Donut -->
+          <div class="relative w-36 h-36 flex items-center justify-center my-1">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#1e293b" stroke-width="12"/>
+              <circle id="donutProgress" cx="50" cy="50" r="40" fill="none" stroke="#06b6d4" stroke-width="12" stroke-dasharray="251.2" stroke-dashoffset="138" stroke-linecap="round" style="transition: stroke-dashoffset 0.15s ease-out, stroke 0.2s;"/>
+            </svg>
+            <div class="absolute flex flex-col items-center justify-center">
+              <span class="text-2xl font-mono font-black text-white" id="donutValText">45%</span>
+              <span class="text-[10px] text-slate-400">負載率</span>
+            </div>
+          </div>
+
+          <div class="w-full text-[11px] text-slate-400 text-center mt-2 border-t border-slate-800/80 pt-2">
+            <strong>核心特點：</strong>空間佔比極小，中心可嵌入數值與標籤，UI 現代美觀。
+          </div>
+        </div>
+
+        <!-- 3. 羅盤 / 方位儀表 Compass Gauge -->
+        <div class="bg-slate-900/90 rounded-xl p-5 border border-slate-800 flex flex-col items-center justify-between relative overflow-hidden">
+          <div class="w-full flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-compass text-amber-400 mr-1"></i> 3. 羅盤/角度 (Compass)</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800">360° 方位</span>
+          </div>
+
+          <!-- 羅盤視圖 -->
+          <div class="relative w-36 h-36 rounded-full border-2 border-slate-700 flex items-center justify-center bg-slate-950/60 my-1">
+            <span class="absolute top-1 text-[10px] font-bold text-red-400">N (0°)</span>
+            <span class="absolute right-1 text-[10px] font-bold text-slate-400">E (90°)</span>
+            <span class="absolute bottom-1 text-[10px] font-bold text-slate-400">S (180°)</span>
+            <span class="absolute left-1 text-[10px] font-bold text-slate-400">W (270°)</span>
+            <!-- 旋轉指針 -->
+            <div id="compassNeedle" class="w-1 h-24 bg-gradient-to-t from-slate-600 via-transparent to-rose-500 rounded-full flex flex-col items-center justify-between transition-transform duration-150" style="transform: rotate(162deg);">
+              <div class="w-2.5 h-2.5 bg-rose-500 rounded-full shadow-lg shadow-rose-500/50"></div>
+              <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
+            </div>
+            <div class="w-4 h-4 bg-slate-900 rounded-full border-2 border-slate-400 absolute"></div>
+          </div>
+
+          <div class="w-full text-[11px] text-slate-400 text-center mt-2 border-t border-slate-800/80 pt-2">
+            <strong>核心特點：</strong>專用於風向監測、旋轉編碼器 (Encoder)、機械手臂軸關節角度。
+          </div>
+        </div>
+
+        <!-- 4. 垂直水柱 / 線性儀表 Level Gauge -->
+        <div class="bg-slate-900/90 rounded-xl p-5 border border-slate-800 flex flex-col items-center justify-between relative overflow-hidden">
+          <div class="w-full flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-bars-progress text-blue-400 mr-1"></i> 4. 垂直水柱/線性 (Level)</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">液位/儲量</span>
+          </div>
+
+          <!-- 水柱圖 -->
+          <div class="flex items-center gap-4 my-2 h-32">
+            <div class="relative w-8 h-full bg-slate-950 rounded-lg border border-slate-700 overflow-hidden flex flex-col justify-end p-0.5">
+              <div id="levelBar" class="w-full bg-gradient-to-t from-blue-600 to-cyan-400 rounded-md transition-all duration-150" style="height: 45%;"></div>
+            </div>
+            <div class="space-y-2 text-xs">
+              <div class="font-mono text-lg font-black text-white" id="levelValText">450 L</div>
+              <div class="text-[11px] text-slate-400">總容量：1000 L</div>
+              <div class="text-[10px] text-slate-500">刻度間隔: 100 L</div>
+            </div>
+          </div>
+
+          <div class="w-full text-[11px] text-slate-400 text-center mt-2 border-t border-slate-800/80 pt-2">
+            <strong>核心特點：</strong>最符合水塔/儲罐的物理形狀，多個槽體並列時極省橫向空間。
+          </div>
+        </div>
+
+        <!-- 5. 波浪水槽 / 水塔儀表 Wave Tank Gauge -->
+        <div class="bg-slate-900/90 rounded-xl p-5 border border-slate-800 flex flex-col items-center justify-between relative overflow-hidden">
+          <div class="w-full flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-water text-teal-400 mr-1"></i> 5. 波浪水槽 (Wave Tank)</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800">沉浸可視化</span>
+          </div>
+
+          <!-- 圓形波浪液位 -->
+          <div class="relative w-32 h-32 rounded-full border-2 border-teal-500/40 overflow-hidden bg-slate-950 my-1 flex items-center justify-center">
+            <div id="waveWaterLayer" class="absolute bottom-0 left-0 w-[200%] bg-gradient-to-t from-teal-600/80 to-cyan-500/80 wave-anim" style="height: 45%;"></div>
+            <div class="relative z-10 text-center">
+              <span class="text-2xl font-mono font-black text-white drop-shadow-md" id="tankValText">45%</span>
+              <span class="block text-[10px] text-slate-200 drop-shadow">化學儲槽 A</span>
+            </div>
+          </div>
+
+          <div class="w-full text-[11px] text-slate-400 text-center mt-2 border-t border-slate-800/80 pt-2">
+            <strong>核心特點：</strong>具備液體動態感，極適合沉浸式戰情大屏與化學儲槽監控。
+          </div>
+        </div>
+
+        <!-- 6. 數位七段顯示器 Digital Display -->
+        <div class="bg-slate-900/90 rounded-xl p-5 border border-slate-800 flex flex-col items-center justify-between relative overflow-hidden">
+          <div class="w-full flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-200"><i class="fa-solid fa-calculator text-indigo-400 mr-1"></i> 6. 數位數值 (Digital / LED)</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">高精度讀數</span>
+          </div>
+
+          <!-- 七段數位顯示面板 -->
+          <div class="bg-slate-950 border-2 border-slate-800 rounded-lg p-4 my-2 text-center w-4/5 shadow-inner">
+            <div class="text-[10px] text-slate-500 font-mono tracking-widest uppercase">DC Voltage Meter</div>
+            <div class="text-3xl font-mono font-black text-emerald-400 tracking-wider my-1" id="digitalValText">
+              045.0 <span class="text-sm text-slate-400 font-normal">V</span>
+            </div>
+            <div class="text-[10px] text-slate-400 font-mono">RMS ± 0.05%</div>
+          </div>
+
+          <div class="w-full text-[11px] text-slate-400 text-center mt-2 border-t border-slate-800/80 pt-2">
+            <strong>核心特點：</strong>無任何視覺歧義，需要精確記下小數點數值時為唯一選擇。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 模組二：人因工程 (Human Factors) 讀數視角與 SCADA 設計準則 -->
+    <section id="hmi-principles" class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+      <div class="border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+          <i class="fa-solid fa-brain"></i> Human-Centered SCADA Design
+        </div>
+        <h3 class="text-xl sm:text-2xl font-bold text-white mt-1">人因讀數哲學：何時用指針？何時用水柱？何時用純數值？</h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+        <div class="bg-slate-900/90 p-5 rounded-xl border border-slate-800 space-y-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center font-bold text-base">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <h4 class="font-bold text-white text-sm">1. 狀態感知優先 (指針儀表)</h4>
+          <p class="text-slate-300 leading-relaxed">
+            操作員不關心目前是 82.4°C 還是 83.1°C，而是在意「<strong>是否快破 90°C 紅線？</strong>」。半圓指針的<strong>角速度與色塊交界</strong>能讓人眼在 0.2 秒內產生反射神經警覺。
+          </p>
+        </div>
+
+        <div class="bg-slate-900/90 p-5 rounded-xl border border-slate-800 space-y-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-950 text-blue-400 flex items-center justify-center font-bold text-base">
+            <i class="fa-solid fa-cubes-stacked"></i>
+          </div>
+          <h4 class="font-bold text-white text-sm">2. 空間與並列對比優先 (水柱儀表)</h4>
+          <p class="text-slate-300 leading-relaxed">
+            當廠區有 16 個化學儲槽時，若放 16 個圓形指針會塞滿整個螢幕且容易眼花。改用 16 條<strong>垂直並列的水柱 (Level Bar)</strong>，操作員可像看條狀圖一樣一眼看出哪一桶快見底。
+          </p>
+        </div>
+
+        <div class="bg-slate-900/90 p-5 rounded-xl border border-slate-800 space-y-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-950 text-indigo-400 flex items-center justify-center font-bold text-base">
+            <i class="fa-solid fa-crosshairs"></i>
+          </div>
+          <h4 class="font-bold text-white text-sm">3. 精確數據記錄優先 (數位顯示)</h4>
+          <p class="text-slate-300 leading-relaxed">
+            校正實驗室、電壓電流計量、品檢計重台等場合，模糊的角度估算會造成工差判讀失誤。此時必須回歸<strong>清晰的七段數位顯示器</strong>。
+          </p>
+        </div>
+      </div>
+
+      <!-- 詳細對比表格 -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border border-slate-800 rounded-xl overflow-hidden">
+          <thead class="bg-slate-900 text-slate-300 font-semibold border-b border-slate-800">
+            <tr>
+              <th class="p-3">儀表型態</th>
+              <th class="p-3">讀數反應時間</th>
+              <th class="p-3">警報視覺衝擊度</th>
+              <th class="p-3">空間佔比 (W x H)</th>
+              <th class="p-3">最佳適用工業場景</th>
+              <th class="p-3">Node-RED 2.0 支援設定</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 text-slate-300">
+            <tr class="hover:bg-slate-900/50">
+              <td class="p-3 font-bold text-emerald-400"><i class="fa-solid fa-gauge mr-1"></i> 標準半圓 Gauge</td>
+              <td class="p-3 text-emerald-400 font-bold">&lt; 0.2 秒 (極快)</td>
+              <td class="p-3 text-rose-400 font-bold">極高 (指針角度+分區色)</td>
+              <td class="p-3">中等 (4x2 ~ 6x3)</td>
+              <td class="p-3">鍋爐壓力、發電機主轉速、產線速度</td>
+              <td class="p-3 font-mono text-cyan-300">Type: "gauge", Sectors 3 段</td>
+            </tr>
+            <tr class="hover:bg-slate-900/50">
+              <td class="p-3 font-bold text-cyan-400"><i class="fa-solid fa-circle-notch mr-1"></i> 環形 Donut</td>
+              <td class="p-3 text-cyan-400 font-bold">0.4 秒 (快)</td>
+              <td class="p-3 text-amber-400 font-bold">中高 (環形進度)</td>
+              <td class="p-3">小 (3x3 正方形)</td>
+              <td class="p-3">馬達負載率、CPU/記憶體使用率</td>
+              <td class="p-3 font-mono text-cyan-300">Type: "donut"</td>
+            </tr>
+            <tr class="hover:bg-slate-900/50">
+              <td class="p-3 font-bold text-blue-400"><i class="fa-solid fa-bars-progress mr-1"></i> 垂直/水平 Level</td>
+              <td class="p-3 text-cyan-400 font-bold">0.3 秒 (快)</td>
+              <td class="p-3 text-amber-400 font-bold">中等 (柱狀高度)</td>
+              <td class="p-3 text-emerald-400 font-bold">極小 (1x4 垂直條)</td>
+              <td class="p-3">儲油罐、水槽液位、原物料料倉</td>
+              <td class="p-3 font-mono text-cyan-300">Type: "level" (垂直/水平)</td>
+            </tr>
+            <tr class="hover:bg-slate-900/50">
+              <td class="p-3 font-bold text-amber-400"><i class="fa-solid fa-compass mr-1"></i> 羅盤 Compass</td>
+              <td class="p-3 text-slate-400">0.5 秒</td>
+              <td class="p-3 text-cyan-400">角度指向性</td>
+              <td class="p-3">中等 (3x3 正方形)</td>
+              <td class="p-3">廠區風向、編碼器角度、AGV 導航</td>
+              <td class="p-3 font-mono text-cyan-300">Type: "compass" (0~360°)</td>
+            </tr>
+            <tr class="hover:bg-slate-900/50">
+              <td class="p-3 font-bold text-indigo-400"><i class="fa-solid fa-calculator mr-1"></i> 數位顯示 Digital</td>
+              <td class="p-3 text-slate-400">0.8 秒 (需閱讀字符)</td>
+              <td class="p-3 text-slate-400">文字變色警報</td>
+              <td class="p-3">極小 (2x1)</td>
+              <td class="p-3">精密電壓表、計數器、配方重量</td>
+              <td class="p-3 font-mono text-cyan-300">ui-text / CSS 數位字型</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 模組三：Node-RED Dashboard 2.0 ui-gauge 節點配置範例 -->
+    <section class="glass-card rounded-2xl p-6 sm:p-8 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+            <i class="fa-brands fa-node-js text-red-500"></i> Node-RED Implementation
+          </div>
+          <h3 class="text-xl sm:text-2xl font-bold text-white mt-1">ui-gauge 節點屬性設定與 JSON 代碼</h3>
+        </div>
+        <button onclick="copyGaugeFlow()" class="px-3 py-1.5 bg-emerald-900/50 hover:bg-emerald-900/80 border border-emerald-700 text-emerald-300 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors">
+          <i class="fa-regular fa-copy"></i> 複製範例 Flow JSON
+        </button>
+      </div>
+
+      <pre class="bg-slate-950 p-4 rounded-xl text-xs font-mono text-emerald-300 border border-slate-800 overflow-x-auto" id="gaugeFlowJsonCode">[
+  {
+    "id": "ui_gauge_demo",
+    "type": "ui-gauge",
+    "z": "tab_gauge",
+    "name": "馬達運轉溫度",
+    "group": "group_scada_monitor",
+    "order": 1,
+    "width": 4,
+    "height": 3,
+    "gtype": "gage",
+    "title": "馬達軸承溫度",
+    "label": "°C",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 100,
+    "colors": ["#10b981", "#f59e0b", "#ef4444"],
+    "seg1": "60",
+    "seg2": "85",
+    "className": "custom-gauge-hmi"
+  }
+]</pre>
+    </section>
+
+    <!-- 模組四：原始網頁對照與快速存取區 -->
+    <section class="glass-card rounded-2xl p-6 sm:p-8 space-y-5 border border-indigo-500/20">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider">
+            <i class="fa-solid fa-layer-group"></i> Original Supplementary Resources
+          </div>
+          <h3 class="text-xl sm:text-2xl font-bold text-white mt-1">原始補充教材版本對照 (4 大完整網頁)</h3>
+        </div>
+        <span class="text-xs px-2.5 py-1 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 font-mono">免修改原始檔案</span>
+      </div>
+      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+        本系統收錄並完整保留以下 4 個原始專題網頁檔案，您可點擊直接在新分頁中體驗不同風格的互動設計：
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- 原始 Gauge 01 -->
+        <a href="補充/Dashboard_圖表比較_chart_Gauge/Gauge_比較_01.html" target="_blank" class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all flex items-start gap-4 group">
+          <div class="w-12 h-12 rounded-lg bg-amber-950/80 text-amber-400 flex items-center justify-center text-xl font-bold border border-amber-800/50 group-hover:scale-105 transition-transform flex-shrink-0">
+            <i class="fa-solid fa-gauge-high"></i>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <h5 class="font-bold text-white text-sm group-hover:text-amber-300 transition-colors">Gauge 儀表型態與人機介面應用指南</h5>
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 group-hover:text-amber-400"></i>
+            </div>
+            <p class="text-xs text-slate-400">檔案：<code class="font-mono text-amber-400">Gauge_比較_01.html</code> (人因讀數哲學)</p>
+            <p class="text-[11px] text-slate-500">標準指針、環形、水柱與羅盤之讀數哲學與工控比較。</p>
+          </div>
+        </a>
+
+        <!-- 原始 Gauge 02 -->
+        <a href="補充/Dashboard_圖表比較_chart_Gauge/Gauge_比較_02.html" target="_blank" class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 transition-all flex items-start gap-4 group">
+          <div class="w-12 h-12 rounded-lg bg-emerald-950/80 text-emerald-400 flex items-center justify-center text-xl font-bold border border-emerald-800/50 group-hover:scale-105 transition-transform flex-shrink-0">
+            <i class="fa-solid fa-sliders"></i>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <h5 class="font-bold text-white text-sm group-hover:text-emerald-300 transition-colors">Node-RED Gauge 儀表型態互動教學指南</h5>
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 group-hover:text-emerald-400"></i>
+            </div>
+            <p class="text-xs text-slate-400">檔案：<code class="font-mono text-emerald-400">Gauge_比較_02.html</code> (動態驗證台)</p>
+            <p class="text-[11px] text-slate-500">即時滑桿連動模擬、Node-RED 儀表參數配置手冊。</p>
+          </div>
+        </a>
+
+        <!-- 原始 Chart 01 -->
+        <a href="補充/Dashboard_圖表比較_chart_Gauge/chart比較_01.html" target="_blank" class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 transition-all flex items-start gap-4 group">
+          <div class="w-12 h-12 rounded-lg bg-cyan-950/80 text-cyan-400 flex items-center justify-center text-xl font-bold border border-cyan-800/50 group-hover:scale-105 transition-transform flex-shrink-0">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <h5 class="font-bold text-white text-sm group-hover:text-cyan-300 transition-colors">ChartLab - 圖表型態互動教學指南</h5>
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 group-hover:text-cyan-400"></i>
+            </div>
+            <p class="text-xs text-slate-400">檔案：<code class="font-mono text-cyan-400">chart比較_01.html</code> (Tailwind + Chart.js)</p>
+            <p class="text-[11px] text-slate-500">亮色/暗色切換、多種圖表互動配置與說明卡片。</p>
+          </div>
+        </a>
+
+        <!-- 原始 Chart 02 -->
+        <a href="補充/Dashboard_圖表比較_chart_Gauge/chart比較_02.html" target="_blank" class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 transition-all flex items-start gap-4 group">
+          <div class="w-12 h-12 rounded-lg bg-indigo-950/80 text-indigo-400 flex items-center justify-center text-xl font-bold border border-indigo-800/50 group-hover:scale-105 transition-transform flex-shrink-0">
+            <i class="fa-solid fa-microchip"></i>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <h5 class="font-bold text-white text-sm group-hover:text-indigo-300 transition-colors">圖表型態教學與決策實驗室</h5>
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-500 group-hover:text-indigo-400"></i>
+            </div>
+            <p class="text-xs text-slate-400">檔案：<code class="font-mono text-indigo-400">chart比較_02.html</code> (Cyber Dark Theme)</p>
+            <p class="text-[11px] text-slate-500">SCADA & 生活應用決策導引、動態圖表沙盒。</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁尾 -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p>五股職訓局 - 機電AI_115-1期 | 作者：Rido老師</p>
+      <p class="text-[11px]">Node-RED Dashboard 2.0 & SCADA 視覺化教學系統 • 補充教材模組</p>
+    </div>
+  </footer>
+
+  <!-- 互動邏輯 JavaScript -->
+  <script>
+    let isOscillating = false;
+    let oscillateTimer = null;
+    let oscillateAngle = 0;
+
+    function updateAllGauges(val) {
+      val = parseFloat(val);
+      document.getElementById('sliderValDisplay').textContent = val + '%';
+      
+      // 1. 標準指針: -90deg ~ +90deg (0% ~ 100%)
+      const angle = -90 + (val / 100) * 180;
+      const needle = document.getElementById('standardNeedle');
+      needle.style.transform = `rotate(${angle}deg)`;
+      document.getElementById('standardValText').textContent = val.toFixed(1);
+
+      // 警報狀態徽章與指針顏色
+      const badge = document.getElementById('gaugeStatusBadge');
+      if (val < 60) {
+        badge.textContent = '正常安全';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800';
+      } else if (val < 85) {
+        badge.textContent = '注意警戒';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800';
+      } else {
+        badge.textContent = '危險超標';
+        badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 animate-pulse';
+      }
+
+      // 2. 甜甜圈: 圓周長 = 2 * PI * 40 ≈ 251.2
+      const circumference = 251.2;
+      const offset = circumference - (val / 100) * circumference;
+      const donut = document.getElementById('donutProgress');
+      donut.style.strokeDashoffset = offset;
+      document.getElementById('donutValText').textContent = Math.round(val) + '%';
+      if (val < 60) {
+        donut.setAttribute('stroke', '#06b6d4');
+      } else if (val < 85) {
+        donut.setAttribute('stroke', '#f59e0b');
+      } else {
+        donut.setAttribute('stroke', '#ef4444');
+      }
+
+      // 3. 羅盤: 0% -> 0°, 100% -> 360°
+      const compassDeg = (val / 100) * 360;
+      document.getElementById('compassNeedle').style.transform = `rotate(${compassDeg}deg)`;
+
+      // 4. 垂直水柱
+      document.getElementById('levelBar').style.height = val + '%';
+      document.getElementById('levelValText').textContent = Math.round(val * 10) + ' L';
+
+      // 5. 波浪水槽
+      document.getElementById('waveWaterLayer').style.height = val + '%';
+      document.getElementById('tankValText').textContent = Math.round(val) + '%';
+
+      // 6. 數位七段顯示器
+      const padded = (val < 10 ? '00' : (val < 100 ? '0' : '')) + val.toFixed(1);
+      const digEl = document.getElementById('digitalValText');
+      digEl.innerHTML = `${padded} <span class="text-sm text-slate-400 font-normal">V</span>`;
+      if (val >= 85) {
+        digEl.className = 'text-3xl font-mono font-black text-rose-500 tracking-wider my-1';
+      } else if (val >= 60) {
+        digEl.className = 'text-3xl font-mono font-black text-amber-400 tracking-wider my-1';
+      } else {
+        digEl.className = 'text-3xl font-mono font-black text-emerald-400 tracking-wider my-1';
+      }
+    }
+
+    // 正弦波動自動模擬
+    function toggleOscillate() {
+      isOscillating = !isOscillating;
+      const btn = document.getElementById('autoOscillateBtn');
+      const text = document.getElementById('autoBtnText');
+      if (isOscillating) {
+        btn.classList.add('bg-emerald-800', 'text-white');
+        text.textContent = '暫停波動模擬';
+        oscillateTimer = setInterval(() => {
+          oscillateAngle += 0.05;
+          // sin wave between 10% and 95%
+          const waveVal = Math.round(52.5 + 42.5 * Math.sin(oscillateAngle));
+          document.getElementById('masterSlider').value = waveVal;
+          updateAllGauges(waveVal);
+        }, 50);
+      } else {
+        btn.classList.remove('bg-emerald-800', 'text-white');
+        text.textContent = '啟動自動正弦波動';
+        clearInterval(oscillateTimer);
+      }
+    }
+
+    function copyGaugeFlow() {
+      const text = document.getElementById('gaugeFlowJsonCode').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('已複製 Node-RED ui-gauge 範例代碼！');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateAllGauges(45);
+    });
+  </script>
+</body>
+</html>

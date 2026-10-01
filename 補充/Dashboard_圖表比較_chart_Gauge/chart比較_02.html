@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>互動式圖表教學與決策實驗室</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js 4.4 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            cyber: {
+              50: '#f0fdfa',
+              500: '#14b8a6',
+              900: '#134e4a',
+              950: '#042f2e',
+            }
+          },
+          keyframes: {
+            pulseGlow: {
+              '0%, 100%': { borderColor: 'rgba(56, 189, 248, 0.3)', boxShadow: '0 0 0px rgba(56, 189, 248, 0)' },
+              '50%': { borderColor: 'rgba(56, 189, 248, 0.9)', boxShadow: '0 0 18px rgba(56, 189, 248, 0.4)' },
+            }
+          },
+          animation: {
+            'pulse-glow': 'pulseGlow 1.2s ease-in-out 2',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #080d1a;
+      color: #f1f5f9;
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    /* Modal Transition */
+    .modal-backdrop {
+      transition: opacity 0.25s ease-out;
+    }
+    .modal-card {
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#080d1a] text-slate-100 selection:bg-cyan-500 selection:text-white">
+
+  <!-- TOP NAVIGATION -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-[#080d1a]/85 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-sky-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-white tracking-wide flex items-center gap-2">
+            圖表型態教學與決策實驗室
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">SCADA & Life</span>
+          </h1>
+          <p class="text-xs text-slate-400 hidden sm:block">日常生活量化 vs 工業 SCADA / SPC / 智慧製造實務指南</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="#simulator" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition">模擬沙盒</a>
+        <a href="#matrixTableSection" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-cyan-600/30 text-cyan-300 hover:bg-cyan-600 hover:text-white border border-cyan-500/40 transition">對照矩陣</a>
+        <button id="navOpenInsightBtn" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500 hover:text-slate-900 border border-amber-500/30 font-medium transition flex items-center gap-1.5">
+          <span>💡 圖形重點提示</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+    <!-- SECTION 1: SIMULATOR (MATCHING USER SCREENSHOT) -->
+    <section id="simulator" class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span class="text-amber-400">⚡</span> 圖表配置沙盒 (Chart Configuration)
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-400">即時調校圖表維度、曲線插值、節點樣式並體驗即時遙測推播</p>
+        </div>
+
+        <!-- Mode Toggle: Life vs Industry -->
+        <div class="inline-flex p-1 bg-slate-900/90 rounded-xl border border-slate-700 self-start sm:self-auto shadow-inner">
+          <button id="scenarioLifeBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-blue-600 text-white shadow">
+            <span>🏠 生活日常應用</span>
+          </button>
+          <button id="scenarioIndustryBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
+            <span>🏭 工業製造 SCADA</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left: Configuration Controls Sidebar -->
+        <div class="lg:col-span-4 bg-slate-900/95 rounded-2xl border border-slate-800 p-5 space-y-5 shadow-2xl">
+          <div class="border-b border-slate-800 pb-3 flex items-center justify-between">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">CHART CONFIGURATION</h3>
+            <span id="activeScenarioBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300">LIFE MODE</span>
+          </div>
+
+          <!-- 1. Type Select -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-300 flex items-center justify-between">
+              <span class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3v18h18M7 16h3M7 11h7M7 6h11"/>
+                </svg>
+                圖表類型 (Type)
+              </span>
+              <span class="text-[11px] text-cyan-400 font-mono" id="metricTypeTag">趨勢型</span>
+            </label>
+            <select id="chartTypeSelect" class="w-full bg-slate-800 text-white text-sm rounded-xl px-3 py-2.5 border border-slate-700 focus:outline-none focus:border-cyan-500 font-medium transition cursor-pointer">
+              <option value="Line">Line (折線圖)</option>
+              <option value="Area" selected>Area (面積圖)</option>
+              <option value="Bar">Bar (長條圖 / 柱狀圖)</option>
+              <option value="Scatter">Scatter (散佈圖)</option>
+              <option value="Pie">Pie (圓餅圖)</option>
+              <option value="Doughnut">Doughnut (環狀圖)</option>
+              <option value="Histogram">Histogram (直方圖)</option>
+            </select>
+          </div>
+
+          <!-- 2. Interpolation Select -->
+          <div id="interpolationWrapper" class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-300 flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 17c3.5-6 6.5-6 10 0s6.5 6 8-5"/>
+              </svg>
+              曲線插值 (Interpolation)
+            </label>
+            <select id="interpolationSelect" class="w-full bg-slate-800 text-white text-sm rounded-xl px-3 py-2 border border-slate-700 focus:outline-none focus:border-cyan-500 cursor-pointer">
+              <option value="smooth" selected>平滑曲線 (Smooth Spline)</option>
+              <option value="linear">折線直線 (Linear)</option>
+              <option value="stepped">階梯式 (Stepped)</option>
+            </select>
+          </div>
+
+          <!-- 3. Point Style Select -->
+          <div id="pointStyleWrapper" class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-300 flex items-center gap-2">
+              <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/>
+              </svg>
+              節點外觀 (Point Style)
+            </label>
+            <select id="pointStyleSelect" class="w-full bg-slate-800 text-white text-sm rounded-xl px-3 py-2 border border-slate-700 focus:outline-none focus:border-cyan-500 cursor-pointer">
+              <option value="circle" selected>圓形 (Circle)</option>
+              <option value="rect">矩形 (Square)</option>
+              <option value="triangle">三角形 (Triangle)</option>
+              <option value="cross">十字 (Cross)</option>
+              <option value="false">隱藏節點 (None)</option>
+            </select>
+          </div>
+
+          <!-- 4. Actions -->
+          <div class="pt-2 border-t border-slate-800 space-y-2">
+            <label class="text-xs font-semibold text-slate-400">資料動作 (Action)</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="randomizeDataBtn" class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition active:scale-95">
+                <span>🎲 隨機擾動</span>
+              </button>
+              <button id="toggleRealtimeBtn" class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition active:scale-95">
+                <span id="realtimeIndicator" class="w-2 h-2 rounded-full bg-slate-400"></span>
+                <span id="realtimeBtnText">即時遙測</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5. Dynamic Key Highlights Card (With animation) -->
+          <div id="scenarioInfoCard" class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 text-xs text-slate-300 space-y-2.5 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-white flex items-center gap-1.5">
+                <span>應用情境重點</span>
+              </span>
+              <div class="flex items-center gap-2">
+                <span id="dataPointsCount" class="text-[11px] font-mono text-cyan-400">4 筆資料點</span>
+                <button id="openInsightFromCardBtn" title="展開此圖表之完整重點提示" class="text-amber-400 hover:text-amber-300 text-xs flex items-center gap-0.5 underline decoration-amber-400/40">
+                  重點提示 ↗
+                </button>
+              </div>
+            </div>
+            <p id="scenarioDescription" class="text-slate-300 leading-relaxed text-xs">
+              面積圖透過下方填色突顯『體積感』。適合展示家用紙本/串流訂閱開銷累積、水庫蓄水量、或手機行動上網累計用量。
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: Canvas & Top Right Metric Cards -->
+        <div class="lg:col-span-8 space-y-4">
+          <div class="bg-slate-900/95 rounded-2xl border border-slate-800 p-5 shadow-2xl relative">
+            
+            <!-- Canvas Header & KPI Cards -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div>
+                <div class="flex items-center gap-2.5 flex-wrap">
+                  <span id="chartTagBadge" class="text-xs px-2.5 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium">日常生活應用</span>
+                  <h3 id="chartDisplayTitle" class="text-base sm:text-lg font-bold text-white tracking-wide">家庭每月行動數據累積使用量 (GB)</h3>
+                </div>
+                <p id="chartDisplaySubtitle" class="text-xs text-slate-400 mt-0.5">月週期內連續累積流量統計</p>
+              </div>
+
+              <!-- Top-right Metric Badges -->
+              <div class="flex items-center gap-2 shrink-0">
+                <div class="px-3.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-right min-w-[90px]">
+                  <div class="text-[10px] text-slate-400" id="kpiLabel1">已用流量</div>
+                  <div class="text-xs sm:text-sm font-mono font-bold text-cyan-400" id="kpiValue1">46.5 GB</div>
+                </div>
+                <div class="px-3.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-right min-w-[90px]">
+                  <div class="text-[10px] text-slate-400" id="kpiLabel2">資費上限門檻</div>
+                  <div class="text-xs sm:text-sm font-mono font-bold text-emerald-400" id="kpiValue2">60.0 GB</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="relative w-full h-[320px] sm:h-[400px]">
+              <canvas id="interactiveCanvas"></canvas>
+            </div>
+
+            <!-- Canvas Footer -->
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 gap-2">
+              <span id="canvasContextExplanation" class="flex items-center gap-1.5">
+                <span>💡</span> <span>當前圖表：Area (面積圖)。強調趨勢同時突出『總量累積感』與量體大小。</span>
+              </span>
+              <button onclick="openInsightModal(currentChartType)" class="text-cyan-400 hover:text-cyan-300 font-medium text-xs text-left sm:text-right transition flex items-center gap-1 self-start sm:self-auto">
+                <span>查看設計精要與避雷指引 →</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 2: COMPREHENSIVE MATRIX TABLE (WITH CHART MINI ICONS) -->
+    <section id="matrixTableSection" class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span class="text-cyan-400">📋</span> 圖表型態在生活與工業應用對照矩陣
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-400">點選右側「載入模擬 ↗」將自動切換沙盒並彈出該圖形的重點提示</p>
+        </div>
+        <!-- Table Search Bar -->
+        <div class="relative w-full sm:w-64">
+          <input type="text" id="tableSearchInput" placeholder="搜尋圖表、關鍵字..." 
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+          <span class="absolute right-3 top-2 text-slate-500 text-xs">🔍</span>
+        </div>
+      </div>
+
+      <!-- Table Container -->
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 overflow-hidden shadow-2xl backdrop-blur-sm">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="border-b border-slate-800 bg-slate-900 text-cyan-400 font-semibold tracking-wider">
+                <th class="py-4 px-5 whitespace-nowrap">圖表型態 (TYPE)</th>
+                <th class="py-4 px-5">生活日常應用 (LIFE)</th>
+                <th class="py-4 px-5">工業與自動化 (INDUSTRIAL / SCADA)</th>
+                <th class="py-4 px-5">核心表達目的 (PURPOSE)</th>
+                <th class="py-4 px-5 text-center whitespace-nowrap">切換沙盒</th>
+              </tr>
+            </thead>
+            <tbody id="matrixTableBody" class="divide-y divide-slate-800/80">
+              <!-- Dynamically populated with SVG mini icons and '載入模擬' buttons -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: CHART KEY INSIGHTS / FOCUS CALLOUT -->
+  <div id="insightModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none modal-backdrop">
+    <div class="relative w-full max-w-2xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden scale-95 modal-card flex flex-col max-h-[90vh]">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-800/50">
+        <div class="flex items-center gap-3">
+          <div id="modalChartIcon" class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shadow-inner">
+            <!-- Icon SVG -->
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="modalChartTitle" class="text-base sm:text-lg font-bold text-white">Line (折線圖)</h3>
+              <span id="modalChartCategory" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">趨勢型</span>
+            </div>
+            <p id="modalChartSubtitle" class="text-xs text-slate-400">圖形重點提示與實戰判讀技巧</p>
+          </div>
+        </div>
+        <button id="closeModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar text-xs sm:text-sm text-slate-300">
+        
+        <!-- Section 1: Core Feature -->
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/80 space-y-1.5">
+          <div class="text-cyan-400 font-bold flex items-center gap-1.5 text-xs">
+            <span>📌</span> 視覺特徵與核心判讀
+          </div>
+          <p id="modalFeatureText" class="text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <!-- Section 2: Best Practices & Pitfalls Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div class="p-4 rounded-xl bg-emerald-950/20 border border-emerald-500/30 space-y-1.5">
+            <div class="text-emerald-400 font-bold flex items-center gap-1.5 text-xs">
+              <span>✅</span> 最佳使用場景 (Best Practices)
+            </div>
+            <p id="modalBestPracticeText" class="text-slate-300 leading-relaxed text-xs"></p>
+          </div>
+          <div class="p-4 rounded-xl bg-rose-950/20 border border-rose-500/30 space-y-1.5">
+            <div class="text-rose-400 font-bold flex items-center gap-1.5 text-xs">
+              <span>⚠️</span> 判讀盲點與避雷禁忌 (Pitfalls)
+            </div>
+            <p id="modalPitfallsText" class="text-slate-300 leading-relaxed text-xs"></p>
+          </div>
+        </div>
+
+        <!-- Section 3: Dual Field Quick Contrast -->
+        <div class="p-4 rounded-xl bg-slate-800/40 border border-slate-700/60 space-y-2">
+          <div class="text-amber-400 font-bold flex items-center gap-1.5 text-xs">
+            <span>🔄</span> 生活日常 vs 工業自動化 對比速記
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+              <span class="text-blue-400 font-semibold block mb-1">🏠 生活量化：</span>
+              <span id="modalLifeExample" class="text-slate-300"></span>
+            </div>
+            <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+              <span class="text-cyan-400 font-semibold block mb-1">🏭 工業 SCADA：</span>
+              <span id="modalIndustryExample" class="text-slate-300"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-3.5 border-t border-slate-800 bg-slate-900 flex items-center justify-between">
+        <span class="text-[11px] text-slate-500 font-mono">Chart Insight Engine · Ready for Simulation</span>
+        <button id="modalActionPlayBtn" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition active:scale-95 shadow-lg shadow-cyan-600/20 flex items-center gap-1.5">
+          <span>關閉並於沙盒操作 🚀</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    /* --- DATA MATRIX DEFINITION WITH SVG MINI ICONS & INSIGHTS --- */
+    const CHART_DATA_DICTIONARY = {
+      Line: {
+        name: "Line (折線圖)",
+        category: "趨勢型",
+        purpose: "連續時間序列下的波動與趨勢",
+        iconSvg: `<svg class="w-6 h-6 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 17 9 11 13 15 21 7"></polyline>
+          <circle cx="3" cy="17" r="1.5" fill="currentColor"></circle>
+          <circle cx="9" cy="11" r="1.5" fill="currentColor"></circle>
+          <circle cx="13" cy="15" r="1.5" fill="currentColor"></circle>
+          <circle cx="21" cy="7" r="1.5" fill="currentColor"></circle>
+        </svg>`,
+        insights: {
+          feature: "折線圖以連續線段連接相鄰時間節點，人眼直覺辨識的是『斜率陡峭程度』。斜率越大代表變化速率越劇烈。",
+          bestPractice: "最適用於連續、依序排列的時間序列（如秒、時、日、月）。多條折線比較時建議在 3~4 條以內以防視覺混亂。",
+          pitfalls: "絕對不可用於『離散無序分類』（例如把蘋果、香蕉、橘子連成一條線，會產生虛假的連續趨勢誤導）；X 軸時間間距若不相等必須標示清楚，以免斜率失真。",
+          lifeExample: "追蹤每日運動步數、體重變化曲線、每月水電瓦斯費用趨勢。",
+          industryExample: "SCADA 即時馬達運轉溫度、管路流體壓力、冷卻水流量監控與異常斜率預警。"
+        },
+        life: {
+          title: "家庭一週每日耗電量趨勢 (kWh)",
+          subtitle: "連續 7 天家用智慧電表即時採樣",
+          kpi1: { label: "7日日均耗電", val: "18.6 kWh" },
+          kpi2: { label: "最高尖峰負載", val: "28.4 kWh" },
+          desc: "折線圖最擅長表達『時間連續性』。生活上如每日步數、體重紀錄、每月水電費曲線與股票走勢，皆可直觀觀察升降斜率。",
+          labels: ['週一', '週二', '週三', '週四', '週五', '週六', '週日'],
+          datasets: [{
+            label: '每日用電量 (kWh)',
+            data: [14.2, 16.5, 15.8, 19.4, 21.0, 28.4, 23.2],
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+            borderWidth: 3,
+            tension: 0.35,
+            fill: false,
+          }]
+        },
+        industry: {
+          title: "CNC 主軸馬達運轉溫度即時監測 (°C)",
+          subtitle: "SCADA 工控感測器每 10 分鐘滑動取樣",
+          kpi1: { label: "運轉平均溫度", val: "68.2 °C" },
+          kpi2: { label: "超溫警戒門檻", val: "85.0 °C" },
+          desc: "在工廠 SCADA 與物聯網 (IoT) 中，折線圖用於連續監測馬達溫度、轉速 (RPM)、管路壓力或液位。斜率突然攀升常是設備熱衰竭或潤滑不足的預警訊號。",
+          labels: ['10:00', '10:10', '10:20', '10:30', '10:40', '10:50', '11:00'],
+          datasets: [{
+            label: '主軸溫度 (°C)',
+            data: [58.5, 62.1, 65.4, 69.8, 74.2, 81.3, 76.0],
+            borderColor: '#f43f5e',
+            backgroundColor: 'rgba(244, 63, 94, 0.1)',
+            borderWidth: 3,
+            tension: 0.2,
+            fill: false,
+          }]
+        }
+      },
+
+      Area: {
+        name: "Area (面積圖)",
+        category: "累積量型",
+        purpose: "強調趨勢同時突出『總量累積感』與量體大小",
+        iconSvg: `<svg class="w-6 h-6 text-indigo-400" viewBox="0 0 24 24" fill="none">
+          <path d="M3 18L8 11L13 14L21 6V19H3V18Z" fill="currentColor" fill-opacity="0.3"></path>
+          <path d="M3 18L8 11L13 14L21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          <line x1="3" y1="19" x2="21" y2="19" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.6"></line>
+        </svg>`,
+        insights: {
+          feature: "在折線下方填充半透明色塊，利用『幾何表面積』強化人體對數值『總量/體積』的宏觀感知。",
+          bestPractice: "適合呈現隨時間單調遞增的累積量（如流量、用電量、資產累積），或使用堆疊面積圖表現多來源的合力貢獻。",
+          pitfalls: "重疊過多非堆疊色塊時容易互相遮蔽造成混淆；若數值波動劇烈且交叉頻繁，應回退使用一般折線圖。",
+          lifeExample: "手機行動數據每月累計消耗量 (GB)、個人儲蓄總金額累積曲面。",
+          industryExample: "全廠 3 台空壓機供氣量堆疊負荷 (m³/min)、智慧綠電儲能電網累積蓄電量。"
+        },
+        life: {
+          title: "家庭每月行動數據累積使用量 (GB)",
+          subtitle: "月週期內連續累積流量統計",
+          kpi1: { label: "已用流量", val: "46.5 GB" },
+          kpi2: { label: "資費上限門檻", val: "60.0 GB" },
+          desc: "面積圖透過下方填色突顯『體積感』。適合展示家用紙本/串流訂閱開銷累積、水庫蓄水量、或手機行動上網累計用量。",
+          labels: ['第1週', '第2週', '第3週', '第4週'],
+          datasets: [{
+            label: '累計流量 (GB)',
+            data: [43.5, 42.0, 40.5, 38.5],
+            borderColor: '#818cf8',
+            backgroundColor: 'rgba(129, 140, 248, 0.35)',
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        industry: {
+          title: "全廠 3 台空壓機供氣量堆疊負載 (m³/min)",
+          subtitle: "動力廠房多機群堆疊輸出實況",
+          kpi1: { label: "總供氣總量", val: "142 m³/min" },
+          kpi2: { label: "設計滿載容量", val: "180 m³/min" },
+          desc: "工業常使用『堆疊面積圖』呈現廠區總能耗、三期供水累積排程或空壓機聯合運轉總量，既能看出總供給量，也能觀察個別機台分擔量。",
+          labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00'],
+          datasets: [
+            {
+              label: '1號空壓機',
+              data: [35, 42, 45, 48, 45, 40],
+              borderColor: '#06b6d4',
+              backgroundColor: 'rgba(6, 182, 212, 0.4)',
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: '2號空壓機',
+              data: [25, 30, 32, 35, 30, 25],
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.4)',
+              fill: true,
+              tension: 0.3
+            }
+          ]
+        }
+      },
+
+      Bar: {
+        name: "Bar (長條圖 / 柱狀圖)",
+        category: "比較型",
+        purpose: "不同離散類別間的絕對數值比較",
+        iconSvg: `<svg class="w-6 h-6 text-sky-400" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="3" y="12" width="4" height="8" rx="1"></rect>
+          <rect x="10" y="6" width="4" height="14" rx="1"></rect>
+          <rect x="17" y="9" width="4" height="11" rx="1"></rect>
+        </svg>`,
+        insights: {
+          feature: "柱子長度直接對應精確數值大小。人類大腦對『長度比對』的感知精確度，高於角度（圓餅）或顏色深淺。",
+          bestPractice: "適合進行不同獨立個體（如 5 條產線、7 個部門）的比較。項目名稱過長時，建議旋轉為水平長條圖以提高閱讀舒適度。",
+          pitfalls: "柱狀圖的 Y 軸基準線 **必須從 0 開始**！如果人為截斷基底，會大幅誇大柱子之間的差異比例，構成視覺詐欺。",
+          lifeExample: "每月生活記帳支出項目比較、多名學生考試分數排行榜。",
+          industryExample: "各製造產線日良品量比較、設備停機次數柏拉圖 (Pareto 80/20 原理)。"
+        },
+        life: {
+          title: "個人每月生活開銷分類比較 (NT$)",
+          subtitle: "當月各項生活必要支出排行",
+          kpi1: { label: "最高單項支出", val: "房租 (16,000)" },
+          kpi2: { label: "總支出統計", val: "35,200 NT$" },
+          desc: "長條圖人類視覺判讀精確度最高。生活上比較不同餐飲、運動花費、或者多名選手各科成績非常直觀。",
+          labels: ['房租', '飲食', '交通', '水電網路', '娛樂休閒', '醫療儲蓄'],
+          datasets: [{
+            label: '支出金額 (NT$)',
+            data: [16000, 9500, 2400, 2100, 3200, 2000],
+            backgroundColor: ['#38bdf8', '#60a5fa', '#818cf8', '#a78bfa', '#f472b6', '#34d399'],
+            borderRadius: 6
+          }]
+        },
+        industry: {
+          title: "各製造產線日良品產出量對比 (PCS)",
+          subtitle: "A ~ E 產線八小時標準班良品數統計",
+          kpi1: { label: "標竿最佳產線", val: "Line-C (1,450)" },
+          kpi2: { label: "全廠日總產能", val: "6,280 PCS" },
+          desc: "製造現場的 KPI 看板（OEE 稼動率、日產量、機台故障次數柏拉圖 Pareto 等）皆以柱狀圖為核心基準，便於工程團隊快速揪出落後產線。",
+          labels: ['Line A', 'Line B', 'Line C', 'Line D', 'Line E'],
+          datasets: [{
+            label: '合格產出數 (PCS)',
+            data: [1200, 1340, 1450, 1120, 1170],
+            backgroundColor: '#0ea5e9',
+            borderRadius: 6
+          }]
+        }
+      },
+
+      Scatter: {
+        name: "Scatter (散佈圖)",
+        category: "關聯型",
+        purpose: "檢視雙變數之間的相關性、聚集叢集與離群值",
+        iconSvg: `<svg class="w-6 h-6 text-amber-400" viewBox="0 0 24 24" fill="none">
+          <line x1="3" y1="20" x2="21" y2="20" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.6"></line>
+          <line x1="3" y1="4" x2="3" y2="20" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.6"></line>
+          <circle cx="7" cy="15" r="2" fill="currentColor"></circle>
+          <circle cx="11" cy="12" r="2" fill="currentColor"></circle>
+          <circle cx="15" cy="8" r="2" fill="currentColor"></circle>
+          <circle cx="18" cy="14" r="2" fill="currentColor"></circle>
+          <circle cx="19" cy="6" r="2" fill="currentColor"></circle>
+        </svg>`,
+        insights: {
+          feature: "每個點同時具備 X 與 Y 雙軸坐標。用以呈現變數間是否有正相關、負相關、聚類或是孤立的極端離群值。",
+          bestPractice: "品質工程 DOE 實驗必備。透過點陣趨勢線判斷相關係數 (r)，或辨識製程參數的最佳操作區間。",
+          pitfalls: "記住『相關不等於因果』！此外，若資料點數量過萬容易產生過度繪製 (Overplotting)，可降低不透明度或改用熱點密度圖。",
+          lifeExample: "慢跑配速 vs 平均心率關聯、睡眠時數 vs 隔日專注評分。",
+          industryExample: "車床切削速度 (m/min) vs 刀具磨耗量 (mm)、半導體曝光能量 vs CD 線寬偏移。"
+        },
+        life: {
+          title: "跑步配速 (分/公里) vs 平均心率 (BPM)",
+          subtitle: "智慧手錶運動紀錄關聯分析",
+          kpi1: { label: "配速/心率相關性", val: "中度正相關 (r=0.78)" },
+          kpi2: { label: "有氧心率區間", val: "135 ~ 155 BPM" },
+          desc: "散佈圖每個點代表一個觀測樣本。在生活中適合比對『運動心率與配速』、『房屋坪數與售價』或『睡眠時長與隔天專注度』。",
+          labels: [],
+          datasets: [{
+            label: '跑步記錄點 (X:配速, Y:心率)',
+            data: [
+              {x: 6.8, y: 132}, {x: 6.5, y: 138}, {x: 6.2, y: 142},
+              {x: 5.8, y: 148}, {x: 5.5, y: 154}, {x: 5.2, y: 161},
+              {x: 5.0, y: 165}, {x: 4.8, y: 172}, {x: 4.5, y: 178},
+              {x: 6.0, y: 159}
+            ],
+            backgroundColor: '#38bdf8',
+            borderColor: '#0284c7',
+            pointRadius: 6,
+            pointHoverRadius: 9
+          }]
+        },
+        industry: {
+          title: "切削速度 (m/min) vs 刀具磨損量 (mm)",
+          subtitle: "CNC 切削刀具壽命 DOE 實驗分析",
+          kpi1: { label: "臨界磨耗拐點", val: "180 m/min" },
+          kpi2: { label: "異常離群件數", val: "1 件 (刀片裂角)" },
+          desc: "在品質工程與實驗設計 (DOE) 中，散佈圖用於探討製程參數（如溫度 vs 抗拉強度、曝光能量 vs 線寬）。能迅速找出不良離群點 (Outliers)。",
+          labels: [],
+          datasets: [{
+            label: '刀具樣本 (X:切削速度, Y:磨耗)',
+            data: [
+              {x: 80, y: 0.08}, {x: 95, y: 0.11}, {x: 110, y: 0.14},
+              {x: 130, y: 0.19}, {x: 150, y: 0.25}, {x: 170, y: 0.32},
+              {x: 190, y: 0.44}, {x: 210, y: 0.61}, {x: 230, y: 0.85},
+              {x: 140, y: 0.58}
+            ],
+            backgroundColor: '#f59e0b',
+            borderColor: '#d97706',
+            pointRadius: 6,
+            pointHoverRadius: 9
+          }]
+        }
+      },
+
+      Pie: {
+        name: "Pie (圓餅圖)",
+        category: "佔比型",
+        purpose: "表達全體中各組成類別之粗略比例 (不宜超過5~6項)",
+        iconSvg: `<svg class="w-6 h-6 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 21a9 9 0 1 0-9-9c0 1.2.2 2.3.7 3.3L12 12V3a9 9 0 0 0 0 18z" fill="currentColor" fill-opacity="0.25"></path>
+          <path d="M12 3v9l6.36 6.36A9 9 0 0 0 12 3z" fill="currentColor" fill-opacity="0.6"></path>
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"></circle>
+          <path d="M12 3v9h9" stroke="currentColor" stroke-width="2"></path>
+        </svg>`,
+        insights: {
+          feature: "圓心角度與扇形弧長代表該項目佔整體的百分比，所有扇區總和嚴格等於 100%。",
+          bestPractice: "僅適合類別極少（3 ~ 5 項內）且差異顯著的宏觀結構展示（如核心預算、主要營收結構）。",
+          pitfalls: "分類超過 6 項時，人眼很難精確比較不同扇形角度的大小；嚴禁將不同時期的圓餅圖並排比對細微成長率。",
+          lifeExample: "個人年度資產配置比例（股票/債券/房產/現金）。",
+          industryExample: "晶圓封裝月度主要 4 大不良缺陷種類比例剖析。"
+        },
+        life: {
+          title: "個人年度資產配置比例 (%)",
+          subtitle: "穩健理財投資組合比例",
+          kpi1: { label: "核心資產比例", val: "ETF指數 (45%)" },
+          kpi2: { label: "高風險配置", val: "個股 (20%)" },
+          desc: "圓餅圖強調『部分與整體的比例』。適合少於 5 個類別的生活預算佔比或資產配置。若類別太多會難以肉眼比對角度。",
+          labels: ['全球指數ETF', '高利活存', '科技個股', '債券基金'],
+          datasets: [{
+            label: '資產比例 (%)',
+            data: [45, 25, 20, 10],
+            backgroundColor: ['#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'],
+            borderWidth: 2,
+            borderColor: '#1e293b'
+          }]
+        },
+        industry: {
+          title: "晶圓封裝主要不良原因統計佔比 (%)",
+          subtitle: "品管部門月度不良品原因歸類",
+          kpi1: { label: "第一大不良源", val: "打線脫落 (42%)" },
+          kpi2: { label: "主要雙重主因", val: "累計佔比 70%" },
+          desc: "工業品管用來快速檢討總不良件中哪種缺陷佔比最高（如氣泡、刮痕、厚度超規），輔助管理階層制定優先改善策略。",
+          labels: ['打線脫落', '封裝氣泡', '表面微刮傷', '銲錫橋接', '其他'],
+          datasets: [{
+            label: '不良佔比 (%)',
+            data: [42, 28, 15, 10, 5],
+            backgroundColor: ['#ef4444', '#f97316', '#eab308', '#06b6d4', '#64748b'],
+            borderWidth: 2,
+            borderColor: '#1e293b'
+          }]
+        }
+      },
+
+      Doughnut: {
+        name: "Doughnut (環狀圖)",
+        category: "佔比/KPI型",
+        purpose: "兼具圓餅圖比例特點，中央鏤空可嵌入核心 KPI 數據",
+        iconSvg: `<svg class="w-6 h-6 text-emerald-400" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3.5" stroke-opacity="0.25"></circle>
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3.5" stroke-dasharray="42 56.5" stroke-linecap="round"></circle>
+          <circle cx="12" cy="12" r="4.5" fill="none"></circle>
+        </svg>`,
+        insights: {
+          feature: "中央開孔的圓環設計。除了外圈表達份額或進度外，中間的『負空間』極度適合填入最關鍵的核心數字指標。",
+          bestPractice: "非常適用於工業 War Room 看板中展示『單一 KPI 達成率』或『設備稼動率 (OEE)』，中間直接秀出大型百分比。",
+          pitfalls: "與圓餅圖類似，切忌細分出超過 6 個以上的微小碎片環節，否則中間焦點會被分散。",
+          lifeExample: "Apple Watch 每日燃燒卡路里目標環、手機剩餘電池容量環。",
+          industryExample: "SMT 表面黏著機台稼動率看板 (OEE 84.6%)、當班工單進度達成度。"
+        },
+        life: {
+          title: "智慧手錶每日活動卡路里目標達成度",
+          subtitle: "目標值 600 kcal · 當前進度",
+          kpi1: { label: "今日達成率", val: "78.3 %" },
+          kpi2: { label: "剩餘需消耗", val: "130 kcal" },
+          desc: "環狀圖中空區域是極佳的資訊載體。Apple Watch 活動圓圈、遊戲經驗值進度條常用其呈現『目標達成率』。",
+          labels: ['已消耗熱量', '剩餘目標'],
+          datasets: [{
+            label: '卡路里 (kcal)',
+            data: [470, 130],
+            backgroundColor: ['#10b981', '#334155'],
+            borderWidth: 0,
+            cutout: '72%'
+          }]
+        },
+        industry: {
+          title: "SMT 表面黏著機台總合設備效率 (OEE)",
+          subtitle: "智慧工廠看板即時稼動狀態",
+          kpi1: { label: "當班即時 OEE", val: "84.6 %" },
+          kpi2: { label: "國際標竿水準", val: "85.0 %" },
+          desc: "工廠戰情室 (War Room) 看板最喜愛環狀圖。中心可直接以大號字體顯示 85% 稼動率或完工率，既具備科技美感又能一目了然。",
+          labels: ['有效稼動產能', '異常停機/換線損失'],
+          datasets: [{
+            label: 'OEE 狀態 (%)',
+            data: [84.6, 15.4],
+            backgroundColor: ['#38bdf8', '#334155'],
+            borderWidth: 0,
+            cutout: '75%'
+          }]
+        }
+      },
+
+      Histogram: {
+        name: "Histogram (直方圖)",
+        category: "分佈型",
+        purpose: "展示連續數值在不同區間 (Bins) 的頻率分佈與常態性",
+        iconSvg: `<svg class="w-6 h-6 text-purple-400" viewBox="0 0 24 24" fill="currentColor">
+          <line x1="2" y1="20" x2="22" y2="20" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.6"></line>
+          <rect x="3" y="16" width="3.2" height="4" rx="0.5" fill-opacity="0.5"></rect>
+          <rect x="6.4" y="11" width="3.2" height="9" rx="0.5" fill-opacity="0.75"></rect>
+          <rect x="9.8" y="5" width="3.2" height="15" rx="0.5"></rect>
+          <rect x="13.2" y="9" width="3.2" height="11" rx="0.5" fill-opacity="0.85"></rect>
+          <rect x="16.6" y="14" width="3.2" height="6" rx="0.5" fill-opacity="0.6"></rect>
+        </svg>`,
+        insights: {
+          feature: "將連續數值切分為多個相鄰區間（Bins），柱狀彼此緊靠無縫隙，用以展示樣本在不同數值區間的頻率分佈。",
+          bestPractice: "品管工程 (SPC) 六標準差的核心支柱！用以觀察測量值是否呈現高斯鐘形常態、評估公差上下限 (USL/LSL) 與 Cpk 製程能力。",
+          pitfalls: "直方圖的柱子代表『區間頻率』，長條圖 (Bar) 則代表『獨立分類數值』，兩者意義完全不同；分箱數量 (Bin Count) 太少會抹煞特徵，太多會變成梳狀雜訊。",
+          lifeExample: "全校數學期末考成績級距分佈（0-39, 40-49...90-100）。",
+          industryExample: "晶圓膜厚或螺栓外徑連續抽樣之 SPC 尺寸公差常態分佈驗證。"
+        },
+        life: {
+          title: "高中全年級數學段考成績級距分佈 (人數)",
+          subtitle: "樣本數 N = 450 · 評估試卷難易鑑別度",
+          kpi1: { label: "全體中位數", val: "68.5 分" },
+          kpi2: { label: "常態分佈峰度", val: "鐘形對稱" },
+          desc: "直方圖的柱子彼此相鄰（表示數值是連續的而非離散分類）。生活常用於檢視考試分數、社區居民年齡層或住宅租金區間分佈。",
+          labels: ['0-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90-100'],
+          datasets: [{
+            label: '學生人數',
+            data: [15, 38, 72, 145, 110, 52, 18],
+            backgroundColor: '#a855f7',
+            borderRadius: 2,
+            barPercentage: 0.98,
+            categoryPercentage: 0.98
+          }]
+        },
+        industry: {
+          title: "晶圓厚度 SPC 統計製程管制分佈圖 (μm)",
+          subtitle: "N = 1,000 片 · 規格公差 775 ± 10 μm",
+          kpi1: { label: "製程能力指標 Cpk", val: "1.48 (良好)" },
+          kpi2: { label: "超差報廢品", val: "0 顆" },
+          desc: "六標準差 (6 Sigma) 與 SPC 的核心工具！透過直方圖檢視尺寸是否符合高斯常態分佈，是否發生雙峰分佈（意味混料）或偏態（刀具偏移）。",
+          labels: ['<765 (LSL)', '766-769', '770-772', '773-775 (CL)', '776-778', '779-782', '>785 (USL)'],
+          datasets: [{
+            label: '工件抽檢數',
+            data: [2, 45, 180, 540, 172, 56, 5],
+            backgroundColor: '#06b6d4',
+            borderRadius: 2,
+            barPercentage: 0.98,
+            categoryPercentage: 0.98
+          }]
+        }
+      }
+    };
+
+    // State Variables
+    let currentChartType = 'Area';
+    let currentScenario = 'life';
+    let currentInterpolation = 'smooth';
+    let currentPointStyle = 'circle';
+    let isRealtimeActive = false;
+    let realtimeTimer = null;
+    let chartInstance = null;
+
+    // DOM Elements
+    const chartTypeSelect = document.getElementById('chartTypeSelect');
+    const interpolationSelect = document.getElementById('interpolationSelect');
+    const pointStyleSelect = document.getElementById('pointStyleSelect');
+    const interpolationWrapper = document.getElementById('interpolationWrapper');
+    const pointStyleWrapper = document.getElementById('pointStyleWrapper');
+    const scenarioLifeBtn = document.getElementById('scenarioLifeBtn');
+    const scenarioIndustryBtn = document.getElementById('scenarioIndustryBtn');
+    const activeScenarioBadge = document.getElementById('activeScenarioBadge');
+    const randomizeDataBtn = document.getElementById('randomizeDataBtn');
+    const toggleRealtimeBtn = document.getElementById('toggleRealtimeBtn');
+    const realtimeIndicator = document.getElementById('realtimeIndicator');
+    const realtimeBtnText = document.getElementById('realtimeBtnText');
+    const chartDisplayTitle = document.getElementById('chartDisplayTitle');
+    const chartDisplaySubtitle = document.getElementById('chartDisplaySubtitle');
+    const chartTagBadge = document.getElementById('chartTagBadge');
+    const kpiLabel1 = document.getElementById('kpiLabel1');
+    const kpiValue1 = document.getElementById('kpiValue1');
+    const kpiLabel2 = document.getElementById('kpiLabel2');
+    const kpiValue2 = document.getElementById('kpiValue2');
+    const scenarioDescription = document.getElementById('scenarioDescription');
+    const scenarioInfoCard = document.getElementById('scenarioInfoCard');
+    const metricTypeTag = document.getElementById('metricTypeTag');
+    const dataPointsCount = document.getElementById('dataPointsCount');
+    const canvasContextExplanation = document.getElementById('canvasContextExplanation');
+    const canvasElem = document.getElementById('interactiveCanvas');
+
+    // Modal DOM Elements
+    const insightModal = document.getElementById('insightModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalActionPlayBtn = document.getElementById('modalActionPlayBtn');
+    const modalChartIcon = document.getElementById('modalChartIcon');
+    const modalChartTitle = document.getElementById('modalChartTitle');
+    const modalChartCategory = document.getElementById('modalChartCategory');
+    const modalFeatureText = document.getElementById('modalFeatureText');
+    const modalBestPracticeText = document.getElementById('modalBestPracticeText');
+    const modalPitfallsText = document.getElementById('modalPitfallsText');
+    const modalLifeExample = document.getElementById('modalLifeExample');
+    const modalIndustryExample = document.getElementById('modalIndustryExample');
+    const navOpenInsightBtn = document.getElementById('navOpenInsightBtn');
+    const openInsightFromCardBtn = document.getElementById('openInsightFromCardBtn');
+
+    /* --- CHART RENDERING LOGIC --- */
+    function renderCurrentChart() {
+      if (!canvasElem) return;
+      const ctx = canvasElem.getContext('2d');
+      const typeDef = CHART_DATA_DICTIONARY[currentChartType];
+      const dataConfig = typeDef[currentScenario];
+
+      // Update text descriptions
+      chartDisplayTitle.textContent = dataConfig.title;
+      chartDisplaySubtitle.textContent = dataConfig.subtitle;
+      scenarioDescription.textContent = dataConfig.desc;
+      metricTypeTag.textContent = typeDef.category;
+      kpiLabel1.textContent = dataConfig.kpi1.label;
+      kpiValue1.textContent = dataConfig.kpi1.val;
+      kpiLabel2.textContent = dataConfig.kpi2.label;
+      kpiValue2.textContent = dataConfig.kpi2.val;
+      dataPointsCount.textContent = `${dataConfig.labels.length || dataConfig.datasets[0].data.length} 筆資料點`;
+
+      // Trigger card pulse animation for feedback
+      scenarioInfoCard.classList.remove('animate-pulse-glow');
+      void scenarioInfoCard.offsetWidth; // trigger reflow
+      scenarioInfoCard.classList.add('animate-pulse-glow');
+
+      // Update mode badge
+      if (currentScenario === 'life') {
+        chartTagBadge.className = 'text-xs px-2.5 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium';
+        chartTagBadge.textContent = '日常生活應用';
+        activeScenarioBadge.textContent = 'LIFE MODE';
+        activeScenarioBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300';
+      } else {
+        chartTagBadge.className = 'text-xs px-2.5 py-0.5 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-medium';
+        chartTagBadge.textContent = '工業 / SCADA 應用';
+        activeScenarioBadge.textContent = 'INDUSTRY 4.0';
+        activeScenarioBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300';
+      }
+
+      // Toggle interpolation & point controls
+      const supportsCurves = (currentChartType === 'Line' || currentChartType === 'Area');
+      interpolationWrapper.style.display = supportsCurves ? 'block' : 'none';
+      pointStyleWrapper.style.display = (supportsCurves || currentChartType === 'Scatter') ? 'block' : 'none';
+
+      // Deep copy dataset
+      const datasets = JSON.parse(JSON.stringify(dataConfig.datasets));
+
+      // Apply interpolation & point styles
+      datasets.forEach(ds => {
+        if (supportsCurves) {
+          if (currentInterpolation === 'smooth') {
+            ds.tension = 0.4;
+            ds.stepped = false;
+          } else if (currentInterpolation === 'linear') {
+            ds.tension = 0;
+            ds.stepped = false;
+          } else if (currentInterpolation === 'stepped') {
+            ds.stepped = 'after';
+          }
+        }
+        if (currentPointStyle === 'false') {
+          ds.pointRadius = 0;
+        } else {
+          ds.pointStyle = currentPointStyle;
+          ds.pointRadius = currentChartType === 'Scatter' ? 6 : 5;
+        }
+      });
+
+      // Internal Chart.js type resolution
+      let engineType = 'line';
+      if (currentChartType === 'Area') engineType = 'line';
+      else if (currentChartType === 'Bar' || currentChartType === 'Histogram') engineType = 'bar';
+      else if (currentChartType === 'Scatter') engineType = 'scatter';
+      else if (currentChartType === 'Pie') engineType = 'pie';
+      else if (currentChartType === 'Doughnut') engineType = 'doughnut';
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: engineType,
+        data: {
+          labels: dataConfig.labels,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 450,
+            easing: 'easeOutQuart'
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                color: '#cbd5e1',
+                font: { family: 'Noto Sans TC', size: 12 }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              titleColor: '#38bdf8',
+              bodyColor: '#e2e8f0',
+              borderColor: '#334155',
+              borderWidth: 1,
+              padding: 10,
+              boxPadding: 4,
+              usePointStyle: true,
+            }
+          },
+          scales: (engineType === 'pie' || engineType === 'doughnut') ? {} : {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 11 } }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 11 } }
+            }
+          }
+        }
+      });
+
+      canvasContextExplanation.innerHTML = `<span>💡</span> <span>當前圖表：${typeDef.name}。${typeDef.purpose}。</span>`;
+    }
+
+    /* --- MODAL CONTROL LOGIC --- */
+    function openInsightModal(chartType) {
+      const data = CHART_DATA_DICTIONARY[chartType];
+      if (!data) return;
+
+      modalChartIcon.innerHTML = data.iconSvg;
+      modalChartTitle.textContent = data.name;
+      modalChartCategory.textContent = data.category;
+      modalFeatureText.textContent = data.insights.feature;
+      modalBestPracticeText.textContent = data.insights.bestPractice;
+      modalPitfallsText.textContent = data.insights.pitfalls;
+      modalLifeExample.textContent = data.insights.lifeExample;
+      modalIndustryExample.textContent = data.insights.industryExample;
+
+      // Animate In
+      insightModal.classList.remove('opacity-0', 'pointer-events-none');
+      const card = insightModal.querySelector('.modal-card');
+      card.classList.remove('scale-95');
+      card.classList.add('scale-100');
+    }
+
+    function closeInsightModal() {
+      const card = insightModal.querySelector('.modal-card');
+      card.classList.remove('scale-100');
+      card.classList.add('scale-95');
+      insightModal.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    closeModalBtn.addEventListener('click', closeInsightModal);
+    modalActionPlayBtn.addEventListener('click', closeInsightModal);
+
+    insightModal.addEventListener('click', (e) => {
+      if (e.target === insightModal) {
+        closeInsightModal();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeInsightModal();
+    });
+
+    navOpenInsightBtn.addEventListener('click', () => openInsightModal(currentChartType));
+    openInsightFromCardBtn.addEventListener('click', () => openInsightModal(currentChartType));
+
+    /* --- SELECT & BUTTON EVENTS --- */
+    chartTypeSelect.addEventListener('change', (e) => {
+      currentChartType = e.target.value;
+      renderCurrentChart();
+      openInsightModal(currentChartType);
+    });
+
+    interpolationSelect.addEventListener('change', (e) => {
+      currentInterpolation = e.target.value;
+      renderCurrentChart();
+    });
+
+    pointStyleSelect.addEventListener('change', (e) => {
+      currentPointStyle = e.target.value;
+      renderCurrentChart();
+    });
+
+    scenarioLifeBtn.addEventListener('click', () => {
+      currentScenario = 'life';
+      scenarioLifeBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-blue-600 text-white shadow';
+      scenarioIndustryBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
+      renderCurrentChart();
+    });
+
+    scenarioIndustryBtn.addEventListener('click', () => {
+      currentScenario = 'industry';
+      scenarioIndustryBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-cyan-600 text-white shadow';
+      scenarioLifeBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
+      renderCurrentChart();
+    });
+
+    // Randomize Data Button
+    randomizeDataBtn.addEventListener('click', () => {
+      const dataConfig = CHART_DATA_DICTIONARY[currentChartType][currentScenario];
+      dataConfig.datasets.forEach(ds => {
+        if (currentChartType === 'Scatter') {
+          ds.data = ds.data.map(p => ({
+            x: Number((p.x + (Math.random() * 0.4 - 0.2)).toFixed(2)),
+            y: Number((p.y + (Math.random() * 4 - 2)).toFixed(1))
+          }));
+        } else {
+          ds.data = ds.data.map(val => {
+            const delta = (Math.random() - 0.5) * (val * 0.25);
+            return Math.max(1, Number((val + delta).toFixed(1)));
+          });
+        }
+      });
+      renderCurrentChart();
+    });
+
+    // Live Streaming Toggle
+    toggleRealtimeBtn.addEventListener('click', () => {
+      isRealtimeActive = !isRealtimeActive;
+      if (isRealtimeActive) {
+        realtimeIndicator.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
+        realtimeBtnText.textContent = '採樣中 (On)';
+        toggleRealtimeBtn.classList.add('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-200');
+
+        realtimeTimer = setInterval(() => {
+          if (!chartInstance) return;
+          if (currentChartType === 'Line' || currentChartType === 'Area') {
+            const ds = chartInstance.data.datasets[0];
+            const lastVal = ds.data[ds.data.length - 1];
+            const nextVal = Math.max(10, Number((lastVal + (Math.random() * 6 - 3)).toFixed(1)));
+            ds.data.shift();
+            ds.data.push(nextVal);
+            chartInstance.update('none');
+          } else {
+            randomizeDataBtn.click();
+          }
+        }, 1200);
+      } else {
+        clearInterval(realtimeTimer);
+        realtimeIndicator.className = 'w-2 h-2 rounded-full bg-slate-400';
+        realtimeBtnText.textContent = '即時遙測';
+        toggleRealtimeBtn.classList.remove('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-200');
+      }
+    });
+
+    /* --- POPULATE TABLE WITH MINI ICONS & MODAL TRIGGER --- */
+    const matrixTableBody = document.getElementById('matrixTableBody');
+    const tableSearchInput = document.getElementById('tableSearchInput');
+
+    function populateMatrixTable(filterText = '') {
+      matrixTableBody.innerHTML = '';
+      const filter = filterText.toLowerCase().trim();
+
+      Object.keys(CHART_DATA_DICTIONARY).forEach(key => {
+        const item = CHART_DATA_DICTIONARY[key];
+        const match = item.name.toLowerCase().includes(filter) ||
+                      item.life.desc.toLowerCase().includes(filter) ||
+                      item.industry.desc.toLowerCase().includes(filter) ||
+                      item.purpose.toLowerCase().includes(filter);
+
+        if (!match) return;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition group';
+        tr.innerHTML = `
+          <td class="py-4 px-5 font-bold text-white whitespace-nowrap">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-800/90 border border-slate-700/80 flex items-center justify-center shadow-inner group-hover:border-cyan-500/50 group-hover:bg-slate-800 transition-all shrink-0">
+                ${item.iconSvg}
+              </div>
+              <div>
+                <div class="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors flex items-center gap-1.5">
+                  ${item.name}
+                </div>
+                <span class="inline-block text-[11px] text-slate-400 font-normal font-mono mt-0.5">${item.category}</span>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-5 text-slate-300 max-w-xs">
+            <div class="font-medium text-slate-200 mb-1">${item.life.title}</div>
+            <div class="text-xs text-slate-400 leading-relaxed">${item.life.desc}</div>
+          </td>
+          <td class="py-4 px-5 text-slate-300 max-w-xs">
+            <div class="font-medium text-cyan-300 mb-1">${item.industry.title}</div>
+            <div class="text-xs text-slate-400 leading-relaxed">${item.industry.desc}</div>
+          </td>
+          <td class="py-4 px-5 text-slate-300">
+            <span class="inline-block px-2.5 py-1 rounded-md bg-slate-800 text-cyan-300 border border-slate-700 font-medium text-xs">
+              ${item.purpose}
+            </span>
+          </td>
+          <td class="py-4 px-5 text-center whitespace-nowrap">
+            <button onclick="handleLoadSimulation('${key}')" class="px-3.5 py-1.5 rounded-lg bg-cyan-600/30 hover:bg-cyan-600 text-cyan-300 hover:text-white border border-cyan-500/40 text-xs font-semibold transition active:scale-95 flex items-center gap-1 mx-auto shadow">
+              <span>載入模擬</span> <span>↗</span>
+            </button>
+          </td>
+        `;
+        matrixTableBody.appendChild(tr);
+      });
+    }
+
+    tableSearchInput.addEventListener('input', (e) => {
+      populateMatrixTable(e.target.value);
+    });
+
+    // Load Simulation Handler: Updates sandbox, scrolls up, AND triggers the Insight Modal
+    window.handleLoadSimulation = function(type) {
+      currentChartType = type;
+      chartTypeSelect.value = type;
+      renderCurrentChart();
+      
+      const sim = document.getElementById('simulator');
+      if (sim) {
+        sim.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      // Trigger the Highlight Popup as requested!
+      setTimeout(() => {
+        openInsightModal(type);
+      }, 350);
+    };
+
+    window.onload = function () {
+      renderCurrentChart();
+      populateMatrixTable();
+    };
+  </script>
+</body>
+</html>
