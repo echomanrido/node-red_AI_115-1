@@ -6793,24 +6793,24 @@ window.INITIAL_LABS_DATA = [
     "objective": "1. 掌握 Node-RED Dashboard 2.0 中 ui-chart 節點支援的 Bar (柱狀圖)、Pie (圓餅圖) 與 Doughnut (甜甜圈圖) 模式。\n2. 理解多維度資料結構在柱狀圖中的兩種經典比較方式：Side-by-Side (並列對比) 與 Stacked (堆疊累積總量)。\n3. 學習如何切換分析維度：以年份為主軸 (2021 vs 2022) 或以季度為主軸 (Q1~Q4) 生成多角度佔比圖表。\n4. 掌握在 Dashboard 2.0 中透過 Group 分群（「財報(Bar)」與「財報(Pie、Doughnut)」）進行戰情室版面規劃與視覺平衡。",
     "tutorialSteps": [
       {
-        "step": "1. 建立 Dashboard 2.0 分群規劃",
-        "description": "在 Layout 面板中建立兩組 Group：上方群組命名為「財報(Bar)」，下方群組命名為「財報(Pie、Doughnut)」。"
+        "step": "1. 建立 Dashboard 2.0 版面與分群規劃",
+        "description": "在 Node-RED 介面右側的 Dashboard 2.0 Layout 面板中建立兩組 Group：\n• 群組 1 命名為「[chart] 財報(Bar)」(寬度 12 格)\n• 群組 2 命名為「[chart] 財報(Pie、Doughnut)」(寬度 12 格)\n提供清晰平衡的戰情室儀表板排版。"
       },
       {
-        "step": "2. 配置財報數據 Inject 節點",
-        "description": "建立 Inject 節點命名為「財報」，payload 設定為包含 2021/2022 與 Q1~Q4 營收數據的標準多維度 JSON 物件或陣列。"
+        "step": "2. 配置財報多維度數據 Inject 節點",
+        "description": "建立 Inject 節點命名為「財報」，將 payload 設為標準多維度 JSON 物件陣列（每筆資料包含 year: 2021/2022, quarter: Q1~Q4, earnings: 營收數值）。"
       },
       {
-        "step": "3. 配置 4 組 Bar Chart 柱狀圖節點 (歸屬「財報(Bar)」群組)",
-        "description": "依序建立 4 組柱狀圖節點：\n- 節點 1:「Bar chart-year(Side by side)」— X 軸為季度，並列 2021/2022 柱狀條\n- 節點 2:「Bar chart-year(Stacks)」— X 軸為季度，堆疊 2021/2022 柱狀條\n- 節點 3:「Bar chart-quarter(Side by side)」— X 軸為年份，並列 Q1~Q4 柱狀條\n- 節點 4:「Bar chart-quarter(Stacks)」— X 軸為年份，堆疊 Q1~Q4 總量柱狀條"
+        "step": "3. 配置四大 Bar Chart 柱狀圖節點 (歸屬「[chart] 財報(Bar)」群組)",
+        "description": "依序建立 4 組 ui-chart 柱狀圖節點 (尺寸皆為 3x4)，透過切換 Group By (Side-by-Side / Stacks) 與 Properties (Series / X / Y) 維度映射：\n\n• 節點 1「Bar chart-year(Side by side)」：\n  - Group By: Side-by-Side\n  - X-Axis Type: Categorical\n  - Properties: Series: key: year, X: key: quarter, Y: key: earnings\n  - 效果：以季度為 X 軸，並列比較各年度營收高低。\n\n• 節點 2「Bar chart-year(Stacks)」：\n  - Group By: Stacks\n  - X-Axis Type: Categorical\n  - Properties: Series: key: year, X: key: quarter, Y: key: earnings\n  - 效果：以季度為 X 軸，堆疊各年度營收，呈現各季度跨年累積總量。\n\n• 節點 3「Bar chart-quarter(Side by side)」：\n  - Group By: Side-by-Side\n  - X-Axis Type: Categorical\n  - Properties: Series: key: quarter, X: key: year, Y: key: earnings\n  - 效果：以年份為 X 軸，並列比較各季度 (Q1~Q4) 營收走勢。\n\n• 節點 4「Bar chart-quarter(Stacks)」：\n  - Group By: Stacks\n  - X-Axis Type: Categorical\n  - Properties: Series: key: quarter, X: key: year, Y: key: earnings\n  - 效果：以年份為 X 軸，堆疊各季度營收，直觀展現全年總營收體量。"
       },
       {
-        "step": "4. 配置 2 組 Pie Chart 圓餅圖節點 (歸屬「財報(Pie、Doughnut)」群組)",
-        "description": "建立 2 組圓餅圖節點：\n- 節點 5:「Pie chart(year)」— 呈現年度各季度佔比切片\n- 節點 6:「Pie chart(quarter)」— 呈現跨年度佔比切片"
+        "step": "4. 配置 2 組 Pie Chart 圓餅圖節點 (歸屬「[chart] 財報(Pie、Doughnut)」群組)",
+        "description": "依序建立 2 組圓餅圖節點 (尺寸皆為 3x3，X-Axis Type 為 Radial)：\n\n• 節點 5「Pie chart(year)」：\n  - Chart Type: Pie, Action: Append\n  - Properties: Series: key: year, X: key: quarter, Y: key: earnings\n  - 效果：以年份為分組，呈現各年度內部 Q1~Q4 佔比扇形切片。\n\n• 節點 6「Pie chart(quarter)」：\n  - Chart Type: Pie, Action: Append\n  - Properties: Series: key: quarter, X: key: year, Y: key: earnings\n  - 效果：以季度為分組，呈現各季度中 2021 vs 2022 年度的佔比切片。"
       },
       {
-        "step": "5. 配置 2 組 Doughnut Chart 甜甜圈圖節點 (歸屬「財報(Pie、Doughnut)」群組)",
-        "description": "建立 2 組甜甜圈環形圖節點：\n- 節點 7:「Doughnut chart(year)」— 呈現環形年度各季度佔比\n- 節點 8:「Doughnut chart(quarter)」— 呈現環形跨年度佔比"
+        "step": "5. 配置 2 組 Doughnut Chart 甜甜圈圖節點 (歸屬「[chart] 財報(Pie、Doughnut)」群組)",
+        "description": "依序建立 2 組甜甜圈圖節點 (尺寸皆為 3x3，X-Axis Type 為 Radial)：\n\n• 節點 7「Doughnut chart(year)」：\n  - Chart Type: Doughnut, Action: Replace\n  - Properties: Series: key: year, X: key: quarter, Y: key: earnings\n  - 效果：環形呈現年度各季度佔比，中心留白提升視覺呼吸感。\n\n• 節點 8「Doughnut chart(quarter)」：\n  - Chart Type: Doughnut, Action: Replace\n  - Properties: Series: key: quarter, X: key: year, Y: key: earnings\n  - 效果：環形呈現各季度跨年度佔比。"
       },
       {
         "step": "6. 部署並於 Web Dashboard 進行互動式多維度檢視",
@@ -6837,384 +6837,811 @@ window.INITIAL_LABS_DATA = [
     "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「Dashboard 實作: 財報多維統計圖表 (並列/堆疊柱狀圖、圓餅圖、甜甜圈圖)」：\n1. 規劃兩組 Dashboard 2.0 Group：「財報(Bar)」與「財報(Pie、Doughnut)」。\n2. 包含一個 Inject 節點「財報」，輸出多維度財務數據。\n3. 連接至「財報(Bar)」群組的 4 個 ui-chart 節點：\n   - Bar chart-year(Side by side)\n   - Bar chart-year(Stacks)\n   - Bar chart-quarter(Side by side)\n   - Bar chart-quarter(Stacks)\n4. 連接至「財報(Pie、Doughnut)」群組的 4 個 ui-chart 節點：\n   - Pie chart(year)\n   - Pie chart(quarter)\n   - Doughnut chart(year)\n   - Doughnut chart(quarter)\n請輸出標準可匯入 Node-RED 的 JSON Array。",
     "nodeRedJson": [
       {
-        "id": "inject_finance_report",
+        "id": "4ee31bba4ae29fc2",
+        "type": "group",
+        "z": "a0436b1311221605",
+        "style": {
+          "stroke": "#999999",
+          "stroke-opacity": "1",
+          "fill": "none",
+          "fill-opacity": "1",
+          "label": true,
+          "label-position": "nw",
+          "color": "#a4a4a4"
+        },
+        "nodes": [
+          "0a6991fb598a89c2",
+          "ab14b902cc68e2a6",
+          "ba04475db725cadc",
+          "b6ecc57248a89598"
+        ],
+        "x": 34,
+        "y": 793,
+        "w": 518,
+        "h": 534
+      },
+      {
+        "id": "0a6991fb598a89c2",
         "type": "inject",
-        "z": "tab_lab29",
+        "z": "a0436b1311221605",
+        "g": "4ee31bba4ae29fc2",
         "name": "財報",
         "props": [
           {
             "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
           }
         ],
         "repeat": "",
         "crontab": "",
-        "once": true,
+        "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "[{\"series\":[\"2021\",\"2022\"],\"data\":[[115,120,130,160],[142,152,160,158]],\"labels\":[\"Q1\",\"Q2\",\"Q3\",\"Q4\"]}]",
+        "payload": "[{\"year\":2021,\"quarter\":\"Q1\",\"earnings\":115},{\"year\":2021,\"quarter\":\"Q2\",\"earnings\":120},{\"year\":2021,\"quarter\":\"Q3\",\"earnings\":130},{\"year\":2021,\"quarter\":\"Q4\",\"earnings\":160},{\"year\":2022,\"quarter\":\"Q1\",\"earnings\":142},{\"year\":2022,\"quarter\":\"Q2\",\"earnings\":152},{\"year\":2022,\"quarter\":\"Q3\",\"earnings\":160},{\"year\":2022,\"quarter\":\"Q4\",\"earnings\":158}]",
         "payloadType": "json",
         "x": 130,
-        "y": 80,
+        "y": 840,
         "wires": [
           [
-            "chart_bar_year_side",
-            "chart_bar_year_stack",
-            "chart_bar_q_side",
-            "chart_bar_q_stack",
-            "chart_pie_year",
-            "chart_pie_q",
-            "chart_doughnut_year",
-            "chart_doughnut_q"
+            "82c90e11fedafc65",
+            "bad6a7df2836dc69",
+            "016c5d0b6f423df1",
+            "74e0cabd1b81c4c2",
+            "11eb4c38931eccfa",
+            "996d7448a02afdc9",
+            "836cbf820a3b8678",
+            "853f9c70593f3404"
           ]
         ]
       },
       {
-        "id": "chart_bar_year_side",
-        "type": "ui-chart",
-        "z": "tab_lab29",
-        "group": "group_bar_finance",
-        "order": 1,
-        "width": "3",
-        "height": "4",
-        "name": "Bar chart-year(Side by side)",
-        "label": "Bar chart-year(Side by side)",
-        "chartType": "bar",
-        "legend": "true",
-        "xformat": "",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "110",
-        "ymax": "160",
-        "removeOlder": 1,
-        "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
-        "cutout": 0,
-        "useOneColor": false,
-        "useUTC": false,
-        "colors": [
-          "#1f77b4",
-          "#ff0000",
-          "#ff7f0e",
-          "#2ca02c"
+        "id": "ab14b902cc68e2a6",
+        "type": "group",
+        "z": "a0436b1311221605",
+        "g": "4ee31bba4ae29fc2",
+        "style": {
+          "stroke": "#999999",
+          "stroke-opacity": "1",
+          "fill": "none",
+          "fill-opacity": "1",
+          "label": true,
+          "label-position": "nw",
+          "color": "#a4a4a4"
+        },
+        "nodes": [
+          "11eb4c38931eccfa",
+          "996d7448a02afdc9"
         ],
-        "outputs": 1,
-        "useDifferentColor": false,
-        "className": "",
-        "x": 520,
-        "y": 80,
-        "wires": [
-          []
-        ]
+        "x": 214,
+        "y": 1039,
+        "w": 232,
+        "h": 122
       },
       {
-        "id": "chart_bar_year_stack",
+        "id": "11eb4c38931eccfa",
         "type": "ui-chart",
-        "z": "tab_lab29",
-        "group": "group_bar_finance",
-        "order": 2,
-        "width": "3",
-        "height": "4",
-        "name": "Bar chart-year(Stacks)",
-        "label": "Bar chart-year(Stacks)",
-        "chartType": "bar",
-        "legend": "true",
-        "xformat": "",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "100",
-        "ymax": "350",
-        "removeOlder": 1,
-        "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
-        "cutout": 0,
-        "useOneColor": false,
-        "useUTC": false,
-        "colors": [
-          "#1f77b4",
-          "#ff0000",
-          "#ff7f0e",
-          "#2ca02c"
-        ],
-        "outputs": 1,
-        "useDifferentColor": false,
-        "className": "",
-        "x": 510,
-        "y": 130,
-        "wires": [
-          []
-        ]
-      },
-      {
-        "id": "chart_bar_q_side",
-        "type": "ui-chart",
-        "z": "tab_lab29",
-        "group": "group_bar_finance",
-        "order": 3,
-        "width": "3",
-        "height": "4",
-        "name": "Bar chart-quarter(Side by side)",
-        "label": "Bar chart-quarter(Side by side)",
-        "chartType": "bar",
-        "legend": "true",
-        "xformat": "",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "110",
-        "ymax": "160",
-        "removeOlder": 1,
-        "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
-        "cutout": 0,
-        "useOneColor": false,
-        "useUTC": false,
-        "colors": [
-          "#1f77b4",
-          "#ff0000",
-          "#ff7f0e",
-          "#2ca02c"
-        ],
-        "outputs": 1,
-        "useDifferentColor": false,
-        "className": "",
-        "x": 520,
-        "y": 180,
-        "wires": [
-          []
-        ]
-      },
-      {
-        "id": "chart_bar_q_stack",
-        "type": "ui-chart",
-        "z": "tab_lab29",
-        "group": "group_bar_finance",
-        "order": 4,
-        "width": "3",
-        "height": "4",
-        "name": "Bar chart-quarter(Stacks)",
-        "label": "Bar chart-quarter(Stacks)",
-        "chartType": "bar",
-        "legend": "true",
-        "xformat": "",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "100",
-        "ymax": "700",
-        "removeOlder": 1,
-        "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
-        "cutout": 0,
-        "useOneColor": false,
-        "useUTC": false,
-        "colors": [
-          "#1f77b4",
-          "#ff0000",
-          "#ff7f0e",
-          "#2ca02c"
-        ],
-        "outputs": 1,
-        "useDifferentColor": false,
-        "className": "",
-        "x": 510,
-        "y": 230,
-        "wires": [
-          []
-        ]
-      },
-      {
-        "id": "chart_pie_year",
-        "type": "ui-chart",
-        "z": "tab_lab29",
-        "group": "group_pie_doughnut_finance",
-        "order": 1,
-        "width": "3",
-        "height": "4",
-        "name": "Pie chart(year)",
+        "z": "a0436b1311221605",
+        "g": "ab14b902cc68e2a6",
+        "group": "c0c81973cece8a35",
+        "name": "",
         "label": "Pie chart(year)",
-        "chartType": "pie",
-        "legend": "true",
-        "xformat": "",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "",
-        "ymax": "",
-        "removeOlder": 1,
-        "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
-        "cutout": 0,
-        "useOneColor": false,
-        "useUTC": false,
-        "colors": [
-          "#1f77b4",
-          "#ff0000",
-          "#ff7f0e",
-          "#2ca02c"
-        ],
-        "outputs": 1,
-        "useDifferentColor": false,
-        "className": "",
-        "x": 480,
-        "y": 320,
-        "wires": [
-          []
-        ]
-      },
-      {
-        "id": "chart_pie_q",
-        "type": "ui-chart",
-        "z": "tab_lab29",
-        "group": "group_pie_doughnut_finance",
-        "order": 2,
-        "width": "3",
-        "height": "4",
-        "name": "Pie chart(quarter)",
-        "label": "Pie chart(quarter)",
-        "chartType": "pie",
-        "legend": "true",
-        "xformat": "",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "",
-        "ymax": "",
-        "removeOlder": 1,
-        "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
-        "cutout": 0,
-        "useOneColor": false,
-        "useUTC": false,
-        "colors": [
-          "#1f77b4",
-          "#ff0000",
-          "#ff7f0e",
-          "#2ca02c"
-        ],
-        "outputs": 1,
-        "useDifferentColor": false,
-        "className": "",
-        "x": 490,
-        "y": 370,
-        "wires": [
-          []
-        ]
-      },
-      {
-        "id": "chart_doughnut_year",
-        "type": "ui-chart",
-        "z": "tab_lab29",
-        "group": "group_pie_doughnut_finance",
-        "order": 3,
-        "width": "3",
-        "height": "4",
-        "name": "Doughnut chart(year)",
-        "label": "Doughnut chart(year)",
-        "chartType": "pie",
-        "legend": "true",
-        "xformat": "",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "",
-        "ymax": "",
-        "removeOlder": 1,
-        "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
-        "cutout": 50,
-        "useOneColor": false,
-        "useUTC": false,
-        "colors": [
-          "#1f77b4",
-          "#ff0000",
-          "#ff7f0e",
-          "#2ca02c"
-        ],
-        "outputs": 1,
-        "useDifferentColor": false,
-        "className": "",
-        "x": 510,
-        "y": 450,
-        "wires": [
-          []
-        ]
-      },
-      {
-        "id": "chart_doughnut_q",
-        "type": "ui-chart",
-        "z": "tab_lab29",
-        "group": "group_pie_doughnut_finance",
-        "order": 4,
-        "width": "3",
-        "height": "4",
-        "name": "Doughnut chart(quarter)",
-        "label": "Doughnut chart(quarter)",
-        "chartType": "pie",
-        "legend": "true",
-        "xformat": "",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "",
-        "ymax": "",
-        "removeOlder": 1,
-        "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
-        "cutout": 50,
-        "useOneColor": false,
-        "useUTC": false,
-        "colors": [
-          "#1f77b4",
-          "#ff0000",
-          "#ff7f0e",
-          "#2ca02c"
-        ],
-        "outputs": 1,
-        "useDifferentColor": false,
-        "className": "",
-        "x": 510,
-        "y": 500,
-        "wires": [
-          []
-        ]
-      },
-      {
-        "id": "group_bar_finance",
-        "type": "ui_group",
-        "name": "財報(Bar)",
-        "tab": "tab_finance_lab29",
         "order": 1,
-        "disp": true,
-        "width": 12,
-        "collapse": false,
-        "className": ""
+        "chartType": "pie",
+        "category": "year",
+        "categoryType": "property",
+        "xAxisLabel": "",
+        "xAxisProperty": "quarter",
+        "xAxisPropertyType": "property",
+        "xAxisType": "radial",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "earnings",
+        "yAxisPropertyType": "property",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+          "#0095ff",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c",
+          "#a347e1",
+          "#d62728",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "textColor": [
+          "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+          "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "3",
+        "height": "3",
+        "className": "",
+        "interpolation": "linear",
+        "x": 320,
+        "y": 1080,
+        "wires": [
+          []
+        ]
       },
       {
-        "id": "group_pie_doughnut_finance",
-        "type": "ui_group",
-        "name": "財報(Pie、Doughnut)",
-        "tab": "tab_finance_lab29",
+        "id": "996d7448a02afdc9",
+        "type": "ui-chart",
+        "z": "a0436b1311221605",
+        "g": "ab14b902cc68e2a6",
+        "group": "c0c81973cece8a35",
+        "name": "",
+        "label": "Pie chart(quarter)",
         "order": 2,
-        "disp": true,
-        "width": 12,
-        "collapse": false,
-        "className": ""
+        "chartType": "pie",
+        "category": "quarter",
+        "categoryType": "property",
+        "xAxisLabel": "",
+        "xAxisProperty": "year",
+        "xAxisPropertyType": "property",
+        "xAxisType": "radial",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "earnings",
+        "yAxisPropertyType": "property",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+          "#0095ff",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c",
+          "#a347e1",
+          "#d62728",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "textColor": [
+          "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+          "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "3",
+        "height": "3",
+        "className": "",
+        "interpolation": "linear",
+        "x": 330,
+        "y": 1120,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "c0c81973cece8a35",
+        "type": "ui-group",
+        "name": "財報(Pie、Doughnut)",
+        "page": "0d502885e523250a",
+        "width": "13",
+        "height": 1,
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+      },
+      {
+        "id": "0d502885e523250a",
+        "type": "ui-page",
+        "name": "chart",
+        "ui": "0225572c72917e10",
+        "path": "/page4",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "5b23a3490c079e4c",
+        "breakpoints": [
+          {
+            "name": "Default",
+            "px": "0",
+            "cols": "3"
+          },
+          {
+            "name": "Tablet",
+            "px": "576",
+            "cols": "6"
+          },
+          {
+            "name": "Small Desktop",
+            "px": "768",
+            "cols": "9"
+          },
+          {
+            "name": "Desktop",
+            "px": "1024",
+            "cols": "12"
+          }
+        ],
+        "order": 3,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+      },
+      {
+        "id": "0225572c72917e10",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+          "ui-notification",
+          "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+      },
+      {
+        "id": "5b23a3490c079e4c",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+          "surface": "#ffffff",
+          "primary": "#007ecc",
+          "bgPage": "#fcfcfc",
+          "groupBg": "#ffffff",
+          "groupOutline": "#cccccc"
+        },
+        "sizes": {
+          "density": "default",
+          "pagePadding": "12px",
+          "groupGap": "12px",
+          "groupBorderRadius": "4px",
+          "widgetGap": "12px"
+        }
+      },
+      {
+        "id": "ba04475db725cadc",
+        "type": "group",
+        "z": "a0436b1311221605",
+        "g": "4ee31bba4ae29fc2",
+        "style": {
+          "stroke": "#999999",
+          "stroke-opacity": "1",
+          "fill": "none",
+          "fill-opacity": "1",
+          "label": true,
+          "label-position": "nw",
+          "color": "#a4a4a4"
+        },
+        "nodes": [
+          "836cbf820a3b8678",
+          "853f9c70593f3404"
+        ],
+        "x": 214,
+        "y": 1179,
+        "w": 272,
+        "h": 122
+      },
+      {
+        "id": "836cbf820a3b8678",
+        "type": "ui-chart",
+        "z": "a0436b1311221605",
+        "g": "ba04475db725cadc",
+        "group": "c0c81973cece8a35",
+        "name": "",
+        "label": "Doughnut chart(year)",
+        "order": 3,
+        "chartType": "doughnut",
+        "category": "year",
+        "categoryType": "property",
+        "xAxisLabel": "",
+        "xAxisProperty": "quarter",
+        "xAxisPropertyType": "property",
+        "xAxisType": "radial",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "earnings",
+        "yAxisPropertyType": "property",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "replace",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+          "#0095ff",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c",
+          "#a347e1",
+          "#d62728",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "textColor": [
+          "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+          "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "3",
+        "height": "3",
+        "className": "",
+        "interpolation": "linear",
+        "x": 340,
+        "y": 1220,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "853f9c70593f3404",
+        "type": "ui-chart",
+        "z": "a0436b1311221605",
+        "g": "ba04475db725cadc",
+        "group": "c0c81973cece8a35",
+        "name": "",
+        "label": "Doughnut chart(quarter)",
+        "order": 4,
+        "chartType": "doughnut",
+        "category": "quarter",
+        "categoryType": "property",
+        "xAxisLabel": "",
+        "xAxisProperty": "year",
+        "xAxisPropertyType": "property",
+        "xAxisType": "radial",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "earnings",
+        "yAxisPropertyType": "property",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "replace",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+          "#0095ff",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c",
+          "#a347e1",
+          "#d62728",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "textColor": [
+          "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+          "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "3",
+        "height": "3",
+        "className": "",
+        "interpolation": "linear",
+        "x": 350,
+        "y": 1260,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "b6ecc57248a89598",
+        "type": "group",
+        "z": "a0436b1311221605",
+        "g": "4ee31bba4ae29fc2",
+        "style": {
+          "stroke": "#999999",
+          "stroke-opacity": "1",
+          "fill": "none",
+          "fill-opacity": "1",
+          "label": true,
+          "label-position": "nw",
+          "color": "#a4a4a4"
+        },
+        "nodes": [
+          "82c90e11fedafc65",
+          "bad6a7df2836dc69",
+          "016c5d0b6f423df1",
+          "74e0cabd1b81c4c2"
+        ],
+        "x": 214,
+        "y": 819,
+        "w": 312,
+        "h": 202
+      },
+      {
+        "id": "82c90e11fedafc65",
+        "type": "ui-chart",
+        "z": "a0436b1311221605",
+        "g": "b6ecc57248a89598",
+        "group": "e488999a3349f003",
+        "name": "",
+        "label": "Bar chart-year(Side by side)",
+        "order": 1,
+        "chartType": "bar",
+        "category": "year",
+        "categoryType": "property",
+        "xAxisLabel": "",
+        "xAxisProperty": "quarter",
+        "xAxisPropertyType": "property",
+        "xAxisType": "category",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "earnings",
+        "yAxisPropertyType": "property",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+          "#0095ff",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c",
+          "#a347e1",
+          "#d62728",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "textColor": [
+          "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+          "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "2",
+        "height": "3",
+        "className": "",
+        "interpolation": "linear",
+        "x": 360,
+        "y": 860,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "bad6a7df2836dc69",
+        "type": "ui-chart",
+        "z": "a0436b1311221605",
+        "g": "b6ecc57248a89598",
+        "group": "e488999a3349f003",
+        "name": "",
+        "label": "Bar chart-year(Stacks)",
+        "order": 2,
+        "chartType": "bar",
+        "category": "year",
+        "categoryType": "property",
+        "xAxisLabel": "",
+        "xAxisProperty": "quarter",
+        "xAxisPropertyType": "property",
+        "xAxisType": "category",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "earnings",
+        "yAxisPropertyType": "property",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": true,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+          "#0095ff",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c",
+          "#a347e1",
+          "#d62728",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "textColor": [
+          "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+          "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "2",
+        "height": "3",
+        "className": "",
+        "interpolation": "linear",
+        "x": 340,
+        "y": 900,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "016c5d0b6f423df1",
+        "type": "ui-chart",
+        "z": "a0436b1311221605",
+        "g": "b6ecc57248a89598",
+        "group": "e488999a3349f003",
+        "name": "",
+        "label": "Bar chart-quarter(Side by side)",
+        "order": 3,
+        "chartType": "bar",
+        "category": "quarter",
+        "categoryType": "property",
+        "xAxisLabel": "",
+        "xAxisProperty": "year",
+        "xAxisPropertyType": "property",
+        "xAxisType": "category",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "earnings",
+        "yAxisPropertyType": "property",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+          "#0095ff",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c",
+          "#a347e1",
+          "#d62728",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "textColor": [
+          "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+          "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "2",
+        "height": "3",
+        "className": "",
+        "interpolation": "linear",
+        "x": 370,
+        "y": 940,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "74e0cabd1b81c4c2",
+        "type": "ui-chart",
+        "z": "a0436b1311221605",
+        "g": "b6ecc57248a89598",
+        "group": "e488999a3349f003",
+        "name": "",
+        "label": "Bar chart-quarter(Stacks)",
+        "order": 4,
+        "chartType": "bar",
+        "category": "quarter",
+        "categoryType": "property",
+        "xAxisLabel": "",
+        "xAxisProperty": "year",
+        "xAxisPropertyType": "property",
+        "xAxisType": "category",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "earnings",
+        "yAxisPropertyType": "property",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": true,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+          "#0095ff",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c",
+          "#a347e1",
+          "#d62728",
+          "#ff9896",
+          "#9467bd",
+          "#c5b0d5"
+        ],
+        "textColor": [
+          "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+          "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "2",
+        "height": "3",
+        "className": "",
+        "interpolation": "linear",
+        "x": 350,
+        "y": 980,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "e488999a3349f003",
+        "type": "ui-group",
+        "name": "財報(Bar)",
+        "page": "0d502885e523250a",
+        "width": "13",
+        "height": 1,
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+      },
+      {
+        "id": "1dcc8e21ca8a9beb",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+          "@flowfuse/node-red-dashboard": "1.30.2"
+        }
       }
     ],
     "references": [
       {
+        "title": "專題指南：財報與工控視覺化指南：四大長條圖 (Bar Chart) 呈現方式深度解析",
+        "url": "補充/Dashboard_圖表比較_chart_Gauge/財報圖表指南_Bar.html"
+      },
+      {
+        "title": "專題指南：財報圖表指南 - Pie vs Doughnut 環形圖多層結構解析",
+        "url": "補充/Dashboard_圖表比較_chart_Gauge/財報圖表指南_Pie_vs_Doughnut.html"
+      },
+      {
+        "title": "互動學習系統：Node-RED Chart 各類圖表型態深度比較與選型實驗室",
+        "url": "dashboard_chart_types_comparison.html"
+      },
+      {
         "title": "FlowFuse Dashboard 2.0 - ui-chart 統計圖表 (Bar / Pie / Doughnut) 官方手冊",
         "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-chart.html"
+      }
+    ],
+    "extraImages": [
+      {
+        "title": "1. Bar chart-year (Side-by-Side) 配置：Series=year, X=quarter, Y=earnings",
+        "image": "images_src/ok/20261001_lab29_bar_year_side_config.png",
+        "icon": "fa-solid fa-chart-column"
       },
       {
-        "title": "Node-RED Dashboard 2.0 - Layouts 版面與群組排版指南",
-        "url": "https://dashboard.flowfuse.com/layouts/"
+        "title": "2. Bar chart-year (Stacks 堆疊) 配置：Series=year, X=quarter, Y=earnings",
+        "image": "images_src/ok/20261001_lab29_bar_year_stack_config.png",
+        "icon": "fa-solid fa-layer-group"
       },
       {
-        "title": "Chart.js 官方文件 - 統計圖表類型與配置說明",
-        "url": "https://www.chartjs.org/docs/latest/charts/"
+        "title": "3. Bar chart-quarter (Side-by-Side) 配置：Series=quarter, X=year, Y=earnings",
+        "image": "images_src/ok/20261001_lab29_bar_quarter_side_config.png",
+        "icon": "fa-solid fa-chart-column"
+      },
+      {
+        "title": "4. Bar chart-quarter (Stacks 堆疊) 配置：Series=quarter, X=year, Y=earnings",
+        "image": "images_src/ok/20261001_lab29_bar_quarter_stack_config.png",
+        "icon": "fa-solid fa-layer-group"
+      },
+      {
+        "title": "5. Pie chart(year) 圓餅圖配置：Type=Pie, Radial, Series=year, X=quarter, Y=earnings",
+        "image": "images_src/ok/20261001_lab29_pie_year_config.png",
+        "icon": "fa-solid fa-chart-pie"
+      },
+      {
+        "title": "6. Pie chart(quarter) 圓餅圖配置：Type=Pie, Radial, Series=quarter, X=year, Y=earnings",
+        "image": "images_src/ok/20261001_lab29_pie_quarter_config.png",
+        "icon": "fa-solid fa-chart-pie"
+      },
+      {
+        "title": "7. Doughnut chart(year) 甜甜圈配置：Type=Doughnut, Radial, Series=year, X=quarter, Y=earnings",
+        "image": "images_src/ok/20261001_lab29_doughnut_year_config.png",
+        "icon": "fa-solid fa-circle-notch"
+      },
+      {
+        "title": "8. Doughnut chart(quarter) 甜甜圈配置：Type=Doughnut, Radial, Series=quarter, X=year, Y=earnings",
+        "image": "images_src/ok/20261001_lab29_doughnut_quarter_config.png",
+        "icon": "fa-solid fa-circle-notch"
       }
     ]
   },
