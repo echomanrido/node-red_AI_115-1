@@ -6779,5 +6779,443 @@ window.INITIAL_LABS_DATA = [
         "url": "https://flows.nodered.org/node/node-red-node-random"
       }
     ]
+  },
+  {
+    "id": "lab-29",
+    "labNumber": "29",
+    "number": "29",
+    "title": "Dashboard 實作: 財報多維統計圖表 (並列/堆疊柱狀圖、圓餅圖、甜甜圈圖多維度展示)",
+    "date": "2026-10-01",
+    "category": "進階實作",
+    "summary": "深入學習 Node-RED Dashboard 2.0 中高階統計資料視覺化技術。透過單一「財報」Inject 節點傳遞多維度財務數據 (包含 2021 與 2022 各季度營收)，同時分流驅動 8 組統計圖表：並列柱狀圖 (Side-by-Side Bar)、堆疊柱狀圖 (Stacked Bar)、圓餅圖 (Pie Chart) 與甜甜圈圖 (Doughnut Chart)，並按「年份維度」與「季度維度」分別排版於「財報(Bar)」與「財報(Pie、Doughnut)」群組中，掌握企業戰情室多維指標分析與報表設計技巧。",
+    "flowImage": "images_src/ok/20261001_flow_lab29_dashboard_financial_charts.png",
+    "resultImage": "images_src/ok/20261001_result_lab29_dashboard_financial_charts.png",
+    "objective": "1. 掌握 Node-RED Dashboard 2.0 中 ui-chart 節點支援的 Bar (柱狀圖)、Pie (圓餅圖) 與 Doughnut (甜甜圈圖) 模式。\n2. 理解多維度資料結構在柱狀圖中的兩種經典比較方式：Side-by-Side (並列對比) 與 Stacked (堆疊累積總量)。\n3. 學習如何切換分析維度：以年份為主軸 (2021 vs 2022) 或以季度為主軸 (Q1~Q4) 生成多角度佔比圖表。\n4. 掌握在 Dashboard 2.0 中透過 Group 分群（「財報(Bar)」與「財報(Pie、Doughnut)」）進行戰情室版面規劃與視覺平衡。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Dashboard 2.0 分群規劃",
+        "description": "在 Layout 面板中建立兩組 Group：上方群組命名為「財報(Bar)」，下方群組命名為「財報(Pie、Doughnut)」。"
+      },
+      {
+        "step": "2. 配置財報數據 Inject 節點",
+        "description": "建立 Inject 節點命名為「財報」，payload 設定為包含 2021/2022 與 Q1~Q4 營收數據的標準多維度 JSON 物件或陣列。"
+      },
+      {
+        "step": "3. 配置 4 組 Bar Chart 柱狀圖節點 (歸屬「財報(Bar)」群組)",
+        "description": "依序建立 4 組柱狀圖節點：\n- 節點 1:「Bar chart-year(Side by side)」— X 軸為季度，並列 2021/2022 柱狀條\n- 節點 2:「Bar chart-year(Stacks)」— X 軸為季度，堆疊 2021/2022 柱狀條\n- 節點 3:「Bar chart-quarter(Side by side)」— X 軸為年份，並列 Q1~Q4 柱狀條\n- 節點 4:「Bar chart-quarter(Stacks)」— X 軸為年份，堆疊 Q1~Q4 總量柱狀條"
+      },
+      {
+        "step": "4. 配置 2 組 Pie Chart 圓餅圖節點 (歸屬「財報(Pie、Doughnut)」群組)",
+        "description": "建立 2 組圓餅圖節點：\n- 節點 5:「Pie chart(year)」— 呈現年度各季度佔比切片\n- 節點 6:「Pie chart(quarter)」— 呈現跨年度佔比切片"
+      },
+      {
+        "step": "5. 配置 2 組 Doughnut Chart 甜甜圈圖節點 (歸屬「財報(Pie、Doughnut)」群組)",
+        "description": "建立 2 組甜甜圈環形圖節點：\n- 節點 7:「Doughnut chart(year)」— 呈現環形年度各季度佔比\n- 節點 8:「Doughnut chart(quarter)」— 呈現環形跨年度佔比"
+      },
+      {
+        "step": "6. 部署並於 Web Dashboard 進行互動式多維度檢視",
+        "description": "點擊「部署」後觸發 Inject「財報」，在網頁上觀察 8 組圖表同步渲染出顏色鮮明、佈局整齊的專業財務統計儀表板。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / 工廠各產線每季產能與良率多維統計看板",
+        "icon": "fa-solid fa-gears",
+        "description": "SCADA 系統自 MES 生產資料庫撈取 Line 1 與 Line 2 各季度產出數據，以 Side-by-Side Bar 對比產線產能差異；以 Stacked Bar 統計全廠季總產量；以 Pie/Doughnut 檢視各產線佔比，輔助廠長排程決策。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 晶圓廠務電力與超純水各廠區耗用佔比",
+        "icon": "fa-solid fa-microchip",
+        "description": "廠務能源戰情室將南科、中科、竹科各晶圓廠之水電耗能以 Doughnut chart 呈現整體能耗佔比；以 Stacked Bar 追蹤連續兩年各季節能減碳目標達成率，實現精準綠色製造管理。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧物流樞紐各區域包裹吞吐量與旺季分佈",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "中央物流轉運中心以 Side-by-Side 柱狀圖對比雙 11 與非節慶各季度派件量；以 Pie chart 統計北/中/南/東四區快遞份額，作為各站點車輛調度與倉儲擴建評估依據。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「Dashboard 實作: 財報多維統計圖表 (並列/堆疊柱狀圖、圓餅圖、甜甜圈圖)」：\n1. 規劃兩組 Dashboard 2.0 Group：「財報(Bar)」與「財報(Pie、Doughnut)」。\n2. 包含一個 Inject 節點「財報」，輸出多維度財務數據。\n3. 連接至「財報(Bar)」群組的 4 個 ui-chart 節點：\n   - Bar chart-year(Side by side)\n   - Bar chart-year(Stacks)\n   - Bar chart-quarter(Side by side)\n   - Bar chart-quarter(Stacks)\n4. 連接至「財報(Pie、Doughnut)」群組的 4 個 ui-chart 節點：\n   - Pie chart(year)\n   - Pie chart(quarter)\n   - Doughnut chart(year)\n   - Doughnut chart(quarter)\n請輸出標準可匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "inject_finance_report",
+        "type": "inject",
+        "z": "tab_lab29",
+        "name": "財報",
+        "props": [
+          {
+            "p": "payload"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{\"series\":[\"2021\",\"2022\"],\"data\":[[115,120,130,160],[142,152,160,158]],\"labels\":[\"Q1\",\"Q2\",\"Q3\",\"Q4\"]}]",
+        "payloadType": "json",
+        "x": 130,
+        "y": 80,
+        "wires": [
+          [
+            "chart_bar_year_side",
+            "chart_bar_year_stack",
+            "chart_bar_q_side",
+            "chart_bar_q_stack",
+            "chart_pie_year",
+            "chart_pie_q",
+            "chart_doughnut_year",
+            "chart_doughnut_q"
+          ]
+        ]
+      },
+      {
+        "id": "chart_bar_year_side",
+        "type": "ui-chart",
+        "z": "tab_lab29",
+        "group": "group_bar_finance",
+        "order": 1,
+        "width": "3",
+        "height": "4",
+        "name": "Bar chart-year(Side by side)",
+        "label": "Bar chart-year(Side by side)",
+        "chartType": "bar",
+        "legend": "true",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "110",
+        "ymax": "160",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 520,
+        "y": 80,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "chart_bar_year_stack",
+        "type": "ui-chart",
+        "z": "tab_lab29",
+        "group": "group_bar_finance",
+        "order": 2,
+        "width": "3",
+        "height": "4",
+        "name": "Bar chart-year(Stacks)",
+        "label": "Bar chart-year(Stacks)",
+        "chartType": "bar",
+        "legend": "true",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "100",
+        "ymax": "350",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 510,
+        "y": 130,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "chart_bar_q_side",
+        "type": "ui-chart",
+        "z": "tab_lab29",
+        "group": "group_bar_finance",
+        "order": 3,
+        "width": "3",
+        "height": "4",
+        "name": "Bar chart-quarter(Side by side)",
+        "label": "Bar chart-quarter(Side by side)",
+        "chartType": "bar",
+        "legend": "true",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "110",
+        "ymax": "160",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 520,
+        "y": 180,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "chart_bar_q_stack",
+        "type": "ui-chart",
+        "z": "tab_lab29",
+        "group": "group_bar_finance",
+        "order": 4,
+        "width": "3",
+        "height": "4",
+        "name": "Bar chart-quarter(Stacks)",
+        "label": "Bar chart-quarter(Stacks)",
+        "chartType": "bar",
+        "legend": "true",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "100",
+        "ymax": "700",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 510,
+        "y": 230,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "chart_pie_year",
+        "type": "ui-chart",
+        "z": "tab_lab29",
+        "group": "group_pie_doughnut_finance",
+        "order": 1,
+        "width": "3",
+        "height": "4",
+        "name": "Pie chart(year)",
+        "label": "Pie chart(year)",
+        "chartType": "pie",
+        "legend": "true",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 480,
+        "y": 320,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "chart_pie_q",
+        "type": "ui-chart",
+        "z": "tab_lab29",
+        "group": "group_pie_doughnut_finance",
+        "order": 2,
+        "width": "3",
+        "height": "4",
+        "name": "Pie chart(quarter)",
+        "label": "Pie chart(quarter)",
+        "chartType": "pie",
+        "legend": "true",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 490,
+        "y": 370,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "chart_doughnut_year",
+        "type": "ui-chart",
+        "z": "tab_lab29",
+        "group": "group_pie_doughnut_finance",
+        "order": 3,
+        "width": "3",
+        "height": "4",
+        "name": "Doughnut chart(year)",
+        "label": "Doughnut chart(year)",
+        "chartType": "pie",
+        "legend": "true",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 50,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 510,
+        "y": 450,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "chart_doughnut_q",
+        "type": "ui-chart",
+        "z": "tab_lab29",
+        "group": "group_pie_doughnut_finance",
+        "order": 4,
+        "width": "3",
+        "height": "4",
+        "name": "Doughnut chart(quarter)",
+        "label": "Doughnut chart(quarter)",
+        "chartType": "pie",
+        "legend": "true",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 50,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+          "#1f77b4",
+          "#ff0000",
+          "#ff7f0e",
+          "#2ca02c"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 510,
+        "y": 500,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "group_bar_finance",
+        "type": "ui_group",
+        "name": "財報(Bar)",
+        "tab": "tab_finance_lab29",
+        "order": 1,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+      },
+      {
+        "id": "group_pie_doughnut_finance",
+        "type": "ui_group",
+        "name": "財報(Pie、Doughnut)",
+        "tab": "tab_finance_lab29",
+        "order": 2,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+      }
+    ],
+    "references": [
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-chart 統計圖表 (Bar / Pie / Doughnut) 官方手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-chart.html"
+      },
+      {
+        "title": "Node-RED Dashboard 2.0 - Layouts 版面與群組排版指南",
+        "url": "https://dashboard.flowfuse.com/layouts/"
+      },
+      {
+        "title": "Chart.js 官方文件 - 統計圖表類型與配置說明",
+        "url": "https://www.chartjs.org/docs/latest/charts/"
+      }
+    ]
   }
 ];
