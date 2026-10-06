@@ -1,4 +1,4 @@
-window.INITIAL_AITOOLS_DATA = window.INITIAL_TOOLS_DATA = [
+window.INITIAL_AITOOLS_DATA = [
   {
     "id": "tool-suno",
     "toolNumber": "01",
@@ -1241,6 +1241,70 @@ window.INITIAL_AITOOLS_DATA = window.INITIAL_TOOLS_DATA = [
       {
         "title": "Google DeepMind - Gemini 提示詞工程與自訂指令設計指南",
         "url": "https://ai.google.dev/gemini-api/docs/prompting-strategies"
+      }
+    ]
+  },
+  {
+    "id": "tool-google-antigravity-2",
+    "toolNumber": "21",
+    "title": "Google Antigravity 2.0 - 多 Agent 協同自主開發平台與智慧工控中樞",
+    "date": "2026-10-06",
+    "category": "Google AI 實用工具",
+    "summary": "Google Antigravity 2.0 是 Google DeepMind 專為工程師與開發者打造的次世代專屬自主 Agent (自主代理) 開發平台。支援在獨立專案間平行調度與編排多個自主 Agent (Subagents)、排程背景任務 (Scheduled Tasks)、擴充技能庫 (Skills) 與 MCP 協議，並能深度整合本機檔案系統、終端機命令與 Git 版本控制，實現高效率的 Vibe Coding 與機電工控/Web 自動化開發。",
+    "webUrl": "https://antigravity.google/product/antigravity-2",
+    "flowImage": [
+      "images_src/ok/20261006_antigravity_2_website.png",
+      "images_src/ok/20261006_antigravity_2_desktop_app.png"
+    ],
+    "objective": "1. 認識 Google Antigravity 2.0 核心架構，掌握多 Agent 並行編排 (Multi-Agent Orchestration) 與自主任務執行機制。\n2. 掌握 Antigravity 桌面版整合開發環境：對話歷史 (Conversation History)、定時排程 (Scheduled Tasks)、產出物 (Artifacts) 與子代理 (Subagents) 協同作業。\n3. 學習如何配置與調用自訂技能 (Skills) 及 MCP (模型上下文協定) 伺服器以擴展代理能力。\n4. 結合 Node-RED、SCADA 工控專案與 Git 自動化部署，體驗現代化 Vibe Coding 高速開發流程。",
+    "tutorialSteps": [
+      {
+        "step": "1. 瀏覽官網並下載安裝 Antigravity 2.0",
+        "description": "前往 Google Antigravity 產品頁面 (https://antigravity.google/product/antigravity-2)，點擊「Download」下載適用於 Windows / macOS / Linux 的桌面端安裝檔並完成安裝與 Google 帳號授權登入。"
+      },
+      {
+        "step": "2. 開啟專案工作區 (Workspace) 與環境檢視",
+        "description": "在 Antigravity 2.0 桌面端點擊「Open Project」，載入本地程式碼專案資料夾（如 Node-RED 講義教材庫）。左側導覽列將即時整合專案結構、對話歷史、知識庫 (Knowledge) 與定時排程任務 (Scheduled Tasks)。"
+      },
+      {
+        "step": "3. 調度自主代理 (Subagents) 與技能庫 (Skills)",
+        "description": "透過自然語言指令直接指派複雜任務。Antigravity 可在背景自主生成規劃 (Implementation Plan)、自動拆解任務並衍生獨立的 Subagent 執行程式碼編寫、終端指令測試與資料庫同步。"
+      },
+      {
+        "step": "4. 即時預覽產出物 (Artifacts) 與 Git 自動化提交",
+        "description": "透過右側面板檢視即時產出的 Walkthrough (成果報告)、Task 任務清單與程式碼 Diff。確認無誤後，可直接透過 Agent 執行自動化測試、Git Commit 與 GitHub 遠端推送。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / PLC 與 Node-RED 題庫自動化解析與程式碼生成",
+        "icon": "fa-solid fa-gears",
+        "description": "在機電整合專案中，透過 Antigravity 2.0 同時調用視覺辨識與程式碼生成 Agent，自動解析 PLC 階梯圖與感測器時序表，秒級生成對應的 Node-RED Dashboard 2.0 儀表板與 Modbus 邏輯。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 跨廠區 SCADA 數據清洗與大數據管線自動化",
+        "icon": "fa-solid fa-microchip",
+        "description": "工控工程師利用 Antigravity 的排程任務與背景 Agent，定時監控各機台 OPC-UA/MQTT 封包異常，自主撰寫資料庫清洗腳本並同步推播預警報表至主管中控台。"
+      },
+      {
+        "scenario": "全端 Web 應用與智慧教材庫持續整合 (CI/CD)",
+        "icon": "fa-solid fa-code-branch",
+        "description": "在教學網站開發中，Antigravity 能自主維護 JSON 結構、同步編譯前端 JavaScript 資料庫 (Data.js)、校驗 HTML 語法並一鍵推送至 GitHub Pages 發布最新版教材。"
+      }
+    ],
+    "aiPrompt": "請扮演 Google Antigravity 2.0 系統架構師，幫我規劃一套在機電物聯網與 Node-RED 專案中導入 Antigravity 2.0 的最佳實踐方案：\n1. 請說明 Antigravity 2.0 桌面版如何透過多 Agent 協同（Orchestration）同時處理代碼重構、單元測試與文件生成。\n2. 介紹如何為 Antigravity 配置自訂技能 (Skills) 與 MCP 協議以讀寫本地 Node-RED 流程 JSON 與 SQLite 資料庫。\n3. 給出一組可在 Antigravity 中直接下達的高效 Prompt 範例，示範全自動修復 Dashboard 2.0 圖表並推送至 GitHub。",
+    "references": [
+      {
+        "title": "Google Antigravity 2.0 官方產品網站",
+        "url": "https://antigravity.google/product/antigravity-2"
+      },
+      {
+        "title": "Google Antigravity 官方首頁",
+        "url": "https://antigravity.google"
+      },
+      {
+        "title": "Google DeepMind - 次世代自主 AI Agent 技術與架構解析",
+        "url": "https://deepmind.google/technologies/gemini/"
       }
     ]
   }
