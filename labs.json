@@ -8510,5 +8510,426 @@
         "icon": "fa-solid fa-table-columns"
       }
     ]
+  },
+  {
+    "id": "lab-32",
+    "labNumber": "32",
+    "number": "32",
+    "title": "練習 12-1: 顯示圖片-Base64 - Dashboard 2.0 ui-template 動態機台照片渲染與本機讀檔對照",
+    "date": "2026-10-06",
+    "category": "進階實作",
+    "summary": "深入學習 Node-RED Dashboard 2.0 中透過 ui-template 節點動態渲染工業設備機台照片的高階技巧。本實作提供兩大核心路徑對照：\n1.「本機讀檔 (read file)」：透過 read file 節點讀取本地硬碟實體圖片（如 D:\\000.WuGo\\全立發射出機.png）並轉為 Buffer/Base64。\n2.「純 Base64 字串注入 (Function)」：直接在 Function 節點中將圖片編碼為 Base64 字串並賦值給 msg.payload。\n3.「ui-template 動態綁定」：利用 Vue 響應式屬性 <img :src=\"'data:image/jpeg;base64,' + msg.payload\" />，結合 ui-button 按鈕切換，在 HMI 戰情室上實現毫秒級無刷新切換多機台設備外觀與實況照片。",
+    "flowImage": "images_src/ok/20261006_lab32_image_base64_flow.png",
+    "resultImage": "images_src/ok/20261006_lab32_image_base64_result.png",
+    "funcImage": "images_src/ok/20261006_lab32_function_base64_code.png",
+    "objective": "1. 掌握 Base64 圖片編碼原理（Data URL 格式：data:image/jpeg;base64,DATA）及其在 Web/HMI 頁面免外部圖床直接渲染的優勢。\n2. 學習 Node-RED Dashboard 2.0 ui-template 節點的 Vue 響應式語法（如 :src 屬性動態拼接 msg.payload）。\n3. 對比兩種圖片數據來源：本機實體硬碟讀檔 (read file) 與記憶體 Function 節點純 Base64 字串直接注入。\n4. 掌握多按鈕 (ui-button) 觸發切換不同機台設備（如全立發射出機、CNC、機械手臂）實機外觀照片之 SCADA 戰情室排版。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Flow 基礎架構與 3 條圖片觸發分支",
+        "description": "拖入一個 Comment 註解節點命名為「練習12-1:顯示圖片-Base64」，接著建立 3 組觸發路徑：\n• 路徑 1（本機讀檔）：Inject「時間戳」➔ ui-button「圖1」➔ read file 節點（路徑：D:\\000.WuGo\\全立發射出機.png）➔ ui-template「template」節點。\n• 路徑 2（Base64 函式 1）：Inject「時間戳」➔ ui-button「圖2」➔ Function「Base64方式」➔ ui-template 節點與 debug 50。\n• 路徑 3（Base64 函式 2）：Inject「時間戳」➔ ui-button「圖3」➔ Function「Base64方式」➔ ui-template 節點與 debug 50。"
+      },
+      {
+        "step": "2. 撰寫 Function 節點 Base64 圖片字串程式碼",
+        "description": "雙擊開啟「Base64方式」Function 節點，將已轉為 Base64 的圖片編碼字串賦值給 msg.payload：\n\nmsg.payload = \"iVBORw0KGgoAAAANSUhEUgAAAwkAAADsCAIAACwmH13AAAAAXNSR0IArs4c6QAAAARn...\"\nreturn msg;"
+      },
+      {
+        "step": "3. 配置 ui-template 節點動態圖片標籤",
+        "description": "雙擊開啟「template」ui-template 節點：\n• Type 設為 Widget (Group-Scoped)\n• Group 指定為「[115_機電AI班_01期] 顯示圖片」\n• Size 設為 auto\n• Template 編輯區輸入 Vue 動態綁定標籤：\n<img :src=\"'data:image/jpeg;base64,' + msg.payload\" />"
+      },
+      {
+        "step": "4. 部署並於 Web Dashboard 驗證動態圖片切換",
+        "description": "點擊右上角「Deploy」部署流程，開啟網頁端 /dashboard。在「顯示圖片」群組中，點擊綠色「圖1」、藍色「圖2」或「圖3」按鈕，即可看到全立發塑膠射出機 (CLF-285TX) 等機台照片即時切換渲染，且完全不需額外網頁伺服器託管圖檔！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / 站別機台實體照片與操作手冊即時呼叫",
+        "icon": "fa-solid fa-gears",
+        "description": "在機電整合術科 HMI 中，點擊特定工站（如送料站、裝配站、分選站）按鈕時，透過 Base64 或本地 read file 即時在觸控螢幕顯示該站機構 3D 渲染圖與接線端子照片，輔助現場快速排錯。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 晶圓瑕疵 AOI 檢測照片即時推播看板",
+        "icon": "fa-solid fa-microchip",
+        "description": "光學檢測機台 (AOI) 拍攝晶圓晶粒 (Die) 刮痕或微塵照片後，自動將影像轉換為 Base64 字串經由 MQTT 發送至 Node-RED，ui-template 即時在中央品管戰情室大螢幕彈出高解析瑕疵實景圖。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧快遞箱開箱影像即時拍照回傳",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "快遞員開箱投放包裹時，ESP32-CAM 鏡頭抓拍快遞外觀並編碼為 Base64 傳送給 Node-RED，ui-template 立即在家庭中控平板顯示最新包裹照片與存檔時間。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「Dashboard 2.0 ui-template 動態顯示 Base64 機台照片」：\n1. 包含三個 ui-button 節點（圖1、圖2、圖3）。\n2. 圖1 連接至 read file 節點（讀取本地機台圖片，輸出 base64 string），圖2 與 圖3 連接至 Function 節點「Base64方式」（輸出 Base64 圖片編碼字串）。\n3. 三個分支皆匯流連接至一個 ui-template 節點，內部模板使用 <img :src=\"'data:image/jpeg;base64,' + msg.payload\" /> 動態顯示照片。\n4. 包含對應的 Dashboard 2.0 Group「顯示圖片」與 Page。\n請輸出標準可匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab32_base64",
+        "type": "comment",
+        "z": "tab_lab32_img",
+        "name": "練習12-1:顯示圖片-Base64",
+        "info": "",
+        "x": 160,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "inject_lab32_1",
+        "type": "inject",
+        "z": "tab_lab32_img",
+        "name": "時間戳",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 100,
+        "wires": [
+          [
+            "btn_lab32_img1"
+          ]
+        ]
+      },
+      {
+        "id": "inject_lab32_2",
+        "type": "inject",
+        "z": "tab_lab32_img",
+        "name": "時間戳",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 160,
+        "wires": [
+          [
+            "btn_lab32_img2"
+          ]
+        ]
+      },
+      {
+        "id": "inject_lab32_3",
+        "type": "inject",
+        "z": "tab_lab32_img",
+        "name": "時間戳",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 220,
+        "wires": [
+          [
+            "btn_lab32_img3"
+          ]
+        ]
+      },
+      {
+        "id": "btn_lab32_img1",
+        "type": "ui-button",
+        "z": "tab_lab32_img",
+        "group": "group_lab32_img",
+        "name": "圖1",
+        "label": "圖1",
+        "order": 1,
+        "width": "12",
+        "height": "1",
+        "passthrough": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "color": "#ffffff",
+        "bgcolor": "#47e10c",
+        "icon": "fa-brands fa-twitter",
+        "className": "",
+        "x": 280,
+        "y": 100,
+        "wires": [
+          [
+            "read_file_lab32_img"
+          ]
+        ]
+      },
+      {
+        "id": "btn_lab32_img2",
+        "type": "ui-button",
+        "z": "tab_lab32_img",
+        "name": "圖2",
+        "label": "圖2",
+        "order": 2,
+        "width": "12",
+        "height": "1",
+        "passthrough": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "color": "#ffffff",
+        "bgcolor": "#0080ff",
+        "icon": "fa-brands fa-github",
+        "className": "",
+        "x": 280,
+        "y": 160,
+        "wires": [
+          [
+            "func_lab32_base64_2"
+          ]
+        ]
+      },
+      {
+        "id": "btn_lab32_img3",
+        "type": "ui-button",
+        "z": "tab_lab32_img",
+        "name": "圖3",
+        "label": "圖3",
+        "order": 3,
+        "width": "12",
+        "height": "1",
+        "passthrough": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "color": "#ffffff",
+        "bgcolor": "#0080ff",
+        "icon": "fa-solid fa-pen",
+        "className": "",
+        "x": 280,
+        "y": 220,
+        "wires": [
+          [
+            "func_lab32_base64_3"
+          ]
+        ]
+      },
+      {
+        "id": "read_file_lab32_img",
+        "type": "file in",
+        "z": "tab_lab32_img",
+        "name": "D:\\000.WuGo\\全立發射出機.png",
+        "filename": "D:\\000.WuGo\\全立發射出機.png",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "set by command",
+        "allProps": false,
+        "x": 520,
+        "y": 100,
+        "wires": [
+          [
+            "template_lab32_render"
+          ]
+        ]
+      },
+      {
+        "id": "func_lab32_base64_2",
+        "type": "function",
+        "z": "tab_lab32_img",
+        "name": "Base64方式",
+        "func": "msg.payload = \"/9j/4AAQSkZJRgABAQEAAAAAAAD...\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 160,
+        "wires": [
+          [
+            "template_lab32_render",
+            "debug_lab32_50"
+          ]
+        ]
+      },
+      {
+        "id": "func_lab32_base64_3",
+        "type": "function",
+        "z": "tab_lab32_img",
+        "name": "Base64方式",
+        "func": "msg.payload = \"/9j/4AAQSkZJRgABAQEAAAAAAAD...\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 220,
+        "wires": [
+          [
+            "template_lab32_render",
+            "debug_lab32_50"
+          ]
+        ]
+      },
+      {
+        "id": "template_lab32_render",
+        "type": "ui-template",
+        "z": "tab_lab32_img",
+        "group": "group_lab32_img",
+        "name": "名稱",
+        "order": 4,
+        "width": "12",
+        "height": "8",
+        "format": "<img :src=\"'data:image/jpeg;base64,' + msg.payload\" style=\"width:100%; border-radius:8px;\" />",
+        "storeOutMessages": true,
+        "passthrough": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 760,
+        "y": 140,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "debug_lab32_50",
+        "type": "debug",
+        "z": "tab_lab32_img",
+        "name": "debug 50",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 200,
+        "wires": []
+      },
+      {
+        "id": "group_lab32_img",
+        "type": "ui-group",
+        "name": "顯示圖片",
+        "page": "page_lab32_main",
+        "width": "12",
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+      },
+      {
+        "id": "page_lab32_main",
+        "type": "ui-page",
+        "name": "機台展示看板",
+        "ui": "ui_base_lab32",
+        "path": "/page5",
+        "icon": "camera",
+        "layout": "grid",
+        "theme": "theme_lab32_default",
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+      },
+      {
+        "id": "ui_base_lab32",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+          "ui-notification",
+          "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+      },
+      {
+        "id": "theme_lab32_default",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+          "surface": "#ffffff",
+          "primary": "#007ecc",
+          "bgPage": "#fcfcfc",
+          "groupBg": "#ffffff",
+          "groupOutline": "#cccccc"
+        },
+        "sizes": {
+          "density": "default",
+          "pagePadding": "12px",
+          "groupGap": "12px",
+          "groupBorderRadius": "4px",
+          "widgetGap": "12px"
+        }
+      },
+      {
+        "id": "global_config_lab32",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+          "@flowfuse/node-red-dashboard": "1.30.2"
+        }
+      }
+    ],
+    "references": [
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-template 節點官方語法與自訂元件手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-template.html"
+      },
+      {
+        "title": "MDN Web Docs - Data URLs (資料 URL 與 Base64 編碼圖片語法)",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/HTTP/Basics_of_HTTP/Data_URLs"
+      },
+      {
+        "title": "Node-RED 官方 Docs - File in (讀檔節點) 使用說明與設定",
+        "url": "https://nodered.org/docs/user-guide/nodes#file-in"
+      },
+      {
+        "title": "MDN Web Docs - Base64 編碼原理與 JavaScript 二進位資料格式說明",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Glossary/Base64"
+      }
+    ],
+    "extraImages": [
+      {
+        "title": "ui-template 模板設定：Vue 響應式屬性綁定 <img :src=\"'data:image/jpeg;base64,' + msg.payload\" />",
+        "image": "images_src/ok/20261006_lab32_template_config.png",
+        "icon": "fa-solid fa-code"
+      }
+    ]
   }
 ]
