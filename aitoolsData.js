@@ -1247,21 +1247,23 @@ window.INITIAL_AITOOLS_DATA = [
   {
     "id": "tool-google-antigravity-2",
     "toolNumber": "21",
-    "title": "Google Antigravity 2.0 - 多 Agent 協同自主開發平台與智慧工控中樞",
+    "title": "Google Antigravity 2.0 - 多 Agent 協同自主開發平台、Turbo Mode 極速權限與智慧工控中樞",
     "date": "2026-10-06",
     "category": "Google AI 實用工具",
-    "summary": "Google Antigravity 2.0 是 Google DeepMind 專為工程師與開發者打造的次世代專屬自主 Agent (自主代理) 開發平台。支援在獨立專案間平行調度與編排多個自主 Agent (Subagents)、排程背景任務 (Scheduled Tasks)、擴充技能庫 (Skills) 與 MCP 協議，並能深度整合本機檔案系統、終端機命令與 Git 版本控制，實現高效率的 Vibe Coding 與機電工控/Web 自動化開發。",
+    "summary": "Google Antigravity 2.0 是 Google DeepMind 專為工程師打造的自主 Agent 開發平台。支援多 Agent 協同、背景任務與 MCP 工具，並內建完整的「Models & Usage (模型額度與用量監控)」面板與「Turbo Mode (渦輪極速模式)」，可即時追蹤 Gemini 及 Claude/GPT 的 5 小時滾動頻寬與每週配額，免除手動審核，實現全自動高吞吐量開發。",
     "webUrl": "https://antigravity.google/product/antigravity-2",
     "flowImage": [
       "images_src/ok/20261006_antigravity_2_website.png",
       "images_src/ok/20261006_antigravity_2_desktop_app.png",
+      "images_src/ok/20261006_antigravity_settings_turbo_mode.png",
       "images_src/ok/20261006_antigravity_step1_create_project_hover.png",
       "images_src/ok/20261006_antigravity_step2_new_project_menu.png",
       "images_src/ok/20261006_antigravity_step3_open_workspace_folder.png",
       "images_src/ok/20261006_antigravity_step4_prompt_model_select.png",
-      "images_src/ok/20261006_antigravity_step5_autonomous_notebook_generation.png"
+      "images_src/ok/20261006_antigravity_step5_autonomous_notebook_generation.png",
+      "images_src/ok/20261006_antigravity_settings_models_usage.png"
     ],
-    "objective": "1. 認識 Google Antigravity 2.0 核心架構，掌握多 Agent 並行編排 (Multi-Agent Orchestration) 與自主任務執行機制。\n2. 掌握 Antigravity 桌面版整合開發環境：新建專案、選取本地工作區 (Open workspace)、切換 AI 模型 (Gemini 3.8/3.7) 與本地模式。\n3. 學習如何透過自然語言需求指令讓 Agent 自主拆解任務、分析截圖流程架構並生成完整的 HTML/JS/CSS 網頁筆記本。\n4. 掌握一鍵開啟腳本 (open_notebook.bat) 與本地 file:/// 離線相容架構，體驗現代化 Vibe Coding 高速開發流程。",
+    "objective": "1. 認識 Google Antigravity 2.0 核心架構，掌握多 Agent 並行編排 (Multi-Agent Orchestration) 與自主任務執行機制。\n2. 掌握 Antigravity 全域權限與行為設定：安全性預設 (Security Preset) 切換為「Turbo Mode」與審查政策設為「Always Proceed」。\n3. 掌握 Models & Usage (模型額度與用量) 監控機制：了解 Google AI Pro 方案、點數超額自動扣抵 (Credit Overages)、Gemini 與第三方模型的 5 小時及每週滾動限額重置週期。\n4. 掌握專案工作區建立全流程：新建專案、選取本地工作區 (Open workspace)、切換 AI 模型 (Gemini 3.8/3.7) 與本機離線模式。\n5. 學習透過自然語言需求讓 Agent 自主拆解任務、分析截圖架構並自動生成具備 file:/// 離線相容之 Web 應用。",
     "tutorialSteps": [
       {
         "step": "1. 建立新專案 (Create New Project)",
@@ -1272,15 +1274,23 @@ window.INITIAL_AITOOLS_DATA = [
         "description": "在彈出的系統「Open workspace」檔案總管對話框中，瀏覽並選取您電腦上的專案目錄（例如「20261006_antigravity_test」，內部可預先建立 css、images_src、js 等子資料夾），點擊右下角「選擇資料夾」完成載入。"
       },
       {
-        "step": "3. 配置 AI 模型與工作模式 (Model & Workspace Mode)",
+        "step": "3. 配置全域權限 (Turbo Mode) 與 Agent 行為 (Always Proceed)",
+        "description": "進入 Settings 設定面板：\n• Global Permissions ➔ Security Preset：設定為「Turbo Mode」（解鎖檔案讀寫、終端機命令與 MCP 工具之全自主執行權限，免除頻繁手動授權中斷）。\n• Tool Permissions：可點擊「Open」自訂 File、Terminal 與 MCP 工具細部存取權限。\n• Agent Behavior ➔ Plan Review Policy：設定為「Always Proceed」（產出實作計畫後一律自動繼續執行，無須使用者手動確認；若需生成計畫可隨時輸入 /plan 指令）。"
+      },
+      {
+        "step": "4. 監控模型額度與用量 (Models & Usage)",
+        "description": "進入 Settings ➔「Models & Usage」面板進行全方位用量控管：\n• Plan (方案等級)：檢視當前訂閱方案（如 Google AI Pro），可視需求升級至 Google AI Ultra 獲得更高請求速率 (Rate Limits)。\n• Model Credits (超額點數扣抵)：提供「Enable AI Credit Overages」開關，當標準配額耗盡時自動啟用點數接續請求，系統始終優先扣除免費/月租配額。\n• Gemini Models 用量監控：即時顯示「Weekly Limit Remaining (每週剩餘額度)」及「Five Hour Limit Remaining (5 小時頻率滾動額度)」，精確掌握冷卻重置倒數時間。\n• Claude and GPT models：整合第三方合作模型之每週與 5 小時額度儀表板，支援混合模型靈活調度。"
+      },
+      {
+        "step": "5. 配置 AI 模型與工作模式 (Model & Workspace Mode)",
         "description": "進入專案工作區後，在底部的對話輸入框下方可自由切換模型（如選用最新「Gemini 3.8 Flash Medium」或「Gemini 3.7 Flash High」），確認環境模式為「Local」後，即可隨時調度 Agent 開始作業。"
       },
       {
-        "step": "4. 輸入自然語言需求指令 (Prompt Engineering)",
+        "step": "6. 輸入自然語言需求指令 (Prompt Engineering)",
         "description": "在輸入框中直接輸入您的開發需求，例如：「我想在這個專案建立 node-red 的筆記本。用網頁的形式。」，亦可直接上傳 Node-RED 流程截圖（如財報視覺化圖表）。"
       },
       {
-        "step": "5. AI Agent 自主架構分析、生成網頁筆記與一鍵啟動腳本",
+        "step": "7. AI Agent 自主架構分析、生成網頁筆記與一鍵啟動腳本",
         "description": "Antigravity Agent 會全自動解析圖片中的節點拓撲（包含 Bar 柱狀圖、Pie 圓餅圖與 Doughnut 甜甜圈圖），自動建立具備本地 file:/// 離線相容之 index.html 網頁筆記本，並產生 open_notebook.bat 一鍵雙擊啟動腳本，大幅提高開發效率！"
       }
     ],
@@ -1288,7 +1298,7 @@ window.INITIAL_AITOOLS_DATA = [
       {
         "scenario": "機電整合丙級 / PLC 與 Node-RED 題庫自動化解析與程式碼生成",
         "icon": "fa-solid fa-gears",
-        "description": "在機電整合專案中，透過 Antigravity 2.0 同時調用視覺辨識與程式碼生成 Agent，自動解析 PLC 階梯圖與感測器時序表，秒級生成對應的 Node-RED Dashboard 2.0 儀表板與 Modbus 邏輯。"
+        "description": "在機電整合專案中，透過 Antigravity 2.0 開啟 Turbo Mode 同時調用視覺辨識與程式碼生成 Agent，自動解析 PLC 階梯圖與感測器時序表，秒級生成對應的 Node-RED Dashboard 2.0 儀表板與 Modbus 邏輯。"
       },
       {
         "scenario": "台積電工業務聯網 / 跨廠區 SCADA 數據清洗與大數據管線自動化",
@@ -1298,10 +1308,10 @@ window.INITIAL_AITOOLS_DATA = [
       {
         "scenario": "全端 Web 應用與智慧教材庫持續整合 (CI/CD)",
         "icon": "fa-solid fa-code-branch",
-        "description": "在教學網站開發中，Antigravity 能自主維護 JSON 結構、同步編譯前端 JavaScript 資料庫 (Data.js)、校驗 HTML 語法並一鍵推送至 GitHub Pages 發布最新版教材。"
+        "description": "在教學網站開發中，Antigravity 能在 Turbo Mode 下自主維護 JSON 結構、同步編譯前端 JavaScript 資料庫 (Data.js)、校驗 HTML 語法並一鍵推送至 GitHub Pages 發布最新版教材。"
       }
     ],
-    "aiPrompt": "請扮演 Google Antigravity 2.0 系統架構師，幫我規劃一套在機電物聯網與 Node-RED 專案中導入 Antigravity 2.0 的最佳實踐方案：\n1. 請說明 Antigravity 2.0 桌面版如何透過多 Agent 協同（Orchestration）同時處理代碼重構、單元測試與文件生成。\n2. 介紹如何為 Antigravity 配置自訂技能 (Skills) 與 MCP 協議以讀寫本地 Node-RED 流程 JSON 與 SQLite 資料庫。\n3. 給出一組可在 Antigravity 中直接下達的高效 Prompt 範例，示範全自動修復 Dashboard 2.0 圖表並推送至 GitHub。",
+    "aiPrompt": "請扮演 Google Antigravity 2.0 系統架構師，幫我規劃一套在機電物聯網與 Node-RED 專案中導入 Antigravity 2.0 的最佳實踐方案：\n1. 請說明 Antigravity 2.0 全域設定中「Turbo Mode」與「Always Proceed」如何最大化提升 Agent 開發吞吐量與自主性。\n2. 介紹如何為 Antigravity 配置自訂技能 (Skills) 與 MCP 協議以讀寫本地 Node-RED 流程 JSON 與 SQLite 資料庫。\n3. 給出一組可在 Antigravity 中直接下達的高效 Prompt 範例，示範全自動修復 Dashboard 2.0 圖表並推送至 GitHub。",
     "references": [
       {
         "title": "Google Antigravity 2.0 官方產品網站",

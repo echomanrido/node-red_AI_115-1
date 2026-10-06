@@ -182,9 +182,143 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `).join('') : '<p style="color:var(--text-dim);">暫無實務情境應用</p>';
 
+    // 檢查是否有獨立的 Turbo Mode 與 Always Proceed 設定步驟
+    const turboStep = tool.tutorialSteps ? tool.tutorialSteps.find(s => s.step && (s.step.includes('Turbo Mode') || s.step.includes('Always Proceed'))) : null;
+    const turboImgUrl = 'images_src/ok/20261006_antigravity_settings_turbo_mode.png';
+
+    // 檢查是否有獨立的 Models & Usage 設定步驟
+    const usageStep = tool.tutorialSteps ? tool.tutorialSteps.find(s => s.step && (s.step.includes('Models & Usage') || s.step.includes('模型額度'))) : null;
+    const usageImgUrl = 'images_src/ok/20261006_antigravity_settings_models_usage.png';
+
+    let turboHighlightHtml = '';
+    if (turboStep) {
+      turboHighlightHtml = `
+        <!-- (2.5) 核心特寫：配置全域權限 (Turbo Mode) 與 Agent 行為 (Always Proceed) 獨立專區 -->
+        <section class="section-card" style="border: 2px solid #ec4899; background: linear-gradient(145deg, rgba(236, 72, 153, 0.06), rgba(15, 23, 42, 0.5)); border-radius: 14px; padding: 22px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(236, 72, 153, 0.15);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px dashed rgba(236, 72, 153, 0.4); padding-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <h3 class="section-title" style="margin-bottom: 0; border-bottom: none; color: #ec4899; font-size: 1.15rem; display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-bolt-lightning" style="color: #ec4899; font-size: 1.2rem;"></i>
+              <span>配置全域權限 (Turbo Mode) 與 Agent 行為 (Always Proceed)</span>
+            </h3>
+            <span style="font-size: 0.75rem; background: rgba(236, 72, 153, 0.2); color: #ec4899; padding: 4px 12px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(236, 72, 153, 0.3);">
+              <i class="fa-solid fa-shield-halved"></i> 核心極速權限配置
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: center;">
+            <!-- 獨立圖片框 -->
+            <div style="border-radius: 10px; overflow: hidden; border: 1.5px solid rgba(236, 72, 153, 0.4); background: #0b0f19; box-shadow: 0 6px 16px rgba(0,0,0,0.3);">
+              <img src="${turboImgUrl}" alt="配置全域權限 Turbo Mode 與 Always Proceed 介面截圖" class="zoomable-img" style="width: 100%; display: block; cursor: zoom-in;" onerror="this.src='https://via.placeholder.com/600x300?text=Turbo+Mode+Settings'" />
+              <div style="padding: 8px 12px; font-size: 0.75rem; color: #94a3b8; text-align: center; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.06);">
+                <i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大檢視 Antigravity Settings 設定面板截圖
+              </div>
+            </div>
+
+            <!-- 獨立說明框 -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(236, 72, 153, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #ec4899;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-gauge-high" style="color: #ec4899;"></i>
+                  <span>Global Permissions ➔ Security Preset</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  設定為 <strong style="color: #ec4899; font-size: 0.95rem;">「Turbo Mode」</strong>：全面解鎖本機檔案讀寫、終端機命令 (Terminal) 與 MCP 工具之全自主執行權限，免除頻繁手動確認彈跳視窗，保證 Agent 高吞吐量連續作業。
+                </div>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #06b6d4;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-sliders" style="color: #06b6d4;"></i>
+                  <span>Tool Permissions (細部工具自訂)</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  點擊右側 <strong style="color: #06b6d4;">「Open」</strong> 按鈕，可個別針對 File、Terminal 與 MCP Tools 細項自訂微調權限，確保安全彈性。
+                </div>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #10b981;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-forward-fast" style="color: #10b981;"></i>
+                  <span>Agent Behavior ➔ Plan Review Policy</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  設定為 <strong style="color: #10b981; font-size: 0.95rem;">「Always Proceed」</strong>：產出實作計畫後一律自動繼續執行，無須等待使用者手動核准中斷；若需讓 Agent 生成結構化計畫，可隨時在對話框輸入 <code style="background: rgba(0,0,0,0.4); padding: 2px 6px; border-radius: 4px; color: #a7f3d0;">/plan</code> 指令。
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    let usageHighlightHtml = '';
+    if (usageStep) {
+      usageHighlightHtml = `
+        <!-- (2.6) 核心特寫：Models & Usage (模型額度與用量管理) 獨立專區 -->
+        <section class="section-card" style="border: 2px solid #06b6d4; background: linear-gradient(145deg, rgba(6, 182, 212, 0.06), rgba(15, 23, 42, 0.5)); border-radius: 14px; padding: 22px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(6, 182, 212, 0.15);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px dashed rgba(6, 182, 212, 0.4); padding-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <h3 class="section-title" style="margin-bottom: 0; border-bottom: none; color: #06b6d4; font-size: 1.15rem; display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-chart-pie" style="color: #06b6d4; font-size: 1.2rem;"></i>
+              <span>Models & Usage (模型額度與使用量監控)</span>
+            </h3>
+            <span style="font-size: 0.75rem; background: rgba(6, 182, 212, 0.2); color: #06b6d4; padding: 4px 12px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(6, 182, 212, 0.3);">
+              <i class="fa-solid fa-gauge"></i> 方案與速率上限管理
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: center;">
+            <!-- 獨立圖片框 -->
+            <div style="border-radius: 10px; overflow: hidden; border: 1.5px solid rgba(6, 182, 212, 0.4); background: #0b0f19; box-shadow: 0 6px 16px rgba(0,0,0,0.3);">
+              <img src="${usageImgUrl}" alt="Models & Usage 模型額度與用量面板截圖" class="zoomable-img" style="width: 100%; display: block; cursor: zoom-in;" onerror="this.src='https://via.placeholder.com/600x300?text=Models+Usage+Settings'" />
+              <div style="padding: 8px 12px; font-size: 0.75rem; color: #94a3b8; text-align: center; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.06);">
+                <i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大檢視 Models & Usage 額度儀表板
+              </div>
+            </div>
+
+            <!-- 獨立說明框 -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #06b6d4;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-gem" style="color: #06b6d4;"></i>
+                  <span>Plan (方案管理) ➔ Google AI Pro</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  顯示當前訂閱等級為 <strong style="color: #06b6d4;">Google AI Pro</strong>；如需更高請求頻率上限 (Rate Limits) 與並發請求數，可點擊右側 <strong>「Upgrade」</strong> 按鈕升級至 <strong>Google AI Ultra</strong> 方案。
+                </div>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #f59e0b;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-credit-card" style="color: #f59e0b;"></i>
+                  <span>Model Credits ➔ Enable AI Credit Overages</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  <strong>「啟用點數超額自動扣抵」</strong>開關。開啟時，若本月/每週標準模型配額用盡，系統將自動以儲備 AI 點數滿足後續請求。Antigravity <strong>保證優先耗用方案配額</strong>，不會提早扣除點數。
+                </div>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #10b981;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-clock-rotate-left" style="color: #10b981;"></i>
+                  <span>Gemini / Claude / GPT 模型滾動額度儀表板</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  • <strong style="color: #10b981;">Weekly Limit Remaining</strong>：監控每週模型額度（如 99%），標註重置倒數（如 6 days, 22 hours）。<br>
+                  • <strong style="color: #10b981;">Five Hour Limit Remaining</strong>：精準追蹤 5 小時滾動頻率限制（如 92%），防範高頻呼叫觸發 Rate Limit，明確預知冷卻時間。
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
     let galleryHtml = '';
     if (tool.flowImage) {
-      const images = Array.isArray(tool.flowImage) ? tool.flowImage : [tool.flowImage];
+      const rawImages = Array.isArray(tool.flowImage) ? tool.flowImage : [tool.flowImage];
+      // 若已有獨立展示 Turbo Mode 與 Models & Usage 圖片，則在頂部通用畫廊中過濾掉，避免重複
+      const images = rawImages.filter(url => !url.includes('antigravity_settings_turbo_mode') && !url.includes('antigravity_settings_models_usage'));
+
       const imgCardsHtml = images.map((imgUrl, index) => `
         <div class="image-wrapper" style="flex: 1; min-width: 280px; max-width: 100%;">
           <img src="${imgUrl}" alt="AI工具介面截圖 ${index + 1}" onerror="this.src='https://via.placeholder.com/600x300?text=Image+Not+Found'" class="zoomable-img" style="cursor: pointer; width: 100%; border-radius: 8px;">
@@ -233,6 +367,12 @@ document.addEventListener('DOMContentLoaded', () => {
           ${tool.objective.split('\n').map(obj => obj.trim() ? `<li class="objective-item"><i class="fa-solid fa-circle-check" style="color:#ec4899;"></i> <span>${escapeHtml(obj)}</span></li>` : '').join('')}
         </ul>
       </section>
+
+      <!-- (2.5) 獨立設定專區框框：Turbo Mode -->
+      ${turboHighlightHtml}
+
+      <!-- (2.6) 獨立設定專區框框：Models & Usage -->
+      ${usageHighlightHtml}
 
       <!-- (3) 教學步驟說明 -->
       <section class="section-card">
