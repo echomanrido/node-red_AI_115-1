@@ -7671,11 +7671,11 @@ var INITIAL_LABS_DATA = [
       },
       {
         "step": "4. 模組二 (白夜班不良次數): 配置基準數據與定時觸發",
-        "description": "建立 Inject 節點「生產線不良次數 (白班 vs 夜班)」提供初始歷史數據，並建立定時 Inject 節點「時間戳 ↻」(間隔 2 秒重複) 連接至 Function 節點「白夜班不良數亂數產生」。"
+        "description": "建立 Inject 節點「生產線不良次數 (白班 vs 夜班)」提供初始歷史數據。點開「JSON 編輯器」輸入包含 8 筆物件的標準 JSON 陣列：\n• 白班 6 筆：val 分別為 1, 2, 1, 3, 4, 7（集中於左側低不良區）\n• 夜班 2 筆：val 分別為 8, 9（偏向右側高不良區）\n\n點擊注入可立即驗證直方圖分組統計；同時建立定時 Inject 節點「時間戳 ↻」(間隔 1~2 秒重複) 連接至 Function 節點「白夜班不良數亂數產生」以模擬連續動態監控。"
       },
       {
         "step": "5. 撰寫白夜班不良數亂數產生函式與不良次數直方圖配置",
-        "description": "在 Function 節點中撰寫 JavaScript 模擬產生白班（低不良率，集中於 1~3 件）與夜班（高不良率，分散於 2~9 件）數據，輸出連接至不良次數直方圖節點：\n\n• 節點 3「Histogram chart(Bins)」(歸屬「生產線次數」群組)：\n  - Type: Histogram, Group By: Side-by-Side, Action: Replace\n  - X-Axis Type: Bins, X-Axis Label: 不良數\n  - X-Axis: min: 0, bins: 10, max: 10\n  - Y-Axis: min: 0\n  - Properties: Series: key: 班別, X: key: val\n  - 效果：按 0~10 件不良數等分為 10 個分箱，並列比對白班 (藍色集中左側) vs 夜班 (紅色右移分散) 的品質差異。"
+        "description": "在 Function 節點「白夜班不良數亂數產生」中撰寫 JavaScript 程式碼，執行 50 次迴圈產生足夠數據量以凸顯直方圖堆疊效果：\n• 模擬白班（品質穩定）：數據集中在 2 附近 (約 1.0 ~ 3.0)，公式：parseFloat((Math.random() * 2 + 1).toFixed(2))\n• 模擬夜班（波動較大）：數據隨機分佈在 1 到 9 之間，公式：parseFloat((Math.random() * 8 + 1).toFixed(2))\n• 核心數值轉換步驟解析：\n  1. Math.random() 產生 0 到 1 之間的隨機小數\n  2. * 8 將數值範圍放大 8 倍 (0 到 8 之間)\n  3. + 1 將數值平移至 1 到 9 之間\n  4. .toFixed(2) 將結果四捨五入至小數點後兩位 (轉為字串型態)\n  5. parseFloat(...) 將「字串」重新轉回「數值 (Float)」，以便 Chart 節點進行連續區間分箱運算。\n\n輸出連接至不良次數直方圖節點「Histogram chart(Bins)」(歸屬「生產線次數」群組，min: 0, bins: 10, max: 10, Series: 班別, X: val)。"
       },
       {
         "step": "6. 部署並於 Web Dashboard 驗證 SPC 品質統計直方圖",
@@ -8049,7 +8049,7 @@ var INITIAL_LABS_DATA = [
         "z": "a0436b1311221605",
         "g": "e9feb2c6cd2fba33",
         "name": "白夜班不良數亂數產生",
-        "func": "let data = [];\n// 增加循環次數到 50，讓數據量夠大，堆疊效果才明顯\nfor (let i = 0; i < 50; i++) {\n    // 模擬白班：數據集中在 2 附近 (範圍約 1.0 ~ 3.0)\n    data.push({\n        \"班別\": \"白班\",\n        \"val\": parseFloat((Math.random() * 2 + 1).toFixed(2))\n    });\n\n    // 模擬夜班：數據隨機分佈在 1 到 9\n    // 1. Math.random()   -> 產生一個 0 到 1 之間的隨機小數 (例如 0.5432)\n    // 2. * 8             -> 將範圍擴大 8 倍，變成 0 到 8 之間 (不含 8)\n    // 3. + 1             -> 將範圍平移，變成 1 到 9 之間 (不含 9)\n    // 4. .toFixed(2)     -> 將結果四捨五入到小數點後兩位，但注意：這會將數字轉為「字串」\n    // 5. parseFloat(...) -> 將「字串」重新轉換回「數值 (Float)」，以便 Chart 節點進行數學\n    data.push({\n        \"班別\": \"夜班\",\n        \"val\": parseFloat((Math.random() * 8 + 1).toFixed(2))\n    });\n}\nmsg.payload = data;\nreturn msg;",
+        "func": "let data = [];\n// 增加循環次數到 50，讓數據量夠大，堆疊效果才明顯\nfor (let i = 0; i < 50; i++) {\n    // 模擬白班：數據集中在 2 附近 (範圍約 1.0 ~ 3.0)\n    data.push({\n        \"班別\": \"白班\",\n        \"val\": parseFloat((Math.random() * 2 + 1).toFixed(2))\n    });\n\n    // 模擬夜班：數據隨機分佈在 1 到 9\n    // 1. Math.random()    -> 產生一個 0 到 1 之間的隨機小數 (例如 0.5432)\n    // 2. * 8              -> 將範圍擴大 8 倍，變成 0 到 8 之間 (不含 8)\n    // 3. + 1              -> 將範圍平移，變成 1 到 9 之間 (不含 9)\n    // 4. .toFixed(2)      -> 將結果四捨五入到小數點後兩位，但注意：這會將數字轉為「字串」\n    // 5. parseFloat(...)  -> 將「字串」重新轉換回「數值 (Float)」，以便 Chart 節點進行數學\n    data.push({\n        \"班別\": \"夜班\",\n        \"val\": parseFloat((Math.random() * 8 + 1).toFixed(2))\n    });\n}\nmsg.payload = data;\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -8110,7 +8110,7 @@ var INITIAL_LABS_DATA = [
         "once": false,
         "onceDelay": "",
         "topic": "",
-        "payload": "[{\"班別\":\"白班\",\"val\":1},{\"班別\":\"白班\",\"val\":2},{\"班別\":\"白班\",\"val\":1},{\"班別\":\"白班\",\"val\":3},{\"班別\":\"白班\",\"val\":4},{\"班別\":\"白班\",\"val\":7},{\"班別\":\"夜班\",\"val\":8},{\"班別\":\"夜班\",\"val\":9},{\"班別\":\"夜班\",\"val\":7},{\"班別\":\"夜班\",\"val\":8},{\"班別\":\"夜班\",\"val\":6},{\"班別\":\"夜班\",\"val\":5},{\"班別\":\"夜班\",\"val\":9},{\"班別\":\"夜班\",\"val\":1}]",
+        "payload": "[{\"班別\":\"白班\",\"val\":1},{\"班別\":\"白班\",\"val\":2},{\"班別\":\"白班\",\"val\":1},{\"班別\":\"白班\",\"val\":3},{\"班別\":\"白班\",\"val\":4},{\"班別\":\"白班\",\"val\":7},{\"班別\":\"夜班\",\"val\":8},{\"班別\":\"夜班\",\"val\":9}]",
         "payloadType": "json",
         "x": 800,
         "y": 1120,
@@ -8265,6 +8265,16 @@ var INITIAL_LABS_DATA = [
         "title": "節點配置 3：生產線不良次數白夜班 Bins 分箱配置 (0~10, 10 Bins)",
         "image": "images_src/ok/20261001_lab30_histogram_bins_defect_config.png",
         "icon": "fa-solid fa-users-gear"
+      },
+      {
+        "title": "節點配置 4：白夜班不良次數 Inject JSON 編輯器數據 ([{\"班別\": \"白班\", \"val\": 1}, ...])",
+        "image": "images_src/ok/20261006_lab30_inject_shift_defect_json.png",
+        "icon": "fa-solid fa-code"
+      },
+      {
+        "title": "節點配置 5：白夜班不良數亂數產生 Function 程式碼 (JavaScript 50次迴圈與常態/均勻分佈模擬)",
+        "image": "images_src/ok/20261006_lab30_function_random_defect_code.png",
+        "icon": "fa-brands fa-js"
       }
     ],
     "imageGuides": [
