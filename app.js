@@ -241,6 +241,30 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </section>
 
+      <!-- (4-0) 核心圖解與品管統計深度解析 (圖片說明框) -->
+      ${lab.imageGuides ? `
+      <section class="section-card">
+        <h3 class="section-title"><i class="fa-solid fa-chalkboard-user"></i> 核心圖解與品管統計深度解析 (投影片專題說明)</h3>
+        <div class="image-guides-container" style="display: flex; flex-direction: column; gap: 18px;">
+          ${lab.imageGuides.map((guide, idx) => `
+            <div class="guide-card" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(6, 182, 212, 0.25); border-left: 4px solid var(--primary); border-radius: 10px; padding: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+                <h4 style="color: var(--primary); font-size: 1.05rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px;">
+                  <i class="${escapeHtml(guide.icon || 'fa-solid fa-image')}"></i> ${escapeHtml(guide.title)}
+                </h4>
+                ${guide.image ? `
+                  <button class="view-guide-img-btn" data-src="${guide.image}" data-title="${escapeHtml(guide.title)}" style="background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.3); color: var(--primary); font-size: 0.78rem; padding: 4px 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                    <i class="fa-solid fa-magnifying-glass-plus"></i> 查看對應圖解
+                  </button>
+                ` : ''}
+              </div>
+              <div class="guide-desc" style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.7; white-space: pre-wrap;">${escapeHtml(guide.description)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+      ` : ''}
+
       <!-- (4-1) SCADA 實務情境應用 -->
       <section class="section-card">
         <h3 class="section-title"><i class="fa-solid fa-industry"></i> SCADA 實務情境應用 (三大應用領域)</h3>
@@ -324,6 +348,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.extra-img-wrapper').forEach(wrapper => {
       wrapper.addEventListener('click', () => {
         openLightbox(wrapper.dataset.src, `Lab ${lab.labNumber} - ${wrapper.dataset.title}`);
+      });
+    });
+
+    document.querySelectorAll('.view-guide-img-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openLightbox(btn.dataset.src, `Lab ${lab.labNumber} - ${btn.dataset.title}`);
       });
     });
   }

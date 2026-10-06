@@ -7649,13 +7649,13 @@
     "id": "lab-30",
     "labNumber": "30",
     "number": "30",
-    "title": "Dashboard 實作: Histogram 直方圖品質統計 (數值分箱 Bins、離散類別與白夜班不良率對比)",
+    "title": "Dashboard 實作: Histogram 直方圖品質統計 (充填重量常態分佈、Bins 分箱原理與 Categorical 深度對比)",
     "date": "2026-10-01",
     "category": "進階實作",
-    "summary": "深入學習 Node-RED Dashboard 2.0 中直方圖 (Histogram Chart) 在工控 SPC (統計製程控制) 與品質管理中的實戰應用。本實作分為兩大核心模組：\n1.「產品充填重量分佈」：輸入以 500g 為中心的抽檢數據，對比數值連續分箱 (Bins: 495-496, 498-499...) 與離散類別 (Categorical) 兩種直方圖呈現方式。\n2.「生產線不良次數 (白班 vs 夜班)」：透過定時 Function 亂數模擬產生白班（不良數集中於 1~3）與夜班（不良數分散於 2~9）之抽樣數據，在直方圖上按 0-1, 1-2, 2-3... 等 10 個分箱 (Bins) 並列雙色長條圖，直觀定位班次品質變異與製程改善方向。",
+    "summary": "深入學習 Node-RED Dashboard 2.0 中直方圖 (Histogram Chart) 在工控 SPC (統計製程控制) 與品質管理中的核心原理與實務配置。本教學針對三大關鍵主題深入剖析：\n1.「生產線管理的直方圖應用」：以 500g 充填重量抽檢數據為例，解析常態分佈鐘形曲線、偏離值 (Outlier) 與充填機餵料不足判讀。\n2.「Axis Configuration 軸向參數核心原理」：深入剖析 min、max 與 bins (分箱數) 數學運算公式 ((max-min)/bins) 與經驗法則。\n3.「Bins 統計分佈 vs Categorical 項目清單 深度對比」：全面對照連續數值區間歸納與離散標籤計數的本質差異與適用場景。",
     "flowImage": "images_src/ok/20261001_flow_lab30_dashboard_histogram_charts.png",
     "resultImage": "images_src/ok/20261001_result_lab30_dashboard_histogram_charts.png",
-    "objective": "1. 掌握 Node-RED Dashboard 2.0 中 ui-chart 直方圖 (Histogram) 模式之設定方式與參數配置。\n2. 理解直方圖「數值區間分箱 (Bins)」與「離散類別 (Categorical)」在連續數據與離散數據分析上的差異。\n3. 學習多組數據 (白班 vs. 夜班) 透過 msg.topic 在同一組直方圖分箱座標軸上並列對比的統計呈現技巧。\n4. 掌握工廠品管 SPC、常態分佈鐘形曲線分析與產線換班良率監控戰情室的建置流程。",
+    "objective": "1. 掌握生產線品質管理中直方圖的判讀方法（鐘形常態分佈、左偏短重、離散不穩定與 Outlier 離群值異常）。\n2. 深入理解 Histogram 軸向配置原理：掌握 min (下限)、max (上限) 與 bins (分箱數) 劃分寬度之數學公式 ((max-min)/bins)。\n3. 徹底分辨「Histogram (Bins) 連續統計分佈」與「Histogram (Categorical) 離散項目清單」在資料結構與視覺呈現上的根本差異。\n4. 掌握 Node-RED Dashboard 2.0 ui-chart 節點的直方圖配置，實作充填重量檢驗與白夜班不良率對比戰情室。",
     "tutorialSteps": [
       {
         "step": "1. 建立 Dashboard 2.0 直方圖專用群組",
@@ -8237,19 +8237,54 @@
     ],
     "extraImages": [
       {
-        "title": "1. 產品充填重量 Bins 分箱直方圖配置：Type=Histogram, Bins (min:495, bins:10, max:505), Series=站別, X=weight",
+        "title": "教學圖解 1：生產線管理的直方圖應用 (充填重量理想 500g、常態分佈鐘形曲線與偏離值分析)",
+        "image": "images_src/ok/20261006_lab30_histogram_slide1_spc_application.png",
+        "icon": "fa-solid fa-chart-area"
+      },
+      {
+        "title": "教學圖解 2：Axis Configuration 軸向參數核心原理與分箱公式 ((max - min) / bins)",
+        "image": "images_src/ok/20261006_lab30_histogram_slide2_axis_bins_math.png",
+        "icon": "fa-solid fa-calculator"
+      },
+      {
+        "title": "教學圖解 3：Bins 統計分佈 vs Categorical 項目清單 深度對比",
+        "image": "images_src/ok/20261006_lab30_histogram_slide3_bins_vs_categorical.png",
+        "icon": "fa-solid fa-code-compare"
+      },
+      {
+        "title": "節點配置 1：產品充填重量 Bins 分箱直方圖配置 (495~505, 10 Bins)",
         "image": "images_src/ok/20261001_lab30_histogram_bins_weight_config.png",
         "icon": "fa-solid fa-chart-column"
       },
       {
-        "title": "2. 產品充填重量 Categorical 離散分類配置：Type=Histogram, Categorical, Series=站別, X=weight",
+        "title": "節點配置 2：產品充填重量 Categorical 離散分類配置",
         "image": "images_src/ok/20261001_lab30_histogram_cat_weight_config.png",
         "icon": "fa-solid fa-bars"
       },
       {
-        "title": "3. 生產線不良次數白夜班 Bins 分箱配置：Type=Histogram, Bins (min:0, bins:10, max:10), Series=班別, X=val",
+        "title": "節點配置 3：生產線不良次數白夜班 Bins 分箱配置 (0~10, 10 Bins)",
         "image": "images_src/ok/20261001_lab30_histogram_bins_defect_config.png",
         "icon": "fa-solid fa-users-gear"
+      }
+    ],
+    "imageGuides": [
+      {
+        "title": "圖解一：生產線管理的直方圖應用 (充填重量理想 500g、常態分佈鐘形曲線與品管判讀)",
+        "icon": "fa-solid fa-chart-area",
+        "image": "images_src/ok/20261006_lab30_histogram_slide1_spc_application.png",
+        "description": "【監控主題】：監控生產線上「產品充填重量」的分佈，理想重量為 500g，評估大部分產品是否都在公差合格範圍內。\n\n【輸入數據】：抽檢 10 筆實測重量 JSON 陣列：\n[{\"weight\": 498, \"站別\": \"A1\"}, {\"weight\": 500, \"站別\": \"A1\"}, {\"weight\": 501, \"站別\": \"A1\"}, {\"weight\": 500, \"站別\": \"A1\"}, {\"weight\": 499, \"站別\": \"A1\"}, {\"weight\": 502, \"站別\": \"A1\"}, {\"weight\": 500, \"站別\": \"A1\"}, {\"weight\": 497, \"站別\": \"A1\"}, {\"weight\": 503, \"站別\": \"A1\"}, {\"weight\": 500, \"站別\": \"A1\"}]\n\n【圖表結果觀察】：\n• X 軸顯示從 495 到 505 的連續公差範圍。\n• 中間 500g 位置的柱子最高（出現 4 次，為數據眾數 Mode）。\n• 兩側柱高逐漸對稱變低，形成經典的「鐘形曲線 (Bell Curve / 常態分佈 Normal Distribution)」。\n\n【品管 SPC 異常真因分析指南】：\n• 若柱子整體往左偏移：代表充填機餵料不足或原料比重下降，會導致成品重量不足客訴。\n• 若柱子變得很矮很分散：代表生產過程波動劇烈不穩定，重量跳動過大，需檢查充填機構機械精度與計量感測器。\n• 若兩側出現孤立偏遠的小柱子：屬於「偏離值 (Outlier / 離群值)」，代表產線發生偶發性堵料或異物掉落瑕疵。"
+      },
+      {
+        "title": "圖解二：Axis Configuration 軸向參數核心原理與分箱數學公式",
+        "icon": "fa-solid fa-calculator",
+        "image": "images_src/ok/20261006_lab30_histogram_slide2_axis_bins_math.png",
+        "description": "【min (最小值: 495)】：\n• 定義：圖表 X 軸的起始點。\n• 作用：任何小於此數值的資料（例如 490）通常會被忽略，或被擠在最左側邊緣。\n• 設定建議：設為產品規格或檢測數據預期範圍的下限 (Lower Limit)。\n\n【max (最大值: 505)】：\n• 定義：圖表 X 軸的終止點。\n• 作用：任何大於此數值的資料（例如 510）將不會顯示在正常區間內。\n• 設定建議：設為產品規格或檢測數據預期範圍的上限 (Upper Limit)。\n\n【bins (區間數量 / 分箱數: 10)】：\n• 定義：從 min 到 max 之間要切成幾等份直方圖長條柱。\n• 運算公式：每一格 (Bin) 的寬度 = (max - min) / bins\n• 本例計算：(505 - 495) / 10 = 1\n• 代表意義：每一根柱子精準代表 1g 的連續重量區間（如 495-496, 496-497, 497-498...）。\n\n【分箱數量設定經驗法則 (Rule of Thumb)】：\n• Bins 越多：解析度越高，可洞察微細分佈；但若樣本數據量不足，圖表會顯得零碎破碎。\n• Bins 越少：數據被高度粗略歸納，圖表看起來平滑，但會失去局部細節與瑕疵預警能力。"
+      },
+      {
+        "title": "圖解三：Bins 統計分佈 vs Categorical 項目清單 深度對比",
+        "icon": "fa-solid fa-code-compare",
+        "image": "images_src/ok/20261006_lab30_histogram_slide3_bins_vs_categorical.png",
+        "description": "【左圖：Histogram Chart (Bins) ──「統計分佈」】\n• 本質：真正的「統計學直方圖」。\n• X 軸邏輯：連續的數值區間（如 495-496, 497-498...）。\n• 數據處理：Node-RED 自動進行數學歸納，檢查每個數值落入的區間並累加頻率。\n• 觀察重點：\n  - 趨勢感：一眼看出整體分佈是否符合常態分佈（中間高、兩邊低）。\n  - 空隙感：若某個區間無柱子（如 495-496），代表該區間為零產出，製程控制極為精準。\n• 適用場景：生產線品質監控、感測器數值波動分析、科學實驗數據統計。\n\n【右圖：Histogram Chart (Categorical) ──「項目清單」】\n• 本質：帶有計數功能的「長條圖 (Bar Chart)」。\n• X 軸邏輯：離散的文字標籤（如 498, 500, 501...）。\n• 數據處理：不考慮數字大小與連續性，只關心「該標籤名稱出現幾次」。\n• 觀察重點：\n  - 排序混亂：X 軸標籤順序依數據輸入先後排列（如 498 -> 500 -> 501 -> 499...），將 499 視為字串名字而非數值。\n  - 無區間概念：不會顯示「無數據」的刻度空間。\n• 適用場景：統計軟體版本號碼、統計水果種類、統計人員名稱等離散類別。"
       }
     ]
   },
