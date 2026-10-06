@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPC 品質統計直方圖實戰互動教學系統</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js for interactive rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Font Awesome for UI icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .glow-amber {
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-blue-700 flex items-center justify-center text-white shadow-md">
+          <i class="fa-solid fa-chart-column text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-black text-slate-900 leading-tight">SPC 品質統計直方圖實戰教室</h1>
+          <p class="text-xs text-slate-500 font-medium">Statistical Process Control & Histogram Analysis</p>
+        </div>
+      </div>
+      <nav class="hidden xl:flex items-center space-x-1 text-xs font-semibold">
+        <a href="#spc-intro" class="px-2.5 py-1.5 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition">1. 什麼是 SPC</a>
+        <a href="#why-histogram" class="px-2.5 py-1.5 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition">2. 為何用直方圖</a>
+        <a href="#comparison" class="px-2.5 py-1.5 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition">3. 圖形盲點比對</a>
+        <a href="#simulator" class="px-2.5 py-1.5 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition">4. 互動實驗室</a>
+        <a href="#theory" class="px-2.5 py-1.5 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition">5. 6大建構步驟</a>
+        <a href="#patterns" class="px-2.5 py-1.5 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition">6. 七態判讀</a>
+        <a href="#applications" class="px-2.5 py-1.5 text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition">7. 工業與生活應用</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+    <!-- SECTION 1: WHAT IS SPC & HOW QC APPLIES IT -->
+    <section id="spc-intro" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-8">
+      <div class="border-b border-slate-100 pb-5">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 mb-2">
+          <i class="fa-solid fa-graduation-cap mr-1.5"></i> 品管基礎核心理念
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          什麼是 SPC？品管（QC）現場如何具體運用？
+        </h2>
+        <p class="text-slate-600 mt-2 text-base leading-relaxed">
+          <strong class="text-blue-700">SPC（Statistical Process Control，統計製程管制）</strong> 是現代品質管理與六標準差（Six Sigma）的核心骨幹。由美國統計學家<strong>休哈特（Walter A. Shewhart）</strong>於 1920 年代首創，並由<strong>戴明博士（W. Edwards Deming）</strong>推廣至全球製造業。
+        </p>
+      </div>
+
+      <!-- SPC Core Definition & Variation Theory Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Left: Core Definition -->
+        <div class="bg-gradient-to-br from-slate-50 to-blue-50/40 p-6 rounded-xl border border-slate-200 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
+              <h3 class="text-lg font-bold text-slate-900">SPC 的本質：從「挑壞品」轉變為「防製造出壞品」</h3>
+            </div>
+            <p class="text-sm text-slate-600 leading-relaxed mb-4">
+              傳統品管是<strong>「事後檢驗（Inspection）」</strong>：產品做完了，派人量測，不合格的報廢或重工。這種作法不僅浪費成本，且無法消除缺陷源頭。<br>
+              <strong>SPC 則是「事前預防（Prevention）」</strong>：在生產運轉過程中，以科學抽樣與統計圖表即時監控母體動態，一旦發現數據分佈出現異常漂移趨勢，在不良品產生<strong>之前</strong>就停機調教！
+            </p>
+          </div>
+          <div class="bg-white p-3.5 rounded-lg border border-blue-200 text-xs text-blue-900 font-medium">
+            💡 戴明名言：「品質不能靠檢驗獲得，品質是設計與製造出來的。」
+          </div>
+        </div>
+
+        <!-- Right: The Two Causes of Variation -->
+        <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+          <div class="flex items-center space-x-3 mb-3">
+            <div class="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">
+              <i class="fa-solid fa-code-fork"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900">製程變異的兩大根本來源</h3>
+          </div>
+          <p class="text-xs text-slate-500 mb-3">任何生產線即使設備再精密，產品數據也絕對不可能 100% 一模一樣，必然存在波動（變異）：</p>
+          <div class="space-y-3 text-xs">
+            <div class="p-3 bg-white rounded-lg border border-slate-200">
+              <div class="flex items-center justify-between font-bold text-slate-800">
+                <span class="flex items-center text-emerald-700">
+                  <i class="fa-solid fa-circle-check mr-1.5"></i> 1. 機遇原因 / 偶然原因 (Common Causes)
+                </span>
+                <span class="px-2 py-0.5 rounded bg-emerald-50 text-[10px] text-emerald-700">製程受控</span>
+              </div>
+              <p class="text-slate-600 mt-1">環境微小氣溫波動、材料晶粒正常公差等固有微量雜訊。無法完全消除，且呈現穩定的<strong>常態分佈（高斯鐘形）</strong>。</p>
+            </div>
+            <div class="p-3 bg-white rounded-lg border border-slate-200">
+              <div class="flex items-center justify-between font-bold text-slate-800">
+                <span class="flex items-center text-rose-700">
+                  <i class="fa-solid fa-circle-exclamation mr-1.5"></i> 2. 異常原因 / 特殊原因 (Special Causes)
+                </span>
+                <span class="px-2 py-0.5 rounded bg-rose-50 text-[10px] text-rose-700">製程失控</span>
+              </div>
+              <p class="text-slate-600 mt-1">刀具斷裂嚴重磨損、作業員看錯作業標準書、混到另一批劣質料。這會打破常態分佈，產生偏態、雙峰或離群孤島，<strong>品管必須立即找出並排除</strong>。</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 4 Pillars of QC Workflow -->
+      <div>
+        <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center">
+          <i class="fa-solid fa-diagram-project text-blue-600 mr-2"></i> 品管工程師在工廠中如何運作 SPC？（標準 4 部曲）
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:shadow-sm transition">
+            <div class="text-xs font-mono font-bold text-blue-600 mb-1">STEP 01</div>
+            <h4 class="font-bold text-slate-800 text-sm mb-1.5">標準化隨機抽樣</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              制定清晰檢驗規範（SOP），在固定的時間間隔內自產線抽取樣本（如每小時抽 5 瓶飲料、量測晶圓 9 點膜厚）。
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:shadow-sm transition">
+            <div class="text-xs font-mono font-bold text-blue-600 mb-1">STEP 02</div>
+            <h4 class="font-bold text-slate-800 text-sm mb-1.5">直方圖繪製與型態診斷</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              將批次連續數據進行區間分箱（Bins），觀察母體輪廓是否對稱、是否有雙峰混料或單側受限，初判製程健康度。
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:shadow-sm transition">
+            <div class="text-xs font-mono font-bold text-blue-600 mb-1">STEP 03</div>
+            <h4 class="font-bold text-slate-800 text-sm mb-1.5">製程能力分析 (Cp / Cpk)</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              比對公差規格（USL - LSL）與實際散佈寬度（6σ），計算出 Cpk。評估設備在不調機的情況下，天然良率是否有能力達標。
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:shadow-sm transition">
+            <div class="text-xs font-mono font-bold text-blue-600 mb-1">STEP 04</div>
+            <h4 class="font-bold text-slate-800 text-sm mb-1.5">管制圖動態預警 (Xbar-R)</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              將隨時間推移的點畫在管制圖上（UCL / CL / LCL）。只要出現「連續7點上升」或「超出管制界線」，系統立即亮紅燈警告。
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: WHY USE HISTOGRAM IN SPC -->
+    <section id="why-histogram" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+      <div class="border-b border-slate-100 pb-4">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 mb-2">
+          <i class="fa-solid fa-chart-simple mr-1.5"></i> 品質七大手法（QC 7 Tools）之首
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          為什麼 SPC 一定要用「直方圖 (Histogram)」？
+        </h2>
+        <p class="text-slate-600 mt-2 text-base">
+          純文字表格或簡單的平均值（Average）往往充滿欺騙性！「直方圖」是品管唯一能將<strong>海量冰冷連續數字</strong>，瞬間轉化為<strong>母體幾何全貌</strong>的強大透視鏡。
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 hover:border-indigo-300 transition">
+          <div class="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-base mb-3 shadow-xs">
+            <i class="fa-solid fa-eye"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-base mb-1.5">1. 識破「平均值陷阱」</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            一個水深平均 100cm 的池塘，可能有一半是 20cm、另一半是 180cm，冒然涉水會溺斃！同樣地，充填機平均 500g，可能實際上是 480g 與 520g 兩組嚴重偏差的混料。直方圖能直接揭露<strong>散布寬度（Spread）</strong>與<strong>峰形（Shape）</strong>。
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 hover:border-indigo-300 transition">
+          <div class="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-base mb-3 shadow-xs">
+            <i class="fa-solid fa-ruler-combined"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-base mb-1.5">2. 直接與規格界線（USL / LSL）對決</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            直方圖能直接把客戶訂立的規格上限（USL）與下限（LSL）畫在圖上。工程師能一眼看出：產品散布是否緊包在規格內？兩側的安全裕度有多寬？是否有尾巴已經悄悄咬破規格線產生不良？
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 hover:border-indigo-300 transition">
+          <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-base mb-3 shadow-xs">
+            <i class="fa-solid fa-stethoscope"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-base mb-1.5">3. 宛如製程的「X 光診斷報告」</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            正常穩定的製程必須呈現完美對稱的鐘形常態分佈。若直方圖呈現<strong>雙峰</strong>，代表有兩位作業員手法不同；若是<strong>斷崖陡壁</strong>，代表現場有人偷偷將不良品手工挑掉隱瞞產線瑕疵！
+          </p>
+        </div>
+
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-900 flex items-start space-x-3">
+        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base mt-0.5"></i>
+        <div>
+          <strong class="font-bold">承接下文的核心警示：</strong>
+          既然直方圖對 SPC 如此性命攸關，那在繪製時，<strong>絕不可隨便抓取 Excel 的「分類長條圖（Categorical）」充數</strong>！以下為您還原真實產線中最嚴重的圖表繪製錯誤案例。
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: BINS VS CATEGORICAL COMPARISON (Original Photo Reproduction) -->
+    <section id="comparison" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+      <div class="border-b border-slate-100 pb-5 mb-6">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 mb-2">
+          <i class="fa-solid fa-triangle-exclamation mr-1.5"></i> 現場最常見的致命圖表盲點
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900">
+          為什麼不能用「分類柱狀圖 (Categorical)」代替「直方圖 (Bins)」？
+        </h2>
+        <p class="text-slate-600 mt-2 text-base">
+          以「產品充填重量，理想目標 500g」為例。許多人在 Excel 或 BI 工具中直接選取數值繪圖，系統將連續數值誤設為「文字分類標籤」，導致製程資訊嚴重失真！
+        </p>
+      </div>
+
+      <!-- Comparison Cards Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+        
+        <!-- Left: Correct Bins Histogram -->
+        <div class="bg-blue-50/50 rounded-xl p-6 border-2 border-blue-300 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-md uppercase tracking-wider flex items-center shadow-sm">
+                <i class="fa-solid fa-circle-check mr-1.5"></i> 正確：連續區間分箱 (Bins)
+              </span>
+              <span class="text-xs font-mono font-bold text-blue-700 bg-blue-100 px-2.5 py-1 rounded border border-blue-200">Histogram chart(Bins)</span>
+            </div>
+            
+            <!-- Graphic Preview (Bins) - 100% High fidelity matching original prompt image -->
+            <div class="bg-white p-5 rounded-xl shadow-md border border-slate-300 mb-4">
+              <!-- Header / Legend inside graphic like Excel / Power BI -->
+              <div class="text-center pb-2">
+                <h4 class="text-sm font-black text-slate-800 tracking-wide">Histogram chart(Bins)</h4>
+                <div class="inline-flex items-center gap-1.5 mt-1 px-3 py-0.5 rounded bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700">
+                  <span class="w-3 h-3 rounded-sm bg-[#0088ff] inline-block shadow-xs"></span>
+                  <span>A1</span>
+                </div>
+              </div>
+
+              <!-- High Contrast Chart Area with Y-axis and Bars -->
+              <div class="h-60 w-full flex pt-3 pb-1 pr-2">
+                <!-- Y-Axis Ticks & Labels -->
+                <div class="w-8 flex flex-col justify-between items-end pr-2 text-xs font-mono font-bold text-slate-600 select-none pb-7">
+                  <span>4</span>
+                  <span>3</span>
+                  <span>2</span>
+                  <span>1</span>
+                  <span>0</span>
+                </div>
+
+                <!-- Plot Area with horizontal gridlines & Bars -->
+                <div class="flex-1 flex flex-col h-full">
+                  <div class="relative flex-1 border-l-2 border-b-2 border-slate-400 bg-white">
+                    <!-- Gridlines (0, 1, 2, 3, 4) -->
+                    <div class="absolute inset-x-0 top-0 border-b border-slate-200"></div>
+                    <div class="absolute inset-x-0 top-1/4 border-b border-slate-200"></div>
+                    <div class="absolute inset-x-0 top-2/4 border-b border-slate-200"></div>
+                    <div class="absolute inset-x-0 top-3/4 border-b border-slate-200"></div>
+
+                    <!-- Bars Container (7 distinct bin columns) -->
+                    <div class="absolute inset-0 flex items-end px-2 gap-2">
+                      <!-- 495-496 (0 height) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group">
+                        <div class="w-full h-0 bg-transparent"></div>
+                      </div>
+
+                      <!-- 497-498 (height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[10px] font-bold text-slate-700 mb-0.5">1</span>
+                        <div class="w-full bg-[#0088ff] rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+
+                      <!-- 498-499 (height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[10px] font-bold text-slate-700 mb-0.5">1</span>
+                        <div class="w-full bg-[#0088ff] rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+
+                      <!-- 499-500 (height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[10px] font-bold text-slate-700 mb-0.5">1</span>
+                        <div class="w-full bg-[#0088ff] rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+
+                      <!-- 500-501 (height 4 = 100% Peak) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-xs font-black text-blue-700 font-mono mb-0.5">4</span>
+                        <div class="w-full bg-[#0088ff] ring-2 ring-blue-400 rounded-t-sm shadow-md transition-all" style="height: 100%;"></div>
+                      </div>
+
+                      <!-- 501-502 (height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[10px] font-bold text-slate-700 mb-0.5">1</span>
+                        <div class="w-full bg-[#0088ff] rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+
+                      <!-- 502-503 (height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[10px] font-bold text-slate-700 mb-0.5">1</span>
+                        <div class="w-full bg-[#0088ff] rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+
+                      <!-- 503-504 (height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[10px] font-bold text-slate-700 mb-0.5">1</span>
+                        <div class="w-full bg-[#0088ff] rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- X-Axis Labels aligned with intervals -->
+                  <div class="flex justify-between items-center text-[11px] font-semibold text-slate-600 pt-2 px-1">
+                    <span class="text-slate-400">495-496</span>
+                    <span class="text-slate-500">499-500</span>
+                    <span class="font-bold text-blue-700 bg-blue-100 px-1 rounded border border-blue-200">500-501 (中心)</span>
+                    <span class="text-slate-500">503-504</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ul class="space-y-2.5 text-sm text-slate-700">
+              <li class="flex items-start">
+                <i class="fa-solid fa-check text-emerald-600 mt-1 mr-2 text-xs"></i>
+                <span><strong>橫軸是連續數值座標軸：</strong>間隔均等（每組 1g）且嚴格遞增，具備度量衡物理意義。</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa-solid fa-check text-emerald-600 mt-1 mr-2 text-xs"></i>
+                <span><strong>呈現真實常態分佈輪廓：</strong>清晰看出數據以 500g 為中心呈兩側對稱高斯鐘形。</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa-solid fa-check text-emerald-600 mt-1 mr-2 text-xs"></i>
+                <span><strong>可進行 SPC 統計運算：</strong>支援計算組距、平均值、標準差與 Cpk 製程能力。</span>
+              </li>
+            </ul>
+          </div>
+          <div class="mt-4 pt-3 border-t border-blue-200/80 text-xs text-blue-800 font-semibold flex items-center">
+            <i class="fa-solid fa-circle-check text-blue-600 mr-1.5"></i> 品管真諦：真實反映母體之連續變異與散佈寬度。
+          </div>
+        </div>
+
+        <!-- Right: Incorrect Categorical Bar Chart -->
+        <div class="bg-rose-50/50 rounded-xl p-6 border-2 border-rose-300 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 bg-rose-600 text-white text-xs font-bold rounded-md uppercase tracking-wider flex items-center shadow-sm">
+                <i class="fa-solid fa-circle-xmark mr-1.5"></i> 錯誤：離散類別圖 (Categorical)
+              </span>
+              <span class="text-xs font-mono font-bold text-rose-700 bg-rose-100 px-2.5 py-1 rounded border border-rose-200">Histogram chart(Categorical)</span>
+            </div>
+
+            <!-- Graphic Preview (Categorical) - High fidelity matching original prompt image -->
+            <div class="bg-white p-5 rounded-xl shadow-md border border-slate-300 mb-4">
+              <!-- Header / Legend inside graphic like Excel / Power BI -->
+              <div class="text-center pb-2">
+                <h4 class="text-sm font-black text-rose-900 tracking-wide">Histogram chart(Categorical)</h4>
+                <div class="inline-flex items-center gap-1.5 mt-1 px-3 py-0.5 rounded bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700">
+                  <span class="w-3 h-3 rounded-sm bg-[#0088ff] inline-block shadow-xs"></span>
+                  <span>A1</span>
+                </div>
+              </div>
+
+              <!-- High Contrast Chart Area with Y-axis and Categorical Bars -->
+              <div class="h-60 w-full flex pt-3 pb-1 pr-2">
+                <!-- Y-Axis Ticks & Labels -->
+                <div class="w-8 flex flex-col justify-between items-end pr-2 text-xs font-mono font-bold text-slate-600 select-none pb-7">
+                  <span>4</span>
+                  <span>3</span>
+                  <span>2</span>
+                  <span>1</span>
+                  <span>0</span>
+                </div>
+
+                <!-- Plot Area with horizontal gridlines & Bars -->
+                <div class="flex-1 flex flex-col h-full">
+                  <div class="relative flex-1 border-l-2 border-b-2 border-slate-400 bg-white">
+                    <!-- Gridlines (0, 1, 2, 3, 4) -->
+                    <div class="absolute inset-x-0 top-0 border-b border-slate-200"></div>
+                    <div class="absolute inset-x-0 top-1/4 border-b border-slate-200"></div>
+                    <div class="absolute inset-x-0 top-2/4 border-b border-slate-200"></div>
+                    <div class="absolute inset-x-0 top-3/4 border-b border-slate-200"></div>
+
+                    <!-- Categorical Bars Container (Matching order: 498, 500, 501, 499, 502, 497, 503) -->
+                    <div class="absolute inset-0 flex items-end px-2 gap-2">
+                      
+                      <!-- 498 (height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[10px] font-bold text-slate-700 mb-0.5">1</span>
+                        <div class="w-full bg-[#0088ff] rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+
+                      <!-- 500 (height 4 = 100%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-xs font-black text-slate-900 font-mono mb-0.5">4</span>
+                        <div class="w-full bg-[#0088ff] rounded-t-sm shadow transition-all" style="height: 100%;"></div>
+                      </div>
+
+                      <!-- 501 (height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[10px] font-bold text-slate-700 mb-0.5">1</span>
+                        <div class="w-full bg-[#0088ff] rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+
+                      <!-- 499 (Flaw: inverted order! height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[11px] font-black text-rose-700 mb-0.5 animate-bounce">⚠️</span>
+                        <div class="w-full bg-rose-500 ring-2 ring-rose-400 rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+
+                      <!-- 502 (height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[10px] font-bold text-slate-700 mb-0.5">1</span>
+                        <div class="w-full bg-[#0088ff] rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+
+                      <!-- 497 (Flaw: jump back! height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[11px] font-black text-rose-700 mb-0.5 animate-bounce">⚠️</span>
+                        <div class="w-full bg-rose-500 ring-2 ring-rose-400 rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+
+                      <!-- 503 (height 1 = 25%) -->
+                      <div class="flex-1 h-full flex flex-col justify-end items-center group relative">
+                        <span class="text-[10px] font-bold text-slate-700 mb-0.5">1</span>
+                        <div class="w-full bg-[#0088ff] rounded-t-sm shadow transition-all" style="height: 25%;"></div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <!-- X-Axis Labels showing erroneous order -->
+                  <div class="grid grid-cols-7 text-[11px] font-semibold pt-2 text-center">
+                    <span class="text-slate-700">498</span>
+                    <span class="font-bold text-slate-900">500</span>
+                    <span class="text-slate-700">501</span>
+                    <span class="font-bold text-rose-700 bg-amber-100 rounded px-0.5 shadow-xs border border-amber-300" title="順序倒置！499 出現在 501 後方">499 ⚠️</span>
+                    <span class="text-slate-700">502</span>
+                    <span class="font-bold text-rose-700 bg-amber-100 rounded px-0.5 shadow-xs border border-amber-300" title="順序跳躍！497 竟插在 502 後方">497 ⚠️</span>
+                    <span class="text-slate-700">503</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ul class="space-y-2.5 text-sm text-slate-700">
+              <li class="flex items-start">
+                <i class="fa-solid fa-xmark text-rose-600 mt-1 mr-2 text-xs"></i>
+                <span><strong>橫軸只是名目標籤 (Text Labels)：</strong>數字被當成無序文字，排序易錯亂（如圖中 499 竟在 501 後方）。</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa-solid fa-xmark text-rose-600 mt-1 mr-2 text-xs"></i>
+                <span><strong>缺乏數值距離觀念：</strong>498 與 500 的間距跟 500 與 501 相同，抹煞物理尺度。</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa-solid fa-xmark text-rose-600 mt-1 mr-2 text-xs"></i>
+                <span><strong>無法偵測缺漏與常態分佈：</strong>若某個數值出現次數為 0，該分類直接蒸發，完全無法看出常態或偏態。</span>
+              </li>
+            </ul>
+          </div>
+          <div class="mt-4 pt-3 border-t border-rose-200/80 text-xs text-rose-800 font-semibold flex items-center">
+            <i class="fa-solid fa-triangle-exclamation text-rose-600 mr-1.5"></i> 嚴重後果：盲目誤判製程離散度，可能導致放行不合格品或誤修機台！
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 4: INTERACTIVE SIMULATOR & CPK -->
+    <section id="simulator" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+        <div>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 mb-2">
+            <i class="fa-solid fa-flask-vial mr-1.5"></i> 即時互動實驗室
+          </span>
+          <h2 class="text-2xl font-black text-slate-900">SPC 直方圖生成與製程能力分析</h2>
+          <p class="text-sm text-slate-500">動態切換充填數據、調整組距 (Bin Width)，即時比對兩種繪圖模式與製程指標。</p>
+        </div>
+
+        <!-- Preset buttons -->
+        <div class="flex flex-wrap gap-2">
+          <button onclick="loadScenario('photo_case')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 transition">
+            <i class="fa-solid fa-image mr-1"></i> 載入照片範例 (500g充填)
+          </button>
+          <button onclick="loadScenario('normal_process')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 transition">
+            <i class="fa-solid fa-bell mr-1"></i> 常態良好製程 (N=120)
+          </button>
+          <button onclick="loadScenario('bimodal_mix')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 transition">
+            <i class="fa-solid fa-arrows-split-up-and-left mr-1"></i> 雙峰混料 (兩台充填機)
+          </button>
+          <button onclick="loadScenario('skewed_wear')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 transition">
+            <i class="fa-solid fa-arrow-trend-up mr-1"></i> 偏態分佈 (模具磨損)
+          </button>
+        </div>
+      </div>
+
+      <!-- Controls & Input Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Input & Parameter Controls -->
+        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+          <h3 class="text-sm font-bold text-slate-800 flex items-center">
+            <i class="fa-solid fa-sliders text-blue-600 mr-2"></i> 參數與數據輸入
+          </h3>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">
+              採樣重量數據 (g，以逗號或空格隔開):
+            </label>
+            <textarea id="raw-data-input" rows="4" class="w-full text-xs font-mono p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none custom-scrollbar" placeholder="例如: 498, 500, 501, 499, 500, 502, 500, 497, 500, 503"></textarea>
+            <div class="flex justify-between items-center mt-1.5">
+              <span id="sample-count-badge" class="text-[11px] text-slate-500 font-medium">樣本數 N = 10</span>
+              <button onclick="triggerAnalysis()" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1 rounded-md transition shadow-sm">
+                <i class="fa-solid fa-rotate mr-1"></i> 重新計算繪製
+              </button>
+            </div>
+          </div>
+
+          <div class="border-t border-slate-200 pt-3 space-y-3">
+            <div>
+              <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <span>直方圖分組組數 (Bins Count): <span id="bins-display" class="text-blue-600 font-mono font-bold">7</span></span>
+                <span id="sturges-suggest" class="text-slate-400 font-normal text-[10px]">Sturges 建議: 5</span>
+              </div>
+              <input type="range" id="bin-slider" min="3" max="25" value="7" class="w-full accent-blue-600 cursor-pointer" oninput="updateBinCount(this.value)">
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>粗糙 (3組)</span>
+                <span>平衡</span>
+                <span>破碎 (25組)</span>
+              </div>
+            </div>
+
+            <!-- Specification limits -->
+            <div class="grid grid-cols-3 gap-2 text-xs pt-1">
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">下限 LSL (g)</label>
+                <input type="number" id="spec-lsl" value="492" step="0.5" class="w-full p-1.5 border border-slate-300 rounded text-center font-mono" onchange="triggerAnalysis()">
+              </div>
+              <div>
+                <label class="block font-semibold text-blue-600 mb-1">目標 Target</label>
+                <input type="number" id="spec-target" value="500" step="0.5" class="w-full p-1.5 border border-blue-300 bg-blue-50/50 rounded text-center font-mono font-bold" onchange="triggerAnalysis()">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-600 mb-1">上限 USL (g)</label>
+                <input type="number" id="spec-usl" value="508" step="0.5" class="w-full p-1.5 border border-slate-300 rounded text-center font-mono" onchange="triggerAnalysis()">
+              </div>
+            </div>
+
+            <!-- Bell curve overlay toggle -->
+            <div class="flex items-center justify-between text-xs text-slate-700 pt-2">
+              <label for="toggle-curve" class="cursor-pointer select-none font-medium flex items-center">
+                <i class="fa-solid fa-chart-line text-blue-600 mr-1.5"></i> 疊加常態分佈理論曲線 (Gauss Bell)
+              </label>
+              <input type="checkbox" id="toggle-curve" checked class="w-4 h-4 text-blue-600 rounded cursor-pointer" onchange="triggerAnalysis()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Realtime Statistics & Cpk Metric Panel -->
+        <div class="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-5 rounded-xl border border-slate-200">
+          
+          <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-xs flex flex-col justify-between">
+            <span class="text-xs text-slate-500 font-medium">樣本平均值 (Mean, X̄)</span>
+            <div class="mt-1">
+              <span id="stat-mean" class="text-xl font-bold font-mono text-slate-900">500.00</span>
+              <span class="text-xs text-slate-400">g</span>
+            </div>
+            <span id="stat-offset" class="text-[10px] text-emerald-600 mt-1 font-medium">偏移: 0.00g</span>
+          </div>
+
+          <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-xs flex flex-col justify-between">
+            <span class="text-xs text-slate-500 font-medium">樣本標準差 (Std Dev, s)</span>
+            <div class="mt-1">
+              <span id="stat-std" class="text-xl font-bold font-mono text-slate-900">1.89</span>
+              <span class="text-xs text-slate-400">g</span>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-1">6σ 散佈 = <span id="stat-6sigma" class="font-mono">11.34</span></span>
+          </div>
+
+          <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-xs flex flex-col justify-between">
+            <span class="text-xs text-slate-500 font-medium">全距 (Range, R)</span>
+            <div class="mt-1">
+              <span id="stat-range" class="text-xl font-bold font-mono text-slate-900">8.00</span>
+              <span class="text-xs text-slate-400">g</span>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-1">[<span id="stat-min" class="font-mono">496</span> ~ <span id="stat-max" class="font-mono">504</span>]</span>
+          </div>
+
+          <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-xs flex flex-col justify-between">
+            <span class="text-xs text-slate-500 font-medium">組距 (Bin Width, h)</span>
+            <div class="mt-1">
+              <span id="stat-bin-width" class="text-xl font-bold font-mono text-blue-600">1.14</span>
+              <span class="text-xs text-slate-400">g</span>
+            </div>
+            <span class="text-[10px] text-slate-500 mt-1">公式: R ÷ K</span>
+          </div>
+
+          <!-- SPC Capability Card (Span across bottom of stats) -->
+          <div class="col-span-2 sm:col-span-4 bg-gradient-to-r from-blue-900 to-indigo-950 text-white p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2 shadow-sm">
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-xs uppercase font-mono tracking-wider text-blue-300">製程能力指數 (Capability Index)</span>
+                <span id="cpk-badge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500 text-white">狀態良好</span>
+              </div>
+              <p class="text-xs text-slate-300">綜合評估製程散布 (Cp) 與中心偏移程度 (Cpk)</p>
+            </div>
+            <div class="flex items-center space-x-6">
+              <div class="text-center">
+                <div class="text-[10px] text-blue-200 uppercase font-mono">Cp (潛力)</div>
+                <div id="stat-cp" class="text-lg font-bold font-mono">1.41</div>
+              </div>
+              <div class="text-center">
+                <div class="text-[10px] text-blue-200 uppercase font-mono">Ca (偏移度)</div>
+                <div id="stat-ca" class="text-lg font-bold font-mono">0.0%</div>
+              </div>
+              <div class="text-center bg-white/10 px-3 py-1.5 rounded-lg border border-white/20">
+                <div class="text-[10px] text-amber-300 uppercase font-mono font-bold">Cpk (實質能力)</div>
+                <div id="stat-cpk" class="text-xl font-black font-mono text-white">1.41</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Charts Live Comparison Side by Side -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+        
+        <!-- Live Histogram (Bins) -->
+        <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-100">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+              <h4 class="font-bold text-slate-900 text-sm">統計直方圖 (Continuous Binned Histogram)</h4>
+            </div>
+            <span class="text-xs text-blue-600 bg-blue-50 font-medium px-2 py-0.5 rounded">SPC 正規檢驗</span>
+          </div>
+          <div class="relative flex-1 min-h-[300px]">
+            <canvas id="histogramChart"></canvas>
+          </div>
+          <div class="mt-3 text-xs text-slate-500 bg-slate-50 p-2.5 rounded border border-slate-100 flex items-center justify-between">
+            <span><i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> X軸為依組距連續展開的重量區間，柱高為次數 (Frequency)。</span>
+            <span class="text-[11px] font-mono text-slate-400">Target = 500g</span>
+          </div>
+        </div>
+
+        <!-- Live Categorical (Bad Case) -->
+        <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-100">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+              <h4 class="font-bold text-slate-900 text-sm">誤用的分類柱狀圖 (Categorical Bar Chart)</h4>
+            </div>
+            <span class="text-xs text-rose-600 bg-rose-50 font-medium px-2 py-0.5 rounded">常見錯誤！</span>
+          </div>
+          <div class="relative flex-1 min-h-[300px]">
+            <canvas id="categoricalChart"></canvas>
+          </div>
+          <div class="mt-3 text-xs text-rose-700 bg-rose-50 p-2.5 rounded border border-rose-100 flex items-center justify-between">
+            <span><i class="fa-solid fa-triangle-exclamation text-rose-500 mr-1"></i> X軸僅依照數據出現順序當成字串排，喪失距離感與連續性。</span>
+            <span class="text-[11px] font-mono text-rose-500">無法擬合常態鐘形</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- SECTION 5: 6 STEPS TO BUILD A HISTOGRAM -->
+    <section id="theory" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+      <div class="border-b border-slate-100 pb-4">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 mb-2">
+          <i class="fa-solid fa-book-open mr-1.5"></i> 品管工程師必備知識
+        </span>
+        <h2 class="text-2xl font-black text-slate-900">直方圖建構 6 大標準步驟</h2>
+        <p class="text-slate-600 text-sm mt-1">在進行 SPC 製程管制時，嚴謹的數據分組是避免圖形失真的唯一法則。</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Step 1 -->
+        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 hover:border-blue-300 transition">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white font-mono font-bold flex items-center justify-center text-sm mb-3">01</div>
+          <h3 class="font-bold text-slate-800 mb-1">收集連續型數據 (N 筆)</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            SPC 建議樣本數 <span class="font-mono font-semibold text-blue-700">N ≥ 50</span>（理想在 100 筆以上），數據需在製程處於穩定受控狀態下隨機抽樣。
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 hover:border-blue-300 transition">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white font-mono font-bold flex items-center justify-center text-sm mb-3">02</div>
+          <h3 class="font-bold text-slate-800 mb-1">求全距 (Range, R)</h3>
+          <p class="text-xs text-slate-600 leading-relaxed font-mono">
+            R = Max(X) - Min(X)
+          </p>
+          <p class="text-xs text-slate-500 mt-1">
+            找出數據中最大值與最小值之差，代表整批產品總散佈範圍。
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 hover:border-blue-300 transition">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white font-mono font-bold flex items-center justify-center text-sm mb-3">03</div>
+          <h3 class="font-bold text-slate-800 mb-1">決定組數 (K)</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            常用 <strong class="text-blue-700">Sturges 公式</strong>：
+            <code class="block font-mono bg-white p-1 rounded border border-slate-200 my-1 text-slate-800">K ≈ 1 + 3.322 × log₁₀(N)</code>
+            或簡易法則：<code class="font-mono text-slate-800">K ≈ √N</code>。通常取整數 5 ~ 20 組。
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 hover:border-blue-300 transition">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white font-mono font-bold flex items-center justify-center text-sm mb-3">04</div>
+          <h3 class="font-bold text-slate-800 mb-1">計算組距 (Bin Width, h)</h3>
+          <p class="text-xs text-slate-600 leading-relaxed font-mono">
+            h = R ÷ K
+          </p>
+          <p class="text-xs text-slate-500 mt-1">
+            為方便讀取與歸類，組距通常取測量最小單位的整數倍（如 0.5、1、2、5、10 等優選數）。
+          </p>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 hover:border-blue-300 transition">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white font-mono font-bold flex items-center justify-center text-sm mb-3">05</div>
+          <h3 class="font-bold text-slate-800 mb-1">計算組界 (Class Boundary)</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            第一組下組界 = <code class="font-mono text-slate-800">Min - (量測最小刻度 / 2)</code>。
+          </p>
+          <p class="text-xs text-slate-500 mt-1">
+            組界刻意多取半個刻度，可避免任何數據剛好落在邊界上產生爭議。
+          </p>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 hover:border-blue-300 transition">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white font-mono font-bold flex items-center justify-center text-sm mb-3">06</div>
+          <h3 class="font-bold text-slate-800 mb-1">統計頻率並繪製長條</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            統計各組區間內的樣本個數，柱與柱之間<strong>緊密相連不留空隙</strong>（除非次數為0），突顯數據的連續物理性質。
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 6: 6 CLASSIC HISTOGRAM PATTERNS -->
+    <section id="patterns" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+      <div class="border-b border-slate-100 pb-4">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 mb-2">
+          <i class="fa-solid fa-magnifying-glass-chart mr-1.5"></i> 現場品質診斷技巧
+        </span>
+        <h2 class="text-2xl font-black text-slate-900">常見 6 大直方圖形態與現場異常對策</h2>
+        <p class="text-slate-600 text-sm mt-1">直方圖不只是一張圖，它是「會說話的製程健康診斷書」。</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Pattern 1: Normal -->
+        <div class="border border-slate-200 rounded-xl p-5 hover:shadow-md transition">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-slate-900 flex items-center">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2"></span>
+              常態對稱型 (Bell Shape)
+            </h4>
+            <span class="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-medium">最佳理想狀態</span>
+          </div>
+          <div class="h-24 bg-slate-50 rounded-lg p-2 flex items-end justify-center gap-1.5 border border-slate-100 mb-3">
+            <div class="w-4 bg-emerald-300 rounded-t h-[20%]"></div>
+            <div class="w-4 bg-emerald-400 rounded-t h-[50%]"></div>
+            <div class="w-4 bg-emerald-500 rounded-t h-[80%]"></div>
+            <div class="w-4 bg-emerald-600 rounded-t h-[100%]"></div>
+            <div class="w-4 bg-emerald-500 rounded-t h-[80%]"></div>
+            <div class="w-4 bg-emerald-400 rounded-t h-[50%]"></div>
+            <div class="w-4 bg-emerald-300 rounded-t h-[20%]"></div>
+          </div>
+          <p class="text-xs text-slate-600"><strong>特徵：</strong>中間高、兩邊低、左右基本對稱。</p>
+          <p class="text-xs text-slate-500 mt-1"><strong>製程意義：</strong>製程受隨機微小偶然因素控制，無重大機台或操作異常，處於穩定狀態。</p>
+        </div>
+
+        <!-- Pattern 2: Bimodal -->
+        <div class="border border-slate-200 rounded-xl p-5 hover:shadow-md transition">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-slate-900 flex items-center">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 mr-2"></span>
+              雙峰型 (Bimodal)
+            </h4>
+            <span class="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded font-medium">混料警訊</span>
+          </div>
+          <div class="h-24 bg-slate-50 rounded-lg p-2 flex items-end justify-center gap-1.5 border border-slate-100 mb-3">
+            <div class="w-4 bg-amber-400 rounded-t h-[40%]"></div>
+            <div class="w-4 bg-amber-500 rounded-t h-[85%]"></div>
+            <div class="w-4 bg-amber-400 rounded-t h-[40%]"></div>
+            <div class="w-4 bg-amber-300 rounded-t h-[20%]"></div>
+            <div class="w-4 bg-amber-400 rounded-t h-[45%]"></div>
+            <div class="w-4 bg-amber-600 rounded-t h-[95%]"></div>
+            <div class="w-4 bg-amber-400 rounded-t h-[40%]"></div>
+          </div>
+          <p class="text-xs text-slate-600"><strong>特徵：</strong>圖中出現兩個明顯的高峰。</p>
+          <p class="text-xs text-slate-500 mt-1"><strong>現場真因：</strong>兩台充填機混料、兩批不同供應商原料混批，或兩位作業員手法差異。</p>
+        </div>
+
+        <!-- Pattern 3: Skewed -->
+        <div class="border border-slate-200 rounded-xl p-5 hover:shadow-md transition">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-slate-900 flex items-center">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-500 mr-2"></span>
+              偏態型 (Skewed / 偏峰)
+            </h4>
+            <span class="text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded font-medium">單側趨向</span>
+          </div>
+          <div class="h-24 bg-slate-50 rounded-lg p-2 flex items-end justify-center gap-1.5 border border-slate-100 mb-3">
+            <div class="w-4 bg-blue-600 rounded-t h-[95%]"></div>
+            <div class="w-4 bg-blue-500 rounded-t h-[75%]"></div>
+            <div class="w-4 bg-blue-400 rounded-t h-[50%]"></div>
+            <div class="w-4 bg-blue-400 rounded-t h-[35%]"></div>
+            <div class="w-4 bg-blue-300 rounded-t h-[20%]"></div>
+            <div class="w-4 bg-blue-300 rounded-t h-[12%]"></div>
+            <div class="w-4 bg-blue-200 rounded-t h-[5%]"></div>
+          </div>
+          <p class="text-xs text-slate-600"><strong>特徵：</strong>尖峰偏向一側，另一側拖著長長尾巴。</p>
+          <p class="text-xs text-slate-500 mt-1"><strong>現場真因：</strong>單邊規格公差（如粗糙度只能大於0）、模具漸進磨損、或作業員心理傾向安全邊界。</p>
+        </div>
+
+        <!-- Pattern 4: Cliff / Cutoff -->
+        <div class="border border-slate-200 rounded-xl p-5 hover:shadow-md transition">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-slate-900 flex items-center">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 mr-2"></span>
+              陡壁型 / 斷崖型 (Cliff)
+            </h4>
+            <span class="text-xs text-rose-700 bg-rose-50 px-2 py-0.5 rounded font-medium">篩選剔除</span>
+          </div>
+          <div class="h-24 bg-slate-50 rounded-lg p-2 flex items-end justify-center gap-1.5 border border-slate-100 mb-3">
+            <div class="w-4 bg-rose-600 rounded-t h-[95%]"></div>
+            <div class="w-4 bg-rose-500 rounded-t h-[80%]"></div>
+            <div class="w-4 bg-rose-400 rounded-t h-[60%]"></div>
+            <div class="w-4 bg-rose-400 rounded-t h-[40%]"></div>
+            <div class="w-4 bg-rose-300 rounded-t h-[25%]"></div>
+            <div class="w-4 bg-rose-200 rounded-t h-[15%]"></div>
+            <div class="w-4 bg-rose-100 rounded-t h-[5%]"></div>
+          </div>
+          <p class="text-xs text-slate-600"><strong>特徵：</strong>某一端突然垂直截斷，完全無尾端。</p>
+          <p class="text-xs text-slate-500 mt-1"><strong>現場真因：</strong>數據已被全檢剔除不合格品，或者檢測儀器有讀取下限（盲區）。</p>
+        </div>
+
+        <!-- Pattern 5: Isolated Island -->
+        <div class="border border-slate-200 rounded-xl p-5 hover:shadow-md transition">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-slate-900 flex items-center">
+              <span class="w-2.5 h-2.5 rounded-full bg-purple-500 mr-2"></span>
+              孤島型 (Island / 突變)
+            </h4>
+            <span class="text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded font-medium">偶發異常</span>
+          </div>
+          <div class="h-24 bg-slate-50 rounded-lg p-2 flex items-end justify-center gap-1.5 border border-slate-100 mb-3">
+            <div class="w-4 bg-purple-200 rounded-t h-[5%]"></div>
+            <div class="w-4 bg-purple-400 rounded-t h-[45%]"></div>
+            <div class="w-4 bg-purple-500 rounded-t h-[90%]"></div>
+            <div class="w-4 bg-purple-400 rounded-t h-[45%]"></div>
+            <div class="w-4 bg-purple-200 rounded-t h-[5%]"></div>
+            <div class="w-4 bg-transparent rounded-t h-[0%]"></div>
+            <div class="w-4 bg-purple-600 rounded-t h-[25%]"></div>
+          </div>
+          <p class="text-xs text-slate-600"><strong>特徵：</strong>在主體分佈之外，隔著一段空白出現孤立小島。</p>
+          <p class="text-xs text-slate-500 mt-1"><strong>現場真因：</strong>量測讀數筆誤、原料偶然混入異物、調機時的試樣混入良品中。</p>
+        </div>
+
+        <!-- Pattern 6: Sawtooth -->
+        <div class="border border-slate-200 rounded-xl p-5 hover:shadow-md transition">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-slate-900 flex items-center">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-500 mr-2"></span>
+              鋸齒型 (Comb / 凹凸)
+            </h4>
+            <span class="text-xs text-slate-700 bg-slate-100 px-2 py-0.5 rounded font-medium">量測/分組誤差</span>
+          </div>
+          <div class="h-24 bg-slate-50 rounded-lg p-2 flex items-end justify-center gap-1.5 border border-slate-100 mb-3">
+            <div class="w-4 bg-slate-400 rounded-t h-[30%]"></div>
+            <div class="w-4 bg-slate-600 rounded-t h-[80%]"></div>
+            <div class="w-4 bg-slate-400 rounded-t h-[35%]"></div>
+            <div class="w-4 bg-slate-600 rounded-t h-[95%]"></div>
+            <div class="w-4 bg-slate-400 rounded-t h-[40%]"></div>
+            <div class="w-4 bg-slate-600 rounded-t h-[75%]"></div>
+            <div class="w-4 bg-slate-400 rounded-t h-[25%]"></div>
+          </div>
+          <p class="text-xs text-slate-600"><strong>特徵：</strong>高低柱交替出現，宛如梳子或鋸齒。</p>
+          <p class="text-xs text-slate-500 mt-1"><strong>現場真因：</strong>組距不是量測單位的整數倍、量測儀器精度不足、或檢驗員偏好記錄偶數。</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 7: INDUSTRIAL & DAILY LIFE APPLICATIONS -->
+    <section id="applications" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-8">
+      <div class="border-b border-slate-100 pb-5">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 mb-2">
+          <i class="fa-solid fa-earth-americas mr-1.5"></i> 廣泛實踐領域
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          直方圖與 SPC：工業現場與日常生活中的全方位應用
+        </h2>
+        <p class="text-slate-600 mt-2 text-base">
+          SPC 與直方圖絕非僅存於教科書上的數學公式。從最前瞻的半導體晶圓廠，到每天喝的一杯手沖咖啡，統計管制思維無處不在。
+        </p>
+      </div>
+
+      <!-- Application Grid: Industry vs Daily Life -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Industry Applications -->
+        <div class="space-y-4">
+          <div class="flex items-center space-x-3 pb-2 border-b border-slate-200">
+            <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
+              <i class="fa-solid fa-industry"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-900">工業製造現場應用</h3>
+              <p class="text-xs text-slate-500">高良率、極致公差與百萬分之一 (PPM) 級別的製程控制</p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/40 transition">
+              <div class="flex items-center justify-between font-bold text-slate-900 text-sm mb-1">
+                <span><i class="fa-solid fa-microchip text-blue-600 mr-2"></i> 半導體晶圓製造 (Semiconductor)</span>
+                <span class="text-[11px] font-mono text-blue-700 bg-blue-100 px-2 py-0.5 rounded">奈米級膜厚</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                在薄膜沉積（CVD）與化學機械研磨（CMP）站點，直方圖用來分析晶圓各量測點的<strong>二氧化矽膜厚分佈</strong>。任何雙峰現象均代表研磨頭受力不均或噴嘴壓力堵塞。
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/40 transition">
+              <div class="flex items-center justify-between font-bold text-slate-900 text-sm mb-1">
+                <span><i class="fa-solid fa-gears text-blue-600 mr-2"></i> 精密機械車削與沖壓 (Automotive)</span>
+                <span class="text-[11px] font-mono text-blue-700 bg-blue-100 px-2 py-0.5 rounded">軸承公差 ±5μm</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                汽車變速箱軸承的外徑加工。當直方圖隨時間由對稱鐘形逐漸往 USL 方向「右偏」，代表<strong>CNC 刀具正在磨損</strong>，需在工件超差前立即換刀。
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/40 transition">
+              <div class="flex items-center justify-between font-bold text-slate-900 text-sm mb-1">
+                <span><i class="fa-solid fa-pills text-blue-600 mr-2"></i> 食品包裝與製藥 (Food & Pharma)</span>
+                <span class="text-[11px] font-mono text-blue-700 bg-blue-100 px-2 py-0.5 rounded">重量法規合規</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                如本例的飲料、奶粉充填或膠囊主成分劑量。透過直方圖監控避免<strong>不足量遭消費者罰款</strong>，同時防止<strong>過度充填造成百萬原料浪費</strong>。
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/40 transition">
+              <div class="flex items-center justify-between font-bold text-slate-900 text-sm mb-1">
+                <span><i class="fa-solid fa-circuit-board text-blue-600 mr-2"></i> SMT 電子組裝 (Surface Mount)</span>
+                <span class="text-[11px] font-mono text-blue-700 bg-blue-100 px-2 py-0.5 rounded">SPI 錫膏厚度</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                SPI 錫膏檢查機量測印刷厚度。直方圖若出現孤島或大跨距鋸齒，直接反映出鋼板開孔堵塞或刮刀刮壓不穩定。
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Daily Life Applications -->
+        <div class="space-y-4">
+          <div class="flex items-center space-x-3 pb-2 border-b border-slate-200">
+            <div class="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold">
+              <i class="fa-solid fa-mug-hot"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-900">日常生活與商業運營應用</h3>
+              <p class="text-xs text-slate-500">將統計思維帶入日常生活，減少失誤與提升掌控力</p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50/40 transition">
+              <div class="flex items-center justify-between font-bold text-slate-900 text-sm mb-1">
+                <span><i class="fa-solid fa-coffee text-emerald-600 mr-2"></i> 精品咖啡店風味穩定度 (Coffee Extraction)</span>
+                <span class="text-[11px] font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">出液時間 25~30s</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                咖啡師記錄每次義式濃縮萃取秒數。若直方圖呈現雙峰，代表早班磨豆機受潮或不同咖啡師填壓（Tamping）力道嚴重不一致。
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50/40 transition">
+              <div class="flex items-center justify-between font-bold text-slate-900 text-sm mb-1">
+                <span><i class="fa-solid fa-truck-fast text-emerald-600 mr-2"></i> 電商物流外送時效承諾 (Delivery Logistics)</span>
+                <span class="text-[11px] font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">30分鐘到府</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                外送平台分析配送時間直方圖。右側拖著長長尾巴（偏態）代表極端天候或尖峰塞車，直方圖可協助主管設定合理的「超時補償閥值」。
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50/40 transition">
+              <div class="flex items-center justify-between font-bold text-slate-900 text-sm mb-1">
+                <span><i class="fa-solid fa-heart-pulse text-emerald-600 mr-2"></i> 個人健康管理與血壓血糖 (Healthcare)</span>
+                <span class="text-[11px] font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">空腹血糖 mg/dL</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                慢性病患連續記錄 90 天空腹血糖，直方圖能一目了然看清自己多數時間落在標準區間（如 70-99）還是頻繁向高血糖端飄移。
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50/40 transition">
+              <div class="flex items-center justify-between font-bold text-slate-900 text-sm mb-1">
+                <span><i class="fa-solid fa-graduation-cap text-emerald-600 mr-2"></i> 大學入學測驗與成績常態化 (Education)</span>
+                <span class="text-[11px] font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">PR 分位值與級分</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                幾十萬考生的成績直方圖。教育部門藉由檢視分佈是否為標準常態分佈，判斷出題難度是否過難（左偏）或過易（右偏），以保障鑑別度。
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Final Takeaway Quote Banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-xl p-6 sm:p-7 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
+        <div class="space-y-1">
+          <span class="text-xs font-mono uppercase tracking-wider text-blue-400">總結金句 • Key Takeaway</span>
+          <h4 class="text-lg sm:text-xl font-bold">沒有量測，就沒有管制；沒有分箱直方圖，就看不見真相。</h4>
+          <p class="text-xs text-slate-300">永遠記住：連續量測數據務必採用 Bins 分箱，向錯誤的 Categorical 柱狀圖說不！</p>
+        </div>
+        <a href="#simulator" class="whitespace-nowrap px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 font-bold text-xs shadow-lg transition">
+          <i class="fa-solid fa-arrow-up mr-1.5"></i> 回到互動沙盒實踐
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 space-y-1">
+      <p class="font-semibold text-slate-700">SPC 品質管制工程知識庫 • 直方圖核心概念指南</p>
+      <p>連續數據請務必使用 Bins (區間分箱)；切勿將連續量測誤設為離散類別 (Categorical)。</p>
+    </div>
+  </footer>
+
+  <script>
+    // Global chart references
+    let histogramChartInstance = null;
+    let categoricalChartInstance = null;
+
+    // Default Scenarios
+    const SCENARIOS = {
+      // Photo original case: 498, 500(x4), 501, 499, 502, 497, 503 (ideal = 500g)
+      photo_case: {
+        data: [498, 500, 500, 500, 500, 501, 499, 502, 497, 503],
+        bins: 7,
+        lsl: 492,
+        target: 500,
+        usl: 508,
+        description: '圖片充填案例'
+      },
+      normal_process: {
+        data: generateNormalData(120, 500.1, 1.4),
+        bins: 9,
+        lsl: 495,
+        target: 500,
+        usl: 505,
+        description: '常態良好製程 (N=120)'
+      },
+      bimodal_mix: {
+        data: [...generateNormalData(60, 496.5, 0.9), ...generateNormalData(60, 503.2, 0.9)],
+        bins: 12,
+        lsl: 492,
+        target: 500,
+        usl: 508,
+        description: '雙機混料雙峰'
+      },
+      skewed_wear: {
+        data: generateSkewedData(100, 497, 1.2, 3),
+        bins: 8,
+        lsl: 495,
+        target: 500,
+        usl: 505,
+        description: '模具單側偏態'
+      }
+    };
+
+    // Helper: generate mock normal Gaussian data
+    function generateNormalData(count, mean, stdDev) {
+      const arr = [];
+      for (let i = 0; i < count; i++) {
+        // Box-Muller transform
+        const u = 1 - Math.random();
+        const v = Math.random();
+        const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        arr.push(+(mean + z * stdDev).toFixed(2));
+      }
+      return arr;
+    }
+
+    // Helper: generate skewed distribution data
+    function generateSkewedData(count, base, scale, power) {
+      const arr = [];
+      for (let i = 0; i < count; i++) {
+        const val = base + Math.pow(Math.random(), power) * scale * 5;
+        arr.push(+val.toFixed(2));
+      }
+      return arr;
+    }
+
+    function calculateStats(numbers) {
+      if (!numbers || numbers.length === 0) return null;
+      const n = numbers.length;
+      const sorted = [...numbers].sort((a, b) => a - b);
+      const min = sorted[0];
+      const max = sorted[n - 1];
+      const range = max - min;
+      const sum = sorted.reduce((acc, v) => acc + v, 0);
+      const mean = sum / n;
+
+      // Sample standard deviation (n-1)
+      const variance = n > 1 
+        ? sorted.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / (n - 1)
+        : 0;
+      const stdDev = Math.sqrt(variance);
+
+      return { n, sorted, min, max, range, mean, stdDev };
+    }
+
+    function calculateCpk(mean, stdDev, lsl, usl, target) {
+      if (stdDev === 0 || isNaN(stdDev)) {
+        return { cp: 0, cpk: 0, ca: 0, rating: '無散佈' };
+      }
+      const tolerance = usl - lsl;
+      const halfTolerance = tolerance / 2;
+      
+      // Cp = (USL - LSL) / (6 * sigma)
+      const cp = tolerance / (6 * stdDev);
+      
+      // Ca = (Mean - Target) / (T/2)
+      const ca = (mean - target) / halfTolerance;
+
+      // Cpu = (USL - Mean) / (3 * sigma)
+      // Cpl = (Mean - LSL) / (3 * sigma)
+      const cpu = (usl - mean) / (3 * stdDev);
+      const cpl = (mean - lsl) / (3 * stdDev);
+      const cpk = Math.min(cpu, cpl);
+
+      let rating = '極佳 (A+)';
+      let badgeColor = 'bg-emerald-600';
+      if (cpk >= 1.67) {
+        rating = '特優 (A+)';
+        badgeColor = 'bg-emerald-600';
+      } else if (cpk >= 1.33) {
+        rating = '合格穩定 (A)';
+        badgeColor = 'bg-emerald-500';
+      } else if (cpk >= 1.0) {
+        rating = '警戒注意 (B)';
+        badgeColor = 'bg-amber-500';
+      } else {
+        rating = '嚴重不足 (C/D)';
+        badgeColor = 'bg-rose-600';
+      }
+
+      return {
+        cp: +cp.toFixed(2),
+        cpk: +cpk.toFixed(2),
+        ca: +(ca * 100).toFixed(1),
+        rating,
+        badgeColor
+      };
+    }
+
+    function buildHistogramBins(numbers, binCount, min, max) {
+      if (numbers.length === 0) return { labels: [], counts: [], binWidth: 0, binEdges: [] };
+      
+      const range = max - min;
+      const rawWidth = range === 0 ? 1 : range / binCount;
+      const binWidth = +(rawWidth.toFixed(2)) || 0.1;
+
+      const binEdges = [];
+      const labels = [];
+      const counts = new Array(binCount).fill(0);
+
+      const startEdge = min;
+      for (let i = 0; i <= binCount; i++) {
+        binEdges.push(+(startEdge + i * binWidth).toFixed(2));
+      }
+
+      for (let i = 0; i < binCount; i++) {
+        const left = binEdges[i];
+        const right = binEdges[i + 1];
+        labels.push(`${left} - ${right}`);
+      }
+
+      numbers.forEach(num => {
+        let placed = false;
+        for (let i = 0; i < binCount; i++) {
+          const left = binEdges[i];
+          const right = binEdges[i + 1];
+          if ((num >= left && num < right) || (i === binCount - 1 && num >= left && num <= right)) {
+            counts[i]++;
+            placed = true;
+            break;
+          }
+        }
+        if (!placed && counts.length > 0) {
+          if (num <= binEdges[0]) counts[0]++;
+          else counts[binCount - 1]++;
+        }
+      });
+
+      return { labels, counts, binWidth, binEdges };
+    }
+
+    function calculateNormalCurvePoints(binEdges, mean, stdDev, totalCount, binWidth) {
+      if (stdDev === 0) return [];
+      const points = [];
+      for (let i = 0; i < binEdges.length - 1; i++) {
+        const midPoint = (binEdges[i] + binEdges[i + 1]) / 2;
+        const exponent = -0.5 * Math.pow((midPoint - mean) / stdDev, 2);
+        const pdf = (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
+        const expectedCount = pdf * totalCount * binWidth;
+        points.push(+expectedCount.toFixed(2));
+      }
+      return points;
+    }
+
+    function updateBinCount(newVal) {
+      document.getElementById('bins-display').innerText = newVal;
+      triggerAnalysis();
+    }
+
+    function loadScenario(key) {
+      const scenario = SCENARIOS[key];
+      if (!scenario) return;
+      document.getElementById('raw-data-input').value = scenario.data.join(', ');
+      document.getElementById('bin-slider').value = scenario.bins;
+      document.getElementById('bins-display').innerText = scenario.bins;
+      document.getElementById('spec-lsl').value = scenario.lsl;
+      document.getElementById('spec-target').value = scenario.target;
+      document.getElementById('spec-usl').value = scenario.usl;
+      triggerAnalysis();
+    }
+
+    function triggerAnalysis() {
+      const rawText = document.getElementById('raw-data-input').value;
+      const binCount = parseInt(document.getElementById('bin-slider').value, 10);
+      const lsl = parseFloat(document.getElementById('spec-lsl').value);
+      const target = parseFloat(document.getElementById('spec-target').value);
+      const usl = parseFloat(document.getElementById('spec-usl').value);
+      const showCurve = document.getElementById('toggle-curve').checked;
+
+      const parsed = rawText
+        .split(/[\s,]+/)
+        .map(v => parseFloat(v.trim()))
+        .filter(v => !isNaN(v));
+
+      if (parsed.length === 0) {
+        return;
+      }
+
+      document.getElementById('sample-count-badge').innerText = `樣本數 N = ${parsed.length}`;
+      
+      const sturgesK = Math.max(3, Math.round(1 + 3.322 * Math.log10(parsed.length)));
+      document.getElementById('sturges-suggest').innerText = `Sturges 建議: ${sturgesK}`;
+
+      const stats = calculateStats(parsed);
+      const cpkResult = calculateCpk(stats.mean, stats.stdDev, lsl, usl, target);
+
+      // Update KPI widgets
+      document.getElementById('stat-mean').innerText = stats.mean.toFixed(2);
+      document.getElementById('stat-std').innerText = stats.stdDev.toFixed(2);
+      document.getElementById('stat-6sigma').innerText = (stats.stdDev * 6).toFixed(2);
+      document.getElementById('stat-range').innerText = stats.range.toFixed(2);
+      document.getElementById('stat-min').innerText = stats.min;
+      document.getElementById('stat-max').innerText = stats.max;
+
+      const offsetVal = (stats.mean - target).toFixed(2);
+      const offsetBadge = document.getElementById('stat-offset');
+      if (Math.abs(offsetVal) < 0.1) {
+        offsetBadge.innerText = `偏移: ${offsetVal}g (完美中位)`;
+        offsetBadge.className = 'text-[10px] text-emerald-600 mt-1 font-medium';
+      } else {
+        offsetBadge.innerText = `偏移: ${offsetVal > 0 ? '+' : ''}${offsetVal}g`;
+        offsetBadge.className = 'text-[10px] text-amber-600 mt-1 font-medium';
+      }
+
+      document.getElementById('stat-cp').innerText = cpkResult.cp;
+      document.getElementById('stat-ca').innerText = `${cpkResult.ca}%`;
+      document.getElementById('stat-cpk').innerText = cpkResult.cpk;
+      
+      const cpkBadgeElem = document.getElementById('cpk-badge');
+      cpkBadgeElem.innerText = cpkResult.rating;
+      cpkBadgeElem.className = `px-2 py-0.5 rounded text-[11px] font-bold text-white ${cpkResult.badgeColor}`;
+
+      // Binned Histogram Calculation
+      const { labels, counts, binWidth, binEdges } = buildHistogramBins(stats.sorted, binCount, stats.min, stats.max);
+      document.getElementById('stat-bin-width').innerText = binWidth;
+
+      // Theoretical Normal Curve
+      const normalFitData = showCurve
+        ? calculateNormalCurvePoints(binEdges, stats.mean, stats.stdDev, stats.n, binWidth)
+        : [];
+
+      // Render Charts
+      renderHistogramChart(labels, counts, normalFitData, target);
+      renderCategoricalChart(parsed);
+    }
+
+    function renderHistogramChart(labels, counts, normalFit, targetVal) {
+      const ctx = document.getElementById('histogramChart').getContext('2d');
+      if (histogramChartInstance) {
+        histogramChartInstance.destroy();
+      }
+
+      const datasets = [
+        {
+          type: 'bar',
+          label: '次數 (Frequency)',
+          data: counts,
+          backgroundColor: 'rgba(37, 99, 235, 0.8)',
+          borderColor: 'rgb(29, 78, 216)',
+          borderWidth: 1.5,
+          borderRadius: 4,
+          categoryPercentage: 1.0,
+          barPercentage: 0.96
+        }
+      ];
+
+      if (normalFit && normalFit.length > 0) {
+        datasets.push({
+          type: 'line',
+          label: '常態鐘形擬合 (Normal Fit)',
+          data: normalFit,
+          borderColor: '#dc2626',
+          borderWidth: 2.5,
+          tension: 0.4,
+          fill: false,
+          pointRadius: 3,
+          pointBackgroundColor: '#dc2626'
+        });
+      }
+
+      histogramChartInstance = new Chart(ctx, {
+        data: {
+          labels: labels,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 400 },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                font: { size: 11, family: 'Noto Sans TC' }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              titleFont: { size: 12, weight: 'bold' },
+              bodyFont: { size: 12 }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: '重量連續區間 (g)',
+                font: { size: 11, weight: 'bold' },
+                color: '#475569'
+              },
+              grid: { display: false }
+            },
+            y: {
+              title: {
+                display: true,
+                text: '件數 (次數)',
+                font: { size: 11, weight: 'bold' },
+                color: '#475569'
+              },
+              beginAtZero: true,
+              ticks: { precision: 0 }
+            }
+          }
+        }
+      });
+    }
+
+    function renderCategoricalChart(numbers) {
+      const ctx = document.getElementById('categoricalChart').getContext('2d');
+      if (categoricalChartInstance) {
+        categoricalChartInstance.destroy();
+      }
+
+      const seenOrder = [];
+      const frequencyMap = {};
+
+      numbers.forEach(val => {
+        const key = String(val);
+        if (!frequencyMap[key]) {
+          frequencyMap[key] = 0;
+          seenOrder.push(key);
+        }
+        frequencyMap[key]++;
+      });
+
+      const catLabels = seenOrder;
+      const catCounts = catLabels.map(l => frequencyMap[l]);
+
+      categoricalChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: catLabels,
+          datasets: [{
+            label: '次數 (未分箱/離散標籤)',
+            data: catCounts,
+            backgroundColor: 'rgba(239, 68, 68, 0.8)',
+            borderColor: 'rgb(220, 38, 38)',
+            borderWidth: 1.5,
+            borderRadius: 4,
+            barPercentage: 0.7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 400 },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                font: { size: 11, family: 'Noto Sans TC' }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              callbacks: {
+                footer: () => '⚠️ 警告：這只是離散文字標籤，數值間距非真實等距！'
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: '離散類別 (按輸入先後，無區間觀念)',
+                font: { size: 11, weight: 'bold' },
+                color: '#991b1b'
+              },
+              grid: { display: false }
+            },
+            y: {
+              title: {
+                display: true,
+                text: '出現次數',
+                font: { size: 11, weight: 'bold' },
+                color: '#991b1b'
+              },
+              beginAtZero: true,
+              ticks: { precision: 0 }
+            }
+          }
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadScenario('photo_case');
+    });
+  </script>
+</body>
+</html>
