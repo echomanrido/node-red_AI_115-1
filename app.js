@@ -39,8 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch(err => {
         console.warn('fetch labs.json 失敗，改用本機備援資料 INITIAL_LABS_DATA:', err);
-        if (window.INITIAL_LABS_DATA && window.INITIAL_LABS_DATA.length > 0) {
-          initApp(window.INITIAL_LABS_DATA);
+        const fallback = window.INITIAL_LABS_DATA || window.labsData;
+        if (fallback && fallback.length > 0) {
+          initApp(fallback);
         } else {
           contentBodyEl.innerHTML = `
             <div class="section-card" style="text-align:center; padding: 40px;">

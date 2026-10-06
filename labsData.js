@@ -1,4 +1,4 @@
-window.INITIAL_LABS_DATA = [
+var INITIAL_LABS_DATA = [
   {
     "id": "lab-01",
     "labNumber": "01",
@@ -8966,5 +8966,371 @@ window.INITIAL_LABS_DATA = [
         "icon": "fa-solid fa-code"
       }
     ]
+  },
+  {
+    "id": "lab-33",
+    "labNumber": "33",
+    "title": "練習 12-2: 顯示圖-射出機應用 - Dashboard 2.0 整合機台照片與 Gauge 儀表 (射出速度/壓力即時監控)",
+    "date": "2026-10-06",
+    "category": "進階實作",
+    "summary": "本實作結合 Node-RED Dashboard 2.0 的 ui-gauge 儀表與 ui-template 自訂 HTML 視覺化元件，建構射出成型機 (CLF 全立發射出機) 的專業 SCADA 數位儀表板。透過 Inject 節點發送機台運轉參數 (數值 50)，同步驅動「射出速度」與「射出壓力」兩組雙弧度量程 Gauge 儀表指針，並透過 File In 節點讀取本機機台外觀高解析圖片 (PNG/JPEG) 經由 Base64 / Data URL 格式即時於儀表下方動態渲染，並搭配 flow 畫布上的 image preview 節點進行即時縮圖預覽，實現工業機台即時物理量與外觀數位雙生 (Digital Twin) 的整合監控展示。",
+    "flowImage": "images_src/ok/20261006_lab33_injection_machine_flow.png",
+    "resultImage": "images_src/ok/20261006_lab33_injection_machine_result.png",
+    "objective": "1. 掌握 Node-RED Dashboard 2.0 中 ui-gauge 儀表節點的多重參數配置（量程 0~100、單位 units、多色段漸層安全警戒區間）。\n2. 學習利用 File In 讀檔節點讀取本機工業設備實體影像，並搭配 image preview 節點於 Flow 編輯器中即時預覽圖檔。\n3. 深入理解 Vue.js / Dashboard 2.0 ui-template 中的響應式屬性綁定語法 <img :src=\"'data:image/jpeg;base64,' + msg.payload\" />，實現動態圖片渲染。\n4. 實踐工業物聯網 (IIoT) 現場「設備即時物理量（速度/壓力）」與「設備幾何外觀/監控視圖」的 SCADA 數位儀表板整合應用。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Dashboard 2.0 群組與頁面配置",
+        "description": "開啟 Node-RED 右側的 Dashboard 2.0 側邊欄，確認或建立 ui-page（頁面名稱：機台監控），並在其下方建立名為「[115_機電AI班_01期] 機台監控」的 ui-group，寬度設定為 12 欄或 auto，用於統一排版機台儀表與實機外觀照片。"
+      },
+      {
+        "step": "2. 配置 Inject 觸發節點（模擬機台運轉數值 50）",
+        "description": "拖入一個 inject 節點，命名為「50」，將 msg.payload 屬性設定為「數字 (num)」型態，數值填入「50」。此節點將同時發送數值至「射出速度」與「射出壓力」兩個 Gauge 儀表節點，並連線至 File in 節點以觸發機台圖檔載入。"
+      },
+      {
+        "step": "3. 配置「射出速度」與「射出壓力」ui-gauge 儀表節點",
+        "description": "拖入兩個 ui-gauge 節點，分別命名為「射出速度」與「射出壓力」，群組均指向「[115_機電AI班_01期] 機台監控」。儀表型態選擇標準指針 Gauge，設定量程範圍 Min 為 0、Max 為 100，單位 Unit 填寫「units」，並配置綠色（安全 0~60）、黃色（警告 60~85）、紅色（危險 85~100）漸層分區。"
+      },
+      {
+        "step": "4. 配置 File In 讀檔節點與 Flow 影像預覽 (image preview)",
+        "description": "拖入 file in 節點，Filename 填入本機圖檔絕對路徑「D:\\000.WuGo\\全立發射出機.png」，輸出格式設定為「utf8」或 Base64 字串。輸出端分別接至「image preview」節點（於畫布直接預覽全立發射出機縮圖）、「debug 52」節點（監控 Payload 傳輸）以及「template」節點。"
+      },
+      {
+        "step": "5. 配置 ui-template 圖片自訂渲染元件",
+        "description": "拖入 ui-template 節點，Group 選擇「[115_機電AI班_01期] 機台監控」，Type 設為「Widget (Group-Scoped)」，Size 設為「auto」。在 Template 編輯區中輸入 Vue 屬性綁定語法：<img :src=\"'data:image/jpeg;base64,' + msg.payload\" />，並勾選「Pass through messages from input.」確保資料串流通透性。"
+      },
+      {
+        "step": "6. 部署與 Dashboard 2.0 整合監控驗證",
+        "description": "點擊右上角「Deploy (部署)」按鈕，隨後點擊「50」Inject 節點注入資料。切換至 Dashboard 2.0 前端介面 (/dashboard 或 /page5)，驗證上方兩組「射出速度」與「射出壓力」儀表指針皆精確指向數值 50，且下方完整展示「CLF 全立發射出成型機」高畫質實機照片。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "在機電整合與油氣壓術科自動化控制實作中，PLC 透過類比輸出/輸入模組 (A/D & D/A) 讀取射出缸與模具閉模機構之比例壓力閥與光學尺速度感測訊號。SCADA 系統接收到 0~10V / 4~20mA 類比轉數位訊號後，驅動 Node-RED Dashboard 上的速度與壓力儀表，並在下方搭配機台機構機構圖或感測點分佈圖，使檢定人員能直觀對照實體機構動態與數據儀表變化。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "在半導體晶圓廠的薄膜沉積 (CVD/PVD) 與化學機械研磨 (CMP) 設備聯網監控中，SECS/GEM 閘道即時擷取主軸旋轉速度與拋光研磨下壓力。中控室 SCADA 儀表板整合高解析度腔體結構圖與即時 Gauges，當研磨壓力或氣體流速偏離 Golden Recipe 時，系統即時於機台圖片對應位置亮起警示紅框並更新儀表指針，協助製程工程師秒級定位機台腔體異常。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "在現代智慧物流倉儲中，自動打包封箱機與無人搬運車 (AGV) 運作時，中控系統透過物聯網採集封箱打帶機的拉緊力道（壓力儀表）與輸送帶進給速率（速度儀表）。結合打包機實體外觀圖，當膠帶用盡或張力過高時，儀表自動切換警示區段，並在畫面直觀標示問題機構位置，大幅縮短現場維修反應時間。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一組 Node-RED Dashboard 2.0 的完整 Flow JSON，實作射出成型機 (CLF 全立發射出機) 的機台監控儀表板：\n1. 包含一個 Inject 節點（名稱為「50」，msg.payload 設為數字 50）。\n2. Inject 同步連線至兩個 ui-gauge 儀表節點：「射出速度」與「射出壓力」（量程 0~100，單位 units，均歸屬於「[115_機電AI班_01期] 機台監控」Group）。\n3. Inject 同時連線至 File in 節點（讀取檔案：D:\\000.WuGo\\全立發射出機.png）。\n4. File in 節點輸出分別接至「image preview」節點、「debug 52」節點，以及一個 ui-template 節點。\n5. ui-template 節點歸屬於「[115_機電AI班_01期] 機台監控」Group，使用 Vue 語法：<img :src=\"'data:image/jpeg;base64,' + msg.payload\" /> 渲染機台圖片。\n6. 包含完整的 Dashboard 2.0 ui-page、ui-group、ui-base 與 ui-theme 設定，確保可直接複製匯入 Node-RED。",
+    "nodeRedJson": [
+      {
+        "id": "tab_lab33_injection",
+        "type": "tab",
+        "label": "練習12-2:顯示圖-射出機應用",
+        "disabled": false,
+        "info": "Node-RED Dashboard 2.0 整合機台外觀照片與 Gauge 儀表 (射出速度與壓力即時監控)"
+      },
+      {
+        "id": "comment_lab33_title",
+        "type": "comment",
+        "z": "tab_lab33_injection",
+        "name": "練習12-2:顯示圖-射出基應用",
+        "info": "",
+        "x": 190,
+        "y": 120,
+        "wires": []
+      },
+      {
+        "id": "inject_lab33_50",
+        "type": "inject",
+        "z": "tab_lab33_injection",
+        "name": "50",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "50",
+        "payloadType": "num",
+        "x": 110,
+        "y": 240,
+        "wires": [
+          [
+            "gauge_lab33_speed",
+            "gauge_lab33_pressure",
+            "read_file_lab33_clf"
+          ]
+        ]
+      },
+      {
+        "id": "gauge_lab33_speed",
+        "type": "ui-gauge",
+        "z": "tab_lab33_injection",
+        "name": "射出速度",
+        "group": "group_lab33_machine",
+        "order": 1,
+        "width": "6",
+        "height": "4",
+        "gtype": "gage",
+        "title": "射出速度",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 100,
+        "colors": [
+          "#00e676",
+          "#ffea00",
+          "#ff1744"
+        ],
+        "segments": [
+          {
+            "from": 0,
+            "color": "#00e676"
+          },
+          {
+            "from": 60,
+            "color": "#ffea00"
+          },
+          {
+            "from": 85,
+            "color": "#ff1744"
+          }
+        ],
+        "className": "",
+        "x": 150,
+        "y": 300,
+        "wires": []
+      },
+      {
+        "id": "gauge_lab33_pressure",
+        "type": "ui-gauge",
+        "z": "tab_lab33_injection",
+        "name": "射出壓力",
+        "group": "group_lab33_machine",
+        "order": 2,
+        "width": "6",
+        "height": "4",
+        "gtype": "gage",
+        "title": "射出壓力",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 100,
+        "colors": [
+          "#00e676",
+          "#ffea00",
+          "#ff1744"
+        ],
+        "segments": [
+          {
+            "from": 0,
+            "color": "#00e676"
+          },
+          {
+            "from": 60,
+            "color": "#ffea00"
+          },
+          {
+            "from": 85,
+            "color": "#ff1744"
+          }
+        ],
+        "className": "",
+        "x": 320,
+        "y": 300,
+        "wires": []
+      },
+      {
+        "id": "read_file_lab33_clf",
+        "type": "file in",
+        "z": "tab_lab33_injection",
+        "name": "D:\\000.WuGo\\全立發射出機.png",
+        "filename": "D:\\000.WuGo\\全立發射出機.png",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "set by command",
+        "allProps": false,
+        "x": 420,
+        "y": 240,
+        "wires": [
+          [
+            "preview_lab33_img",
+            "debug_lab33_52",
+            "template_lab33_render"
+          ]
+        ]
+      },
+      {
+        "id": "preview_lab33_img",
+        "type": "image",
+        "z": "tab_lab33_injection",
+        "name": "image preview",
+        "width": "160",
+        "data": "payload",
+        "dataType": "msg",
+        "thumbnail": true,
+        "active": true,
+        "pass": false,
+        "outputs": 0,
+        "x": 740,
+        "y": 180,
+        "wires": []
+      },
+      {
+        "id": "debug_lab33_52",
+        "type": "debug",
+        "z": "tab_lab33_injection",
+        "name": "debug 52",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 530,
+        "y": 300,
+        "wires": []
+      },
+      {
+        "id": "template_lab33_render",
+        "type": "ui-template",
+        "z": "tab_lab33_injection",
+        "group": "group_lab33_machine",
+        "name": "template",
+        "order": 3,
+        "width": "12",
+        "height": "8",
+        "format": "<img :src=\"'data:image/jpeg;base64,' + msg.payload\" style=\"width:100%; max-height:450px; object-fit:contain; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1);\" />",
+        "storeOutMessages": true,
+        "passthrough": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 730,
+        "y": 300,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "group_lab33_machine",
+        "type": "ui-group",
+        "name": "機台監控",
+        "page": "page_lab33_main",
+        "width": "12",
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+      },
+      {
+        "id": "page_lab33_main",
+        "type": "ui-page",
+        "name": "機台監控",
+        "ui": "ui_base_lab33",
+        "path": "/page5",
+        "icon": "cog",
+        "layout": "grid",
+        "theme": "theme_lab33_default",
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+      },
+      {
+        "id": "ui_base_lab33",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+          "ui-notification",
+          "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+      },
+      {
+        "id": "theme_lab33_default",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+          "surface": "#ffffff",
+          "primary": "#007ecc",
+          "bgPage": "#fcfcfc",
+          "groupBg": "#ffffff",
+          "groupOutline": "#cccccc"
+        },
+        "sizes": {
+          "density": "default",
+          "pagePadding": "12px",
+          "groupGap": "12px",
+          "groupBorderRadius": "4px",
+          "widgetGap": "12px"
+        }
+      },
+      {
+        "id": "global_config_lab33",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+          "@flowfuse/node-red-dashboard": "1.30.2"
+        }
+      }
+    ],
+    "references": [
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-gauge 儀表節點官方手冊與量程設定",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-gauge.html"
+      },
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-template 節點官方語法與自訂元件手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-template.html"
+      },
+      {
+        "title": "MDN Web Docs - Data URLs (資料 URL 與 Base64 編碼圖片語法)",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/HTTP/Basics_of_HTTP/Data_URLs"
+      },
+      {
+        "title": "Node-RED 官方 Docs - File in (讀檔節點) 使用說明與設定",
+        "url": "https://nodered.org/docs/user-guide/nodes#file-in"
+      }
+    ],
+    "extraImages": [
+      {
+        "title": "ui-template 模板設定：Vue 響應式屬性綁定 <img :src=\"'data:image/jpeg;base64,' + msg.payload\" />",
+        "image": "images_src/ok/20261006_lab33_template_config.png",
+        "icon": "fa-solid fa-code"
+      }
+    ]
   }
 ];
+if (typeof window !== "undefined") {
+  window.INITIAL_LABS_DATA = INITIAL_LABS_DATA;
+  window.labsData = INITIAL_LABS_DATA;
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = INITIAL_LABS_DATA;
+}
