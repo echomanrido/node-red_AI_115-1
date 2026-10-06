@@ -8252,5 +8252,263 @@ window.INITIAL_LABS_DATA = [
         "icon": "fa-solid fa-users-gear"
       }
     ]
+  },
+  {
+    "id": "lab-31",
+    "labNumber": "31",
+    "number": "31",
+    "title": "練習 11: Table資訊 - Dashboard 2.0 表格資料結構與多欄位訂單展示",
+    "date": "2026-10-06",
+    "category": "進階實作",
+    "summary": "學習 Node-RED Dashboard 2.0 中 ui-table 表格節點的基礎配置與資料驅動顯示方法。透過 Function 節點建構包含物件陣列 (Array of Objects) 的結構化訂單資料（包含產品名稱、數量、加工流程、材質），並在 ui-table 節點中綁定對應 key 值 (name, quantity, value, material) 與自訂中文欄位標籤，在 HMI 戰情室介面上即時呈現支援關鍵字搜尋的動態生產訂單列表。",
+    "flowImage": "images_src/ok/20261006_lab31_table_orders_flow.png",
+    "resultImage": "images_src/ok/20261006_lab31_table_orders_result.png",
+    "funcImage": "images_src/ok/20261006_lab31_table_function_code.png",
+    "objective": "1. 掌握 Node-RED Dashboard 2.0 中 ui-table 表格節點的資料格式規範（陣列包物件 Array of Objects）。\n2. 學習在 Function 節點中使用 JavaScript 陣列索引（order[0]、order[1]）建立結構化訂單資料物件。\n3. 掌握 ui-table 欄位對應設定（Columns Configuration）：綁定 key 屬性 (name, quantity, value, material)、設定中文標籤 (Label)、對齊方式 (Align) 與顯示型態 (Text)。\n4. 體驗 Dashboard 2.0 內建表格的搜尋過濾 (Search) 與自動響應式排版功能，打造工廠訂單與派工戰情室。",
+    "tutorialSteps": [
+      {
+        "step": "1. 建立 Flow 基礎架構與註解",
+        "description": "拖入一個 Comment 註解節點命名為「練習11: Table資訊」，接著拖入一個 Inject「時間戳」節點、一個 Function 節點命名為「function 1」，以及一個 ui-table 節點命名為「訂單內容」，並依序以導線相連。"
+      },
+      {
+        "step": "2. 撰寫 Function 節點訂單資料生成程式碼",
+        "description": "雙擊打開「function 1」節點，輸入以下 JavaScript 程式碼建立兩筆訂單資料並透過 msg.payload 輸出：\n\nlet order = []\n\norder[0] = \n{\n    name: \"標準產品\",\n    quantity: 2,\n    value: \"\",\n    material: \"金屬\",\n}\n\norder[1] = \n{\n    name: \"客製化產品\",\n    quantity: 6,\n    value: \"加工\",\n    material: \"塑膠\",\n}\n\nmsg.payload = order\nreturn msg;"
+      },
+      {
+        "step": "3. 配置 ui-table 節點欄位與屬性 (Columns Configuration)",
+        "description": "雙擊打開「訂單內容」ui-table 節點，點擊「+ Columns」新增並配置 4 個欄位：\n• 欄位 1：Value: key: name | Label: 產品名稱 | Align: Left | Type: Text\n• 欄位 2：Value: key: quantity | Label: 數量 | Align: Left | Type: Text\n• 欄位 3：Value: key: value | Label: 加工流程 | Align: Left | Type: Text\n• 欄位 4：Value: key: material | Label: 材質 | Align: Left | Type: Text\n並指定該 Table 所屬的 Group 與 Page（例如頁面「chart」）。"
+      },
+      {
+        "step": "4. 部署並於 Web Dashboard 驗證動態表格與搜尋功能",
+        "description": "點擊右上角「Deploy」部署流程，點擊 Inject 節點觸發資料送出。開啟 Dashboard 網頁端（如 /dashboard），即可看到標題為「訂單內容」的互動表格，上方內建 Search 搜尋列，下方清楚呈現兩筆生產訂單資料。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級 / 產線物料工單派工與加工狀態看板",
+        "icon": "fa-solid fa-gears",
+        "description": "在機電整合考試或自動化組裝線上，SCADA 系統將 MES 派工工單透過 ui-table 表格顯示於觸控 HMI，操作員可即時查閱各工件的材質（金屬/塑膠）、加工需求與預計組裝數量，減少人為備料失誤。"
+      },
+      {
+        "scenario": "台積電工業務聯網 / 晶圓批次 (Lot) 派工與機台處理清單監控",
+        "icon": "fa-solid fa-microchip",
+        "description": "半導體廠區將各光阻塗佈或蝕刻機台即時處理的晶圓 Lot ID、晶圓片數、配方製程參數 (Recipe) 與載具編號以 ui-table 呈現，工程師可透過表格搜尋功能秒級定位特定批號進行追蹤。"
+      },
+      {
+        "scenario": "家庭物流網 / 智慧收發室包裹清單與待領取狀態追蹤",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "社區智慧快遞儲物櫃將感測器辨識到的包裹收件人、箱號、重量與存放天數以 ui-table 統整於管委會中控螢幕，並支援住戶姓名關鍵字快速檢索。"
+      }
+    ],
+    "aiPrompt": "請幫我寫出一段 Node-RED 流程 JSON，實現「Dashboard 2.0 ui-table 訂單內容表格展示」：\n1. 包含一個 Inject 節點（時間戳）。\n2. 連接至 Function 節點「function 1」，在內部定義一個 order 陣列，包含兩筆物件（標準產品 2件 金屬、客製化產品 6件 加工 塑膠），並賦值給 msg.payload。\n3. 連接至 ui-table 節點「訂單內容」，配置 4 個欄位（產品名稱: name、數量: quantity、加工流程: value、材質: material）。\n4. 包含對應的 Dashboard 2.0 ui-group、ui-page 與 ui-theme。\n請輸出標準可匯入 Node-RED 的 JSON Array。",
+    "nodeRedJson": [
+      {
+        "id": "comment_lab31_table",
+        "type": "comment",
+        "z": "tab_lab31_table",
+        "name": "練習11: Table資訊",
+        "info": "",
+        "x": 160,
+        "y": 60,
+        "wires": []
+      },
+      {
+        "id": "inject_lab31_ts",
+        "type": "inject",
+        "z": "tab_lab31_table",
+        "name": "時間戳",
+        "props": [
+          {
+            "p": "payload"
+          },
+          {
+            "p": "topic",
+            "vt": "str"
+          }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 120,
+        "wires": [
+          [
+            "func_lab31_order_gen"
+          ]
+        ]
+      },
+      {
+        "id": "func_lab31_order_gen",
+        "type": "function",
+        "z": "tab_lab31_table",
+        "name": "function 1",
+        "func": "let order = []\n\norder[0] = \n{\n    name: \"標準產品\",\n    quantity: 2,\n    value: \"\",\n    material: \"金屬\",\n}\n\norder[1] = \n{\n    name: \"客製化產品\",\n    quantity: 6,\n    value: \"加工\",\n    material: \"塑膠\",\n}\n\nmsg.payload = order\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 120,
+        "wires": [
+          [
+            "ui_table_lab31_orders"
+          ]
+        ]
+      },
+      {
+        "id": "ui_table_lab31_orders",
+        "type": "ui-table",
+        "z": "tab_lab31_table",
+        "group": "group_lab31_table",
+        "name": "",
+        "label": "訂單內容",
+        "order": 1,
+        "width": "12",
+        "height": "6",
+        "maxRows": "",
+        "autofit": false,
+        "columns": [
+          {
+            "key": "name",
+            "label": "產品名稱",
+            "type": "text",
+            "width": "",
+            "align": "left"
+          },
+          {
+            "key": "quantity",
+            "label": "數量",
+            "type": "text",
+            "width": "",
+            "align": "left"
+          },
+          {
+            "key": "value",
+            "label": "加工流程",
+            "type": "text",
+            "width": "",
+            "align": "left"
+          },
+          {
+            "key": "material",
+            "label": "材質",
+            "type": "text",
+            "width": "",
+            "align": "left"
+          }
+        ],
+        "selectionType": "none",
+        "selectionProperty": "",
+        "action": "replace",
+        "className": "",
+        "x": 500,
+        "y": 120,
+        "wires": [
+          []
+        ]
+      },
+      {
+        "id": "group_lab31_table",
+        "type": "ui-group",
+        "name": "訂單看板",
+        "page": "page_lab31_chart",
+        "width": "12",
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+      },
+      {
+        "id": "page_lab31_chart",
+        "type": "ui-page",
+        "name": "chart",
+        "ui": "ui_base_lab31",
+        "path": "/page4",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "theme_lab31_default",
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+      },
+      {
+        "id": "ui_base_lab31",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+          "ui-notification",
+          "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+      },
+      {
+        "id": "theme_lab31_default",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+          "surface": "#ffffff",
+          "primary": "#007ecc",
+          "bgPage": "#fcfcfc",
+          "groupBg": "#ffffff",
+          "groupOutline": "#cccccc"
+        },
+        "sizes": {
+          "density": "default",
+          "pagePadding": "12px",
+          "groupGap": "12px",
+          "groupBorderRadius": "4px",
+          "widgetGap": "12px"
+        }
+      },
+      {
+        "id": "global_config_lab31",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+          "@flowfuse/node-red-dashboard": "1.30.2"
+        }
+      }
+    ],
+    "references": [
+      {
+        "title": "FlowFuse Dashboard 2.0 - ui-table 表格節點官方配置手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-table.html"
+      },
+      {
+        "title": "Node-RED 官方 Docs - Function 節點 JavaScript 陣列與物件處理",
+        "url": "https://nodered.org/docs/user-guide/writing-functions"
+      },
+      {
+        "title": "MDN Web Docs - JavaScript Array 物件陣列語法與操作指南",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Global_Objects/Array"
+      }
+    ],
+    "extraImages": [
+      {
+        "title": "ui-table 欄位屬性配置：綁定 key (name, quantity, value, material) 與中文標籤",
+        "image": "images_src/ok/20261006_lab31_table_columns_config.png",
+        "icon": "fa-solid fa-table-columns"
+      }
+    ]
   }
 ];
