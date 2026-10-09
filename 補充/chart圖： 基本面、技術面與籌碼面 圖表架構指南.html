@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>股票分析圖表應用指南 | 基本面・技術面・籌碼面實戰教學</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN for interactive financial graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind Custom Theme Configuration -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              900: '#0c4a6e',
+            },
+            bull: '#10b981', // 綠漲或自訂多方色彩（國際綠/紅切換友好）
+            bear: '#ef4444',
+            chip: '#8b5cf6',
+            tech: '#3b82f6',
+            fund: '#f59e0b',
+            darkBg: '#0f172a',
+            darkCard: '#1e293b',
+            darkBorder: '#334155'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .glassmorphism {
+      background: rgba(30, 41, 59, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-50 glassmorphism border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+        </div>
+        <div>
+          <span class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-indigo-300 to-emerald-400 tracking-tight">FinChart Academy</span>
+          <span class="hidden sm:inline-block ml-2 text-xs text-slate-400 border border-slate-700 px-2 py-0.5 rounded-full">三面量化圖表全解</span>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <a href="#matrix-section" class="text-slate-300 hover:text-sky-400 transition-colors">速查矩陣</a>
+        <a href="#interactive-lab" class="text-slate-300 hover:text-sky-400 transition-colors">圖表實驗室</a>
+        <a href="#dashboard-simulator" class="text-slate-300 hover:text-sky-400 transition-colors">戰情室佈局</a>
+        <a href="#quiz-section" class="text-slate-300 hover:text-sky-400 transition-colors">觀念挑戰</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> 7大圖型 × 3大維度
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+    
+    <!-- Hero Banner -->
+    <section class="relative rounded-3xl overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 p-8 sm:p-12 shadow-2xl">
+      <div class="absolute -top-24 -right-24 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div class="relative z-10 max-w-3xl space-y-5">
+        <div class="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-sky-400 bg-sky-950/60 border border-sky-800 px-3 py-1 rounded-lg">
+          Quantitative Financial Visualization
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+          精準選圖，看透數據本質：<br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-teal-300 to-indigo-300">
+            基本面、技術面與籌碼面
+          </span> 圖表架構指南
+        </h1>
+        <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+          好的金融可視化不僅是數據的呈現，更是經濟意涵與多空博弈的投影。無論是長期價值評估（基本面）、價格動能與邊界（技術面），還是市場主力的資金軌跡（籌碼面），正確搭配圖表類型能讓決策效率提升數倍。
+        </p>
+
+        <!-- Dimensional Indicators Tag Badges -->
+        <div class="flex flex-wrap gap-3 pt-2">
+          <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-300 px-3 py-1.5 rounded-xl text-xs font-medium">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> 基本面 (Fundamental)：價值、營收、三率、估值區間
+          </div>
+          <div class="flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 text-blue-300 px-3 py-1.5 rounded-xl text-xs font-medium">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span> 技術面 (Technical)：趨勢、動能、支撐壓力、價量分佈
+          </div>
+          <div class="flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-300 px-3 py-1.5 rounded-xl text-xs font-medium">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span> 籌碼面 (Chip / Flow)：主力流向、法人進出、股權分級
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="matrix-section" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            <svg class="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+            </svg>
+            7 大核心圖表速查矩陣
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">點擊任意圖表卡片，可直接聯動下方互動實驗室即時繪圖</p>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="inline-flex p-1 bg-slate-900 border border-slate-800 rounded-xl" id="matrixFilterGroup">
+          <button onclick="filterMatrix('all')" class="matrix-filter-btn active px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-600 text-white transition-all">全部圖表 (7)</button>
+          <button onclick="filterMatrix('continuous')" class="matrix-filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all">連續趨勢型</button>
+          <button onclick="filterMatrix('discrete')" class="matrix-filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all">離散/比對型</button>
+          <button onclick="filterMatrix('distribution')" class="matrix-filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all">結構與分佈型</button>
+        </div>
+      </div>
+
+      <!-- Matrix Table Desktop & Card View Mobile -->
+      <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl">
+        <table class="w-full text-left text-sm" id="matrixTable">
+          <thead class="bg-slate-900 text-slate-300 text-xs font-bold uppercase tracking-wider border-b border-slate-800">
+            <tr>
+              <th scope="col" class="py-4 px-5">圖表類型</th>
+              <th scope="col" class="py-4 px-5">視覺特徵</th>
+              <th scope="col" class="py-4 px-5 text-amber-400">基本面應用 (Fundamental)</th>
+              <th scope="col" class="py-4 px-5 text-blue-400">技術面應用 (Technical)</th>
+              <th scope="col" class="py-4 px-5 text-purple-400">籌碼面應用 (Chip / Flow)</th>
+              <th scope="col" class="py-4 px-4 text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60" id="matrixBody">
+            <!-- Rows injected by JavaScript dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="interactive-lab" class="space-y-6 pt-4">
+      <div class="border-t border-slate-800 pt-8">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 uppercase tracking-widest mb-1">
+              Live Chart Playground (Direct Showcase)
+            </div>
+            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+              <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+              </svg>
+              圖表互動實驗室：7 大圖表全覽直接實測
+            </h2>
+            <p class="text-slate-400 text-sm mt-1">無需下拉選單，7 款圖表同步直接展示。點選切換分析維度，立即同步觀察 7 大圖表在該維度的數據映射與實戰判讀。</p>
+          </div>
+
+          <!-- Dimension Tab Switcher -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400 hidden sm:inline">切換分析維度：</span>
+            <div class="inline-flex p-1 bg-slate-900 border border-slate-800 rounded-xl" id="dimensionTabs">
+              <button onclick="setDimension('fundamental')" id="dimBtn-fundamental" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-amber-300 bg-amber-500/20 border border-amber-500/40">
+                基本面 (7圖)
+              </button>
+              <button onclick="setDimension('technical')" id="dimBtn-technical" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-blue-300">
+                技術面 (7圖)
+              </button>
+              <button onclick="setDimension('chip')" id="dimBtn-chip" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-purple-300">
+                籌碼面 (7圖)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Chart Anchor Navigation Pill Bar -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 text-xs no-scrollbar">
+        <span class="text-slate-500 shrink-0">快速導航：</span>
+        <a href="#lab-card-line" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 shrink-0 transition-colors">📈 Line 折線圖</a>
+        <a href="#lab-card-area" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 shrink-0 transition-colors">🏔️ Area 面積圖</a>
+        <a href="#lab-card-bar" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 shrink-0 transition-colors">📊 Bar 柱狀圖</a>
+        <a href="#lab-card-scatter" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 shrink-0 transition-colors">⚬ Scatter 散點圖</a>
+        <a href="#lab-card-pie" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 shrink-0 transition-colors">🍕 Pie 圓餅圖</a>
+        <a href="#lab-card-doughnut" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 shrink-0 transition-colors">🍩 Doughnut 甜甜圈圖</a>
+        <a href="#lab-card-histogram" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 shrink-0 transition-colors">📶 Histogram 直方圖</a>
+      </div>
+
+      <!-- Direct Showcase Grid: All 7 Charts Rendered Directly -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="directLabChartsGrid">
+        <!-- 7 Cards will be dynamically rendered and updated directly -->
+      </div>
+    </section>
+
+    <section id="dashboard-simulator" class="space-y-6 pt-4">
+      <div class="border-t border-slate-800 pt-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 uppercase tracking-widest mb-1">
+              Integrated Pro Dashboard
+            </div>
+            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+              <svg class="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+              </svg>
+              專業操盤戰情室：多圖表複合佈局實戰
+            </h2>
+            <p class="text-slate-400 text-sm mt-1">實務交易不會孤立單一圖表。查看頂級交易終端（Bloomberg、TradingView）如何將 7 種圖表緊密聯動</p>
+          </div>
+          <div class="flex gap-2">
+            <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700">股票範例：2330 台積電 (TSMC)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Mock Layout -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4">
+        
+        <!-- Top Row: Main K-line / Bollinger Area + Volume Profile Histogram on Right -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          
+          <!-- Main Chart Panel (9 Cols): Price + Bollinger Bands Area -->
+          <div class="lg:col-span-9 bg-slate-950 border border-slate-800/90 rounded-2xl p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs pb-2 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-white text-sm">【主圖】價格趨勢與布林通道擠壓 (Line + Area)</span>
+                <span class="text-emerald-400 font-mono font-bold">$985.00 (+18.00 / +1.86%)</span>
+              </div>
+              <span class="text-slate-400">Area 標示通道上下軌帶狀區域</span>
+            </div>
+            
+            <div class="h-56 relative my-2">
+              <canvas id="dashMainChart"></canvas>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-slate-800/60">
+              <span>SMA(20): 952.4 | Upper: 1012.0 | Lower: 892.8</span>
+              <span class="text-sky-400">當前通道開口：發散擴張（主升段動能加速）</span>
+            </div>
+          </div>
+
+          <!-- Right Sidebar (3 Cols): Volume Profile Histogram -->
+          <div class="lg:col-span-3 bg-slate-950 border border-slate-800/90 rounded-2xl p-4 flex flex-col justify-between">
+            <div class="text-xs pb-2 border-b border-slate-800">
+              <div class="font-bold text-white">價量分佈 (Volume Profile)</div>
+              <div class="text-slate-400 text-[11px]">Histogram 直方圖分析支撐壓力</div>
+            </div>
+            
+            <div class="h-56 relative my-2">
+              <canvas id="dashProfileChart"></canvas>
+            </div>
+
+            <div class="text-[11px] text-amber-400 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
+              POC 核心籌碼沉澱價：<span class="font-mono font-bold">$940~$960</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Middle Row: Sub-panel 1 (Daily Volume + MACD Histogram) & Sub-panel 2 (Institutional Accumulation Line) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <!-- Sub Chart 1: Bar Chart (Net Institutional Flow) -->
+          <div class="bg-slate-950 border border-slate-800/90 rounded-2xl p-4">
+            <div class="flex items-center justify-between text-xs pb-2 border-b border-slate-800">
+              <span class="font-bold text-white">三大法人每日淨買賣超 (Bar Chart / 正負雙向)</span>
+              <span class="text-xs text-purple-400">外資/投信/自營商</span>
+            </div>
+            <div class="h-40 relative my-2">
+              <canvas id="dashBarChart"></canvas>
+            </div>
+            <div class="text-[11px] text-slate-400 flex justify-between">
+              <span>正柱：淨買超（多方吸籌）</span>
+              <span>負柱：淨賣超（空方調節）</span>
+            </div>
+          </div>
+
+          <!-- Sub Chart 2: Cumulative Line Chart (Foreign + Trust Trend) -->
+          <div class="bg-slate-950 border border-slate-800/90 rounded-2xl p-4">
+            <div class="flex items-center justify-between text-xs pb-2 border-b border-slate-800">
+              <span class="font-bold text-white">三大法人累積買賣超張數 (Line Chart / 連續時序)</span>
+              <span class="text-xs text-sky-400">中長波段動向</span>
+            </div>
+            <div class="h-40 relative my-2">
+              <canvas id="dashCumLineChart"></canvas>
+            </div>
+            <div class="text-[11px] text-slate-400 flex justify-between">
+              <span>累積曲線攀升 = 主力鎖碼</span>
+              <span class="text-emerald-400 font-semibold">外資近20日累積買超 +48,200 張</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bottom Row: 3 Modular Panels (Fundamental Value Quadrant, Ownership Doughnut, Financial Growth) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- Panel A: Fundamental Scatter (PE vs ROE) -->
+          <div class="bg-slate-950 border border-slate-800/90 rounded-2xl p-4">
+            <div class="text-xs pb-2 border-b border-slate-800 font-bold text-white flex justify-between">
+              <span>同業價值矩陣 (Scatter Plot)</span>
+              <span class="text-amber-400">基本面</span>
+            </div>
+            <div class="h-40 relative my-2">
+              <canvas id="dashScatterChart"></canvas>
+            </div>
+            <p class="text-[11px] text-slate-400">尋找右下角「高 ROE、合理 PE」之價值優選個股。</p>
+          </div>
+
+          <!-- Panel B: Doughnut Chart (Ownership Structure) -->
+          <div class="bg-slate-950 border border-slate-800/90 rounded-2xl p-4">
+            <div class="text-xs pb-2 border-b border-slate-800 font-bold text-white flex justify-between">
+              <span>股權結構分佈 (Doughnut Chart)</span>
+              <span class="text-purple-400">籌碼面</span>
+            </div>
+            <div class="h-40 relative my-2">
+              <canvas id="dashDoughnutChart"></canvas>
+            </div>
+            <p class="text-[11px] text-slate-400">千張大戶與外資持股佔比 > 75%，籌碼極度安定。</p>
+          </div>
+
+          <!-- Panel C: Revenue & Net Profit Margins (Stacked Area / Segment Pie) -->
+          <div class="bg-slate-950 border border-slate-800/90 rounded-2xl p-4">
+            <div class="text-xs pb-2 border-b border-slate-800 font-bold text-white flex justify-between">
+              <span>先進製程營收貢獻比 (Pie Chart)</span>
+              <span class="text-blue-400">營運質變</span>
+            </div>
+            <div class="h-40 relative my-2">
+              <canvas id="dashPieChart"></canvas>
+            </div>
+            <p class="text-[11px] text-slate-400">3nm 與 5nm 佔比超越 58%，帶動結構性毛利擴張。</p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section id="quiz-section" class="space-y-6 pt-4">
+      <div class="border-t border-slate-800 pt-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-400 uppercase tracking-widest mb-1">
+              Interactive Assessment
+            </div>
+            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+              <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              圖表選型實戰快測：檢驗你的分析直覺
+            </h2>
+            <p class="text-slate-400 text-sm mt-1">測試你在面對真實金融分析情境時，能否立即選出最具說服力的圖表架構</p>
+          </div>
+          <div id="quizScoreBadge" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/30">
+            測驗進度：<span id="quizScoreText">0 / 4</span> 完成
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz Questions Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="quizContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <section class="rounded-3xl bg-slate-900 border border-slate-800 p-8 space-y-6">
+      <h3 class="text-xl font-bold text-white flex items-center gap-2">
+        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        量化金融可視化三大「避坑」黃金法則
+      </h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800/80 space-y-2.5">
+          <div class="text-rose-400 font-bold flex items-center gap-2">
+            <span>❌ 禁忌 1</span> 雙軸比例刻意放大
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            在折線圖同時放「股價」與「營收」或「融資」時，若左右軸未校準零基準，微小的波動會被視覺放大成暴漲暴跌，造成假相關性錯覺。
+          </p>
+          <div class="text-[11px] text-emerald-400 bg-emerald-950/40 p-2 rounded-lg border border-emerald-800/50">
+            ✓ 建議：使用正規化百分比（Base 100 Indexing）或對數坐標軸。
+          </div>
+        </div>
+
+        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800/80 space-y-2.5">
+          <div class="text-rose-400 font-bold flex items-center gap-2">
+            <span>❌ 禁忌 2</span> 圓餅圖類別過多 (>5項)
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            人類肉眼對「面積與夾角」的辨識度遠低於「長度」。若分點券商有 15 家，切成 15 塊扇形會變得雜亂無法閱讀。
+          </p>
+          <div class="text-[11px] text-emerald-400 bg-emerald-950/40 p-2 rounded-lg border border-emerald-800/50">
+            ✓ 建議：超過 5 項一律改用水平條形圖（Horizontal Bar Chart）。
+          </div>
+        </div>
+
+        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800/80 space-y-2.5">
+          <div class="text-rose-400 font-bold flex items-center gap-2">
+            <span>❌ 禁忌 3</span> 混淆 Bar 與 Histogram
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            Bar Chart 的 X 軸是「離散類別」（如外資、投信），而 Histogram 的 X 軸是「連續價格/持股區間」，柱體間應緊密無隙。
+          </p>
+          <div class="text-[11px] text-emerald-400 bg-emerald-950/40 p-2 rounded-lg border border-emerald-800/50">
+            ✓ 建議：分析特定價位套牢量或籌碼沉澱時，務必採用 Histogram。
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+        <span class="text-slate-400 font-medium">FinChart Academy 股票金融圖表量化教學平臺</span>
+      </div>
+      <div>
+        涵蓋 Line · Area · Bar · Scatter · Pie · Doughnut · Histogram 7大模型
+      </div>
+    </div>
+  </footer>
+
+  <!-- Notification Toast Modal Container -->
+  <div id="toastBox" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 border border-slate-700 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+    <div id="toastIcon" class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</div>
+    <div id="toastMsg" class="text-xs font-medium">通知訊息</div>
+  </div>
+
+  <script>
+    /* Complete Knowledge Data Base for the 7 Charts across 3 Dimensions */
+    const chartDatabase = {
+      line: {
+        name: "Line (折線圖)",
+        category: "continuous",
+        features: "連續時間序列走勢、平滑趨勢、多空方向",
+        scores: { fund: "★★★★★", tech: "★★★★★", chip: "★★★★☆" },
+        dimensions: {
+          fundamental: {
+            title: "三率走勢圖 (毛利率 / 營益率 / 純益率)",
+            period: "連續 8 季財報走勢",
+            explanation: "折線圖最擅長揭露連續時間維度上的趨勢演變。三率走勢圖將『毛利率』、『營業利益率』與『稅後純益率』畫在同軸折線上，能極快辨識公司是否具備產品定價權、規模經濟是否改善，抑或僅靠業外灌水獲利。",
+            formula: "營業毛利率 = 營業毛利 / 營業收入 × 100%",
+            signals: [
+              "三率三升：定價優勢明顯且管銷良好，為最強多頭基本面訊號",
+              "毛利率升、利益率降：代表營業費用過高（如行銷研發暴增），需檢驗效益",
+              "純益率陡增但前兩者持平：代表獲利多為處分資產等一次性業外收入"
+            ],
+            pitfall: "請確保財報資料採同一會計準則（IFRS），避免季度重分類誤差。",
+            chartData: {
+              labels: ["23Q1", "23Q2", "23Q3", "23Q4", "24Q1", "24Q2", "24Q3", "24Q4"],
+              datasets: [
+                { label: "毛利率 (%)", data: [51.2, 52.8, 54.1, 53.0, 55.4, 56.8, 57.5, 59.2], borderColor: "#10b981", tension: 0.3, borderWidth: 3 },
+                { label: "營業利益率 (%)", data: [40.5, 41.6, 43.0, 41.8, 44.5, 46.1, 47.0, 48.9], borderColor: "#0284c7", tension: 0.3, borderWidth: 2.5 },
+                { label: "稅後淨利率 (%)", data: [36.2, 37.0, 38.5, 37.2, 39.8, 41.0, 42.1, 43.5], borderColor: "#f59e0b", tension: 0.3, borderWidth: 2 }
+              ]
+            }
+          },
+          technical: {
+            title: "股價收盤價與移動平均線 (MA 5/20/60)",
+            period: "日 K 線收盤趨勢",
+            explanation: "相較於 K 線圖包含高低開收的短期陰影，單純的收盤價折線圖能有效濾除日內極端雜訊，清晰展示波浪結構（如頭肩頂、W底）。搭配短期 (5MA)、中期 (20MA 月線) 與長期均線 (60MA 季線)，直觀呈現多頭排列或空頭排列。",
+            formula: "MA(N) = N 日內收盤價總和 / N",
+            signals: [
+              "多頭排列：短期均線在上方、長期均線在下方且全部上揚，順勢做多",
+              "黃金交叉：短期均線向上突破長期均線，視為買進動能訊號",
+              "均線糾結後發散：盤整格局結束，通常伴隨一波單邊大行情"
+            ],
+            pitfall: "折線圖無法顯示單日長上下影線等盤中洗盤多空博弈細節。",
+            chartData: {
+              labels: ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12"],
+              datasets: [
+                { label: "收盤價", data: [880, 895, 890, 915, 930, 925, 950, 975, 960, 985, 990, 1010], borderColor: "#38bdf8", tension: 0.2, borderWidth: 3 },
+                { label: "5 MA (短線週線)", data: [875, 882, 888, 896, 908, 918, 930, 945, 955, 968, 978, 992], borderColor: "#f43f5e", tension: 0.3, borderWidth: 2, borderDash: [4, 4] },
+                { label: "20 MA (月線生命線)", data: [860, 864, 868, 874, 880, 887, 895, 905, 915, 925, 935, 946], borderColor: "#a855f7", tension: 0.3, borderWidth: 2 }
+              ]
+            }
+          },
+          chip: {
+            title: "外資與投信法人累計買賣超曲線",
+            period: "近 30 個交易日累計張數",
+            explanation: "籌碼面最忌諱只看單日買賣超的偶然性。累積買賣超折線圖透過將每日淨買超逐日累加，呈現法人真實波段建倉或倒貨的決心。累積線與股價的背離（如股價下跌但外資持續累積買超）往往是主力逢低承接的重要信號。",
+            formula: "累積買賣超(T) = 累積買賣超(T-1) + 當日買賣超張數",
+            signals: [
+              "法人步調一致：外資與投信累積折線同步向上，為法人認養強勢股",
+              "土洋對作：外資累計向下跌、投信向上買，需比對兩者權重與成本區間",
+              "量先價行背離：股價盤整而投信累積買超創高，常見於季底作帳發動前"
+            ],
+            pitfall: "外資累計買超有時包含避險套利單（如借券賣出或期貨避險），需與借券餘額綜合交叉驗證。",
+            chartData: {
+              labels: ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8"],
+              datasets: [
+                { label: "外資累積買賣超 (千張)", data: [0, 8.5, 14.2, 12.0, 22.5, 31.0, 38.2, 45.0], borderColor: "#10b981", tension: 0.3, borderWidth: 3 },
+                { label: "投信累積買賣超 (千張)", data: [0, 2.1, 4.3, 5.8, 8.2, 11.5, 13.0, 15.2], borderColor: "#a855f7", tension: 0.3, borderWidth: 2.5 }
+              ]
+            }
+          }
+        }
+      },
+
+      area: {
+        name: "Area (面積圖)",
+        category: "continuous",
+        features: "累加總量、區間波動、雲帶通道邊界感",
+        scores: { fund: "★★★★☆", tech: "★★★★★", chip: "★★★★☆" },
+        dimensions: {
+          fundamental: {
+            title: "三大業務部門營收堆疊面積圖 (Stacked Area)",
+            period: "近 6 年營運部門演變",
+            explanation: "堆疊面積圖頂部邊緣展示了『總營收的擴張速度』，同時內部色塊的面積比例則反映各個事業群（如晶圓代工、封裝測試、記憶體）隨時間的營運份額替換，極易看出公司新業務的成長動能。",
+            formula: "總營收(T) = Σ (部門 i 營收)",
+            signals: [
+              "新業務面積膨脹：象徵成功開啟第二成長曲線，給予更高估值",
+              "傳統業務面積萎縮：若新業務增長彌補不及，總體面積將出現停滯",
+              "抗週期性：檢視某個事業部在景氣逆風時面積是否具備防禦性"
+            ],
+            pitfall: "類別請勿超過 4~5 個，否則內部夾層色塊的起伏很難被直觀評估。",
+            chartData: {
+              labels: ["2019", "2020", "2021", "2022", "2023", "2024"],
+              datasets: [
+                { label: "高效能運算 (HPC)", data: [380, 510, 680, 920, 1150, 1420], backgroundColor: "rgba(56, 189, 248, 0.6)", borderColor: "#38bdf8", fill: true },
+                { label: "智慧手機 (Smartphone)", data: [490, 550, 610, 630, 620, 680], backgroundColor: "rgba(168, 85, 247, 0.5)", borderColor: "#a855f7", fill: true },
+                { label: "物聯網與車用 (IoT/Auto)", data: [120, 160, 210, 280, 340, 410], backgroundColor: "rgba(16, 185, 129, 0.4)", borderColor: "#10b981", fill: true }
+              ]
+            }
+          },
+          technical: {
+            title: "布林通道區間帶 (Bollinger Bands Bandwidth)",
+            period: "日 K 線波動常態分佈帶",
+            explanation: "以半透明面積覆蓋布林通道的 Upper Band（上軌）與 Lower Band（下軌）。面積的寬度代表波動率（Bandwidth）。當面積收縮成極窄帶狀時稱為『擠壓 (Squeeze)』，代表變盤在即；當面積爆發性張開，預示強勁單邊趨勢啟動。",
+            formula: "通道上軌 = 20MA + 2σ, 通道下軌 = 20MA - 2σ",
+            signals: [
+              "布林擠壓突破：面積極度收窄後，價格站上上軌且帶狀擴張，為強烈追多點",
+              "常態分佈收斂：約 95.4% 的價格落在該面積範圍內，觸及邊界常有均值回歸效應",
+              "沿軌上攻：多頭強勢市場中，股價會緊貼上軌面積邊緣持續推升"
+            ],
+            pitfall: "通道開口放大時切勿隨意摸頂放空，因為突破時波動率會維持極高水準。",
+            chartData: {
+              labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+              datasets: [
+                { label: "布林上軌 (+2σ)", data: [910, 915, 918, 925, 940, 960, 990, 1020, 1040, 1060, 1075, 1090], borderColor: "rgba(56, 189, 248, 0.8)", backgroundColor: "rgba(56, 189, 248, 0.2)", fill: '+1', tension: 0.3 },
+                { label: "布林下軌 (-2σ)", data: [870, 875, 878, 885, 895, 910, 920, 930, 945, 960, 975, 990], borderColor: "rgba(56, 189, 248, 0.8)", fill: false, tension: 0.3 },
+                { label: "股價走勢", data: [890, 898, 902, 912, 935, 955, 982, 1010, 1025, 1050, 1065, 1085], borderColor: "#f59e0b", borderWidth: 2.5, tension: 0.3, fill: false }
+              ]
+            }
+          },
+          chip: {
+            title: "主力 vs 散戶持股市值累積面積變化",
+            period: "週資料 (持股市值消長)",
+            explanation: "將 400 張以上大戶持股市值與 50 張以下散戶持股市值以面積呈現。可以非常清晰地看出在整個上漲循環中，籌碼是由散戶逐步流向主力（主力面積擴張），還是在高檔時主力將籌碼傾倒給散戶（散戶面積急遽增加）。",
+            formula: "大戶持股比例 = 400張以上大戶持股數 / 總發行股數",
+            signals: [
+              "籌碼高度沉澱：大戶面積穩居 70% 以上，股價抗跌性高、易被輕易拉抬",
+              "籌碼渙散：股價創高但大戶面積縮小、散戶面積暴增，為典型的拉高出貨"
+            ],
+            pitfall: "大戶持股包含質押與董監持股，需扣除受限制交易之閉鎖股份評估流通籌碼。",
+            chartData: {
+              labels: ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8"],
+              datasets: [
+                { label: "千張大戶籌碼面積", data: [65, 66, 68, 70, 72, 74, 75, 76], backgroundColor: "rgba(139, 92, 246, 0.5)", borderColor: "#8b5cf6", fill: true },
+                { label: "散戶籌碼面積", data: [35, 34, 32, 30, 28, 26, 25, 24], backgroundColor: "rgba(239, 68, 68, 0.3)", borderColor: "#ef4444", fill: true }
+              ]
+            }
+          }
+        }
+      },
+
+      bar: {
+        name: "Bar / Column (柱狀圖)",
+        category: "discrete",
+        features: "離散比對、正負值對照 (0軸多空)、橫向同業排行",
+        scores: { fund: "★★★★★", tech: "★★★★★", chip: "★★★★★" },
+        dimensions: {
+          fundamental: {
+            title: "單季營收年增率 (YoY) 與季增率 (MoM) 柱狀圖",
+            period: "近 6 季營收成長動能",
+            explanation: "柱狀圖具有鮮明的 0 軸特徵，極度適合呈現成長率的正負反差。年增率 (YoY) 為正表示基本面較去年同期擴張，若連續數季維持高正柱，代表公司處於營運爆發期。",
+            formula: "YoY (%) = (當期營收 - 去年同期營收) / 去年同期營收 × 100%",
+            signals: [
+              "柱體長度快速拉長：成長動能加速度 (Acceleration)，股價常享受高本益比溢價",
+              "由負轉正 (轉機股)：虧損縮小或成長率越過 0 軸，常為大波段反轉契機",
+              "高檔縮水：年增率依然為正但柱體逐季變短，表示成長見頂放緩"
+            ],
+            pitfall: "去年同期若因天災封城造成低基期，可能形成虛假的高成長柱體，需檢驗歷史基期。",
+            chartData: {
+              labels: ["23Q3", "23Q4", "24Q1", "24Q2", "24Q3", "24Q4"],
+              datasets: [
+                { label: "營收年增率 YoY (%)", data: [-8.5, 3.2, 12.8, 28.5, 36.4, 42.1], backgroundColor: (ctx) => (ctx.raw >= 0 ? '#10b981' : '#ef4444') }
+              ]
+            }
+          },
+          technical: {
+            title: "MACD 柱狀體 (OSC 動能指標)",
+            period: "日 K 線動能快慢差距",
+            explanation: "MACD 柱狀體是 DIF 快線與 MACD 慢線的相減值 (DIF - MACD)。它能比均線交叉更快一步提示多空動能的衰退與轉強。柱體越過 0 軸代表快線超越慢線，柱體縮短則代表原有推升力道衰減。",
+            formula: "MACD OSC = DIF(12,26) - MACD DEM(9)",
+            signals: [
+              "綠轉紅 (負轉正)：空方力道竭盡，多方動能接手，常為右側進場訊號",
+              "頂背離：股價突破新高，但 MACD 紅色正柱高度卻一波比一波矮，為強烈頭部警訊",
+              "底背離：股價破底，但綠色負柱未破底且收斂，預示跌勢趨緩即將反彈"
+            ],
+            pitfall: "在橫盤無趨勢的震盪盤中，MACD 柱狀體容易在 0 軸上下頻繁假突破穿梭。",
+            chartData: {
+              labels: ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"],
+              datasets: [
+                { label: "MACD OSC 動能柱", data: [-4.2, -3.1, -1.5, 0.4, 1.8, 3.5, 4.2, 3.8, 2.1, 0.8, -0.6, -2.0], backgroundColor: (ctx) => (ctx.raw >= 0 ? 'rgba(16, 185, 129, 0.85)' : 'rgba(239, 68, 68, 0.85)') }
+              ]
+            }
+          },
+          chip: {
+            title: "外資/投信/自營商 每日淨買賣超柱狀圖",
+            period: "近 10 日法人每日進出張數",
+            explanation: "籌碼面每日最直接的戰報。以 0 軸為基準，上方為法人加碼（多方買超），下方為法人調節（空方賣超）。透過並排柱狀，可瞬間看清究竟是外資一人拉抬，還是三大法人聯手作多。",
+            formula: "每日淨買賣超 = 當日買進總張數 - 當日賣出總張數",
+            signals: [
+              "三大法人同買（三柱齊揚）：市場共識度最高，推升股價最具爆發力",
+              "土洋對作（外資負柱、投信正柱）：若內資投信柱體持續放大且股價抗跌，投信勝率高",
+              "暴量賣超：單日賣超負柱創近期最大，防範主力無預警清倉離場"
+            ],
+            pitfall: "單日買超巨量有時可能是特定隔日沖主力券商所為，隔日須防範反向出脫。",
+            chartData: {
+              labels: ["D-9", "D-8", "D-7", "D-6", "D-5", "D-4", "D-3", "D-2", "D-1", "Today"],
+              datasets: [
+                { label: "外資淨買賣 (張)", data: [1200, -850, 4200, 6800, -1100, 3400, 5200, 8900, -2100, 9500], backgroundColor: "#38bdf8" },
+                { label: "投信淨買賣 (張)", data: [800, 1200, 950, 1400, 1800, 2100, 1900, 2400, 2600, 3100], backgroundColor: "#a855f7" }
+              ]
+            }
+          }
+        }
+      },
+
+      scatter: {
+        name: "Scatter (散點圖)",
+        category: "distribution",
+        features: "兩變數相關性、象限定位、離群值異常檢測",
+        scores: { fund: "★★★★★", tech: "★★★★☆", chip: "★★★★☆" },
+        dimensions: {
+          fundamental: {
+            title: "價值投資定位象限 (PE vs. ROE 散點矩陣)",
+            period: "同產業 30 檔股票橫向對比",
+            explanation: "散點圖是尋找被低估『價值窪地』的終極工具。X 軸為企業獲利效率 (ROE %)，Y 軸為市場給予的估值 (PE 本益比)。透過平均交叉線切出四個象限，能一眼過濾出具備高 ROE 卻享有低 PE 的潛力標的。",
+            formula: "ROE = 稅後淨利 / 股東權益, PE = 每股市價 / 每股盈餘 (EPS)",
+            signals: [
+              "右下象限（金礦區）：高 ROE + 低 PE，代表賺錢能力極強但估值委屈，超額報酬最高",
+              "右上象限（明星成長股）：高 ROE + 高 PE，市場給予成長溢價，需留意成長能否維持",
+              "左上象限（泡沫區）：低 ROE + 高 PE，基本面疲弱但股價被炒作，潛藏下跌修正風險",
+              "左下象限（價值陷阱）：低 ROE + 低 PE，看似便宜但公司體質差，缺乏反彈催化劑"
+            ],
+            pitfall: "單季低 PE 可能是因為一次性業外賣地進帳造成 EPS 暴增，需扣除非經常性損益。",
+            chartData: {
+              datasets: [{
+                label: "同業成分股",
+                data: [
+                  { x: 12, y: 15, label: "聯電" },
+                  { x: 28, y: 18, label: "台積電 (黃金象限)" },
+                  { x: 8, y: 35, label: "炒作股A" },
+                  { x: 22, y: 24, label: "聯發科" },
+                  { x: 15, y: 12, label: "日月光" },
+                  { x: 6, y: 10, label: "老牌股B" },
+                  { x: 32, y: 19, label: "隱形冠軍C" },
+                  { x: 18, y: 28, label: "高估值股D" },
+                  { x: 25, y: 14, label: "低估值績優股E" }
+                ],
+                backgroundColor: "#38bdf8",
+                pointRadius: 6,
+                pointHoverRadius: 9
+              }]
+            }
+          },
+          technical: {
+            title: "風險 vs. 報酬率矩陣 (年化波動率 vs. 年化收益率)",
+            period: "市場個股/ETF 效率前緣對照",
+            explanation: "X 軸為年化波動率（風險程度 σ），Y 軸為年化收益率。散點越靠左上方，代表承擔越低的風險卻獲得越高的報酬（夏普值 Sharpe Ratio 越高）。用於衡量投資組合或個股是否具備合理的風險收益比。",
+            formula: "夏普值 Sharpe = (年化報酬率 - 無風險利率) / 年化波動率",
+            signals: [
+              "左上方離群點：極品標的，極低波動下創造超越市場的穩健報酬",
+              "右下方落後點：巨幅上下震盪卻未帶來資本利得，純粹的資本消耗",
+              "45度基準線上方：風險溢酬合理，具備量化配置價值"
+            ],
+            pitfall: "過去的低波動不保證未來不出現黑天鵝尾端風險，需檢驗歷史壓力測試期間。",
+            chartData: {
+              datasets: [{
+                label: "標的風險收益比",
+                data: [
+                  { x: 14, y: 22, label: "高夏普標的 (低波高報酬)" },
+                  { x: 24, y: 18, label: "大盤指數 ETF" },
+                  { x: 38, y: 26, label: "高動能科技股" },
+                  { x: 42, y: 8, label: "高風險低回報個股" },
+                  { x: 12, y: 6, label: "債券型 ETF" },
+                  { x: 20, y: 28, label: "優質龍頭股" }
+                ],
+                backgroundColor: "#10b981",
+                pointRadius: 7
+              }]
+            }
+          },
+          chip: {
+            title: "主力買超比例 vs. 次週股價漲跌幅關聯驗證",
+            period: "50 筆歷史波段事件統計",
+            explanation: "散點圖可用於檢驗籌碼指標的『有效性』。X 軸為當週主力買超佔總成交量比重（主力集中度），Y 軸為次週該股實際漲跌幅。若散點呈現明顯由左下往右上的正斜率分佈，證明主力進出確實能主導股價方向。",
+            formula: "主力集中度 = 主力券商淨買超 / 全市場成交總量",
+            signals: [
+              "正相關趨勢顯著：主力買超佔比 > 15% 時，次週上漲機率高達 80% 以上",
+              "假突破點（右下）：主力大買但次週反而重挫，往往伴隨主力隔日對倒出貨或突發利空",
+              "無主力推升（左上）：主力賣超但股價大漲，通常為散戶熱錢軋空行情的末端"
+            ],
+            pitfall: "不同股本大小的股票需分開統計，小型股的主力牽引力通常顯著高於巨型權值股。",
+            chartData: {
+              datasets: [{
+                label: "主力進出 vs 後續漲跌",
+                data: [
+                  { x: 5, y: 1.2 }, { x: 12, y: 4.8 }, { x: 18, y: 7.5 }, { x: -8, y: -3.2 },
+                  { x: 22, y: 9.1 }, { x: -15, y: -6.4 }, { x: 2, y: -0.5 }, { x: 14, y: 5.6 },
+                  { x: 25, y: 12.0 }, { x: -5, y: -1.8 }, { x: 16, y: -2.1, label: "主力對倒出貨異常點" }
+                ],
+                backgroundColor: "#a855f7",
+                pointRadius: 6
+              }]
+            }
+          }
+        }
+      },
+
+      pie: {
+        name: "Pie (圓餅圖)",
+        category: "distribution",
+        features: "單一時點各部分佔總體百分比 (份額組成)",
+        scores: { fund: "★★★★★", tech: "★★★☆☆", chip: "★★★★☆" },
+        dimensions: {
+          fundamental: {
+            title: "公司各事業營收來源佔比 (Revenue by Segment)",
+            period: "最新季度營運組成",
+            explanation: "圓餅圖最直觀展示『整體與部分』的份額關係。例如評估一家半導體公司時，先進製程佔比決定其毛利率與技術護城河。若高利潤部門佔比過半，代表企業體質已發生本質轉變。",
+            formula: "部門佔比 (%) = 部門營收 / 總營收 × 100%",
+            signals: [
+              "核心支柱過半：單一部門佔比 > 50%，為公司業績的主要驅動引擎",
+              "營收多角化：多個部門均衡分佈，抗單一產業景氣循環下行風險"
+            ],
+            pitfall: "請確保所有扇形加總精確等於 100%，並將微小的碎片整合為『其他』類別。",
+            chartData: {
+              labels: ["3nm 製程", "5nm 製程", "7nm 製程", "成熟製程 (16nm以上)", "先進封裝測試"],
+              datasets: [{
+                data: [20, 32, 17, 23, 8],
+                backgroundColor: ["#0284c7", "#38bdf8", "#818cf8", "#94a3b8", "#10b981"]
+              }]
+            }
+          },
+          technical: {
+            title: "市場多空廣度分佈 (Market Breadth - 均線佔比)",
+            period: "全市場上市櫃成分股即時狀態",
+            explanation: "將全市場股票按技術線型切片：站上季線（多頭）、介於月季線之間（整理）、跌破季線（空頭）。圓餅圖能直觀看出當前是大盤指數虛漲（少數權值股拉抬），還是全市場百花齊放的健康普漲多頭。",
+            formula: "站上季線比例 = 站上 60MA 個股檔數 / 全市場總檔數 × 100%",
+            signals: [
+              "站上季線 > 70%：市場處於強勢主升段，順勢操作個股容錯率極高",
+              "大盤創高但站上季線 < 40%：警惕『拉積盤』，高達六成個股已在破線盤跌",
+              "站上季線 < 15%：極度悲觀超跌區，常為中長期大底浮現訊號"
+            ],
+            pitfall: "技術指標比例是落後或同步數據，需配合成交量結構綜合評判。",
+            chartData: {
+              labels: ["強勢多頭排列 (>季線與月線)", "震盪整理 (介於月季線)", "破線轉弱 (<季線)", "重度空頭 (<年線且創低)"],
+              datasets: [{
+                data: [45, 25, 20, 10],
+                backgroundColor: ["#10b981", "#38bdf8", "#f59e0b", "#ef4444"]
+              }]
+            }
+          },
+          chip: {
+            title: "全日成交量之分點券商市佔結構",
+            period: "當日盤後分點進出",
+            explanation: "檢視當日前五大進出券商分點（如凱基台北、美商高盛、摩根大通）佔全日總成交量的比例。若前三大券商佔了全日成交量的 60% 以上，代表籌碼被極少數關鍵大戶全盤掌控。",
+            formula: "主力成交集中度 = 前 5 大分點成交量 / 總成交量",
+            signals: [
+              "高度控盤：前三大分點佔比 > 50%，後續易出現鎖漲停或極端甩轎",
+              "籌碼分散：前十大分點佔比均不超過 5%，代表散戶與中小游資隨機交易"
+            ],
+            pitfall: "部分大戶會透過多個不同券商分點分批下單以隱匿足跡，需注意集團關聯券商。",
+            chartData: {
+              labels: ["美商高盛", "凱基台北", "摩根大通", "富邦綜合", "其餘全市場券商"],
+              datasets: [{
+                data: [28, 22, 14, 9, 27],
+                backgroundColor: ["#8b5cf6", "#a855f7", "#c084fc", "#e879f9", "#334155"]
+              }]
+            }
+          }
+        }
+      },
+
+      doughnut: {
+        name: "Doughnut (甜甜圈圖)",
+        category: "distribution",
+        features: "圓環比例、中央可置放關鍵總量數據、雙層維度",
+        scores: { fund: "★★★★★", tech: "★★★☆☆", chip: "★★★★★" },
+        dimensions: {
+          fundamental: {
+            title: "年度資本支出 (CapEx) 運用配置剖析",
+            period: "中央顯示全年總資本支出 (億美元)",
+            explanation: "甜甜圈圖中空的特性，使其中心能放置最核心的總量 KPI（如全年 320 億美元 CapEx）。環狀部分展示先進製程、成熟製程、封裝與廠房研發的分配比例，是衡量半導體未來產能擴充的最佳指標。",
+            formula: "研發/資本支出比例 = 分項支出 / 總資本支出",
+            signals: [
+              "先進技術 CapEx > 70%：代表技術領先優勢持續擴大，競爭對手難以追趕",
+              "廠房基建佔比增加：預告 1~2 年後將有大量新產能釋放，提振營收天花板"
+            ],
+            pitfall: "若資本支出大幅膨脹但折舊後續無法被營收吸收，可能在下行週期重創毛利率。",
+            chartData: {
+              labels: ["先進製程研發擴充", "特種成熟製程", "先進封裝測試設備", "廠房基建與潔淨室"],
+              datasets: [{
+                data: [72, 10, 11, 7],
+                backgroundColor: ["#0284c7", "#38bdf8", "#10b981", "#64748b"]
+              }]
+            }
+          },
+          technical: {
+            title: "均線多空排列強弱度儀表 (Market Trend Index)",
+            period: "中心顯示多頭強度綜合得分",
+            explanation: "將全市場股票在短中長期均線上的表現轉換為甜甜圈環形圖，中空處以數字即時呈現當前市場多空指數（如 74 分/100分）。讓交易者一眼掌握今日是適合大膽做多、還是應持幣觀望的總體環境。",
+            formula: "多頭強度得分 = 5MA多排% × 0.4 + 20MA多排% × 0.4 + 60MA多排% × 0.2",
+            signals: [
+              "強度 > 70分：強烈順勢作多環境，可放大部位或使用適度槓桿",
+              "強度 < 30分：空頭環境，任何反彈均易受均線反壓，應以防守現金為重"
+            ],
+            pitfall: "極端分數（>90 或 <10）通常預示市場情緒過熱或過冷，容易產生短線竭盡逆轉。",
+            chartData: {
+              labels: ["多頭主升佔比", "高檔震盪整理", "轉弱回檔破線"],
+              datasets: [{
+                data: [62, 23, 15],
+                backgroundColor: ["#10b981", "#f59e0b", "#ef4444"]
+              }]
+            }
+          },
+          chip: {
+            title: "集保股權結構分級分佈 (千張大戶 vs. 一般散戶)",
+            period: "中心顯示總發行流通股數",
+            explanation: "分析公司籌碼最經典的圖表。以甜甜圈圖呈現 1000 張以上大股東、400~1000 張中實戶、50~400 張中戶以及 50 張以下散戶的股權份額。中空處標註總股數。一眼看出股權是否掌握在少數機構投資人手中。",
+            formula: "千張大戶佔比 = 1000張以上股東持有張數 / 總流通張數 × 100%",
+            signals: [
+              "千張大戶 > 75%：籌碼高純度集中，不易受市場短期恐慌賣壓影響",
+              "散戶佔比 > 50%：籌碼過度發散，散戶心態脆弱，逢上漲解套賣壓沈重"
+            ],
+            pitfall: "需排除政府主權基金與特定家族閉鎖持股，真正能在市場自由交易的『自由流通股 (Free Float)』才是關鍵。",
+            chartData: {
+              labels: ["1000張以上大戶 (董監/外資/機構)", "400-1000張大戶 (主力/中實戶)", "50-400張中戶 (高資產散戶)", "50張以下散戶"],
+              datasets: [{
+                data: [74, 9, 8, 9],
+                backgroundColor: ["#8b5cf6", "#38bdf8", "#10b981", "#f43f5e"]
+              }]
+            }
+          }
+        }
+      },
+
+      histogram: {
+        name: "Histogram (直方圖)",
+        category: "distribution",
+        features: "連續數值分組頻率、機率分佈、價量密集籌碼沉澱 POC",
+        scores: { fund: "★★★★☆", tech: "★★★★★", chip: "★★★★★" },
+        dimensions: {
+          fundamental: {
+            title: "歷史本益比頻率分佈 (Historical PE Distribution)",
+            period: "過去 10 年本益比出現頻率統計",
+            explanation: "【重要區別】直方圖不是柱狀圖！直方圖的橫軸是連續數值區間（如 PE 10~12倍、12~14倍...），縱軸是『歷史出現的次數或天數』。藉由直方圖的分佈偏態，可精確看出當前 PE 是落在歷史的極端低檔（價值被嚴重低估）還是歷史過熱區。",
+            formula: "頻率 = 該 PE 區間歷史交易天數 / 10年總交易天數",
+            signals: [
+              "落入左端 5% 區間：歷史極端罕見的低估值，具備極高的安全邊際 (Margin of Safety)",
+              "落入右端極端厚尾：估值已被完全透支，即便業績超預期也隨時可能殺估值",
+              "常態分佈峰值：該股歷史公允估值的價值中樞"
+            ],
+            pitfall: "若企業營運體質發生不可逆的衰退（如柯達或諾基亞），歷史低 PE 可能是價值陷阱而非低估。",
+            chartData: {
+              labels: ["10-12倍", "12-14倍", "14-16倍", "16-18倍", "18-20倍", "20-22倍", "22-24倍", "24-26倍", ">26倍"],
+              datasets: [{
+                label: "歷史交易日頻率天數",
+                data: [45, 120, 310, 580, 720, 430, 210, 85, 30],
+                backgroundColor: (ctx) => (ctx.index === 7 ? '#ef4444' : (ctx.index <= 1 ? '#10b981' : '#38bdf8')),
+                barPercentage: 1.0,
+                categoryPercentage: 1.0
+              }]
+            }
+          },
+          technical: {
+            title: "籌碼成交量分佈圖 (Volume by Price / Volume Profile)",
+            period: "固定區間成交密集價位",
+            explanation: "最被頂級期貨與機構交易員青睞的工具。將價格切分為微小區間，統計在此價格帶累積成交的手數。高峰處稱為 POC (Point of Control 控制點)，代表市場各方成本沉澱最深處；凹谷為『真空區』，股價一旦穿透將快速滑向下一密集區。",
+            formula: "價位成交量 = 該價格區間內所有撮合成交總量總和",
+            signals: [
+              "POC 核心支撐：回檔至成交量最高峰柱體時，通常提供強大的買盤支撐",
+              "真空區跳空穿透：成交量凹谷缺乏套牢籌碼或獲利盤，價格往往以大長紅/長黑快速穿越",
+              "價值區突破 (Value Area High Breakout)：突破上方密集套牢帶後，上方萬里無雲"
+            ],
+            pitfall: "時間週期過長會包含多年以前的舊成交量，建議鎖定近 3~6 個月關鍵波段繪製。",
+            chartData: {
+              labels: ["900-910", "910-920", "920-930", "930-940", "940-950 (POC)", "950-960", "960-970", "970-980", "980-990"],
+              datasets: [{
+                label: "累積成交張數 (千張)",
+                data: [35, 62, 110, 280, 460, 310, 140, 85, 40],
+                backgroundColor: (ctx) => (ctx.index === 4 ? '#f59e0b' : '#0284c7'),
+                barPercentage: 0.95,
+                categoryPercentage: 1.0
+              }]
+            }
+          },
+          chip: {
+            title: "全體股東持股張數級距分佈直方圖",
+            period: "集保結算所持股分級頻率",
+            explanation: "X 軸為持股張數分組區間（如 1~5張、5~10張...1000張以上），Y 軸為該區間持有的股數總合或人數。直方圖清楚展現長尾效應：若籌碼呈现極端的『右偏厚尾』，代表極少數的大戶佔據了市場大部分的籌碼控制權。",
+            formula: "分級持股佔比 = 該張數級距總持有股數 / 全體發行股數",
+            signals: [
+              "右偏型分佈（大戶集權）：籌碼集中於 1000 張以上大戶柱體，有利長多推升",
+              "左偏型分佈（散戶擁擠）：大量持股擠在 1~5 張的散戶小柱，主力拉抬意願低",
+              "級距轉移：連續數週觀察柱體從左側向右側遷移，為標準的機構吸籌吸籌行為"
+            ],
+            pitfall: "零股持有者人數可能極大（左端極高），建議以『持股總金額或總張數』取代『單純人數』判讀。",
+            chartData: {
+              labels: ["1-5張", "5-10張", "10-20張", "20-50張", "50-100張", "100-400張", "400-1000張", ">1000張大戶"],
+              datasets: [{
+                label: "該級距持有總股數 (%)",
+                data: [6.2, 4.1, 5.0, 6.8, 7.5, 9.4, 13.0, 48.0],
+                backgroundColor: (ctx) => (ctx.index === 7 ? '#8b5cf6' : '#38bdf8'),
+                barPercentage: 1.0,
+                categoryPercentage: 1.0
+              }]
+            }
+          }
+        }
+      }
+    };
+
+    let currentChartType = 'line';
+    let currentDimension = 'fundamental';
+    let mainChartInstance = null;
+    let labChartInstances = {};
+
+    // Mini charts in dashboard simulator
+    let dashMainChartInstance = null;
+    let dashProfileChartInstance = null;
+    let dashBarChartInstance = null;
+    let dashCumLineChartInstance = null;
+    let dashScatterChartInstance = null;
+    let dashDoughnutChartInstance = null;
+    let dashPieChartInstance = null;
+
+    /* Matrix Table Data List */
+    const matrixList = [
+      { id: "line", type: "continuous", name: "Line (折線圖)", visual: "連續趨勢、時間序列平滑", fund: "營收/EPS長線成長、三率走勢、PE Band", tech: "收盤價趨勢、均線 (MA)、RSI/KD", chip: "外資投信累積買賣超、融資券變化" },
+      { id: "area", type: "continuous", name: "Area (面積圖)", visual: "總量累積推移、區間帶狀", fund: "事業群營收貢獻堆疊、資產負債累積", tech: "布林通道帶狀區、一目均衡表雲帶", chip: "內外資持股市值消長、籌碼佔比帶" },
+      { id: "bar", type: "discrete", name: "Bar / Column (柱狀圖)", visual: "離散比對、0軸正負多空差異", fund: "季度營收YoY、同業指標橫向比對", tech: "成交量 (Volume)、MACD 柱狀體 (OSC)", chip: "三大法人每日淨買賣、買賣家數差" },
+      { id: "scatter", type: "distribution", name: "Scatter (散點圖)", visual: "雙變數相關性、四象限定位", fund: "價值矩陣 (PE vs ROE 尋找被低估金礦)", tech: "風險收益矩陣 (波動率 vs 年化報酬)", chip: "主力買超比率 vs 次週漲跌幅驗證" },
+      { id: "pie", type: "distribution", name: "Pie (圓餅圖)", visual: "靜態份額組成 (整體與部分)", fund: "業務別營收佔比、地區市場營收結構", tech: "全市場多空廣度 (站上季線比例)", chip: "當日成交前五大券商市佔份額" },
+      { id: "doughnut", type: "distribution", name: "Doughnut (甜甜圈圖)", visual: "環狀比例、中心放置總量 KPI", fund: "年度資本支出 (CapEx) 運用配置剖析", tech: "多空均線綜合評分強弱儀表 (100分制)", chip: "集保股權結構分級 (大戶 vs 散戶)" },
+      { id: "histogram", type: "distribution", name: "Histogram (直方圖)", visual: "連續區間頻率分佈、機率密度", fund: "歷史 10 年本益比出現頻率分佈", tech: "價量成交分佈 (Volume Profile / POC)", chip: "全體股東持股張數級距分佈" }
+    ];
+
+    /* Quiz Questions Data */
+    const quizData = [
+      {
+        id: 1,
+        question: "若你想評估全市場 30 檔半導體公司中，哪些具備『賺錢效率極高（高 ROE）卻被市場低估（低 PE）』，應該選擇哪種圖表？",
+        options: ["Area (堆疊面積圖)", "Scatter Plot (散點象限圖)", "Histogram (直方圖)", "Line Chart (折線圖)"],
+        correct: 1,
+        explanation: "散點圖專門用於分析兩個連續變數（ROE 與 PE）的關聯與象限分佈，能一鍵在右下角鎖定高 ROE、低 PE 的價值金礦股。"
+      },
+      {
+        id: 2,
+        question: "要找出過去 6 個月內，市場籌碼在『哪些具體價位帶』沉澱最多套牢與買盤成交量（尋找 POC 支撐壓力點），該使用？",
+        options: ["圓餅圖 (Pie Chart)", "折線圖 (Line Chart)", "價量直方圖 (Volume Profile / Histogram)", "散點圖 (Scatter Plot)"],
+        correct: 2,
+        explanation: "直方圖以連續價位為區間，統計在該價格帶撮合的累積成交量（Volume Profile），是頂級交易員辨識真假支撐壓力的首選。"
+      },
+      {
+        id: 3,
+        question: "若要呈現『三大法人每天到底是淨買超還是淨賣超』，並呈現多空 0 軸的正負拉鋸，最適合的圖表是？",
+        options: ["Bar / Column 柱狀圖", "Pie 圓餅圖", "Scatter 散點圖", "Area 面積圖"],
+        correct: 0,
+        explanation: "柱狀圖具備明確的 0 軸正負上下區分，大於 0 為買超（正柱），小於 0 為賣超（負柱），一目了然。"
+      },
+      {
+        id: 4,
+        question: "想呈現『千張大戶持股比例』在過去 24 週隨時間推移的累積增減走勢，下列何者最適當？",
+        options: ["圓餅圖 (Pie Chart)", "折線圖 (Line Chart)", "直方圖 (Histogram)", "散點圖 (Scatter)"],
+        correct: 1,
+        explanation: "追蹤時間序列上的連續動態變化，首選具有平滑趨勢辨識力的折線圖（Line Chart）。"
+      }
+    ];
+
+    function renderMatrixTable(filterType = 'all') {
+      const tbody = document.getElementById('matrixBody');
+      tbody.innerHTML = '';
+
+      const filtered = filterType === 'all' 
+        ? matrixList 
+        : matrixList.filter(item => item.type === filterType);
+
+      filtered.forEach((item) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/40 transition-colors cursor-pointer group";
+        tr.onclick = () => selectChartFromMatrix(item.id);
+
+        tr.innerHTML = `
+          <td class="py-3.5 px-5 font-bold text-white group-hover:text-sky-400 transition-colors whitespace-nowrap">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-sky-500 mr-2"></span>${item.name}
+          </td>
+          <td class="py-3.5 px-5 text-slate-400 text-xs">${item.visual}</td>
+          <td class="py-3.5 px-5 text-amber-300 text-xs bg-amber-500/5">${item.fund}</td>
+          <td class="py-3.5 px-5 text-blue-300 text-xs bg-blue-500/5">${item.tech}</td>
+          <td class="py-3.5 px-5 text-purple-300 text-xs bg-purple-500/5">${item.chip}</td>
+          <td class="py-3.5 px-4 text-center">
+            <button class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-sky-600/30 text-sky-300 border border-sky-500/40 group-hover:bg-sky-600 group-hover:text-white transition-all">
+              檢視實測
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterMatrix(category) {
+      document.querySelectorAll('.matrix-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-sky-600', 'text-white');
+        btn.classList.add('text-slate-400');
+      });
+      event.target.classList.add('bg-sky-600', 'text-white');
+      event.target.classList.remove('text-slate-400');
+      renderMatrixTable(category);
+    }
+
+    function selectChartFromMatrix(chartId) {
+      currentChartType = chartId;
+      const targetCard = document.getElementById(`lab-card-${chartId}`);
+      if (targetCard) {
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetCard.classList.add('ring-2', 'ring-sky-400', 'bg-slate-800/80');
+        setTimeout(() => {
+          targetCard.classList.remove('ring-2', 'ring-sky-400', 'bg-slate-800/80');
+        }, 1800);
+      }
+      showToast(`已跳轉至：${chartDatabase[chartId].name}`);
+    }
+
+    function setDimension(dim) {
+      currentDimension = dim;
+      
+      // Update Tab Styles
+      ['fundamental', 'technical', 'chip'].forEach(d => {
+        const btn = document.getElementById(`dimBtn-${d}`);
+        if (d === dim) {
+          if (d === 'fundamental') btn.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-amber-300 bg-amber-500/20 border border-amber-500/40";
+          if (d === 'technical') btn.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-blue-300 bg-blue-500/20 border border-blue-500/40";
+          if (d === 'chip') btn.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-purple-300 bg-purple-500/20 border border-purple-500/40";
+        } else {
+          btn.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-white";
+        }
+      });
+
+      renderAllLabCharts();
+    }
+
+    const chartTypeMapping = {
+      line: 'line',
+      area: 'line',
+      bar: 'bar',
+      scatter: 'scatter',
+      pie: 'pie',
+      doughnut: 'doughnut',
+      histogram: 'bar'
+    };
+
+    function renderAllLabCharts() {
+      const grid = document.getElementById('directLabChartsGrid');
+      const chartKeys = ['line', 'area', 'bar', 'scatter', 'pie', 'doughnut', 'histogram'];
+
+      // Destroy existing lab chart instances before re-render
+      Object.keys(labChartInstances).forEach(key => {
+        if (labChartInstances[key]) {
+          labChartInstances[key].destroy();
+        }
+      });
+      labChartInstances = {};
+
+      grid.innerHTML = '';
+
+      chartKeys.forEach((key) => {
+        const chartMeta = chartDatabase[key];
+        const dimData = chartMeta.dimensions[currentDimension];
+
+        const card = document.createElement('div');
+        card.id = `lab-card-${key}`;
+        card.className = "bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between transition-all duration-300 hover:border-slate-700";
+
+        // Badges depending on active dimension
+        let badgeColorClass = "bg-amber-500/10 text-amber-400 border-amber-500/30";
+        let dimLabel = "基本面實例";
+        if (currentDimension === 'technical') {
+          badgeColorClass = "bg-blue-500/10 text-blue-400 border-blue-500/30";
+          dimLabel = "技術面實例";
+        } else if (currentDimension === 'chip') {
+          badgeColorClass = "bg-purple-500/10 text-purple-400 border-purple-500/30";
+          dimLabel = "籌碼面實例";
+        }
+
+        // Signals list
+        let signalsHtml = '';
+        dimData.signals.slice(0, 2).forEach(sig => {
+          signalsHtml += `<li class="flex items-start gap-1.5"><span class="text-sky-400 font-bold shrink-0">›</span><span>${sig}</span></li>`;
+        });
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-3">
+              <div>
+                <span class="px-2 py-0.5 rounded text-[11px] font-bold border ${badgeColorClass}">
+                  ${chartMeta.name} · ${dimLabel}
+                </span>
+                <h3 class="text-sm sm:text-base font-bold text-white tracking-wide mt-1.5">
+                  ${dimData.title}
+                </h3>
+              </div>
+              <span class="text-[11px] text-slate-400 font-mono shrink-0">${dimData.period}</span>
+            </div>
+
+            <!-- Chart Canvas -->
+            <div class="relative w-full h-[220px] my-1">
+              <canvas id="canvas-lab-${key}"></canvas>
+            </div>
+
+            <!-- Key Insight Text -->
+            <p class="text-slate-300 text-xs leading-relaxed mt-3 line-clamp-3 hover:line-clamp-none transition-all">
+              ${dimData.explanation}
+            </p>
+
+            <!-- Formula Box -->
+            <div class="mt-3 bg-slate-950 border border-slate-800 rounded-lg p-2.5">
+              <div class="text-[10px] font-semibold text-slate-400 uppercase">指標/判斷公式</div>
+              <div class="text-[11px] font-mono text-emerald-400 font-semibold truncate hover:text-clip">
+                ${dimData.formula}
+              </div>
+            </div>
+
+            <!-- Core Signals -->
+            <div class="mt-3 space-y-1">
+              <div class="text-[11px] font-bold text-slate-200">實戰核心訊號：</div>
+              <ul class="text-[11px] text-slate-300 space-y-1">
+                ${signalsHtml}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Bottom Pitfall Strip -->
+          <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-start gap-1.5 text-[11px] text-rose-300/90">
+            <span class="font-bold shrink-0">⚠️ 避坑：</span>
+            <span class="line-clamp-2 hover:line-clamp-none">${dimData.pitfall}</span>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      // Render canvas for each of the 7 charts
+      chartKeys.forEach((key) => {
+        const chartMeta = chartDatabase[key];
+        const dimData = chartMeta.dimensions[currentDimension];
+        const canvasEl = document.getElementById(`canvas-lab-${key}`);
+        if (!canvasEl) return;
+
+        const ctx = canvasEl.getContext('2d');
+        const baseType = chartTypeMapping[key];
+
+        const options = {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 400 },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { color: '#94a3b8', font: { family: 'Inter', size: 10 }, boxWidth: 12 }
+            },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              borderColor: '#334155',
+              borderWidth: 1,
+              titleColor: '#f8fafc',
+              bodyColor: '#cbd5e1',
+              padding: 8
+            }
+          },
+          scales: (baseType === 'pie' || baseType === 'doughnut') ? {} : {
+            x: {
+              grid: { color: 'rgba(51, 65, 85, 0.3)' },
+              ticks: { color: '#94a3b8', font: { size: 9 } }
+            },
+            y: {
+              grid: { color: 'rgba(51, 65, 85, 0.3)' },
+              ticks: { color: '#94a3b8', font: { size: 9 } }
+            }
+          }
+        };
+
+        labChartInstances[key] = new Chart(ctx, {
+          type: baseType,
+          data: JSON.parse(JSON.stringify(dimData.chartData)),
+          options: options
+        });
+      });
+    }
+
+    function initDashboardSimulator() {
+      // 1. Dash Main K-line / Bollinger Area
+      const ctxMain = document.getElementById('dashMainChart').getContext('2d');
+      dashMainChartInstance = new Chart(ctxMain, {
+        type: 'line',
+        data: {
+          labels: ['09/01', '09/05', '09/10', '09/15', '09/20', '09/25', '09/30', '10/05'],
+          datasets: [
+            { label: '布林上軌 (Area上限)', data: [940, 948, 960, 975, 990, 1005, 1018, 1025], borderColor: 'rgba(56, 189, 248, 0.5)', backgroundColor: 'rgba(56, 189, 248, 0.15)', fill: '+1', tension: 0.3 },
+            { label: '布林下軌 (Area下限)', data: [880, 890, 895, 905, 915, 930, 940, 950], borderColor: 'rgba(56, 189, 248, 0.5)', fill: false, tension: 0.3 },
+            { label: '2330 股價', data: [910, 922, 935, 940, 962, 978, 970, 985], borderColor: '#10b981', borderWidth: 2.5, tension: 0.2, fill: false }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: '#1e293b' } },
+            y: { ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: '#1e293b' } }
+          }
+        }
+      });
+
+      // 2. Dash Volume Profile (Histogram)
+      const ctxProfile = document.getElementById('dashProfileChart').getContext('2d');
+      dashProfileChartInstance = new Chart(ctxProfile, {
+        type: 'bar',
+        data: {
+          labels: ['$980', '$970', '$960', '$950 (POC)', '$940', '$930', '$920', '$910'],
+          datasets: [{
+            data: [25, 48, 85, 160, 140, 65, 30, 18],
+            backgroundColor: (c) => c.index === 3 ? '#f59e0b' : '#38bdf8',
+            barPercentage: 1.0,
+            categoryPercentage: 1.0
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#64748b', font: { size: 8 } }, grid: { color: '#1e293b' } },
+            y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } }
+          }
+        }
+      });
+
+      // 3. Dash Institutional Bar
+      const ctxBar = document.getElementById('dashBarChart').getContext('2d');
+      dashBarChartInstance = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: ['-4D', '-3D', '-2D', '-1D', 'Today'],
+          datasets: [
+            { label: '外資淨買', data: [3200, -1800, 5400, 7200, 8900], backgroundColor: (c) => c.raw >= 0 ? '#10b981' : '#ef4444' },
+            { label: '投信淨買', data: [850, 1200, 1500, 2100, 1800], backgroundColor: '#a855f7' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#94a3b8', font: { size: 9 } } } },
+          scales: {
+            x: { ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: '#1e293b' } },
+            y: { ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: '#1e293b' } }
+          }
+        }
+      });
+
+      // 4. Dash Cumulative Line
+      const ctxCum = document.getElementById('dashCumLineChart').getContext('2d');
+      dashCumLineChartInstance = new Chart(ctxCum, {
+        type: 'line',
+        data: {
+          labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6'],
+          datasets: [{
+            label: '三大法人累計買超',
+            data: [12000, 18500, 24000, 29800, 36200, 48200],
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: '#1e293b' } },
+            y: { ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: '#1e293b' } }
+          }
+        }
+      });
+
+      // 5. Dash Scatter PE vs ROE
+      const ctxScatter = document.getElementById('dashScatterChart').getContext('2d');
+      dashScatterChartInstance = new Chart(ctxScatter, {
+        type: 'scatter',
+        data: {
+          datasets: [{
+            label: '同業 PE vs ROE',
+            data: [{ x: 28, y: 19 }, { x: 18, y: 15 }, { x: 12, y: 25 }, { x: 22, y: 28 }],
+            backgroundColor: '#f59e0b',
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: 'ROE (%)', color: '#64748b', font: { size: 9 } }, ticks: { color: '#64748b', font: { size: 8 } }, grid: { color: '#1e293b' } },
+            y: { title: { display: true, text: 'PE 倍數', color: '#64748b', font: { size: 9 } }, ticks: { color: '#64748b', font: { size: 8 } }, grid: { color: '#1e293b' } }
+          }
+        }
+      });
+
+      // 6. Dash Doughnut Ownership
+      const ctxDoughnut = document.getElementById('dashDoughnutChart').getContext('2d');
+      dashDoughnutChartInstance = new Chart(ctxDoughnut, {
+        type: 'doughnut',
+        data: {
+          labels: ['大戶', '法人', '散戶'],
+          datasets: [{
+            data: [72, 18, 10],
+            backgroundColor: ['#8b5cf6', '#38bdf8', '#ef4444'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 9 } } } }
+        }
+      });
+
+      // 7. Dash Pie Segment
+      const ctxPie = document.getElementById('dashPieChart').getContext('2d');
+      dashPieChartInstance = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+          labels: ['3nm', '5nm', '7nm+'],
+          datasets: [{
+            data: [26, 32, 42],
+            backgroundColor: ['#0284c7', '#38bdf8', '#64748b'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 9 } } } }
+        }
+      });
+    }
+
+    let answeredCount = 0;
+    function renderQuiz() {
+      const container = document.getElementById('quizContainer');
+      container.innerHTML = '';
+
+      quizData.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl";
+        card.id = `quizCard-${q.id}`;
+
+        let optionsHtml = '';
+        q.options.forEach((opt, optIdx) => {
+          optionsHtml += `
+            <button onclick="handleQuizAnswer(${q.id}, ${optIdx})" class="w-full text-left p-3 rounded-xl border border-slate-800 bg-slate-950/70 hover:bg-slate-800 text-xs text-slate-300 font-medium transition-all quiz-opt-${q.id}">
+              <span class="inline-block w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-center leading-5 mr-2 text-[10px] font-bold">${String.fromCharCode(65 + optIdx)}</span>
+              ${opt}
+            </button>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span class="font-bold text-sky-400">情境題目 0${idx + 1}</span>
+            <span>單選題</span>
+          </div>
+          <p class="text-sm font-semibold text-slate-100 leading-relaxed">${q.question}</p>
+          <div class="space-y-2" id="quizOptions-${q.id}">
+            ${optionsHtml}
+          </div>
+          <div id="quizResult-${q.id}" class="hidden p-3 rounded-xl text-xs space-y-1"></div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function handleQuizAnswer(qId, selectedIdx) {
+      const q = quizData.find(item => item.id === qId);
+      const resultBox = document.getElementById(`quizResult-${qId}`);
+      const optionButtons = document.querySelectorAll(`.quiz-opt-${qId}`);
+
+      // Disable buttons
+      optionButtons.forEach(btn => btn.disabled = true);
+
+      if (selectedIdx === q.correct) {
+        optionButtons[selectedIdx].classList.add('bg-emerald-950/80', 'border-emerald-500', 'text-emerald-300');
+        resultBox.className = "p-3 rounded-xl text-xs space-y-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300";
+        resultBox.innerHTML = `<strong>✓ 答對了！</strong> ${q.explanation}`;
+        showToast("回答正確！實戰直覺非常敏銳 🎯");
+      } else {
+        optionButtons[selectedIdx].classList.add('bg-rose-950/80', 'border-rose-500', 'text-rose-300');
+        optionButtons[q.correct].classList.add('bg-emerald-950/80', 'border-emerald-500', 'text-emerald-300');
+        resultBox.className = "p-3 rounded-xl text-xs space-y-1 bg-rose-500/10 border border-rose-500/30 text-rose-300";
+        resultBox.innerHTML = `<strong>✕ 觀念解析：</strong> 正確應為「${q.options[q.correct]}」。${q.explanation}`;
+        showToast("再接再厲！細看一下觀念解析 💡");
+      }
+
+      resultBox.classList.remove('hidden');
+      answeredCount++;
+      document.getElementById('quizScoreText').innerText = `${answeredCount} / ${quizData.length}`;
+    }
+
+    let toastTimeout = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toastBox');
+      const msgBox = document.getElementById('toastMsg');
+      msgBox.innerText = msg;
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2600);
+    }
+
+    window.onload = function () {
+      renderMatrixTable('all');
+      renderAllLabCharts();
+      initDashboardSimulator();
+      renderQuiz();
+    };
+  </script>
+</body>
+</html>

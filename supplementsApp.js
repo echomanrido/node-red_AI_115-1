@@ -39,8 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch(err => {
         console.warn('fetch supplements.json 失敗，改用本機備援資料 INITIAL_SUPPLEMENTS_DATA:', err);
-        if (window.INITIAL_SUPPLEMENTS_DATA && window.INITIAL_SUPPLEMENTS_DATA.length > 0) {
-          initApp(window.INITIAL_SUPPLEMENTS_DATA);
+        const fallback = window.INITIAL_SUPPLEMENTS_DATA || window.supplementsData;
+        if (fallback && fallback.length > 0) {
+          initApp(fallback);
         } else {
           contentBodyEl.innerHTML = `
             <div class="section-card" style="text-align:center; padding: 40px;">
