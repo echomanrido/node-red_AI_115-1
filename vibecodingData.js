@@ -688,8 +688,76 @@ window.INITIAL_VIBE_DATA = [
     ]
   },
   {
-    "id": "vibe-09",
+    "id": "vibe-reverse-engineering-traditional",
     "labNumber": "08",
+    "title": "傳統逆向工程與核心工具解析：Detect It Easy、IDA Pro 與 Ghidra 實戰指南",
+    "shortTitle": "傳統逆向工程與核心工具",
+    "category": "其他",
+    "date": "2026-10-15",
+    "summary": "在無原始碼的前提下，如何從十六進位位元組流（Hex Dump）與組合語言中，精準重構資料結構、程式邏輯與演算法？全方位剖析 Native 原生代碼 (C/C++/Go/PE/ELF) 逆向範式、靜態與動態分析雙支柱，以及資安與韌體工程必備三大神器：DIE (預檢偵察與熵值分析)、IDA Pro (Hex-Rays 反編譯之巔) 與 Ghidra (NSA 開源協同逆向框架)。",
+    "flowTitle": "傳統二進位逆向工程四步流水線與分析管線",
+    "resultTitle": "傳統逆向工程互動知識庫頁面",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMwNmI2ZDQiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjMDZiNmQ0Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+5YKz57Wx5LqM6YCy5L2N6YCG5ZCR5bel56iL5qiZ5rqW5Zub5q2l5rWB5rC057eaPC90ZXh0PgogIDx0ZXh0IHg9IjM4IiB5PSI2MCIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSIxMSI+RGV0ZWN0IEl0IEVhc3kgLSZndDsgSURBL0doaWRyYSBMb2FkaW5nIC0mZ3Q7IFR5cGUgJmFtcDsgTG9naWMgUmVjb3ZlcnkgLSZndDsgRHluYW1pYyBEZWJ1ZzwvdGV4dD4KICA8cmVjdCB4PSIyNSIgeT0iODAiIHdpZHRoPSI2NzAiIGhlaWdodD0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA4KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzMiIHk9IjExMCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIzMyIgeT0iMTEwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjMDZiNmQ0Ii8+CiAgICA8Y2lyY2xlIGN4PSI1NSIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjMDZiNmQ0IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU1IiB5PSIxNDAiIGZpbGw9IiMwNmI2ZDQiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5SRS0xPC90ZXh0PgogICAgPHJlY3QgeD0iMTM1IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjE1NiIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VHJpYWdlPC90ZXh0PgogICAgPHRleHQgeD0iNDUiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPumgkOaqouaDheWgsTwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ1IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5ESUUg5Yik5a6a57eo6K2v6Y+I6IiH5Yqg5q68PC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDE4NiAxNjAgTCAxOTggMTYwIiBzdHJva2U9IiMwNmI2ZDQiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMjAxIiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMjAxIiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiMwNmI2ZDQiLz4KICAgIDxjaXJjbGUgY3g9IjIyMyIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjMDZiNmQ0IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjIyMyIgeT0iMTQwIiBmaWxsPSIjMDZiNmQ0IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UkUtMjwvdGV4dD4KICAgIDxyZWN0IHg9IjMwMyIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIzMjQiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlN0YXRpYzwvdGV4dD4KICAgIDx0ZXh0IHg9IjIxMyIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+6Z2c5oWL6LyJ5YWlPC90ZXh0PgogICAgPHRleHQgeD0iMjEzIiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij7lrprkvY0gRW50cnlQb2ludCA8L3RleHQ+CiAgICA8dGV4dCB4PSIyMTMiIHk9IjIwMCIgZmlsbD0iIzY0NzQ4YiIgZm9udC1zaXplPSI4LjUiPuiIh+Wtl+S4sjwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSAzNTQgMTYwIEwgMzY2IDE2MCIgc3Ryb2tlPSIjMDZiNmQ0IiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjM2OSIgeT0iMTEwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjM2OSIgeT0iMTEwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjMDZiNmQ0Ii8+CiAgICA8Y2lyY2xlIGN4PSIzOTEiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzA2YjZkNCIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSIzOTEiIHk9IjE0MCIgZmlsbD0iIzA2YjZkNCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlJFLTM8L3RleHQ+CiAgICA8cmVjdCB4PSI0NzEiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iNDkyIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5EZWNvbXBpbGU8L3RleHQ+CiAgICA8dGV4dCB4PSIzODEiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPumCj+i8r+mHjeanizwvdGV4dD4KICAgIDx0ZXh0IHg9IjM4MSIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+RjUg6Jmb5pOs56K86IiH5Z6L5Yil6YKE5Y6fPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDUyMiAxNjAgTCA1MzQgMTYwIiBzdHJva2U9IiMwNmI2ZDQiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iNTM3IiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iNTM3IiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiMwNmI2ZDQiLz4KICAgIDxjaXJjbGUgY3g9IjU1OSIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjMDZiNmQ0IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU1OSIgeT0iMTQwIiBmaWxsPSIjMDZiNmQ0IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UkUtNDwvdGV4dD4KICAgIDxyZWN0IHg9IjYzOSIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSI2NjAiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkR5bmFtaWM8L3RleHQ+CiAgICA8dGV4dCB4PSI1NDkiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuWLleaFi+mpl+itiTwvdGV4dD4KICAgIDx0ZXh0IHg9IjU0OSIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+eDY0ZGJnIC8g6KiY5oa26auU6ISr5q68PC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDYxMiAyMTggQyA2MTIgMjY1LCAxMDggMjY1LCAxMDggMjE4IiBzdHJva2U9IiMwNmI2ZDQiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtZGFzaGFycmF5PSI1LDQiIGZpbGw9Im5vbmUiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPHRleHQgeD0iMzYwIiB5PSIyNjAiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI1MDAiPumdnOaFi+iIh+WLleaFi+mbmeWQkempl+itie+8muW+nua3t+S6guS6jOmAsuS9jeapn+WZqOeivOeyvueiuumChOWOn+mrmOmajui7n+mrlOaetuanizwvdGV4dD4KPC9zdmc+",
+    "resultImage": "Vibe Coding/03.其他/逆向工程/01.傳統逆向工程.html",
+    "slideUrl": "Vibe Coding/03.其他/逆向工程/01.傳統逆向工程.html",
+    "objective": "1. 深刻理解 Native Code (原生機器碼) 與 Managed Code (受管位元組碼) 的逆向本質差異。\n2. 熟練掌握 Detect It Easy (DIE) 的編譯器識別、加殼檢測與熵值 (Entropy) 掃描技術。\n3. 熟悉 IDA Pro 與 Ghidra 的反編譯原理、控制流圖 (CFG)、交叉引用 (Xrefs) 與動態除錯流水線。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 預檢情報 (Triage with DIE)",
+        "description": "使用 Detect It Easy 快速掃描未知檔案，判定檔案架構 (PE/ELF/Mach-O)、編譯器鏈 (MSVC/GCC/Go) 與區段熵值，識別是否加殼 (UPX/VMProtect)。"
+      },
+      {
+        "step": "步驟 2: 靜態載入與關鍵定位 (Static Analysis)",
+        "description": "載入 IDA Pro 或 Ghidra，利用 FLIRT 庫過濾標準函數，藉由交叉引用 (Xrefs) 與字串常數 (Strings) 鎖定關鍵業務邏輯入口。"
+      },
+      {
+        "step": "步驟 3: 邏輯與型別還原 (Decompilation & Type Propagation)",
+        "description": "透過 Hex-Rays / Ghidra 反編譯引擎生成結構化虛擬 C 代碼，重塑結構體 (Struct)、指針型別與呼叫慣例。"
+      },
+      {
+        "step": "步驟 4: 動態除錯與記憶體脫殼 (Dynamic Debugging)",
+        "description": "配合 x64dbg 或 GDB 設定硬體斷點，即時監控暫存器與呼叫堆疊，繞過反除錯保護並抓取運行時解密金鑰。"
+      }
+    ],
+    "promptTemplate": "你是一位具備頂尖逆向工程與漏洞挖掘能力的二進位資安專家。\n請針對一個由 C/C++ 編寫的工控通訊 DLL 模組（無除錯符號、已 Stripped）：\n1. 請規劃使用 Detect It Easy (DIE) 進行預檢的重點項目（包含熵值與加殼判斷）。\n2. 請說明在 Ghidra / IDA Pro 中如何運用交叉引用 (Xrefs) 與型別推斷重構 Modbus 封包解析函數。\n3. 若發現疑似反除錯 (Anti-Debugging) 機制，請給出動態除錯 (x64dbg) 繞過方案。",
+    "codeSnippet": {
+      "language": "c",
+      "code": "// 反編譯 C 虛擬碼對照範例 (IDA / Ghidra Decompiler View)\n__int64 __fastcall check_serial_key(const char *license_input)\n{\n  int len; // [rsp+4h] [rbp-1Ch]\n  int i;   // [rsp+8h] [rbp-18h]\n\n  len = strlen(license_input);\n  if ( len != 16 )\n    return 0LL; // 授權金鑰長度不符\n  for ( i = 0; i < len; ++i )\n  {\n    if ( (license_input[i] ^ 0x5A) != expected_bytes[i] )\n      return 0LL; // 混淆校驗失敗\n  }\n  return 1LL; // 通過硬體驗證\n}"
+    },
+    "references": [
+      {
+        "title": "傳統逆向工程與核心工具解析 (專屬互動全解析頁面)",
+        "url": "Vibe Coding/03.其他/逆向工程/01.傳統逆向工程.html"
+      },
+      {
+        "title": "IDA Pro 官方技術文檔 (Hex-Rays)",
+        "url": "https://hex-rays.com/ida-pro/"
+      },
+      {
+        "title": "Ghidra 官方網站 (NSA Open Source)",
+        "url": "https://ghidra-sre.org/"
+      },
+      {
+        "title": "Detect It Easy (DIE) GitHub 倉庫",
+        "url": "https://github.com/horsicq/Detect-It-Easy"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-shield-virus",
+        "scenario": "工控固件惡意程式分析與韌體安全審計",
+        "description": "在缺少源碼的情況下，深入分析 PLC 與邊緣閘道器中運行的二進位檔案，揪出未授權後門與緩衝區溢位漏洞。"
+      },
+      {
+        "icon": "fa-solid fa-microchip",
+        "scenario": "遺留閉源驅動與通訊協定逆向還原",
+        "description": "針對停產或無技術支援之工控儀表通訊模組，透過逆向二進位 DLL/SO 精準還原私人 Modbus/CAN 封包通訊協議。"
+      }
+    ]
+  },
+  {
+    "id": "vibe-09",
+    "labNumber": "09",
     "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
     "category": "其他",
     "date": "2026-10-14",

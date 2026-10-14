@@ -923,10 +923,91 @@ unit_07_superpowers = {
     ]
 }
 
-# 順延為 08：其他
-unit_08_other = {
-    "id": "vibe-09",
+# 08：傳統逆向工程與核心工具解析
+unit_08_reverse_engineering = {
+    "id": "vibe-reverse-engineering-traditional",
     "labNumber": "08",
+    "title": "傳統逆向工程與核心工具解析：Detect It Easy、IDA Pro 與 Ghidra 實戰指南",
+    "shortTitle": "傳統逆向工程與核心工具",
+    "category": "其他",
+    "date": "2026-10-15",
+    "summary": "在無原始碼的前提下，如何從十六進位位元組流（Hex Dump）與組合語言中，精準重構資料結構、程式邏輯與演算法？全方位剖析 Native 原生代碼 (C/C++/Go/PE/ELF) 逆向範式、靜態與動態分析雙支柱，以及資安與韌體工程必備三大神器：DIE (預檢偵察與熵值分析)、IDA Pro (Hex-Rays 反編譯之巔) 與 Ghidra (NSA 開源協同逆向框架)。",
+    "flowTitle": "傳統二進位逆向工程四步流水線與分析管線",
+    "resultTitle": "傳統逆向工程互動知識庫頁面",
+    "flowImage": make_svg_diagram(
+        "傳統二進位逆向工程標準四步流水線",
+        "Detect It Easy -> IDA/Ghidra Loading -> Type & Logic Recovery -> Dynamic Debug",
+        [
+            {"num": "RE-1", "title": "預檢情報", "sub": "DIE 判定編譯鏈與加殼", "tag": "Triage"},
+            {"num": "RE-2", "title": "靜態載入", "sub": "定位 EntryPoint 與字串", "tag": "Static"},
+            {"num": "RE-3", "title": "邏輯重構", "sub": "F5 虛擬碼與型別還原", "tag": "Decompile"},
+            {"num": "RE-4", "title": "動態驗證", "sub": "x64dbg / 記憶體脫殼", "tag": "Dynamic"}
+        ],
+        loop_label="靜態與動態雙向驗證：從混亂二進位機器碼精確還原高階軟體架構",
+        accent="#06b6d4"
+    ),
+    "resultImage": "Vibe Coding/03.其他/逆向工程/01.傳統逆向工程.html",
+    "slideUrl": "Vibe Coding/03.其他/逆向工程/01.傳統逆向工程.html",
+    "objective": "1. 深刻理解 Native Code (原生機器碼) 與 Managed Code (受管位元組碼) 的逆向本質差異。\n2. 熟練掌握 Detect It Easy (DIE) 的編譯器識別、加殼檢測與熵值 (Entropy) 掃描技術。\n3. 熟悉 IDA Pro 與 Ghidra 的反編譯原理、控制流圖 (CFG)、交叉引用 (Xrefs) 與動態除錯流水線。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 預檢情報 (Triage with DIE)",
+            "description": "使用 Detect It Easy 快速掃描未知檔案，判定檔案架構 (PE/ELF/Mach-O)、編譯器鏈 (MSVC/GCC/Go) 與區段熵值，識別是否加殼 (UPX/VMProtect)。"
+        },
+        {
+            "step": "步驟 2: 靜態載入與關鍵定位 (Static Analysis)",
+            "description": "載入 IDA Pro 或 Ghidra，利用 FLIRT 庫過濾標準函數，藉由交叉引用 (Xrefs) 與字串常數 (Strings) 鎖定關鍵業務邏輯入口。"
+        },
+        {
+            "step": "步驟 3: 邏輯與型別還原 (Decompilation & Type Propagation)",
+            "description": "透過 Hex-Rays / Ghidra 反編譯引擎生成結構化虛擬 C 代碼，重塑結構體 (Struct)、指針型別與呼叫慣例。"
+        },
+        {
+            "step": "步驟 4: 動態除錯與記憶體脫殼 (Dynamic Debugging)",
+            "description": "配合 x64dbg 或 GDB 設定硬體斷點，即時監控暫存器與呼叫堆疊，繞過反除錯保護並抓取運行時解密金鑰。"
+        }
+    ],
+    "promptTemplate": "你是一位具備頂尖逆向工程與漏洞挖掘能力的二進位資安專家。\n請針對一個由 C/C++ 編寫的工控通訊 DLL 模組（無除錯符號、已 Stripped）：\n1. 請規劃使用 Detect It Easy (DIE) 進行預檢的重點項目（包含熵值與加殼判斷）。\n2. 請說明在 Ghidra / IDA Pro 中如何運用交叉引用 (Xrefs) 與型別推斷重構 Modbus 封包解析函數。\n3. 若發現疑似反除錯 (Anti-Debugging) 機制，請給出動態除錯 (x64dbg) 繞過方案。",
+    "codeSnippet": {
+        "language": "c",
+        "code": "// 反編譯 C 虛擬碼對照範例 (IDA / Ghidra Decompiler View)\n__int64 __fastcall check_serial_key(const char *license_input)\n{\n  int len; // [rsp+4h] [rbp-1Ch]\n  int i;   // [rsp+8h] [rbp-18h]\n\n  len = strlen(license_input);\n  if ( len != 16 )\n    return 0LL; // 授權金鑰長度不符\n  for ( i = 0; i < len; ++i )\n  {\n    if ( (license_input[i] ^ 0x5A) != expected_bytes[i] )\n      return 0LL; // 混淆校驗失敗\n  }\n  return 1LL; // 通過硬體驗證\n}"
+    },
+    "references": [
+        {
+            "title": "傳統逆向工程與核心工具解析 (專屬互動全解析頁面)",
+            "url": "Vibe Coding/03.其他/逆向工程/01.傳統逆向工程.html"
+        },
+        {
+            "title": "IDA Pro 官方技術文檔 (Hex-Rays)",
+            "url": "https://hex-rays.com/ida-pro/"
+        },
+        {
+            "title": "Ghidra 官方網站 (NSA Open Source)",
+            "url": "https://ghidra-sre.org/"
+        },
+        {
+            "title": "Detect It Easy (DIE) GitHub 倉庫",
+            "url": "https://github.com/horsicq/Detect-It-Easy"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-shield-virus",
+            "scenario": "工控固件惡意程式分析與韌體安全審計",
+            "description": "在缺少源碼的情況下，深入分析 PLC 與邊緣閘道器中運行的二進位檔案，揪出未授權後門與緩衝區溢位漏洞。"
+        },
+        {
+            "icon": "fa-solid fa-microchip",
+            "scenario": "遺留閉源驅動與通訊協定逆向還原",
+            "description": "針對停產或無技術支援之工控儀表通訊模組，透過逆向二進位 DLL/SO 精準還原私人 Modbus/CAN 封包通訊協議。"
+        }
+    ]
+}
+
+# 順延為 09：其他
+unit_09_other = {
+    "id": "vibe-09",
+    "labNumber": "09",
     "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
     "category": "其他",
     "date": "2026-10-14",
@@ -990,7 +1071,8 @@ vibe_labs = [
     unit_05_openspec,
     unit_06_opsx_guide,
     unit_07_superpowers,
-    unit_08_other
+    unit_08_reverse_engineering,
+    unit_09_other
 ]
 
 # 寫入 vibecoding.json
@@ -1002,5 +1084,5 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功更新資料結構，包含新 07 Superpowers 工作流指南，其他調整為 08！")
+print(f"成功更新資料結構，包含新 08 傳統逆向工程指南，其他調整為 09！")
 

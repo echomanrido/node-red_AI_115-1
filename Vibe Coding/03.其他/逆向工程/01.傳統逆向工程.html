@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>傳統逆向工程與核心工具解析 - 互動知識庫</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['Fira Code', 'monospace']
+          },
+          colors: {
+            cyber: {
+              900: '#0b0f19',
+              850: '#0f172a',
+              800: '#1e293b',
+              700: '#334155',
+              accent: '#06b6d4',
+              neon: '#10b981',
+              warning: '#f59e0b',
+              danger: '#ef4444',
+              purple: '#8b5cf6'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+    }
+    .code-font {
+      font-family: 'Fira Code', monospace;
+    }
+    .cyber-glow {
+      box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.25);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #06b6d4;
+    }
+    .grid-bg {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen selection:bg-cyan-500 selection:text-black grid-bg">
+
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-[#0b0f19]/80 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 p-[2px] flex items-center justify-center">
+          <div class="w-full h-full bg-[#0b0f19] rounded-[10px] flex items-center justify-center">
+            <svg class="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+          </div>
+        </div>
+        <div>
+          <span class="font-bold text-lg tracking-wider text-slate-100 flex items-center gap-2">
+            REVERSE<span class="text-cyan-400">LAB</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-800/50">NATIVE v2.4</span>
+          </span>
+          <p class="text-[11px] text-slate-400 font-mono">Traditional Binary Reverse Engineering</p>
+        </div>
+      </div>
+
+      <!-- Navigation links -->
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <a href="#concept" class="text-slate-300 hover:text-cyan-400 transition-colors">核心範疇</a>
+        <a href="#tools" class="text-slate-300 hover:text-cyan-400 transition-colors">三大神器</a>
+        <a href="#pipeline" class="text-slate-300 hover:text-cyan-400 transition-colors">實務逆向管線</a>
+        <a href="#interactive-demo" class="text-slate-300 hover:text-cyan-400 transition-colors">反編譯對照</a>
+        <a href="#matrix" class="text-slate-300 hover:text-cyan-400 transition-colors">工具對比矩陣</a>
+      </nav>
+
+      <!-- Quick Action / Status indicator -->
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>x86-64 / ARM / ELF / PE</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="relative pt-12 pb-16 md:pt-20 md:pb-24 border-b border-slate-800/80 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-transparent pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="text-center max-w-3xl mx-auto space-y-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono">
+          <svg class="w-3.5 h-3.5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.316.492-.53 1.056-.677 1.579a10.875 10.875 0 00-.34 1.748c-.066.524-.096 1.018-.096 1.472 0 .61.05 1.15.15 1.63a6.837 6.837 0 01-1.39-1.22c-.37-.432-.638-.962-.84-1.52a8.91 8.91 0 01-.368-1.554 1 1 0 00-1.92.56 10.92 10.92 0 00.562 2.378c.32.905.77 1.764 1.365 2.518.736.936 1.7 1.652 2.828 2.067a6.29 6.29 0 001.32.28 6.75 6.75 0 002.39-.23c.895-.275 1.69-.78 2.33-1.464.71-.758 1.196-1.71 1.428-2.766.19-.868.232-1.766.126-2.65a11.194 11.194 0 00-.47-2.146 12.022 12.022 0 00-.898-1.956 1 1 0 00-.868-.538zM9.54 12.454a4.84 4.84 0 01-.84-.23c-.76-.32-1.4-.84-1.89-1.51a8.4 8.4 0 01-.98-1.8 8.98 8.98 0 01-.35-1.39c.28.38.61.73.99 1.04.64.53 1.4.92 2.22 1.14.3.08.62.14.95.17a4.99 4.99 0 01-.1.77zm4.31-3.69c.07.61.04 1.22-.09 1.81-.16.71-.48 1.36-.95 1.88a4.42 4.42 0 01-1.57.99 4.3 4.3 0 01-1.63.18c.03-.31.04-.63.03-.96a9.07 9.07 0 00-.13-1.28c-.08-.43-.2-.84-.36-1.23.59-.14 1.13-.41 1.58-.8.46-.39.81-.88 1.05-1.43a8.9 8.9 0 00.67 1.45c.21.37.38.76.5 1.17z" clip-rule="evenodd" />
+          </svg>
+          二進位機器碼還原 · 漏洞挖掘 · 惡意程式分析
+        </div>
+
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+          傳統逆向工程與核心工具<br>
+          <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
+            DETECT IT EASY · IDA PRO · GHIDRA
+          </span>
+        </h1>
+
+        <p class="text-base sm:text-lg text-slate-400 leading-relaxed max-w-2xl mx-auto">
+          在無原始碼的前提下，如何從十六進位位元組流（Hex Dump）與組合語言中，精準重構資料結構、程式邏輯與演算法？掌握安全分析師必備的三大神器。
+        </p>
+
+        <!-- Quick navigation pills -->
+        <div class="flex flex-wrap items-center justify-center gap-3 pt-4">
+          <a href="#tools" class="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-sm transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-2">
+            <span>探索三大工具深度解析</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </a>
+          <a href="#interactive-demo" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-sm border border-slate-700 transition-all flex items-center gap-2">
+            <span>體驗反編譯對照器</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="concept" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800/80">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-wide">
+        什麼是「傳統逆向工程」？
+      </h2>
+      <p class="mt-3 text-slate-400 text-sm sm:text-base">
+        傳統逆向專注於<strong class="text-cyan-400 font-semibold">原生二進位碼（Native Code）</strong>，分析師直接面對 CPU 架構、記憶體分頁、呼叫慣例與未剝離的機械碼。
+      </p>
+    </div>
+
+    <!-- Comparison Cards: Native vs Managed -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+      <!-- Native Card -->
+      <div class="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-850 border border-cyan-500/30 relative overflow-hidden group hover:border-cyan-400 transition-all">
+        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-500/20 transition-all"></div>
+        <div class="flex items-center justify-between mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+            Native Code（原生代碼）
+          </span>
+          <span class="text-xs text-slate-400 font-mono">C / C++ / Go / Rust / Delphi</span>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">直接編譯為機器碼（ISA 指令）</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+          由編譯鏈直接轉譯為 CPU 的原生機器碼（x86/x64, ARM, MIPS）。函數名、變數型別、結構體在 Release 建置中通常被完全剝離（Stripped），高階控制流（如 switch、for）全數扁平化為條件跳躍指令。
+        </p>
+        <ul class="text-xs space-y-2 text-slate-400 font-mono">
+          <li class="flex items-center gap-2">
+            <span class="text-cyan-400">✓</span> 檔案格式：Windows PE (.exe/.dll), Linux ELF, macOS Mach-O
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-cyan-400">✓</span> 逆向難度：高，需依賴反組譯、控制流圖 (CFG) 與型別推斷
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-cyan-400">✓</span> 核心工具：Detect It Easy、IDA Pro、Ghidra、x64dbg
+          </li>
+        </ul>
+      </div>
+
+      <!-- Managed Card -->
+      <div class="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-850 border border-slate-800 relative overflow-hidden group hover:border-slate-700 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+            Managed Code（受管代碼）
+          </span>
+          <span class="text-xs text-slate-400 font-mono">Java / C# (.NET) / Android APK</span>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">編譯為虛擬機位元組碼（Bytecode）</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+          由中介語言編譯器生成，執行於 JVM 或 .NET CLR。二進位內附帶高度完整的符號表、元資料（Metadata）、類別名稱與方法簽名，只要未深度混淆，通常可近乎 100% 還原出原始高階程式碼。
+        </p>
+        <ul class="text-xs space-y-2 text-slate-400 font-mono">
+          <li class="flex items-center gap-2">
+            <span class="text-purple-400">✓</span> 檔案格式：.class, .jar, .dex, .dll (IL)
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-purple-400">✓</span> 逆向難度：中等偏低，反編譯工具還原度極高
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-purple-400">✓</span> 代表工具：JADX, dnSpy, ILSpy, CFR
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Static vs Dynamic Analysis Block -->
+    <div class="rounded-2xl bg-slate-900/80 border border-slate-800 p-6 md:p-8">
+      <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        傳統逆向的兩大支柱：靜態分析 vs 動態分析
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <div class="p-5 rounded-xl bg-slate-850 border border-slate-800">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 font-bold text-sm">
+              S
+            </div>
+            <h4 class="font-bold text-white text-base">靜態分析（Static Analysis）</h4>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            <strong class="text-cyan-400">不執行目標程式</strong>，純粹依據二進位檔案的結構、Header、匯入表、字串常數與反組譯後的控制流圖（CFG）進行邏輯還原。
+          </p>
+          <div class="flex flex-wrap gap-2 text-[11px] font-mono">
+            <span class="px-2 py-1 rounded bg-slate-800 text-slate-300">CFG 控制流圖</span>
+            <span class="px-2 py-1 rounded bg-slate-800 text-slate-300">Xrefs 交叉引用</span>
+            <span class="px-2 py-1 rounded bg-slate-800 text-slate-300">Decompiler 虛擬碼</span>
+            <span class="px-2 py-1 rounded bg-cyan-950 text-cyan-300 border border-cyan-800/40">代表：IDA Pro / Ghidra</span>
+          </div>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-850 border border-slate-800">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-sm">
+              D
+            </div>
+            <h4 class="font-bold text-white text-base">動態分析（Dynamic Analysis）</h4>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            在受控沙盒或除錯器（Debugger）中<strong class="text-emerald-400">執行目標程式</strong>，透過設定硬體/軟體斷點、即時觀察暫存器與呼叫堆疊（Call Stack）、記憶體傾印（Memory Dump）。
+          </p>
+          <div class="flex flex-wrap gap-2 text-[11px] font-mono">
+            <span class="px-2 py-1 rounded bg-slate-800 text-slate-300">動態脫殼 (Unpacking)</span>
+            <span class="px-2 py-1 rounded bg-slate-800 text-slate-300">繞過反除錯</span>
+            <span class="px-2 py-1 rounded bg-slate-800 text-slate-300">即時抓取記憶體 Key</span>
+            <span class="px-2 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/40">代表：x64dbg / GDB / WinDbg</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tools" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800/80">
+    <div class="text-center max-w-3xl mx-auto mb-14">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-cyan-400 text-xs font-mono mb-3">
+        CORE TRINITY
+      </div>
+      <h2 class="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
+        三大核心工具深度剖析
+      </h2>
+      <p class="mt-3 text-slate-400 text-sm sm:text-base">
+        從「快速識別與分流」到「專業級商業反編譯」以及「現代開源協同逆向」，解析三大工具的技術護城河。
+      </p>
+    </div>
+
+    <!-- 3 Tools Detailed Cards -->
+    <div class="space-y-12">
+
+      <!-- TOOL 1: Detect It Easy (DIE) -->
+      <div class="p-6 md:p-8 rounded-3xl bg-slate-900 border border-slate-800 hover:border-cyan-500/40 transition-all relative overflow-hidden">
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+          <div class="space-y-4 max-w-3xl">
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="px-3 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold">
+                TOOL #1 · 偵察與預檢
+              </span>
+              <span class="text-xs text-slate-400 font-mono">開源免費 · Horsic 開發</span>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+              Detect It Easy (DIE)
+              <span class="text-sm font-normal text-slate-400 font-mono">二進位偵察瑞士刀</span>
+            </h3>
+            <p class="text-sm text-slate-300 leading-relaxed">
+              在逆向分析的第一分鐘，絕對不要直接把 100MB 的未知執行檔拖進反編譯器。DIE 是逆向工程師的<strong class="text-cyan-400">第一道篩選器</strong>，它能在數毫秒內判斷檔案架構、編譯鏈、有無加殼以及熵值分布。
+            </p>
+
+            <!-- Key Features grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-cyan-400 font-mono uppercase mb-1">編譯器與語言判定</h5>
+                <p class="text-xs text-slate-300">
+                  精確識別是由 MSVC、GCC、Clang、Delphi 還是 Go/Rust 編譯。若為 Go 語言，分析者需立即調用專門的 Go 符號恢復腳本。
+                </p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-amber-400 font-mono uppercase mb-1">加殼與混淆偵測</h5>
+                <p class="text-xs text-slate-300">
+                  內建豐富的二進位特徵庫，快速標註 UPX、Themida、VMProtect 或自訂 Packer。避免分析者在加殼樁（Stub）中白費功夫。
+                </p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-emerald-400 font-mono uppercase mb-1">熵值分析（Entropy Scan）</h5>
+                <p class="text-xs text-slate-300">
+                  以 0.0~8.0 的數值衡量每個區段的混亂程度。高熵值（&gt; 7.2）代表此區段高度密碼化或壓縮，極可能藏有 Shellcode。
+                </p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-purple-400 font-mono uppercase mb-1">JavaScript 擴充引擎</h5>
+                <p class="text-xs text-slate-300">
+                  支援使用者透過撰寫 JS 腳本添加自訂簽名（Signatures），並能直接檢視 PE/ELF 的 Header、Overlay 與區段偏移。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Entropy Simulator Card -->
+          <div class="lg:w-80 w-full p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                <span class="text-xs font-mono font-semibold text-slate-300 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                  DIE 熵值模擬雷達
+                </span>
+                <span class="text-[10px] font-mono text-slate-500">PE32+ 區段掃描</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mb-3">點擊切換檔案樣本觀察熵值變化：</p>
+              
+              <div class="grid grid-cols-2 gap-2 mb-4">
+                <button onclick="setEntropySample('normal')" id="btn-sample-normal" class="px-2.5 py-1.5 rounded-lg text-xs font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-center transition-all">
+                  正常無殼程式
+                </button>
+                <button onclick="setEntropySample('packed')" id="btn-sample-packed" class="px-2.5 py-1.5 rounded-lg text-xs font-mono bg-slate-900 text-slate-400 border border-slate-800 text-center hover:text-white transition-all">
+                  UPX / 加密殼
+                </button>
+              </div>
+
+              <!-- Entropy Bars container -->
+              <div class="space-y-3 font-mono text-xs" id="entropy-bars">
+                <!-- Dynamically updated by JS -->
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
+              <span id="entropy-verdict-label">判定：標準二進位結構</span>
+              <span class="text-cyan-400 font-mono text-xs" id="entropy-verdict-badge">SAFE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOOL 2: IDA Pro -->
+      <div class="p-6 md:p-8 rounded-3xl bg-slate-900 border border-slate-800 hover:border-cyan-500/40 transition-all relative overflow-hidden">
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+          <div class="space-y-4 max-w-3xl">
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="px-3 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-xs font-mono font-bold">
+                TOOL #2 · 業界金牌標準
+              </span>
+              <span class="text-xs text-slate-400 font-mono">Hex-Rays 出品 · 頂級商業授權</span>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+              IDA Pro (Interactive DisAssembler)
+              <span class="text-sm font-normal text-slate-400 font-mono">反編譯之巔</span>
+            </h3>
+            <p class="text-sm text-slate-300 leading-relaxed">
+              數十年來全球安全機構、漏洞挖掘者與逆向工程師首選的終極武器。以世界第一的靜態控制流圖（CFG）和無可匹敵的 Hex-Rays Decompiler 引擎聞名於世。
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-cyan-400 font-mono uppercase mb-1">Hex-Rays Decompiler (F5 鍵)</h5>
+                <p class="text-xs text-slate-300">
+                  將生澀難懂的 x86/x64/ARM 機器碼瞬間轉換為乾淨、結構化的類 C 語言虛擬碼。其型別傳播與常數折疊演算法領先業界。
+                </p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-cyan-400 font-mono uppercase mb-1">FLIRT 函式庫快速識別</h5>
+                <p class="text-xs text-slate-300">
+                  Fast Library Identification and Recognition Technology 能自動識別數以千計的靜態連結標準庫函數（如 strlen, memcpy），避免重複逆向。
+                </p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-cyan-400 font-mono uppercase mb-1">強大的 IDAPython 生態</h5>
+                <p class="text-xs text-slate-300">
+                  具備長達 20 年的社群擴充外掛（如 BinDiff 差異對比、FindCrypt 加密特徵提取、ClassInformant RTTI 解析）。
+                </p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-rose-400 font-mono uppercase mb-1">唯一的缺點：授權極昂貴</h5>
+                <p class="text-xs text-slate-300">
+                  全套包含 x86/x64/ARM 反編譯模組的授權動輒數千至數萬美元，主要由企業、安全公司與國防軍工單位採購。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- IDA Pro Key Stats card -->
+          <div class="lg:w-80 w-full p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                <span class="text-xs font-mono font-semibold text-cyan-300">IDA Pro 特性快覽</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">Pro Enterprise</span>
+              </div>
+              <ul class="text-xs space-y-2.5 text-slate-300">
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-400">核心語言：</span>
+                  <span class="font-mono text-white">C++ (極速原生)</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-400">反編譯器：</span>
+                  <span class="font-mono text-emerald-400">Hex-Rays (業界頂尖)</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-400">腳本支援：</span>
+                  <span class="font-mono text-white">IDAPython, IDC</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-400">資料庫格式：</span>
+                  <span class="font-mono text-slate-300">.idb (32位) / .i64 (64位)</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-400">跨架構支援：</span>
+                  <span class="font-mono text-white">模組化購買</span>
+                </li>
+              </ul>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-850">
+              <div class="p-2.5 rounded-lg bg-cyan-950/40 border border-cyan-900/50 text-[11px] text-cyan-200">
+                💡 <span class="font-bold">名言：</span>「在安全界，按 F5 看到 C 代碼是一切快樂的泉源。」
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOOL 3: Ghidra -->
+      <div class="p-6 md:p-8 rounded-3xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 transition-all relative overflow-hidden">
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+          <div class="space-y-4 max-w-3xl">
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-mono font-bold">
+                TOOL #3 · 開源巨擘 · NSA 旗艦
+              </span>
+              <span class="text-xs text-slate-400 font-mono">Apache 2.0 開源 · 美國國家安全局</span>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+              Ghidra (吉德拉)
+              <span class="text-sm font-normal text-slate-400 font-mono">開源軟體逆向工程框架</span>
+            </h3>
+            <p class="text-sm text-slate-300 leading-relaxed">
+              2019 年由 NSA 在 RSA 大會正式公開釋出。Ghidra 徹底打破了 IDA Pro 長期以來的商業壟斷，為全球安全研究者與學生提供了一個<strong class="text-emerald-400">完全免費、自帶多架構反編譯器</strong>的 SRE 平台。
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-emerald-400 font-mono uppercase mb-1">原生免費反編譯（全架構）</h5>
+                <p class="text-xs text-slate-300">
+                  開箱即支援 x86, ARM, AArch64, MIPS, PowerPC, SPARC, RISC-V 甚至 6502/Z80 等古老晶片，完全零成本。
+                </p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-emerald-400 font-mono uppercase mb-1">Sleigh 架構定義語言</h5>
+                <p class="text-xs text-slate-300">
+                  使用專屬 DSL 定義處理器語義。若遇到物聯網（IoT）或特殊工業控制晶片，工程師能快速自編模組擴充支援。
+                </p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-emerald-400 font-mono uppercase mb-1">原生多人團隊協同（Ghidra Server）</h5>
+                <p class="text-xs text-slate-300">
+                  內建版本控制協同伺服器，紅隊或資安團隊能多人同時對同一個二進位進行重命名、加注釋與變數型別同步。
+                </p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-850/70 border border-slate-800">
+                <h5 class="text-xs font-bold text-emerald-400 font-mono uppercase mb-1">無限制 Undo / Redo</h5>
+                <p class="text-xs text-slate-300">
+                  具備完整的步驟復原能力，分析錯誤時只需 Ctrl+Z，極具親和力（早期的 IDA Pro 復原功能較受限）。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ghidra Stats card -->
+          <div class="lg:w-80 w-full p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                <span class="text-xs font-mono font-semibold text-emerald-300">Ghidra 特性快覽</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">Free / Open-Source</span>
+              </div>
+              <ul class="text-xs space-y-2.5 text-slate-300">
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-400">開發機構：</span>
+                  <span class="font-mono text-white">美國國家安全局 (NSA)</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-400">核心語言：</span>
+                  <span class="font-mono text-slate-300">Java + C++ (反編譯引擎)</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-400">自訂架構：</span>
+                  <span class="font-mono text-emerald-400">Sleigh DSL 擴充</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-400">團隊協同：</span>
+                  <span class="font-mono text-emerald-400">原生內建 Server</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-400">社群生態：</span>
+                  <span class="font-mono text-white">蓬勃發展中</span>
+                </li>
+              </ul>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-850">
+              <div class="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-900/50 text-[11px] text-emerald-200">
+                🌟 <span class="font-bold">定位：</span>逆向民主化的里程碑，高等院校與安全防護團隊的首選。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="pipeline" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800/80">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <h2 class="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
+        實務標準逆向流水線
+      </h2>
+      <p class="mt-3 text-slate-400 text-sm sm:text-base">
+        專業分析師拿到未知的惡意程式（Malware）或韌體時，如何依循標準四步作戰程序？
+      </p>
+    </div>
+
+    <!-- Stepper Buttons -->
+    <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-8">
+      <button onclick="switchStep(1)" id="step-btn-1" class="px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-semibold transition-all border bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-lg shadow-cyan-500/10">
+        Step 1: 預檢情報 (DIE)
+      </button>
+      <button onclick="switchStep(2)" id="step-btn-2" class="px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-semibold transition-all border bg-slate-900 text-slate-400 border-slate-800 hover:text-white">
+        Step 2: 靜態載入與定位
+      </button>
+      <button onclick="switchStep(3)" id="step-btn-3" class="px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-semibold transition-all border bg-slate-900 text-slate-400 border-slate-800 hover:text-white">
+        Step 3: 邏輯與型別還原
+      </button>
+      <button onclick="switchStep(4)" id="step-btn-4" class="px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-semibold transition-all border bg-slate-900 text-slate-400 border-slate-800 hover:text-white">
+        Step 4: 動態除錯與脫殼
+      </button>
+    </div>
+
+    <!-- Step Content Box -->
+    <div id="step-content" class="rounded-3xl bg-slate-900 border border-slate-800 p-6 sm:p-8 relative min-h-[320px]">
+      <!-- Populated by JS -->
+    </div>
+  </section>
+
+  <section id="interactive-demo" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800/80">
+    <div class="text-center max-w-3xl mx-auto mb-10">
+      <span class="px-3 py-1 rounded-full bg-cyan-950 text-cyan-400 text-xs font-mono border border-cyan-800/40">
+        INTERACTIVE DEMO
+      </span>
+      <h2 class="text-3xl font-extrabold text-white tracking-tight sm:text-4xl mt-3">
+        組合語言 vs 反編譯 C 虛擬碼對照
+      </h2>
+      <p class="mt-3 text-slate-400 text-sm">
+        滑鼠懸停於左側組合語言或右側 C 代碼，直觀理解反編譯器如何將底層暫存器操作抽象化為高階邏輯。
+      </p>
+    </div>
+
+    <!-- Side-by-side Visualizer -->
+    <div class="rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden shadow-2xl">
+      <!-- Toolbar -->
+      <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs font-mono">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+          <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+          <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+          <span class="text-slate-400 ml-2">check_serial_key(char *license_input)</span>
+        </div>
+        <div class="text-slate-400 text-[11px]">
+          IDA Pro / Ghidra Decompiler Engine View
+        </div>
+      </div>
+
+      <!-- Columns -->
+      <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-800">
+        <!-- Assembly Disassembly (x86_64) -->
+        <div class="p-5 font-mono text-xs">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-slate-400">
+            <span>[Disassembly - x86_64]</span>
+            <span class="text-cyan-400">.text:0x00401200</span>
+          </div>
+
+          <div class="space-y-1">
+            <div id="asm-1" onmouseenter="highlightPair(1)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80 flex items-center gap-4">
+              <span class="text-slate-600 select-none">401200:</span>
+              <span class="text-purple-400">push</span>
+              <span class="text-slate-200">rbp; mov rbp, rsp</span>
+            </div>
+            <div id="asm-2" onmouseenter="highlightPair(2)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80 flex items-center gap-4">
+              <span class="text-slate-600 select-none">401204:</span>
+              <span class="text-cyan-400">mov</span>
+              <span class="text-slate-200">rax, qword ptr [rdi]</span>
+            </div>
+            <div id="asm-3" onmouseenter="highlightPair(3)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80 flex items-center gap-4">
+              <span class="text-slate-600 select-none">401208:</span>
+              <span class="text-cyan-400">xor</span>
+              <span class="text-slate-200">eax, 0x5A3C</span>
+            </div>
+            <div id="asm-4" onmouseenter="highlightPair(4)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80 flex items-center gap-4">
+              <span class="text-slate-600 select-none">40120D:</span>
+              <span class="text-purple-400">cmp</span>
+              <span class="text-slate-200">eax, 0x1337</span>
+            </div>
+            <div id="asm-5" onmouseenter="highlightPair(5)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80 flex items-center gap-4">
+              <span class="text-slate-600 select-none">401212:</span>
+              <span class="text-amber-400">jnz</span>
+              <span class="text-rose-400">loc_failed</span>
+            </div>
+            <div id="asm-6" onmouseenter="highlightPair(6)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80 flex items-center gap-4">
+              <span class="text-slate-600 select-none">401218:</span>
+              <span class="text-cyan-400">mov</span>
+              <span class="text-slate-200">eax, 1 ; Success</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Decompiled C Code -->
+        <div class="p-5 font-mono text-xs">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-slate-400">
+            <span>[Decompiled Pseudocode - C]</span>
+            <span class="text-emerald-400">Hex-Rays / Ghidra</span>
+          </div>
+
+          <div class="space-y-1">
+            <div id="c-1" onmouseenter="highlightPair(1)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80">
+              <span class="text-slate-500">// 函式序言（Prologue 自動隱藏）</span><br>
+              <span class="text-purple-400">bool</span> <span class="text-cyan-300">validate_license</span>(<span class="text-purple-400">uint32_t</span> *key_ptr) {
+            </div>
+            <div id="c-2" onmouseenter="highlightPair(2)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80 pl-6">
+              <span class="text-purple-400">uint32_t</span> raw_val = *key_ptr;
+            </div>
+            <div id="c-3" onmouseenter="highlightPair(3)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80 pl-6">
+              <span class="text-purple-400">uint32_t</span> decoded = raw_val ^ <span class="text-amber-300">0x5A3C</span>;
+            </div>
+            <div id="c-4" onmouseenter="highlightPair(4)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80 pl-6">
+              <span class="text-purple-400">if</span> (decoded == <span class="text-amber-300">0x1337</span>) {
+            </div>
+            <div id="c-6" onmouseenter="highlightPair(6)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80 pl-10">
+              <span class="text-purple-400">return</span> <span class="text-emerald-400">true</span>; <span class="text-slate-500">// 授權驗證通過</span>
+            </div>
+            <div id="c-5" onmouseenter="highlightPair(5)" onmouseleave="clearPair()" class="p-2 rounded cursor-pointer transition-colors hover:bg-slate-800/80 pl-6">
+              }
+            </div>
+            <div class="p-2 rounded pl-6 text-slate-500">
+              <span class="text-purple-400">return</span> <span class="text-rose-400">false</span>;
+            </div>
+            <div class="p-2 text-slate-400">}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick interactive hint footer -->
+      <div class="px-4 py-2.5 bg-slate-900/50 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+        <span class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          提示：反編譯器的核心技術即是消除無效暫存器搬移（Dead Code Elimination）並還原高級分支語句。
+        </span>
+        <button onclick="copySnippet()" class="text-cyan-400 hover:text-cyan-300 font-mono transition-colors">
+          複製 C 代碼
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="matrix" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <h2 class="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
+        三大工具橫向特性對比矩陣
+      </h2>
+      <p class="mt-3 text-slate-400 text-sm sm:text-base">
+        根據分析場景、預算與團隊架構，選擇最適配的武器庫。
+      </p>
+    </div>
+
+    <!-- Table Container -->
+    <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/80 custom-scrollbar">
+      <table class="w-full text-left text-sm text-slate-300 font-sans border-collapse">
+        <thead>
+          <tr class="border-b border-slate-800 bg-slate-850 text-xs font-mono uppercase tracking-wider text-slate-400">
+            <th class="py-4 px-6">評估維度</th>
+            <th class="py-4 px-6 text-amber-400 font-bold">Detect It Easy (DIE)</th>
+            <th class="py-4 px-6 text-cyan-400 font-bold">IDA Pro</th>
+            <th class="py-4 px-6 text-emerald-400 font-bold">Ghidra</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/60 font-mono text-xs">
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="py-4 px-6 font-semibold text-slate-200 font-sans">主要定位</td>
+            <td class="py-4 px-6 text-slate-300">檔案偵測 / 加殼混淆識別</td>
+            <td class="py-4 px-6 text-cyan-300">旗艦級專業反組譯 / 反編譯</td>
+            <td class="py-4 px-6 text-emerald-300">開源全功能 SRE 套件</td>
+          </tr>
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="py-4 px-6 font-semibold text-slate-200 font-sans">反編譯能力</td>
+            <td class="py-4 px-6 text-slate-500">無（專注於 Header/特徵）</td>
+            <td class="py-4 px-6 text-cyan-300">Hex-Rays 頂級引擎（需授權）</td>
+            <td class="py-4 px-6 text-emerald-300">全架構免費內建反編譯</td>
+          </tr>
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="py-4 px-6 font-semibold text-slate-200 font-sans">支援 CPU 架構</td>
+            <td class="py-4 px-6 text-slate-300">主流 PE/ELF/Mach-O 格式</td>
+            <td class="py-4 px-6 text-slate-300">極廣（依購買授權模組）</td>
+            <td class="py-4 px-6 text-emerald-300">極廣（Sleigh 自訂引擎）</td>
+          </tr>
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="py-4 px-6 font-semibold text-slate-200 font-sans">費用與授權門檻</td>
+            <td class="py-4 px-6 text-emerald-400 font-bold">開源免費 (MIT)</td>
+            <td class="py-4 px-6 text-rose-400 font-bold">極昂貴（商業買斷 / 年約）</td>
+            <td class="py-4 px-6 text-emerald-400 font-bold">完全免費 / 開源 (Apache 2.0)</td>
+          </tr>
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="py-4 px-6 font-semibold text-slate-200 font-sans">多人團隊協同</td>
+            <td class="py-4 px-6 text-slate-500">不適用</td>
+            <td class="py-4 px-6 text-slate-300">需額外外掛或 Team Server</td>
+            <td class="py-4 px-6 text-emerald-300">原生內建協同 Server</td>
+          </tr>
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="py-4 px-6 font-semibold text-slate-200 font-sans">常用實戰場景</td>
+            <td class="py-4 px-6 text-slate-300">入口預檢、快速分流、加殼識別</td>
+            <td class="py-4 px-6 text-cyan-300">高級 APT 惡意代碼、0-day 漏洞探勘</td>
+            <td class="py-4 px-6 text-emerald-300">團隊協同作戰、IoT 韌體、學術研究</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Toast Notification Box -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="px-4 py-3 rounded-xl bg-slate-900 text-cyan-300 border border-cyan-500/50 shadow-2xl flex items-center gap-2 text-xs font-mono">
+      <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      <span id="toast-msg">已成功複製到剪貼簿！</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 py-12 bg-[#090d15] text-slate-500 text-xs text-center font-mono">
+    <div class="max-w-7xl mx-auto px-4 space-y-3">
+      <p>TRADITIONAL NATIVE REVERSE ENGINEERING INTERACTIVE PLAYGROUND</p>
+      <p class="text-[11px] text-slate-600">Built for Security Researchers, Malware Analysts & Reverse Engineers.</p>
+    </div>
+  </footer>
+
+  <script>
+    // 1. DIE Entropy Scan Simulator Logic
+    const entropyData = {
+      normal: [
+        { section: '.text', entropy: 6.32, packed: false, desc: '程式代碼段 (標準編譯)' },
+        { section: '.rdata', entropy: 5.12, packed: false, desc: '唯讀常數與字串表' },
+        { section: '.data', entropy: 3.45, packed: false, desc: '全域變數未加密' },
+        { section: '.reloc', entropy: 4.88, packed: false, desc: '重定位資訊表' }
+      ],
+      packed: [
+        { section: 'UPX0', entropy: 0.10, packed: false, desc: '空殼佔位空間 (BSS)' },
+        { section: 'UPX1', entropy: 7.94, packed: true, desc: '高熵值！壓縮/加密代碼' },
+        { section: '.rsrc', entropy: 6.80, packed: false, desc: '資源段 (含解殼樁代碼)' }
+      ]
+    };
+
+    function renderEntropy(type) {
+      const container = document.getElementById('entropy-bars');
+      const data = entropyData[type];
+      container.innerHTML = '';
+
+      data.forEach(item => {
+        const percent = Math.min((item.entropy / 8.0) * 100, 100);
+        const colorClass = item.entropy > 7.2 ? 'bg-rose-500 shadow-rose-500/50' : (item.entropy > 5.5 ? 'bg-cyan-500' : 'bg-emerald-500');
+        const badgeColor = item.entropy > 7.2 ? 'text-rose-400' : 'text-slate-400';
+
+        const row = document.createElement('div');
+        row.className = 'space-y-1';
+        row.innerHTML = `
+          <div class="flex justify-between items-center text-[11px]">
+            <span class="text-slate-300 font-semibold">${item.section}</span>
+            <span class="${badgeColor}">熵: ${item.entropy.toFixed(2)} / 8.0</span>
+          </div>
+          <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+            <div class="h-full rounded-full ${colorClass} transition-all duration-700" style="width: ${percent}%"></div>
+          </div>
+          <div class="text-[10px] text-slate-500">${item.desc}</div>
+        `;
+        container.appendChild(row);
+      });
+
+      const verdictLabel = document.getElementById('entropy-verdict-label');
+      const verdictBadge = document.getElementById('entropy-verdict-badge');
+
+      if (type === 'packed') {
+        verdictLabel.textContent = '檢測到加殼特徵：UPX / Packed';
+        verdictBadge.textContent = 'HIGH RISK';
+        verdictBadge.className = 'text-rose-400 font-mono text-xs font-bold';
+      } else {
+        verdictLabel.textContent = '判定：未加殼標準二進位';
+        verdictBadge.textContent = 'CLEAN';
+        verdictBadge.className = 'text-emerald-400 font-mono text-xs font-bold';
+      }
+    }
+
+    function setEntropySample(type) {
+      const btnNormal = document.getElementById('btn-sample-normal');
+      const btnPacked = document.getElementById('btn-sample-packed');
+
+      if (type === 'normal') {
+        btnNormal.className = 'px-2.5 py-1.5 rounded-lg text-xs font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-center transition-all';
+        btnPacked.className = 'px-2.5 py-1.5 rounded-lg text-xs font-mono bg-slate-900 text-slate-400 border border-slate-800 text-center hover:text-white transition-all';
+      } else {
+        btnPacked.className = 'px-2.5 py-1.5 rounded-lg text-xs font-mono bg-rose-500/20 text-rose-300 border border-rose-500/40 text-center transition-all';
+        btnNormal.className = 'px-2.5 py-1.5 rounded-lg text-xs font-mono bg-slate-900 text-slate-400 border border-slate-800 text-center hover:text-white transition-all';
+      }
+      renderEntropy(type);
+    }
+
+    // 2. Interactive Pipeline Steps Data & Logic
+    const stepsData = {
+      1: {
+        title: "Step 1: 預檢情報（Detect It Easy）",
+        subtitle: "進入靜態反組譯器前的關鍵防護與分類程序",
+        tag: "預檢分流",
+        color: "amber",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-3">
+              <h4 class="text-sm font-bold text-amber-400 font-mono uppercase">執行動作清單</h4>
+              <ul class="text-xs text-slate-300 space-y-2.5">
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-400 font-bold">1.</span>
+                  <span><strong>架構辨識：</strong> 確認檔案是 x86 (PE32) 還是 x64 (PE32+)、ELF 抑或 Mach-O。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-400 font-bold">2.</span>
+                  <span><strong>加殼檢查：</strong> 檢查是否有 UPX、VMProtect、Themida、Enigma 等已知加殼特徵。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-400 font-bold">3.</span>
+                  <span><strong>熵值評估：</strong> 若 .text 區段熵值接近 7.9，說明代碼已被加密，靜態反組譯將無效。</span>
+                </li>
+              </ul>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs">
+              <div class="text-slate-400 text-[11px] mb-2">// 分析策略判定決策樹</div>
+              <div class="text-amber-300">if (is_packed) {</div>
+              <div class="pl-4 text-slate-300">轉入【動態脫殼 / 記憶體 Dump】流程;</div>
+              <div class="text-amber-300">} else if (compiler == "Go" || "Rust") {</div>
+              <div class="pl-4 text-slate-300">準備專屬還原腳本 (如 GoReSym);</div>
+              <div class="text-amber-300">} else {</div>
+              <div class="pl-4 text-emerald-400">直接載入 IDA Pro 或 Ghidra 進行靜態分析;</div>
+              <div class="text-amber-300">}</div>
+            </div>
+          </div>
+        `
+      },
+      2: {
+        title: "Step 2: 靜態載入與定位關鍵邏輯（IDA Pro / Ghidra）",
+        subtitle: "利用交叉引用與符號表迅速切入惡意代碼核心",
+        tag: "錨點定位",
+        color: "cyan",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-3">
+              <h4 class="text-sm font-bold text-cyan-400 font-mono uppercase">定位關鍵錨點</h4>
+              <ul class="text-xs text-slate-300 space-y-2.5">
+                <li class="flex items-start gap-2">
+                  <span class="text-cyan-400 font-bold">1.</span>
+                  <span><strong>字串搜尋 (Strings Window)：</strong> 尋找 URL、C2 伺服器 IP、登錄檔鍵值或 "License Key Invalid" 等字串。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-cyan-400 font-bold">2.</span>
+                  <span><strong>匯入表追蹤 (Imports)：</strong> 觀察敏感 Windows API，例如網路通訊 (<code>InternetOpen</code>, <code>socket</code>) 或進程注入 (<code>VirtualAllocEx</code>, <code>WriteProcessMemory</code>)。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-cyan-400 font-bold">3.</span>
+                  <span><strong>交叉引用 (Xrefs)：</strong> 點擊關鍵字串或 API，按 'X' 鍵追蹤所有呼叫此處的函數進入點。</span>
+                </li>
+              </ul>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs">
+              <div class="text-slate-400 text-[11px] mb-2">// 典型 Xrefs 導航視圖</div>
+              <div class="text-slate-300">.rdata: "http://c2-evil.com/beacon"</div>
+              <div class="text-cyan-400 mt-2">↑ sub_401A20+18 (call http_connect)</div>
+              <div class="text-cyan-400">↑ sub_402B80+44 (call send_beacon_data)</div>
+              <p class="text-[11px] text-slate-500 mt-3">透過 Xref 直接跳躍至主迴圈，省去分析龐大框架代碼的時間。</p>
+            </div>
+          </div>
+        `
+      },
+      3: {
+        title: "Step 3: 邏輯還原與型別重建（Decompiler）",
+        subtitle: "將平坦的暫存器運算轉為具備語義的結構體與控制流",
+        tag: "反編譯分析",
+        color: "emerald",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-3">
+              <h4 class="text-sm font-bold text-emerald-400 font-mono uppercase">核心還原技巧</h4>
+              <ul class="text-xs text-slate-300 space-y-2.5">
+                <li class="flex items-start gap-2">
+                  <span class="text-emerald-400 font-bold">1.</span>
+                  <span><strong>變數與函式重新命名：</strong> 將 <code>sub_401120</code> 標記為 <code>decrypt_payload</code>，將 <code>a1</code> 標記為 <code>packet_buffer</code>。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-emerald-400 font-bold">2.</span>
+                  <span><strong>自訂結構體 (Struct Reconstruction)：</strong> 將 <code>*(DWORD *)(buf + 12)</code> 還原為 <code>buf->payload_size</code>，代碼可讀性躍升。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-emerald-400 font-bold">3.</span>
+                  <span><strong>套用 FLIRT / Function ID：</strong> 自動套用標準庫簽名，避免花時間去反編譯已知的 C/C++ 標準函數。</span>
+                </li>
+              </ul>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs">
+              <div class="text-slate-400 text-[11px] mb-2">// 重建後之乾淨虛擬碼</div>
+              <div class="text-purple-400">struct</div> <span class="text-emerald-300">PacketHeader</span> {<br>
+              &nbsp;&nbsp;<span class="text-cyan-300">uint32_t</span> magic;<br>
+              &nbsp;&nbsp;<span class="text-cyan-300">uint32_t</span> payload_len;<br>
+              };<br>
+              <span class="text-slate-400 mt-2 block">// 由偏移量還原為清晰結構體成員</span>
+            </div>
+          </div>
+        `
+      },
+      4: {
+        title: "Step 4: 動態除錯與繞過（x64dbg / GDB / IDA Debugger）",
+        subtitle: "應對加殼、反除錯與動態解密密鑰提取",
+        tag: "動態除錯",
+        color: "purple",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-3">
+              <h4 class="text-sm font-bold text-purple-400 font-mono uppercase">除錯實戰手法</h4>
+              <ul class="text-xs text-slate-300 space-y-2.5">
+                <li class="flex items-start gap-2">
+                  <span class="text-purple-400 font-bold">1.</span>
+                  <span><strong>繞過反除錯 (Anti-Debugging)：</strong> 修補 <code>IsDebuggerPresent</code>, PEB (BeingDebugged 標誌位) 或利用 ScyllaHide 外掛。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-purple-400 font-bold">2.</span>
+                  <span><strong>OEP 尋找與脫殼：</strong> 單步跨過殼代碼的長跳轉（Long Jump / tail jump），抵達真正的原始程式進入點（OEP）。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-purple-400 font-bold">3.</span>
+                  <span><strong>記憶體傾印 (Memory Dump)：</strong> 使用 Scylla 抓取解密後的記憶體區段並自動修復 Import Address Table (IAT)。</span>
+                </li>
+              </ul>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs">
+              <div class="text-slate-400 text-[11px] mb-2">// x64dbg 常見操作指令</div>
+              <div class="text-slate-300"><span class="text-purple-400">bp</span> VirtualAlloc  <span class="text-slate-500">// 攔截記憶體配置</span></div>
+              <div class="text-slate-300"><span class="text-purple-400">run</span></div>
+              <div class="text-slate-300"><span class="text-purple-400">dump</span> [rdx]        <span class="text-slate-500">// 傾印解密後的二進位 Payload</span></div>
+              <p class="text-[11px] text-emerald-400 mt-3">✓ 成功提取出未加密的內部模組！</p>
+            </div>
+          </div>
+        `
+      }
+    };
+
+    function switchStep(stepNum) {
+      // update buttons
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`step-btn-${i}`);
+        if (i === stepNum) {
+          btn.className = 'px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-semibold transition-all border bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-lg shadow-cyan-500/10';
+        } else {
+          btn.className = 'px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-semibold transition-all border bg-slate-900 text-slate-400 border-slate-800 hover:text-white';
+        }
+      }
+
+      const data = stepsData[stepNum];
+      const box = document.getElementById('step-content');
+      box.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-6 border-b border-slate-800">
+          <div>
+            <span class="px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800/50 mb-2 inline-block">
+              ${data.tag}
+            </span>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">${data.title}</h3>
+            <p class="text-xs text-slate-400 mt-1">${data.subtitle}</p>
+          </div>
+          <span class="text-2xl font-black font-mono text-slate-800">0${stepNum}</span>
+        </div>
+        ${data.content}
+      `;
+    }
+
+    function highlightPair(id) {
+      clearPair();
+      const asmEl = document.getElementById(`asm-${id}`);
+      const cEl = document.getElementById(`c-${id}`);
+
+      if (asmEl) {
+        asmEl.classList.add('bg-cyan-500/20', 'border-l-2', 'border-cyan-400');
+      }
+      if (cEl) {
+        cEl.classList.add('bg-emerald-500/20', 'border-l-2', 'border-emerald-400');
+      }
+    }
+
+    function clearPair() {
+      for (let i = 1; i <= 6; i++) {
+        const asmEl = document.getElementById(`asm-${i}`);
+        const cEl = document.getElementById(`c-${i}`);
+        if (asmEl) asmEl.classList.remove('bg-cyan-500/20', 'border-l-2', 'border-cyan-400');
+        if (cEl) cEl.classList.remove('bg-emerald-500/20', 'border-l-2', 'border-emerald-400');
+      }
+    }
+
+    function copySnippet() {
+      const code = `bool validate_license(uint32_t *key_ptr) {
+    uint32_t raw_val = *key_ptr;
+    uint32_t decoded = raw_val ^ 0x5A3C;
+    if (decoded == 0x1337) {
+        return true;
+    }
+    return false;
+}`;
+      const textarea = document.createElement('textarea');
+      textarea.value = code;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      showToast("已成功複製反編譯 C 代碼！");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2500);
+    }
+
+    // Window onload initialization
+    window.onload = function() {
+      renderEntropy('normal');
+      switchStep(1);
+    };
+  </script>
+</body>
+</html>
