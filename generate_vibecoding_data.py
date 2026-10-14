@@ -1004,6 +1004,83 @@ unit_08_reverse_engineering = {
     ]
 }
 
+# 09：REA (Reverse Engineer Anything)
+unit_09_rea = {
+    "id": "vibe-reverse-engineering-rea",
+    "labNumber": "09",
+    "title": "REA (Reverse Engineer Anything)：AI 智能體逆向工程協議與實戰指南",
+    "shortTitle": "REA AI 智能體逆向工程",
+    "category": "其他",
+    "date": "2026-10-15",
+    "summary": "讓 AI Agent 具備資深安全分析師的二進位取證與 Clean-room 乾淨重構能力！深度剖析 REA (Reverse Engineer Anything) 框架與 Model Context Protocol (MCP) 架構。串聯 Claude Code、Cursor、Gemini CLI 等大模型，支援 Electron/ASAR 解包、Windows PE / Linux ELF 原生代碼反編譯、Android APK、iOS Mach-O 與韌體提取，以客觀證據鏈終結猜測，完成高品質架構復原。",
+    "flowTitle": "REA AI 代理逆向調查與 Clean-Room 乾淨重構流水線",
+    "resultTitle": "REA 實戰教學指南與指令庫互動頁面",
+    "flowImage": make_svg_diagram(
+        "REA (Reverse Engineer Anything) 智能體逆向工作流",
+        "Intent -> MCP Dispatch -> Artifact Evidence -> Clean-Room Reconstruction",
+        [
+            {"num": "REA-1", "title": "自然語言意圖", "sub": "Agent 接收逆向目標", "tag": "Intent"},
+            {"num": "REA-2", "title": "MCP 協議調度", "sub": "分派 REA 本機分析器", "tag": "MCP Dispatch"},
+            {"num": "REA-3", "title": "結構化取證", "sub": "CFG / AST / 符號提取", "tag": "Evidence"},
+            {"num": "REA-4", "title": "乾淨重構", "sub": "Clean-room 代碼與單元測試", "tag": "Reconstruct"}
+        ],
+        loop_label="證據導向 (Evidence-Led)：以確鑿符號鏈與虛擬碼約束 AI 重構，杜絕幻覺捏造",
+        accent="#14b8a6"
+    ),
+    "resultImage": "Vibe Coding/03.其他/逆向工程/02.REA Reverse Engineer Anything.html",
+    "slideUrl": "Vibe Coding/03.其他/逆向工程/02.REA Reverse Engineer Anything.html",
+    "objective": "1. 掌握 REA (Reverse Engineer Anything) 框架與 Model Context Protocol (MCP) 的整合配置與運行機制。\n2. 熟悉 REA 針對 JavaScript/Electron、原生二進位 (PE/ELF/Mach-O)、Android APK 與韌體的取證覆蓋矩陣。\n3. 學會透過提示詞生成器驅動 AI Agent 進行 Clean-room 乾淨重構並建立自動化驗收測試。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 快速安裝與 MCP 智能體註冊 (Quickstart)",
+            "description": "執行 npx rea-agents setup 自動識別本機 Claude Code、Cursor 或 Gemini CLI 並掛載 REA MCP Server。"
+        },
+        {
+            "step": "步驟 2: 自然語言引導與意圖發起 (Intent Definition)",
+            "description": "向 Agent 明確下達逆向目標（如提取通訊協議、分析 Electron IPC 通道或定位加解密邏輯）。"
+        },
+        {
+            "step": "步驟 3: 後端引擎自動調用與結構化取證 (Evidence Collection)",
+            "description": "Agent 透過 MCP 自動調用 Ghidra、Hopper 或內建 AST 分析器，擷取偽代碼、字串與交叉引用 (Xrefs)。"
+        },
+        {
+            "step": "步驟 4: Clean-Room 乾淨重構與對比測試 (Reconstruction & Verification)",
+            "description": "依據回傳的客觀證據鏈，在目標專案中撰寫具備完整單元測試的原創代碼，完成安全落地。"
+        }
+    ],
+    "promptTemplate": "你是一位具備 REA 工具協議授權的二進位逆向架構師。\n請針對本機路徑下的工控通訊模組（包含 Windows DLL 與 Node.js 原生外掛）：\n1. 調用 REA MCP 工具檢查導出符號表與 Modbus 通訊處理函數入口。\n2. 提取關鍵狀態機變數與暫存器定址計算邏輯，列出確鑿代碼證據。\n3. 依據 Clean-Room 原則，在 Node-RED 專案中乾淨重構一份純 TypeScript 實現並附帶單元測試。",
+    "codeSnippet": {
+        "language": "json",
+        "code": "{\n  \"mcpServers\": {\n    \"rea\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"rea-agents@latest\", \"serve\"],\n      \"env\": {\n        \"REA_ANALYSIS_WORKSPACE\": \"./.rea_cache\"\n      }\n    }\n  }\n}"
+    },
+    "references": [
+        {
+            "title": "REA 實戰教學指南與指令庫 (專屬互動手冊)",
+            "url": "Vibe Coding/03.其他/逆向工程/02.REA Reverse Engineer Anything.html"
+        },
+        {
+            "title": "REA GitHub 開源倉庫",
+            "url": "https://github.com/morluto/rea"
+        },
+        {
+            "title": "傳統逆向工程與核心工具解析 (DIE / IDA / Ghidra)",
+            "url": "Vibe Coding/03.其他/逆向工程/01.傳統逆向工程.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-atom",
+            "scenario": "閉源工控通訊協定 Clean-Room 乾淨重構",
+            "description": "在完全沒有原始碼的情況下，透過 REA 自動取證與重構協議封包格式，產出完全相容且無版權爭議之開源 Node-RED 驅動。"
+        },
+        {
+            "icon": "fa-solid fa-network-wired",
+            "scenario": "跨平台 Electron / 原生混編架構漏洞排查",
+            "description": "AI 代理直接經由 REA 穿透 ASAR 打包與原生 C++ Node-API，秒級定位 IPC 通道越權與記憶體洩漏隱患。"
+        }
+    ]
+}
+
 vibe_labs = [
     unit_01_evolution,
     unit_02_guide,
@@ -1012,7 +1089,8 @@ vibe_labs = [
     unit_05_openspec,
     unit_06_opsx_guide,
     unit_07_superpowers,
-    unit_08_reverse_engineering
+    unit_08_reverse_engineering,
+    unit_09_rea
 ]
 
 # 寫入 vibecoding.json
@@ -1024,5 +1102,5 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功更新資料結構，已移除人機協作心法單元！共保留 {len(vibe_labs)} 個單元。")
+print(f"成功更新資料結構，包含新 09 REA 智能體逆向工程指南！共保留 {len(vibe_labs)} 個單元。")
 

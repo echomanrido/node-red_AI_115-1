@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REA (Reverse Engineer Anything) 實戰教學指南與指令庫</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['Fira Code', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              400: '#2dd4bf',
+              500: '#14b8a6',
+              600: '#0d9488',
+              900: '#134e4a',
+              950: '#042f2e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar and smooth transitions */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .code-glass {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-teal-500 selection:text-slate-950">
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 bg-teal-500 text-slate-950 px-4 py-3 rounded-xl shadow-2xl font-medium">
+    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span id="toast-message">已複製到剪貼簿！</span>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center font-black text-slate-950 text-lg shadow-lg shadow-teal-500/20">
+          R
+        </div>
+        <div>
+          <span class="font-bold text-lg tracking-tight text-white flex items-center gap-2">
+            REA 手冊
+            <span class="text-xs px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20 font-mono">v-latest</span>
+          </span>
+          <p class="text-[10px] text-slate-400 tracking-wide uppercase">Reverse Engineer Anything</p>
+        </div>
+      </div>
+
+      <!-- Nav Links -->
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
+        <a href="#about" class="hover:text-teal-400 transition-colors">核心概念</a>
+        <a href="#installation" class="hover:text-teal-400 transition-colors">安裝與 MCP 設定</a>
+        <a href="#matrix" class="hover:text-teal-400 transition-colors">支援分析目標</a>
+        <a href="#prompt-builder" class="hover:text-teal-400 transition-colors">提示詞生成器</a>
+        <a href="#prompts-library" class="hover:text-teal-400 transition-colors">經典提示詞庫</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="https://github.com/morluto/rea" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white px-3.5 py-1.5 rounded-lg text-sm font-medium border border-slate-700 transition-all shadow-sm">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24 border-b border-slate-800/80">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-teal-900/20 via-slate-950 to-slate-950 pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="text-center max-w-3xl mx-auto space-y-5">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-semibold tracking-wide uppercase">
+          AI 智能體 × 逆向工程工具協議
+        </div>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+          讓 AI Agent 具備<br>
+          <span class="bg-gradient-to-r from-teal-400 via-emerald-300 to-cyan-400 bg-clip-text text-transparent">逆向調查與重構</span>的能力
+        </h1>
+        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
+          <strong class="text-teal-400">REA (Reverse Engineer Anything)</strong> 透過 Model Context Protocol (MCP) 連接 Claude Code、Cursor、Gemini CLI 等大模型智能體與專業逆向分析工具，在缺乏原始碼的情況下調查功能機制、出示完整證據鏈，並在您的專案中乾淨重構。
+        </p>
+
+        <!-- Quick Action Buttons -->
+        <div class="pt-4 flex flex-wrap items-center justify-center gap-4">
+          <a href="#prompt-builder" class="bg-teal-500 hover:bg-teal-400 text-slate-950 px-6 py-3 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-teal-500/25 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            產生逆向 Prompt
+          </a>
+          <a href="#installation" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-6 py-3 rounded-xl font-semibold text-sm transition-all flex items-center gap-2">
+            <span>檢視快速安裝</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Command Bar -->
+      <div class="mt-10 max-w-2xl mx-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-2.5 sm:p-3 flex items-center justify-between shadow-2xl">
+          <div class="flex items-center gap-3 overflow-hidden pl-2">
+            <span class="text-teal-400 font-mono text-sm select-none">$</span>
+            <span class="font-mono text-sm text-slate-200 truncate">npx rea-agents setup</span>
+          </div>
+          <button onclick="copyToClipboard('npx rea-agents setup')"
+                  class="flex-shrink-0 bg-slate-800 hover:bg-teal-500 hover:text-slate-950 text-slate-300 text-xs px-3.5 py-2 rounded-lg font-mono font-medium transition-all flex items-center gap-1.5 border border-slate-700 hover:border-teal-400">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+            </svg>
+            <span>複製命令</span>
+          </button>
+        </div>
+        <p class="text-center text-xs text-slate-500 mt-2 font-mono">支援 Claude Code、Cursor、Codex、Gemini CLI 自動偵測註冊</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Architecture Section -->
+  <section id="about" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">REA 核心架構與工作原理</h2>
+      <p class="text-sm text-slate-400 mt-2">不是單純的靜態反編譯工具，而是建立在「證據導向」的工作流。</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Step 1 -->
+      <div class="code-glass rounded-2xl p-6 relative group hover:border-teal-500/40 transition-all">
+        <div class="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center font-bold text-base mb-4 font-mono">
+          01
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">自然語言引導提問</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          開發者向支援 MCP 的 AI Agent（如 Claude 或 Cursor）發出任務：「我想知道某 Electron 應用的剪貼板 Bridge 是如何實現的」。
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="code-glass rounded-2xl p-6 relative group hover:border-teal-500/40 transition-all">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-base mb-4 font-mono">
+          02
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">REA 工具自動取證</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Agent 經由 MCP 調用本機 REA 分析器，針對 ASAR、二進位二級符號、IPC 通道或封包進行靜態與動態檢查，收集確鑿代碼證據與限制條件。
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="code-glass rounded-2xl p-6 relative group hover:border-teal-500/40 transition-all">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center font-bold text-base mb-4 font-mono">
+          03
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">生成重構實作與測試</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          Agent 依據 REA 回傳的證據鏈進行邏輯復原，為您的目標專案產出 Clean-room 原創代碼，並建立測試用例進行對比驗證。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Installation & Configuration Section -->
+  <section id="installation" class="py-16 bg-slate-900/60 border-y border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mb-10">
+        <span class="text-teal-400 text-xs font-semibold tracking-wider uppercase font-mono">Getting Started</span>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1">完整安裝與環境配置</h2>
+        <p class="text-slate-400 text-sm mt-2">
+          REA 需要 <strong>Node.js 22.x (>=22.19), 24.x, 或 26+</strong> 以及 npm。分析全部在本機安全環境執行。
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <!-- Interactive Install Steps -->
+        <div class="space-y-6">
+          <!-- Step A -->
+          <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-teal-400 bg-teal-500/10 px-2.5 py-1 rounded-md border border-teal-500/20">步驟 1：智能體一鍵註冊</span>
+              <span class="text-xs text-slate-500 font-mono">npx (推薦)</span>
+            </div>
+            <p class="text-sm text-slate-300 mb-3">
+              在終端機中執行 setup 命令，會自動偵測您的 Claude Code、Cursor、Gemini CLI 等並掛載 REA MCP 服務：
+            </p>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between font-mono text-sm">
+              <span class="text-slate-300">npx rea-agents setup</span>
+              <button onclick="copyToClipboard('npx rea-agents setup')" class="text-xs text-slate-400 hover:text-teal-400 font-sans">複製</button>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">完成授權後，請務必重新啟動您的 AI Agent 終端或 IDE 視窗。</p>
+          </div>
+
+          <!-- Step B -->
+          <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">步驟 2：全域 CLI 安裝（可選）</span>
+              <span class="text-xs text-slate-500 font-mono">npm global</span>
+            </div>
+            <p class="text-sm text-slate-300 mb-3">
+              如果您偏好直接在命令列執行靜態分析指令，可以全域安裝 CLI：
+            </p>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between font-mono text-sm">
+              <span class="text-slate-300">npm install --global rea-agents</span>
+              <button onclick="copyToClipboard('npm install --global rea-agents')" class="text-xs text-slate-400 hover:text-teal-400 font-sans">複製</button>
+            </div>
+            <div class="mt-3 flex items-center gap-2 text-xs font-mono text-slate-400">
+              <span class="text-teal-400">檢查版本：</span>
+              <code>rea --version</code>
+              <span class="text-teal-400 ml-2">升級：</span>
+              <code>rea update</code>
+            </div>
+          </div>
+
+          <!-- Step C -->
+          <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-md border border-cyan-500/20">步驟 3：後端反編譯引擎支援</span>
+              <span class="text-xs text-slate-500 font-mono">Native Providers</span>
+            </div>
+            <p class="text-sm text-slate-300 mb-2">
+              分析原生二進位程式碼（Native Binaries）時，建議本機具備下列之一：
+            </p>
+            <ul class="text-xs text-slate-400 space-y-1.5 list-disc list-inside">
+              <li><strong class="text-slate-200">Ghidra (開源首選)</strong>：支援 x86, ARM, 16-bit DOS，需 Java 17+。</li>
+              <li><strong class="text-slate-200">Hopper Disassembler</strong>：macOS / Linux 輕量原生反編譯。</li>
+              <li><strong class="text-slate-200">IDA Pro</strong>：透過 IDA 提供方介面連接。</li>
+              <li><strong class="text-slate-200">JADX / TShark</strong>：針對 Android APK 或 pcap 網路包分析。</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- MCP Config Preview Box -->
+        <div class="code-glass rounded-2xl p-6 border border-slate-800 flex flex-col h-full">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-red-500/70"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500/70"></div>
+              <span class="text-xs font-mono text-slate-400 ml-2">claude_desktop_config.json 或 settings.json</span>
+            </div>
+            <button onclick="copyToClipboard(document.getElementById('mcp-config-code').innerText)"
+                    class="text-xs bg-slate-800 hover:bg-slate-700 text-teal-400 px-3 py-1 rounded-md font-mono transition-colors">
+              複製 JSON
+            </button>
+          </div>
+
+          <p class="text-xs text-slate-400 mb-3">
+            若手動註冊 Claude Desktop 或 Cursor 的 MCP 伺服器，可將以下設定填入配置檔中：
+          </p>
+
+          <pre class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-teal-300 overflow-x-auto leading-relaxed flex-grow" id="mcp-config-code"><code>{
+  "mcpServers": {
+    "rea": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "rea-agents@latest",
+        "serve"
+      ],
+      "env": {
+        "REA_ANALYSIS_WORKSPACE": "./.rea_cache"
+      }
+    }
+  }
+}</code></pre>
+
+          <div class="mt-4 p-3 bg-slate-950/70 rounded-xl border border-slate-800/80 text-xs text-slate-400">
+            <p class="font-semibold text-slate-300 mb-1">💡 實用提示：</p>
+            <p>使用 <code class="text-teal-400 font-mono">npx rea-agents setup</code> 時，安裝腳本會自動備份既有的配置檔案，並將 REA 的技能設定（Skill Guide）直接注入 Agent 上下文中。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Target Capabilities Matrix -->
+  <section id="matrix" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mb-10">
+      <span class="text-teal-400 text-xs font-semibold tracking-wider uppercase font-mono">Coverage</span>
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1">支援分析的目標格式與回傳資訊</h2>
+      <p class="text-slate-400 text-sm mt-2">
+        REA 會將複雜的二進位或打包檔案轉化為 LLM 能夠理解的高價值結構化資料。
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Target 1 -->
+      <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-teal-500/30 transition-all">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-teal-400"></span>
+          <h3 class="font-bold text-white text-base">JavaScript & Electron</h3>
+        </div>
+        <p class="text-xs text-slate-400 mb-3">檢查解包後的目錄或 <code class="text-teal-300 font-mono">.asar</code> 檔案。</p>
+        <div class="text-xs bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono text-slate-300 space-y-1">
+          <div><strong class="text-teal-400">回傳：</strong>模組相依圖、IPC Channels、Preload 腳本、Source Maps、原生 Node 模組關聯。</div>
+          <div class="text-slate-500">工具：本機 Node.js 與內建 AST 解析器</div>
+        </div>
+      </div>
+
+      <!-- Target 2 -->
+      <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-teal-500/30 transition-all">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          <h3 class="font-bold text-white text-base">原生二進位檔案 (Native)</h3>
+        </div>
+        <p class="text-xs text-slate-400 mb-3">Mach-O (macOS)、ELF (Linux)、PE/DLL (Windows)。</p>
+        <div class="text-xs bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono text-slate-300 space-y-1">
+          <div><strong class="text-teal-400">回傳：</strong>偽代碼 (Decompiled C)、彙編代碼、字串常數表、導出符號與交叉引用 (Xrefs)。</div>
+          <div class="text-slate-500">工具：Ghidra、Hopper 或 IDA</div>
+        </div>
+      </div>
+
+      <!-- Target 3 -->
+      <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-teal-500/30 transition-all">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+          <h3 class="font-bold text-white text-base">網路封包與通訊協議</h3>
+        </div>
+        <p class="text-xs text-slate-400 mb-3">HAR 檔案、mitmproxy capture、Wireshark pcap。</p>
+        <div class="text-xs bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono text-slate-300 space-y-1">
+          <div><strong class="text-teal-400">回傳：</strong>API 端點清單、Payload 結構、TLS SNI、重複參數分佈與狀態轉換規則。</div>
+          <div class="text-slate-500">工具：TShark 4.x / mitmdump</div>
+        </div>
+      </div>
+
+      <!-- Target 4 -->
+      <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-teal-500/30 transition-all">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+          <h3 class="font-bold text-white text-base">.NET 託管組件</h3>
+        </div>
+        <p class="text-xs text-slate-400 mb-3">C# 與 .NET Framework / .NET Core 組件。</p>
+        <div class="text-xs bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono text-slate-300 space-y-1">
+          <div><strong class="text-teal-400">回傳：</strong>中繼資料、CIL 中間語言指令、宣告的原生 DLL 依賴與組建版本比對。</div>
+          <div class="text-slate-500">工具：靜態組件檢查引擎</div>
+        </div>
+      </div>
+
+      <!-- Target 5 -->
+      <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-teal-500/30 transition-all">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+          <h3 class="font-bold text-white text-base">Android APK & 資源</h3>
+        </div>
+        <p class="text-xs text-slate-400 mb-3">Android Package、DEX、AXML 資源。</p>
+        <div class="text-xs bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono text-slate-300 space-y-1">
+          <div><strong class="text-teal-400">回傳：</strong>Manifest 清單權限、反編譯 Java/Kotlin 類別、字串資源表、Flutter Dart 快照資訊。</div>
+          <div class="text-slate-500">工具：Headless JADX + Apktool</div>
+        </div>
+      </div>
+
+      <!-- Target 6 -->
+      <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-teal-500/30 transition-all">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
+          <h3 class="font-bold text-white text-base">進程運行時追蹤 (Runtime)</h3>
+        </div>
+        <p class="text-xs text-slate-400 mb-3">針對正在運行的行程或腳本執行行為觀測。</p>
+        <div class="text-xs bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono text-slate-300 space-y-1">
+          <div><strong class="text-teal-400">回傳：</strong>終端輸出串流、PTY 互動事件、檔案系統讀寫觀測與行程退出狀態比對。</div>
+          <div class="text-slate-500">工具：Linux/macOS 原生 PTY 隔離沙盒</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Prompt Generator -->
+  <section id="prompt-builder" class="py-16 bg-slate-900/80 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <span class="text-teal-400 text-xs font-semibold tracking-wider uppercase font-mono">Interactive Tool</span>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1">REA 逆向任務提示詞生成器</h2>
+        <p class="text-slate-400 text-sm mt-2">
+          選擇您的調查對象與重構目的，自動組裝出標準規範的 AI Agent 調查指令！
+        </p>
+      </div>
+
+      <div class="max-w-4xl mx-auto code-glass rounded-2xl p-6 sm:p-8 border border-slate-800 shadow-2xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+          <!-- Option 1: Target Type -->
+          <div>
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">1. 分析目標類型 (Target Type)</label>
+            <select id="gen-type" onchange="generatePrompt()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-teal-500">
+              <option value="electron">Electron / 桌面網頁應用 (ASAR / JS)</option>
+              <option value="native">原生二進位程式 (Mach-O / ELF / EXE)</option>
+              <option value="network">通訊協議與網路 API (HAR / pcap)</option>
+              <option value="android">行動端應用 (Android APK / DEX)</option>
+            </select>
+          </div>
+
+          <!-- Option 2: Research Intent -->
+          <div>
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">2. 任務目標 (Objective)</label>
+            <select id="gen-intent" onchange="generatePrompt()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-teal-500">
+              <option value="reimplement">機制調查並為我的專案重寫 Clean-room 實作</option>
+              <option value="explain">深入架構調查並列出代碼證據 (Audit & Report)</option>
+              <option value="testcases">逆向特定演算法並生成完整對比測試 (Unit Tests)</option>
+              <option value="security">安全性審查：檢查敏感資料與 API 通道驗證</option>
+            </select>
+          </div>
+
+          <!-- Input 3: Target Path / Name -->
+          <div>
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">3. 目標路徑或名稱</label>
+            <input type="text" id="gen-target-name" oninput="generatePrompt()" value="Notion.app 或 /Applications/Slack.app" placeholder="例：/path/to/target.asar 或 app.exe"
+                   class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-teal-500">
+          </div>
+
+          <!-- Input 4: Target Feature -->
+          <div>
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">4. 想研究的功能模組</label>
+            <input type="text" id="gen-feature" oninput="generatePrompt()" value="剪貼板富文本資料傳輸 (Clipboard IPC Bridge)" placeholder="例：本地搜尋快取、離線同步機制"
+                   class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-teal-500">
+          </div>
+        </div>
+
+        <!-- Generated Output Box -->
+        <div class="mt-6">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-teal-400 font-mono flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+              生成的 Agent 提示詞 (可直接貼至 Claude Code / Cursor / Gemini CLI)：
+            </span>
+            <button onclick="copyGeneratedPrompt()"
+                    class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1.5 shadow">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+              </svg>
+              一鍵複製提示詞
+            </button>
+          </div>
+          <div class="relative">
+            <pre id="prompt-output" class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-teal-300 font-mono text-xs whitespace-pre-wrap leading-relaxed min-h-[140px]"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Curated Prompts and Terminal CLI Commands -->
+  <section id="prompts-library" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mb-10">
+      <span class="text-teal-400 text-xs font-semibold tracking-wider uppercase font-mono">Curated Library</span>
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1">經典逆向指令與官方 Prompt 範例庫</h2>
+      <p class="text-slate-400 text-sm mt-2">
+        依據 REA 官方最佳實踐與實測案例整理，涵蓋終端 CLI 命令與 Agent 自然語言提示詞。
+      </p>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="flex flex-wrap gap-2 mb-8">
+      <button onclick="filterPrompts('all')" class="prompt-filter-btn active-filter px-4 py-1.5 rounded-lg text-xs font-medium bg-teal-500 text-slate-950">全部顯示</button>
+      <button onclick="filterPrompts('electron')" class="prompt-filter-btn px-4 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">Electron & JS</button>
+      <button onclick="filterPrompts('native')" class="prompt-filter-btn px-4 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">原生二進位 / 彙編</button>
+      <button onclick="filterPrompts('cli')" class="prompt-filter-btn px-4 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">終端 CLI 指令</button>
+      <button onclick="filterPrompts('protocol')" class="prompt-filter-btn px-4 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">封包與通訊協定</button>
+    </div>
+
+    <!-- Prompts Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="prompts-container">
+
+      <!-- Item 1: Notion Clipboard Bridge Case -->
+      <div class="prompt-card group code-glass rounded-2xl p-5 border border-slate-800 flex flex-col justify-between" data-category="electron">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20 font-semibold">Electron / ASAR</span>
+            <span class="text-xs text-slate-500">經典案例：Notion</span>
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">追蹤 Electron 剪貼板與 IPC 邊界</h3>
+          <p class="text-xs text-slate-400 mb-3">
+            調查渲染進程如何透過 Preload 腳本與 IPC 通道傳遞富文本剪貼板資料，並找出主進程的處理邏輯。
+          </p>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs font-mono text-teal-200 mb-4 whitespace-pre-wrap">請使用 REA 調查此應用中的剪貼板處理模組：
+1. 找出渲染進程中的 Clipboard API 呼叫點
+2. 沿著 preload.js 追蹤到對應的 IPC 通信通道
+3. 檢查主進程如何封裝 Rich Text 剪貼板內容
+4. 提供證據（函數簽名與檔案位置），並為我的專案用純 TypeScript 撰寫相容的實作。</div>
+        </div>
+        <button onclick="copySnippet(this)" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          複製此 Prompt
+        </button>
+      </div>
+
+      <!-- Item 2: Native Audio Math (DX-Ball Style) -->
+      <div class="prompt-card group code-glass rounded-2xl p-5 border border-slate-800 flex flex-col justify-between" data-category="native">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-semibold">原生二進位 / Ghidra</span>
+            <span class="text-xs text-slate-500">經典案例：DX-Ball</span>
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">從彙編代碼還原立體聲聲像 (Panning) 算法</h3>
+          <p class="text-xs text-slate-400 mb-3">
+            沿著音頻 API 調用追蹤至計算坐標輔助函數，檢查原始 x86 指令並轉譯成高階現代 C/C++。
+          </p>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs font-mono text-emerald-200 mb-4 whitespace-pre-wrap">請透過 REA 調用 Ghidra 分析此原生二進位檔案：
+1. 追查播放聲音時根據物體 X 軸坐標計算立體聲 panning 的內部函數
+2. 提取該函數的 x86 反彙編指令與偽代碼
+3. 釐清常數運算與溢位邊界處理
+4. 用現代 C++ 重構該函數，並附帶可驗證的測試案例確保位元組輸出邏輯完全吻合。</div>
+        </div>
+        <button onclick="copySnippet(this)" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          複製此 Prompt
+        </button>
+      </div>
+
+      <!-- Item 3: Terminal CLI: Fast JavaScript Inspection -->
+      <div class="prompt-card group code-glass rounded-2xl p-5 border border-slate-800 flex flex-col justify-between" data-category="cli">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-semibold">CLI Direct Command</span>
+            <span class="text-xs text-slate-500">免啟動 Agent</span>
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">終端直接檢查已解包 ASAR 或目錄</h3>
+          <p class="text-xs text-slate-400 mb-3">
+            無需依賴大型模型，直接輸出 JSON 格式的模組結構、相依套件與導出符號。
+          </p>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs font-mono text-cyan-200 mb-4 whitespace-pre-wrap">npx -y rea-agents@latest analyze-javascript-application \
+  /path/to/app.asar \
+  --json &gt; rea_analysis.json</div>
+        </div>
+        <button onclick="copySnippet(this)" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          複製 CLI 指令
+        </button>
+      </div>
+
+      <!-- Item 4: Network Protocol & Serialization Analysis -->
+      <div class="prompt-card group code-glass rounded-2xl p-5 border border-slate-800 flex flex-col justify-between" data-category="protocol">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-semibold">TShark / HAR</span>
+            <span class="text-xs text-slate-500">協定還原</span>
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">解析未公開私有 API 與 Protobuf 結構</h3>
+          <p class="text-xs text-slate-400 mb-3">
+            藉由抓包封包分析連線握手、認證 Token 計算流程與序列化資料結構。
+          </p>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs font-mono text-purple-200 mb-4 whitespace-pre-wrap">請透過 REA 調查提供的 network_traffic.pcap 封包：
+1. 過濾出與 target-api.internal 通訊的所有 HTTP/2 或 WebSocket 連線
+2. 分析 Header 中簽名驗證（Signature / Nonce）的生成邏輯
+3. 重建 Request / Response Payload 的 JSON Schema 或 TypeScript 介面定義
+4. 列出證據並給出 Python requests 驗證腳本。</div>
+        </div>
+        <button onclick="copySnippet(this)" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          複製此 Prompt
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Clean-room & Legal Advice Section -->
+  <section class="py-12 bg-slate-950 border-t border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col md:flex-row items-start gap-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center flex-shrink-0 font-bold">
+          ⚖️
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1">工程倫理與 Clean-Room（淨室設計）原則</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            REA 的價值在於「理解架構」與「取得證據」，而非複製受版權保護的原始代碼。在進行商業相容性重構時，建議遵循淨室設計流程：由 Agent 產出架構規格與行為說明書，再由另一環境撰寫全新實作，以確保合法合規。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-10 bg-slate-950 border-t border-slate-900 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
+      <p>REA (Reverse Engineer Anything) · 開源社群驅動的 AI 逆向工程助手</p>
+      <div class="flex items-center justify-center gap-4 text-slate-400">
+        <a href="https://github.com/morluto/rea" target="_blank" rel="noopener noreferrer" class="hover:text-teal-400 transition-colors">GitHub 倉庫</a>
+        <span>·</span>
+        <a href="https://github.com/morluto/rea/blob/main/README_zh.md" target="_blank" rel="noopener noreferrer" class="hover:text-teal-400 transition-colors">中文官方說明文件</a>
+        <span>·</span>
+        <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" class="hover:text-teal-400 transition-colors">了解 MCP 協議</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive JavaScript Logic -->
+  <script>
+    // Toast Notification helper
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.innerText = message || '已複製到剪貼簿！';
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2400);
+    }
+
+    // Safe Clipboard Copying
+    function copyToClipboard(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast('已成功複製到剪貼簿！');
+      } catch (err) {
+        showToast('複製失敗，請手動選取');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    // Card snippet copy button
+    function copySnippet(btn) {
+      const textBlock = btn.parentElement.querySelector('.whitespace-pre-wrap');
+      if (textBlock) {
+        copyToClipboard(textBlock.innerText.trim());
+      }
+    }
+
+    // Copy generated prompt
+    function copyGeneratedPrompt() {
+      const content = document.getElementById('prompt-output').innerText;
+      copyToClipboard(content);
+    }
+
+    // Dynamic Prompt Generator
+    function generatePrompt() {
+      const type = document.getElementById('gen-type').value;
+      const intent = document.getElementById('gen-intent').value;
+      const target = document.getElementById('gen-target-name').value.trim() || '目標應用程式';
+      const feature = document.getElementById('gen-feature').value.trim() || '特定功能機制';
+
+      let promptText = `請使用 REA (Reverse Engineer Anything) 調查目標「${target}」中的【${feature}】功能：\n\n`;
+
+      if (type === 'electron') {
+        promptText += `1. 檢查解包後的 JavaScript/ASAR 檔案，定位與【${feature}】相關的模組與匯入路徑。\n`;
+        promptText += `2. 追蹤 IPC 通信通道（如 ipcRenderer.send / ipcMain.handle）與 Preload 腳本的暴露邊界。\n`;
+      } else if (type === 'native') {
+        promptText += `1. 調用反編譯提供方（Ghidra 或 Hopper）載入原生二進位檔案，搜索關鍵字串與導出符號。\n`;
+        promptText += `2. 定位處理【${feature}】的核心子常式，分析其彙編指令、暫存器傳參與記憶體佈局。\n`;
+      } else if (type === 'network') {
+        promptText += `1. 調查關聯的 HAR 或 pcap 網路記錄，過濾與【${feature}】相關的請求端點。\n`;
+        promptText += `2. 梳理封包認證參數、Header 生成邏輯與 Payload 序列化機制。\n`;
+      } else {
+        promptText += `1. 透過 JADX 靜態反編譯檢查 APK 清單、Intent 路由及核心 Class 實作。\n`;
+        promptText += `2. 追蹤背景 Service 或 Native (.so) 函式庫呼叫關聯。\n`;
+      }
+
+      if (intent === 'reimplement') {
+        promptText += `3. 提供具體證據（包含檔案位置、函式簽名或反編譯偽代碼摘要）。\n`;
+        promptText += `4. 在不侵犯版權的前提下，為我的新專案產出一套乾淨獨立、功能等效的 Clean-room 原創程式碼與單元測試。`;
+      } else if (intent === 'explain') {
+        promptText += `3. 詳細解釋該模組的運行時架構、資料流程圖與限制條件。\n`;
+        promptText += `4. 整理一份附帶具體代碼證據的調查報告。`;
+      } else if (intent === 'testcases') {
+        promptText += `3. 抽取其輸入與輸出的邊界條件、常數矩陣與轉換公式。\n`;
+        promptText += `4. 建立一套涵蓋完整測試案例（Test Suite），驗證新實作與原始二進位行為完全一致。`;
+      } else {
+        promptText += `3. 審查傳輸過程是否存在未加密的敏感資料或不安全的邊界呼叫。\n`;
+        promptText += `4. 列出潛在風險點並提出防護強化建議。`;
+      }
+
+      document.getElementById('prompt-output').innerText = promptText;
+    }
+
+    // Filter Cards in Curated Library
+    function filterPrompts(category) {
+      const cards = document.querySelectorAll('.prompt-card');
+      const buttons = document.querySelectorAll('.prompt-filter-btn');
+
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-teal-500', 'text-slate-950');
+        btn.classList.add('bg-slate-800', 'text-slate-300');
+      });
+
+      event.target.classList.remove('bg-slate-800', 'text-slate-300');
+      event.target.classList.add('bg-teal-500', 'text-slate-950');
+
+      cards.forEach(card => {
+        if (category === 'all' || card.getAttribute('data-category') === category) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // Initialize prompt on load
+    window.onload = function() {
+      generatePrompt();
+    };
+  </script>
+</body>
+</html>
