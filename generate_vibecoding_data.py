@@ -759,10 +759,92 @@ unit_05_openspec = {
     ]
 }
 
-# 順延為 06：其他
-unit_06_other = {
-    "id": "vibe-09",
+# 06：OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析
+unit_06_opsx_guide = {
+    "id": "vibe-opsx-lifecycle",
     "labNumber": "06",
+    "title": "OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析",
+    "shortTitle": "OpenSpec 生命週期與檔案全解析",
+    "category": "Skills(技能)",
+    "date": "2026-10-14",
+    "summary": "從「盤點問題」到「封存交付」，深度解構 OpenSpec 規格驅動開發 (Spec-Driven Development, SDD) 的五大核心指令（explore, propose, apply, verify, archive）執行過程。全方位剖析從臨時 scratchpad.md、變更包 4 大工件 (proposal, design, delta specs, tasks)，到代碼落地、walkthrough 驗證，最終晉升主規格庫 (openspec/specs/) 與歷史封存的檔案生命週期演化狀態機。",
+    "flowTitle": "OpenSpec 檔案演化狀態機與五階段生命週期工件流向",
+    "resultTitle": "OpenSpec 生命週期指南互動解析頁面",
+    "flowImage": make_svg_diagram(
+        "OpenSpec SDD 檔案生成生命週期狀態機",
+        "Artifact Evolution: scratchpad -> change proposal -> source code -> main specs & archive",
+        [
+            {"num": "F-01", "title": "探索備忘", "sub": "scratchpad.md 釐清邊界", "tag": "Explore"},
+            {"num": "F-02", "title": "變更包工件", "sub": "proposal, design, tasks", "tag": "Propose"},
+            {"num": "F-03", "title": "代碼與進度", "sub": "源碼落地 & tasks 打勾", "tag": "Apply"},
+            {"num": "F-04", "title": "驗證合規", "sub": "validate & walkthrough", "tag": "Verify"},
+            {"num": "F-05", "title": "主幹與封存", "sub": "openspec/specs/ 合流", "tag": "Archive"}
+        ],
+        loop_label="單一真相來源 (Single Source of Truth)：增量規範安全合流至全域主規格庫",
+        accent="#6366f1"
+    ),
+    "resultImage": "Vibe Coding/02.Skills(技能)/02.opsx-guide.html",
+    "slideUrl": "Vibe Coding/02.Skills(技能)/02.opsx-guide.html",
+    "objective": "1. 深入掌握 OpenSpec 在 5 大階段中各檔案（.openspec.yaml, proposal.md, design.md, specs/*.md, tasks.md, walkthrough.md）的生成時機與演變歷程。\n2. 理解 Delta Specs 增量規範與 openspec/specs/ 主規格目錄的合併同步機制。\n3. 學會透過 openspec validate 與 openspec status 實現生產級自動化驗收與交付封存。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 階段 1 (/opsx:explore) 探索模式與臨時備忘",
+            "description": "在動手寫代碼或規格前先徹底想清楚，釐清 Why、變更範圍 Scope 與潛在架構盲點，產出探索記錄 scratchpad.md 作為後續提案的直接輸入原料。"
+        },
+        {
+            "step": "步驟 2: 階段 2 (/opsx:propose) 規格先行與 4 大標準工件產出",
+            "description": "執行 openspec new change <name>，自動建立 proposal.md (計畫書)、design.md (技術設計)、specs/*.md (模組增量規格) 與 tasks.md (原子化任務清單)。"
+        },
+        {
+            "step": "步驟 3: 階段 3 (/opsx:apply) 按圖施工與源碼落地",
+            "description": "以 tasks.md 為導航，依序編寫 HTML、CSS、JS 與後端代碼。每完成一項原子任務即時在 tasks.md 標記為完成 (- [x])，進度透明且支援隨時中斷重啟。"
+        },
+        {
+            "step": "步驟 4: 階段 4 (/opsx:verify) 規格符合度驗證與品質把關",
+            "description": "執行 openspec validate <name> 確保 OpenSpec 格式合法，確認 tasks.md 達到 100% 完工 (state: all_done)，執行語法測試並產出 walkthrough.md 驗收報告。"
+        },
+        {
+            "step": "步驟 5: 階段 5 (/opsx:archive) 主幹合流與歷史封存",
+            "description": "執行 openspec archive --yes <name>，自動將提案中的 Delta Specs 萃取並合併至全域主規格目錄 openspec/specs/，並將提案搬遷至 archive/ 封存歸檔。"
+        }
+    ],
+    "promptTemplate": "你是一位精通 OpenSpec SDD 規範的主任架構師。\n請針對手上的 Node-RED 工控邊緣採集模組，執行完整 OpenSpec 生命週期演繹：\n1. 請模擬 /opsx:propose 階段，輸出標準變更包目錄結構與 proposal.md 關鍵要素。\n2. 請示範 tasks.md 如何以原子化編號 (如 1.1, 1.2, 2.1) 定義可驗證任務。\n3. 解釋在 /opsx:archive 執行後，Delta Specs 如何安全合流進 openspec/specs/。",
+    "codeSnippet": {
+        "language": "yaml",
+        "code": "# openspec/changes/nodered-telemetry/.openspec.yaml\nschema: spec-driven-development/v1\nchange: nodered-telemetry\nstatus: ready_for_apply\nartifacts:\n  proposal: proposal.md\n  design: design.md\n  specs:\n    - specs/mqtt/spec.md\n    - specs/modbus/spec.md\n  tasks: tasks.md"
+    },
+    "references": [
+        {
+            "title": "OpenSpec 生命週期指南 (專屬互動全解析頁面)",
+            "url": "Vibe Coding/02.Skills(技能)/02.opsx-guide.html"
+        },
+        {
+            "title": "OpenSpec (opsx) 指南與快速起手教學",
+            "url": "Vibe Coding/02.Skills(技能)/01.openspec.html"
+        },
+        {
+            "title": "OpenSpec 官方文檔 (openspec.dev)",
+            "url": "https://openspec.dev/"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-code-compare",
+            "scenario": "大型專案變更全生命週期稽核",
+            "description": "所有代碼改動皆具備完整的 proposal -> specs -> tasks -> walkthrough -> archive 鏈條，完全符合嚴苛工業軟體審計標準。"
+        },
+        {
+            "icon": "fa-solid fa-folder-tree",
+            "scenario": "長期演進專案的單一事實來源",
+            "description": "透過主規格庫 openspec/specs/ 的持續合流累積，專案永久具備最新、最精確的系統全貌架構規格。"
+        }
+    ]
+}
+
+# 順延為 07：其他
+unit_07_other = {
+    "id": "vibe-09",
+    "labNumber": "07",
     "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
     "category": "其他",
     "date": "2026-10-14",
@@ -824,7 +906,8 @@ vibe_labs = [
     unit_03_claude,
     unit_04_google,
     unit_05_openspec,
-    unit_06_other
+    unit_06_opsx_guide,
+    unit_07_other
 ]
 
 # 寫入 vibecoding.json
@@ -836,5 +919,5 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功更新資料結構，已移除 MCP 單元，後續單元已重新調整為 06！")
+print(f"成功更新資料結構，包含新 06 OpenSpec 生命週期指南，其他調整為 07！")
 

@@ -552,8 +552,76 @@ window.INITIAL_VIBE_DATA = [
     ]
   },
   {
-    "id": "vibe-09",
+    "id": "vibe-opsx-lifecycle",
     "labNumber": "06",
+    "title": "OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析",
+    "shortTitle": "OpenSpec 生命週期與檔案全解析",
+    "category": "Skills(技能)",
+    "date": "2026-10-14",
+    "summary": "從「盤點問題」到「封存交付」，深度解構 OpenSpec 規格驅動開發 (Spec-Driven Development, SDD) 的五大核心指令（explore, propose, apply, verify, archive）執行過程。全方位剖析從臨時 scratchpad.md、變更包 4 大工件 (proposal, design, delta specs, tasks)，到代碼落地、walkthrough 驗證，最終晉升主規格庫 (openspec/specs/) 與歷史封存的檔案生命週期演化狀態機。",
+    "flowTitle": "OpenSpec 檔案演化狀態機與五階段生命週期工件流向",
+    "resultTitle": "OpenSpec 生命週期指南互動解析頁面",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2MzY2ZjEiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjNjM2NmYxIi8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+T3BlblNwZWMgU0REIOaqlOahiOeUn+aIkOeUn+WRvemAseacn+eLgOaFi+apnzwvdGV4dD4KICA8dGV4dCB4PSIzOCIgeT0iNjAiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iMTEiPkFydGlmYWN0IEV2b2x1dGlvbjogc2NyYXRjaHBhZCAtJmd0OyBjaGFuZ2UgcHJvcG9zYWwgLSZndDsgc291cmNlIGNvZGUgLSZndDsgbWFpbiBzcGVjcyAmYW1wOyBhcmNoaXZlPC90ZXh0PgogIDxyZWN0IHg9IjI1IiB5PSI4MCIgd2lkdGg9IjY3MCIgaGVpZ2h0PSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDgpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIzNCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjM0IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiM2MzY2ZjEiLz4KICAgIDxjaXJjbGUgY3g9IjU2IiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiM2MzY2ZjEiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iNTYiIHk9IjE0MCIgZmlsbD0iIzYzNjZmMSIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkYtMDE8L3RleHQ+CiAgICA8cmVjdCB4PSIxMDIiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iMTIzIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5FeHBsb3JlPC90ZXh0PgogICAgPHRleHQgeD0iNDYiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuaOoue0ouWCmeW/mDwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ2IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5zY3JhdGNocGFkLm1kIDwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ2IiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij7ph5DmuIXpgornlYw8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMTUzIDE2MCBMIDE2NSAxNjAiIHN0cm9rZT0iIzYzNjZmMSIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzYzNjZmMSIvPgogICAgPGNpcmNsZSBjeD0iMTkwIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiM2MzY2ZjEiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMTkwIiB5PSIxNDAiIGZpbGw9IiM2MzY2ZjEiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5GLTAyPC90ZXh0PgogICAgPHJlY3QgeD0iMjM2IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjI1NyIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UHJvcG9zZTwvdGV4dD4KICAgIDx0ZXh0IHg9IjE4MCIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+6K6K5pu05YyF5bel5Lu2PC90ZXh0PgogICAgPHRleHQgeD0iMTgwIiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5wcm9wb3NhbCwgZGVzaTwvdGV4dD4KICAgIDx0ZXh0IHg9IjE4MCIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+Z24sIHRhc2tzPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDI4NyAxNjAgTCAyOTkgMTYwIiBzdHJva2U9IiM2MzY2ZjEiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzAyIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMzAyIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiM2MzY2ZjEiLz4KICAgIDxjaXJjbGUgY3g9IjMyNCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjNjM2NmYxIiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjMyNCIgeT0iMTQwIiBmaWxsPSIjNjM2NmYxIiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Ri0wMzwvdGV4dD4KICAgIDxyZWN0IHg9IjM3MCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIzOTEiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFwcGx5PC90ZXh0PgogICAgPHRleHQgeD0iMzE0IiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7ku6PnorzoiIfpgLLluqY8L3RleHQ+CiAgICA8dGV4dCB4PSIzMTQiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPua6kOeivOiQveWcsCAmYW1wOyB0YXNrcyDmiZM8L3RleHQ+CiAgICA8dGV4dCB4PSIzMTQiIHk9IjIwMCIgZmlsbD0iIzY0NzQ4YiIgZm9udC1zaXplPSI4LjUiPuWLvjwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA0MjEgMTYwIEwgNDMzIDE2MCIgc3Ryb2tlPSIjNjM2NmYxIiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjQzNiIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjQzNiIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjNjM2NmYxIi8+CiAgICA8Y2lyY2xlIGN4PSI0NTgiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzYzNjZmMSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSI0NTgiIHk9IjE0MCIgZmlsbD0iIzYzNjZmMSIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkYtMDQ8L3RleHQ+CiAgICA8cmVjdCB4PSI1MDQiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iNTI1IiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5WZXJpZnk8L3RleHQ+CiAgICA8dGV4dCB4PSI0NDgiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPumpl+itieWQiOimjzwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ0OCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+dmFsaWRhdGUgJmFtcDsgd2FsPC90ZXh0PgogICAgPHRleHQgeD0iNDQ4IiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij5rdGhyb3VnaDwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA1NTUgMTYwIEwgNTY3IDE2MCIgc3Ryb2tlPSIjNjM2NmYxIiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjU3MCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjU3MCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjNjM2NmYxIi8+CiAgICA8Y2lyY2xlIGN4PSI1OTIiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzYzNjZmMSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSI1OTIiIHk9IjE0MCIgZmlsbD0iIzYzNjZmMSIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkYtMDU8L3RleHQ+CiAgICA8cmVjdCB4PSI2MzgiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iNjU5IiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BcmNoaXZlPC90ZXh0PgogICAgPHRleHQgeD0iNTgyIiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7kuLvlubnoiIflsIHlrZg8L3RleHQ+CiAgICA8dGV4dCB4PSI1ODIiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPm9wZW5zcGVjL3NwZWNzPC90ZXh0PgogICAgPHRleHQgeD0iNTgyIiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij4vIOWQiOa1gTwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA2MjggMjE4IEMgNjI4IDI2NSwgOTIgMjY1LCA5MiAyMTgiIHN0cm9rZT0iIzYzNjZmMSIgc3Ryb2tlLXdpZHRoPSIxLjIiIHN0cm9rZS1kYXNoYXJyYXk9IjUsNCIgZmlsbD0ibm9uZSIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8dGV4dCB4PSIzNjAiIHk9IjI2MCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjUwMCI+5Zau5LiA55yf55u45L6G5rqQIChTaW5nbGUgU291cmNlIG9mIFRydXRoKe+8muWinumHj+imj+evhOWuieWFqOWQiOa1geiHs+WFqOWfn+S4u+imj+agvOW6qzwvdGV4dD4KPC9zdmc+",
+    "resultImage": "Vibe Coding/02.Skills(技能)/02.opsx-guide.html",
+    "slideUrl": "Vibe Coding/02.Skills(技能)/02.opsx-guide.html",
+    "objective": "1. 深入掌握 OpenSpec 在 5 大階段中各檔案（.openspec.yaml, proposal.md, design.md, specs/*.md, tasks.md, walkthrough.md）的生成時機與演變歷程。\n2. 理解 Delta Specs 增量規範與 openspec/specs/ 主規格目錄的合併同步機制。\n3. 學會透過 openspec validate 與 openspec status 實現生產級自動化驗收與交付封存。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 階段 1 (/opsx:explore) 探索模式與臨時備忘",
+        "description": "在動手寫代碼或規格前先徹底想清楚，釐清 Why、變更範圍 Scope 與潛在架構盲點，產出探索記錄 scratchpad.md 作為後續提案的直接輸入原料。"
+      },
+      {
+        "step": "步驟 2: 階段 2 (/opsx:propose) 規格先行與 4 大標準工件產出",
+        "description": "執行 openspec new change <name>，自動建立 proposal.md (計畫書)、design.md (技術設計)、specs/*.md (模組增量規格) 與 tasks.md (原子化任務清單)。"
+      },
+      {
+        "step": "步驟 3: 階段 3 (/opsx:apply) 按圖施工與源碼落地",
+        "description": "以 tasks.md 為導航，依序編寫 HTML、CSS、JS 與後端代碼。每完成一項原子任務即時在 tasks.md 標記為完成 (- [x])，進度透明且支援隨時中斷重啟。"
+      },
+      {
+        "step": "步驟 4: 階段 4 (/opsx:verify) 規格符合度驗證與品質把關",
+        "description": "執行 openspec validate <name> 確保 OpenSpec 格式合法，確認 tasks.md 達到 100% 完工 (state: all_done)，執行語法測試並產出 walkthrough.md 驗收報告。"
+      },
+      {
+        "step": "步驟 5: 階段 5 (/opsx:archive) 主幹合流與歷史封存",
+        "description": "執行 openspec archive --yes <name>，自動將提案中的 Delta Specs 萃取並合併至全域主規格目錄 openspec/specs/，並將提案搬遷至 archive/ 封存歸檔。"
+      }
+    ],
+    "promptTemplate": "你是一位精通 OpenSpec SDD 規範的主任架構師。\n請針對手上的 Node-RED 工控邊緣採集模組，執行完整 OpenSpec 生命週期演繹：\n1. 請模擬 /opsx:propose 階段，輸出標準變更包目錄結構與 proposal.md 關鍵要素。\n2. 請示範 tasks.md 如何以原子化編號 (如 1.1, 1.2, 2.1) 定義可驗證任務。\n3. 解釋在 /opsx:archive 執行後，Delta Specs 如何安全合流進 openspec/specs/。",
+    "codeSnippet": {
+      "language": "yaml",
+      "code": "# openspec/changes/nodered-telemetry/.openspec.yaml\nschema: spec-driven-development/v1\nchange: nodered-telemetry\nstatus: ready_for_apply\nartifacts:\n  proposal: proposal.md\n  design: design.md\n  specs:\n    - specs/mqtt/spec.md\n    - specs/modbus/spec.md\n  tasks: tasks.md"
+    },
+    "references": [
+      {
+        "title": "OpenSpec 生命週期指南 (專屬互動全解析頁面)",
+        "url": "Vibe Coding/02.Skills(技能)/02.opsx-guide.html"
+      },
+      {
+        "title": "OpenSpec (opsx) 指南與快速起手教學",
+        "url": "Vibe Coding/02.Skills(技能)/01.openspec.html"
+      },
+      {
+        "title": "OpenSpec 官方文檔 (openspec.dev)",
+        "url": "https://openspec.dev/"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-code-compare",
+        "scenario": "大型專案變更全生命週期稽核",
+        "description": "所有代碼改動皆具備完整的 proposal -> specs -> tasks -> walkthrough -> archive 鏈條，完全符合嚴苛工業軟體審計標準。"
+      },
+      {
+        "icon": "fa-solid fa-folder-tree",
+        "scenario": "長期演進專案的單一事實來源",
+        "description": "透過主規格庫 openspec/specs/ 的持續合流累積，專案永久具備最新、最精確的系統全貌架構規格。"
+      }
+    ]
+  },
+  {
+    "id": "vibe-09",
+    "labNumber": "07",
     "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
     "category": "其他",
     "date": "2026-10-14",

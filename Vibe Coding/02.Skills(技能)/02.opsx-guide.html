@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenSpec 軟體開發生命週期指南 | 5大核心指令與檔案生成全解析</title>
+  <meta name="description" content="詳解 OpenSpec 5大指令（explore, propose, apply, verify, archive）的執行過程、檔案生成生命週期與架構實踐。">
+  <!-- Google Fonts: Inter & Outfit & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=Outfit:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-card: #111827;
+      --bg-card-hover: #1f2937;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(99, 102, 241, 0.3);
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --text-sub: #d1d5db;
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --primary-glow: rgba(99, 102, 241, 0.25);
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --purple: #a855f7;
+      --rose: #f43f5e;
+      --font-code: 'JetBrains Mono', Consolas, Monaco, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', 'Noto Sans TC', -apple-system, sans-serif;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    /* 頂部背景光暈效果 */
+    .glow-bg {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1000px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(6, 182, 212, 0.08) 50%, rgba(11, 15, 25, 0) 75%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* 頁首導航 */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(11, 15, 25, 0.85);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 24px;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand-logo {
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--primary-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .brand-badge {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      color: var(--primary-light);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* 主容器 */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      color: var(--cyan);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 70%, var(--primary-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.12rem;
+      color: var(--text-muted);
+      max-width: 740px;
+      margin: 0 auto 32px;
+    }
+
+    /* 五大階段快速概覽導覽條 */
+    .steps-nav-bar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 64px;
+    }
+
+    .step-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-decoration: none;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .step-pill:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .step-pill.active {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .step-num {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--primary-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .step-cmd {
+      font-family: var(--font-code);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .step-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    /* 階段卡片清單 */
+    .phase-section {
+      margin-bottom: 56px;
+      scroll-margin-top: 90px;
+    }
+
+    .phase-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      transition: border-color 0.3s ease;
+    }
+
+    .phase-card:hover {
+      border-color: var(--border-highlight);
+    }
+
+    /* 卡片頭部 */
+    .phase-header {
+      padding: 24px 28px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .phase-title-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .phase-badge-num {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.15rem;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .badge-01 { background: rgba(6, 182, 212, 0.15); color: var(--cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-02 { background: rgba(99, 102, 241, 0.15); color: var(--primary-light); border: 1px solid rgba(99, 102, 241, 0.3); }
+    .badge-03 { background: rgba(16, 185, 129, 0.15); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-04 { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-05 { background: rgba(168, 85, 247, 0.15); color: var(--purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    .phase-title-text h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .phase-title-text .cmd-tag {
+      font-family: var(--font-code);
+      font-size: 0.92rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      color: var(--primary-light);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .phase-title-text p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .phase-status-pill {
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+    }
+
+    /* 卡片內容佈局 (左側流程原理 + 右側檔案變更生命週期) */
+    .phase-body {
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 28px;
+    }
+
+    @media (max-width: 900px) {
+      .steps-nav-bar { grid-template-columns: 1fr; }
+      .phase-body { grid-template-columns: 1fr; }
+    }
+
+    .phase-col h3 {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .principle-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .principle-box p {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 12px;
+    }
+
+    .principle-box p:last-child {
+      margin-bottom: 0;
+    }
+
+    .checklist-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .checklist-items li {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .checklist-items li .check-icon {
+      color: var(--emerald);
+      font-weight: bold;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* 檔案生命週期容器 */
+    .file-lifecycle-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .file-badge-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 10px;
+    }
+
+    .file-badge-header span {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--cyan);
+    }
+
+    .file-tree {
+      font-family: var(--font-code);
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      line-height: 1.8;
+      background: #080c14;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow-x: auto;
+    }
+
+    .file-tree .dir { color: #94a3b8; font-weight: 600; }
+    .file-tree .file-new { color: var(--emerald); }
+    .file-tree .file-mod { color: var(--amber); }
+    .file-tree .file-sync { color: var(--purple); }
+    .file-tree .file-meta { color: #38bdf8; }
+    .file-tree .file-arch { color: #f43f5e; }
+
+    .file-desc-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .file-desc-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 10px 12px;
+      border-radius: 8px;
+      border-left: 3px solid var(--primary);
+    }
+
+    .file-desc-item.green { border-left-color: var(--emerald); }
+    .file-desc-item.amber { border-left-color: var(--amber); }
+    .file-desc-item.purple { border-left-color: var(--purple); }
+    .file-desc-item.cyan { border-left-color: var(--cyan); }
+
+    .file-name-code {
+      font-family: var(--font-code);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .file-role-text {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* CLI 指令複製欄 */
+    .cli-bar {
+      margin-top: 14px;
+      background: #080c14;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-family: var(--font-code);
+      font-size: 0.82rem;
+    }
+
+    .cli-cmd {
+      color: #38bdf8;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .cli-label {
+      font-size: 0.7rem;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    /* 總覽對照表格 */
+    .summary-section {
+      margin-top: 72px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .summary-section h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .summary-section p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .matrix-table-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.86rem;
+    }
+
+    .matrix-table th {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-sub);
+      padding: 14px 18px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    .matrix-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-sub);
+      vertical-align: top;
+    }
+
+    .matrix-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .matrix-table tr:hover td {
+      background: rgba(255, 255, 255, 0.015);
+    }
+
+    .td-phase {
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    .td-cmd {
+      font-family: var(--font-code);
+      color: var(--primary-light);
+      white-space: nowrap;
+    }
+
+    /* 底部 CTA 區域 */
+    .footer-cta {
+      margin-top: 60px;
+      text-align: center;
+      padding: 40px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, rgba(11, 15, 25, 0.8) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .footer-cta h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .footer-cta p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .footer-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .btn-main-app {
+      background: var(--primary);
+      color: #ffffff;
+      padding: 10px 22px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn-main-app:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-bg"></div>
+
+  <!-- 頂部導航列 -->
+  <header>
+    <div class="nav-container">
+      <a href="./index.html" class="brand">
+        <span class="brand-logo">OpenSpec</span>
+        <span class="brand-badge">SDD 架構指南</span>
+      </a>
+      <div class="nav-actions">
+        <a href="./index.html" class="btn-back">
+          <span>📅 返回行事曆系統</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero 標題區 -->
+    <section class="hero">
+      <div class="hero-tag">
+        <span>⚡ Spec-Driven Development (SDD)</span>
+      </div>
+      <h1>OpenSpec 開發全生命週期解析</h1>
+      <p>
+        從「盤點問題」到「封存交付」，透過規格先行與可追溯工件，告別盲目 Coding 與 AI 規格漂移。本文檔完整梳理 5 大指令與各階段產生的關鍵檔案。
+      </p>
+
+      <!-- 快速導覽列 -->
+      <nav class="steps-nav-bar" aria-label="流程步驟導航">
+        <a href="#explore" class="step-pill">
+          <span class="step-num">Step 01</span>
+          <span class="step-cmd">/opsx:explore</span>
+          <span class="step-sub">盤點問題與釐清</span>
+        </a>
+        <a href="#propose" class="step-pill">
+          <span class="step-num">Step 02</span>
+          <span class="step-cmd">/opsx:propose</span>
+          <span class="step-sub">生成規格與工件</span>
+        </a>
+        <a href="#apply" class="step-pill">
+          <span class="step-num">Step 03</span>
+          <span class="step-cmd">/opsx:apply</span>
+          <span class="step-sub">按圖施工依序實作</span>
+        </a>
+        <a href="#verify" class="step-pill">
+          <span class="step-num">Step 04</span>
+          <span class="step-cmd">/opsx:verify</span>
+          <span class="step-sub">規格符合度驗證</span>
+        </a>
+        <a href="#archive" class="step-pill">
+          <span class="step-num">Step 05</span>
+          <span class="step-cmd">/opsx:archive</span>
+          <span class="step-sub">規格合流與封存</span>
+        </a>
+      </nav>
+    </section>
+
+    <!-- 01. /opsx:explore -->
+    <section id="explore" class="phase-section">
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-title-group">
+            <div class="phase-badge-num badge-01">01</div>
+            <div class="phase-title-text">
+              <h2>/opsx:explore <span class="cmd-tag">探索模式</span></h2>
+              <p>盤點問題、釐清未知架構、評估可行性與劃定變更邊界</p>
+            </div>
+          </div>
+          <span class="phase-status-pill">思考與發散階段</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-col">
+            <h3>🎯 核心定位與操作理念</h3>
+            <div class="principle-box">
+              <p><strong>「在動手寫代碼或規格前，先徹底想清楚。」</strong></p>
+              <p>使用者往往有模糊的需求概念或面臨棘手 Bug，此時不應直接盲寫代碼。`/opsx:explore` 是 AI 與工程師的高維度思維對齊階段，用於深入盤點系統既有邏輯、評估技術棧選型並定義邊界。</p>
+            </div>
+            <ul class="checklist-items">
+              <li><span class="check-icon">✓</span> <strong>釐清「為什麼做 (Why)」</strong>：挖掘真實痛點，避免無效開發。</li>
+              <li><span class="check-icon">✓</span> <strong>劃定「變更範圍 (Scope)」</strong>：確定哪些檔案受影響、哪些保留。</li>
+              <li><span class="check-icon">✓</span> <strong>識別架構盲點</strong>：事前發現潛在 Breaking Change 或資料庫遷移風險。</li>
+            </ul>
+            <div class="cli-bar">
+              <span class="cli-cmd">/opsx:explore</span>
+              <span class="cli-label">對話式觸發</span>
+            </div>
+          </div>
+          <div class="phase-col">
+            <h3>📁 檔案變動與生成生命週期</h3>
+            <div class="file-lifecycle-box">
+              <div class="file-badge-header">
+                <span>產物：探索備忘與需求摘要 (Scratchpad)</span>
+              </div>
+              <div class="file-tree">
+📁 專案根目錄/
+└── 📁 .agent/ (或臨時對話上下文中)
+    └── 📄 scratchpad.md  <span class="file-meta">← 記錄需求痛點、架構決策與邊界</span>
+              </div>
+              <div class="file-desc-list">
+                <div class="file-desc-item cyan">
+                  <span class="file-name-code">對話記憶 / scratchpad.md</span>
+                  <span class="file-role-text">記錄探索結論，作為下一步 `/opsx:propose` 產出正式規格書的直接輸入原料。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02. /opsx:propose -->
+    <section id="propose" class="phase-section">
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-title-group">
+            <div class="phase-badge-num badge-02">02</div>
+            <div class="phase-title-text">
+              <h2>/opsx:propose <span class="cmd-tag">寫出規格</span></h2>
+              <p>規格先行！自動生成 4 大標準 OpenSpec 工件與原子化任務清單</p>
+            </div>
+          </div>
+          <span class="phase-status-pill">規格化與工件產出</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-col">
+            <h3>🎯 核心定位與操作理念</h3>
+            <div class="principle-box">
+              <p><strong>「規格即不可推翻的合約，按圖索驥的基石。」</strong></p>
+              <p>將前階段探索出的結論，一次性沉澱為標準化的 OpenSpec 變更包（Change Proposal）。此階段產出完整設計、增量規範與詳細分解任務，絕不含糊。</p>
+            </div>
+            <ul class="checklist-items">
+              <li><span class="check-icon">✓</span> <strong>Proposal</strong>：闡述問題背景、預期收益與架構邊界。</li>
+              <li><span class="check-icon">✓</span> <strong>Delta Specs</strong>：明確用 ADDED / MODIFIED 規範模組能力。</li>
+              <li><span class="check-icon">✓</span> <strong>Design</strong>：架構圖、資料結構、UI/UX 互動流程。</li>
+              <li><span class="check-icon">✓</span> <strong>Tasks</strong>：分解為原子化 Checklists（如 1.1, 1.2...）。</li>
+            </ul>
+            <div class="cli-bar">
+              <span class="cli-cmd">openspec new change &lt;change-name&gt;</span>
+              <span class="cli-label">CLI 實體指令</span>
+            </div>
+          </div>
+          <div class="phase-col">
+            <h3>📁 檔案變動與生成生命週期</h3>
+            <div class="file-lifecycle-box">
+              <div class="file-badge-header">
+                <span>產物：openspec/changes/&lt;change-name&gt;/ 下 4 大工件</span>
+              </div>
+              <div class="file-tree">
+📁 openspec/changes/web-calendar-app/
+├── ⚙️ .openspec.yaml       <span class="file-meta">← 變更元數據定義</span>
+├── 📄 proposal.md          <span class="file-new">← 計畫書 (目標與風險)</span>
+├── 📄 design.md            <span class="file-new">← 技術設計與資料模型架構</span>
+├── 📁 specs/               <span class="file-new">← 各模組增量規格 (Delta Specs)</span>
+│   ├── 📄 auth/spec.md
+│   └── 📄 calendar/spec.md
+└── 📄 tasks.md             <span class="file-new">← 原子實作清單 (- [ ] Checklist)</span>
+              </div>
+              <div class="file-desc-list">
+                <div class="file-desc-item green">
+                  <span class="file-name-code">proposal.md & design.md</span>
+                  <span class="file-role-text">定義「為什麼做」以及「技術如何達成」的頂層設計文件。</span>
+                </div>
+                <div class="file-desc-item green">
+                  <span class="file-name-code">tasks.md</span>
+                  <span class="file-role-text">包含未勾選（<code>- [ ]</code>）的完整實施計畫，為下一步 apply 的指揮中心。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03. /opsx:apply -->
+    <section id="apply" class="phase-section">
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-title-group">
+            <div class="phase-badge-num badge-03">03</div>
+            <div class="phase-title-text">
+              <h2>/opsx:apply <span class="cmd-tag">依規格實作</span></h2>
+              <p>按圖施工！以 tasks.md 為導航，逐項編寫程式碼並更新完成狀態</p>
+            </div>
+          </div>
+          <span class="phase-status-pill">代碼實施階段</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-col">
+            <h3>🎯 核心定位與操作理念</h3>
+            <div class="principle-box">
+              <p><strong>「精準實施，杜絕隨意發揮與程式碼飄移。」</strong></p>
+              <p>AI 與開發者依據 `tasks.md` 裡的項目，以原子化步驟（Atomic steps）循序編寫 HTML、CSS、JS 與後端代碼。每完成一項任務，即刻在 `tasks.md` 標記為完成（`- [x]`），保證進度透明。</p>
+            </div>
+            <ul class="checklist-items">
+              <li><span class="check-icon">✓</span> <strong>遵循最小變動原則</strong>：嚴格依據 spec.md 寫代碼，不脫稿演出。</li>
+              <li><span class="check-icon">✓</span> <strong>任務即時回報</strong>：每項任務完成立即勾選，進度不遺失。</li>
+              <li><span class="check-icon">✓</span> <strong>隨時可中斷續行</strong>：若遇問題隨時停頓調整，支援中斷重啟。</li>
+            </ul>
+            <div class="cli-bar">
+              <span class="cli-cmd">openspec instructions apply --change &lt;name&gt;</span>
+              <span class="cli-label">CLI 實體指令</span>
+            </div>
+          </div>
+          <div class="phase-col">
+            <h3>📁 檔案變動與生成生命週期</h3>
+            <div class="file-lifecycle-box">
+              <div class="file-badge-header">
+                <span>產物：專案源碼實體建立與 tasks.md 狀態同步</span>
+              </div>
+              <div class="file-tree">
+📁 專案根目錄/
+├── 📄 index.html           <span class="file-mod">← 建立/修改前端 UI 視圖</span>
+├── 📁 styles/main.css      <span class="file-mod">← 實作設計系統與元件樣式</span>
+├── 📁 scripts/             <span class="file-mod">← 實作各模組業務邏輯 (CRUD/Sync)</span>
+└── 📁 openspec/changes/web-calendar-app/
+    └── 📄 tasks.md         <span class="file-mod">← 任務即時更新 (- [ ] → - [x])</span>
+              </div>
+              <div class="file-desc-list">
+                <div class="file-desc-item amber">
+                  <span class="file-name-code">原始碼檔案 (Source Code)</span>
+                  <span class="file-role-text">專案實際運行的程式檔案，完全依照 specs/ 規範打造。</span>
+                </div>
+                <div class="file-desc-item amber">
+                  <span class="file-name-code">tasks.md (狀態更新)</span>
+                  <span class="file-role-text">從 0/16 逐步推進至 16/16 全部勾選完成狀態。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04. /opsx:verify -->
+    <section id="verify" class="phase-section">
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-title-group">
+            <div class="phase-badge-num badge-04">04</div>
+            <div class="phase-title-text">
+              <h2>/opsx:verify <span class="cmd-tag">對照驗證</span></h2>
+              <p>品質守門人！對照規格書與任務驗收標準，執行語法與功能檢驗</p>
+            </div>
+          </div>
+          <span class="phase-status-pill">驗收與測試把關</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-col">
+            <h3>🎯 核心定位與操作理念</h3>
+            <div class="principle-box">
+              <p><strong>「確保每條 Requirement 都有對應的驗收與測試通過。」</strong></p>
+              <p>在封存交付前，執行自動化語法檢查、規格合法性驗證（`openspec validate`）與進度狀態盤點（`openspec status`）。確認任務 100% 達成、無未捕獲異常且功能行為與預期無偏差。</p>
+            </div>
+            <ul class="checklist-items">
+              <li><span class="check-icon">✓</span> <strong>結構合法性驗證</strong>：確保 OpenSpec 格式無語法毀損。</li>
+              <li><span class="check-icon">✓</span> <strong>100% 完工確認</strong>：檢查 tasks.md 是否全部完成（state: all_done）。</li>
+              <li><span class="check-icon">✓</span> <strong>語法與回歸測試</strong>：執行 <code>node --check</code> 與相依性檢查。</li>
+            </ul>
+            <div class="cli-bar">
+              <span class="cli-cmd">openspec validate &lt;name&gt; &amp;&amp; openspec status</span>
+              <span class="cli-label">CLI 實體指令</span>
+            </div>
+          </div>
+          <div class="phase-col">
+            <h3>📁 檔案變動與生成生命週期</h3>
+            <div class="file-lifecycle-box">
+              <div class="file-badge-header">
+                <span>產物：驗證通過訊號與 Walkthrough 驗收報告</span>
+              </div>
+              <div class="file-tree">
+📁 專案根目錄/
+├── 📄 walkthrough.md       <span class="file-meta">← 產出實測成果與功能清單報告</span>
+└── 💻 Terminal Console     <span class="file-new">← 輸出：Change is valid (16/16 done)</span>
+              </div>
+              <div class="file-desc-list">
+                <div class="file-desc-item cyan">
+                  <span class="file-name-code">walkthrough.md (驗證報告)</span>
+                  <span class="file-role-text">條列所有完成的功能亮點、測試結果與部署狀態，供團隊 Review 備查。</span>
+                </div>
+                <div class="file-desc-item green">
+                  <span class="file-name-code">Valid Status (合規標誌)</span>
+                  <span class="file-role-text">確認符合封存標準，准許進入第五階段合流。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05. /opsx:archive -->
+    <section id="archive" class="phase-section">
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-title-group">
+            <div class="phase-badge-num badge-05">05</div>
+            <div class="phase-title-text">
+              <h2>/opsx:archive <span class="cmd-tag">封存交付</span></h2>
+              <p>主幹合流！Delta Specs 晉升為主規格，變更提案歸檔至歷史庫</p>
+            </div>
+          </div>
+          <span class="phase-status-pill">合流與週期閉環</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-col">
+            <h3>🎯 核心定位與操作理念</h3>
+            <div class="principle-box">
+              <p><strong>「讓規格成為系統的單一事實來源（Single Source of Truth）。」</strong></p>
+              <p>當變更實施且驗證完畢後，執行 `/opsx:archive`。CLI 會自動把提案中的 Delta Specs 萃取並合併至全域主規格目錄 `openspec/specs/` 中，同時將提案搬遷至 `archive/YYYY-MM-DD-&lt;name&gt;`。工作區恢復乾淨，規格永久留存！</p>
+            </div>
+            <ul class="checklist-items">
+              <li><span class="check-icon">✓</span> <strong>主規格同步 (Master Sync)</strong>：增量需求正式成為主幹規範。</li>
+              <li><span class="check-icon">✓</span> <strong>變更目錄歸檔</strong>：按日期打標歸檔，歷史記錄完全可溯。</li>
+              <li><span class="check-icon">✓</span> <strong>清空作用中隊列</strong>：<code>openspec list</code> 回復乾淨狀態。</li>
+            </ul>
+            <div class="cli-bar">
+              <span class="cli-cmd">openspec archive --yes &lt;change-name&gt;</span>
+              <span class="cli-label">CLI 實體指令</span>
+            </div>
+          </div>
+          <div class="phase-col">
+            <h3>📁 檔案變動與生成生命週期 (關鍵轉移！)</h3>
+            <div class="file-lifecycle-box">
+              <div class="file-badge-header">
+                <span>產物：openspec/specs/ 主規格庫 + archive/ 封存歸檔</span>
+              </div>
+              <div class="file-tree">
+📁 openspec/
+├── 📁 specs/                     <span class="file-sync">★ 萃取晉升為全域主規格庫！</span>
+│   ├── 📄 auth-and-profiles/spec.md
+│   ├── 📄 calendar-view/spec.md
+│   ├── 📄 data-persistence/spec.md
+│   └── 📄 task-management/spec.md
+└── 📁 changes/
+    ├── <span class="file-arch"><s>web-calendar-app/</s></span>        <span class="file-arch">← 原始提案目錄被自動移動</span>
+    └── 📁 archive/
+        └── 📁 2026-10-14-web-calendar-app/  <span class="file-sync">← 打上日期歸檔保存</span>
+            ├── ⚙️ .openspec.yaml
+            ├── 📄 proposal.md / design.md
+            └── 📄 tasks.md (16/16 done)
+              </div>
+              <div class="file-desc-list">
+                <div class="file-desc-item purple">
+                  <span class="file-name-code">openspec/specs/ (核心事實庫)</span>
+                  <span class="file-role-text">變更中的 Delta Specs 自動合流至此，成為日後維護與後續提案的參照基準。</span>
+                </div>
+                <div class="file-desc-item purple">
+                  <span class="file-name-code">openspec/changes/archive/ (歷史封存)</span>
+                  <span class="file-role-text">保留完整的當初思考提案、任務與實作歷程，任何時候皆可複盤。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 總結對照表 -->
+    <section class="summary-section">
+      <h2>📊 5 大階段全流程對照表</h2>
+      <p>一覽各指令之目的、輸入依據、產出檔案與最終狀態轉變。</p>
+
+      <div class="matrix-table-wrapper">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>階段</th>
+              <th>對應指令</th>
+              <th>主要目的</th>
+              <th>依據來源 (Input)</th>
+              <th>生成 / 影響檔案 (Output)</th>
+              <th>完成標誌 (Outcome)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-phase">01. 盤點問題</td>
+              <td class="td-cmd">/opsx:explore</td>
+              <td>釐清需求背景與技術可行性</td>
+              <td>使用者模糊想法、現有代碼</td>
+              <td><code>scratchpad.md</code> (思維筆記草案)</td>
+              <td>確定「做什麼與邊界」</td>
+            </tr>
+            <tr>
+              <td class="td-phase">02. 寫出規格</td>
+              <td class="td-cmd">/opsx:propose</td>
+              <td>產生標準化規格提案與任務清單</td>
+              <td>探索結論、架構決策</td>
+              <td><code>openspec/changes/&lt;name&gt;/</code> 下的 <code>proposal.md</code>, <code>design.md</code>, <code>specs/</code>, <code>tasks.md</code></td>
+              <td>產出可執行的 Checklists</td>
+            </tr>
+            <tr>
+              <td class="td-phase">03. 依規格實作</td>
+              <td class="td-cmd">/opsx:apply</td>
+              <td>按圖施工，逐步編寫代碼</td>
+              <td><code>specs/</code> 與 <code>tasks.md</code></td>
+              <td>原始碼 (<code>index.html</code>, <code>*.js</code>, <code>*.css</code>) + <code>tasks.md</code> 勾選狀態</td>
+              <td>所有任務標記為 <code>- [x]</code></td>
+            </tr>
+            <tr>
+              <td class="td-phase">04. 對照驗證</td>
+              <td class="td-cmd">/opsx:verify</td>
+              <td>檢驗規格合規度與代碼品質</td>
+              <td>已完成之代碼與 Delta Specs</td>
+              <td><code>walkthrough.md</code> 驗證總結報告</td>
+              <td><code>Change is valid</code> (100% 通過)</td>
+            </tr>
+            <tr>
+              <td class="td-phase">05. 封存交付</td>
+              <td class="td-cmd">/opsx:archive</td>
+              <td>規格主幹合流與變更目錄封存</td>
+              <td>驗收通過的變更目錄</td>
+              <td>生成 <code>openspec/specs/</code> 主規格庫 + 移動至 <code>archive/YYYY-MM-DD-&lt;name&gt;</code></td>
+              <td><code>No active changes</code> 閉環交付</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
