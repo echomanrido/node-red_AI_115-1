@@ -552,58 +552,8 @@ window.INITIAL_VIBE_DATA = [
     ]
   },
   {
-    "id": "vibe-08",
-    "labNumber": "06",
-    "title": "Agent Skills (技能) 體系與 Model Context Protocol (MCP) 架構實戰",
-    "category": "Skills(技能)",
-    "date": "2026-10-14",
-    "summary": "深入解構 Anthropic 發布的開放標準 MCP (Model Context Protocol) 與 Agent 模組化 Skills 體系。如何讓 AI 擺脫封閉文字視窗，透過統一 JSON-RPC 2.0 協議安全掛載本機檔案系統、工控資料庫、Modbus/PLC 硬體與雲端 API，打造具備無限擴展能力的工程工具鏈。",
-    "flowTitle": "Model Context Protocol (MCP) 三層通訊架構",
-    "resultTitle": "Skills (技能) 專屬互動指南",
-    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNhODU1ZjciIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjYTg1NWY3Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+TUNQIOWNlOitsOiIhyBTa2lsbHMg5bel5YW36Y+I5p625qeLPC90ZXh0PgogIDx0ZXh0IHg9IjM4IiB5PSI2MCIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSIxMSI+SG9zdCwgQ2xpZW50LCBQcm90b2NvbCAmYW1wOyBTZXJ2ZXJzIEludGVyY29ubmVjdGlvbjwvdGV4dD4KICA8cmVjdCB4PSIyNSIgeT0iODAiIHdpZHRoPSI2NzAiIGhlaWdodD0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA4KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzMiIHk9IjExMCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIzMyIgeT0iMTEwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjYTg1NWY3Ii8+CiAgICA8Y2lyY2xlIGN4PSI1NSIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjYTg1NWY3IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU1IiB5PSIxNDAiIGZpbGw9IiNhODU1ZjciIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TLTAxPC90ZXh0PgogICAgPHJlY3QgeD0iMTM1IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjE1NiIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SG9zdDwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ1IiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj5NQ1AgSG9zdDwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ1IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5JREUgLyBDbGF1ZGUgLzwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ1IiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij4gQWdlbnQ8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMTg2IDE2MCBMIDE5OCAxNjAiIHN0cm9rZT0iI2E4NTVmNyIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIyMDEiIHk9IjExMCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIyMDEiIHk9IjExMCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iI2E4NTVmNyIvPgogICAgPGNpcmNsZSBjeD0iMjIzIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiNhODU1ZjciIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMjIzIiB5PSIxNDAiIGZpbGw9IiNhODU1ZjciIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TLTAyPC90ZXh0PgogICAgPHJlY3QgeD0iMzAzIiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjMyNCIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UHJvdG9jb2w8L3RleHQ+CiAgICA8dGV4dCB4PSIyMTMiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPk1DUCBDbGllbnQ8L3RleHQ+CiAgICA8dGV4dCB4PSIyMTMiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPumAmuioiuacg+ipseiIh+aOiOasiuS7suijgTwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSAzNTQgMTYwIEwgMzY2IDE2MCIgc3Ryb2tlPSIjYTg1NWY3IiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjM2OSIgeT0iMTEwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjM2OSIgeT0iMTEwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjYTg1NWY3Ii8+CiAgICA8Y2lyY2xlIGN4PSIzOTEiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iI2E4NTVmNyIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSIzOTEiIHk9IjE0MCIgZmlsbD0iI2E4NTVmNyIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlMtMDM8L3RleHQ+CiAgICA8cmVjdCB4PSI0NzEiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iNDkyIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TZXJ2ZXI8L3RleHQ+CiAgICA8dGV4dCB4PSIzODEiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPk1DUCBTZXJ2ZXI8L3RleHQ+CiAgICA8dGV4dCB4PSIzODEiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPuaqlOahiC/os4fmlpnluqsv5bel5o6nPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDUyMiAxNjAgTCA1MzQgMTYwIiBzdHJva2U9IiNhODU1ZjciIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iNTM3IiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iNTM3IiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiNhODU1ZjciLz4KICAgIDxjaXJjbGUgY3g9IjU1OSIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjYTg1NWY3IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU1OSIgeT0iMTQwIiBmaWxsPSIjYTg1NWY3IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Uy0wNDwvdGV4dD4KICAgIDxyZWN0IHg9IjYzOSIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSI2NjAiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlJlYWwgV29ybGQ8L3RleHQ+CiAgICA8dGV4dCB4PSI1NDkiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuWvpumrlOS4lueVjOS6pOS6kjwvdGV4dD4KICAgIDx0ZXh0IHg9IjU0OSIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+UExDIC8g6Zuy56uvIEFQSSAvPC90ZXh0PgogICAgPHRleHQgeD0iNTQ5IiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij4g56Gs6auUPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDYxMiAyMTggQyA2MTIgMjY1LCAxMDggMjY1LCAxMDggMjE4IiBzdHJva2U9IiNhODU1ZjciIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtZGFzaGFycmF5PSI1LDQiIGZpbGw9Im5vbmUiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPHRleHQgeD0iMzYwIiB5PSIyNjAiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI1MDAiPkpTT04tUlBDIDIuMCDpm5nlkJHpgJroqIrvvIzmqJnmupbljJbos4fmupAgKFJlc291cmNlcynjgIHmj5DnpLogKFByb21wdHMpIOiIh+W3peWFtyAoVG9vbHMpPC90ZXh0Pgo8L3N2Zz4=",
-    "resultImage": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html",
-    "slideUrl": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html",
-    "objective": "1. 徹底理解 MCP (Model Context Protocol) 的核心理念與三層架構。\n2. 掌握 MCP Resources, Prompts, Tools 三大基本原語的呼叫標準。\n3. 學會將 Node-RED 與工業設備封裝為標準 MCP Server 供 AI 代理調用。",
-    "tutorialSteps": [
-      {
-        "step": "步驟 1: MCP 協議核心原語剖析",
-        "description": "理解 Resources (唯讀數據如 PLC 暫存器映射)、Tools (可執行動作如啟動馬達、寫入設定)、Prompts (預定義樣板) 的劃分規範。"
-      },
-      {
-        "step": "步驟 2: 建置 Node-RED MCP Server",
-        "description": "透過 stdio 或 SSE (Server-Sent Events) 建立輕量 MCP Server，讓 AI 代理能直接查詢目前 Node-RED 運作中的 Flow 與變數狀態。"
-      },
-      {
-        "step": "步驟 3: 安全隔離與權限驗證",
-        "description": "在 MCP 通訊層實施指令白名單，阻斷對工控危險區域的越權操作。"
-      }
-    ],
-    "promptTemplate": "請扮演 MCP 協議架構師。請使用 Node.js / TypeScript 編寫一個標準的 MCP Server：\n1. 提供 Tool: `read_modbus_register` (讀取指定 slaveId, address 的保持暫存器)。\n2. 提供 Resource: `modbus://status` (回傳目前 PLC 網路連線狀態)。\n3. 符合 Model Context Protocol 最新規範。",
-    "codeSnippet": {
-      "language": "typescript",
-      "code": "// Node-RED / Modbus MCP Server Example\nimport { Server } from '@modelcontextprotocol/sdk/server/index.js';\nimport { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';\n\nconst server = new Server({\n  name: 'nodered-modbus-mcp',\n  version: '1.0.0'\n}, { capabilities: { tools: {}, resources: {} } });\n\nserver.setRequestHandler(ListToolsRequestSchema, async () => ({\n  tools: [{\n    name: 'read_modbus_register',\n    description: '安全讀取現場工控 PLC Modbus 暫存器數據',\n    inputSchema: { type: 'object', properties: { address: { type: 'number' } }, required: ['address'] }\n  }]\n}));"
-    },
-    "references": [
-      {
-        "title": "Skills (技能) 體系專屬互動指南",
-        "url": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html"
-      },
-      {
-        "title": "Anthropic Model Context Protocol 官方規範",
-        "url": "https://modelcontextprotocol.io/"
-      }
-    ],
-    "applications": [
-      {
-        "icon": "fa-solid fa-network-wired",
-        "scenario": "跨平台工控 AI 代理連線",
-        "description": "AI 代理直接經由 MCP 調用本機 Node-RED 執行環境，自動診斷 Flow 佈線錯誤並即時除錯。"
-      }
-    ]
-  },
-  {
     "id": "vibe-09",
-    "labNumber": "07",
+    "labNumber": "06",
     "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
     "category": "其他",
     "date": "2026-10-14",

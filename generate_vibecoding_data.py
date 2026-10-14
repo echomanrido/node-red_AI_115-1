@@ -759,73 +759,10 @@ unit_05_openspec = {
     ]
 }
 
-# 順延為 06：Skills (技能)
-unit_06_skills = {
-    "id": "vibe-08",
-    "labNumber": "06",
-    "title": "Agent Skills (技能) 體系與 Model Context Protocol (MCP) 架構實戰",
-    "category": "Skills(技能)",
-    "date": "2026-10-14",
-    "summary": "深入解構 Anthropic 發布的開放標準 MCP (Model Context Protocol) 與 Agent 模組化 Skills 體系。如何讓 AI 擺脫封閉文字視窗，透過統一 JSON-RPC 2.0 協議安全掛載本機檔案系統、工控資料庫、Modbus/PLC 硬體與雲端 API，打造具備無限擴展能力的工程工具鏈。",
-    "flowTitle": "Model Context Protocol (MCP) 三層通訊架構",
-    "resultTitle": "Skills (技能) 專屬互動指南",
-    "flowImage": make_svg_diagram(
-        "MCP 協議與 Skills 工具鏈架構",
-        "Host, Client, Protocol & Servers Interconnection",
-        [
-            {"num": "S-01", "title": "MCP Host", "sub": "IDE / Claude / Agent", "tag": "Host"},
-            {"num": "S-02", "title": "MCP Client", "sub": "通訊會話與授權仲裁", "tag": "Protocol"},
-            {"num": "S-03", "title": "MCP Server", "sub": "檔案/資料庫/工控", "tag": "Server"},
-            {"num": "S-04", "title": "實體世界交互", "sub": "PLC / 雲端 API / 硬體", "tag": "Real World"}
-        ],
-        loop_label="JSON-RPC 2.0 雙向通訊，標準化資源 (Resources)、提示 (Prompts) 與工具 (Tools)",
-        accent="#a855f7"
-    ),
-    "resultImage": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html",
-    "slideUrl": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html",
-    "objective": "1. 徹底理解 MCP (Model Context Protocol) 的核心理念與三層架構。\n2. 掌握 MCP Resources, Prompts, Tools 三大基本原語的呼叫標準。\n3. 學會將 Node-RED 與工業設備封裝為標準 MCP Server 供 AI 代理調用。",
-    "tutorialSteps": [
-        {
-            "step": "步驟 1: MCP 協議核心原語剖析",
-            "description": "理解 Resources (唯讀數據如 PLC 暫存器映射)、Tools (可執行動作如啟動馬達、寫入設定)、Prompts (預定義樣板) 的劃分規範。"
-        },
-        {
-            "step": "步驟 2: 建置 Node-RED MCP Server",
-            "description": "透過 stdio 或 SSE (Server-Sent Events) 建立輕量 MCP Server，讓 AI 代理能直接查詢目前 Node-RED 運作中的 Flow 與變數狀態。"
-        },
-        {
-            "step": "步驟 3: 安全隔離與權限驗證",
-            "description": "在 MCP 通訊層實施指令白名單，阻斷對工控危險區域的越權操作。"
-        }
-    ],
-    "promptTemplate": "請扮演 MCP 協議架構師。請使用 Node.js / TypeScript 編寫一個標準的 MCP Server：\n1. 提供 Tool: `read_modbus_register` (讀取指定 slaveId, address 的保持暫存器)。\n2. 提供 Resource: `modbus://status` (回傳目前 PLC 網路連線狀態)。\n3. 符合 Model Context Protocol 最新規範。",
-    "codeSnippet": {
-        "language": "typescript",
-        "code": "// Node-RED / Modbus MCP Server Example\nimport { Server } from '@modelcontextprotocol/sdk/server/index.js';\nimport { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';\n\nconst server = new Server({\n  name: 'nodered-modbus-mcp',\n  version: '1.0.0'\n}, { capabilities: { tools: {}, resources: {} } });\n\nserver.setRequestHandler(ListToolsRequestSchema, async () => ({\n  tools: [{\n    name: 'read_modbus_register',\n    description: '安全讀取現場工控 PLC Modbus 暫存器數據',\n    inputSchema: { type: 'object', properties: { address: { type: 'number' } }, required: ['address'] }\n  }]\n}));"
-    },
-    "references": [
-        {
-            "title": "Skills (技能) 體系專屬互動指南",
-            "url": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html"
-        },
-        {
-            "title": "Anthropic Model Context Protocol 官方規範",
-            "url": "https://modelcontextprotocol.io/"
-        }
-    ],
-    "applications": [
-        {
-            "icon": "fa-solid fa-network-wired",
-            "scenario": "跨平台工控 AI 代理連線",
-            "description": "AI 代理直接經由 MCP 調用本機 Node-RED 執行環境，自動診斷 Flow 佈線錯誤並即時除錯。"
-        }
-    ]
-}
-
-# 順延為 07：其他
-unit_07_other = {
+# 順延為 06：其他
+unit_06_other = {
     "id": "vibe-09",
-    "labNumber": "07",
+    "labNumber": "06",
     "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
     "category": "其他",
     "date": "2026-10-14",
@@ -887,8 +824,7 @@ vibe_labs = [
     unit_03_claude,
     unit_04_google,
     unit_05_openspec,
-    unit_06_skills,
-    unit_07_other
+    unit_06_other
 ]
 
 # 寫入 vibecoding.json
@@ -900,5 +836,5 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功生成資料結構，包含新 05 OpenSpec，全部項目已依序順延！")
+print(f"成功更新資料結構，已移除 MCP 單元，後續單元已重新調整為 06！")
 
