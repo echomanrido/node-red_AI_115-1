@@ -1004,65 +1004,6 @@ unit_08_reverse_engineering = {
     ]
 }
 
-# 順延為 09：其他
-unit_09_other = {
-    "id": "vibe-09",
-    "labNumber": "09",
-    "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
-    "category": "其他",
-    "date": "2026-10-14",
-    "summary": "探討 Vibe Coding 時代開發者的心智模型、工程心法與機電整合實踐。解析如何從『打字員心態』晉升為『系統架構指揮官』，掌握人機交響式的開發節奏，並結合 Node-RED、C#、PLC 與工業物聯網，開啟前所未有的高能工程創造力。",
-    "flowTitle": "Vibe Coding 人機協作交響心智模型",
-    "resultTitle": "Vibe Coding 核心心法專屬指南",
-    "flowImage": make_svg_diagram(
-        "Vibe Coding 人機協作心智模型",
-        "Human Intent, AI Orchestration, Verification & Industrial Integration",
-        [
-            {"num": "O-01", "title": "意圖塑形", "sub": "高階架構與領域知識", "tag": "Human"},
-            {"num": "O-02", "title": "AI 交響共創", "sub": "高速代碼生成與重構", "tag": "Agent"},
-            {"num": "O-03", "title": "邊界審查", "sub": "工控極限與容錯把關", "tag": "Human"},
-            {"num": "O-04", "title": "工業落地", "sub": "實體產線與 SCADA 整合", "tag": "Production"}
-        ],
-        loop_label="人類專注於創造性思考與實體安全，AI 承擔所有繁重重複代碼實現",
-        accent="#6366f1"
-    ),
-    "resultImage": "Vibe Coding/03.其他/vibe_coding_other.html",
-    "slideUrl": "Vibe Coding/03.其他/vibe_coding_other.html",
-    "objective": "1. 克服面對 AI 快速生成時的『認知過載 (Cognitive Overload)』。\n2. 掌握快速迭代、Fail-Fast 與人機交響式 (Orchestration) 的開發節奏。\n3. 探索機電 AI、工控通訊與 Vibe Coding 的跨界實戰心法。",
-    "tutorialSteps": [
-        {
-            "step": "心法一：架構思維高於語法細節",
-            "description": "不要浪費時間記憶冷門語法，而是將精力投入在系統模組邊界、通訊協定約束與業務數據流向的規劃上。"
-        },
-        {
-            "step": "心法二：保持小步快跑與即時驗證",
-            "description": "不要一次讓 AI 寫 2,000 行代碼；而是以 50-100 行為單元，持續在 Node-RED Debug 視窗即時檢驗輸出。"
-        },
-        {
-            "step": "心法三：永遠堅守實體安全底線",
-            "description": "在機電工控領域，軟體錯誤可能導致實體機械損壞。所有實體驅動邏輯必須加裝硬體互鎖與急停開關 (E-Stop)。"
-        }
-    ],
-    "promptTemplate": "我想以 Vibe Coding 模式開發一個機電故障預測模組。\n請扮演我的資深同僚架構師：\n1. 請先不要直接給我一堆程式碼，而是先針對『數據特徵提取』與『閾值告警模型』提出三個關鍵架構決策選項。\n2. 分析每個選項在 Node-RED 上的效能與內存開銷。\n3. 等我確認架構後，再逐步指導實作。",
-    "codeSnippet": {
-        "language": "markdown",
-        "code": "# Vibe Coding 人機協作心法守則\n1. 意圖至上 (Intent First): 先釐清要解決的問題，而非先敲代碼。\n2. 規格契約 (Spec as Contract): 用 Markdown 規格作為人機共同語言。\n3. 小步驗證 (Verify Early): 每次 Agent 修改後立即執行單元測試或 Debug 印出。\n4. 責任在人 (Human Accountability): 最終生產環境安全永遠由人類負責。"
-    },
-    "references": [
-        {
-            "title": "Vibe Coding 核心心法專屬指南",
-            "url": "Vibe Coding/03.其他/vibe_coding_other.html"
-        }
-    ],
-    "applications": [
-        {
-            "icon": "fa-solid fa-graduation-cap",
-            "scenario": "職訓教育與工程人才賦能",
-            "description": "幫助學員跳脫傳統代碼打字員的框架，在課堂上直接學會以系統架構師的高度調動 AI 完成實務專案。"
-        }
-    ]
-}
-
 vibe_labs = [
     unit_01_evolution,
     unit_02_guide,
@@ -1071,8 +1012,7 @@ vibe_labs = [
     unit_05_openspec,
     unit_06_opsx_guide,
     unit_07_superpowers,
-    unit_08_reverse_engineering,
-    unit_09_other
+    unit_08_reverse_engineering
 ]
 
 # 寫入 vibecoding.json
@@ -1084,5 +1024,5 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功更新資料結構，包含新 08 傳統逆向工程指南，其他調整為 09！")
+print(f"成功更新資料結構，已移除人機協作心法單元！共保留 {len(vibe_labs)} 個單元。")
 
