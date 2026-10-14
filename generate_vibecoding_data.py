@@ -82,10 +82,10 @@ def make_svg_diagram(title, subtitle, nodes, loop_label=None, accent="#0ea5e9"):
     encoded = base64.b64encode(svg_str.encode('utf-8')).decode('utf-8')
     return f"data:image/svg+xml;base64,{encoded}"
 
-# 新增 01：Vibe Coding 與新世代 AI 原生軟體工程權威指南
-unit_01_guide = {
+# 02：Vibe Coding 與新世代 AI 原生軟體工程權威指南
+unit_02_guide = {
     "id": "vibe-guide",
-    "labNumber": "01",
+    "labNumber": "02",
     "title": "Vibe Coding 與新世代 AI 原生軟體工程 (AI-Native SDLC 權威指南)",
     "category": "軟體工程",
     "date": "2026-09-20",
@@ -149,10 +149,10 @@ unit_01_guide = {
     ]
 }
 
-# 順延為 02：軟體工程演進全景圖
-unit_02_evolution = {
+# 01：軟體工程演進全景圖
+unit_01_evolution = {
     "id": "vibe-01",
-    "labNumber": "02",
+    "labNumber": "01",
     "title": "軟體工程演進全景圖：從混沌、瀑布、敏捷到 Vibe Coding",
     "category": "軟體工程",
     "date": "2026-09-18",
@@ -800,8 +800,8 @@ unit_06_other = {
 }
 
 vibe_labs = [
-    unit_01_guide,
-    unit_02_evolution,
+    unit_01_evolution,
+    unit_02_guide,
     unit_03_claude,
     unit_04_google,
     unit_05_skills,
