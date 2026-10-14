@@ -82,6 +82,222 @@ def make_svg_diagram(title, subtitle, nodes, loop_label=None, accent="#0ea5e9"):
     encoded = base64.b64encode(svg_str.encode('utf-8')).decode('utf-8')
     return f"data:image/svg+xml;base64,{encoded}"
 
+# 新增 01：Vibe Coding 與新世代 AI 原生軟體工程權威指南
+unit_01_guide = {
+    "id": "vibe-guide",
+    "labNumber": "01",
+    "title": "Vibe Coding 與新世代 AI 原生軟體工程 (AI-Native SDLC 權威指南)",
+    "category": "軟體工程",
+    "date": "2026-09-20",
+    "summary": "從靈感直覺到嚴謹工程！深入剖析 Andrej Karpathy (Tesla 前 AI 總監 / OpenAI 共同創辦人) 提出的 Vibe Coding 革命浪潮與新世代 AI 原生軟體工程 (AI-Native SDLC)。工程師角色從敲碼打字員躍升為系統架構指揮家，以自然語言、規格契約 (Spec) 與自主代理閉環 (Agentic Loops) 重新定義軟體開發全流程。",
+    "flowTitle": "從直覺意圖到嚴謹架構的 Vibe Coding 實踐四角矩陣",
+    "resultTitle": "Vibe Coding 與 AI-Native SDLC 權威指南互動頁面",
+    "flowImage": make_svg_diagram(
+        "Vibe Coding 與 AI-Native SDLC 核心架構",
+        "Natural Language, Agentic Loops, Spec-Driven & Human-in-the-Loop",
+        [
+            {"num": "V-01", "title": "直覺意圖", "sub": "自然語言即編譯器", "tag": "Intent"},
+            {"num": "V-02", "title": "規格約束", "sub": "Spec.md 契約工程", "tag": "Contract"},
+            {"num": "V-03", "title": "代理閉環", "sub": "自治產碼與自愈修復", "tag": "Agent Loop"},
+            {"num": "V-04", "title": "人機驗收", "sub": "架構審查與安全把關", "tag": "Human Gate"}
+        ],
+        loop_label="Karpathy 哲學：以直覺發起，以代理執行，以架構約束，以嚴謹驗收",
+        accent="#6366f1"
+    ),
+    "resultImage": "Vibe Coding/01.軟體工程/vibe_coding_software_engineering_guide.html",
+    "slideUrl": "Vibe Coding/01.軟體工程/vibe_coding_software_engineering_guide.html",
+    "objective": "1. 掌握 Andrej Karpathy 提出之 Vibe Coding 核心哲理與『自然語言即編譯器』的心智模型。\n2. 深刻對比傳統 SDLC 與 AI-Native SDLC 在需求、設計、編碼、測試各階段的範式轉移。\n3. 熟練掌握 Context Engineering (上下文工程) 與 Human-in-the-Loop 驗收標準，打造成熟穩健的工業級軟體。",
+    "tutorialSteps": [
+        {
+            "step": "核心原則一：自然語言即編譯器 (Natural Language as Compiler)",
+            "description": "透過精確的 Prompt、Markdown 規範與上下文注入 (Context Engineering)，自然語言晉身為最高階的高階語言，大幅縮短思想與代碼實現的落差。"
+        },
+        {
+            "step": "核心原則二：自主代理人閉環 (Agentic Loops & Self-Correction)",
+            "description": "AI 不僅提供代碼補全，更能主動調用終端機命令、自動執行單元測試、解析日誌報錯並進行自主迭代修復。"
+        },
+        {
+            "step": "核心原則三：人機迴圈檢驗 (Human-in-the-Loop Verification)",
+            "description": "工程師的精力從繁瑣語法細節移轉至系統安全性、高階架構設計、驗收標準 (Acceptance Criteria) 與業務邏輯的嚴密把關。"
+        },
+        {
+            "step": "核心原則四：規格驅動開發 (Spec-Driven Engineering)",
+            "description": "杜絕盲目瞎猜。在讓 Agent 敲代碼之前，先鎖定資料模型、API 界面、非功能性需求與邊界條件，實現高可靠生產級交付。"
+        }
+    ],
+    "promptTemplate": "你是一位頂尖的 AI 原生軟體工程專家。請根據 Andrej Karpathy 的 Vibe Coding 理念：\n『專注於意圖表達 (Intent)、架構規格 (Specs) 與驗收標準 (Acceptance Criteria)』\n請針對我手上的 Node-RED 工控通訊模組，提出一份符合 AI-Native SDLC 的：\n1. 架構意圖說明 (Intent Specification)\n2. 關鍵上下文工程清單 (Context Checklist)\n3. 自主代理測試驗收計畫 (Acceptance Tests for Agent Loops)",
+    "codeSnippet": {
+        "language": "markdown",
+        "code": "# Vibe Coding Engineering Manifesto\n## 1. Intent over Implementation (意圖先於實作)\n- 我們定義系統要達成什麼目標，而非親手敲擊每一行 for 迴圈。\n\n## 2. Specs as Contracts (規格即契約)\n- 任何大規模 Agent 協同前，先鎖定 spec.md 作為單一真相來源 (Single Source of Truth)。\n\n## 3. Autonomous Verification (自主驗收)\n- 每次代碼生成必須伴隨全自動單元測試與日誌驗證。"
+    },
+    "references": [
+        {
+            "title": "Vibe Coding 與新世代 AI 原生軟體工程 (專屬互動頁面)",
+            "url": "Vibe Coding/01.軟體工程/vibe_coding_software_engineering_guide.html"
+        },
+        {
+            "title": "軟體工程演進全景圖",
+            "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-bolt",
+            "scenario": "新世代工程團隊能力轉型",
+            "description": "幫助工程師擺脫沉重低效的重構與樣板碼書寫，將 80% 時間專注在頂層系統設計與工業核心演算法。"
+        }
+    ]
+}
+
+# 順延為 02：軟體工程演進全景圖
+unit_02_evolution = {
+    "id": "vibe-01",
+    "labNumber": "02",
+    "title": "軟體工程演進全景圖：從混沌、瀑布、敏捷到 Vibe Coding",
+    "category": "軟體工程",
+    "date": "2026-09-18",
+    "summary": "系統回顧從 1960 年代第一代「混沌無序 (Code & Fix)」、第二代「瀑布模型 (嚴格分工與文件驅動)」、第三代「敏捷開發與 DevOps (雙週衝刺與持續交付)」，一路邁向第四代「AI-Native Vibe Coding (意圖驅動、AI 產碼、人類把關架構)」的演進歷史與範式轉移。剖析為何『代碼不再是瓶頸』，而架構審查與意圖定義成為核心競爭力。",
+    "flowTitle": "軟體工程四代典範大躍遷演進光譜",
+    "resultTitle": "軟體工程演進史互動專題網頁",
+    "flowImage": make_svg_diagram(
+        "軟體工程四代演進範式轉移", 
+        "Software Engineering Evolution: From Code & Fix to Vibe Coding",
+        [
+            {"num": "1st", "title": "混沌無序", "sub": "Code & Fix 摸索嘗試", "tag": "1960s"},
+            {"num": "2nd", "title": "瀑布模型", "sub": "嚴格分工文件凍結", "tag": "1970s"},
+            {"num": "3rd", "title": "敏捷開發", "sub": "Sprint 與 CI/CD 流水線", "tag": "2000s"},
+            {"num": "4th", "title": "Vibe Coding", "sub": "意圖驅動人機交響共創", "tag": "2026"}
+        ],
+        loop_label="範式重構：工程師從逐行打字搬磚，升級為系統架構指揮官與審核守門人",
+        accent="#0ea5e9"
+    ),
+    "resultImage": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html",
+    "slideUrl": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html",
+    "objective": "1. 深刻理解軟體工程四個歷史階段的核心痛點與演進必然性。\n2. 掌握 Vibe Coding 時代『開發者心態轉移』：從打字敲碼轉為架構定義、Prompt 工程與邊界審查。\n3. 學會辨別『寫代碼』與『系統架構設計』的價值重組，善用 AI Agent 高效構建工業物聯系統。",
+    "tutorialSteps": [
+        {
+            "step": "第一代 混沌期 (1960s)：軟體危機的誕生",
+            "description": "早期軟體開發缺乏架構與工程學規範，採用邊寫邊改 (Code & Fix) 的作法。隨著系統規模膨脹，出現嚴重的專案超支、延宕與程式碼無法維護，史稱『第一次軟體危機』。"
+        },
+        {
+            "step": "第二代 瀑布模型 (1970s~1990s)：過度防禦與文件枷鎖",
+            "description": "借鏡傳統土木工程，將軟體劃分為需求、分析、設計、編碼、測試、維運等嚴格線性階段。缺點是需求難以及時變更，後期發現缺陷時修改成本呈現指數級上升。"
+        },
+        {
+            "step": "第三代 敏捷與 DevOps (2000s~2024)：快速迭代與自動化流水線",
+            "description": "以 2 週 Sprint 為單位小步快跑，擁抱需求變更，配合 Git、CI/CD 與自動化單元測試，使產品能快速持續交付。但編碼本身仍嚴重受限於人類手工生產力。"
+        },
+        {
+            "step": "第四代 Vibe Coding (2025~2026+)：AI 原生意圖驅動開發",
+            "description": "由 LLM / Coding Agent 承接 90% 以上的具體編碼工作，人類開發者透過規格 (Spec.md)、意圖 (Intent.md) 與即時架構指導 (Prompt)，完成高質量軟體交付。"
+        }
+    ],
+    "promptTemplate": "你是一位頂尖的軟體架構專家。請評估我手上的機電物聯網 SCADA 專案架構：\n1. 請以 Vibe Coding 模式，將目前傳統瀑布式的開發流程轉換為 Spec-Driven 的 AI 協同工作流。\n2. 針對 Node-RED 數據採集、Modbus 通訊與前端 Web 儀表板，產出模組化的 intent.md 與架構約束規範。\n3. 指出在此模式下，人類工程師應重點防禦與審核的關鍵邊界（例如工控安全、併發鎖定與死鎖偵測）。",
+    "codeSnippet": {
+        "language": "markdown",
+        "code": "# Project Intent: Industrial SCADA IoT Dashboard\n## 1. 核心意圖 (Core Intent)\n建構五股職訓局機電 AI 監控系統，採集現場 PLC/Modbus 感測器數據並於 Web 即時可視化。\n\n## 2. 人機協作邊界 (Human-Agent Boundary)\n- AI Agent 職責: 產生 Node-RED Function 程式碼、UI 儀表板組件與單元測試。\n- 人類架構師職責: 審核通訊逾時熔斷、實體硬體安全極限值、資料庫 ACID 規範。\n\n## 3. 驗證指標 (Verification Criteria)\n- 採集延遲 < 100ms\n- 斷線自動重連機制覆蓋率 100%"
+    },
+    "references": [
+        {
+            "title": "軟體工程演進全景圖 (互動專題頁面)",
+            "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
+        },
+        {
+            "title": "Anthropic AI-Native SDLC 全週期實戰手冊",
+            "url": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-industry",
+            "scenario": "工控自動化系統升級",
+            "description": "將傳統耗時數月的 PLC/SCADA 控制邏輯重構，利用 Vibe Coding 與 AI 代理於數日內完成通訊協議配接與前端即時看板開發。"
+        },
+        {
+            "icon": "fa-solid fa-code-branch",
+            "scenario": "敏捷轉型與 AI SDLC 整合",
+            "description": "團隊工作流從以『Jira Ticket 敲碼』為中心，轉向以『Spec 文件審閱與 Agent 生成品質驗證』為中心的敏捷卓越研發。"
+        }
+    ]
+}
+
+# 順延為 03：Anthropic Claude AI-Native SDLC
+unit_03_claude = {
+    "id": "vibe-02",
+    "labNumber": "03",
+    "title": "Anthropic Claude：AI-Native SDLC 全週期實戰手冊 (Playbook)",
+    "category": "軟體工程",
+    "date": "2026-08-21",
+    "summary": "Anthropic 官方權威發布《The AI-Native SDLC Playbook》。宣告『Code is no longer the bottleneck』！深入解構 Plan (規劃)、Design (設計)、Build (構建)、Test (測試)、Deploy (部署)、Maintain (維護) 六大階段，落實以版本控制工件鏈 (intent.md -> spec.md -> plan.md) 驅動的全自動閉環。",
+    "flowTitle": "AI-Native SDLC 六大階段工件閉環架構",
+    "resultTitle": "Anthropic 220+ 頁互動簡報系統",
+    "flowImage": make_svg_diagram(
+        "AI-Native SDLC 六階段工件鏈", 
+        "Anthropic Six-Stage Closed-Loop Playbook Architecture",
+        [
+            {"num": "01", "title": "Plan 企劃", "sub": "intent.md 捕獲意圖", "tag": "意圖驅動"},
+            {"num": "02", "title": "Design 設計", "sub": "spec.md 規格收斂", "tag": "規格鎖定"},
+            {"num": "03", "title": "Build 構建", "sub": "plan.md 分塊產碼", "tag": "Agent 執行"},
+            {"num": "04", "title": "Test & Deploy", "sub": "自適應驗證與金絲雀", "tag": "門禁把關"},
+            {"num": "05", "title": "Maintain 維護", "sub": "告警轉 incident.md", "tag": "自動閉環"}
+        ],
+        loop_label="生產事故或新需求自動觸發新一輪 intent.md，形成永續自我優化飛輪",
+        accent="#f59e0b"
+    ),
+    "resultImage": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html",
+    "slideUrl": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html",
+    "objective": "1. 徹底掌握 AI-Native SDLC 的六大閉環階段與核心工件串接鏈條。\n2. 熟悉 intent.md、spec.md、plan.md 的標準撰寫規範與版本控管。\n3. 理解 Human in the loop 的把關哲學：人類專注於把關門禁 (Gates)，而非從零打字。",
+    "tutorialSteps": [
+        {
+            "step": "Stage 1 — Plan (企劃意圖捕獲)",
+            "description": "任何人有想法時，不再需要繁複填寫冗長 Jira 單，而是直接與 Claude 進行頭腦風暴，自動生成結構化且可版本控管的 intent.md，經產品負責人審批後自動觸發下一階段。"
+        },
+        {
+            "step": "Stage 2 — Design (架構規格定稿)",
+            "description": "以 intent.md 為輸入，Agent 自動查閱既有專案代碼庫規範與依賴，產出嚴謹的 spec.md，明確定義 API 界面、數據模型、非功能性需求與邊界約束。"
+        },
+        {
+            "step": "Stage 3 — Build (任務分塊與自主編碼)",
+            "description": "將 spec.md 分解為具體的 plan.md 任務清單。Coding Agent (如 Claude Code) 逐步生成代碼差異 (Diff) 與單元測試，人類僅需在高階 Diff 層面進行驗收。"
+        },
+        {
+            "step": "Stage 4 & 5 — Test & Deploy (自適應測試與金絲雀發布)",
+            "description": "Agent 依據邊界條件自動生成 Fuzzing 測試套件，通過後進入自動化 CI/CD 管道，執行金絲雀發布 (Canary Deploy) 與自動健康度觀測。"
+        },
+        {
+            "step": "Stage 6 — Maintain (生產維護與事故閉環)",
+            "description": "當生產環境監控警報超出控制帶時，Agent 自動擷取錯誤日誌與 Trace，產出 incident.md 與修復 Pull Request，形成自我修復的自愈生態。"
+        }
+    ],
+    "promptTemplate": "你是一位精通 Anthropic AI-Native SDLC 的主任架構師。請依據以下業務需求：\n『為 Node-RED 增加一個安全驗證節點，當感測器讀數超過上限時，以 JWT 加密通知警報伺服器』\n請按照手冊規範，產出標準的：\n1. intent.md (業務意圖、利害關係人、成功指標)\n2. spec.md (API 簽名、驗證規則、錯誤處理)\n3. plan.md (分步驟實施清單、門禁驗收點)",
+    "codeSnippet": {
+        "language": "markdown",
+        "code": "<!-- intent.md 實戰範例 -->\n# Intent: Node-RED 工控節點安全驗證模組\n\n## Why\n現行 Node-RED 數據直傳未經加密簽章，面臨中間人攻擊風險。\n\n## What\n實作自訂節點 `node-red-contrib-industrial-auth`，支援 HMAC-SHA256 簽署與重放攻擊防護。\n\n## Governance Gates\n- [ ] 安全團隊審批演算法安全性 (FIPS 140-2)\n- [ ] 壓測通過 5,000 req/sec，延遲增加 < 5ms"
+    },
+    "references": [
+        {
+            "title": "Claude The AI-Native SDLC Playbook (220+ 頁互動簡報系統)",
+            "url": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html"
+        },
+        {
+            "title": "Anthropic 官方 Blog 原文參考",
+            "url": "https://claude.com/blog/the-ai-native-sdlc-playbook"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-shield-halved",
+            "scenario": "企業級合規與審計追蹤",
+            "description": "所有需求、架構決策與 Agent 生成代碼皆以 Git Commit 工件作為審計依據，滿足金融與嚴苛工業規範之合規要求。"
+        },
+        {
+            "icon": "fa-solid fa-rotate",
+            "scenario": "工控系統自愈運維 (Self-Healing)",
+            "description": "現場 PLC 斷線異常自動生成 incident.md 並自動產生重連容錯 PR，大幅降低停線損失。"
+        }
+    ]
+}
+
 # Google 5-Day 子單元清單 (Sub-modules)
 google_children = [
     {
@@ -389,10 +605,10 @@ google_children = [
     }
 ]
 
-# 母群組：Google 5-Day 全系列課程
-google_parent_group = {
+# 順延為 04：Google 5-Day 全系列母群組
+unit_04_google = {
     "id": "vibe-google-course",
-    "labNumber": "03",
+    "labNumber": "04",
     "isGroup": True,
     "groupTitle": "Google 5-Day AI Agents 密集課程 (全五天系列)",
     "title": "Google 5-Day AI Agents 密集課程：完整實戰總覽 (Day 1 ~ Day 5)",
@@ -461,271 +677,135 @@ google_parent_group = {
     "children": google_children
 }
 
+# 順延為 05：Skills (技能)
+unit_05_skills = {
+    "id": "vibe-08",
+    "labNumber": "05",
+    "title": "Agent Skills (技能) 體系與 Model Context Protocol (MCP) 架構實戰",
+    "category": "Skills(技能)",
+    "date": "2026-10-14",
+    "summary": "深入解構 Anthropic 發布的開放標準 MCP (Model Context Protocol) 與 Agent 模組化 Skills 體系。如何讓 AI 擺脫封閉文字視窗，透過統一 JSON-RPC 2.0 協議安全掛載本機檔案系統、工控資料庫、Modbus/PLC 硬體與雲端 API，打造具備無限擴展能力的工程工具鏈。",
+    "flowTitle": "Model Context Protocol (MCP) 三層通訊架構",
+    "resultTitle": "Skills (技能) 專屬互動指南",
+    "flowImage": make_svg_diagram(
+        "MCP 協議與 Skills 工具鏈架構",
+        "Host, Client, Protocol & Servers Interconnection",
+        [
+            {"num": "S-01", "title": "MCP Host", "sub": "IDE / Claude / Agent", "tag": "Host"},
+            {"num": "S-02", "title": "MCP Client", "sub": "通訊會話與授權仲裁", "tag": "Protocol"},
+            {"num": "S-03", "title": "MCP Server", "sub": "檔案/資料庫/工控", "tag": "Server"},
+            {"num": "S-04", "title": "實體世界交互", "sub": "PLC / 雲端 API / 硬體", "tag": "Real World"}
+        ],
+        loop_label="JSON-RPC 2.0 雙向通訊，標準化資源 (Resources)、提示 (Prompts) 與工具 (Tools)",
+        accent="#a855f7"
+    ),
+    "resultImage": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html",
+    "slideUrl": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html",
+    "objective": "1. 徹底理解 MCP (Model Context Protocol) 的核心理念與三層架構。\n2. 掌握 MCP Resources, Prompts, Tools 三大基本原語的呼叫標準。\n3. 學會將 Node-RED 與工業設備封裝為標準 MCP Server 供 AI 代理調用。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: MCP 協議核心原語剖析",
+            "description": "理解 Resources (唯讀數據如 PLC 暫存器映射)、Tools (可執行動作如啟動馬達、寫入設定)、Prompts (預定義樣板) 的劃分規範。"
+        },
+        {
+            "step": "步驟 2: 建置 Node-RED MCP Server",
+            "description": "透過 stdio 或 SSE (Server-Sent Events) 建立輕量 MCP Server，讓 AI 代理能直接查詢目前 Node-RED 運作中的 Flow 與變數狀態。"
+        },
+        {
+            "step": "步驟 3: 安全隔離與權限驗證",
+            "description": "在 MCP 通訊層實施指令白名單，阻斷對工控危險區域的越權操作。"
+        }
+    ],
+    "promptTemplate": "請扮演 MCP 協議架構師。請使用 Node.js / TypeScript 編寫一個標準的 MCP Server：\n1. 提供 Tool: `read_modbus_register` (讀取指定 slaveId, address 的保持暫存器)。\n2. 提供 Resource: `modbus://status` (回傳目前 PLC 網路連線狀態)。\n3. 符合 Model Context Protocol 最新規範。",
+    "codeSnippet": {
+        "language": "typescript",
+        "code": "// Node-RED / Modbus MCP Server Example\nimport { Server } from '@modelcontextprotocol/sdk/server/index.js';\nimport { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';\n\nconst server = new Server({\n  name: 'nodered-modbus-mcp',\n  version: '1.0.0'\n}, { capabilities: { tools: {}, resources: {} } });\n\nserver.setRequestHandler(ListToolsRequestSchema, async () => ({\n  tools: [{\n    name: 'read_modbus_register',\n    description: '安全讀取現場工控 PLC Modbus 暫存器數據',\n    inputSchema: { type: 'object', properties: { address: { type: 'number' } }, required: ['address'] }\n  }]\n}));"
+    },
+    "references": [
+        {
+            "title": "Skills (技能) 體系專屬互動指南",
+            "url": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html"
+        },
+        {
+            "title": "Anthropic Model Context Protocol 官方規範",
+            "url": "https://modelcontextprotocol.io/"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-network-wired",
+            "scenario": "跨平台工控 AI 代理連線",
+            "description": "AI 代理直接經由 MCP 調用本機 Node-RED 執行環境，自動診斷 Flow 佈線錯誤並即時除錯。"
+        }
+    ]
+}
+
+# 順延為 06：其他
+unit_06_other = {
+    "id": "vibe-09",
+    "labNumber": "06",
+    "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
+    "category": "其他",
+    "date": "2026-10-14",
+    "summary": "探討 Vibe Coding 時代開發者的心智模型、工程心法與機電整合實踐。解析如何從『打字員心態』晉升為『系統架構指揮官』，掌握人機交響式的開發節奏，並結合 Node-RED、C#、PLC 與工業物聯網，開啟前所未有的高能工程創造力。",
+    "flowTitle": "Vibe Coding 人機協作交響心智模型",
+    "resultTitle": "Vibe Coding 核心心法專屬指南",
+    "flowImage": make_svg_diagram(
+        "Vibe Coding 人機協作心智模型",
+        "Human Intent, AI Orchestration, Verification & Industrial Integration",
+        [
+            {"num": "O-01", "title": "意圖塑形", "sub": "高階架構與領域知識", "tag": "Human"},
+            {"num": "O-02", "title": "AI 交響共創", "sub": "高速代碼生成與重構", "tag": "Agent"},
+            {"num": "O-03", "title": "邊界審查", "sub": "工控極限與容錯把關", "tag": "Human"},
+            {"num": "O-04", "title": "工業落地", "sub": "實體產線與 SCADA 整合", "tag": "Production"}
+        ],
+        loop_label="人類專注於創造性思考與實體安全，AI 承擔所有繁重重複代碼實現",
+        accent="#6366f1"
+    ),
+    "resultImage": "Vibe Coding/03.其他/vibe_coding_other.html",
+    "slideUrl": "Vibe Coding/03.其他/vibe_coding_other.html",
+    "objective": "1. 克服面對 AI 快速生成時的『認知過載 (Cognitive Overload)』。\n2. 掌握快速迭代、Fail-Fast 與人機交響式 (Orchestration) 的開發節奏。\n3. 探索機電 AI、工控通訊與 Vibe Coding 的跨界實戰心法。",
+    "tutorialSteps": [
+        {
+            "step": "心法一：架構思維高於語法細節",
+            "description": "不要浪費時間記憶冷門語法，而是將精力投入在系統模組邊界、通訊協定約束與業務數據流向的規劃上。"
+        },
+        {
+            "step": "心法二：保持小步快跑與即時驗證",
+            "description": "不要一次讓 AI 寫 2,000 行代碼；而是以 50-100 行為單元，持續在 Node-RED Debug 視窗即時檢驗輸出。"
+        },
+        {
+            "step": "心法三：永遠堅守實體安全底線",
+            "description": "在機電工控領域，軟體錯誤可能導致實體機械損壞。所有實體驅動邏輯必須加裝硬體互鎖與急停開關 (E-Stop)。"
+        }
+    ],
+    "promptTemplate": "我想以 Vibe Coding 模式開發一個機電故障預測模組。\n請扮演我的資深同僚架構師：\n1. 請先不要直接給我一堆程式碼，而是先針對『數據特徵提取』與『閾值告警模型』提出三個關鍵架構決策選項。\n2. 分析每個選項在 Node-RED 上的效能與內存開銷。\n3. 等我確認架構後，再逐步指導實作。",
+    "codeSnippet": {
+        "language": "markdown",
+        "code": "# Vibe Coding 人機協作心法守則\n1. 意圖至上 (Intent First): 先釐清要解決的問題，而非先敲代碼。\n2. 規格契約 (Spec as Contract): 用 Markdown 規格作為人機共同語言。\n3. 小步驗證 (Verify Early): 每次 Agent 修改後立即執行單元測試或 Debug 印出。\n4. 責任在人 (Human Accountability): 最終生產環境安全永遠由人類負責。"
+    },
+    "references": [
+        {
+            "title": "Vibe Coding 核心心法專屬指南",
+            "url": "Vibe Coding/03.其他/vibe_coding_other.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-graduation-cap",
+            "scenario": "職訓教育與工程人才賦能",
+            "description": "幫助學員跳脫傳統代碼打字員的框架，在課堂上直接學會以系統架構師的高度調動 AI 完成實務專案。"
+        }
+    ]
+}
+
 vibe_labs = [
-    {
-        "id": "vibe-01",
-        "labNumber": "01",
-        "title": "軟體工程演進全景圖：從混沌、瀑布、敏捷到 Vibe Coding",
-        "category": "軟體工程",
-        "date": "2026-09-18",
-        "summary": "系統回顧從 1960 年代第一代「混沌無序 (Code & Fix)」、第二代「瀑布模型 (嚴格分工與文件驅動)」、第三代「敏捷開發與 DevOps (雙週衝刺與持續交付)」，一路邁向第四代「AI-Native Vibe Coding (意圖驅動、AI 產碼、人類把關架構)」的演進歷史與範式轉移。剖析為何『代碼不再是瓶頸』，而架構審查與意圖定義成為核心競爭力。",
-        "flowTitle": "軟體工程四代典範大躍遷演進光譜",
-        "resultTitle": "軟體工程演進史互動專題網頁",
-        "flowImage": make_svg_diagram(
-            "軟體工程四代演進範式轉移", 
-            "Software Engineering Evolution: From Code & Fix to Vibe Coding",
-            [
-                {"num": "1st", "title": "混沌無序", "sub": "Code & Fix 摸索嘗試", "tag": "1960s"},
-                {"num": "2nd", "title": "瀑布模型", "sub": "嚴格分工文件凍結", "tag": "1970s"},
-                {"num": "3rd", "title": "敏捷開發", "sub": "Sprint 與 CI/CD 流水線", "tag": "2000s"},
-                {"num": "4th", "title": "Vibe Coding", "sub": "意圖驅動人機交響共創", "tag": "2026"}
-            ],
-            loop_label="範式重構：工程師從逐行打字搬磚，升級為系統架構指揮官與審核守門人",
-            accent="#0ea5e9"
-        ),
-        "resultImage": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html",
-        "slideUrl": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html",
-        "objective": "1. 深刻理解軟體工程四個歷史階段的核心痛點與演進必然性。\n2. 掌握 Vibe Coding 時代『開發者心態轉移』：從打字敲碼轉為架構定義、Prompt 工程與邊界審查。\n3. 學會辨別『寫代碼』與『系統架構設計』的價值重組，善用 AI Agent 高效構建工業物聯系統。",
-        "tutorialSteps": [
-            {
-                "step": "第一代 混沌期 (1960s)：軟體危機的誕生",
-                "description": "早期軟體開發缺乏架構與工程學規範，採用邊寫邊改 (Code & Fix) 的作法。隨著系統規模膨脹，出現嚴重的專案超支、延宕與程式碼無法維護，史稱『第一次軟體危機』。"
-            },
-            {
-                "step": "第二代 瀑布模型 (1970s~1990s)：過度防禦與文件枷鎖",
-                "description": "借鏡傳統土木工程，將軟體劃分為需求、分析、設計、編碼、測試、維運等嚴格線性階段。缺點是需求難以及時變更，後期發現缺陷時修改成本呈現指數級上升。"
-            },
-            {
-                "step": "第三代 敏捷與 DevOps (2000s~2024)：快速迭代與自動化流水線",
-                "description": "以 2 週 Sprint 為單位小步快跑，擁抱需求變更，配合 Git、CI/CD 與自動化單元測試，使產品能快速持續交付。但編碼本身仍嚴重受限於人類手工生產力。"
-            },
-            {
-                "step": "第四代 Vibe Coding (2025~2026+)：AI 原生意圖驅動開發",
-                "description": "由 LLM / Coding Agent 承接 90% 以上的具體編碼工作，人類開發者透過規格 (Spec.md)、意圖 (Intent.md) 與即時架構指導 (Prompt)，完成高質量軟體交付。"
-            }
-        ],
-        "promptTemplate": "你是一位頂尖的軟體架構專家。請評估我手上的機電物聯網 SCADA 專案架構：\n1. 請以 Vibe Coding 模式，將目前傳統瀑布式的開發流程轉換為 Spec-Driven 的 AI 協同工作流。\n2. 針對 Node-RED 數據採集、Modbus 通訊與前端 Web 儀表板，產出模組化的 intent.md 與架構約束規範。\n3. 指出在此模式下，人類工程師應重點防禦與審核的關鍵邊界（例如工控安全、併發鎖定與死鎖偵測）。",
-        "codeSnippet": {
-            "language": "markdown",
-            "code": "# Project Intent: Industrial SCADA IoT Dashboard\n## 1. 核心意圖 (Core Intent)\n建構五股職訓局機電 AI 監控系統，採集現場 PLC/Modbus 感測器數據並於 Web 即時可視化。\n\n## 2. 人機協作邊界 (Human-Agent Boundary)\n- AI Agent 職責: 產生 Node-RED Function 程式碼、UI 儀表板組件與單元測試。\n- 人類架構師職責: 審核通訊逾時熔斷、實體硬體安全極限值、資料庫 ACID 規範。\n\n## 3. 驗證指標 (Verification Criteria)\n- 採集延遲 < 100ms\n- 斷線自動重連機制覆蓋率 100%"
-        },
-        "references": [
-            {
-                "title": "軟體工程演進全景圖 (互動專題頁面)",
-                "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
-            },
-            {
-                "title": "Anthropic AI-Native SDLC 全週期實戰手冊",
-                "url": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html"
-            }
-        ],
-        "applications": [
-            {
-                "icon": "fa-solid fa-industry",
-                "scenario": "工控自動化系統升級",
-                "description": "將傳統耗時數月的 PLC/SCADA 控制邏輯重構，利用 Vibe Coding 與 AI 代理於數日內完成通訊協議配接與前端即時看板開發。"
-            },
-            {
-                "icon": "fa-solid fa-code-branch",
-                "scenario": "敏捷轉型與 AI SDLC 整合",
-                "description": "團隊工作流從以『Jira Ticket 敲碼』為中心，轉向以『Spec 文件審閱與 Agent 生成品質驗證』為中心的敏捷卓越研發。"
-            }
-        ]
-    },
-    {
-        "id": "vibe-02",
-        "labNumber": "02",
-        "title": "Anthropic Claude：AI-Native SDLC 全週期實戰手冊 (Playbook)",
-        "category": "軟體工程",
-        "date": "2026-08-21",
-        "summary": "Anthropic 官方權威發布《The AI-Native SDLC Playbook》。宣告『Code is no longer the bottleneck』！深入解構 Plan (規劃)、Design (設計)、Build (構建)、Test (測試)、Deploy (部署)、Maintain (維護) 六大階段，落實以版本控制工件鏈 (intent.md -> spec.md -> plan.md) 驅動的全自動閉環。",
-        "flowTitle": "AI-Native SDLC 六大階段工件閉環架構",
-        "resultTitle": "Anthropic 220+ 頁互動簡報系統",
-        "flowImage": make_svg_diagram(
-            "AI-Native SDLC 六階段工件鏈", 
-            "Anthropic Six-Stage Closed-Loop Playbook Architecture",
-            [
-                {"num": "01", "title": "Plan 企劃", "sub": "intent.md 捕獲意圖", "tag": "意圖驅動"},
-                {"num": "02", "title": "Design 設計", "sub": "spec.md 規格收斂", "tag": "規格鎖定"},
-                {"num": "03", "title": "Build 構建", "sub": "plan.md 分塊產碼", "tag": "Agent 執行"},
-                {"num": "04", "title": "Test & Deploy", "sub": "自適應驗證與金絲雀", "tag": "門禁把關"},
-                {"num": "05", "title": "Maintain 維護", "sub": "告警轉 incident.md", "tag": "自動閉環"}
-            ],
-            loop_label="生產事故或新需求自動觸發新一輪 intent.md，形成永續自我優化飛輪",
-            accent="#f59e0b"
-        ),
-        "resultImage": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html",
-        "slideUrl": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html",
-        "objective": "1. 徹底掌握 AI-Native SDLC 的六大閉環階段與核心工件串接鏈條。\n2. 熟悉 intent.md、spec.md、plan.md 的標準撰寫規範與版本控管。\n3. 理解 Human in the loop 的把關哲學：人類專注於把關門禁 (Gates)，而非從零打字。",
-        "tutorialSteps": [
-            {
-                "step": "Stage 1 — Plan (企劃意圖捕獲)",
-                "description": "任何人有想法時，不再需要繁複填寫冗長 Jira 單，而是直接與 Claude 進行頭腦風暴，自動生成結構化且可版本控管的 intent.md，經產品負責人審批後自動觸發下一階段。"
-            },
-            {
-                "step": "Stage 2 — Design (架構規格定稿)",
-                "description": "以 intent.md 為輸入，Agent 自動查閱既有專案代碼庫規範與依賴，產出嚴謹的 spec.md，明確定義 API 界面、數據模型、非功能性需求與邊界約束。"
-            },
-            {
-                "step": "Stage 3 — Build (任務分塊與自主編碼)",
-                "description": "將 spec.md 分解為具體的 plan.md 任務清單。Coding Agent (如 Claude Code) 逐步生成代碼差異 (Diff) 與單元測試，人類僅需在高階 Diff 層面進行驗收。"
-            },
-            {
-                "step": "Stage 4 & 5 — Test & Deploy (自適應測試與金絲雀發布)",
-                "description": "Agent 依據邊界條件自動生成 Fuzzing 測試套件，通過後進入自動化 CI/CD 管道，執行金絲雀發布 (Canary Deploy) 與自動健康度觀測。"
-            },
-            {
-                "step": "Stage 6 — Maintain (生產維護與事故閉環)",
-                "description": "當生產環境監控警報超出控制帶時，Agent 自動擷取錯誤日誌與 Trace，產出 incident.md 與修復 Pull Request，形成自我修復的自愈生態。"
-            }
-        ],
-        "promptTemplate": "你是一位精通 Anthropic AI-Native SDLC 的主任架構師。請依據以下業務需求：\n『為 Node-RED 增加一個安全驗證節點，當感測器讀數超過上限時，以 JWT 加密通知警報伺服器』\n請按照手冊規範，產出標準的：\n1. intent.md (業務意圖、利害關係人、成功指標)\n2. spec.md (API 簽名、驗證規則、錯誤處理)\n3. plan.md (分步驟實施清單、門禁驗收點)",
-        "codeSnippet": {
-            "language": "markdown",
-            "code": "<!-- intent.md 實戰範例 -->\n# Intent: Node-RED 工控節點安全驗證模組\n\n## Why\n現行 Node-RED 數據直傳未經加密簽章，面臨中間人攻擊風險。\n\n## What\n實作自訂節點 `node-red-contrib-industrial-auth`，支援 HMAC-SHA256 簽署與重放攻擊防護。\n\n## Governance Gates\n- [ ] 安全團隊審批演算法安全性 (FIPS 140-2)\n- [ ] 壓測通過 5,000 req/sec，延遲增加 < 5ms"
-        },
-        "references": [
-            {
-                "title": "Claude The AI-Native SDLC Playbook (220+ 頁互動簡報系統)",
-                "url": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html"
-            },
-            {
-                "title": "Anthropic 官方 Blog 原文參考",
-                "url": "https://claude.com/blog/the-ai-native-sdlc-playbook"
-            }
-        ],
-        "applications": [
-            {
-                "icon": "fa-solid fa-shield-halved",
-                "scenario": "企業級合規與審計追蹤",
-                "description": "所有需求、架構決策與 Agent 生成代碼皆以 Git Commit 工件作為審計依據，滿足金融與嚴苛工業規範之合規要求。"
-            },
-            {
-                "icon": "fa-solid fa-rotate",
-                "scenario": "工控系統自愈運維 (Self-Healing)",
-                "description": "現場 PLC 斷線異常自動生成 incident.md 並自動產生重連容錯 PR，大幅降低停線損失。"
-            }
-        ]
-    },
-    google_parent_group,
-    {
-        "id": "vibe-08",
-        "labNumber": "04",
-        "title": "Agent Skills (技能) 體系與 Model Context Protocol (MCP) 架構實戰",
-        "category": "Skills(技能)",
-        "date": "2026-10-14",
-        "summary": "深入解構 Anthropic 發布的開放標準 MCP (Model Context Protocol) 與 Agent 模組化 Skills 體系。如何讓 AI 擺脫封閉文字視窗，透過統一 JSON-RPC 2.0 協議安全掛載本機檔案系統、工控資料庫、Modbus/PLC 硬體與雲端 API，打造具備無限擴展能力的工程工具鏈。",
-        "flowTitle": "Model Context Protocol (MCP) 三層通訊架構",
-        "resultTitle": "Skills (技能) 專屬互動指南",
-        "flowImage": make_svg_diagram(
-            "MCP 協議與 Skills 工具鏈架構",
-            "Host, Client, Protocol & Servers Interconnection",
-            [
-                {"num": "S-01", "title": "MCP Host", "sub": "IDE / Claude / Agent", "tag": "Host"},
-                {"num": "S-02", "title": "MCP Client", "sub": "通訊會話與授權仲裁", "tag": "Protocol"},
-                {"num": "S-03", "title": "MCP Server", "sub": "檔案/資料庫/工控", "tag": "Server"},
-                {"num": "S-04", "title": "實體世界交互", "sub": "PLC / 雲端 API / 硬體", "tag": "Real World"}
-            ],
-            loop_label="JSON-RPC 2.0 雙向通訊，標準化資源 (Resources)、提示 (Prompts) 與工具 (Tools)",
-            accent="#a855f7"
-        ),
-        "resultImage": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html",
-        "slideUrl": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html",
-        "objective": "1. 徹底理解 MCP (Model Context Protocol) 的核心理念與三層架構。\n2. 掌握 MCP Resources, Prompts, Tools 三大基本原語的呼叫標準。\n3. 學會將 Node-RED 與工業設備封裝為標準 MCP Server 供 AI 代理調用。",
-        "tutorialSteps": [
-            {
-                "step": "步驟 1: MCP 協議核心原語剖析",
-                "description": "理解 Resources (唯讀數據如 PLC 暫存器映射)、Tools (可執行動作如啟動馬達、寫入設定)、Prompts (預定義樣板) 的劃分規範。"
-            },
-            {
-                "step": "步驟 2: 建置 Node-RED MCP Server",
-                "description": "透過 stdio 或 SSE (Server-Sent Events) 建立輕量 MCP Server，讓 AI 代理能直接查詢目前 Node-RED 運作中的 Flow 與變數狀態。"
-            },
-            {
-                "step": "步驟 3: 安全隔離與權限驗證",
-                "description": "在 MCP 通訊層實施指令白名單，阻斷對工控危險區域的越權操作。"
-            }
-        ],
-        "promptTemplate": "請扮演 MCP 協議架構師。請使用 Node.js / TypeScript 編寫一個標準的 MCP Server：\n1. 提供 Tool: `read_modbus_register` (讀取指定 slaveId, address 的保持暫存器)。\n2. 提供 Resource: `modbus://status` (回傳目前 PLC 網路連線狀態)。\n3. 符合 Model Context Protocol 最新規範。",
-        "codeSnippet": {
-            "language": "typescript",
-            "code": "// Node-RED / Modbus MCP Server Example\nimport { Server } from '@modelcontextprotocol/sdk/server/index.js';\nimport { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';\n\nconst server = new Server({\n  name: 'nodered-modbus-mcp',\n  version: '1.0.0'\n}, { capabilities: { tools: {}, resources: {} } });\n\nserver.setRequestHandler(ListToolsRequestSchema, async () => ({\n  tools: [{\n    name: 'read_modbus_register',\n    description: '安全讀取現場工控 PLC Modbus 暫存器數據',\n    inputSchema: { type: 'object', properties: { address: { type: 'number' } }, required: ['address'] }\n  }]\n}));"
-        },
-        "references": [
-            {
-                "title": "Skills (技能) 體系專屬互動指南",
-                "url": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html"
-            },
-            {
-                "title": "Anthropic Model Context Protocol 官方規範",
-                "url": "https://modelcontextprotocol.io/"
-            }
-        ],
-        "applications": [
-            {
-                "icon": "fa-solid fa-network-wired",
-                "scenario": "跨平台工控 AI 代理連線",
-                "description": "AI 代理直接經由 MCP 調用本機 Node-RED 執行環境，自動診斷 Flow 佈線錯誤並即時除錯。"
-            }
-        ]
-    },
-    {
-        "id": "vibe-09",
-        "labNumber": "05",
-        "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
-        "category": "其他",
-        "date": "2026-10-14",
-        "summary": "探討 Vibe Coding 時代開發者的心智模型、工程心法與機電整合實踐。解析如何從『打字員心態』晉升為『系統架構指揮官』，掌握人機交響式的開發節奏，並結合 Node-RED、C#、PLC 與工業物聯網，開啟前所未有的高能工程創造力。",
-        "flowTitle": "Vibe Coding 人機協作交響心智模型",
-        "resultTitle": "Vibe Coding 核心心法專屬指南",
-        "flowImage": make_svg_diagram(
-            "Vibe Coding 人機協作心智模型",
-            "Human Intent, AI Orchestration, Verification & Industrial Integration",
-            [
-                {"num": "O-01", "title": "意圖塑形", "sub": "高階架構與領域知識", "tag": "Human"},
-                {"num": "O-02", "title": "AI 交響共創", "sub": "高速代碼生成與重構", "tag": "Agent"},
-                {"num": "O-03", "title": "邊界審查", "sub": "工控極限與容錯把關", "tag": "Human"},
-                {"num": "O-04", "title": "工業落地", "sub": "實體產線與 SCADA 整合", "tag": "Production"}
-            ],
-            loop_label="人類專注於創造性思考與實體安全，AI 承擔所有繁重重複代碼實現",
-            accent="#6366f1"
-        ),
-        "resultImage": "Vibe Coding/03.其他/vibe_coding_other.html",
-        "slideUrl": "Vibe Coding/03.其他/vibe_coding_other.html",
-        "objective": "1. 克服面對 AI 快速生成時的『認知過載 (Cognitive Overload)』。\n2. 掌握快速迭代、Fail-Fast 與人機交響式 (Orchestration) 的開發節奏。\n3. 探索機電 AI、工控通訊與 Vibe Coding 的跨界實戰心法。",
-        "tutorialSteps": [
-            {
-                "step": "心法一：架構思維高於語法細節",
-                "description": "不要浪費時間記憶冷門語法，而是將精力投入在系統模組邊界、通訊協定約束與業務數據流向的規劃上。"
-            },
-            {
-                "step": "心法二：保持小步快跑與即時驗證",
-                "description": "不要一次讓 AI 寫 2,000 行代碼；而是以 50-100 行為單元，持續在 Node-RED Debug 視窗即時檢驗輸出。"
-            },
-            {
-                "step": "心法三：永遠堅守實體安全底線",
-                "description": "在機電工控領域，軟體錯誤可能導致實體機械損壞。所有實體驅動邏輯必須加裝硬體互鎖與急停開關 (E-Stop)。"
-            }
-        ],
-        "promptTemplate": "我想以 Vibe Coding 模式開發一個機電故障預測模組。\n請扮演我的資深同僚架構師：\n1. 請先不要直接給我一堆程式碼，而是先針對『數據特徵提取』與『閾值告警模型』提出三個關鍵架構決策選項。\n2. 分析每個選項在 Node-RED 上的效能與內存開銷。\n3. 等我確認架構後，再逐步指導實作。",
-        "codeSnippet": {
-            "language": "markdown",
-            "code": "# Vibe Coding 人機協作心法守則\n1. 意圖至上 (Intent First): 先釐清要解決的問題，而非先敲代碼。\n2. 規格契約 (Spec as Contract): 用 Markdown 規格作為人機共同語言。\n3. 小步驗證 (Verify Early): 每次 Agent 修改後立即執行單元測試或 Debug 印出。\n4. 責任在人 (Human Accountability): 最終生產環境安全永遠由人類負責。"
-        },
-        "references": [
-            {
-                "title": "Vibe Coding 核心心法專屬指南",
-                "url": "Vibe Coding/03.其他/vibe_coding_other.html"
-            }
-        ],
-        "applications": [
-            {
-                "icon": "fa-solid fa-graduation-cap",
-                "scenario": "職訓教育與工程人才賦能",
-                "description": "幫助學員跳脫傳統代碼打字員的框架，在課堂上直接學會以系統架構師的高度調動 AI 完成實務專案。"
-            }
-        ]
-    }
+    unit_01_guide,
+    unit_02_evolution,
+    unit_03_claude,
+    unit_04_google,
+    unit_05_skills,
+    unit_06_other
 ]
 
 # 寫入 vibecoding.json
@@ -737,4 +817,4 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功生成資料結構，包含 Google 5-Day 群組與 5 個子模組！")
+print(f"成功生成資料結構，包含新 01 權威指南，全部項目已依序順延！")
