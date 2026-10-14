@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superpowers 中文教學指南 | 軟體工程 Agent 工作流規範</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Google Fonts Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+    }
+    .glass-card:hover {
+      border-color: rgba(96, 165, 250, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen antialiased selection:bg-blue-600 selection:text-white flex flex-col justify-between">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-[#0b0f19]/90 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 font-bold text-lg">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div>
+          <span class="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-300 to-cyan-300">Superpowers-zh</span>
+          <span class="hidden sm:inline-block text-[11px] px-2 py-0.5 ml-2 rounded-full bg-blue-950 text-blue-300 border border-blue-800 font-mono">中文版教學</span>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-300">
+        <a href="#quickstart" class="hover:text-blue-400 transition-colors">快速安裝</a>
+        <a href="#core-workflow" class="text-blue-400 font-semibold hover:text-blue-300 transition-colors flex items-center gap-1.5">
+          <i class="fa-solid fa-layer-group text-xs"></i> 必備四大指令
+        </a>
+        <a href="#pipeline" class="hover:text-blue-400 transition-colors">開發生命週期</a>
+        <a href="#skills" class="hover:text-blue-400 transition-colors">14 大核心 Skills</a>
+        <a href="#builder" class="hover:text-blue-400 transition-colors">提示詞生成器</a>
+        <a href="#antigravity" class="hover:text-blue-400 transition-colors">Antigravity 理念</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="https://github.com/jnMetaCode/superpowers-zh" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-2 transition-all">
+          <i class="fa-brands fa-github text-sm"></i>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="space-y-16 pb-20">
+    <!-- Hero Section -->
+    <section class="relative pt-12 pb-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-800 text-blue-400 text-xs font-medium mb-6">
+        <i class="fa-solid fa-shield-halved"></i> 讓 AI Agent 具備資深工程師的嚴謹紀律
+      </div>
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight max-w-4xl mx-auto">
+        將混亂的 Vibe Coding <br>
+        轉變為 <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400">可預測、可驗證的軟體工程</span>
+      </h1>
+      <p class="mt-5 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        Superpowers 是為 AI 程式代理 (如 Claude Code、Cursor、Windsurf) 打造的技能方法論。以 TDD、架構拆解、Git 隔離與證據先行原則，杜絕幻覺與假綠燈。
+      </p>
+
+      <!-- Quick Install Box -->
+      <div id="quickstart" class="mt-8 max-w-xl mx-auto">
+        <div class="glass-card rounded-2xl p-4 shadow-2xl relative border border-slate-700/80">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-2 px-1">
+            <span class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              快速一鍵安裝與載入
+            </span>
+            <span class="font-mono text-[11px] text-slate-500">Node.js 18+</span>
+          </div>
+          <div class="flex items-center justify-between bg-slate-950 rounded-xl p-3 border border-slate-800">
+            <code class="font-mono text-emerald-400 text-sm sm:text-base font-semibold truncate pr-2">$ npx superpowers-zh</code>
+            <button onclick="copyCommand('npx superpowers-zh')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 transition active:scale-95 shadow-lg shadow-blue-600/30 shrink-0">
+              <i class="fa-regular fa-copy"></i>
+              <span>複製</span>
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-2 text-left px-1">
+            * 亦可直接在 Claude Code 提示詞中以元技能調用：<code>/superpowers using-superpowers</code>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Essential 4 Commands Section (Deep Dive: Process & Artifacts) -->
+    <section id="core-workflow" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="glass-card rounded-2xl p-6 sm:p-8 border border-blue-500/40 bg-gradient-to-b from-slate-900/95 via-slate-900/80 to-slate-950 shadow-2xl relative">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-700/60 text-blue-400 text-xs font-semibold mb-2">
+              <i class="fa-solid fa-list-check"></i> 核心骨幹專題
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black text-white">4 大關鍵必備指令：執行過程與中繼產物</h2>
+            <p class="text-slate-400 text-sm mt-1 max-w-2xl">
+              這是 Superpowers 軟體工程的核心脊椎。點擊切換查看各指令的<b>標準執行步驟</b>、<b>產生檔案清單</b>與<b>中繼產物範本</b>。
+            </p>
+          </div>
+
+          <!-- Command Switcher Tabs -->
+          <div class="flex flex-wrap gap-2" id="core-tab-buttons">
+            <button onclick="switchCoreCommand('brainstorming', this)" class="core-nav-btn active-core-btn px-3 py-2 rounded-xl text-xs font-mono font-semibold bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition flex items-center gap-2">
+              <i class="fa-solid fa-lightbulb"></i>
+              <span>brainstorming</span>
+            </button>
+            <button onclick="switchCoreCommand('writing-plans', this)" class="core-nav-btn px-3 py-2 rounded-xl text-xs font-mono font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition flex items-center gap-2">
+              <i class="fa-solid fa-pen-ruler"></i>
+              <span>writing-plans</span>
+            </button>
+            <button onclick="switchCoreCommand('executing-plans', this)" class="core-nav-btn px-3 py-2 rounded-xl text-xs font-mono font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition flex items-center gap-2">
+              <i class="fa-solid fa-play"></i>
+              <span>executing-plans</span>
+            </button>
+            <button onclick="switchCoreCommand('test-driven-development', this)" class="core-nav-btn px-3 py-2 rounded-xl text-xs font-mono font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition flex items-center gap-2">
+              <i class="fa-solid fa-flask-vial"></i>
+              <span>test-driven-development</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Core Details Display -->
+        <div id="core-content-display">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Engineering Lifecycle Pipeline -->
+    <section id="pipeline" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-10">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">五階段標準軟體工程管線</h2>
+        <p class="text-slate-400 text-sm mt-2">從模糊需求到上線驗證，嚴格遵循單向推進與回滾規範</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- Step 1 -->
+        <div class="glass-card p-5 rounded-2xl relative overflow-hidden border-t-2 border-t-blue-500">
+          <div class="text-xs font-mono text-blue-400 font-bold mb-1">PHASE 01</div>
+          <h3 class="text-base font-bold text-white mb-2">需求頭腦風暴</h3>
+          <p class="text-xs text-slate-400 mb-3 leading-relaxed">一次只問一個關鍵問題，梳理架構取捨與邊界條件，產出規格書。</p>
+          <div class="text-[11px] font-mono text-slate-500 bg-slate-950/80 p-2 rounded-lg border border-slate-800">
+            <span class="text-blue-300">產物:</span> specs/*.spec.md
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="glass-card p-5 rounded-2xl relative overflow-hidden border-t-2 border-t-indigo-500">
+          <div class="text-xs font-mono text-indigo-400 font-bold mb-1">PHASE 02</div>
+          <h3 class="text-base font-bold text-white mb-2">微步計劃拆解</h3>
+          <p class="text-xs text-slate-400 mb-3 leading-relaxed">將規格切分為 ≤15 分鐘的微任務，指定明確驗證命令與勾選單。</p>
+          <div class="text-[11px] font-mono text-slate-500 bg-slate-950/80 p-2 rounded-lg border border-slate-800">
+            <span class="text-indigo-300">產物:</span> plans/*.plan.md
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="glass-card p-5 rounded-2xl relative overflow-hidden border-t-2 border-t-emerald-500">
+          <div class="text-xs font-mono text-emerald-400 font-bold mb-1">PHASE 03</div>
+          <h3 class="text-base font-bold text-white mb-2">TDD 隔離實作</h3>
+          <p class="text-xs text-slate-400 mb-3 leading-relaxed">Red ➔ Green ➔ Refactor 循環，在獨立 Git Worktree 中撰寫代碼。</p>
+          <div class="text-[11px] font-mono text-slate-500 bg-slate-950/80 p-2 rounded-lg border border-slate-800">
+            <span class="text-emerald-300">產物:</span> tests/*.test.ts
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="glass-card p-5 rounded-2xl relative overflow-hidden border-t-2 border-t-amber-500">
+          <div class="text-xs font-mono text-amber-400 font-bold mb-1">PHASE 04</div>
+          <h3 class="text-base font-bold text-white mb-2">派遣獨立審查</h3>
+          <p class="text-xs text-slate-400 mb-3 leading-relaxed">派遣專門 Reviewer Agent，檢視架構、覆蓋率、嚴謹處理每一條反饋。</p>
+          <div class="text-[11px] font-mono text-slate-500 bg-slate-950/80 p-2 rounded-lg border border-slate-800">
+            <span class="text-amber-300">產物:</span> .review/feedback.md
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="glass-card p-5 rounded-2xl relative overflow-hidden border-t-2 border-t-cyan-500">
+          <div class="text-xs font-mono text-cyan-400 font-bold mb-1">PHASE 05</div>
+          <h3 class="text-base font-bold text-white mb-2">實證完成收尾</h3>
+          <p class="text-xs text-slate-400 mb-3 leading-relaxed">終端實測無報錯才算完成；合併或提 PR，清理 worktree 與中繼檔。</p>
+          <div class="text-[11px] font-mono text-slate-500 bg-slate-950/80 p-2 rounded-lg border border-slate-800">
+            <span class="text-cyan-300">產物:</span> Clean Git Branch / PR
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- All 14 Skills Section -->
+    <section id="skills" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white">14 大核心技能 (Skills) 索引庫</h2>
+          <p class="text-slate-400 text-sm mt-1">涵蓋需求構思、測試實作、並行調試到分支清理的完整手冊</p>
+        </div>
+
+        <!-- Search and Filter Tabs -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+            <input type="text" id="skill-search" oninput="filterSkills()" placeholder="搜尋指令、中繼檔案或說明..." class="bg-slate-900 border border-slate-700/80 text-xs rounded-xl pl-9 pr-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 w-full sm:w-60">
+          </div>
+
+          <div class="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs overflow-x-auto" id="category-filters">
+            <button onclick="setFilter('all', this)" class="filter-btn active-filter px-3 py-1 rounded-lg font-medium bg-blue-600 text-white">全部 (14)</button>
+            <button onclick="setFilter('planning', this)" class="filter-btn px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-white">規劃</button>
+            <button onclick="setFilter('implementation', this)" class="filter-btn px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-white">實施測試</button>
+            <button onclick="setFilter('review', this)" class="filter-btn px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-white">調試審查</button>
+            <button onclick="setFilter('agent-git', this)" class="filter-btn px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-white">Agent & Git</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills Cards Grid -->
+      <div id="skills-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendered by JavaScript renderSkills() -->
+      </div>
+    </section>
+
+    <!-- Prompt Builder Section -->
+    <section id="builder" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-700/70">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-wand-magic-sparkles text-blue-400"></i>
+              一鍵生成工作流提示詞 (Prompt Generator)
+            </h2>
+            <p class="text-slate-400 text-xs sm:text-sm mt-1">直接複製發送給 Claude Code 或你的 Agent，立即啟動嚴格工程紀律</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="generatePrompt('feature')" class="prompt-tab-btn active px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white">新功能開發</button>
+            <button onclick="generatePrompt('bugfix')" class="prompt-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">排查 Bug</button>
+            <button onclick="generatePrompt('refactor')" class="prompt-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">模組重構</button>
+          </div>
+        </div>
+
+        <div class="relative bg-slate-950 rounded-xl p-4 border border-slate-800">
+          <button onclick="copyGeneratedPrompt()" class="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium flex items-center gap-1.5 transition shadow">
+            <i class="fa-regular fa-copy"></i>
+            <span>複製 Prompt</span>
+          </button>
+          <pre id="generated-prompt" class="font-mono text-xs sm:text-sm text-slate-300 whitespace-pre-wrap leading-relaxed overflow-x-auto pr-24"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Antigravity Philosophy Section -->
+    <section id="antigravity" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-700/70">
+        <div class="max-w-3xl mb-8">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950 border border-indigo-800 text-indigo-400 text-xs font-medium mb-3">
+            <i class="fa-solid fa-atom"></i> Antigravity 核心理念
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white">為什麼 AI 程式設計需要「重力與約束」？</h2>
+          <p class="text-slate-400 text-sm mt-2 leading-relaxed">
+            LLM 的本性是「討好用戶」與「過度樂觀跳步」。未加約束的 Agent 往往會直接生成未經測試的大量代碼，產生假綠燈和難以追蹤的架構負債。
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Traditional Vibe Coding -->
+          <div class="p-5 rounded-xl bg-red-950/20 border border-red-900/40">
+            <h3 class="text-base font-bold text-red-400 flex items-center gap-2 mb-3">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              盲目 Vibe Coding（失控模式）
+            </h3>
+            <ul class="space-y-2.5 text-xs text-slate-300">
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-xmark text-red-500 mt-0.5"></i>
+                <span>未定義邊界就直接敲業務代碼，反覆踩中隱藏 bug。</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-xmark text-red-500 mt-0.5"></i>
+                <span>先寫實作代碼再「補測」，製造出永遠為真、毫無檢驗力的假測試。</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-xmark text-red-500 mt-0.5"></i>
+                <span>在主分支直接大幅改動，缺乏 git worktree 隔離，難以安全回滾。</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-xmark text-red-500 mt-0.5"></i>
+                <span>Agent 口頭聲稱「已修復完畢」，實際運行卻直接拋出 TypeError。</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Superpowers Workflow -->
+          <div class="p-5 rounded-xl bg-emerald-950/20 border border-emerald-900/40">
+            <h3 class="text-base font-bold text-emerald-400 flex items-center gap-2 mb-3">
+              <i class="fa-solid fa-circle-check"></i>
+              Superpowers 規範模式（嚴謹工程）
+            </h3>
+            <ul class="space-y-2.5 text-xs text-slate-300">
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check text-emerald-400 mt-0.5"></i>
+                <span><b>先寫規格書：</b>透過頭腦風暴敲定 edge cases，獲得同意後才動工。</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check text-emerald-400 mt-0.5"></i>
+                <span><b>嚴格 TDD：</b>先寫測試並親眼在終端看到紅燈報錯，再填寫最簡通過代碼。</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check text-emerald-400 mt-0.5"></i>
+                <span><b>Worktree 隔離：</b>所有特性在專屬 worktree 進行，保持 main 永遠可發布。</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check text-emerald-400 mt-0.5"></i>
+                <span><b>證據先行：</b>沒跑測試指令並擷取終端輸出前，禁止宣布「任務完成」。</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p>基於 <a href="https://github.com/jnMetaCode/superpowers-zh" target="_blank" class="text-blue-400 hover:underline">jnMetaCode/superpowers-zh</a> 繁體中文教學指南</p>
+      <p>遵循 Antigravity 軟體工程嚴謹約束規範 • Single-file Interactive Web App</p>
+    </div>
+  </footer>
+
+  <!-- Skill Detail Modal -->
+  <div id="skill-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-2xl rounded-2xl p-6 border border-slate-700 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <div id="modal-content">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-blue-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 pointer-events-none">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toast-msg">已成功複製到剪貼簿！</span>
+  </div>
+
+  <script>
+    // Copy helper
+    function copyCommand(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast("已成功複製到剪貼簿！");
+      } catch (err) {
+        console.error('複製失敗:', err);
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      if (!toast || !toastMsg) return;
+      toastMsg.textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2200);
+    }
+
+    // Modal helpers
+    function closeModal() {
+      document.getElementById('skill-modal').classList.add('hidden');
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('skill-modal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+
+    // 4 Core Commands Deep Dive Data
+    const coreWorkflowData = {
+      "brainstorming": {
+        command: "superpowers brainstorming",
+        title: "頭腦風暴 (Brainstorming)",
+        subtitle: "需求分析與架構規格確立 —「不寫代碼先想清楚」",
+        theme: {
+          badge: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+          accent: "text-blue-400"
+        },
+        description: "在敲下任何實體業務代碼之前，與工程師展開深入對話，挖掘隱性邊界條件、架構取捨與資料流向，建立不容妥協的規格基準線。",
+        steps: [
+          {
+            title: "意圖釐清與提問收斂",
+            desc: "一次僅提一個高價值問題，避免發散。釐清系統的非功能性需求（吞吐量、延遲、持久化需求與安全性邊界）。"
+          },
+          {
+            title: "架構取捨分析 (Trade-offs)",
+            desc: "提出至少 2~3 種可行的設計方案，逐項對比複雜度、擴充性與相依套件成本，選擇最適方案。"
+          },
+          {
+            title: "定義介面規格與數據契約",
+            desc: "明確定義 API 請求/回應 Schema、資料庫 Schema、錯誤狀態代碼以及所有可能的極端狀況 (Edge Cases)。"
+          },
+          {
+            title: "確認封裝與規格定稿",
+            desc: "將全數共識彙整為規格文件，待開發者檢視確認。規格未完成並獲得確認前，絕對禁止進入代碼編寫。"
+          }
+        ],
+        artifacts: [
+          {
+            path: "specs/{feature-name}.spec.md",
+            type: "核心規格書",
+            desc: "系統行為的單一真相來源 (Single Source of Truth)，包含資料模型、邊界測試案例清單與 API 契約。"
+          },
+          {
+            path: "docs/adr/{feature-name}-decision.md",
+            type: "架構決策紀錄 (ADR)",
+            desc: "記錄為何採用當前架構、放棄哪些替代方案以及長期的技術權衡考量。"
+          }
+        ],
+        sampleTitle: "產物預覽：specs/user-auth.spec.md",
+        sampleContent: `# 規格：使用者驗證與雙因素認證模組 (User Auth Spec)
+
+## 1. 核心需求
+- 支援 JWT Access/Refresh Token 雙層過期刷新機制
+- Access Token: 15分鐘有效期；Refresh Token: 7天有效期 (HttpOnly Cookie)
+
+## 2. 邊界條件 (Edge Cases)
+- [Edge-01] Refresh Token 遭遇重複使用時，觸發安全警告並強制撤銷同使用者所有活躍 Session。
+- [Edge-02] 密碼錯誤連續達 5 次時，帳號鎖定 15 分鐘並記錄 Audit 日誌。
+
+## 3. 介面契約
+- POST /api/v1/auth/login -> { accessToken: string, user: UserProfile }
+- POST /api/v1/auth/refresh -> { accessToken: string }`
+      },
+
+      "writing-plans": {
+        command: "superpowers writing-plans",
+        title: "編寫計劃 (Writing Plans)",
+        subtitle: "將規格拆解為小於 15 分鐘、具體可驗證的微任務清單",
+        theme: {
+          badge: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
+          accent: "text-indigo-400"
+        },
+        description: "將大塊頭的規格書，拆解為線性依賴、粒度極細且包含具體驗證指令的任務清單，讓 Agent 每一步都有清晰導航。",
+        steps: [
+          {
+            title: "解析 Spec 規格依賴",
+            desc: "識別出底層資料模型、服務層、控制器與前端畫面的依賴拓撲，避免下游任務依賴未完成的上游模組。"
+          },
+          {
+            title: "微步原子化拆解 (10~15 分鐘)",
+            desc: "每個任務限制在單一檔案或單一職責，讓代碼變更保持最小、最易回滾且上下文不易丟失。"
+          },
+          {
+            title: "明確每個任務的驗證指令",
+            desc: "為每個 Task 註記對應的測試檔案與終端驗證指令（如 npm test tests/auth.test.ts），確保驗收標準無歧義。"
+          },
+          {
+            title: "生成 Checkbox 清單與工作流",
+            desc: "輸出規範的 Markdown 勾選列表，明列 Task 編號、涉及檔案、實作邏輯與完成條件。"
+          }
+        ],
+        artifacts: [
+          {
+            path: "plans/{feature-name}.plan.md",
+            type: "實施計劃檔案",
+            desc: "包含階層式 Markdown Checkbox (- [ ])、微任務相依性矩陣與具體驗證命令。"
+          },
+          {
+            path: "task-breakdown.json",
+            type: "任務元數據 (可選)",
+            desc: "便於並行 Agent 或腳本解析的任務列表、檔案異動範疇與依賴拓撲。"
+          }
+        ],
+        sampleTitle: "產物預覽：plans/user-auth.plan.md",
+        sampleContent: `# 實施計劃：使用者驗證模組 (Implementation Plan)
+
+- [ ] Task 1: 建立 Token 工具函式與簽發介面
+  - 檔案: src/utils/jwt.ts, tests/utils/jwt.test.ts
+  - 驗證命令: npm test tests/utils/jwt.test.ts
+  - TDD 步驟: 先測試 token 生成失敗情形，再實作 signToken/verifyToken
+
+- [ ] Task 2: 實作 Refresh Token 儲存層與防重放快取
+  - 檔案: src/services/tokenStore.ts, tests/services/tokenStore.test.ts
+  - 驗證命令: npm test tests/services/tokenStore.test.ts
+
+- [ ] Task 3: 串接 Express/Koa Auth 中間件並驗證 Header Bearer 格式
+  - 檔案: src/middleware/auth.ts, tests/middleware/auth.test.ts
+  - 驗證命令: npm test tests/middleware/auth.test.ts`
+      },
+
+      "executing-plans": {
+        command: "superpowers executing-plans",
+        title: "執行計劃 (Executing Plans)",
+        subtitle: "按計劃單步執行、步步驗收，拒絕跳步與未經審核的脫軌變更",
+        theme: {
+          badge: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+          accent: "text-purple-400"
+        },
+        description: "以極高紀律推進計劃。鎖定單一微任務，完成編寫後立刻執行驗證測試，通過後打勾並產生原子 Commit，隨後前進。",
+        steps: [
+          {
+            title: "讀取狀態並鎖定第一個待辦",
+            desc: "檢視 plan.md，鎖定最靠前且尚未打勾的 - [ ] Task N，載入該任務所需的上下文，不讀取無關代碼。"
+          },
+          {
+            title: "以嚴格工程標準實施變更",
+            desc: "按照任務定義修改或建立檔案，嚴格遵循 TDD 與既有架構契約，不擅自新增計劃外的額外功能。"
+          },
+          {
+            title: "執行命令並捕捉實證輸出",
+            desc: "在終端運行該任務指定的測試命令，確認輸出全部呈現綠燈無報錯，防範隱蔽 regression。"
+          },
+          {
+            title: "更新 Plan 標記並進行原子提交",
+            desc: "將 plan.md 中的任務狀態改為 - [x]，並生成一個描述清晰的獨立 Git Commit，維持乾淨歷史。"
+          }
+        ],
+        artifacts: [
+          {
+            path: "plans/{feature-name}.plan.md (更新)",
+            type: "即時狀態清單",
+            desc: "即時更新的 Checklist，每個已完成項目記錄對應的 Commit Hash 與測試通過備註。"
+          },
+          {
+            path: "git commit (原子提交記錄)",
+            type: "乾淨版本控制產物",
+            desc: "如 git commit -m \"feat(jwt): implement token signing with test coverage\"，一任務一提交。"
+          },
+          {
+            path: "execution-progress.log",
+            type: "執行與測試日誌",
+            desc: "記錄每一步終端指令的執行時戳、返回狀態碼與測試耗時。"
+          }
+        ],
+        sampleTitle: "產物預覽：plans/user-auth.plan.md (執行狀態更新)",
+        sampleContent: `# 實施計劃：使用者驗證模組 (進行中狀態)
+
+- [x] Task 1: 建立 Token 工具函式與簽發介面 (Commit: 8f2a1b9)
+  - 檔案: src/utils/jwt.ts, tests/utils/jwt.test.ts
+  - 驗證命令: npm test tests/utils/jwt.test.ts
+  - 執行結果: 3/3 tests passed (Green)
+
+- [ ] Task 2: 實作 Refresh Token 儲存層與防重放快取 <-- [當前正在執行]
+  - 檔案: src/services/tokenStore.ts, tests/services/tokenStore.test.ts
+  - 驗證命令: npm test tests/services/tokenStore.test.ts
+
+- [ ] Task 3: 串接 Express/Koa Auth 中間件`
+      },
+
+      "test-driven-development": {
+        command: "superpowers test-driven-development",
+        title: "測試驅動開發 (TDD)",
+        subtitle: "嚴格 Red ➔ Green ➔ Refactor 循環，先確認測試能捕捉失敗",
+        theme: {
+          badge: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+          accent: "text-emerald-400"
+        },
+        description: "在看到測試確定失敗（Red）且失敗原因精準指向預期缺少的邏輯之前，絕對禁止撰寫業務代碼。杜絕無效測試與假綠燈。",
+        steps: [
+          {
+            title: "Phase 1: RED (寫入失敗的單元測試)",
+            desc: "依據規格撰寫微型測試用例；在終端執行並確認紅燈報錯，證實測試具備檢驗能力而非恆真假測試。"
+          },
+          {
+            title: "Phase 2: GREEN (編寫最簡實作代碼)",
+            desc: "僅編寫足以讓測試轉綠的最少量代碼，不寫額外假設，確保實作完全受測試驅動。"
+          },
+          {
+            title: "Phase 3: REFACTOR (測試保護下重構優化)",
+            desc: "在全綠測試矩陣保護下，重構代碼結構、消除重複邏輯、提升可讀性與效能，重構後測試依然全綠。"
+          },
+          {
+            title: "Phase 4: 全量回歸驗證 (Regression Check)",
+            desc: "執行整個測試套件，確保新加入的功能沒有破壞既有系統的任何一項行為。"
+          }
+        ],
+        artifacts: [
+          {
+            path: "tests/{module-name}.test.ts",
+            type: "單元與整合測試套件",
+            desc: "包含正常流程、極端邊界 (Edge Cases) 與異常拋錯 (Error Throwing) 的測試斷言。"
+          },
+          {
+            path: "src/{module-name}.ts",
+            type: "業務實作原始碼",
+            desc: "符合規格且完全通過測試的最簡高內聚程式碼。"
+          },
+          {
+            path: "test-results.log",
+            type: "Red/Green 實證日誌",
+            desc: "終端測試執行輸出，記錄紅燈轉綠燈的完整證明日誌。"
+          }
+        ],
+        sampleTitle: "產物預覽：tests/jwt.test.ts & src/jwt.ts",
+        sampleContent: `// 1. [RED 階段產物] tests/jwt.test.ts (先寫測試，確認失敗)
+describe("JWT Service", () => {
+  it("should fail validation when token is expired", async () => {
+    const expiredToken = createExpiredToken();
+    await expect(verifyToken(expiredToken)).rejects.toThrow("TokenExpiredError");
+  });
+});
+
+// 2. [GREEN 階段產物] src/jwt.ts (最簡實作，使測試通過)
+export async function verifyToken(token: string): Promise<TokenPayload> {
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+  return decoded as TokenPayload;
+}`
+      }
+    };
+
+    function switchCoreCommand(cmdKey, btn) {
+      document.querySelectorAll('.core-nav-btn').forEach(b => {
+        b.classList.remove('bg-blue-600', 'text-white', 'shadow-lg', 'shadow-blue-600/30');
+        b.classList.add('bg-slate-800', 'text-slate-300');
+      });
+      if (btn) {
+        btn.classList.add('bg-blue-600', 'text-white', 'shadow-lg', 'shadow-blue-600/30');
+        btn.classList.remove('bg-slate-800', 'text-slate-300');
+      }
+      renderCoreCommand(cmdKey);
+    }
+
+    function renderCoreCommand(cmdKey) {
+      const data = coreWorkflowData[cmdKey];
+      const container = document.getElementById('core-content-display');
+      if (!data || !container) return;
+
+      const stepsHtml = data.steps.map((s, idx) => `
+        <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-5 h-5 rounded-md bg-blue-600/20 text-blue-400 font-mono font-bold text-xs flex items-center justify-center">${idx + 1}</span>
+            <h4 class="text-xs font-bold text-slate-200">${s.title}</h4>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed pl-7">${s.desc}</p>
+        </div>
+      `).join('');
+
+      const artifactsHtml = data.artifacts.map(a => `
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-3">
+          <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400 text-xs shrink-0">
+            <i class="fa-solid fa-file-code"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-mono text-xs font-bold text-blue-300 truncate">${a.path}</span>
+              <span class="text-[10px] px-2 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700">${a.type}</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">${a.desc}</p>
+          </div>
+        </div>
+      `).join('');
+
+      container.innerHTML = `
+        <div class="space-y-6">
+          <!-- Command Header & CLI invoke -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl bg-slate-950 border border-slate-800">
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full border ${data.theme.badge}">${data.title}</span>
+                <span class="text-xs font-mono text-slate-400">${data.subtitle}</span>
+              </div>
+              <p class="text-xs text-slate-300 mt-2">${data.description}</p>
+            </div>
+            <div class="shrink-0 flex items-center gap-2">
+              <div class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 font-mono text-xs text-emerald-400 flex items-center gap-2">
+                <span class="text-slate-500">$</span>
+                <span>${data.command}</span>
+              </div>
+              <button onclick="copyCommand('${data.command}')" title="複製指令" class="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs transition">
+                <i class="fa-regular fa-clone"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Process and Artifacts Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left: Execution Process -->
+            <div class="lg:col-span-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                  <i class="fa-solid fa-arrows-split-up-and-left text-blue-400"></i>
+                  標準執行過程 (Execution Process)
+                </h3>
+                <span class="text-[11px] text-slate-500">4 個關鍵階段</span>
+              </div>
+              <div class="space-y-2">
+                ${stepsHtml}
+              </div>
+            </div>
+
+            <!-- Right: Artifacts & Code Preview -->
+            <div class="lg:col-span-7 space-y-4">
+              <!-- Artifacts List -->
+              <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2 mb-2">
+                  <i class="fa-solid fa-box-archive text-emerald-400"></i>
+                  中繼與最終產物檔案 (Artifacts & Output Files)
+                </h3>
+                <div class="space-y-2">
+                  ${artifactsHtml}
+                </div>
+              </div>
+
+              <!-- Real Artifact Content Preview Box -->
+              <div class="rounded-xl border border-slate-800 overflow-hidden bg-slate-950">
+                <div class="flex items-center justify-between px-3 py-2 bg-slate-900 border-b border-slate-800 text-xs">
+                  <span class="font-mono text-slate-300 flex items-center gap-2">
+                    <i class="fa-regular fa-file-lines text-blue-400"></i>
+                    ${data.sampleTitle}
+                  </span>
+                  <button onclick="copyCommand(document.getElementById('sample-artifact-content').textContent)" class="text-[11px] text-blue-400 hover:text-blue-300 inline-flex items-center gap-1">
+                    <i class="fa-regular fa-copy"></i> 複製範本
+                  </button>
+                </div>
+                <pre id="sample-artifact-content" class="p-3 font-mono text-xs text-slate-300 whitespace-pre-wrap leading-relaxed overflow-x-auto max-h-60">${data.sampleContent}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Complete 14 Skills Database
+    const skillsData = [
+      {
+        id: "brainstorming",
+        name: "頭腦風暴",
+        cli: "brainstorming",
+        desc: "需求分析 → 設計規格，不寫代碼先想清楚",
+        category: "planning",
+        color: "blue",
+        icon: "fa-lightbulb",
+        artifacts: ["specs/{feature}.spec.md", "docs/adr/*.md"],
+        rules: "在規格定稿前絕不敲代碼。一次只提問一個問題，收斂所有非功能性需求與邊界條件。",
+        promptExample: "/superpowers brainstorming: 我們需要新增一個支援 JWT 與雙重認證 (2FA) 的使用者授權模組，請先向我提問以釐清需求與架構取捨。"
+      },
+      {
+        id: "writing-plans",
+        name: "編寫計劃",
+        cli: "writing-plans",
+        desc: "把規格拆成可執行的實施步驟與驗證指示",
+        category: "planning",
+        color: "indigo",
+        icon: "fa-pen-ruler",
+        artifacts: ["plans/{feature}.plan.md", "task-breakdown.json"],
+        rules: "每個微任務必須在 10~15 分鐘內可完成，且必須標明明確的驗證命令與測試目標。",
+        promptExample: "/superpowers writing-plans: 依據 specs/user-auth.spec.md，編寫完整的實施計劃清單，包含相應的測試檔案與終端檢驗命令。"
+      },
+      {
+        id: "executing-plans",
+        name: "執行計劃",
+        cli: "executing-plans",
+        desc: "按計劃逐步實施，每步驗證，絕不擅自跳步",
+        category: "implementation",
+        color: "purple",
+        icon: "fa-play",
+        artifacts: ["plans/*.plan.md (更新勾選)", "git commits (原子提交)"],
+        rules: "一次只鎖定一個 Task。完成並跑通驗證後打勾 [- [x]]，提交單一 commit，再進行下一項。",
+        promptExample: "/superpowers executing-plans: 讀取 plans/user-auth.plan.md，嚴格按照順序執行第一個未完成的微任務，通過驗證後更新清單。"
+      },
+      {
+        id: "test-driven-development",
+        name: "測試驅動開發",
+        cli: "test-driven-development",
+        desc: "嚴格 TDD：先寫測試，再寫業務代碼",
+        category: "implementation",
+        color: "emerald",
+        icon: "fa-flask-vial",
+        artifacts: ["tests/*.test.ts", "test-results.log", "coverage/"],
+        rules: "在終端親眼看見測試失敗（RED）前，嚴禁寫任何實作代碼。杜絕恆真假測試與假綠燈。",
+        promptExample: "/superpowers test-driven-development: 為 Token 生成函式進行 TDD 開發，先編寫失敗測試用例，再撰寫最簡實作代碼。"
+      },
+      {
+        id: "systematic-debugging",
+        name: "系統化調試",
+        cli: "systematic-debugging",
+        desc: "四階段調試法：定位 → 分析 → 假設 → 修復",
+        category: "review",
+        color: "rose",
+        icon: "fa-bug",
+        artifacts: ["tests/reproduce-bug.test.ts", "debug-analysis.log"],
+        rules: "禁止盲目改代碼試錯！必須先寫出能重現 bug 的最小測試案例，定位根因後再修復。",
+        promptExample: "/superpowers systematic-debugging: 當前遇到 TokenExpiredError 處理異常，請透過最小可重現測試進行根因分析與四階段調試。"
+      },
+      {
+        id: "requesting-code-review",
+        name: "請求代碼審查",
+        cli: "requesting-code-review",
+        desc: "派遣獨立審查 agent 檢查代碼品質",
+        category: "review",
+        color: "amber",
+        icon: "fa-magnifying-glass-chart",
+        artifacts: [".review/changes.diff", ".review/checklist.md"],
+        rules: "由完全獨立上下文的審查 Agent 介入，檢查架構完整性、安全性、測試覆蓋率與 Clean Code 準則。",
+        promptExample: "/superpowers requesting-code-review: 審查當前分支與 main 之間的所有 diff，聚焦安全性、效能與架構邊界。"
+      },
+      {
+        id: "receiving-code-review",
+        name: "接收代碼審查",
+        cli: "receiving-code-review",
+        desc: "技術嚴謹地處理審查反饋，拒絕敷衍",
+        category: "review",
+        color: "orange",
+        icon: "fa-clipboard-check",
+        artifacts: [".review/review-response.md", "git commits (修正提交)"],
+        rules: "嚴禁敷衍或直接回「好的已修改」！每項建議必須明確驗證：接受重構或給出合理的架構反駁。",
+        promptExample: "/superpowers receiving-code-review: 逐條評估審查報告中的建議，實施修正並提供相對應的測試驗證證據。"
+      },
+      {
+        id: "verification-before-completion",
+        name: "完成前驗證",
+        cli: "verification-before-completion",
+        desc: "證據先行——聲稱完成前必須跑驗證",
+        category: "review",
+        color: "teal",
+        icon: "fa-certificate",
+        artifacts: ["test-results.log", "e2e-report.html"],
+        rules: "在向工程師宣稱「已完成」前，必須在終端執行全量測試，提供綠燈日誌作為完成依據。",
+        promptExample: "/superpowers verification-before-completion: 在完成功能前，運行全套單元測試與 linter，展示終端退出狀態碼與結果摘要。"
+      },
+      {
+        id: "dispatching-parallel-agents",
+        name: "派遣並行 Agent",
+        cli: "dispatching-parallel-agents",
+        desc: "多任務並發執行，成倍提升吞吐量",
+        category: "agent-git",
+        color: "violet",
+        icon: "fa-network-wired",
+        artifacts: ["parallel-tasks.json", "logs/agent-*.log"],
+        rules: "任務必須具有互不重疊的檔案邊界。每個 Agent 隔離執行，完成後透過主控匯整結果。",
+        promptExample: "/superpowers dispatching-parallel-agents: 同時派遣 3 個 Agent：分別負責實作使用者模組、商品模組與訂單模組的 Repository 層。"
+      },
+      {
+        id: "subagent-driven-development",
+        name: "子 Agent 驅動開發",
+        cli: "subagent-driven-development",
+        desc: "每個任務一個 agent，進行兩輪審查",
+        category: "agent-git",
+        color: "fuchsia",
+        icon: "fa-sitemap",
+        artifacts: [".subagents/task-status.json", ".subagents/round2-review.md"],
+        rules: "每個微任務指派專屬 Subagent 撰寫代碼，並歷經自身檢驗與父級 Agent 兩輪嚴格審查後方能整併。",
+        promptExample: "/superpowers subagent-driven-development: 啟動子代理開發模式，為 plans/auth.plan.md 的每個 Task 分配專屬 Agent。"
+      },
+      {
+        id: "using-git-worktrees",
+        name: "Git Worktree 使用",
+        cli: "using-git-worktrees",
+        desc: "隔離式特性開發，避免污染工作目錄",
+        category: "agent-git",
+        color: "cyan",
+        icon: "fa-code-branch",
+        artifacts: [".worktrees/feature-{name}/", "worktree-config.json"],
+        rules: "不直接在 dirty 主目錄下開發。透過 git worktree add 建立實體隔離的工作目錄，隨時安全清理。",
+        promptExample: "/superpowers using-git-worktrees: 為 feature/user-auth 建立獨立的 git worktree，切換至該沙盒目錄展開開發。"
+      },
+      {
+        id: "finishing-a-development-branch",
+        name: "完成開發分支",
+        cli: "finishing-a-development-branch",
+        desc: "合併 / PR / 保留 / 丟棄四選一收尾決策",
+        category: "agent-git",
+        color: "sky",
+        icon: "fa-flag-checkered",
+        artifacts: ["pr-description.md", "git branch -d 清理"],
+        rules: "任務完成後必須依據指示執行四選一收尾：Squash Merge、建立 Pull Request、保留觀察或安全丟棄。",
+        promptExample: "/superpowers finishing-a-development-branch: 功能已通過驗證，請生成規範的 PR 描述，並清理本地暫存的 git worktree。"
+      },
+      {
+        id: "writing-skills",
+        name: "編寫 Skills",
+        cli: "writing-skills",
+        desc: "創建新 skill 的標準方法論與擴充架構",
+        category: "planning",
+        color: "lime",
+        icon: "fa-screwdriver-wrench",
+        artifacts: ["skills/{new-skill}.md", "superpowers.config.json"],
+        rules: "自定義新技能時，必須定義觸發條件、不可違背的硬性限制、標準步驟與產物格式。",
+        promptExample: "/superpowers writing-skills: 為團隊編寫一個名為 database-migration 的專屬技能，規範資料庫遷移腳本的驗證流程。"
+      },
+      {
+        id: "using-superpowers",
+        name: "使用 Superpowers",
+        cli: "using-superpowers",
+        desc: "元技能：如何自動調用和優先使用各 skills",
+        category: "planning",
+        color: "pink",
+        icon: "fa-brain",
+        artifacts: [".superpowers/context.json", ".clauderc"],
+        rules: "所有任務的預設入口。引導 Agent 在接收到高階指令時，優先查詢並加載 Superpowers 規範體系。",
+        promptExample: "/superpowers using-superpowers: 檢視目前專案狀態，推薦最適合當前階段的下一個技能命令。"
+      }
+    ];
+
+    let currentCategory = 'all';
+
+    function setFilter(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('active-filter', 'bg-blue-600', 'text-white');
+        b.classList.add('text-slate-400');
+      });
+      btn.classList.add('active-filter', 'bg-blue-600', 'text-white');
+      btn.classList.remove('text-slate-400');
+      filterSkills();
+    }
+
+    function filterSkills() {
+      const search = (document.getElementById('skill-search').value || '').toLowerCase().trim();
+      const filtered = skillsData.filter(item => {
+        const matchCat = currentCategory === 'all' || item.category === currentCategory;
+        const matchSearch = item.name.toLowerCase().includes(search) ||
+                            item.cli.toLowerCase().includes(search) ||
+                            item.desc.toLowerCase().includes(search) ||
+                            item.artifacts.some(a => a.toLowerCase().includes(search));
+        return matchCat && matchSearch;
+      });
+      renderSkills(filtered);
+    }
+
+    function renderSkills(list = skillsData) {
+      const grid = document.getElementById('skills-grid');
+      if (!grid) return;
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-500">
+            <i class="fa-solid fa-ghost text-4xl mb-3"></i>
+            <p class="text-sm">沒有找到符合條件的 Skills 指令</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = list.map(item => `
+        <div class="glass-card rounded-2xl p-5 hover:scale-[1.01] transition-all flex flex-col justify-between cursor-pointer border border-slate-800" onclick="openSkillModal('${item.id}')">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-${item.color}-600/20 text-${item.color}-400 flex items-center justify-center text-lg">
+                <i class="fa-solid ${item.icon}"></i>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">
+                superpowers ${item.cli}
+              </span>
+            </div>
+
+            <h3 class="text-base font-bold text-white mb-1.5">${item.name}</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4">${item.desc}</p>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800/80 space-y-2">
+            <div class="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono overflow-hidden">
+              <i class="fa-solid fa-file text-blue-400 text-[10px]"></i>
+              <span class="text-slate-500">產物:</span>
+              <span class="text-blue-300 truncate">${item.artifacts[0]}</span>
+            </div>
+
+            <div class="flex items-center justify-between text-xs pt-1">
+              <span class="text-[11px] text-blue-400 font-medium hover:underline inline-flex items-center gap-1">
+                查看規範與產物 <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </span>
+              <button onclick="event.stopPropagation(); copyCommand('/superpowers ${item.cli}')" class="p-1.5 text-slate-400 hover:text-white rounded hover:bg-slate-800 transition" title="複製呼叫指令">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openSkillModal(skillId) {
+      const skill = skillsData.find(s => s.id === skillId);
+      if (!skill) return;
+      const modal = document.getElementById('skill-modal');
+      const content = document.getElementById('modal-content');
+
+      const artifactsList = skill.artifacts.map(a => `
+        <li class="flex items-center gap-2 font-mono text-xs text-blue-300 bg-slate-900 p-2 rounded-lg border border-slate-800">
+          <i class="fa-solid fa-file-code text-blue-400"></i>
+          <span>${a}</span>
+        </li>
+      `).join('');
+
+      content.innerHTML = `
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-2xl shrink-0">
+            <i class="fa-solid ${skill.icon}"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-white">${skill.name}</h3>
+            <code class="text-xs font-mono text-emerald-400">/superpowers ${skill.cli}</code>
+          </div>
+        </div>
+
+        <p class="text-sm text-slate-300 mb-5 leading-relaxed">${skill.desc}</p>
+
+        <div class="space-y-4">
+          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 mb-2 flex items-center gap-2">
+              <i class="fa-solid fa-gavel"></i> 不容妥協的硬性守則
+            </h4>
+            <p class="text-xs text-slate-300 leading-relaxed">${skill.rules}</p>
+          </div>
+
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-2">
+              <i class="fa-solid fa-box-archive text-blue-400"></i> 執行過程產生 / 修改的檔案產物 (Artifacts)
+            </h4>
+            <ul class="space-y-1.5">
+              ${artifactsList}
+            </ul>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                <i class="fa-solid fa-terminal text-emerald-400"></i> 推薦提示詞範例 (Prompt)
+              </h4>
+              <button onclick="copyCommand('${skill.promptExample}')" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                <i class="fa-regular fa-copy"></i> 複製 Prompt
+              </button>
+            </div>
+            <pre class="p-3 rounded-xl bg-slate-950 font-mono text-xs text-slate-300 whitespace-pre-wrap border border-slate-800">${skill.promptExample}</pre>
+          </div>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+    }
+
+    const promptTemplates = {
+      feature: `你是一位嚴格遵循 Antigravity 與 Superpowers 規範的資深軟體工程師。
+我們即將開發新功能：【請輸入新功能名稱，例如：支援多租戶與組織角色管理】。
+
+請嚴格按照 Superpowers 標準管線執行，禁止跳步與未經測試的實作：
+1. 執行 /superpowers brainstorming：
+   - 深入提問以釐清需求、非功能性指標與極端邊界 (Edge Cases)。
+   - 撰寫 specs/{feature}.spec.md 規格書，在未獲得我批准前，禁止編寫代碼。
+2. 執行 /superpowers writing-plans：
+   - 將規格拆解成 ≤15 分鐘的微任務清單，存入 plans/{feature}.plan.md。
+3. 執行 /superpowers test-driven-development：
+   - 遵循 Red -> Green -> Refactor，先寫出失敗測試並確認報錯後，再編寫業務實作。
+4. 執行 /superpowers verification-before-completion：
+   - 運行全套測試，提供實證輸出。`,
+
+      bugfix: `我們在系統中發現了一個錯誤：【請在此描述 Bug 行為與錯誤日誌】。
+
+請啟用 Superpowers 系統化調試工作流：
+1. 執行 /superpowers systematic-debugging：
+   - 遵循「定位 -> 分析 -> 假設 -> 修復」四階段。
+   - 嚴禁盲目修改代碼試錯！
+   - 先編寫 tests/reproduce-issue.test.ts 證明 Bug 存在且能被測試捕捉（RED）。
+2. 修復代碼使測試通過（GREEN）。
+3. 執行 /superpowers verification-before-completion，確認全量測試未受影響。`,
+
+      refactor: `我們要對模組【請填寫重構目標模組，如：src/services/billing.ts】進行架構重構。
+
+重構目標：【例如：解耦資料庫查詢、消除重複代碼並提升型別安全】。
+
+請執行 Superpowers 規範：
+1. 執行 /superpowers test-driven-development：
+   - 檢查既有測試覆蓋率；若覆蓋率不足，必須先補齊回歸測試防護網。
+2. 執行 /superpowers writing-plans：
+   - 規劃漸進式重構步驟，確保每一步代碼均能正常編譯並通過所有測試。
+3. 執行 /superpowers requesting-code-review：
+   - 派遣 Reviewer 檢查重構後的乾淨度與向前相容性。`
+    };
+
+    function generatePrompt(type) {
+      document.querySelectorAll('.prompt-tab-btn').forEach(b => {
+        b.classList.remove('bg-blue-600', 'text-white');
+        b.classList.add('bg-slate-800', 'text-slate-300');
+      });
+      event?.target?.classList?.add('bg-blue-600', 'text-white');
+      event?.target?.classList?.remove('bg-slate-800', 'text-slate-300');
+
+      const el = document.getElementById('generated-prompt');
+      if (el) el.textContent = promptTemplates[type] || promptTemplates.feature;
+    }
+
+    function copyGeneratedPrompt() {
+      const text = document.getElementById('generated-prompt').textContent;
+      copyCommand(text);
+    }
+
+    // Initialize on page load
+    window.onload = function() {
+      renderSkills();
+      renderCoreCommand('brainstorming');
+      generatePrompt('feature');
+    };
+  </script>
+</body>
+</html>

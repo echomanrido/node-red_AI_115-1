@@ -841,10 +841,92 @@ unit_06_opsx_guide = {
     ]
 }
 
-# 順延為 07：其他
-unit_07_other = {
-    "id": "vibe-09",
+# 07：Superpowers 軟體工程 Agent 工作流規範
+unit_07_superpowers = {
+    "id": "vibe-superpowers",
     "labNumber": "07",
+    "title": "Superpowers 軟體工程 Agent 工作流規範：14 大核心 Skills 與 TDD 實戰指南",
+    "shortTitle": "Superpowers Agent 工作流規範",
+    "category": "Skills(技能)",
+    "date": "2026-10-15",
+    "summary": "將混亂的 Vibe Coding 昇華為可預測、可驗證的現代軟體工程！Superpowers (中文版) 是專為 AI 程式代理 (如 Claude Code、Cursor、Windsurf) 打造的技能方法論。以四大必備指令 (brainstorming, writing-plans, executing-plans, test-driven-development)、14 大核心技能索引、五階段管線與 Antigravity 重力約束理念，徹底杜絕 AI 幻覺與假綠燈。",
+    "flowTitle": "Superpowers 軟體工程五階段閉環管線與 TDD 隔離架構",
+    "resultTitle": "Superpowers 繁中互動教學手冊",
+    "flowImage": make_svg_diagram(
+        "Superpowers 軟體工程 Agent 五階段標準管線",
+        "Brainstorming -> Micro Plans -> TDD Worktree -> Subagent Review -> PR Release",
+        [
+            {"num": "SP-01", "title": "頭腦風暴", "sub": "specs/*.spec.md 規格收斂", "tag": "Brainstorm"},
+            {"num": "SP-02", "title": "微步計畫", "sub": "plans/*.plan.md <=15m 拆解", "tag": "Plan"},
+            {"num": "SP-03", "title": "TDD 隔離", "sub": "Red-Green-Refactor 循環", "tag": "TDD"},
+            {"num": "SP-04", "title": "獨立審查", "sub": ".review/ 專屬 Reviewer 代理", "tag": "Review"},
+            {"num": "SP-05", "title": "實證收尾", "sub": "終端無報錯驗收合流", "tag": "Release"}
+        ],
+        loop_label="Antigravity 約束哲學：以 TDD、Git 隔離與證據先行杜絕 AI 樂觀跳步與假綠燈",
+        accent="#3b82f6"
+    ),
+    "resultImage": "Vibe Coding/02.Skills(技能)/03.superpowers.html",
+    "slideUrl": "Vibe Coding/02.Skills(技能)/03.superpowers.html",
+    "objective": "1. 掌握 Superpowers 四大核心指令（brainstorming, writing-plans, executing-plans, test-driven-development）的操作規範。\n2. 熟練運用 14 大核心 Skills 索引庫進行需求拆解、Git Worktree 隔離、子代理審查與除錯。\n3. 理解 Antigravity 核心理念：以嚴格測試證據與架構重力約束替代盲目放任的 Vibe Coding。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 快速安裝與載入 (Quickstart)",
+            "description": "使用 npx superpowers-zh 快速安裝，或在 Claude Code 中以 /superpowers using-superpowers 載入元技能規範。"
+        },
+        {
+            "step": "步驟 2: 第一階段需求風暴 (brainstorming)",
+            "description": "一次只聚焦一個關鍵決策，深入探討架構取捨與邊界條件，產出結構化規格書 specs/*.spec.md。"
+        },
+        {
+            "step": "步驟 3: 第二階段微步拆解 (writing-plans)",
+            "description": "將規格分解為小於 15 分鐘的微任務清單，標註確切驗證命令與勾選單，產出 plans/*.plan.md。"
+        },
+        {
+            "step": "步驟 4: 第三階段 TDD 隔離實作 (test-driven-development)",
+            "description": "在獨立 Git Worktree 中嚴格執行 Red ➔ Green ➔ Refactor 循環，代碼未跑過真實測試前不得提交代碼。"
+        },
+        {
+            "step": "步驟 5: 第四與五階段獨立審查與合流 (Review & Release)",
+            "description": "派遣獨立 Reviewer Agent 審查架構與反饋，終端實測無報錯後合併分支並清理暫存 Worktree 完成發布。"
+        }
+    ],
+    "promptTemplate": "你是一位具備 Superpowers 嚴謹工程紀律的資深軟體工程師。\n請針對當前 Node-RED 工控邊緣採集與 Modbus 通訊功能，啟動四大必備指令流程：\n1. 執行 brainstorming：一次只問一個關鍵問題，釐清通訊逾時與錯誤重連機制。\n2. 撰寫 specs/*.spec.md 與拆解至 <=15 分鐘微任務的 plans/*.plan.md。\n3. 依據 test-driven-development 原則，先寫失敗測試再寫實作。\n未經明確測試驗證通過前，請勿直接宣稱完成。",
+    "codeSnippet": {
+        "language": "bash",
+        "code": "# 快速安裝並啟動 Superpowers 中文技能庫\n$ npx superpowers-zh\n\n# 於 Agent (如 Claude Code) 中啟動四大核心工作流\n/superpowers brainstorming\n/superpowers writing-plans\n/superpowers executing-plans\n/superpowers test-driven-development"
+    },
+    "references": [
+        {
+            "title": "Superpowers 中文教學指南 (專屬互動全手冊)",
+            "url": "Vibe Coding/02.Skills(技能)/03.superpowers.html"
+        },
+        {
+            "title": "Superpowers-zh GitHub 開源倉庫",
+            "url": "https://github.com/jnMetaCode/superpowers-zh"
+        },
+        {
+            "title": "OpenSpec SDD 生命週期全解析",
+            "url": "Vibe Coding/02.Skills(技能)/02.opsx-guide.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-flask-vial",
+            "scenario": "關鍵工控模組 TDD 防禦式開發",
+            "description": "在 Modbus/MQTT 與硬體交互邏輯中，先撰寫模擬測試案例，杜絕生成代碼在現場產線運作時引發硬體停機損壞。"
+        },
+        {
+            "icon": "fa-solid fa-code-fork",
+            "scenario": "多代理安全並行與 Git 隔離作業",
+            "description": "利用 Git Worktree 與獨立審查代理，讓多個 Coding Agent 互不干擾並行開發，保證主幹隨時處於可發布狀態。"
+        }
+    ]
+}
+
+# 順延為 08：其他
+unit_08_other = {
+    "id": "vibe-09",
+    "labNumber": "08",
     "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
     "category": "其他",
     "date": "2026-10-14",
@@ -907,7 +989,8 @@ vibe_labs = [
     unit_04_google,
     unit_05_openspec,
     unit_06_opsx_guide,
-    unit_07_other
+    unit_07_superpowers,
+    unit_08_other
 ]
 
 # 寫入 vibecoding.json
@@ -919,5 +1002,5 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功更新資料結構，包含新 06 OpenSpec 生命週期指南，其他調整為 07！")
+print(f"成功更新資料結構，包含新 07 Superpowers 工作流指南，其他調整為 08！")
 

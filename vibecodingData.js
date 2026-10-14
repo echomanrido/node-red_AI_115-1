@@ -620,8 +620,76 @@ window.INITIAL_VIBE_DATA = [
     ]
   },
   {
-    "id": "vibe-09",
+    "id": "vibe-superpowers",
     "labNumber": "07",
+    "title": "Superpowers 軟體工程 Agent 工作流規範：14 大核心 Skills 與 TDD 實戰指南",
+    "shortTitle": "Superpowers Agent 工作流規範",
+    "category": "Skills(技能)",
+    "date": "2026-10-15",
+    "summary": "將混亂的 Vibe Coding 昇華為可預測、可驗證的現代軟體工程！Superpowers (中文版) 是專為 AI 程式代理 (如 Claude Code、Cursor、Windsurf) 打造的技能方法論。以四大必備指令 (brainstorming, writing-plans, executing-plans, test-driven-development)、14 大核心技能索引、五階段管線與 Antigravity 重力約束理念，徹底杜絕 AI 幻覺與假綠燈。",
+    "flowTitle": "Superpowers 軟體工程五階段閉環管線與 TDD 隔離架構",
+    "resultTitle": "Superpowers 繁中互動教學手冊",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMzYjgyZjYiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjM2I4MmY2Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+U3VwZXJwb3dlcnMg6Luf6auU5bel56iLIEFnZW50IOS6lOmajuauteaomea6lueuoee3mjwvdGV4dD4KICA8dGV4dCB4PSIzOCIgeT0iNjAiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iMTEiPkJyYWluc3Rvcm1pbmcgLSZndDsgTWljcm8gUGxhbnMgLSZndDsgVEREIFdvcmt0cmVlIC0mZ3Q7IFN1YmFnZW50IFJldmlldyAtJmd0OyBQUiBSZWxlYXNlPC90ZXh0PgogIDxyZWN0IHg9IjI1IiB5PSI4MCIgd2lkdGg9IjY3MCIgaGVpZ2h0PSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDgpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIzNCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjM0IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiMzYjgyZjYiLz4KICAgIDxjaXJjbGUgY3g9IjU2IiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiMzYjgyZjYiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iNTYiIHk9IjE0MCIgZmlsbD0iIzNiODJmNiIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlNQLTAxPC90ZXh0PgogICAgPHJlY3QgeD0iMTAyIiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjEyMyIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QnJhaW5zdG9ybTwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ2IiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7poK3ohabpoqjmmrQ8L3RleHQ+CiAgICA8dGV4dCB4PSI0NiIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+c3BlY3MvKi5zcGVjLm08L3RleHQ+CiAgICA8dGV4dCB4PSI0NiIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+ZCDopo/moLzmlLbmloI8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMTUzIDE2MCBMIDE2NSAxNjAiIHN0cm9rZT0iIzNiODJmNiIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzNiODJmNiIvPgogICAgPGNpcmNsZSBjeD0iMTkwIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiMzYjgyZjYiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMTkwIiB5PSIxNDAiIGZpbGw9IiMzYjgyZjYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TUC0wMjwvdGV4dD4KICAgIDxyZWN0IHg9IjIzNiIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIyNTciIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlBsYW48L3RleHQ+CiAgICA8dGV4dCB4PSIxODAiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuW+ruatpeioiOeVqzwvdGV4dD4KICAgIDx0ZXh0IHg9IjE4MCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+cGxhbnMvKi5wbGFuLm08L3RleHQ+CiAgICA8dGV4dCB4PSIxODAiIHk9IjIwMCIgZmlsbD0iIzY0NzQ4YiIgZm9udC1zaXplPSI4LjUiPmQgJmx0Oz0xNW0g5ouG6KejPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDI4NyAxNjAgTCAyOTkgMTYwIiBzdHJva2U9IiMzYjgyZjYiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzAyIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMzAyIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiMzYjgyZjYiLz4KICAgIDxjaXJjbGUgY3g9IjMyNCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjM2I4MmY2IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjMyNCIgeT0iMTQwIiBmaWxsPSIjM2I4MmY2IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+U1AtMDM8L3RleHQ+CiAgICA8cmVjdCB4PSIzNzAiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iMzkxIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5UREQ8L3RleHQ+CiAgICA8dGV4dCB4PSIzMTQiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPlRERCDpmpTpm6I8L3RleHQ+CiAgICA8dGV4dCB4PSIzMTQiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPlJlZC1HcmVlbi1SZWZhPC90ZXh0PgogICAgPHRleHQgeD0iMzE0IiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij5jdG9yIOW+queSsDwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA0MjEgMTYwIEwgNDMzIDE2MCIgc3Ryb2tlPSIjM2I4MmY2IiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjQzNiIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjQzNiIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjM2I4MmY2Ii8+CiAgICA8Y2lyY2xlIGN4PSI0NTgiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzNiODJmNiIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSI0NTgiIHk9IjE0MCIgZmlsbD0iIzNiODJmNiIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlNQLTA0PC90ZXh0PgogICAgPHJlY3QgeD0iNTA0IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjUyNSIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UmV2aWV3PC90ZXh0PgogICAgPHRleHQgeD0iNDQ4IiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7njajnq4vlr6nmn6U8L3RleHQ+CiAgICA8dGV4dCB4PSI0NDgiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPi5yZXZpZXcvIOWwiOWxrCBSZTwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ0OCIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+dmlld2VyIOS7o+eQhjwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA1NTUgMTYwIEwgNTY3IDE2MCIgc3Ryb2tlPSIjM2I4MmY2IiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjU3MCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjU3MCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjM2I4MmY2Ii8+CiAgICA8Y2lyY2xlIGN4PSI1OTIiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzNiODJmNiIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSI1OTIiIHk9IjE0MCIgZmlsbD0iIzNiODJmNiIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlNQLTA1PC90ZXh0PgogICAgPHJlY3QgeD0iNjM4IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjY1OSIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UmVsZWFzZTwvdGV4dD4KICAgIDx0ZXh0IHg9IjU4MiIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+5a+m6K2J5pS25bC+PC90ZXh0PgogICAgPHRleHQgeD0iNTgyIiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij7ntYLnq6/nhKHloLHpjK/pqZfmlLblkIjmtYE8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gNjI4IDIxOCBDIDYyOCAyNjUsIDkyIDI2NSwgOTIgMjE4IiBzdHJva2U9IiMzYjgyZjYiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtZGFzaGFycmF5PSI1LDQiIGZpbGw9Im5vbmUiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPHRleHQgeD0iMzYwIiB5PSIyNjAiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI1MDAiPkFudGlncmF2aXR5IOe0hOadn+WTsuWtuO+8muS7pSBURETjgIFHaXQg6ZqU6Zui6IiH6K2J5pOa5YWI6KGM5p2c57WVIEFJIOaoguingOi3s+atpeiIh+WBh+e2oOeHiDwvdGV4dD4KPC9zdmc+",
+    "resultImage": "Vibe Coding/02.Skills(技能)/03.superpowers.html",
+    "slideUrl": "Vibe Coding/02.Skills(技能)/03.superpowers.html",
+    "objective": "1. 掌握 Superpowers 四大核心指令（brainstorming, writing-plans, executing-plans, test-driven-development）的操作規範。\n2. 熟練運用 14 大核心 Skills 索引庫進行需求拆解、Git Worktree 隔離、子代理審查與除錯。\n3. 理解 Antigravity 核心理念：以嚴格測試證據與架構重力約束替代盲目放任的 Vibe Coding。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 快速安裝與載入 (Quickstart)",
+        "description": "使用 npx superpowers-zh 快速安裝，或在 Claude Code 中以 /superpowers using-superpowers 載入元技能規範。"
+      },
+      {
+        "step": "步驟 2: 第一階段需求風暴 (brainstorming)",
+        "description": "一次只聚焦一個關鍵決策，深入探討架構取捨與邊界條件，產出結構化規格書 specs/*.spec.md。"
+      },
+      {
+        "step": "步驟 3: 第二階段微步拆解 (writing-plans)",
+        "description": "將規格分解為小於 15 分鐘的微任務清單，標註確切驗證命令與勾選單，產出 plans/*.plan.md。"
+      },
+      {
+        "step": "步驟 4: 第三階段 TDD 隔離實作 (test-driven-development)",
+        "description": "在獨立 Git Worktree 中嚴格執行 Red ➔ Green ➔ Refactor 循環，代碼未跑過真實測試前不得提交代碼。"
+      },
+      {
+        "step": "步驟 5: 第四與五階段獨立審查與合流 (Review & Release)",
+        "description": "派遣獨立 Reviewer Agent 審查架構與反饋，終端實測無報錯後合併分支並清理暫存 Worktree 完成發布。"
+      }
+    ],
+    "promptTemplate": "你是一位具備 Superpowers 嚴謹工程紀律的資深軟體工程師。\n請針對當前 Node-RED 工控邊緣採集與 Modbus 通訊功能，啟動四大必備指令流程：\n1. 執行 brainstorming：一次只問一個關鍵問題，釐清通訊逾時與錯誤重連機制。\n2. 撰寫 specs/*.spec.md 與拆解至 <=15 分鐘微任務的 plans/*.plan.md。\n3. 依據 test-driven-development 原則，先寫失敗測試再寫實作。\n未經明確測試驗證通過前，請勿直接宣稱完成。",
+    "codeSnippet": {
+      "language": "bash",
+      "code": "# 快速安裝並啟動 Superpowers 中文技能庫\n$ npx superpowers-zh\n\n# 於 Agent (如 Claude Code) 中啟動四大核心工作流\n/superpowers brainstorming\n/superpowers writing-plans\n/superpowers executing-plans\n/superpowers test-driven-development"
+    },
+    "references": [
+      {
+        "title": "Superpowers 中文教學指南 (專屬互動全手冊)",
+        "url": "Vibe Coding/02.Skills(技能)/03.superpowers.html"
+      },
+      {
+        "title": "Superpowers-zh GitHub 開源倉庫",
+        "url": "https://github.com/jnMetaCode/superpowers-zh"
+      },
+      {
+        "title": "OpenSpec SDD 生命週期全解析",
+        "url": "Vibe Coding/02.Skills(技能)/02.opsx-guide.html"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-flask-vial",
+        "scenario": "關鍵工控模組 TDD 防禦式開發",
+        "description": "在 Modbus/MQTT 與硬體交互邏輯中，先撰寫模擬測試案例，杜絕生成代碼在現場產線運作時引發硬體停機損壞。"
+      },
+      {
+        "icon": "fa-solid fa-code-fork",
+        "scenario": "多代理安全並行與 Git 隔離作業",
+        "description": "利用 Git Worktree 與獨立審查代理，讓多個 Coding Agent 互不干擾並行開發，保證主幹隨時處於可發布狀態。"
+      }
+    ]
+  },
+  {
+    "id": "vibe-09",
+    "labNumber": "08",
     "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
     "category": "其他",
     "date": "2026-10-14",
