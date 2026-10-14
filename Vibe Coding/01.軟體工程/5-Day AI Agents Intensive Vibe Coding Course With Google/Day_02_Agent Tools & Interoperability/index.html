@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Tools & Interoperability - 互動式投影片</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --primary-border: #bfdbfe;
+            --success-bg: #f0fdf4;
+            --success-border: #bbf7d0;
+            --success-text: #166534;
+            --border: #e2e8f0;
+            --shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0b0f19;
+            --card-bg: #131c2e;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-light: #1e293b;
+            --primary-border: #334155;
+            --success-bg: #064e3b;
+            --success-border: #047857;
+            --success-text: #a7f3d0;
+            --border: #1e293b;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+
+        /* 頂部導覽列 */
+        header {
+            height: 64px;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+        }
+
+        .logo-title {
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-main);
+        }
+
+        /* 分頁 Tab */
+        .tab-container {
+            display: flex;
+            background-color: var(--bg-color);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            background-color: var(--card-bg);
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* 控制項 */
+        .controls-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .chapter-select {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+            max-width: 250px;
+            transition: var(--transition);
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* 投影片主區域 */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+        }
+
+        .slide-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 100%;
+            max-height: 720px;
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        /* 投影片頁首標籤 */
+        .slide-header {
+            padding: 20px 32px 10px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slide-tag {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid var(--primary-border);
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .slide-page-indicator {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* 投影片主內容 */
+        .slide-body {
+            flex: 1;
+            padding: 0 32px 24px 32px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 32px;
+            overflow-y: auto;
+        }
+
+        .slide-body.full-width {
+            grid-template-columns: 1fr;
+        }
+
+        /* 左側資訊 */
+        .left-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 20px;
+        }
+
+        .slide-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.25;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .slide-takeaway {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--primary);
+            line-height: 1.5;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .details-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .details-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .details-item {
+            position: relative;
+            padding-left: 28px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        .details-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--primary-light);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+        }
+
+        /* 右側資訊 (概念類比與流程圖) */
+        .right-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .metaphor-box {
+            background-color: var(--success-bg);
+            border: 1px solid var(--success-border);
+            padding: 16px;
+            border-radius: 16px;
+            color: var(--success-text);
+            font-size: 13.5px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .chart-box {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background-color: var(--bg-color);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 220px;
+        }
+
+        .chart-header {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .chart-zoom-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .zoom-btn {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-viewport {
+            flex: 1;
+            position: relative;
+            cursor: grab;
+            overflow: hidden;
+        }
+
+        .chart-viewport:active {
+            cursor: grabbing;
+        }
+
+        .svg-canvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: 0 0;
+            user-select: none;
+        }
+
+        /* 心智圖面板專屬 */
+        .mindmap-panel {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-color: var(--bg-color);
+            cursor: grab;
+        }
+
+        .mindmap-panel:active {
+            cursor: grabbing;
+        }
+
+        .mindmap-node {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .mindmap-node rect {
+            fill: var(--card-bg);
+            stroke: var(--border);
+            stroke-width: 1.5;
+            rx: 8px;
+            transition: var(--transition);
+        }
+
+        .mindmap-node:hover rect {
+            stroke: var(--primary);
+            filter: drop-shadow(0 4px 12px rgba(37,99,235,0.15));
+        }
+
+        .mindmap-node.active rect {
+            stroke: var(--primary);
+            stroke-width: 2.5;
+            fill: var(--primary-light);
+        }
+
+        .mindmap-node text {
+            fill: var(--text-main);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .mindmap-node.center-node rect {
+            fill: var(--primary);
+            stroke: var(--primary);
+            rx: 50%;
+        }
+
+        .mindmap-node.center-node text {
+            fill: #ffffff;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .mindmap-link {
+            stroke: var(--border);
+            stroke-width: 1;
+            stroke-dasharray: 4,4;
+            fill: none;
+            transition: var(--transition);
+        }
+
+        .mindmap-link.highlight {
+            stroke: var(--primary);
+            stroke-width: 2.5;
+            stroke-dasharray: none;
+        }
+
+        .mindmap-info-popup {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            width: 320px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--primary-border);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 10;
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .mindmap-info-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .mindmap-info-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* 底部控制面板 */
+        .footer-controls {
+            height: 56px;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .shortcut-tips {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .shortcut-tips kbd {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 600;
+            font-family: inherit;
+        }
+
+        .slide-counter {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .nav-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .nav-btn:disabled:hover {
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
+        /* 全螢幕樣式 */
+        :-webkit-full-screen .slide-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 0;
+            border: none;
+        }
+        :-moz-full-screen .slide-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 0;
+            border: none;
+        }
+        :fullscreen .slide-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 0;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-section">
+            <div class="logo-icon">Q</div>
+            <div class="logo-title">Agent Tools & Interoperability</div>
+        </div>
+
+        <div class="tab-container">
+            <button class="tab-btn active" id="btn-overview">簡報大綱 (Overview)</button>
+            <button class="tab-btn" id="btn-detail">詳細說明 (Step-by-Step)</button>
+        </div>
+
+        <div class="controls-section">
+            <select class="chapter-select" id="chapter-selector">
+                <option value="all">所有章節目錄</option>
+            </select>
+            <button class="icon-btn" id="btn-theme" title="切換深色/淺色模式">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a7 7 0 1 1-7.64-7.64c.44.06.9.1 1.36.1z"/></svg>
+            </button>
+            <button class="icon-btn" id="btn-fullscreen" title="全螢幕">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <main id="presentation-root">
+        <div class="slide-container" id="slide-wrapper">
+            <!-- 投影片內容將由 JavaScript 動態注入 -->
+        </div>
+    </main>
+
+    <div class="footer-controls">
+        <div class="shortcut-tips">
+            切換：<kbd>←</kbd> / <kbd>→</kbd> / <kbd>Space</kbd> &nbsp;|&nbsp; 目錄：<kbd>M</kbd> &nbsp;|&nbsp; 全螢幕：<kbd>F</kbd>
+        </div>
+
+        <div class="slide-counter" id="slide-counter-text">
+            投影片 1 / 15
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-btn" id="btn-prev" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> 上一頁
+            </button>
+            <button class="nav-btn" id="btn-next">
+                下一頁 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- 注入投影片數據 -->
+    <script>
+        const overviewSlides = [{"id": "O-1", "title": "Agent 的下一波浪潮", "takeaway": "軟體開發的範式已從寫代碼語法轉變為編排 AI 智能體系統！", "details": ["傳統開發以行為導向寫死流程，Agentic 工程則以意圖導向驅動成果。", "開發者的核心產出不再是 Raw Code，而是能自動產生並執行代碼的 Factory 系統。"], "metaphor": "👉 就像從『手工組裝零件的黑手工人』升級為『管理整條自動化生產線的智慧工廠廠長』。", "layout": "左側放置『黑手 VS 智慧工廠』的實體類比插圖，右側以大字重擊核心宣示，下方條列兩大轉變核心點。"}, {"id": "O-2", "title": "認識 AI 智能體公式", "takeaway": "Agentic 系統的核心公式：Agent = 基礎大模型 + 軟體運行線束！", "details": ["Model (大模型) 提供推理、語言理解與決策的『大腦』功能。", "Harness (線束/安全網) 提供工具連接、記憶管理、權限控制與環境沙盒。"], "metaphor": "👉 就像一個頂尖的『賽車手』(Model) 必須坐進配備了方向盤、儀表板與安全氣囊的『賽車座艙』(Harness) 才能上場比賽。", "layout": "上方展示『Agent = Model + Harness』的公式卡片，下方左右分欄解構 Model 與 Harness 的職責對比。"}, {"id": "O-3", "title": "什麼是開放協定標準", "takeaway": "缺乏統一協定，AI 將淪為車庫裡的孤立機器，無法融入全球生態！", "details": ["沒有協定時，開發者必須為每個 LLM 和工具撰寫脆弱且重複的 ad-hoc 封裝。", "有了協定，Harness 變成插拔即用的標準化平台，大幅降低整合難度。"], "metaphor": "👉 就像如果沒有『統一的插頭與插座標準』，你每買一台新電器就得重新拆開牆壁接線，生活將陷入混亂。", "layout": "左側放置雜亂接線的警示圖，右側放置乾淨統一的插座示意圖，對比呈現標準協定的必要性。"}, {"id": "O-4", "title": "智能體五大協議全景", "takeaway": "透過 MCP、A2A、A2UI、AP2、UCP 五大協議，建構虛擬員工團隊！", "details": ["MCP 負責連接工具與數據；A2A 負責智能體之間的跨網路協作與對話。", "A2UI 負責動態渲染人機界面；AP2 與 UCP 則負責自主商務與安全付款限制。"], "metaphor": "👉 就像一個跨國企業中，有負責敲鍵盤的工具介面、部門間的無線電、對外的展示視窗，以及採購合約與財務信用卡。", "layout": "全螢幕網狀圖，以 Agent Logic 為中心，向外輻射出五大協定的連結關係，點擊節點可放大說明。"}, {"id": "O-5", "title": "USB-C 的代名詞 MCP", "takeaway": "Model Context Protocol (MCP) 是連接模型與外部數據的萬用插槽！", "details": ["解決了 LLM 無法直接安全讀取本地檔案、資料庫與 Web API 的痛點。", "Client-Server 架構讓工具的擴充與更新對模型完全透明。"], "metaphor": "👉 就像電腦上的『USB-C 接口』，不論是滑鼠、鍵盤還是隨身碟，插上就能立刻使用，無需拆機重裝驅動。", "layout": "左側為 USB-C 萬用插槽 of 類比圖，右側為 MCP Host-Client-Server 的三層架構圖。"}, {"id": "O-6", "title": "突破 NxM 整合危機", "takeaway": "MCP 將工具整合的複雜度從指數型 O(N x M) 降低為線性型 O(N + M)！", "details": ["若有 5 個模型與 10 個工具，傳統開發需要維護 50 個 bespoke 整合點。", "採用 MCP 協定後，只需維護 5 個模型連接與 10 個工具適配，共 15 個點。"], "metaphor": "👉 就像鐵路軌距如果沒有標準化，N 種火車開到 M 個國家就需要 M 種軌距轉換器；標準化軌距後只需統一通車即可。", "layout": "左側為錯綜複雜交叉的 N x M 網狀連線，右側為通過 MCP 匯集線性的 N + M 對比矩陣，數字標紅重擊對比。"}, {"id": "O-7", "title": "傳輸雙雄 stdio 與 SSE", "takeaway": "根據場景靈活選擇 stdio 本地管道或 SSE 遠端實時串流！", "details": ["stdio (標準輸入輸出)：適合本地快速原型開發，以 JSON-RPC 2.0 在 stdin/stdout 傳輸。", "SSE (伺服器發送事件)：適合部署型遠端應用，實時串流資料，減輕客戶端依賴。"], "metaphor": "👉 stdio 像是『同一個辦公室裡的傳紙條』，SSE 則像是『透過有線電視廣播進行遠端實時轉播』。", "layout": "左右分欄對比。左側標示 stdio 的本地進程架構，右側標示 SSE over HTTP 的雲端傳輸路徑。"}, {"id": "O-8", "title": "微服務架構的 A2A 演進", "takeaway": "單體萬能 Agent 已達瓶頸，分散式多 Agent 微服務才是擴展的王道！", "details": ["單體 Agent 塞入太多工具會導致上下文超載、搜尋空間過大並引發嚴重幻覺。", "將單體拆解為專業的分工子智能體 (Sub-agents)，各自專精單一領域。"], "metaphor": "👉 就像如果讓『一個萬能秘書』去包辦寫程式、做財務、跑法務和設計 UI，他一定會崩潰；應該聘請專業團隊分工合作。", "layout": "左側展示『Swiss Army Knife』單體智能體的混亂，右側展示多個專業 Agent 的組織階層圖。"}, {"id": "O-9", "title": "打通 AI 的溝通語系 A2A", "takeaway": "Agent-to-Agent 協定是多 Agent 生態系的 lingua franca (通用語)！", "details": ["解決了跨部門、不同團隊所開發的 Agent 因技術棧與 payload 不同而無法溝通的難題。", "由 Google 開發並捐贈給 Linux 基金會，實現跨網路、跨語言的智能編排。"], "metaphor": "👉 就像是『聯合國的同步翻譯系統』，不管各國代表說英語、法語還是中文，都能即時溝通、達成共識。", "layout": "中央放置 A2A 翻譯機圖示，四周連結著代表不同框架（ADK, LangGraph, Bespoke）的 Agent 節點。"}, {"id": "O-10", "title": "Bounded 與 Unbounded", "takeaway": "外部專家 Agent 是協同合作的夥伴，絕對不能當作被動的工具！", "details": ["標準工具 (Bounded) 屬於 fire-and-forget 機制，只做單次、格式固定的響應。", "協作 Agent (Unbounded) 面對曖昧不明的需求，需要多輪對話與主動協商。"], "metaphor": "👉 工具像是『你買了一把鐵鎚自己釘櫃子』，而專家 Agent 則是『你請了一位裝潢師傅，他會主動問你插座要留哪裡』。", "layout": "2x2 矩陣。橫軸為互動頻率（單次 vs. 循環），縱軸為決策彈性（固定規格 vs. 開放協商），將工具與 Agent 填入。"}, {"id": "O-11", "title": "虛擬員工的身分證 Agent Card", "takeaway": "透過機器可讀的 Agent Card 與 Registry，實現 Agent 的發現與雇用！", "details": ["Agent Card (智能體卡片) 是 AI 世界的標準履歷，定義了 Capabilities 與安全政策。", "Registry (註冊表) 則是人才市場，讓 Orchestrator 可以動態尋找並 onboard 專家。"], "metaphor": "👉 就像是『人力銀行的履歷表』，HR (Orchestrator) 只要刷一下履歷，就能知道這位虛擬員工會什麼、要多少權限。", "layout": "左側展示一張精緻的『AI 虛擬員工 CV (Agent Card)』視覺化卡片，右側展示註冊表媒合流程。"}, {"id": "O-12", "title": "AaaS 與雲端 Marketplace", "takeaway": "AaaS (Agent-as-a-Service) 商業模型，讓獨立開發者的 Agent 輕鬆變現！", "details": ["將 A2A 智能體上架至 Google Cloud Marketplace，直接對接企業客戶財務合約。", "支援固定月費與超額使用費的混合計費模型，自動處理複雜的雲端帳單。"], "metaphor": "👉 就像是把你的 AI 專家上架到『App Store』，企業一鍵點擊購買，每個月自動從信用卡扣款，省去金流對接地獄。", "layout": "時間軸展示 AaaS 變現生命週期：開發與打磨 -> 上架 Marketplace -> 部署與治理 -> 客戶端調用。"}, {"id": "O-13", "title": "機器之間的微支付 x402", "takeaway": "利用 HTTP 402 與 L402/x402 標準，實現免驗證的機器對機器微支付！", "details": ["當外部請求未付款時，A2A 伺服器回傳 HTTP 402 Payment Required 狀態碼與發票。", "調用端 Agent 自動解析、執行加密付款，並附帶證明重新請求，全程無需人類干預。"], "metaphor": "👉 就像是『AI 的高速公路自動收費 EPC 系統』，車子開過去直接扣款，不用停下來拿零錢或輸入信用卡密碼。", "layout": "流程圖展示：請求 -> 攔截 (HTTP 402) -> 自主支付 -> 攜帶 Proof 重新請求 -> 成功回傳資料。"}, {"id": "O-14", "title": "UI 的樂譜 A2UI", "takeaway": "A2UI 標準讓 Agent 能動態生成安全、互動式的 UI，解決 JSON 鴻溝！", "details": ["傳統 Agent 只會吐出 Raw JSON，A2UI 讓 Agent 能依據情境動態繪製前端界面。", "不生成執行代碼，只提供宣告式 JSON 樂譜，由客戶端 Native 元件安全渲染。"], "metaphor": "👉 就像是『樂譜』，同一份譜可以在鋼琴 (Web) 彈奏，也可以在小提琴 (App) 演奏，既安全又保有設備原生美感。", "layout": "左側展示複雜難懂的 JSON 代碼，中間為 A2UI 轉換器，右側為渲染出來的精美銷售圖表卡片。"}, {"id": "O-15", "title": "自主商務 UCP 與 AP2", "takeaway": "UCP 作為採購大腦，AP2 作為安全付款錢包，合力完成自主商務交易！", "details": ["Universal Commerce Protocol (UCP) 標準化了詢價、加點、購物車與訂單建立流程。", "Agent Payments Protocol (AP2) 提供嚴格限額授權與加密憑證，確保付錢時不會被詐騙。"], "metaphor": "👉 UCP 像是『去餐廳點餐的腦袋』，AP2 則是『只裝了 25 元限額、能自動驗證簽章的安全錢包』。", "layout": "左右對比卡片。左側為 UCP 職責（選單、加點、購物車），右側為 AP2 職責（限額、授權簽章、防詐騙阻斷）。"}];
+        const detailSlides = [{"id": "1", "chapter": "第一章", "pdf_page": "6", "title": "軟體革命的下一幕", "takeaway": "軟體的未來不是由人編寫代碼，而是由互相連接的智能體進行編排！", "details": ["第一天白皮書我們探討了從『程式語法撰寫』到『智能體工程』的典範移轉。", "智能體工程將開發者的精力從底層邏輯解放，投射到高階架構編排。"], "metaphor": "👉 就像是從『一磚一瓦砌牆的泥水工』升級為『指揮吊車、水泥車與灌漿機協同的工地總監』。", "layout": "左側為傳統程式碼編輯器，右側為 Orchestrator 統一調度的概念視圖。"}, {"id": "2", "chapter": "第一章", "pdf_page": "6", "title": "代碼工廠模型簡介", "takeaway": "在智能體時代，開發者的主要產出不再是 Raw Code，而是『產生代碼的工廠系統』！", "details": ["我們需要定義工廠的輸入、流程與品質閥門，而非具體代碼細節。", "系統由大模型作為核心邏輯，配合外在環境共同構建而成。"], "metaphor": "👉 就像是與其『自己動手做麵包』，不如『設計一台全自動的麵包生產機』，讓機器負責揉麵團、發酵與烘烤。", "layout": "全螢幕流程圖，展示『定義需求 -> 智能代碼生成 -> 自動執行與驗證 -> 發布上線』的工廠流程線。"}, {"id": "3", "chapter": "第一章", "pdf_page": "6", "title": "透視智能體架構公式", "takeaway": "核心架構公式：Agent = Model (基礎大模型) + Harness (軟體運行線束)！", "details": ["大模型 (Model) 是大腦，負責接收意圖、拆解任務並生成指令。", "運行線束 (Harness) 是身體與感官，提供沙盒環境、IO 通道與 API 接口。"], "metaphor": "👉 就像是『大腦』(Model) 如果沒有『神經與肌肉系統』(Harness) 的連接，就連眨一下眼或拿一杯水都做不到。", "layout": "中間展示巨大公式『Agent = Model + Harness』，滑鼠懸停於 Model 時高亮顯示其職責，懸停於 Harness 時高亮顯示其工具連接。"}, {"id": "4", "chapter": "第一章", "pdf_page": "7", "title": "什麼是 Harness 線束", "takeaway": "Harness 是將大模型與現實世界連結的安全防護網與傳輸總線！", "details": ["它限制模型的行為範疇，防堵惡意代碼外洩，提供安全的沙盒環境。", "它定義了與資料庫、本地檔案系統以及第三方 API 連接的標準接口。"], "metaphor": "👉 就像是高壓電廠的『絕緣配電盤與輸電網』，安全地把高溫高壓的能量 (LLM 推理) 轉化為一般家電能用的電流。", "layout": "左側為 Model 大腦，中央為包覆著安全防護網的 Harness 連接線，右側為資料庫與終端設備。"}, {"id": "5", "chapter": "第一章", "pdf_page": "7", "title": "智能體的核心工業標準", "takeaway": "MCP, A2A, A2UI, AP2, UCP 是智能體安全地與世界互動的工業標準！", "details": ["它們就像是工業製造中的統一螺絲規格與螺紋尺寸，確保不同設備能完美對接。", "沒有標準的智能體只是 garage 裡的孤立機器，充滿碎裂的 custom wrapper。"], "metaphor": "👉 就像是『統一的國際標準軌距』，否則每一國火車開到邊境都得重新換輪軌，運輸成本不堪設想。", "layout": "表格展示 5 大標準：協定名稱、扮演角色、對應實體類比，並以高對比色區分。"}, {"id": "6", "chapter": "第一章", "pdf_page": "7", "title": "受困於低槓桿的 Conductor", "takeaway": "不採用標準協定的開發者，將被困在低槓桿的 API 焊接與除錯地獄中！", "details": ["每天花大量時間調試自訂的 JSON Payload，為每個 API 寫脆弱的 bespoke 連接碼。", "智能體系統一更新，舊的對接點隨之破碎，維護負擔壓垮整個專案。"], "metaphor": "👉 就像是『手動轉接電話線的早期接線生』，每天忙著插拔線路，根本無法抽身做更高價值的系統編排。", "layout": "左側展示黑白手動接線生混亂畫面，右側為亮色高階指揮官 (Orchestrator) 管理自動化網絡的對比圖。"}, {"id": "7", "chapter": "第一章", "pdf_page": "7", "title": "轉型為高價值的編排者", "takeaway": "採用標準協定，讓 Harness 變為插拔平台，開發者升級為意圖指揮官！", "details": ["不再關注底層 API payload 的 JSON 格式與欄位對接細節。", "專注於定義系統目標、業務邏輯與多智能體協作流程。"], "metaphor": "👉 就像是從『苦哈哈在路邊搬貨的送貨員』，升級為『在冷氣房用中控軟體調配千百台無人配送車的智慧調度員』。", "layout": "對比分欄。左欄顯示『低槓桿：手工硬編碼』，右欄顯示『高槓桿：協議編排』，數據重擊顯示維護工時減少 80%。"}, {"id": "8", "chapter": "第一章", "pdf_page": "7", "title": "解讀 Power Plugs 推理協定", "takeaway": "OpenResponses 與 Interactions API 為推理提供長效電力！", "details": ["模糊了『單次無狀態推理』與『長效有狀態智能體』的界線。", "支持長時間運行的複雜推理任務，並提供狀態持續性與中斷恢復機制。"], "metaphor": "👉 就像是把『一次性使用的乾電池』換成『插在牆上的交流電插座』，智能體能源源不絕運行而不斷電。", "layout": "左側為乾電池與一次性閃電圖示，右側為牆壁插座與長流電流圖示，象徵持續性的有狀態推理。"}, {"id": "9", "chapter": "第一章", "pdf_page": "7", "title": "透視連接萬物的 MCP", "takeaway": "Model Context Protocol (MCP) 充當智能體 Harness 中的 USB-C 插槽！", "details": ["讓模型能瞬間安全地連接到資料庫、本地文件系統與各種 Web API。", "標準化了工具的 metadata 定義與呼叫格式，消除 bespoke REST 封裝代碼。"], "metaphor": "👉 就像是電腦上的『USB-C 端口』，你不必為鍵盤、滑鼠或硬碟各自發明一種通訊插槽。", "layout": "中心為 USB-C 接口，四周連接資料庫、檔案夾、GitHub API，顯示統一適配性。"}, {"id": "10", "chapter": "第一章", "pdf_page": "7", "title": "什麼是 Skills 劇本", "takeaway": "Skills 是專門供智能體在沙盒環境（如終端機）中執行的 Markdown Playbook！", "details": ["包含簡潔的指令、輔助腳本與環境資源說明，引導智能體完成特定技術動作。", "提供獨立、受控的執行沙盒，限制惡意行為，確保系統操作安全。"], "metaphor": "👉 就像是給新手廚師的『標準食譜手冊』，每一步要加幾克鹽、用什麼火候都寫得清清楚楚，照著做就不會燒焦。", "layout": "左側為 Markdown 格式的 Skill 範本，右側為沙盒執行空間，以動態框線標示安全防護邊界。"}, {"id": "11", "chapter": "第一章", "pdf_page": "7", "title": "打通智能體通信的 A2A", "takeaway": "Agent-to-Agent (A2A) 作為工廠無線電，讓專門智能體跨網協同！", "details": ["允許不同模型、技術棧開發的 Agent 互相交談、談判與派發工作。", "避免了不同 Agent 之間通訊協定碎裂、雞同鴨講的混亂局面。"], "metaphor": "👉 就像是工廠裡『每個工人都配備同一個頻道的無線電對講機』，隨時呼叫庫存管理員或物流司機。", "layout": "多個不同顏色、不同框架的 Agent 卡片，透過一條名為 A2A 的中央信號線彼此連接通訊。"}, {"id": "12", "chapter": "第一章", "pdf_page": "7", "title": "解鎖人機界面的 A2UI", "takeaway": "Agent-to-User Interface (A2UI) 是智能體的動態展示櫥窗，將 JSON 轉為視覺元件！", "details": ["解決了 Agent 返回 raw JSON 導致人類無法直觀解讀與操作的溝通鴻溝。", "將冰冷的資料結構轉化為美觀、具互動性且安全的 Native UI 元件。"], "metaphor": "👉 就像是商店的『智慧展示窗』，不是把後台雜亂的庫存清單貼在門口，而是把最漂亮的商品配上按鈕展示出來。", "layout": "左側為 Raw JSON 程式碼，中間經過 A2UI 轉換，右側呈現一張包含按鈕、輸入框的精緻 UI 卡片。"}, {"id": "13", "chapter": "第一章", "pdf_page": "7", "title": "自主商務網 AP2 與 UCP", "takeaway": "AP2 與 UCP 充當全球供應鏈與交易網絡，讓智能體能安全執行財務行動！", "details": ["支持機器與機器之間的商業談判、訂單建立以及防詐騙付款。", "提供嚴格的安全合約 (Mandate)，限制智能體最大消費金額與消費對象。"], "metaphor": "👉 就像是給公司採購經理的『專用採購系統與有額度限制的公務信用卡』，安全又有審計追蹤。", "layout": "左側為商家系統，中間為 UCP 訂單流，右側為帶有鎖頭的 AP2 授權信用卡支付流。"}, {"id": "14", "chapter": "第一章", "pdf_page": "8", "title": "本白皮書的聚焦核心", "takeaway": "本白皮書教你如何在一個下午，利用這些協議快速搭建一支虛擬數據與執行團隊！", "details": ["聚焦於 Vibe Coder 如何快速消費 (Consume) 已有的 MCP 與 A2A 資源。", "展示如何將零散的技術原型整合成具備商業交易能力的完整生態。"], "metaphor": "👉 就像是拿到一份『樂高拼裝手冊』，只花幾個小時就能把動力馬達、齒輪與車輪拼成一台可遙控的越野車。", "layout": "時鐘圖示指向『一個下午』，右側以時間軸展示『MCP 配置 -> A2A 連接 -> A2UI 渲染 -> AP2 付款驗證』的敏捷流程。"}, {"id": "15", "chapter": "第一章", "pdf_page": "8", "title": "為什麼是現在？", "takeaway": "在缺乏結構的 Vibe Coding 時代，標準協議是建立系統信任的唯一基石！", "details": ["雖然開發速度是第一驅動力，但標準協定能將孤立的機器轉化為可維護的平台。", "無標準的 ad-hoc 開發將積累巨大的技術債，導致應用難以在生產環境落地。"], "metaphor": "👉 就像在蓋摩天大樓時，如果不使用『標準的鋼骨尺寸與承重協議』，每層樓都隨意蓋，整棟樓隨時會倒塌。", "layout": "左側為歪斜不穩的積木塔（標示 ad-hoc 開發），右側為底部有穩固地基與框架結構的現代大樓（標示標準協定）。"}, {"id": "16", "chapter": "第一章", "pdf_page": "9", "title": "本手冊的讀者定位", "takeaway": "專為追求開發速度、重視視覺成果，同時需要保證系統可靠性的工程領袖設計！", "details": ["適用於軟體工程師、工程經理、架構師與技術決策者。", "作為實務指引，帶領開發者擺脫底層程式細節，專注於全局業務編排。"], "metaphor": "👉 就像是一本『給賽車車隊總監的調校指南』，告訴你如何快速調整引擎與懸吊，在賽道上搶下第一名。", "layout": "三個聽眾頭像（工程師、主管、架構師）分欄排列，下方各自標示他們能從本手冊獲得的關鍵收益。"}, {"id": "17", "chapter": "第一章", "pdf_page": "9", "title": "應用提示：建構智能體指南", "takeaway": "在動手編碼前，務必使用 AGENTS.MD 檔案為智能體提供標準指引！", "details": ["深思熟慮 assumptions 與 trade-offs，遇到曖昧不明時立即停下來向人類詢問。", "拒絕憑空猜測，只編寫解決當前問題的最少代碼，避免過度設計與多餘抽象。"], "metaphor": "👉 就像是給工程師的『行前檢查清單』，出發前確認油箱灌滿、胎壓正常，絕對不打無準備之仗。", "layout": "左側顯示 AGENTS.MD 文件結構，右側以 checklist 形式列出『深思熟慮、最少代碼、精準修改、目標驅動』四大原則。"}, {"id": "18", "chapter": "第一章", "pdf_page": "9", "title": "外科手術式修改原則", "takeaway": "修改代碼時必須像外科醫生一樣，只對精確的行數進行修改，保持周邊完好！", "details": ["限制更新範疇，完美融入既有風格，絕對不碰相鄰、無損壞的代碼。", "避免因大範圍重寫而引入意料之外的 bug，確保修改的局部安全性。"], "metaphor": "👉 就像是『移除盲腸的外科微創手術』，你只需要在肚子上開個小孔切除盲腸，而不是把整個肚子剖開把器官都拿出來洗一遍。", "layout": "左側展示大範圍修改導致的代碼衝突紅字，右側展示精確 2 行綠色代碼修改的對比圖。"}, {"id": "19", "chapter": "第一章", "pdf_page": "9", "title": "目標驅動與測試先行", "takeaway": "透過目標驅動與紅綠測試循環，確保智能體每一次執行的絕對精準！", "details": ["將任務分解為步步可驗證的 checklist，先寫一個必敗的測試用例。", "反覆執行與微調代碼，直到該特定測試完全通過，完成綠燈閉環。"], "metaphor": "👉 就像是『射箭比賽』，你必須先在牆上畫好靶心 (Test)，然後一次次調整拉弓姿勢與力道，直到正中紅心 (Pass)。", "layout": "左側為紅色的 Fail 箭頭，右側為綠色的 Pass 標靶，中間為迭代優化的循環箭頭。"}, {"id": "20", "chapter": "第一章", "pdf_page": "9", "title": "第一章邏輯關係回顧", "takeaway": "打好基礎：理解 Model 與 Harness 的公式，是解鎖五大協定能力的起點！", "details": ["軟體開發典範移轉 -> Agent = Model + Harness 架構公式。", "為擺脫低槓桿的 Conductor，必須採用 MCP、A2A、A2UI 等五大工業協定標準。"], "metaphor": "👉 就像是『學開飛機前先讀懂儀表板原理』，唯有掌握這些基礎架構，你才敢推動油門飛向雲霄。", "layout": "全螢幕流程圖，展示第一章所有概念的關係：範式轉移 -> Agent公式 -> 標準協定 -> 擺脫低槓桿 -> 進入智能體世界。"}, {"id": "21", "chapter": "第二章", "pdf_page": "10", "title": "Vibe Coder 的 MCP 視角", "takeaway": "對 Vibe Coder 而言，工具的消費 (Consumption) 遠比創造 (Creation) 更重要！", "details": ["你不需要花數小時去編寫複雜的 MCP 伺服器底層傳輸邏輯。", "直接接入已有的公共與私有 MCP 註冊表，瞬間賦予智能體插拔超能力。"], "metaphor": "👉 就像是『買房子的人只需要把插頭插進牆壁孔 (消費)』，而不需要自己去發電廠拉電線、鋪設地下電纜 (創造)。", "layout": "左欄顯示『創造者：底層代碼、網絡治理』，右欄顯示『消費者：一鍵連接、即插即用』，右欄以亮色高亮突出。"}, {"id": "22", "chapter": "第二章", "pdf_page": "10", "title": "擺脫 bespoke 連接摩擦", "takeaway": "告別為模型硬編碼 REST 封裝的舊時代，迎來標準化 socket 的新紀元！", "details": ["傳統做法需要為每個 API 配置 API Key、處理 Token 刷新、編寫自訂 JSON 解析器。", "MCP 將所有這些混亂用一個統一的標準化插槽 (Standardized Socket) 取代。"], "metaphor": "👉 就像是『以前家裡每台電器都用不同的電池規格，現在全部統一使用 Type-C 充電線』一樣清爽。", "layout": "左側展示混雜的 REST wrapper 程式碼，右側展示簡潔的 MCP 連接代碼，對比代碼行數從 150 行縮減至 5 行。"}, {"id": "23", "chapter": "第二章", "pdf_page": "10", "title": "MCP 上手三部曲", "takeaway": "只需三步：發現 (Discovery)、配置 (Configuration) 與連接 (Connection) 即可完成上架！", "details": ["第一步發現：尋找現成的公共、遠端或企業內部 MCP 伺服器。", "第二步配置：設定 API Key 等環境變數，並明確授予文件系統讀寫權限。", "第三步連接：智能體與伺服器進行握手，獲取可用工具列表並驗證 schema。"], "metaphor": "👉 就像是『下載 App 的流程：在 App Store 搜尋 (發現) -> 點擊安裝並允許相機權限 (配置) -> 開啟 App 開始使用 (連接)』。", "layout": "三步驟時間軸卡片對照，每一張卡片下方有具體的代碼指示與流程說明。"}, {"id": "24", "chapter": "第二章", "pdf_page": "11", "title": "第一步：發現 MCP 伺服器", "takeaway": "從三大核心管道定位你需要的 pre-built MCP 伺服器，拒絕重複造輪子！", "details": ["管道 1 - 公開註冊表 (Public MCP Registries)：包含官方與社群維護的數百個開源伺服器。", "管道 2 - 第三方遠端託管服務：如 Google Maps, BigQuery 等官方託管安全端點。", "管道 3 - 企業內部私有註冊表：透過 GCP Agent Registry 或私有微服務門戶保護內部資產。"], "metaphor": "👉 就像是『你要找水電工：去公共論壇找 (公共) -> 打電話給連鎖大公司派人 (第三方) -> 呼叫大樓內部的維修組 (內部)』。", "layout": "三分欄佈局。左分欄介紹 Public Registry，中分欄介紹 3P Remote，右分欄介紹 Internal Registry。"}, {"id": "25", "chapter": "第二章", "pdf_page": "11", "title": "公開 MCP 註冊表避坑指南", "takeaway": "公開註冊表是本地快速原型開發的神器，但缺乏審查，使用風險自負！", "details": ["公開庫 (如 registry.modelcontextprotocol.io) 含有大量社群貢獻的代碼，未經安全審計。", "在將它們連接到擁有你本地檔案寫入權限或存有敏感 credentials 的智能體前，務必三思。"], "metaphor": "👉 就像是『從路邊免費贈送的軟體下載區下載程式』，好用但你必須在安裝前用防毒軟體掃描一遍。", "layout": "左側為公開註冊表標誌與感嘆號警示卡片，右側列出三項安全審查步驟 (Audit Code, Limit Scoping, Sandbox execution)。"}, {"id": "26", "chapter": "第二章", "pdf_page": "11", "title": "擁抱官方認證遠端服務", "takeaway": "優先選擇官方發布且經過驗證的 3P 遠端託管服務，確保安全合規！", "details": ["例如 Google 發布的 Google Maps, Google Docs, BigQuery 等 MCP 伺服器。", "這些託管端點由官方維護，免去本地託管與除錯的負擔，提供生產級的安全性。"], "metaphor": "👉 就像是『比起去下載路邊不知名開發者的地圖工具，你直接點開 Google Maps 官方網頁』一樣放心。", "layout": "右側展示 Google Cloud 官方 MCP 連接器架構圖，左側列出官方服務的穩定度指標 (SLA 99.9%)。"}, {"id": "27", "chapter": "第二章", "pdf_page": "11", "title": "建構企業安全護城河", "takeaway": "企業內部資產必須透過 GCP Agent Registry 或私有微服務門戶進行安全發布！", "details": ["將內部工具與私有資料庫包裝為 MCP，並將其登錄於內部 API Gateway 中。", "僅授權通過身分驗證的內部智能體調用，嚴格落實最小特權原則 (PoLP)。"], "metaphor": "👉 就像是『公司內部的保險箱』，只有佩戴識別證 (Token) 且通過指紋辨識 (Auth) 的員工才能打開取件。", "layout": "左側為企業內部 API 閘道圖示，右側展示智能體獲取內部資料庫 MCP 存取權限的驗證流程。"}, {"id": "28", "chapter": "第二章", "pdf_page": "11", "title": "安全第一：Model Armor", "takeaway": "當使用未經審查的公共伺服器時，必須引入 Model Armor 進行數據防護！", "details": ["絕不將敏感憑證 (API Key) 直接傳遞給未經驗證的第三方公共伺服器。", "Model Armor 在智能體與外部伺服器之間建立隔離帶，自動遮蔽與過濾敏感資訊。"], "metaphor": "👉 就像是『你在公共游泳池游泳時穿上防生化服』，既能享受游泳的樂趣 (功能)，又不會被水裡的病菌感染 (洩密)。", "layout": "左側為智能體，中間為名為 Model Armor 的藍色護盾卡片，右側為公共 MCP 伺服器，紅線表示被阻擋的敏感資訊。"}, {"id": "29", "chapter": "第二章", "pdf_page": "12", "title": "第二步：精細化配置 MCP", "takeaway": "在連接前，必須在環境設定中明確限制伺服器的存取範疇與檔案權限！", "details": ["使用環境設定檔 (如 .env 或 mcp_config.json) 管理 API 金鑰與 OAuth 密鑰。", "嚴格限制智能體對本地文件系統的讀寫範疇，防止代碼生成時惡意覆寫系統檔案。"], "metaphor": "👉 就像是『你請清潔工來家裡打掃 (配置權限)，你只給他客廳的鑰匙 (Scope)，並把保險箱鎖在臥室裡』。", "layout": "左側為 JSON 格式的配置範例檔，右側為權限盾牌，強調 Scope 限制。"}, {"id": "30", "chapter": "第二章", "pdf_page": "12", "title": "配置檢查清單四大要項", "takeaway": "依循 Prerequisite、Scope、Agent Specs、Authentication 四大步驟完成配置！", "details": ["1. Check Prerequisites：確認本地環境已安裝 Node.js 或 Python 運行時環境。", "2. Scope Criterias：明確劃定智能體可以存取的目錄路徑與 API 端點範疇。", "3. Agent Specifications：在智能體 Harness 中寫入該 MCP 伺服器的功能說明。", "4. Authentication：設定安全的 API 密鑰傳遞通道，拒絕硬編碼。"], "metaphor": "👉 就像是『入關檢查：檢查護照 (Prerequisite) -> 規定停留區域 (Scope) -> 填寫申報單 (Specs) -> 蓋章放行 (Auth)』。", "layout": "四宮格矩陣。每一個格子代表一個要項，懸停時變色放大並顯示實作範例代碼。"}, {"id": "31", "chapter": "第二章", "pdf_page": "12", "title": "第三步：握手連接驗證", "takeaway": "透過 Handshake 連接握手，智能體主動獲取工具列表並驗證 output schema！", "details": ["Client 與 Server 建立 Socket 連線後，發送初始化握手請求 (Initialize Request)。", "伺服器回傳其支援的所有 Tool 清單，包含工具名稱、參數格式描述 (JSON Schema)。"], "metaphor": "👉 就像是『新員工報到第一天，跟主管握手 (Handshake)，主管遞給他一份工作手冊 (Tool List)，說明要做什麼』。", "layout": "流程時序圖。左側為 Host Client，右側為 MCP Server，中間展示 initialize -> response 的雙向箭頭與 schema 封包結構。"}, {"id": "32", "chapter": "第二章", "pdf_page": "12", "title": "解析 JSON-RPC 2.0 協議", "takeaway": "MCP 連接底層採用標準 JSON-RPC 2.0 格式進行輕量級的雙向通信！", "details": ["使用統一的 request-response 格式，包含 jsonrpc, method, params, id 欄位。", "異步傳輸機制允許 Host 與 Server 同時處理多個併發的工具調用請求。"], "metaphor": "👉 就像是『寄信時使用郵局規定的標準信封格式』，不管信裡寫什麼，郵差 (傳輸層) 都能一眼看懂收件人和寄件人。", "layout": "左側為 JSON-RPC 請求代碼塊，右側為響應代碼塊，各關鍵欄位（method, params, result）以黃色高亮連線標示對應關係。"}, {"id": "33", "chapter": "第二章", "pdf_page": "12", "title": "連接狀態管理生命週期", "takeaway": "維持穩固的 Connection 生命週期，在連線中斷時實作自動重連機制！", "details": ["生命週期包含：Connecting -> Connected -> Active -> Reconnecting -> Closed。", "當網絡波動導致連接中斷，Client 必須攔截異常，並以指數退避 (Exponential Backoff) 嘗試重連。"], "metaphor": "👉 就像是『講電話時訊號不好斷線，手機會自動撥號重新接通，而不是直接放棄通話』。", "layout": "狀態過渡圖 (State Transition Diagram)。以圓圈代表五大狀態，以箭頭代表過渡條件，點擊狀態可查看觸發事件。"}, {"id": "34", "chapter": "第二章", "pdf_page": "12", "title": "實作 MCP Handshake 代碼", "takeaway": "僅需數行 Python 代碼，即可在 Harness 中啟動 MCP 客戶端連線！", "details": ["導入 mcp 相關套件，建立進程適配器，發送工具列出命令。", "程式碼展示瞭如何讀取配置文件並初始化客戶端實例。"], "metaphor": "👉 就像是『插入一根適配器轉接線』，代碼只是宣告要連上哪條管路，底層細節全部交給 SDK 處理。", "layout": "全螢幕代碼塊，以 Python 展示：from mcp import Client; client = Client(config_path); client.connect() 等關鍵語法。"}, {"id": "35", "chapter": "第二章", "pdf_page": "12", "title": "驗證 Schema 的重要性", "takeaway": "在智能體調用工具前，必須嚴格校對參數是否符合 JSON Schema 規範！", "details": ["LLM 生成參數時容易產生語意偏差或拼寫錯誤 (例如將 max_results 寫成 limit)。", "在連線層強制進行 Schema 檢驗，攔截錯誤參數，避免無謂的 API 請求浪費 token。"], "metaphor": "👉 就像是『螺帽與螺栓對齊』，如果大小不合 (Schema 不符)，就不要強行旋入，否則會把螺紋崩壞 (引發服務異常)。", "layout": "左側為 LLM 產生的錯誤 JSON 物件，中間為紅色 Validation 阻斷器，右側為正確符合 Schema 的綠色物件對比。"}, {"id": "36", "chapter": "第二章", "pdf_page": "12", "title": "處理連接超時與異常", "takeaway": "設置合理的 Timeouts 機制，防止 MCP 伺服器掛起導致智能體無限期等待！", "details": ["工具執行可能因為網絡延遲或外部 API 異常而停擺。", "在 Host 端配置 30 秒的硬性超時閥值，超時則中斷連線並回傳錯誤訊息給模型。"], "metaphor": "👉 就像是『去銀行櫃檯辦事，排隊超過半小時沒人理你，你就應該先離開改天再來，而不是在那裡站一輩子』。", "layout": "左側展示進程等待的沙漏，中間標示 30s 硬超時限制，右側為 TimeoutException 拋出流程卡片。"}, {"id": "37", "chapter": "第二章", "pdf_page": "12", "title": "動態工具綁定機制", "takeaway": "根據智能體目前任務意圖，動態綁定或卸載 MCP 工具，保持上下文乾淨！", "details": ["如果將上百個工具的 Schema 全部塞給模型，會嚴重稀釋其注意力並造成上下文超載。", "僅在需要執行特定子任務時加載對應的 MCP Server，完成後立即卸載。"], "metaphor": "👉 就像是『特種部隊執行任務，去叢林戰就只帶開山刀與偽裝網 (動態綁定)，回基地就把重裝備放下 (卸載)』。", "layout": "左側為智能體，中央為動態工具槽，顯示工具 A 被插入，工具 B 被拉出的動畫示意圖。"}, {"id": "38", "chapter": "第二章", "pdf_page": "12", "title": "實務案例：連接 BigQuery", "takeaway": "以 Google BigQuery 為例，看 MCP 如何一鍵打通數據湖通道！", "details": ["配置檔案指向 `gcp-bigquery-mcp` 伺服器，自動抓取帳戶預設認證。", "智能體發送查詢意圖，MCP 伺服器執行 SQL 並回傳結構化資料，省去手寫 BigQuery Client。"], "metaphor": "👉 就像是『在電腦上安裝了隨身碟讀卡機，插上卡就能直接讀取所有照片，不用寫程式去解析記憶卡晶片』。", "layout": "左側為 SQL 查詢語句，中間為 BigQuery MCP 連接線，右側為 BigQuery 資料庫，中央有綠色傳輸箭頭。"}, {"id": "39", "chapter": "第二章", "pdf_page": "12", "title": "多 MCP 伺服器併發連接", "takeaway": "智能體 Harness 可同時維持多個 MCP 連線，打造多功能聚合工作站！", "details": ["Host 客戶端可以併發連接 GitHub MCP, BigQuery MCP, Slack MCP 三個伺服器。", "Orchestrator 會自動根據任務分派，將不同的工具請求分流到正確的伺服器。"], "metaphor": "👉 就像是『你的筆記型電腦同時插著滑鼠、外接螢幕與印表機，它們各自工作、互不衝突』。", "layout": "中央為 Host Client 大卡片，向外有三條光纖通道連接到 GitHub, Slack, BigQuery 三個 MCP Server。"}, {"id": "40", "chapter": "第二章", "pdf_page": "12", "title": "第二章邏輯關係回顧", "takeaway": "掌握上架三部曲，是建立高效 MCP 工具箱、規避整合危機的關鍵！", "details": ["Vibe Coder 消費視角 -> 發現 (3大管道) -> 配置 (4大要項) -> 連接 (握手與 JSON-RPC)。", "工具的動態綁定與安全權限 Scoping，為下一步理解 NxM 整合數學奠定基礎。"], "metaphor": "👉 就像是『學會如何把插頭插進正確的插座並檢查電壓』，這是啟動整個工廠機器的第一步。", "layout": "全螢幕流程圖，展示第二章的關聯路徑：定位 MCP -> 安全配置 -> 連接握手 -> 獲取 Tool List -> 實作動態調用。"}, {"id": "41", "chapter": "第三章", "pdf_page": "13", "title": "NxM 整合危機來襲", "takeaway": "當模型 N 與工具 M 數量增加時，傳統一對一連接的開發成本將呈指數級爆炸！", "details": ["在多模型多工具場景中，每一種模型與每一種工具的交點都需要寫 bespoke 適配代碼。", "整合成本與維護負擔為 O(N x M)，導致整個架構極其脆弱、難以擴展。"], "metaphor": "👉 就像是『每個國家都有自己獨立的插頭與插座，旅行者去 10 個國家得帶 10 種不同的專用轉接頭』一樣痛苦。", "layout": "左側展示 5 個 Model 節點與 10 個 Tool 節點，中間拉出 50 條密密麻麻、交叉打結的紅色連線。"}, {"id": "42", "chapter": "第三章", "pdf_page": "13", "title": "解析 NxM 數學公式", "takeaway": "公式大揭秘：Integration Complexity = O(N x M) 是多模型架構的惡夢！", "details": ["若你有 5 個 LLM (Gemini Pro, Flash, GPT 等) 與 10 個 API 工具 (Jira, GitHub, Drive 等)。", "你需要維護 50 個客製化整合點，任何一個 API 修改都會導致多個適配器崩潰。"], "metaphor": "👉 就像是『如果你有 5 種語言的讀者和 10 本外文書，你需要雇用 50 個翻譯官各自負責翻譯單一對應』。", "layout": "上方以巨大紅字顯示『O(N x M) = 50 Bespoke Points』，下方列出傳統開發在 API 異動時的連鎖崩潰事件鏈。"}, {"id": "43", "chapter": "第三章", "pdf_page": "13", "title": "脆弱的 bespoke 適配器", "takeaway": "手工撰寫的 bespoke 適配器缺乏彈性，一有風吹草動就集體陣亡！", "details": ["API 的某個 JSON 回傳欄位名稱從 status 改為 state，所有適配器的解析邏輯立刻中斷。", "開發者被迫陷入無休止的 debug-rebuild-deploy 循環，耗盡寶貴的時間與 Token。"], "metaphor": "👉 就像是『用紙糊的臨時橋樑，只要下一場小雨 (API 欄位微調)，所有橋樑都會被沖垮』。", "layout": "左側為破碎的橋樑與斷裂的線路，右側標示維護 bespoke 適配器所消耗的時間比例圓餅圖（高達 70% 時間在修補 bug）。"}, {"id": "44", "chapter": "第三章", "pdf_page": "13", "title": "線性擴展 O(N + M) 奇蹟", "takeaway": "MCP 協定充當統一中介層，將整合複雜度奇蹟般地降低為線性 O(N + M)！", "details": ["模型端只需實作 1 個 MCP Client 適配，工具端只需實作 1 個 MCP Server 包裝。", "5 個模型與 10 個工具在 MCP 架構下，只需維護 15 個標準連線點，免除交叉維護。"], "metaphor": "👉 就像是『所有國家都統一採用標準 USB-C 連接孔，你只需要帶一條 USB-C 線就能走遍世界』。", "layout": "左側展示錯綜複雜的 O(N x M) 網狀線，右側展示通過中央 MCP 匯集的線性 O(N + M) 架構圖，兩圖對比強烈。"}, {"id": "45", "chapter": "第三章", "pdf_page": "13", "title": "解構 O(N + M) 的優勢", "takeaway": "線性複雜度意味著新增一個模型或工具時，只需撰寫一次標準對接代碼！", "details": ["引進最新模型時，只要它支援 MCP 協定，就能瞬間接管所有已有的 M 個工具。", "新增一個資料庫工具時，只需將其包裝成 MCP 伺服器，所有 N 個模型便能立刻調用。"], "metaphor": "👉 就像是『聯合國引進一個懂通用語 (MCP) 的新代表，他立刻能跟在場所有國家的代表交談，不用再配備 10 個翻譯』。", "layout": "左右兩大卡片。左卡顯示『新增模型：開發量 10 -> 1』，右卡顯示『新增工具：開發量 5 -> 1』，數據重擊。"}, {"id": "46", "chapter": "第三章", "pdf_page": "13", "title": "看懂傳統與標準化 effort 對比", "takeaway": "從 50 個整合點縮減至 15 個，開發與維護工作量驟降 70%！", "details": ["傳統整合：模型 A-工具 1, 模型 A-工具 2... 模型 E-工具 10 (共 50 點)。", "MCP 整合：模型 [A,B,C,D,E] -> MCP Bus <- 工具 [1,2,3...10] (共 15 點)。"], "metaphor": "👉 就像是『從手動為 50 個不同規格的瓶子訂做 50 種瓶蓋，改為所有瓶子都使用同一種標準瓶蓋規格』。", "layout": "以橫向長條圖對比 Effort 量。上方傳統開發條極長且標紅，下方 MCP 條極短且標綠，搭配百分比大字重擊。"}, {"id": "47", "chapter": "第三章", "pdf_page": "14", "title": "為什麼線性縮放重要？", "takeaway": "線性縮放是智能體生態系能夠在大規模企業環境中落地的唯一密碼！", "details": ["企業內部有成百上千個微服務 API 與數十個不同版本的開源與商業大模型。", "若採用傳統對接，架構將在規模化過程中迅速崩塌；MCP 提供唯一的擴展解法。"], "metaphor": "👉 就像是『如果沒有網際網路 TCP/IP 協定，每兩台電腦連線都要接專線，全球網絡根本不可能誕生』。", "layout": "左側為混亂倒塌的骨牌，右側為層級井然有序的現代網絡拓撲圖，象徵線性縮放帶來的系統穩定性。"}, {"id": "48", "chapter": "第三章", "pdf_page": "14", "title": "透視 MCP 傳輸層設計", "takeaway": "MCP 協定設計了 stdio 與 SSE 雙通道傳輸，適配本地與雲端不同場景！", "details": ["stdio 專為本地進程間的高效低延遲通訊設計，免除網絡配置。", "SSE over HTTP 專為分散式、遠端託管的智能體與服務通訊設計，跨越網絡邊界。"], "metaphor": "👉 就像是『短途運輸使用傳送帶 (stdio)，長途運輸使用貨運鐵路 (SSE)』，各有其專精場景。", "layout": "雙通道分欄。左分欄標示 stdio 傳送帶，右分欄標示 SSE 鐵軌，下方條列兩者的適用邊界與傳輸速率對比。"}, {"id": "49", "chapter": "第三章", "pdf_page": "14", "title": "深入 stdio 本地傳輸管道", "takeaway": "stdio 將 MCP 伺服器作為本地子進程啟動，透過 stdin/stdout 傳輸封包！", "details": ["Host Client 啟動一個本地背景進程 (Subprocess) 來執行 MCP 伺服器代碼。", "雙向通信完全在操作系統的內存管道中進行，使用 JSON-RPC 2.0 封包，速度極快。"], "metaphor": "👉 就像是『兩位工程師坐在相鄰的辦公桌上，直接用一張紙條在桌上傳遞訊息，不用發郵件』。", "layout": "左側為 Host 運行的主進程，中央為操作系統管道 (PIPE)，右側為被拉起的 MCP 子進程，展示 stdin/stdout 的數據流向。"}, {"id": "50", "chapter": "第三章", "pdf_page": "14", "title": "stdio 原型開發的利器", "takeaway": "stdio 傳輸免除複雜的網絡連線設定，是本地快速原型開發的首選！", "details": ["不需要配置網域、處理 SSL 憑證、或是開通防火牆連接埠。", "智能體直接將伺服器當作本地的一個 extension，隨智能體進程啟動而啟動、關閉而關閉。"], "metaphor": "👉 就像是『電腦上的滑鼠，插上 USB 孔就能用，不需要為滑鼠配置 IP 地址或連上 Wi-Fi』。", "layout": "左側為簡潔的本地運作圖，右側列出 stdio 的三大好處 (Zero Network Setup, Low Latency, Single Lifecycle)。"}, {"id": "51", "chapter": "第三章", "pdf_page": "14", "title": "揭秘 JSON-RPC 2.0 消息流", "takeaway": "在 stdio 管道中，JSON-RPC 2.0 封包以單行 JSON 字符串形式雙向流動！", "details": ["客戶端發送含有 method 名稱與 params 的 JSON 字符串，以換行符 (\\n) 結尾。", "伺服器從標準輸入讀取、解析、執行後，將結果寫回標準輸出，同樣以換行符結尾。"], "metaphor": "👉 就像是『用竹筒傳聲筒說話，兩邊都講標準的行話，講完一句就敲一下竹筒 (\\n) 代表講完了』。", "layout": "左側為 stdin 數據流代碼，右側為 stdout 數據流代碼，中央以一個傳聲筒的實體類比連接兩側。"}, {"id": "52", "chapter": "第三章", "pdf_page": "14", "title": "跨越網絡的 SSE over HTTP", "takeaway": "SSE over HTTP 連接遠端 MCP 端點，實時串流數據到智能體 Harness 中！", "details": ["Host Client 透過標準 HTTP 協議向遠端的 MCP 伺服器建立一條單向的 HTTP 串流。", "伺服器使用 Server-Sent Events (SSE) 實時將工具的執行進度與數據推送給智能體。"], "metaphor": "👉 就像是『訂閱了實時股市報價服務，伺服器會自動把最新的股價推送到你的手機屏幕上，不用你手動重新整理』。", "layout": "左側為遠程 Host，中間為互聯網雲朵，右側為部署在雲端的 MCP 伺服器，展示從右向左的 SSE 數據流。"}, {"id": "53", "chapter": "第三章", "pdf_page": "14", "title": "剖析 SSE 傳輸四大優勢", "takeaway": "SSE 具備少依賴、免本地維護、輕量化、簡單生命週期四大優勢！", "details": ["1. Fewer Dependencies：客戶端不需要安裝額外的運行時依賴或二進位組件。", "2. Always Up to Date：伺服器端工具邏輯一更新，所有客戶端立刻無感同步。", "3. Smaller Footprint：客戶端機器佔用極少的內存與存儲資源。", "4. Simpler Lifecycle：不需要在本地管理複雜的子進程啟動與關閉邏輯。"], "metaphor": "👉 就像是『看 YouTube 直播 (SSE)，你不需要把整部影片下載到硬碟裡 (本地 stdio)，隨點隨看，永遠最新』。", "layout": "四宮格卡片。每張卡片展示一項優勢，並配上亮綠色的 Check 標記，點擊可看實務應用情境說明。"}, {"id": "54", "chapter": "第三章", "pdf_page": "14", "title": "遠端伺服器的 SSE 負擔", "takeaway": "雖然客戶端極為輕量，但 SSE 會給雲端託管的 MCP 伺服器帶來較高負擔！", "details": ["伺服器必須為每一個連接的智能體維持一個長期的、掛起的 HTTP 連接通道。", "在高併發場景下，會迅速消耗伺服器的網絡 sockets 資源與內存額度。"], "metaphor": "👉 就像是『餐廳提供免費無限暢飲服務 (SSE)，雖然客人很開心，但餐廳老闆得一直買飲料、洗杯子，成本很高』。", "layout": "左欄展示 Client（輕量、無負擔），右欄展示 Server（高併發 sockets 佔用、CPU 負載上升），以紅綠顏色對比。"}, {"id": "55", "chapter": "第三章", "pdf_page": "14", "title": "如何選擇：stdio vs. SSE", "takeaway": "本地快速開發用 stdio，生產部署、需要集中維護的服務用 SSE！", "details": ["開發測試期：在筆記型電腦上直接用 stdio 連接本地 sqlite，快速驗證邏輯。", "生產部署期：將 MCP 伺服器部署在 Cloud Run，各智能體透過 SSE 安全調用。"], "metaphor": "👉 就像是『在家吃飯用陶瓷碗筷 (stdio，方便好洗)，去夜市擺攤則使用免洗餐具 (SSE，輕便、用完即丟、免維護)』。", "layout": "決策樹卡片。上方為起點『你的智能體部署在哪裡？』，分支 1 導向 stdio，分支 2 導向 SSE，並標明決策依據。"}, {"id": "56", "chapter": "第三章", "pdf_page": "14", "title": "傳輸層安全性考量", "takeaway": "不論採用 stdio 還是 SSE，都必須在傳輸層實施嚴格的安全加密與隔離！", "details": ["本地 stdio：確保子進程運行的 OS 用戶權限受限，防止智能體藉此提權。", "遠端 SSE：必須強制使用 HTTPS 加密傳輸，並在 HTTP Header 中攜帶 token 驗證。"], "metaphor": "👉 就像是『寄信時：本地傳信用信封封口 (stdio)；寄國際快遞則要用防撬密碼箱並走保全通道 (SSE 加密)』。", "layout": "安全防禦示意圖。左側為帶有鎖頭的 stdio 管道，右側為帶有 SSL/TLS 盾牌的 HTTPS/SSE 通道。"}, {"id": "57", "chapter": "第三章", "pdf_page": "14", "title": "實作 SSE 連接代碼", "takeaway": "在 Python 中使用 aiohttp 建立與遠端 MCP 伺服器的 SSE 長連接！", "details": ["異步監聽伺服器發送的 events 數據流，解析 JSON 封包。", "展示客戶端如何向 /events 端點發起請求，並持續讀取 stream 的核心代碼。"], "metaphor": "👉 就像是『在手機上訂閱了氣象局的實時警報，寫程式去監聽警報廣播站，一有消息就立刻處理』。", "layout": "全螢幕代碼塊，展示 async with session.get(url) as response: async for line in response.content: 核心語法。"}, {"id": "58", "chapter": "第三章", "pdf_page": "14", "title": "跨越防火牆的 SSE 通道", "takeaway": "SSE over HTTP 採用標準 80/443 連接埠，能輕鬆穿越企業防火牆！", "details": ["許多自訂的 RPC 協議會因為使用特殊 port 而被企業安全防火牆無情阻擋。", "SSE 偽裝成一般的網頁流量，不需要安全部門額外開通 port，降低部署摩擦。"], "metaphor": "👉 就像是『貨車要進城，如果是載易燃物 (特殊 RPC) 會被海關攔下檢查；但如果是偽裝成送菜的普通貨車 (HTTPS/SSE) 就能輕鬆放行』。", "layout": "左側為被防火牆擋下的特殊協定封包，右側為綠燈通過防火牆的安全 HTTPS/SSE 流量圖。"}, {"id": "59", "chapter": "第三章", "pdf_page": "14", "title": "實務案例：本地 CLI 智能體", "takeaway": "以 CLI 智能體為例，看 stdio 如何在背景無感調用本地工具！", "details": ["智能體接收命令 -> 啟動本地 node-filesystem-mcp 伺服器子進程。", "模型讀寫檔案的請求透過 stdin/stdout 瞬間完成，用戶完全察覺不到子進程的存在。"], "metaphor": "👉 就像是『你在打字時，鍵盤把訊號傳給電腦，電腦瞬間在屏幕顯示字體，背後的信號傳輸對你而言完全隱形』。", "layout": "左側為 CLI 終端機界面，中間為 stdio 管道數據流動畫，右側為本地硬碟，展示極速的讀寫反饋。"}, {"id": "60", "chapter": "第三章", "pdf_page": "14", "title": "第三章邏輯關係回顧", "takeaway": "理解 NxM 整合數學與 stdio/SSE 傳輸雙雄，是架構可擴展系統的基石！", "details": ["NxM 複雜度危機 -> MCP 中介轉化為線性 O(N + M) 擴展。", "本地開發選 stdio (低延遲、無配置) -> 生態部署選 SSE (輕量、集中管理)。"], "metaphor": "👉 就像是『不僅學會了插座的使用，更算清了整棟工廠的用電量並規劃好粗細電線的佈局』。", "layout": "全螢幕流程圖，展示第三章的關聯路徑：複雜度分析 -> Bespoke 瓶頸 -> MCP 線性救星 -> 傳輸層決策 (stdio vs SSE) -> 實作落地。"}, {"id": "61", "chapter": "第四章", "pdf_page": "15", "title": "診斷 MCP 故障的核心心態", "takeaway": "當智能體出現幻覺或工具調用失敗時，不要改 prompt，先去查傳輸管道！", "details": ["開發者習慣花數小時去微調 system instructions，期望能靠咒語治百病。", "工具故障通常是底層 JSON payload 損壞、傳輸中斷或 schema 聲明不一致造成的。"], "metaphor": "👉 就像是『家裡的自來水管漏水了，你應該拿板手去修水管 (Debug Pipeline)，而不是站在水龍頭前祈禱它自己變好 (改 Prompt)』。", "layout": "左側為無助的工程師對著 Prompt 嘆氣，右側為戴著安全帽的工程師用儀器檢查水管傳輸管道的對比插圖。"}, {"id": "62", "chapter": "第四章", "pdf_page": "15", "title": "認識 MCP Inspector 診斷神器", "takeaway": "MCP Inspector 是除錯的第一站，提供獨立的本地 web 面板進行測試！", "details": ["它是官方提供的開發者工具，能獨立運行並直接與本地或遠端 MCP 伺服器通訊。", "無需啟動整個智能體工作流，即可手動發送請求、校對 Schema 與測試 payload。"], "metaphor": "👉 就像是『汽車修護廠的電腦診斷儀』，插上車子的 OBD 接口，就能在屏幕上直接看到引擎各項參數，不用把整台車拆開檢查。", "layout": "左欄顯示 MCP Inspector 網頁介面的截圖結構，右欄列出三大核心測試功能 (Schema Check, Input Test, Raw Packet Audit)。"}, {"id": "63", "chapter": "第四章", "pdf_page": "15", "title": "抓包 JSON-RPC 2.0 封包", "takeaway": "在 Inspector 中直接審計原始 JSON-RPC 2.0 封包，找出參數出錯的元兇！", "details": ["面板能實時捕捉並顯示 Client 與 Server 之間交換的每一行 raw packet。", "檢查 params 中的鍵值對，確保沒有多餘字元、型態錯誤或欄位缺失。"], "metaphor": "👉 就像是『拆開快遞包裹，親自核對裡面的出貨單 (Raw JSON) 寫的品名和數量對不對，而不是只看箱子外觀』。", "layout": "全螢幕代碼對比。左側為 Inspector 捕獲的原始 RPC 請求 JSON，右側以箭頭指向錯誤的鍵值對，並用紅圈標記。"}, {"id": "64", "chapter": "第四章", "pdf_page": "15", "title": "Chrome DevTools 的除錯場景", "takeaway": "在 Web-based 開發環境中，善用 Chrome DevTools 追蹤 SSE 連線狀態！", "details": ["當智能體以網頁形式運行，或是採用遠端 SSE 連接時，打開 Chrome 控制台。", "在 Network 面板中過濾 EventStream，檢查連線延遲、斷線重連日誌與 HTTP 4xx/5xx 狀態碼。"], "metaphor": "👉 就像是『醫生用聽診器貼在病人的胸口 (DevTools)，實時監聽心跳聲與呼吸節奏 (SSE 數據串流) 是否規律』。", "layout": "左側為 Chrome DevTools Network 面板的視覺化示意圖，高亮顯示 EventStream 欄位，右側為錯誤狀態碼對應表。"}, {"id": "65", "chapter": "第四章", "pdf_page": "15", "title": "最佳實務：Do's 大原則", "takeaway": "遵循安全審計、動態加載等 Do's 大原則，建立穩健的 MCP 消費模式！", "details": ["實施公開代碼審計，防堵未知伺服器包含的惡意硬碟刪除或資料外流指令。", "採用動態加載機制，唯有需要時才引入工具，降低模型的注意力稀釋。"], "metaphor": "👉 就像是『吃自助餐：確認食物乾淨才吃 (審計)，拿多少吃多少，盤子裝不下就倒掉 (動態加載)，維持桌面整潔』。", "layout": "左側為安全審計盾牌圖示，右側為動態工具架圖示，下方條列兩大原則的代碼級防禦策略。"}, {"id": "66", "chapter": "第四章", "pdf_page": "15", "title": "Do 1：安全審計公開伺服器", "takeaway": "連線前必須逐行審閱開源 MCP 代碼，保護本地檔案系統與帳戶憑證！", "details": ["開源社群的 MCP 伺服器可能偷偷夾帶讀取 ~/.ssh/id_rsa 並將其發送至外部的代碼。", "在沙盒中運行不受信任的 MCP，或使用容器 (Docker) 限制其對硬碟的實體訪問。"], "metaphor": "👉 就像是『雇用臨時工來家裡打掃前，先對他進行背景調查 (審計代碼)，且限制他只能待在地下室，不准進主臥房 (沙盒)』。", "layout": "左側為 GitHub 開源庫圖示，中間為安全過濾漏斗，右側為被限制權限的 Docker 隔離艙。"}, {"id": "67", "chapter": "第四章", "pdf_page": "15", "title": "Do 2：RAG for Tools 機制", "takeaway": "實作 RAG for Tools，讓智能體只在任務相關時才動態下載對應工具 Schema！", "details": ["當有 100 個工具時，如果全部塞進 system prompt，會嚴重稀釋 LLM 對任務指令的專注度。", "將工具描述向量化存入 DB，智能體根據用戶 Query 檢索出最相關的 3-5 個工具並動態綁定。"], "metaphor": "👉 就像是『圖書館裡有萬本書，你不是把所有書都堆在書桌上 (上下文超載)，而是只去借今天要做研究的 3 本書 (RAG)』。", "layout": "中央展示 Vector Database，左側輸入 Query，右側動態流出 Tool Schemas 並裝載到智能體 Harness 中。"}, {"id": "68", "chapter": "第四章", "pdf_page": "16", "title": "Do 3：使用企業 API Gateway", "takeaway": "盡可能依賴企業內部 API Gateway，確保數據消費的治理與法規合規！", "details": ["API Gateway 提供統一的認證、限流 (Rate Limiting) 與審計日誌 (Audit Logs)。", "拒絕讓智能體直接點對點連接內部敏感資料庫，所有訪問都必須過網關防護。"], "metaphor": "👉 就像是『政府大樓的大廳警衛室 (Gateway)，所有人進出都得登記身分、安檢並留下監視畫面，不能隨意翻牆進去』。", "layout": "左欄展示智能體，中欄展示高聳的 Gateway 大門（標有 Rate Limit & Log），右欄為企業內網資料庫。"}, {"id": "69", "chapter": "第四章", "pdf_page": "16", "title": "Do 4：人類在環 (HITL) 防禦", "takeaway": "執行具備破壞性或敏感操作的工具前，必須實作 Human-in-the-Loop 確認機制！", "details": ["寫入、修改、刪除檔案，或是對外發送郵件、執行付款，必須在終端彈出確認按鈕。", "展示智能體即將發送的原始參數給用戶，防止因 LLM 幻覺引發災難性後果。"], "metaphor": "👉 就像是『銀行轉帳時的雙重驗證：網銀按了轉帳，你手機還會收到簡訊驗證碼 (HITL)，確認是你本人授權』。", "layout": "左側為智能體產生的 action 請求，中央為帶有『確認/拒絕』按鈕的亮黃色攔截卡片，右側為執行目標。"}, {"id": "70", "chapter": "第四章", "pdf_page": "16", "title": "Do 5：全面落實審計日誌", "takeaway": "完整記錄智能體調用工具的每一次 Request 與 Response，以便事後追溯！", "details": ["將 tool call 歷史以唯讀日誌格式儲存到獨立的日誌伺服器中，防止日誌被智能體篡改。", "日誌包含時間戳記、調用模型、工具名稱、輸入參數與回傳結果。"], "metaphor": "👉 就像是『商店的收銀機流水單 (Audit Log)，每一筆交易、收費多少都自動列印備份，月底對帳一清二楚』。", "layout": "左側為智能體與 MCP 伺服器的互動，下方有一條唯讀通道將數據實時拷貝到右側的 Secure Log Database。"}, {"id": "71", "chapter": "第四章", "pdf_page": "16", "title": "常見誤區：Don'ts 警示", "takeaway": "避開硬編碼、連線生產環境等 Don'ts 禁區，保護系統不被摧毀！", "details": ["不要重複造輪子寫 bespoke REST wrapper；不要硬編碼 credentials 到代碼或 prompt 中。", "不要讓開發測試期的智能體直接讀寫生產資料庫，避免毀滅性的誤刪。"], "metaphor": "👉 就像是『不要把瓦斯罐放在火爐旁 (硬編碼)，也不要讓實習生直接操作工廠的核反應爐 (連線生產環境)』。", "layout": "左側為醒目的紅色大叉 (X) 圖示，右側分欄列出 5 大禁忌，並以警示標語標註後果。"}, {"id": "72", "chapter": "第四章", "pdf_page": "16", "title": "Don't 1：拒絕重複造輪子", "takeaway": "能消費就絕不自建！優先在註冊表中搜尋現成的 MCP，維護 universal outlet 哲學！", "details": ["撰寫與維護一個 API 適配器需要數百行代碼，且要面對 API 的未來更新。", "在開始動手寫代碼前，花 5 分鐘去搜尋社群是否已有成熟的 MCP 伺服器。"], "metaphor": "👉 就像是『你想喝牛奶，直接去超市買一瓶就好 (消費現成)，不需要自己買下一整座牧場天天擠牛奶 (自建)』。", "layout": "對比圖。左側為寫滿 API 適配代碼的長卷軸（標有耗時 3 天），右側為一鍵下載 MCP 的按鈕（標有耗時 1 分鐘）。"}, {"id": "73", "chapter": "第四章", "pdf_page": "16", "title": "Don't 2：不硬編碼 credentials", "takeaway": "絕不將 API Key、Token 貼入 prompt 或代碼中，一律使用環境變數！", "details": ["將 Key 硬編碼在 prompt 中，會隨著上下文發送給 LLM 提供商，有洩漏風險。", "一旦代碼提交到公開的 GitHub 倉庫，爬蟲程式會在 3 秒內將你的金鑰盜刷殆盡。"], "metaphor": "👉 就像是『把保險箱的密碼直接用油漆寫在保險箱的大門上』，所有人路過都能看光光。", "layout": "左側展示 prompt 中含有 api_key='sk-...' 的紅字錯誤代碼，右側展示正確調用 os.environ.get('API_KEY') 的綠色代碼。"}, {"id": "74", "chapter": "第四章", "pdf_page": "16", "title": "Don't 3：生產環境防線", "takeaway": "禁止開發期智能體連接生產環境，使用沙盒與混淆過的測試數據！", "details": ["LLM 仍具有隨機性與不確定性，可能會因為理解錯誤而執行 broad delete 指令。", "為智能體配置一個完全隔離的 staging environment，並使用去識別化後的偽數據。"], "metaphor": "👉 就像是『給剛學開車的學徒配備一台有副駕駛剎車板的教練車 (Staging)，而不是讓他直接去開載滿易燃物的油罐車 (Prod)』。", "layout": "左側為隔離牆，牆內為 Staging/測試數據（智能體在此活動），牆外為 Prod 生產數據（有鐵絲網保護不可侵入）。"}, {"id": "75", "chapter": "第四章", "pdf_page": "16", "title": "Don't 4：限制更新權限", "takeaway": "非必要不開放寫入與更新權限，連線外部真實數據時強制設為 Read-Only！", "details": ["大部分數據分析任務只需讀取權限即可完成 (例如生成銷售圖表)。", "在 MCP 配置中將連接字符串或伺服器權限模式設定為唯讀，在底層徹底鎖死寫入通道。"], "metaphor": "👉 就像是『你去圖書館借書看，管理員只准你在館內閱覽 (Read-Only)，絕對不准你拿原子筆在書上塗改 (Write)』。", "layout": "左側為 Read-Only 金鎖頭，右側為被禁止的 Write/Delete 紅色垃圾桶圖示，下方說明底層資料庫唯讀配置語法。"}, {"id": "76", "chapter": "第四章", "pdf_page": "17", "title": "Don't 5：專案範疇收斂", "takeaway": "限制 MCP 伺服器的 Project Scope，嚴防智能體跨專案越權操作！", "details": ["不要給予智能體整個雲端帳號的全局 owner 權限，只綁定單一特定 project ID。", "一旦智能體失控，破壞範圍將被鎖死在單一專案內，不會引發火燒連環船的災難。"], "metaphor": "👉 就像是『你在大樓裡租了一間辦公室，大樓經理只給你這間辦公室的鑰匙 (Scope)，你不能拿它去開隔壁公司的門』。", "layout": "左側為大範圍越權的紅色連線，右側為侷限於單一綠色專案方框內的受控連線圖示。"}, {"id": "77", "chapter": "第四章", "pdf_page": "17", "title": "走向智能體之間的互聯", "takeaway": "工具除錯只是起點，智能體工程的終極目標是建構跨應用的協作網絡！", "details": ["透過 MCP 我們解決了模型與底層工具的對接，但這只是單兵作戰的層次。", "我們需要打破應用孤島，讓多個專業智能體跨越網路邊界進行團隊協同。"], "metaphor": "👉 就像是『我們已經造好了好用的電話機 (MCP)，接下來我們要建構一個覆蓋全國的電話通訊網 (A2A)』。", "layout": "左側為單個智能體連接工具的示意圖，中間以一個巨大的箭頭指向右側多智能體互聯互通的網狀網絡。"}, {"id": "78", "chapter": "第四章", "pdf_page": "17", "title": "第四章邏輯關係回顧", "takeaway": "除錯工具與 Do's/Don'ts 規範，是保護智能體不失控崩潰的安全防護牆！", "details": ["MCP 故障診斷 -> Inspector 與 DevTools 的抓包應用。", "Do's (安全審計, RAG for Tools, HITL) 與 Don'ts (拒絕硬編碼, 限制寫入) 的落地。"], "metaphor": "👉 就像是『把工廠的防火牆與安全警報器都安裝測試完畢』，這是讓機器正式投入商業營運前的最後安全驗收。", "layout": "全螢幕流程圖，展示第四章關係：故障發生 -> 調用除錯儀器 -> 判定安全邊界 -> 執行 Do's -> 避開 Don'ts -> 準備進入多 Agent 協作。"}, {"id": "79", "chapter": "第五章", "pdf_page": "17", "title": "分散式網絡的崛起", "takeaway": "隨著智能體向分散式專家網絡轉型，標準化通訊協定成為唯一的擴展基石！", "details": ["單個 Agent 試圖包辦所有事情的時代已經過去，網絡化分工成為主流。", "這一步驟我們將探討 A2A 協定如何解決多智能體生態系的碎片化難題。"], "metaphor": "👉 就像是『人類社會從孤立的自給自足農耕部落，演進到具有高度分工與國際貿易的現代繁榮社會』。", "layout": "左側為原始的封閉小農莊，右側為高度分工、有道路網絡相連的現代都市群示意圖。"}, {"id": "80", "chapter": "第五章", "pdf_page": "17", "title": "智能體架構的演進史", "takeaway": "智能體架構正重複著 IT 基礎設施從手動配置到意圖導向編排的演進規律！", "details": ["早期 IT：手動修改 server 設定 -> 現代 IT：聲明式基礎設施即代碼 (IaC)。", "早期 ML：手動調參、特徵工程 -> 現代 ML：AutoML 自動創建並優化網絡。"], "metaphor": "👉 就像是『從手動調整每根引擎連桿，到直接在行車電腦中設定開車模式 (節能/運動)』一樣輕鬆。", "layout": "時間軸。左側標示手動配置時期，中間為聲明式 IaC/AutoML，右側為意圖導向的 Agent 聲明式編排。"}, {"id": "81", "chapter": "第五章", "pdf_page": "18", "title": "解讀 Google AutoML 的啟示", "takeaway": "AutoML 的核心啟示：用機器去自動優化與創建機器，消除繁重的重複勞動！", "details": ["Google 開發 AutoML 的初衷是讓神經網絡自己設計神經網絡，使 AI 大眾化。", "智能體工程遵循同樣邏輯：我們寫系統來生成代碼，讓智能體來編排智能體。"], "metaphor": "👉 就像是『發明了一台能自動製造螺絲釘的工具機，你只需要按下按鈕，它就會生出千萬顆規格精準的螺絲』。", "layout": "左側為 AutoML 論文核心引用文字，右側展示神經網絡自動迭代生成新子網絡的架構循環圖。"}, {"id": "82", "chapter": "第五章", "pdf_page": "18", "title": "從單體到微服務的移轉", "takeaway": "智能體架構的演進，完美鏡像了軟體工程從單體到微服務的歷史變革！", "details": ["早期 web 應用：UI、 billing、資料庫緊密耦合在一個巨型單體代碼庫中。", "初期的智能體開發：也是將所有 Prompt 與工具塞進同一個巨型 Agent 單體。"], "metaphor": "👉 就像是『早期軟體像是一個包辦煮飯、掃地、帶小孩與看門的萬能管家，一旦生病 (出 bug)，整個家直接癱瘓』。", "layout": "左側為一個巨型的單體（包含 Billing, UI, DB），中間有一個轉換箭頭，右側拆解為三個獨立的微服務卡片。"}, {"id": "83", "chapter": "第五章", "pdf_page": "18", "title": "什麼是萬能鑰匙單體 Agent", "takeaway": "Swiss Army Knife 單體 Agent 在一個 Prompt 中強行塞入多種角色與工具！", "details": ["企圖讓同一個 Agent 既負責執行 SQL 查詢，又負責網頁 UI 渲染與單元測試。", "雖然能在一個週末拼湊出原型，但一旦業務擴展，就會立刻撞上單體天花板。"], "metaphor": "👉 就像是『一把瑞士軍刀，雖然有小刀、剪刀、開瓶器，但你絕對無法拿它去鋸大樹或修精密手錶』。", "layout": "左側展示一把巨大的瑞士軍刀插圖，軍刀的每個配件上都標註著一個 Agent 工具（SQL, UI, Test, API），右側列出原型速成的優點。"}, {"id": "84", "chapter": "第五章", "pdf_page": "18", "title": "痛點：單體 Agent 的擴展摩擦", "takeaway": "單體 Agent 存在 scaling friction，你無法在不影響 UI 邏輯的情況下優化 DB 邏輯！", "details": ["所有的指令都堆疊在同一個 System Instruction 中，修改一處會引發其他角色的意圖偏離。", "大模型很難在同一個上下文窗口中完美平衡多個完全不同的業務判斷指標。"], "metaphor": "👉 就像是『把廚師、會計和清潔工關在同一個辦公室裡，大聲用同一個大喇叭下命令，每個人都會被干擾』。", "layout": "左側為混亂的 system instructions 代碼塊，中間有一條拉扯的繩子象徵 Scaling Friction，右側為混淆的輸出結果。"}, {"id": "85", "chapter": "第五章", "pdf_page": "18", "title": "痛點：單體 Agent 的搜尋空間爆炸", "takeaway": "Agent 擁有的工具越多，其決策的 search space 越大，幻覺率呈指數上升！", "details": ["當 LLM 面對 50 個可調用工具時，它必須在推理的每一步評估這 50 個選項的適用性。", "這會大幅增加參數幻覺機率，導致模型在不該調用工具時調用，或選錯工具參數。"], "metaphor": "👉 就像是『你走進一家有 1000 道菜的巨型餐廳 (搜尋空間大)，你光是看菜單就會頭暈，最後可能隨便亂點了一道不愛吃的菜』。", "layout": "橫軸為工具數量（從 1 到 50），縱軸為決策錯誤率（從 0% 到 80%）的指數上升曲線圖，標紅高亮警示。"}, {"id": "86", "chapter": "第五章", "pdf_page": "19", "title": "痛點：單體 Agent 的上下文超載", "takeaway": "將數十個複雜的 JSON schema 塞入單一 prompt，會迅速 max out 智能體的記憶！", "details": ["大模型的 Working Memory (上下文窗口) 是有限的，Schema 佔用了大量 token 額度。", "導致智能體遺忘先前的對話歷史與關鍵業務約束，推理精度迅速退化。"], "metaphor": "👉 就像是『讓學生在考試時背誦整本字典 (上下文超載)，結果他在寫考卷時連自己的名字和題目要求都忘光了』。", "layout": "左側為被塞滿資料的溢位內存條，右側為智能體大腦冒煙的示意圖，下方顯示 Token 消耗與記憶保持率的對比指標。"}, {"id": "87", "chapter": "第五章", "pdf_page": "19", "title": "痛點：單體 Agent 的單點故障", "takeaway": "一個工具的 bug 或格式錯誤，會直接導致整個單體智能體崩潰停擺！", "details": ["單體架構中，所有工具運行在同一個線程與上下文邊界內，缺乏容錯隔離。", "一個無關緊要的 UI 元件解析出錯，會把錯誤傳遞下去，污染之後的所有推理步驟。"], "metaphor": "👉 就像是『聖誕樹上的串聯燈泡，只要其中一個燈泡壞了 (單點故障)，整串燈泡都會熄滅』。", "layout": "左側為一串熄滅的燈泡，其中一個標紅故障，右側展示錯誤傳遞污染整個智能體內存的鍊式示意圖。"}, {"id": "88", "chapter": "第五章", "pdf_page": "19", "title": "黃金法則：Specialization as Scaling", "takeaway": "遵循系統設計第一法則：以專門化 (Specialization) 作為系統擴展的核心機制！", "details": ["當 AutoML 成功後，工程師並未將其當作黑盒子，而是拆解為特徵庫、漂移檢測等階段。", "智能體系統也必須拆解為各司其職的專家單元，實現高內聚、低耦合。"], "metaphor": "👉 就像是『一家現代化大醫院，不會只有一個看百病的萬能醫生，而是設有心臟科、骨科、眼科等專業分科』。", "layout": "上方展示黃金法則大字『Specialization is the Scaling Mechanism』，下方展示從混亂黑盒到模組化拆解的過渡流程圖。"}, {"id": "89", "chapter": "第五章", "pdf_page": "19", "title": "透視單體多智能體架構", "takeaway": "單體多智能體架構通過 coordinator 進行任務分派，但仍共享同一個 runtime！", "details": ["這屬於專門化的第一步：內部邏輯分區，Coordinator 根據輸入將任務派給 specialist。", "Specialist 智能體擁有自己獨立的指令與工具子集，減少了決策搜尋空間。"], "metaphor": "👉 就像是『同一個辦公室裡的專案經理 (Coordinator) 分派工作給坐在旁邊的程式設計師與設計師』。", "layout": "全螢幕架構圖，上方為 Coordinator LLM，下方分叉連結 Specialist 1, Specialist 2, Specialist 3，並標示工具綁定範圍。"}, {"id": "90", "chapter": "第五章", "pdf_page": "20", "title": "內部專門化 (Internal Specialization)", "takeaway": "內部專門化雖然模組化了邏輯，但並未跨越網路與運行時邊界！", "details": ["子智能體 (Sub-agents) 運行在同一個本地進程中，共享同一個底層內存與生命週期。", "由於沒有跨網絡通信，它們仍舊受限於單一系統的資源瓶頸，無法實現跨組織協作。"], "metaphor": "👉 就像是『同卵雙胞胎共享同一個子宮與養分 (Shared Runtime)，雖然長大後有各自的想法，但依然綁在同一個身體裡』。", "layout": "一個大框框 (標示 Shared Runtime & Memory)，框框內部分割為三個子區塊（Coordinator, Specialist A, Specialist B）。"}, {"id": "91", "chapter": "第五章", "pdf_page": "20", "title": "三項關鍵技術改善", "takeaway": "內部專門化為系統帶來了搜尋空間縮減、防範注意力稀釋與優化上下文三大利益！", "details": ["1. Search Space Reduction：限制 Sub-agent 只能存取其專屬的 2 個 SQL 工具，工具錯誤率歸零。", "2. Prompt Sharpening：LLM 專注於單一角色 (例如只做審計)，推理邏輯更加尖銳精準。", "3. High Signal-to-Noise Ratio：Coordinator 過濾掉無關雜訊，只傳遞乾淨的任務上下文給 Specialist。"], "metaphor": "👉 就像是『讀書時：關掉手機、拉上窗簾 (減少搜尋空間) -> 專心讀一科 (防稀釋) -> 桌上只放這一科的課本 (優化上下文)』。", "layout": "三欄式佈局，每欄以大圖示配大字標題，下方列出技術改善的前後對比指標（如：幻覺率降低 90%）。"}, {"id": "92", "chapter": "第五章", "pdf_page": "20", "title": "分散式多智能體時代的降臨", "takeaway": "行業巨頭（Google, Salesforce, Workday）正在部署領域專屬的分布式智能體！", "details": ["各家廠商不再僅提供靜態的 REST API，而是直接提供能在其 proprietary 生態中活動的 AI Agent。", "Orchestrator 的任務是跨越網絡邊界，將工作委派給這些遠端專家，而非自己重頭開發。"], "metaphor": "👉 就像是『你不需要自己研發物流系統，而是直接調用順豐速運的物流機器人 (領域專家) 來幫你送貨』。", "layout": "左側為中央 Orchestrator，中間為網路線，右側為代表 Google, Salesforce, Workday 的三個遠程雲端 Agent 卡片。"}, {"id": "93", "chapter": "第五章", "pdf_page": "21", "title": "分布式微服務架構全景", "takeaway": "在分散式多 Agent 架構中，Orchestrator 跨網路邊界與遠端專家協作！", "details": ["每個 Specialist 運行在獨立的雲端容器中，使用各自最適合的技術棧與模型。", "Orchestrator 通過網路發送任務聲明，專家執行完畢後回傳結果，實現完全的隔離。"], "metaphor": "👉 就像是『跨國集團總部 (Orchestrator) 透過電子郵件與全球各地的分公司專家 (Distributed Agents) 協同作業』。", "layout": "全螢幕架構圖，展示主系統通過 Internet/Intranet 與多個獨立運行的遠端 Sub-agent（包含各自的模型、框架與工具）通訊。"}, {"id": "94", "chapter": "第五章", "pdf_page": "21", "title": "Build vs. Buy 的戰略抉擇", "takeaway": "面對第三方平台整合，技術領袖必須以『自建 vs. 購買/編排』的戰略眼光進行決策！", "details": ["自建 sub-agent：必須手寫對接代碼，自行維護與第三方 API 的連線與提示詞邏輯。", "編排官方 agent：直接連接廠商提供的官方 A2A 智能體，省去開發成本，保障可靠性。"], "metaphor": "👉 就像是『你要用資料庫：自己去買伺服器、裝 Linux、調校磁碟 (自建 Build)，還是直接買雲端 RDS 託管服務 (Buy)』。", "layout": "2x2 決策矩陣。橫軸為核心業務相關度，縱軸為開發維護難度，高亮顯示非核心但難度高者應採用『Buy/Orchestrate』。"}, {"id": "95", "chapter": "第五章", "pdf_page": "21", "title": "沈重的 Maintenance Tax (維護稅)", "takeaway": "自建第三方平台的 Specialist Agent，將面臨極其沉重的維護稅負擔！", "details": ["第三方平台 (如 Salesforce) 一旦更新 upstream 產品，其 API schema 也會隨之微調。", "自建智能體的提示詞與工具定義會立刻失效，你必須天天加班修改適配代碼。"], "metaphor": "👉 就像是『你買了一輛拼裝車，每次原廠零件改版，你都得自己拿鋸子和電鑽去改裝零件才能裝上去』，苦不堪言。", "layout": "左側為一張印有『Maintenance Tax』的稅單，右側列出維護稅的三大來源（Upstream Updates, Prompt Drift, API Deprecation）。"}, {"id": "96", "chapter": "第五章", "pdf_page": "22", "title": "編排官方 Agent 的巨大優勢", "takeaway": "將維護責任轉移給官方團隊，讓你的 Orchestrator 專注於核心創新！", "details": ["官方 Agent 由該平台的專家團隊維護，確保與平台最新 API 的 100% 兼容。", "Orchestrator 卸載了底層適配負擔，大幅降低長期持有成本 (TCO)。"], "metaphor": "👉 就像是『你租用微軟的 Word 軟體，字型更新和 bug 修復都由微軟負責，你只管寫文章 (核心創新) 就好』。", "layout": "左右分欄對比。左欄『自建：天天修 bug (紅字)』，右欄『編排官方：零維護、穩定運行 (綠字)』，下方重擊維護成本對比。"}, {"id": "97", "chapter": "第五章", "pdf_page": "22", "title": "痛點：碎片化 (Fragmentation) 瓶頸", "takeaway": "雖然編排官方 Agent 很美，但各家智能體的技術棧碎片化帶來了全新挑戰！", "details": ["Google 的 Agent 用 Python，Salesforce 用 LangChain，Workday 用 Java 且協定自訂。", "它們網絡邊界不同、語系不同、payload 格式迥異，導致整合再次陷入混亂。"], "metaphor": "👉 就像是『你開了一家跨國會議，來了法國人、日本人和德國人，每個人都只講家鄉話 (碎片化)，會議根本開不下去』。", "layout": "一個會議桌，周圍坐著三個說著不同程式語言、使用不同 JSON 欄位的 AI Agent，中央為問號圖示，象徵通訊障礙。"}, {"id": "98", "chapter": "第五章", "pdf_page": "22", "title": "碎片化引發的維護危機", "takeaway": "若為每個遠端專家編寫 bespoke 橋接碼，『虛擬團隊』概念將瞬間破滅！", "details": ["你將不得不為這群技術棧相異的 Agent 撰寫大量的 bespoke 錯誤校正與傳輸轉換代碼。", "維護這些複雜的 custom bridges 將耗盡整個專案預算，讓開發速度歸零。"], "metaphor": "👉 就像是『你要給家裡裝 10 種不同國家的電器，結果你家客廳地上堆滿了 10 種不同的變壓器和轉接頭，隨時會短路起火』。", "layout": "左側為一堆交織在一起、冒著火花的轉接頭，右側列出 Bespoke Bridges 的三大致命傷 (Fragility, Performance drag, Security risk)。"}, {"id": "99", "chapter": "第五章", "pdf_page": "22", "title": "A2A 協定：多智能體救星", "takeaway": "Agent-to-Agent (A2A) 協定為碎片化混亂提供統一的標準化通訊層！", "details": ["它由 Google 開發並捐贈給 Linux 基金會，充當 AI 生態系中的通用協議。", "抽象掉底層網絡傳輸、語言與框架差異，讓 Orchestrator 能一鍵 onboarding 任何專家。"], "metaphor": "👉 就像是『聯合國規定所有代表在會場內一律配戴翻譯耳機，且統一使用英文發言』，瞬間打通溝通管道。", "layout": "中央為 A2A 標準層，上方為 Orchestrator，下方為 Python/Go/Java 開發的各式 A2A 專家，展示標準化通訊流。"}, {"id": "100", "chapter": "第五章", "pdf_page": "22", "title": "第五章邏輯關係回顧", "takeaway": "理解多 Agent 架構從單體演進到分散式微服務，是採用 A2A 的根本原因！", "details": ["單體 Swiss Army Knife 瓶頸 -> Specialization 擴展法則 -> 內部與外部專門化。", "自建 Build 稅與編排官方 Buy 的戰略取捨 -> 碎片化痛點 -> 推出 A2A 協定。"], "metaphor": "👉 就像是『理解了為什麼不能用一台老爺車載所有人，而必須規劃一條讓所有標準公車都能跑的捷運網絡』。", "layout": "全螢幕流程圖，展示第五章的邏輯路徑：單體瓶頸 -> 拆解分工 -> 外部託管 -> 碎片化危機 -> A2A 通用解決方案。"}, {"id": "101", "chapter": "第六章", "pdf_page": "22", "title": "解讀 A2A 的核心使命", "takeaway": "A2A 協定的終極使命：像 HTTP 標準化網頁一樣，標準化全球虛擬員工隊伍！", "details": ["HTTP 讓任何瀏覽器都能開啟任何網站，無需關心伺服器是用什麼代碼寫的。", "A2A 讓任何 Orchestrator 都能調用任何 AI 專家，無需關心其底層模型與框架。"], "metaphor": "👉 就像是『集裝箱 (貨櫃) 標準化了全球航運』，不管箱子裝的是玩具還是電子產品，起重機與貨輪都能以同一個規格裝卸。", "layout": "左側為 HTTP 標誌與網頁瀏覽示意圖，右側為 A2A 標誌與智能體協作示意圖，兩側以『標準化』大字橫跨連接。"}, {"id": "102", "chapter": "第六章", "pdf_page": "22", "title": "A2A 協定的技術堆疊位置", "takeaway": "A2A 運行在應用層，介於 Orchestration 框架與底層網絡傳輸之間！", "details": ["它定義了標準的 message Envelope (信封) 與 negotiation (協商) 狀態機。", "底層可以使用 HTTP/2, gRPC 或 WebSocket 作為傳輸載體，對上層完全透明。"], "metaphor": "👉 就像是『快遞單 (A2A)』，它貼在包裹上規定了寄收地址和條碼，不管快遞公司是用貨車、飛機還是機車 (傳輸層) 運送。", "layout": "層級圖。從上到下為：Orchestration Layer -> A2A Protocol Layer -> Transport Layer (gRPC/HTTP) -> OS Network。"}, {"id": "103", "chapter": "第六章", "pdf_page": "22", "title": "A2A Message Envelope 解析", "takeaway": "標準化的 Message Envelope 確保每一次對話都攜帶完整的路由與上下文元數據！", "details": ["Envelope 包含：sender_id, recipient_id, session_id, message_id 與 payload 類型。", "這讓跨網路的路由器能快速導航訊息，無需拆開讀取具體的內容，保障隱私與效能。"], "metaphor": "👉 就像是『掛號信封』，信封外面寫著寄件人地址、收件人地址和條碼，郵差不用把信拆開看內容就能準確投遞。", "layout": "左側展示標準的 Envelope JSON 結構（高亮路由元數據），右側展示一個實體信封類比，以箭頭對照各個 JSON 欄位。"}, {"id": "104", "chapter": "第六章", "pdf_page": "22", "title": "談判與協商狀態機 (Negotiation)", "takeaway": "A2A 內置雙向談判狀態機，支持 Agent 之間協商任務邊界與價格！", "details": ["對話不僅是問答，還包含提案 (Propose)、反案 (Counter)、接受 (Accept) 與拒絕 (Reject)。", "狀態機嚴格規範對話進程，防止 Agent 陷入無限發言的死循環中。"], "metaphor": "👉 就像是『商業談判：買方出價 10 元 (Propose) -> 賣方還價 12 元 (Counter) -> 雙方同意 11 元 (Accept)』的標準流程。", "layout": "狀態轉移圖。展示 Propose -> Counter -> Accept/Reject 的狀態移轉，每個狀態轉移皆標示觸發的 A2A 消息類型。"}, {"id": "105", "chapter": "第六章", "pdf_page": "22", "title": "A2A 語言獨立性 (Language Agnostic)", "takeaway": "A2A 協定採用語言中立的序列化格式，打通 Python 與 Java 的語系藩籬！", "details": ["消息 payload 採用 Protocol Buffers (Proto3) 或 JSON 進行序列化傳輸。", "不論專家 Agent 是用 Python 寫的，還是用 Rust 或 Go，都能無縫解析對方的信號。"], "metaphor": "👉 就像是『國際通用手勢』，不論你是美國人還是中國人，比出豎大拇指 (Thump Up) 大家都能立刻明白代表讚賞。", "layout": "左側為 Python Agent，右側為 Java Agent，中間為 Proto3 格式的二進位字串流，兩側各自轉化為本地對象。"}, {"id": "106", "chapter": "第六章", "pdf_page": "22", "title": "Build vs. Buy 抉擇矩陣", "takeaway": "以維護稅、專長深度與整合頻率為指標，系統化判定 Build 或 Buy！", "details": ["高維護稅、需要深厚領域知識的工具 (如法規合規審計) 應果斷採用 Buy/A2A 編排。", "企業內部核心商業機密、變更頻率低的自研算法，應選擇自建 Build。"], "metaphor": "👉 就像是『公司要用通訊軟體：直接租用 Slack (Buy)，而不是自己找團隊寫一個聊天 App (Build)』。", "layout": "表格。包含四個維度：自建成本、維護難度、領域變更頻率、最終決策推薦，並以高亮綠色標示推薦 A2A 的區塊。"}, {"id": "107", "chapter": "第六章", "pdf_page": "22", "title": "A2A 的安全沙盒控制", "takeaway": "A2A 設計了嚴格的網路邊界隔離，遠端專家無法越權觸碰你的主系統！", "details": ["遠端 Agent 只接收透過 A2A 接口發送的任務聲明，沒有權限調用你的本地 MCP 工具。", "主系統作為唯一的 Coordinator 控制數據流向，徹底杜絕遠程代碼執行風險。"], "metaphor": "👉 就像是『你把設計圖發給外包工廠 (A2A)，外包工廠做好產品寄還給你，但工廠的工人絕對進不去你的研發總部』。", "layout": "左側為 Host 安全區（內有 MCP），中間為 A2A 防火牆隔離帶，右側為外部 Remote Agent 區，顯示數據單向流通。"}, {"id": "108", "chapter": "第六章", "pdf_page": "22", "title": "解決 Vendor Lock-in (廠商鎖定)", "takeaway": "開源且中立的 A2A 協定，保護開發者免受單一雲端巨頭的技術鎖定！", "details": ["若使用廠商自訂的專有 Agent 協定，你將被迫綁定在該廠商的雲端平台與模型上。", "A2A 作為 Linux 基金會的開源項目，確保你隨時能將專家從一家雲端遷移到另一家。"], "metaphor": "👉 就像是『你買了符合國際標準插頭的電器，你可以插在台電的插座上，也可以插在發電機上，不會被台電綁架』。", "layout": "左側為被鎖鏈綑綁的 Vendor Lock-in 警示圖，右側為自由插拔、流向多個雲平台（GCP, AWS, Azure）的開源 A2A 圖示。"}, {"id": "109", "chapter": "第六章", "pdf_page": "22", "title": "A2A 的未來生態展望", "takeaway": "未來將誕生一個由數百萬個 A2A 專家構成的全球去中心化 AI 勞動力市場！", "details": ["開發者不再銷售軟體代碼，而是將自己的專業 Agent 掛牌上線提供租用服務。", "系統將學會自動尋找最便宜、評分最高的 A2A 專家來協同完成大型複雜任務。"], "metaphor": "👉 就像是『AI 界的 Upwork 或外包接案平台』，Orchestrator 隨時發布任務，全球的 AI 專家自動前來競標、領工資。", "layout": "左側展示一個 AI 外包商人才市場（標示 A2A Marketplace），右側為 Orchestrator 一鍵雇用的簽約儀式。"}, {"id": "110", "chapter": "第六章", "pdf_page": "22", "title": "第六章邏輯關係回顧", "takeaway": "掌握 A2A 協定的技術內涵與戰略位置，是開啟虛擬員工編排的鑰匙！", "details": ["HTTP 類比與 A2A 使命 -> Message Envelope 路由與 Negotiation 談判狀態機。", "Language Agnostic 獨立性 -> 安全沙盒隔離與避免 Vendor Lock-in 的生態價值。"], "metaphor": "👉 就像是『不僅安裝了無線電，還制定了整座工廠員工通訊的標準軍規代號與對話禮儀』。", "layout": "全螢幕流程圖，展示第六章的邏輯路徑：協定誕生 -> Message格式 -> 狀態機控制 -> 語言獨立 -> 安全邊界 -> 邁入 Build vs Buy 決策。"}, {"id": "111", "chapter": "第七章", "pdf_page": "23", "title": "工具與專門 Agent 的分水嶺", "takeaway": "外部專門智能體在架構上是協同夥伴，絕對不能被降級為簡單的標準工具！", "details": ["許多開發者直覺地將遠端 Agent 包裝成一個簡單的 API 工具 (Tool) 供模型調用。", "這種作法忽視了兩者在互動模式、狀態管理與領域範疇上的本質差異。"], "metaphor": "👉 就像是『你想蓋房子，你買一把鋸子回來自己用 (工具)，跟你雇用一位木工師傅幫你蓋 (夥伴)』，這兩者有天壤之別。", "layout": "左側為一把錘子圖示，右側為兩個人握手協作的圖示，中間有紅色的分水嶺斷崖，標示兩者不可混淆。"}, {"id": "112", "chapter": "第七章", "pdf_page": "23", "title": "什麼是 Bounded (受限) 領域", "takeaway": "標準工具運作在受限領域，採用 fire-and-forget (即發即忘) 機制！", "details": ["工具（如計算機或數據庫查詢）期望接收單次、格式完全正確的 request payload。", "執行完畢後立即回傳 response，沒有任何中間的懸掛狀態與多輪澄清需求。"], "metaphor": "👉 就像是『自動販賣機』，投幣、按按鈕、掉出飲料 (Fire-and-forget)，機器不需要問你今天心情好不好，也沒有討價還價的空間。", "layout": "左側展示一個完全閉合的矩形邊框（標示 Bounded Domain），框內為 input -> process -> output 的直線箭頭。"}, {"id": "113", "chapter": "第七章", "pdf_page": "23", "title": "什麼是 Unbounded (開放) 領域", "takeaway": "專門 Agent 運作在開放領域，面對現實世界 Ambiguity (曖昧性) 的挑戰！", "details": ["現實任務（如撰寫合約、設計架構）充滿了歪斜的牆 (Crooked Walls)：曖昧的數據、衝突的偏好。", "無法透過單次請求完成，必須在執行過程中主動暫停、回頭向人類或 Coordinator 澄清。"], "metaphor": "👉 就像是『你請了室內設計師來裝潢客廳，他拆開牆壁發現水管漏水 (Crooked Wall)，必須停下來問你先修水管還是直接封牆』。", "layout": "左側展示一個沒有邊界的網狀拓撲（標示 Unbounded Domain），線條向外延伸，中央標示 Crooked Walls 警示卡片。"}, {"id": "114", "chapter": "第七章", "pdf_page": "23", "title": "解讀 Crooked Walls (歪斜牆面)", "takeaway": "現實世界充滿了 Crooked Walls，單次 API 調用無法解決任何曖昧需求！", "details": ["Crooked Walls 是指現實環境中不規範的數據結構、模糊的商業規則與人類搖擺不定的主觀偏好。", "如果強行要求 Agent 一鍵完成，只會得到看似正確但充滿漏洞的幻覺結果。"], "metaphor": "👉 就像是『去量身訂做西裝，裁縫師發現你的肩膀左右不對稱 (Crooked Wall)，他不能照標準版型剪裁，必須邊量邊調整』。", "layout": "左側展示完美筆直的理想數據線，右側展示扭曲、帶有問號的真實數據線，下方重擊：LLM 必須具備多輪協商能力。"}, {"id": "115", "chapter": "第七章", "pdf_page": "23", "title": "智能體 GOTO 瓶頸的由來", "takeaway": "強行將協作 Agent 包裝為標準工具，會在 Orchestrator 中引發 GOTO 亂象！", "details": ["當 Coordinator 調用這個『Agent 工具』時，程序的控制流 (Control Flow) 離開了原本預期的上下文。", "若被調用的 Agent 需要等待人類確認或陷入長對話，控制流將長期懸空，甚至永遠無法返回。"], "metaphor": "👉 就像是『在寫代碼時濫用了 GOTO 語句，讓程序隨意跳轉到第 999 行，結果整個主程序邏輯斷線，變成義大利麵條代碼』。", "layout": "左側展示一條流暢的循環控制流，中間被一個巨大的紅色 GOTO 箭頭強行拉扯到外部的混亂網絡中，右側標示程式崩潰。"}, {"id": "116", "chapter": "第七章", "pdf_page": "24", "title": "分析 GOTO 造成的死鎖與懸掛", "takeaway": "控制流懸掛會導致 Orchestrator 的 Working Memory 被無端消耗，引發內存洩漏！", "details": ["主智能體在等待外部 Agent 回應時，必須掛起當前線程，並持續保存對話上下文。", "一旦用戶在中途改變主意或放棄任務，這些懸掛的對話狀態將永遠滯留，浪費系統資源。"], "metaphor": "👉 就像是『你撥打客服電話被語音引導到轉接中，結果等了 3 小時沒人接聽，你又不敢掛電話，你的手機就一直被佔線』。", "layout": "左欄展示掛起的 Coordinator 內存條，右欄展示無限等待的轉圈動畫，下方數據顯示懸掛狀態對系統延遲的負面影響。"}, {"id": "117", "chapter": "第七章", "pdf_page": "24", "title": "A2A 協定如何破解 GOTO 難題", "takeaway": "A2A 透過在獨立協作層隔離多輪對話狀態，保持 MCP 工具層的純淨！", "details": ["A2A 協定接管了智能體之間複雜的、有狀態的路由與中斷協商邏輯。", "MCP 傳輸層得以保持簡單、可預測的 fire-and-forget 結構，免受 GOTO 污染。"], "metaphor": "👉 就像是『把所有討價還價、討論細節的雜事交給法務秘書去談 (A2A 層)，談妥後直接把標準合約遞給老闆簽字 (MCP 工具層)』。", "layout": "雙層架構圖。上層為 A2A Collaboration Layer（處理中斷、協商與狀態），下層為 MCP Tool Layer（處理純粹的數據 IO 與讀寫）。"}, {"id": "118", "chapter": "第七章", "pdf_page": "24", "title": "第七章邏輯關係回顧", "takeaway": "認清 Bounded 與 Unbounded 的範疇，是規避 GOTO 瓶頸、設計健壯系統的關鍵！", "details": ["工具 (Bounded/即發即忘) 與 Agent 夥伴 (Unbounded/多輪協商) 的本質差異。", "強行包裝引發 GOTO 混亂 -> A2A 協定透過狀態隔離層破解死鎖。"], "metaphor": "👉 就像是『理解了為什麼廚具 (工具) 只能切菜，而大廚 (夥伴) 才能根據客人的口味臨時修改菜單』。", "layout": "全螢幕流程圖，展示第七章關係：任務派發 -> 判定領域類型 -> 工具直接調用 -> 智能體協商 -> A2A 攔截中斷 -> 順暢返回主流程。"}, {"id": "119", "chapter": "第八章", "pdf_page": "24", "title": "建構虛擬員工隊伍", "takeaway": "引進 A2A 協定與分工架構，為去中心化的虛擬人才市場奠定了商業基礎！", "details": ["這不僅僅是技術上的優化，更是軟體價值交付與變現模型的革命。", "開發者能專注於打造單一領域的頂尖專家，並將其出租給全球的 Orchestrator。"], "metaphor": "👉 就像是『從每個公司都得自己招聘全職清潔工、會計師，演進到可以直接向專業的外包公司聘請按工時收費的派遣員工』。", "layout": "左側為分散在全球的開發者，中間為統一的 A2A 人才市場，右側為企業 Orchestrator 一鍵下載/雇用虛擬員工。"}, {"id": "120", "chapter": "第八章", "pdf_page": "25", "title": "虛擬員工的 CV：Agent Card", "takeaway": "Agent Card 是 AI 世界標準的履歷表，提供機器可讀的規格說明！", "details": ["每一位 A2A 智能體都必須攜帶一份標準的宣告式 Agent Card 檔案。", "這讓外部的 Orchestrator 能瞬間評估其技能、安全性與對接協議，實現自動化 onboard。"], "metaphor": "👉 就像是『你去面試時帶的標準履歷表』，HR 掃一眼就能知道你的專長、學歷與期望待遇，不用花三天去背景調查。", "layout": "左側為一張帶有照片與藍色標籤的 Agent Card 卡片，卡片上劃分：Capabilities, Security, Protocol 三大區塊。"}, {"id": "121", "chapter": "第八章", "pdf_page": "25", "title": "Agent Card 核心維度 1：技能", "takeaway": "Capabilities 定義了智能體能夠執行的具體任務與輸出格式！", "details": ["包含精準的自然語言描述與機器可讀的 API 關鍵字標籤。", "Orchestrator 藉此判斷是否要將當前任務委派給此 Agent (例如：處理稅務計算)。"], "metaphor": "👉 就像是『廚師的技能證照』，上面寫著『擅長粵菜、精通雕花、能處理海鮮』，老闆一目了然。", "layout": "卡片視圖。高亮顯示 Agent Card 中的 Capabilities JSON 節點，右側以圖示列出對應的實體技能標籤。"}, {"id": "122", "chapter": "第八章", "pdf_page": "25", "title": "Agent Card 核心維度 2：安全", "takeaway": "Security & Compliance 定義了資料處理政策與權限請求限制！", "details": ["明文宣告該 Agent 是否會將用戶數據發送至第三方伺服器，或是否需要讀寫硬碟。", "Orchestrator 在調用前進行安全合規性自動比對，不合規者直接拒絕加載。"], "metaphor": "👉 就像是『App 的權限聲明』，當你安裝手電筒 App 時，如果它請求獲取你的通訊錄和定位權限 (不合規)，你就會拒絕安裝。", "layout": "左側展示隱私合規條款，右側展示通過與未通過的對比圖章，強調安全合規的自動校對。"}, {"id": "123", "chapter": "第八章", "pdf_page": "25", "title": "Agent Card 核心維度 3：協議", "takeaway": "Interaction Schemas 定義了外部智能體與之通訊的標準接口規格！", "details": ["包含對話入口點 (Endpoints)、支援的協商語意與輸入輸出參數的 Schema 定義。", "確保調用端能以正確的語法格式封裝 Request，實現零摩擦連線。"], "metaphor": "👉 就像是『電器的說明書』，標明這台電視需要 110V 電壓 (輸入規格)，且插頭是兩腳扁頭 (介面格式)。", "layout": "左側展示 Interaction Schemas 的 JSON Schema 定義代碼塊，右側展示標準通訊介面的類比圖示。"}, {"id": "124", "chapter": "第八章", "pdf_page": "25", "title": "解讀 Registry 註冊表機制", "takeaway": "Agent Registry 扮演人才媒合市場，讓 Agent 變為 discoverable 服務！", "details": ["Registry 儲存並索引所有上線 Agent 的 Agent Card 元數據。", "Orchestrator 通過向 Registry 發起檢索，實現動態的服務發現與加載。"], "metaphor": "👉 就像是『人力資源外包介面』，雇主 (Orchestrator) 輸入『需要懂法務的 AI』，平台自動篩選出符合要求的專家清單。", "layout": "左側為 Orchestrator，中間為 Registry 服務器，右側為多個 Agent 履歷庫，展示動態查詢與回傳流程。"}, {"id": "125", "chapter": "第八章", "pdf_page": "25", "title": "公共註冊表：全球人才市場", "takeaway": "Public Registries (Marketplace) 讓全球開發者共享並授權專家 Agent！", "details": ["開發者可以將自研的領域專家上架至公開的雲端 Marketplaces (如 Google Cloud Marketplace)。", "其他企業可以直接採購這些專家的使用授權，促進去中心化 AI 生態繁榮。"], "metaphor": "👉 就像是『手機的 App Store』，全球程式設計師都能在上面發布 App，用戶一鍵點擊付費下載使用。", "layout": "左側為全球各地的開發者，中間為 Google Cloud Marketplace 標誌，右側為各大企業用戶的採購終端。"}, {"id": "126", "chapter": "第八章", "pdf_page": "26", "title": "私有註冊表：企業安全沙盒", "takeaway": "企業內部部署 Private Registries，實現部門間安全無縫的資產共享！", "details": ["在企業邊界內，將研發、財務、人力資源等部門的私有 Agent 登錄於內部註冊表中。", "確保數據不外流，滿足嚴格的安全治理、IAM 權限審查與法規遵循。"], "metaphor": "👉 就像是『公司內部的專利與技術文檔庫』，只有公司內部員工才能憑權限登入查閱，外部人員無法訪問。", "layout": "左側展示帶有安全防護鎖的 Enterprise Firewall，牆內包含一個 Private Registry，連接多個內部業務 Agent。"}, {"id": "127", "chapter": "第八章", "pdf_page": "26", "title": "第八章邏輯關係回顧", "takeaway": "Agent Card 與 Registry 機制，是將零散代碼升級為 discoverable 虛擬員工的關鍵！", "details": ["虛擬員工團隊概念 -> Agent Card 標準履歷 (技能, 安全, 協議三大維度)。", "Registry 註冊表機制 -> 全球 Marketplace 與企業 Private Registry 的落地應用。"], "metaphor": "👉 就像是『建立了全廠員工的人事檔案庫與打卡系統』，讓每個崗位的員工都有名有姓、職責清晰。", "layout": "全螢幕流程圖，展示第八章關係：Agent 編寫完畢 -> 產生 Agent Card -> 上傳註冊表 -> Orchestrator 動態檢索 -> 媒合成功 -> 啟動對話。"}, {"id": "128", "chapter": "第九章", "pdf_page": "26", "title": "A2A 協定的實作雙軌", "takeaway": "A2A 的落地包含 Exposing (供應端) 與 Connecting (需求端) 兩大開發動態！", "details": ["供應端 (Supply Side)：學習如何將本地的 AI Agent 包裝並暴露為 A2A-compliant 端點。", "需求端 (Demand Side)：學習如何利用 Orchestrator 發現並連線調用遠端 A2A 智能體。"], "metaphor": "👉 就像是『插座與插頭：供應端負責在牆上安裝標準插座 (Exposing)；需求端負責把電器插頭插上去 (Connecting)』。", "layout": "左右分欄佈局。左分欄標示 Supply Side (Exposing)，右分欄標示 Demand Side (Connecting)，各自列出實作子步驟。"}, {"id": "129", "chapter": "第九章", "pdf_page": "26", "title": "供應端實作步驟 1：定義 Card", "takeaway": "編寫標準 YAML/JSON 檔案，精確聲明 Agent Card 的元數據！", "details": ["定義 metadata 區塊，寫入 name, version, author, description 等資訊。", "在 capabilities 區塊中，以語意化詞彙定義該智能體的專長範圍。"], "metaphor": "👉 就像是『填寫新員工報到登記表』，一字一句把名字、聯絡方式與專長特點寫在紙上存檔。", "layout": "左側展示一份寫有 metadata 與 capabilities 的 YAML 配置代碼塊，右側展示其對應的機器可讀性驗證標記。"}, {"id": "130", "chapter": "第九章", "pdf_page": "26", "title": "供應端實作步驟 2：Agent Executor", "takeaway": "實作 Executor 作為 Translation Layer，翻譯 A2A 消息與底層框架調用！", "details": ["遠端傳入的 A2A 協商請求是標準格式的 Protocol Buffer / JSON。", "Executor 將其翻譯成底層 LangGraph, ADK 或自研代碼能看懂的具體 method 呼叫。"], "metaphor": "👉 就像是『公司的外語秘書』，負責把外國客戶發來的英文電子郵件 (A2A 請求) 翻譯成中文工作單 (底層調用) 給工程師。", "layout": "中央為 Agent Executor (Translation Layer)，左側輸入 A2A 封包，右側輸出 LangGraph / ADK 呼叫參數。"}, {"id": "131", "chapter": "第九章", "pdf_page": "26", "title": "供應端實作步驟 3：部署 Endpoint", "takeaway": "將 Executor 暴露為 A2A-compliant Webhook 端點，供全球網絡調用！", "details": ["使用 FastAPI 或 Flask 將翻譯層封裝成一個標準的 HTTPS POST 接口 (Endpoint)。", "配置 API Gateway 進行身份驗證，確保只有授權的 Orchestrator 才能對接連線。"], "metaphor": "👉 就像是『在公司大門口裝上一個聯絡電話分機 (Endpoint)』，外部客戶撥打這個分機就能直接轉接到秘書處。", "layout": "左側為 Internet 發送的 HTTP POST 請求，中央為暴露的 Webhook URL，右側為運行的 Executor 進程。"}, {"id": "132", "chapter": "第九章", "pdf_page": "27", "title": "解讀 A2A Client-Server 消費流", "takeaway": "Client 發送任務委派，Server 解析、運行並回傳標準協商消息！", "details": ["A2A Client (Demand Side) 將任務封裝入信封，向 A2A Server (Supply Side) 發起調用。", "Server 端接收後，啟動 Executor 驅動內部模型運算，完成後回傳 A2A 響應。"], "metaphor": "👉 就像是『發包工程：業主 (Client) 填寫工程委託書發給包商 (Server)，包商蓋章確認後開始施工，完工後交件』。", "layout": "時序圖。左側為 A2A Client，右側為 A2A Server，中間展示 POST /a2a/request -> 處理 -> 200 OK Response 消息流。"}, {"id": "133", "chapter": "第九章", "pdf_page": "27", "title": "需求端連線模式 1：點對點硬編碼", "takeaway": "在代碼中直接硬編碼遠端端點 URL，適用於私有對接與特定廠商整合！", "details": ["使用 Google ADK 的 RemoteA2aAgent 類，直接傳入名為 billing_agent 與 endpoint URL。", "適合在開發測試期或是與已簽約的特定供應商進行安全的點對點對接。"], "metaphor": "👉 就像是『在手機通訊錄裡把合作夥伴的電話號碼直接設為快速鍵 1』，按一下就能直通，不用查黃頁。", "layout": "左欄介紹適用場景，右欄展示 Python 程式碼，代碼中硬編碼 endpoint='https://api.vendor.com/v1/billing/a2a'，重點標黃。"}, {"id": "134", "chapter": "第九章", "pdf_page": "28", "title": "實作點對點硬編碼 Python 代碼", "takeaway": "僅需 5 行 Python 代碼，即可在 ADK 中直接實例化遠端 A2A 智能體！", "details": ["導入 Google ADK 中的 RemoteA2aAgent 適配器類。", "宣告實例並傳入 endpoint 參數，後續即可像調用本地對象一樣調用遠端專家。"], "metaphor": "👉 就像是『在本地宣告一個虛擬對象，代碼裡調用它時，SDK 會自動在背後發送網絡請求』，對開發者無感。", "layout": "全螢幕代碼塊，展示：from google.adk.agents import RemoteA2aAgent; agent = RemoteA2aAgent(name='...', endpoint='...')。"}, {"id": "135", "chapter": "第九章", "pdf_page": "28", "title": "需求端連線模式 2：註冊表動態發現", "takeaway": "透過 Agent Registry 動態發現遠端端點，實現彈性且安全的服務綁定！", "details": ["主系統不寫死任何 URL，只宣告所需的資源名稱 (例如：projects/{id}/agents/{name})。", "ADK 自動向 Registry 查詢該資源名稱，Registry 負責解析端點 URL 並校對驗證 credentials。"], "metaphor": "👉 就像是『你在公司撥打內部代號 101 找研發部經理 (動態發現)，不管經理今天換到哪間辦公室，系統都會自動幫你轉接過去』。", "layout": "左側為 Orchestrator 宣告資源代號，中央為動態解析的 Agent Registry 閘道，右側為被拉起連接的 A2A 遠端服務。"}, {"id": "136", "chapter": "第九章", "pdf_page": "28", "title": "實作註冊表動態發現 Python 代碼", "takeaway": "利用 AgentRegistry 類，動態抓取並實例化安全的遠端 A2A 智能體！", "details": ["建立 AgentRegistry 實例，傳入 project_id 與 location 參數。", "調用 registry.get_remote_a2a_agent 並傳入標準的 GCP 資源路徑字串。"], "metaphor": "👉 就像是『上網查黃頁目錄，查到對應的商戶名稱後，由黃頁系統自動幫你撥號接通』。", "layout": "全螢幕代碼塊，展示：registry = AgentRegistry(project_id, location); my_remote_agent = registry.get_remote_a2a_agent(agent_name)。"}, {"id": "137", "chapter": "第九章", "pdf_page": "28", "title": "動態發現中的憑證校驗 (Auth)", "takeaway": "註冊表在解析名稱的同時，會自動完成 OAuth 金鑰與 IAM 權限校驗！", "details": ["Orchestrator 不需要手動在請求中附加 credentials，Registry 會自動關聯當前的環境 Default Credentials (ADC)。", "簡化了開發者的安全管理負擔，避免金鑰在網絡傳輸中意外洩漏。"], "metaphor": "👉 就像是『你在公司刷識別證進大門，門禁系統自動確認你的部門和職級，不需要你每次進門都出示身分證和印章』。", "layout": "左側為帶有 ADC (Application Default Credentials) 憑證的 Client，中間為 Registry 驗證鎖頭，右側為放行的 A2A 通道。"}, {"id": "138", "chapter": "第九章", "pdf_page": "28", "title": "第九章邏輯關係回顧", "takeaway": "掌握 A2A 的供應端部署與需求端雙模式連線，是虛擬團隊落地的最後一公里！", "details": ["A2A 實作雙軌 -> 供應端 Exposing 三步驟 (定義 Card, 實作 Executor, 暴露 Endpoint)。", "需求端 Connecting 雙模式 -> 點對點硬編碼連線 vs 註冊表動態發現 (ADK Python 代碼)。"], "metaphor": "👉 就像是『成功把工廠的對講機分發給每位員工，且教會大家如何按照通訊錄撥打內線和外線電話』。", "layout": "全螢幕流程圖，展示第九章關係：程式編寫 -> Expose A2A Server -> 連線模式決策 -> 執行 ADK 連接 -> 成功建立網絡對話。"}, {"id": "139", "chapter": "第十章", "pdf_page": "28", "title": "智能體變現新範式", "takeaway": "商業可持續性是多 Agent 生態的核心，A2A 促成了 AaaS 變現模型！", "details": ["光是讓智能體跑起來是不夠的，必須設計健壯的商業閉環以支持長期營運。", "Agent-as-a-Service (AaaS，智能體即服務) 採用按使用量計費的消費模式。"], "metaphor": "👉 就像是從『買斷單機版套裝軟體』升級為『訂閱雲端服務 (SaaS)，按月或按調用次數扣款』的商業革命。", "layout": "左側為傳統軟體光碟，右側為標有 AaaS 的雲端智能體，有硬幣流入的動畫示意圖。"}, {"id": "140", "chapter": "第十章", "pdf_page": "29", "title": "Google Cloud Marketplace 變現", "takeaway": "將 A2A 專家上架至 GCP Marketplace，一鍵對接全球企業客戶！", "details": ["獨立軟體商 (ISV) 與個人開發者能將 A2A Agent 註冊為可訂閱服務。", "企業客戶可直接使用現有的 GCP 財務承諾 (Financial Commitments) 進行採購。"], "metaphor": "👉 就像是『把你的新發明直接擺在好市多 (GCP Marketplace) 最顯眼的貨架上，會員用會員卡直接結帳』。", "layout": "左側展示開發者控制台，中央為 GCP Marketplace 連接器，右側為企業採購終端，顯示金流與授權鏈接。"}, {"id": "141", "chapter": "第十章", "pdf_page": "29", "title": "解讀混合計費 (Hybrid Pricing)", "takeaway": "採用『固定月費 + 超額使用費』混合計費，自動處理複雜的雲端帳單！", "details": ["Marketplace 底層基礎設施會自動計算智能體調用次數與 token 消耗量。", "提供穩定的基本費預測，同時在運算量爆發時保障開發者的超額收益。"], "metaphor": "👉 就像是『手機上網費率：每個月付 199 元基本費 (Flat Fee)，超過 5GB 流量後每 1GB 收 30 元 (Usage Fee)』。", "layout": "1x2 對比卡片。左卡標示 Flat Fee（保障基本運作），右卡標示 Usage Overages（根據運算/Token 彈性收費）。"}, {"id": "142", "chapter": "第十章", "pdf_page": "30", "title": "AaaS 變現生命週期", "takeaway": "遵循開發、變現、部署、消費四大生命週期階段，實現規範化變現！", "details": ["1. Build & Polish (ISV)：開發並在安全沙盒中測試打磨 A2A 專家。", "2. Monetize (GCP Marketplace)：上架、定價並關聯企業帳單系統。", "3. Deploy & Govern (Customer)：企業將其 onboard 到內部的 Agent Registry。", "4. Consume (A2A Clients)：智能體網絡動態調用，自動執行跨組織協作。"], "metaphor": "👉 就像是『蔬菜的供應鏈：農夫種菜 (Build) -> 運到批發市場貼價格 (Monetize) -> 超商上架安全檢驗 (Deploy) -> 顧客買回家吃 (Consume)』。", "layout": "橫向時間軸。包含四個節點，每個節點點擊後會顯示該階段的核心任務與技術產出指標。"}, {"id": "143", "chapter": "第十章", "pdf_page": "30", "title": "Permissionless (免許可) 微支付", "takeaway": "在去中心化場景中，利用 machine-to-machine 微支付免除用戶帳號管理！", "details": ["企業級 Marketplace 適合大客戶，但小規模、高頻率的機器互聯需要更輕量的方案。", "A2A 協定支持 permissionless 的機器對機器 (M2M) 自動付款，消除註冊摩擦。"], "metaphor": "👉 就像是『路邊的自動投幣販賣機，你投硬幣就能買水，機器不需要你註冊會員、輸入身分證字號或填寫電子信箱』。", "layout": "左側為 Host，中間為自動投幣孔與閃電符號，右側為回傳的工具響應，強調 Permissionless 特性。"}, {"id": "144", "chapter": "第十章", "pdf_page": "30", "title": "揭秘 HTTP 402 付款機制", "takeaway": "當請求未付款時，A2A 伺服器回傳 HTTP 402 狀態碼與機器可讀發票！", "details": ["Server 端攔截未授權的 HTTP 請求，響應 `HTTP 402 Payment Required`。", "響應體中綁定標準的加密發票 (Invoice)，載明金額與付款通道。"], "metaphor": "👉 就像是『你開車上高速公路沒裝 E-Tag，收費站柵欄會擋下 (HTTP 402)，並在屏幕上顯示應付金額 (Invoice)』。", "layout": "流程圖。展示 Request -> 402 Intercept -> Parse Invoice -> Auto Pay -> Retry -> 200 OK 消息迴圈。"}, {"id": "145", "chapter": "第十章", "pdf_page": "30", "title": "解讀 L402 / x402 支付標準", "takeaway": "L402/x402 標準結合 HTTP 與加密貨幣/閃電網絡，實現即付即用的微交易！", "details": ["它是一種將 API 收費與加密憑證結合的網際網絡新標準。", "智能體錢包在背後異步執行付款，獲得一串代表付款證明的 cryptographic token。"], "metaphor": "👉 就像是『你去遊樂園玩，買了一張電子入園券 (L402 Token)，每玩一個遊樂設施 (呼叫 API)，讀卡機刷一下就扣一次點數』。", "layout": "左側展示 L402 協議結構圖，中間為加密支付證書，右側為驗證通過的數據服務器。"}, {"id": "146", "chapter": "第十章", "pdf_page": "31", "title": "自主付款與 Proof-of-Payment", "takeaway": "調用端智能體攜帶加密付款證明重新發起請求，Server 驗證通過即放行！", "details": ["Client 獲取 token 後，在 Retry 請求的 Authorization Header 中附加該證書。", "A2A 伺服器利用本地加密演算法驗證簽章，秒級完成交易驗證，提供無感體驗。"], "metaphor": "👉 就像是『你去遊樂園坐雲霄飛車，售票口買完票拿個蓋章 (Proof-of-Payment)，排隊入口的驗票員摸一下印記就讓你進去』。", "layout": "代碼對比。上方展示 Retry 請求的 Header 配置 api-token='PoP_...'，下方展示 Server 端的加密認證代碼塊。"}, {"id": "147", "chapter": "第十章", "pdf_page": "31", "title": "第十章邏輯關係回顧", "takeaway": "AaaS 商業模式與 M2M 微支付，為分散式智能體注入了生生不息的金融電力！", "details": ["變現需求 -> GCP Marketplace 混合計費 (Flat + Usage) 與 AaaS 四大生命週期。", "去中心化支付 -> HTTP 402 與 L402/x402 標準 -> 機器自主支付 Proof-of-Payment 連線。"], "metaphor": "👉 就像是『不僅造好了車子、修好了路，還在路口裝設了全自動扣款的收費站，讓整個商業網絡運轉起來』。", "layout": "全螢幕流程圖，展示第十章關係：智能體上線 -> 判定消費場景 -> 企業級 Marketplace -> 去中心化 HTTP 402 -> 自主微支付 -> 商業閉環。"}, {"id": "148", "chapter": "第十一章", "pdf_page": "32", "title": "人機溝通的 JSON 鴻溝", "takeaway": "智能體返回的 raw JSON 阻礙了人類的直觀理解，必須以視覺化介面打破鴻溝！", "details": ["當你向同事詢問銷售業績時，他不會唸一串資料庫欄位給你，而是在白板上畫圖。", "現有智能體習慣返回冗長難懂的 JSON 數據包，迫使人類在程式碼中進行二次轉換。"], "metaphor": "👉 就像是『你去餐廳吃飯，廚師不給你做好的牛排，而是給你一盤生牛肉、鹽巴和油 (Raw JSON) 叫你自己煎』。", "layout": "左側為密密麻麻的 JSON 數據（標有人類看不懂），右側為在白板上用藍色粉筆畫出的精美折線圖，形成強烈對比。"}, {"id": "149", "chapter": "第十一章", "pdf_page": "32", "title": "什麼是 Generative UI", "takeaway": "Generative UI 是大模型在運行期 (Runtime) 根據用戶意圖動態合成介面！", "details": ["擺脫開發者為每種狀態硬編碼前端介面的傳統限制。", "系統根據 Query (如：比較 Q4 業績) 動態組裝卡片、圖表、篩選器與控制按鈕。"], "metaphor": "👉 就像是『哈利波特裡的萬應室』，你進去時需要什麼 (意圖)，房間就會動態變出沙發、書桌或武器，不需要事先裝潢。", "layout": "左側為用戶輸入意圖輸入框，中間為 LLM UI Generator 大腦，右側動態彈出一個包含圓餅圖與導航按鈕的卡片。"}, {"id": "150", "chapter": "第十一章", "pdf_page": "32", "title": "Generative UI 的安全紅線", "takeaway": "在客戶端直接執行大模型產生的任意代碼，會帶來災難性的安全威脅！", "details": ["LLM 生成的 Raw HTML/JS 代碼可能夾帶惡意腳本，引發 XSS (跨站腳本攻擊)。", "任意代碼執行還會造成客戶端 Cookie 洩漏、惡意重定向與不可控的系統副作用。"], "metaphor": "👉 就像是『你請了一位不認識的畫家來家裡畫壁畫，結果他偷偷在牆角裝了一個監視器 (惡意代碼注入) 偷看你生活』。", "layout": "左側為運行的代碼流，中央為紅色骷髏頭安全警示卡片，列出三項安全威脅 (Code Injection, XSS, Session Hijack)。"}, {"id": "151", "chapter": "第十一章", "pdf_page": "33", "title": "A2UI：安全宣告式 UI 標準", "takeaway": "A2UI 是一個框架無關的 UI 意圖宣告標準，兼顧動態性與絕對安全性！", "details": ["Google 發布的開源標準，讓智能體以宣告式格式 (Declarative JSON) 描述介面意圖。", "不發送可執行的代碼，不發送預渲染的靜態像素，只發送 UI 元件組裝邏輯。"], "metaphor": "👉 就像是『樂譜 (A2UI) 規定了音符和旋律，但它本身不能發出聲音 (無代碼風險)，必須由樂器彈奏出來』。", "layout": "中央展示一份 A2UI 樂譜 JSON，上方為安全盾牌，下方有 React, Flutter, SwiftUI 三種渲染器對照圖。"}, {"id": "152", "chapter": "第十一章", "pdf_page": "33", "title": "解讀『樂譜 (Sheet Music)』類比", "takeaway": "同一份 A2UI 樂譜，由不同設備的 Native 渲染器演奏出最完美的原生音色！", "details": ["智能體只需撰寫一次 UI 宣告意圖，無需關心用戶是在用手機、網頁還是手錶。", "客戶端的渲染器會調用本地的 Native 設計系統元件，確保 UI 符合該設備的排版美感。"], "metaphor": "👉 就像是『貝多芬的命運交響曲樂譜 (A2UI)，你可以用鋼琴彈、可以用交響樂團演，也可以用電子琴放，旋律相同但音色原生』。", "layout": "左側為統一的 A2UI 樂譜，中間輻射出三條線，右側分別展示 Web (React)、Mobile (Flutter) 與 Wearable 的原生渲染效果。"}, {"id": "153", "chapter": "第十一章", "pdf_page": "33", "title": "A2UI 的關注點分離 (SoC)", "takeaway": "分離 UI 佈局決定權與具體渲染實作，保障系統架構的高度解耦！", "details": ["智能體只決定『要放什麼元件、元件如何排列』(SoC 的意圖層)。", "客戶端渲染器只負責『如何安全、美觀地將元件繪製到屏幕上』(SoC 的渲染層)。"], "metaphor": "👉 就像是『建築師只負責畫房屋結構藍圖 (智能體)，而施工隊則負責去買磚頭並動手把房子蓋出來 (渲染器)』。", "layout": "雙色分欄對比。左側為 Intent Layer（智能體控制，高亮 JSON），右側為 Render Layer（客戶端控制，高亮 Native UI）。"}, {"id": "154", "chapter": "第十一章", "pdf_page": "33", "title": "積木式的 UI 組裝 (Lego Metaphor)", "takeaway": "A2UI 的元件就像是樂高積木，通過組合信任的基礎元件構建出萬千界面！", "details": ["客戶端本地只內置並信任一組經過安全審計的基礎元件庫 (如 Button, Card)。", "智能體發送的 JSON 只是告訴渲染器：『請把 Card 放最上面，Card 裡面放 Text，下面接個 Button』。"], "metaphor": "👉 就像是『樂高積木』，不論你拼成城堡還是飛機，所用的每一顆積木顆粒 (基礎元件) 都是樂高工廠生產的安全塑料，沒有危險。", "layout": "左欄為各種樂高積木單體（標示 Basic Catalog），右欄為組裝好的精美控制台卡片，標明無代碼執行安全。"}, {"id": "155", "chapter": "第十一章", "pdf_page": "33", "title": "第十一章邏輯關係回顧", "takeaway": "A2UI 協定以宣告式樂譜架構，完美破解了 Generative UI 的安全與適配瓶頸！", "details": ["JSON 溝通鴻溝 -> Generative UI 的動態價值與安全 XSS 紅線。", "A2UI 標準推出 -> 樂譜 (Sheet Music) 類比 -> SoC 關注點分離與積木式安全渲染。"], "metaphor": "👉 就像是『在舞台與觀眾席之間加裝了一面安全的防彈玻璃展示窗，觀眾能看到精彩表演卻不會受到傷害』。", "layout": "全螢幕流程圖，展示第十一章關係：JSON 鴻溝 -> 引入 Generative UI -> 安全漏洞攔截 -> A2UI 宣告式樂譜 -> 跨平台 Native 渲染。"}, {"id": "156", "chapter": "第十二章", "pdf_page": "34", "title": "A2UI 基礎元件目錄 (v0.9)", "takeaway": "A2UI 官方內置 5 大類別、18 種開箱即用的基礎 UI 元件目錄！", "details": ["包含 Layout (佈局)、Display (展示)、Containers (容器)、Media (媒體) 與 Interactive (互動)。", "Vibe Coder 能利用這 18 種積木快速拼裝出高質感的數據儀表板與輸入表單。"], "metaphor": "👉 就像是『標準樂高入門套裝裡附贈的 18 種最常用積木零件』，能滿足你 90% 的拼裝需求。", "layout": "五宮格卡片，展示 Layout, Display, Containers, Media, Interactive 分類，點擊分類卡片可查看對應的 18 種元件明細。"}, {"id": "157", "chapter": "第十二章", "pdf_page": "34", "title": "自訂元件對應 (Bring Your Own)", "takeaway": "企業生產環境應定義專屬 Design System，並將其對應到 A2UI 類型中！", "details": ["v0.9 版本將元件庫重命名為 basic，意在引導開發者 Bring Your Own Catalog。", "智能體的 JSON 程式碼保持不變，只需在客戶端修改渲染器對應關係，即可換上企業品牌皮膚。"], "metaphor": "👉 就像是『麥當勞的點餐機 (渲染器) 可以換上新年喜慶皮膚，但背後的點餐品項與結帳邏輯 (智能體) 完全不用改』。", "layout": "左側為 A2UI Basic JSON，中間為企業 Design System Mapper，右側為渲染出帶有企業專屬品牌色與字體的 UI。"}, {"id": "158", "chapter": "第十二章", "pdf_page": "35", "title": "透視 A2UI JSON 訊息結構", "takeaway": "A2UI 採用扁平的 Adjacency List (鄰接表) 結構，便於增量生成與局部更新！", "details": ["元件不採用深層嵌套的樹狀 JSON，而是以 flat array 儲存，每個元件有唯一 ID。", "元件通過 children 陣列引用其他元件的 ID，這讓 LLM 能以 streaming 方式輕鬆生成。"], "metaphor": "👉 就像是『通訊錄』，每個人只有一行記錄和一個 ID (扁平化)，家庭關係通過在記錄裡寫下子女的 ID 來建立，簡單明瞭。", "layout": "左側展示嵌套的複雜 JSON (紅叉)，右側展示 A2UI 扁平鄰接表的 JSON 結構 (綠勾)，並標出 id 與 children 的對應線。"}, {"id": "159", "chapter": "第十二章", "pdf_page": "35", "title": "A2UI 消息範例詳解", "takeaway": "以 v0.9 規格為例，看一個完整的 Column 佈局與 Button 互動 JSON 實例！", "details": ["定義 version 為 v0.9，updateComponents 指定 surfaceId 為 main。", "包含 root (Column) 元件，引用 title, summary, export 元件，Button 綁定 export_csv 事件。"], "metaphor": "👉 就像是『一張家具組裝說明書：客廳放置沙發和茶几，茶几上放一個杯子，杯子點擊會發送喝水信號』。", "layout": "全螢幕代碼塊。展示 Snippet 4 的 JSON 內容，並以不同顏色語法高亮 ID 與 Component 類型。"}, {"id": "160", "chapter": "第十二章", "pdf_page": "35", "title": "產出 A2UI 的兩大開發模式", "takeaway": "根據佈局決定權歸屬，靈活選擇 LLM 動態生成模式或 Tool 固定範本模式！", "details": ["模式 1 - LLM-generates-UI (意圖驅動)：大模型完全掌控佈局，依據情境隨意調整。", "模式 2 - Tool-as-template (輸入驅動)：工具回傳固定 UI 與資料綁定，零 Token 消耗。"], "metaphor": "👉 意圖驅動像是『你請私人廚師，他看你今天胃口動態配菜 (LLM)』；輸入驅動像是『去定食餐廳，點 1 號餐就永遠送來排骨飯配三樣小菜 (Tool)』。", "layout": "左右分欄對比。左欄標示 Default (LLM Layout)，右欄標示 Specialization (Tool-as-template)，下方列出 Token 消耗與變更彈性對比。"}, {"id": "161", "chapter": "第十二章", "pdf_page": "36", "title": "模式 1：LLM-generates-UI 實作", "takeaway": "大模型在運行期擁有佈局控制權，根據對話上下文靈活編排元件樹！", "details": ["適用於探索性任務 (如：『幫我畫個對比圖，下面加個分析說明，再放個導出按鈕』)。", "利用 a2ui-agent-sdk 自動將 Catalog Schema 注入到模型的 system prompt 中。"], "metaphor": "👉 就像是『沙畫藝術家』，根據觀眾的呼聲實時用沙子畫出不同的圖案，隨機應變能力極強。", "layout": "左側為 system prompt 模板，右側展示模型動態輸出多種完全不同 layout 結構的 JSON 封包過程。"}, {"id": "162", "chapter": "第十二章", "pdf_page": "36", "title": "模式 2：Tool-as-template 實作", "takeaway": "將工具作為伺服器端範本，回傳固定的 A2UI 結構與動態數據綁定！", "details": ["適用於格式固定的數據展示 (如：每個地區的銷售 Dashboard 結構都一模一樣)。", "工具內部以 Python 構建 JSON 結構，並使用 path 語法 (非 f-string) 進行數據綁定。"], "metaphor": "👉 就像是『印好空白表格的複寫紙 (範本)』，結構已經固定，你只需要在姓名、地址欄位填入具體文字 (資料綁定) 即可。", "layout": "左側展示 Python get_sales_dashboard 代碼，高亮顯示 path 指向，右側為資料綁定後的渲染圖卡。"}, {"id": "163", "chapter": "第十二章", "pdf_page": "36", "title": "實作 Tool-as-template Python 代碼", "takeaway": "使用 Python 定義 get_sales_dashboard 函數，回傳帶有 path 的 A2UI 結構！", "details": ["抓取資料庫數據，返回含有 version, updateComponents 與扁平 components 的字典。", "元件中的 text 屬性配置為 {'path': '/title'}，而非將變數硬編碼塞入字串。"], "metaphor": "👉 就像是『定義了一個帶有預留位置的 HTML 模板，數據更新時只需更新預留位置，不用重新發送整個 HTML 結構』。", "layout": "全螢幕代碼塊，展示 Snippet 5 中 Python 函數定義與 A2UI JSON 返回結構，高亮 path 欄位。"}, {"id": "164", "chapter": "第十二章", "pdf_page": "37", "title": "理解 updateDataModel 資料流", "takeaway": "透過 updateDataModel 獨立更新數據，實現 UI 結構與資料內容的完全解耦！", "details": ["當底層數據更新時，伺服器只發送輕量級的 updateDataModel 消息更新 path 對應值。", "客戶端渲染器在本地動態重繪數據，模型無需重新生成與傳輸龐大的 UI 結構，節省流量。"], "metaphor": "👉 就像是『電視螢幕的結構已經買回家了 (UI 結構)，電視台只需要源源不絕發送畫面像素信號 (資料流)，不用每次都送你一台新電視』。", "layout": "左側為 A2uiPartConverter，中間流出細微的 updateDataModel 數據包，右側為本地 UI 根據新數據自動跳動的動畫。"}, {"id": "165", "chapter": "第十二章", "pdf_page": "37", "title": "查詢到輸出映射矩陣 (Query to Output)", "takeaway": "根據用戶 Query 的意圖類型，自動將輸出映射為文字、LLM UI 或工具 UI！", "details": ["簡單問答 (如平均數) -> 回傳純文字；探索性對比 -> 由 LLM 動態生成 UI 結構。", "查看固定看板 -> 由 Tool 範本直接返回；API 對接 -> 返回純 JSON 數據格式。"], "metaphor": "👉 就像是『客服分流：簡單問題用自動語意回答 (純文字) -> 複雜業務引導到櫃檯辦理 (動態 UI)』。", "layout": "Table 2 視覺化。以精美表格展示 Query 與 Return 的四種對應關係，高亮顯示 LLM 與 Tool 渲染的邊界。"}, {"id": "166", "chapter": "第十二章", "pdf_page": "38", "title": "線性對話的局限與 Canvas 革命", "takeaway": "擺脫線性滾動對話的限制，引入 Canvas 持久空間實現人機協同編輯！", "details": ["傳統 Chat 界面是單向線性的，舊消息會被滾動沖走，難以對局部內容進行微調。", "Canvas (畫布) 提供一個持續存在的右側工作區，智能體與人類均能在此直接編輯。"], "metaphor": "👉 就像是『從發簡訊溝通 (線性 Chat)，升級為兩個人一起站在一塊白板前拿著筆塗改 (Canvas 協同)』。", "layout": "左欄為窄長的 Chat 線性滾動流，右欄為寬敞的純白卡片工作區 (Canvas)，以箭頭展示雙向編輯權限。"}, {"id": "167", "chapter": "第十二章", "pdf_page": "39", "title": "Canvas + A2UI 的互動時序", "takeaway": "用戶操作 Canvas UI，智能體實時捕獲行為反饋並動態調整後續決策！", "details": ["用戶在右側 Canvas 的 ChoicePicker 中選擇『二月』。", "網頁客戶端捕捉此點擊事件，發送回饋給智能體，智能體理解上下文並更新資料模型。"], "metaphor": "👉 就像是『你在開車時轉動方向盤 (用戶操作)，車載導航立刻根據你的新位置重新規劃路線 (智能體響應)』。", "layout": "時序圖 (Figure 7)。展示 User, Agent, Canvas 的三線時序交互流：發送指令 -> 繪製 UI -> 點擊下拉框 -> 自動局部更新。"}, {"id": "168", "chapter": "第十二章", "pdf_page": "40", "title": "A2UI 開發的最佳實務", "takeaway": "使用 a2ui-agent-sdk 的 SchemaManager 自動編排含有 Schema 的 System Prompt！", "details": ["手動拼接 Catalog JSON-Schema 到 prompt 中極易出錯且耗時。", "SchemaManager 能自動加載 Catalog、編譯驗證器並生成包含完整 example 的系統指令。"], "metaphor": "👉 就像是『自動裝配流水線』，你只需把零件丟進去，機器自動幫你貼好標籤、包裝完整並裝箱出貨，不用手工打包。", "layout": "左側為 a2ui-agent-sdk 的導入 Python 代碼，右側為生成的完整 System Prompt 預覽卡片。"}, {"id": "169", "chapter": "第十二章", "pdf_page": "40", "title": "實作 A2uiSchemaManager Python 代碼", "takeaway": "載入 BasicCatalog 並實例化 SchemaManager，僅需數行 Python 代碼！", "details": ["導入 A2uiSchemaManager、BasicCatalog 與 VERSION_0_9 常數。", "實例化 schema_manager，並調用 get_selected_catalog() 獲取驗證配置。"], "metaphor": "👉 就像是『在寫代碼前，先加載一個標準的翻譯字典 (SchemaManager)，確保後面的單字都不會拼錯』。", "layout": "全螢幕代碼塊，展示 Python 程式碼，高亮 A2uiSchemaManager 的初始化參數配置。"}, {"id": "170", "chapter": "第十二章", "pdf_page": "41", "title": "實作 LLM-generates-UI 核心代碼", "takeaway": "定義 LlmAgent 實例，動態生成系統 Prompt 並載入到大模型中！", "details": ["使用 schema_manager.generate_system_prompt() 生成自訂系統指令。", "參數包括角色說明、UI 使用規範，並宣告 include_schema=True 與 include_examples=True。"], "metaphor": "👉 就像是『在實習生上崗前，給他發一本附有範例與規範的公司規章手冊 (System Prompt)，確保他不會亂來』。", "layout": "全螢幕代碼塊，展示 LlmAgent 實例化過程，重點高亮 instruction 欄位的動態生成方法。"}, {"id": "171", "chapter": "第十二章", "pdf_page": "41", "title": "異步客戶端 UI 生成流", "takeaway": "使用 InMemoryRunner 建立異步會話，啟動智能體生成 UI 封包！", "details": ["實作 create_ui 異步函數，傳入用戶意圖與數據。", "調用 runner.session_service.create_session 建立對話，並異步監聽執行事件流。"], "metaphor": "👉 就像是『撥通了客服專線，啟動一個專屬的通話窗口，然後一邊聽對方說話一邊用筆記下關鍵內容』。", "layout": "全螢幕代碼塊，展示 async def create_ui 原始碼，高亮 InMemortRunner 與 session 建立邏輯。"}, {"id": "172", "chapter": "第十二章", "pdf_page": "41", "title": "解析 <a2ui-json> 標籤", "takeaway": "利用 parse_response() 精確提取 XML 格式包覆的 A2UI JSON 數據！", "details": ["模型輸出的文本中可能夾雜無關的文字說明與 Markdown 標記。", "將輸出包裹於 <a2ui-json> 標籤中，解析器只抓取標籤內的 JSON 進行結構驗證。"], "metaphor": "👉 就像是『在貨物箱外貼上黃色封條，收貨員只拆開有封條的箱子 (標籤)，忽略其他無關包裝』。", "layout": "左側為含有 Markdown 文字與 <a2ui-json> 標籤的 LLM 原始輸出，中間為 parse_response 提取器，右側為純淨的 JSON 物件。"}, {"id": "173", "chapter": "第十二章", "pdf_page": "41", "title": "Schema 驗證與重試機制", "takeaway": "若 JSON 結構未通過 Schema 驗證，攔截異常並向模型發起自動重連重試！", "details": ["在 try-except 區塊中調用 catalog.validator.validate(m) 進行校對。", "若拋出 ValidationError，將錯誤路徑與訊息拼裝入 query 中，自動要求模型修正。"], "metaphor": "👉 就像是『檢查考卷：老師發現第 3 題算錯了 (ValidationError)，把考卷退給學生並指出錯誤 (重試)，讓學生修正』。", "layout": "流程圖。展示 JSON 生成 -> 驗證失敗 -> 抓取錯誤路徑 -> 拼接錯誤訊息 -> 重新發送給 LLM (Max Retries: 3)。"}, {"id": "174", "chapter": "第十二章", "pdf_page": "42", "title": "實作除錯與重試代碼", "takeaway": "在 Python 中實作自動捕獲 ValidationError 並反饋給模型的修復迴圈！", "details": ["捕獲 jsonschema.ValidationError，解析 e.absolute_path 並組裝反饋 query。", "若超過最大重試次數 (max_retries = 3)，則拋出 ValueError 中斷流程，保障安全性。"], "metaphor": "👉 就像是『給工廠的機械手臂寫一段容錯代碼，如果抓取零件歪了，自己調整姿勢再抓一次，試了三次還不行就拉警報』。", "layout": "全螢幕代碼塊，展示 Snippet 6 中 ValidationError 捕獲、路徑提取與 query 重新拼接的核心代碼。"}, {"id": "175", "chapter": "第十二章", "pdf_page": "42", "title": "安全降級 (Graceful Fallback)", "takeaway": "在生產環境中，若 UI 生成徹底失敗，必須優雅降級回純文字響應！", "details": ["LLM 的輸出是隨機的，即使有重試也無法保證 100% 通過 Schema 驗證。", "外包裝 create_ui() 必須實作 try-except，一旦失敗則顯示純文字，絕對不能讓頁面白屏。"], "metaphor": "👉 就像是『商場的電扶梯壞了，它依然可以當作普通的樓梯給人走 (優雅降級)，不會讓顧客卡在半空中』。", "layout": "左側為破碎的 UI 圖示，中間為降級過濾器，右側為美觀排版的純文字響應畫面，標有『資料加載中，先呈現文字版』。"}, {"id": "176", "chapter": "第十二章", "pdf_page": "42", "title": "混合輸出 (Hybrid Output) 設計", "takeaway": "在響應中同時提供 data 與 ui 欄位，給予消費端最大的適配彈性！", "details": ["API 客戶端 (如機器智能體) 忽略 ui 欄位，直接抓取 data 欄位進行數據處理。", "人類面向的客戶端 (如瀏覽器) 則讀取 ui 欄位，渲染精美的 A2UI 互動卡片。"], "metaphor": "👉 就像是『買泡麵：包裝裡既有調味料包 (Data，精簡好處理)，也有漂亮的料理包 (UI，豐富好看)』，各取所需。", "layout": "左側為 Hybrid Output 的 JSON 結構，右側分岔出兩條路徑：一條通往 Machine Client (純 Data)，一條通往 Human UI (A2UI 渲染)。"}, {"id": "177", "chapter": "第十二章", "pdf_page": "43", "title": "自主商務 Protocols 的召喚", "takeaway": "智能體不僅要能讀取數據與渲染 UI，更必須執行帶有實體財務影響的行動！", "details": ["先前的 MCP、A2A 與 A2UI 主要解決了『唯讀 (Read)』與人機界面溝通的痛點。", "隨著智能體演進，我們必須打通自主採購與付款通道，讓 Agent 能合法花錢。"], "metaphor": "👉 就像是『實習生不僅要會寫報告和畫圖表，公司還得給他採購權，讓他能自己去買文具和訂便當』。", "layout": "左側為代表唯讀的眼鏡圖示（MCP, A2A, A2UI），右側為代表實體交易的購物車與錢包圖示（AP2, UCP），中間有巨大的連接箭頭。"}, {"id": "178", "chapter": "第十二章", "pdf_page": "43", "title": "商務協定的三大核心特徵", "takeaway": "商務協定具備強型別 Schema、安全沙盒與消除整合債三大商業優勢！", "details": ["1. Typed Schemas：嚴格定義商品、購物車、發票與授權合約的數據格式。", "2. Security & Sandbox：確保在交易談判期與付款執行期，資金均受嚴密保護。", "3. Vendor Neutrality：消除廠商鎖定，智能體能跨多個電商與金流平台自由交易。"], "metaphor": "👉 就像是『刷卡交易標準 (EMV Co)』，不論你在哪家商店刷哪張信用卡，底層安全認證和金額傳遞都是統一安全的。", "layout": "三分欄佈局。左分欄 Typed Schema，中分欄 Security，右分欄 Vendor Neutrality，配合精美圖示說明。"}, {"id": "179", "chapter": "第十二章", "pdf_page": "44", "title": "剖析 AP2 與 UCP 的協作", "takeaway": "UCP 作為智能商務大腦決定買什麼，AP2 作為錢包決定如何安全付款！", "details": ["UCP 負責管理詢價、目錄檢索、加入購物車與發起結帳流程。", "AP2 負責處理金流授權、校對交易限額，並簽署加密 promissory note。"], "metaphor": "👉 UCP 像是『你去超市推著推車挑選零食的腦袋』，AP2 則是『放在你口袋裡、限定今天只能花 500 元的錢包』。", "layout": "UCP 與 AP2 協作關係圖 (Figure 8)。左側為 ADK Agent，中間為 UCP (Checkout, Cart, Order)，右側為 AP2 授權流連接 Agentic Commerce。"}, {"id": "180", "chapter": "第十二章", "pdf_page": "45", "title": "UCP 情境案例：半夜點餐", "takeaway": "以 2:00 AM 宿舍點餐為例，看 UCP 如何實現完全自動化的點餐詢價！", "details": ["AI 智能體不需要開啟網頁去點擊 poorly-designed 的餐廳選單與加點按鈕。", "直接透過 UCP 向校園所有餐廳的後台發送機器語言查詢：『還開著嗎？有素捲餅嗎？』"], "metaphor": "👉 就像是『你有一個能直接接入所有餐廳後台系統的萬能點餐語音助理』，一秒問完所有店家的庫存與外送時間。", "layout": "左側為餓肚子的學生，中央為 AI Assistant 通過 UCP 協議發送點餐 JSON 包，右側為餐廳後台回傳的外送時間與稅費清單。"}, {"id": "181", "chapter": "第十二章", "pdf_page": "45", "title": "UCP 消除介面適配地獄", "takeaway": "UCP 標準化商務對話，讓模型無需為每家電商平台編寫專用網頁爬蟲！", "details": ["在 UCP 出現前，開發者得為淘寶、亞馬遜各自寫一套複雜的前端網頁解析與點擊代碼。", "UCP 將商品目錄、購物車操作與結帳接口統一為標準 API 格式，實現一勞永逸。"], "metaphor": "👉 就像是『電商平台的通用標準接口』，只要大家都支援這個接口，AI 就能用同一個語法在任何平台下單，不用模擬滑鼠去點擊網頁。", "layout": "左欄展示 UCP 介面與各大平台（淘寶、亞馬遜）圖示，右欄為統一的 API 數據對接流，消除網頁模擬爬蟲的紅字警告。"}, {"id": "182", "chapter": "第十二章", "pdf_page": "46", "title": "AP2：帶有嚴格限額的副卡", "takeaway": "AP2 協定提供嚴格的 Mandate 授權，確保智能體絕不會超額消費！", "details": ["你絕對不能把你的無額度黑卡金鑰直接貼給 LLM，那是財務自殺。", "在 AI 出發採購前，你在本地為它簽署一條數位規則：『最多只能在 Taco Bell 花費 25 元』。"], "metaphor": "👉 就像是『家長給小孩一張限定只能在學校合作社買文具、每天限額 100 元的學生信用卡』，安全可控。", "layout": "左側為帶有 $25 Limit 的 AP2 數位信用卡，中央為授權 Mandate 鎖頭，右側為商家收銀台。"}, {"id": "183", "chapter": "第十二章", "pdf_page": "46", "title": "AP2 核心防禦：The Handshake", "takeaway": "結帳時不顯示實體卡號，只出示人類簽署的加密數位承諾書！", "details": ["智能體向商家銀行展示一個經過你私鑰加密簽名的 Promissory Note (期票)。", "銀行能立刻驗證該數位簽章的真實性，並確認這筆 18.50 元的交易已獲得人類明確授權。"], "metaphor": "👉 就像是『支票』，你不用把你的銀行存摺交給商家，你只需在支票上寫下金額並簽名，商家拿著支票去銀行就能兌現領錢。", "layout": "時序圖。展示 Client -> 簽名期票 -> 商家 -> 商家銀行 -> 驗證簽章並扣款的加密握手流程。"}, {"id": "184", "chapter": "第十二章", "pdf_page": "46", "title": "AP2 核心防禦：防範隱藏收費", "takeaway": "商家若試圖暗中加價，AP2 會因為違反 Mandate 授權而瞬間阻斷交易！", "details": ["若餐廳試圖在結帳後，偷偷把 18.50 元的賬單改為 50.00 元扣款。", "AP2 協議檢測到金額超出了你當初簽署的 25.00 元上限，立刻在金流層自動拒絕付款。"], "metaphor": "👉 就像是『結帳時收銀員多刷了錢，你的手機立刻彈出警報並自動凍結該次交易』，絕不讓商家得逞。", "layout": "左側展示餐廳試圖扣款 $50 的惡意請求，中間為標有 $25 Max Limit 的紅盾阻斷器，右側為 Blocked 警示圖示。"}, {"id": "185", "chapter": "第十二章", "pdf_page": "46", "title": "UCP 與 AP2 的對比矩陣", "takeaway": "深刻理解腦 (UCP) 與錢包 (AP2) 的分工，是實作自主商務架構的前提！", "details": ["UCP 關注業務層：管理商品、目錄檢索、詢價並將東西放入購物車。", "AP2 關注財務層：處理授權、管理限額、驗證數位簽章並防止被詐騙。"], "metaphor": "👉 就像是『去買菜：大腦負責挑菜、跟老闆講價 (UCP)；手裡的錢包負責數鈔票、付錢並拿發票 (AP2)』。", "layout": "精緻對比表格 (Table 3)。包含大腦 vs. 錢包、商業對接 vs. 金流對接、統一整合 vs. 安全授權等維度的詳細比對。"}, {"id": "186", "chapter": "第十二章", "pdf_page": "47", "title": "總結：從技工到系統架構師", "takeaway": "採用 MCP, A2A, A2UI, AP2, UCP，擺脫脆弱的硬編碼，升級為 AI 總架構師！", "details": ["智能體工程不僅僅是寫寫 Prompt，而是利用工業標準協議建構自動化勞動力系統。", "這些開放協議打通了工具、智能體協作、人機界面與金融交易，解鎖全新的規模經濟。"], "metaphor": "👉 就像是從『在路邊修腳踏車的技工』升級為『設計整座城市高鐵交通網絡與調度系統的總規劃師』。", "layout": "左側為雜亂的 API 焊接工具箱，右側為閃耀著科技光芒的 Global Autonomous Workforce 網絡架構圖。"}, {"id": "187", "chapter": "第十二章", "pdf_page": "47", "title": "第十二章邏輯關係回顧", "takeaway": "A2UI 渲染模式、Canvas 協作與 AP2/UCP 商務協議，完成了智能體生態的最後拼圖！", "details": ["A2UI Catalog 與 Adjacency 結構 -> 雙模式渲染與 Canvas 互動時序。", "自主商務 UCP 大腦與 AP2 安全錢包 -> 限制額度與加密數位承諾書 -> 終極結論。"], "metaphor": "👉 就像是『工廠不僅有機器、有無線電、有收費站，還正式打開了大門，開始向全球客戶提供高效的自動化服務』。", "layout": "全螢幕流程圖，展示第十二章也是全書的終極關聯：工具連接 -> 智能體協作 -> 人機界面渲染 -> 商業支付交易 -> 虛擬員工隊伍成型。"}, {"id": "188", "chapter": "第九章(進階)", "pdf_page": "28", "title": "A2A 進階：多級委派機制", "takeaway": "在複雜業務中，遠端 Agent 可繼續向下委派任務，形成樹狀協作鏈！", "details": ["Orchestrator 委派任務給法務 Agent，法務 Agent 可進一步委派給合約審查與稅務 Agent。", "A2A 協議通過 session_id 與 parent_message_id 追蹤整個呼叫鏈，防止無限循環。"], "metaphor": "👉 就像是『總經理把專案交給經理，經理又拆解工作分給課長與專員』，層級分明，權責清晰。", "layout": "全螢幕樹狀結構圖。頂部為 Orchestrator，向下分岔為 Specialist 1，Specialist 1 再向下分岔為 Sub-Specialist A 與 B。"}, {"id": "189", "chapter": "第九章(進階)", "pdf_page": "28", "title": "A2A 回調 (Callback) 處理", "takeaway": "利用異步回調機制，在遠端任務完成時實時通知調用端！", "details": ["調用端發起請求時，在 A2A Envelope 中附加本地監聽的 callback_url。", "當遠端 Agent 執行完耗時 10 分鐘的任務後，主動向該 url 發送 POST 請求交件。"], "metaphor": "👉 就像是『去咖啡廳點餐，店員給你一個取餐號碼牌 (Callback URL)，餐點做好時號碼牌會震動閃爍通知你取餐』。", "layout": "左側為 Client，中間為帶有 Callback 箭頭的異步等待區，右側為執行完畢發送回調的 Server。"}, {"id": "190", "chapter": "第九章(進階)", "pdf_page": "28", "title": "A2A 傳輸加密與 TLS 雙向認證", "takeaway": "強制實施 mTLS 雙向認證，確保 A2A 通信的絕對機密性與不可篡改！", "details": ["不僅客戶端要校驗伺服器憑證，伺服器也必須校驗客戶端憑證 (mutual TLS)。", "防範中間人攻擊 (MITM) 與未授權的流氓智能體偽造指令入侵。"], "metaphor": "👉 就像是『軍隊的口令對答：哨兵喊出哨口口令 (Server Auth)，來人也必須對上暗號 (Client Auth) 才能通過』。", "layout": "左側 Client 憑證，右側 Server 憑證，中間在 TLS 握手層進行雙向比對，顯示綠色驗證成功盾牌。"}, {"id": "191", "chapter": "第十章(進階)", "pdf_page": "30", "title": "x402 機器支付的閃電網絡底層", "takeaway": "x402 微支付底層首選閃電網絡，實現毫秒級、零手續費的資金交割！", "details": ["傳統信用卡單筆手續費過高，不適合機器之間分角美分的微交易。", "閃電網絡提供去中心化的加密貨幣通道，支持單次調用 0.001 美元的極微支付。"], "metaphor": "👉 就像是『高速公路上的 ETC 感應，每過一個收費站自動扣幾分錢，不需要每次都下車刷卡簽名』。", "layout": "左側為 Agent 閃電錢包，中間為點對點支付通道，右側為 API 服務商，展示毫秒級扣款流程。"}, {"id": "192", "chapter": "第十章(進階)", "pdf_page": "30", "title": "解析 L402 Macaroon 憑證", "takeaway": "L402 協議利用 Macaroon 憑證將付款證明與 API 授權完美綁定！", "details": ["Macaroon 是一種具備高度限制性、可在傳輸中動態附加限制條件的加密憑證。", "憑證中寫明：『此付款證明僅授權調用 get_sales_dashboard 工具，且限當天有效』。"], "metaphor": "👉 就像是『遊樂園的限定日票：上面蓋有今日日期，且只准你坐雲霄飛車，不能拿去坐摩天輪』。", "layout": "一個帶有加密印記的 Macaroon 圖示，高亮顯示其內含的 Caveats (限制條款) JSON 結構。"}, {"id": "193", "chapter": "第十章(進階)", "pdf_page": "31", "title": "M2M 交易的異步對帳單", "takeaway": "為機器微交易建立實時審計系統，防止智能體因程序 bug 造成財務透支！", "details": ["在金流層配置硬性熔斷機制 (Circuit Breaker)，例如單日累計付款超限即阻斷。", "定期產出機器對帳單，自動比對調用成功次數與實際扣款明細是否一致。"], "metaphor": "👉 就像是『給智能體裝上一個保險絲 (熔斷器)，如果水管漏水流量太大 (扣款異常)，保險絲會自動燒斷防大火』。", "layout": "左側為帶有『熔斷器/保險絲』字樣的交易安全控制面板，右側展示對帳單匹配的核對勾選示意圖。"}, {"id": "194", "chapter": "第十一章(進階)", "pdf_page": "33", "title": "A2UI 事件反饋閉環", "takeaway": "用戶點擊 UI 按鈕觸發 Action，瀏覽器將其封裝為 Event 傳回給 Agent！", "details": ["當用戶點擊 A2UI 渲染出的 Button，客戶端不執行本地 action，而是捕獲事件。", "將事件名稱與參數包裝成 A2UI 消息回傳給智能體，驅動智能體下一輪推理。"], "metaphor": "👉 就像是『遊戲手把：你按了 A 鍵 (UI 點擊)，手把把信號傳給主機 (回傳事件)，主機裡的遊戲角色跳了一下』。", "layout": "左側為瀏覽器渲染的 Button，中間有一條名為 A2UI Event 的向左箭頭，右側為接收事件的大腦。"}, {"id": "195", "chapter": "第十一章(進階)", "pdf_page": "33", "title": "A2UI 的跨平台渲染適配", "takeaway": "同一個 A2UI JSON，在 React、Flutter 與 Jetpack Compose 中的具體映射實作！", "details": ["Web 端 (React)：將 component='Button' 映射為 <MuiButton onClick={onAction}/>。", "Android 端 (Compose)：映射為 Button(onClick = { sendEvent() }) { Text(...) }。", "藉此確保 UI 元件庫完全遵循各平台的原生交互習慣與流暢度。"], "metaphor": "👉 就像是『世界語翻譯：同一句問候語，在美國人聽來是 Hello，在法國人聽來是 Bonjour』，完全在地化。", "layout": "三分欄佈局。分別展示同一 JSON 片段在 React, Flutter, Compose 三種前端代碼的具體對應適配器語法。"}, {"id": "196", "chapter": "第十二章(進階)", "pdf_page": "36", "title": "自定義 Catalog 組件開發", "takeaway": "當 basic 元件不敷使用時，遵循 A2UI 標準開發安全的自定義組件！", "details": ["在 XML Schema 中定義新組件 (如: CustomSalesChart) 的屬性與輸入參數限制。", "將組件註冊至客戶端的 A2UI Catalog，確保智能體能以相同語法聲明調用。"], "metaphor": "👉 就像是『在樂高積木箱裡自己用 3D 列印造出了一顆特殊形狀的積木，只要卡槽規格一樣，就能接在一起』。", "layout": "左側為 Custom Component Schema 定義，右側為在渲染器中註冊的代碼，中間為連結鎖頭象徵安全註冊。"}, {"id": "197", "chapter": "第十二章(進階)", "pdf_page": "37", "title": "資料綁定語法深挖", "takeaway": "使用 path 指向資料模型中的具體節點，避免拼接字符串帶來的 Token 浪費！", "details": ["若使用 f-string 拼接，每次數據微調都需要 LLM 重新生成整個 UI JSON，極其昂貴。", "使用 {'path': '/regions/0/sales'}，客戶端在接收到 updateDataModel 時會自動尋址替換。"], "metaphor": "👉 就像是『在合約書中寫：請參照附件一 (Path)，而不是把附件一的幾萬字條款在合約中重複抄寫十遍』。", "layout": "左側為 A2UI 元件樹 JSON，高亮顯示 path 節點，右側為 Data Model JSON，以虛線表示對應尋址路徑。"}, {"id": "198", "chapter": "第十二章(進階)", "pdf_page": "40", "title": "A2uiSchemaManager 提示詞優化", "takeaway": "優化 SchemaManager 生成的指令，大幅縮減上下文 Token 的佔用體積！", "details": ["默認生成的 Prompt 包含完整的元件 Schema，體積龐大，容易耗盡 Token。", "實作精簡化壓縮算法 (minify_schema)，只保留模型決策必需的屬性聲明。"], "metaphor": "👉 就像是『考試前整理的精簡版小抄 (Minified Prompt)，只留下公式和關鍵字，把廢話全部刪掉』。", "layout": "左欄展示 Minify 前的巨大 schema (紅字 Token 消耗大)，右欄展示 Minify 後的緊湊 schema (綠字 節省 60% Token)。"}, {"id": "199", "chapter": "第十二章(進階)", "pdf_page": "41", "title": "防範 LLM 輸出截斷與異常處理", "takeaway": "在 create_ui 異步流中，實作完整性校對，嚴防殘缺的 JSON 導致渲染崩潰！", "details": ["大模型在輸出長 JSON 時容易因為 Token 上限或網絡中斷而產生殘缺代碼 (如缺少右括號)。", "在解析前使用正則表達式或狀態堆疊檢查 JSON 的閉合完整性，殘缺則直接觸發修復重試。"], "metaphor": "👉 就像是『工廠出貨檢驗：發現箱子沒封好、少了一角 (殘缺 JSON)，立刻退回生產線重新打包，不送出工廠』。", "layout": "流程圖。展示：接收 Stream -> 閉合檢測 -> 發現殘缺 -> 拋出 ParseError -> 自動 Retry。"}, {"id": "200", "chapter": "第十二章(進階)", "pdf_page": "45", "title": "UCP 購物車管理底層", "takeaway": "UCP 協議對應的購物車管理包含 add_item、remove_item 與 update_qty 狀態流！", "details": ["嚴格採用狀態同步機制，確保智能體本地的購物車狀態與電商伺服器 100% 同步。", "在金流層發起 checkout 前，必須進行 final price validation，校對總金額。"], "metaphor": "👉 就像是『去超商買東西，你在購物籃裡拿進拿出，收銀台的電腦會實時同步明細與金額，最後刷卡前做最終核對』。", "layout": "狀態移轉圖。展示購物車元件從 Empty -> Items Added -> Final Validation -> Checked Out 的生命週期流程。"}, {"id": "201", "chapter": "第十二章(進階)", "pdf_page": "46", "title": "AP2 數位期票的加密驗證", "takeaway": "數位期票採用 SHA-256 加密雜湊與私鑰簽名，防止篡改與重放攻擊！", "details": ["Promissory Note 中寫有唯一 nonce 與時間戳記，商家無法重複提交同一張期票扣款 (防重放)。", "商家銀行利用你的公鑰解密簽章，校對雜湊值，秒級驗證交易合法性。"], "metaphor": "👉 就像是『蓋有防偽水印與唯一編號的支票，商家拿去銀行兌現，銀行核對水印和印鑑章，對不上就報警』。", "layout": "加密驗證流程。左側展示期票內容 -> SHA-256 -> 私鑰簽名 -> 生成數位簽章，右側展示公鑰解密與雜湊比對。"}, {"id": "202", "chapter": "第十二章(進階)", "pdf_page": "46", "title": "商務交易中的異常與退款", "takeaway": "實作 UCP 與 AP2 的退款與交易回滾協議，保障商務交易的最終容錯性！", "details": ["當訂單因庫存不足而失敗，UCP 觸發 CancelOrder，AP2 發起對應的授權撤銷與退款流。", "確保智能體在遇到不可抗力時，能安全地退回資金，不造成企業財產損失。"], "metaphor": "👉 就像是『你在自動販賣機買飲料，貨賣光了沒掉下來，機器自動退回你的零錢，不會吞你的錢』。", "layout": "流程圖。展示：訂單異常 -> 觸發 Cancel -> 撤銷 AP2 授權 -> 釋放卡片額度 -> 回傳異常日誌給 Orchestrator。"}, {"id": "203", "chapter": "第一章(深挖)", "pdf_page": "6", "title": "智能體工程與軟體工程的融合", "takeaway": "智能體工程並非取代傳統軟體工程，而是其在高維度空間的延伸與融合！", "details": ["傳統代碼 (Raw Code) 充當智能體系統的微觀器官與具體操作工具。", "智能體系統 (Agentic System) 則扮演宏觀的協調者與動態決策大腦。"], "metaphor": "👉 就像是『有了自動駕駛系統 (智能體)，車子依然需要引擎、輪胎和剎車系統 (傳統軟體) 才能前進』。", "layout": "雙環交疊圖。左環為 Software Engineering，右環為 Agentic Engineering，重疊區標示為 Hybrid Systems。"}, {"id": "204", "chapter": "第一章(深挖)", "pdf_page": "7", "title": "工業標準如何消滅整合債", "takeaway": "歷史經驗證明，每一次標準接口的誕生，都會帶來產業效率的萬倍爆發！", "details": ["沒有標準插座前，世界電器製造業舉步維艱；沒有集裝箱前，全球航運耗時數月。", "五大協定標準化了 AI 交互，將徹底消滅開發者身上的整合代碼債務。"], "metaphor": "👉 就像是『螺絲釘標準化』，讓全球汽車零件能跨廠裝配，直接開啟了現代汽車工業的大量生產時代。", "layout": "歷史事件時間軸，標註：插座標準化 -> 貨櫃標準化 -> TCP/IP 標準化 -> A2A/MCP 標準化，展現效率的跳躍式上升。"}, {"id": "205", "chapter": "第二章(深挖)", "pdf_page": "10", "title": "MCP Server 的運行時隔離", "takeaway": "在本地運行 MCP 時，強制將子進程運行在極低權限的專用 OS 用戶下！", "details": ["防止 LLM 因惡意注入而生成並執行指令：rm -rf /。", "為 MCP 進程配置唯讀環境變數，並利用 OS 的 sandbox 機制進行資源限額。"], "metaphor": "👉 就像是『把新來的見習生安排在玻璃隔間的辦公室裡，他只能看資料，不准碰主控制台』。", "layout": "左側為 Host Process (高權限)，中間為 OS 沙盒牆，右側為 Low-privilege OS User 運行的 MCP Server 子進程。"}, {"id": "206", "chapter": "第二章(深挖)", "pdf_page": "11", "title": "GCP Agent Registry 底層機制", "takeaway": "企業級 Registry 採用 GCP IAM 控制，實現細粒度的 Agent 權限託管！", "details": ["利用 IAM Service Account 與 Workload Identity 進行跨智能體認證。", "註冊表自動為每次 A2A 連接分發短效 token，防止長期密鑰洩漏。"], "metaphor": "👉 習慣是『公司內部的通行證系統，保安會根據你的部門發給你一張限時 8 小時的臨時門禁卡』。", "layout": "左側展示 GCP 鑰匙與鎖頭圖示，中間為發放臨時 Token 的 Registry，右側為驗證成功的 A2A Agent。"}, {"id": "207", "chapter": "第三章(深挖)", "pdf_page": "13", "title": "O(N x M) 對比的數學建模", "takeaway": "建立整合成本的數學模型，證明 MCP 在 N, M 大於 3 時的絕對經濟性！", "details": ["設單次對接開發成本為 C，維護係數為 k。傳統成本：SE = C * N * M * k。", "MCP 成本：SM = C * (N + M) * k。當 N, M 增加，SM 遠遠小於 SE，優勢呈幾何級放大。"], "metaphor": "👉 就像是『開會：N 個人互相私聊需要打 N*(N-1)/2 通電話 (指數)；拉一個群組開會只需 1 個群 (線性)』。", "layout": "全螢幕數學函數對比圖，以曲線展示 N x M 的陡峭上升與 N + M 的平緩線性延伸，交叉點後標註經濟優勢區。"}, {"id": "208", "chapter": "第三章(深挖)", "pdf_page": "14", "title": "stdio 與處理器管道緩衝區", "takeaway": "實作 stdio 傳輸時，務必在代碼中強制 flush 緩衝區以防數據死鎖！", "details": ["許多語言 (如 Python) 的 stdout 默認會緩衝數據，直到緩衝區滿了才送出。", "這會導致 Client 與 Server 都在等待對方說話，引發死鎖；必須調用 sys.stdout.flush()。"], "metaphor": "👉 就像是『寫信寫了一半裝進信封，卻放在桌上沒寄出去 (緩衝區未刷出)，收信人等不到信，你又在等他回信』。", "layout": "左側展示積壓在 Buffer 中的數據包，中間高亮顯示 flush() 命令，右側為流出管道抵達對端的數據。"}, {"id": "209", "chapter": "第四章(深挖)", "pdf_page": "15", "title": "MCP 故障的五大常見錯誤碼", "takeaway": "熟記 JSON-RPC 2.0 標準錯誤碼，秒級定位網路、語法或權限問題！", "details": ["-32700 (Parse Error)：JSON 格式損壞；-32600 (Invalid Request)：請求格式不符。", "-32601 (Method Not Found)：工具名稱寫錯；-32602 (Invalid Params)：參數未過 schema 驗證。"], "metaphor": "👉 就像是『郵局的退信印章：查無此人 (Method Not Found)、地址寫錯 (Invalid Params)、信封破損 (Parse Error)』。", "layout": "精美表格，列出錯誤碼、官方名稱、觸發原因與具體的排查工具指南。"}, {"id": "210", "chapter": "第五章(深挖)", "pdf_page": "18", "title": "單體智能體的 Attention Dilution", "takeaway": "大模型在超長 prompt 中會產生 Attention Dilution，導致推理邏輯渙散！", "details": ["模型注意力會集中在 Prompt 的開頭與結尾，中間的大段工具 Schema 容易被忽視 (Lost in the Middle)。", "拆解為專門 Sub-agent 讓每個 LLM 面對極短、專注的指令，推理準確率大幅上升。"], "metaphor": "👉 就像是『把一整本厚厚的教科書一次背完 (稀釋)，不如每天只讀一頁、只記三個重點 (專注)』。", "layout": "一條長條代表 Prompt，兩端高亮亮綠色，中間暗灰色（標有 Lost in the Middle），右側展示拆解後的高亮專注塊。"}, {"id": "211", "chapter": "第五章(深挖)", "pdf_page": "20", "title": "內部專門化中的 Memory Leak", "takeaway": "在共享運行時的多 Agent 單體中，注意防止狀態串音與內存洩漏！", "details": ["由於 sub-agents 共享 runtime，一個 sub-agent 的變數污染可能影響其他 agent 決策。", "在每次任務切換時，必須明確執行對話上下文與局部變數的重置 (Clear Context)。"], "metaphor": "👉 就像是『共用同一個筆記本，如果前一個人寫的草稿沒擦乾淨，後一個人看筆記時就會被舊草稿誤導』。", "layout": "左側展示寫滿雜亂字跡的共享筆記本（標示記憶污染），右側展示使用橡皮擦將筆記擦乾淨的重置流程。"}, {"id": "212", "chapter": "第六章(深挖)", "pdf_page": "22", "title": "A2A Proto3 協議定義實例", "takeaway": "看 A2A 底層如何用 Protocol Buffers 定義標準對話消息體！", "details": ["使用 message Envelope 定義基礎元數據結構，使用 enum 定義 Negotiation 狀態。", "Proto3 提供超小體積的二進位序列化，大幅降低跨網路傳輸的延遲與帶寬佔用。"], "metaphor": "👉 就像是『把包裹塞進真空壓縮袋 (Proto3 二進位)，體積縮小 80%，運費和寄送速度都大幅提升』。", "layout": "全螢幕代碼塊，展示 A2A envelope.proto 的定義源代碼，高亮欄位類型與狀態枚舉值。"}, {"id": "213", "chapter": "第七章(深挖)", "pdf_page": "24", "title": "GOTO 瓶頸的死鎖分析與預防", "takeaway": "為 A2A 連接實作 Keep-Alive 與心跳檢測，防止控制流永久死鎖！", "details": ["當外部協作 Agent 斷線，Client 會陷入無期等待，造成線程死鎖。", "在 A2A 連接層配置 10 秒的心跳檢測 (Heartbeat)，一旦斷線立即回滾控制流並報警。"], "metaphor": "👉 就像是『登山隊員通話，每隔 5 分鐘要呼叫一聲『收到請回答』(Heartbeat)，如果對面沒聲音就立刻啟動救援』。", "layout": "左側 Client，右側 Server，中間有多個來回的 Heartbeat 虛線，一條斷裂的線觸發紅色的 Timeout 回滾。"}, {"id": "214", "chapter": "第八章(深挖)", "pdf_page": "25", "title": "Agent Card YAML 完整實例", "takeaway": "一份生產級的 Agent Card YAML 實例，包含完整的權限與安全政策聲明！", "details": ["寫明 capabilities 標籤，聲明安全政策 (data_boundary: US_ONLY)。", "指定協議入口點以及所需要的 IAM roles，供 Registry 進行安全審查。"], "metaphor": "👉 就像是『一份合規的國際貿易報關單，上面蓋滿了海關所需的各種規格、產地與安檢印章』。", "layout": "全螢幕 YAML 代碼塊，展示生產級 Agent Card 檔案的具體欄位與規範化配置語法。"}, {"id": "215", "chapter": "第十二章(深挖)", "pdf_page": "47", "title": "智能體大航海時代的到來", "takeaway": "五大協定是智能體時代的基礎航路，邀您一同成為 AI 總航海架構師！", "details": ["正如網際網路標準開啟了資訊時代，智能體標準將開啟自主商務與虛擬勞動力時代。", "掌握 MCP、A2A 與 A2UI，你將站在 AI 工程的浪潮之巔，編排未來的世界。"], "metaphor": "👉 就像是『哥倫布拿到了新航海圖與指南針 (五大協定)，向著未知的黃金新大陸 (智能體未來) 揚帆起航』。", "layout": "左側為復古的航海羅盤圖示，右側為代表未來的數位星座網絡，下方以大字標明：『未來已來，由你編排』。"}];
+    </script>
+
+    <!-- 投影片核心邏輯 -->
+    <script>
+        let currentMode = 'overview'; // 'overview' | 'detail'
+        let currentSlideIndex = 0;
+        let activeTheme = 'light';
+        
+        // DOM Elements
+        const slideWrapper = document.getElementById('slide-wrapper');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const btnOverview = document.getElementById('btn-overview');
+        const btnDetail = document.getElementById('btn-detail');
+        const chapterSelector = document.getElementById('chapter-selector');
+        const slideCounterText = document.getElementById('slide-counter-text');
+        const btnTheme = document.getElementById('btn-theme');
+        const btnFullscreen = document.getElementById('btn-fullscreen');
+
+        // 章節定義
+        const chapters = [
+            { id: 'ch1', name: '第一章：Agent 時代的範式轉移 (PDF 6-9)' },
+            { id: 'ch2', name: '第二章：MCP 發現、配置與連接 (PDF 10-12)' },
+            { id: 'ch3', name: '第三章：破解 NxM 整合危機與傳輸層 (PDF 13-14)' },
+            { id: 'ch4', name: '第四章：MCP 伺服器除錯與最佳實務 (PDF 15-17)' },
+            { id: 'ch5', name: '第五章：從單體到微服務的多 Agent 演進 (PDF 17-21)' },
+            { id: 'ch6', name: '第六章：A2A 協定與 Build vs. Buy 抉擇 (PDF 21-22)' },
+            { id: 'ch7', name: '第七章：Bounded 與 Unbounded 領域 (PDF 23-24)' },
+            { id: 'ch8', name: '第八章：虛擬員工、Agent Card 與 Registry (PDF 24-26)' },
+            { id: 'ch9', name: '第九章：A2A 協定的落地實作與 ADK (PDF 26-28)' },
+            { id: 'ch10', name: '第十章：AaaS 變現模型與 x402 微支付 (PDF 28-31)' },
+            { id: 'ch11', name: '第十一章：A2UI 界面革命與樂譜架構 (PDF 32-35)' },
+            { id: 'ch12', name: '第十二章：A2UI 元件、雙模式與 AP2/UCP 商務 (PDF 35-47)' }
+        ];
+
+        // 填充章節目錄下拉選單
+        function initChapterSelector() {
+            chapterSelector.innerHTML = '<option value="all">所有章節目錄</option>';
+            chapters.forEach(ch => {
+                const opt = document.createElement('option');
+                opt.value = ch.id;
+                opt.textContent = ch.name;
+                chapterSelector.appendChild(opt);
+            });
+        }
+
+        function getCurrentSlides() {
+            return currentMode === 'overview' ? overviewSlides : detailSlides;
+        }
+
+        // 渲染投影片
+        function renderSlide() {
+            const slides = getCurrentSlides();
+            const slide = slides[currentSlideIndex];
+            
+            // 更新計數器
+            slideCounterText.textContent = `投影片 ${currentSlideIndex + 1} / ${slides.length}`;
+            btnPrev.disabled = currentSlideIndex === 0;
+            btnNext.disabled = currentSlideIndex === slides.length - 1;
+
+            // 特殊處理詳細說明的第二頁：心智圖
+            if (currentMode === 'detail' && currentSlideIndex === 1) {
+                renderMindmapSlide();
+                return;
+            }
+
+            // 一般投影片渲染
+            let html = '';
+            
+            if (currentMode === 'overview') {
+                html = `
+                <div class="slide-header">
+                    <span class="slide-tag">簡報大綱 / Overview</span>
+                    <span class="slide-page-indicator">O-${currentSlideIndex + 1} / 15</span>
+                </div>
+                <div class="slide-body">
+                    <div class="left-content">
+                        <h2 class="slide-title">${slide.title}</h2>
+                        <p class="slide-takeaway">${slide.takeaway}</p>
+                        <h3 class="details-title">論證細節</h3>
+                        <ul class="details-list">
+                            ${slide.details.map(d => `<li class="details-item">${d}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="right-content">
+                        <div class="metaphor-box">
+                            ${slide.metaphor}
+                        </div>
+                        <div class="chart-box">
+                            <div class="chart-header">
+                                <span>版面配置與視覺化建議</span>
+                            </div>
+                            <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px; font-size:13px; color:var(--text-muted); text-align:center; font-weight:500;">
+                                ${slide.layout}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            } else {
+                // 詳細說明模式
+                html = `
+                <div class="slide-header">
+                    <span class="slide-tag">${slide.chapter} / PDF 第 ${slide.pdf_page} 頁</span>
+                    <span class="slide-page-indicator">詳細說明 ${slide.id} / 215</span>
+                </div>
+                <div class="slide-body">
+                    <div class="left-content">
+                        <h2 class="slide-title">${slide.title}</h2>
+                        <p class="slide-takeaway">${slide.takeaway}</p>
+                        <h3 class="details-title">論證細節</h3>
+                        <ul class="details-list">
+                            ${slide.details.map(d => `<li class="details-item">${d}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="right-content">
+                        <div class="metaphor-box">
+                            ${slide.metaphor}
+                        </div>
+                        <div class="chart-box" id="chart-box-container">
+                            <div class="chart-header">
+                                <span>邏輯關係流程圖 (支援滑動與滾輪縮放)</span>
+                                <div class="chart-zoom-controls">
+                                    <button class="zoom-btn" onclick="zoomChart(1.1)">+</button>
+                                    <button class="zoom-btn" onclick="zoomChart(0.9)">-</button>
+                                    <button class="zoom-btn" onclick="resetChartZoom()">⟳</button>
+                                </div>
+                            </div>
+                            <div class="chart-viewport" id="chart-viewport">
+                                <svg class="svg-canvas" id="flowchart-svg" viewBox="0 0 400 200">
+                                    <!-- 流程圖由 JavaScript 動態生成 -->
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            slideWrapper.innerHTML = html;
+
+            // 如果是詳細模式，生成該章節的流程圖
+            if (currentMode === 'detail' && currentSlideIndex !== 1) {
+                generateFlowchart(slide.chapter);
+                initChartPanZoom();
+            }
+        }
+
+        // 渲染心智圖投影片
+        function renderMindmapSlide() {
+            slideWrapper.innerHTML = `
+            <div class="slide-header">
+                <span class="slide-tag">核心章節架構心智圖</span>
+                <span class="slide-page-indicator">詳細說明 2 / 215</span>
+            </div>
+            <div style="flex:1; display:flex; flex-direction:column; position:relative; overflow:hidden;">
+                <div style="padding: 10px 32px; font-size:14px; color:var(--text-muted); font-weight:500;">
+                    全書 12 章節核心互聯網狀心智圖 (可拖曳與滾輪縮放，懸停高亮連結線)
+                    <div style="display:inline-flex; gap:6px; margin-left:20px;">
+                        <button class="zoom-btn" onclick="zoomMindmap(1.1)">+</button>
+                        <button class="zoom-btn" onclick="zoomMindmap(0.9)">-</button>
+                        <button class="zoom-btn" onclick="resetMindmapZoom()">⟳</button>
+                    </div>
+                </div>
+                <div class="mindmap-panel" id="mindmap-container">
+                    <svg id="mindmap-svg" width="100%" height="100%" viewBox="0 0 1000 600">
+                        <g id="mindmap-content-group">
+                            <!-- 節點與連線會動態注入 -->
+                        </g>
+                    </svg>
+                    <div class="mindmap-info-popup" id="mindmap-popup">
+                        <div class="mindmap-info-title" id="popup-title">章節標題</div>
+                        <div class="mindmap-info-desc" id="popup-desc">章節介紹與核心要點...</div>
+                    </div>
+                </div>
+            </div>`;
+            
+            drawMindmap();
+            initMindmapPanZoom();
+        }
+
+        // 繪製心智圖
+        const mindmapData = {
+            center: { x: 500, y: 300, name: "Agent Tools & Interoperability", desc: "本白皮書聚焦於智能體連接工具的 MCP 協定，以及多智能體之間協同通訊的 A2A 協定、A2UI 界面協議、AP2 & UCP 自主商務支付標準。" },
+            nodes: [
+                { id: 1, x: 200, y: 150, name: "Ch 1: 智能體範式轉移", desc: "軟體開發從寫死代碼轉變為編排 AI 生產線。核心公式：Agent = Model + Harness。" },
+                { id: 2, x: 200, y: 300, name: "Ch 2: MCP 的配置與連接", desc: "Vibe Coder 一鍵消費工具。發現 (3大管道) -> 配置 (Scope/Auth) -> 連接握手。" },
+                { id: 3, x: 200, y: 450, name: "Ch 3: 破解 NxM 整合危機", desc: "MCP 將複雜度從 O(N x M) 降為 O(N + M)。解析 stdio 與 SSE 雙傳輸通道原理。" },
+                { id: 4, x: 420, y: 120, name: "Ch 4: MCP 伺服器除錯與規範", desc: "使用 MCP Inspector 除錯原始 JSON-RPC 2.0。Do's & Don'ts 實務與安全防線。" },
+                { id: 5, x: 580, y: 120, name: "Ch 5: 多 Agent 演進與微服務", desc: "單體 Agent 撞上 Monolithic Ceiling。分散式多智能體微服務架構，以 specialization 擴展。" },
+                { id: 6, x: 800, y: 150, name: "Ch 6: A2A 協定通用語", desc: "解決 3P 平台 Agent 技術棧碎片化 (Fragmentation)。A2A 作為 lingua franca 消除維護稅。" },
+                { id: 7, x: 800, y: 300, name: "Ch 7: Bounded 與 Unbounded", desc: "被動工具 (即發即忘) vs 協同夥伴 (多輪協商)。A2A 狀態隔離破解 Orchestrator GOTO 瓶頸。" },
+                { id: 8, x: 800, y: 450, name: "Ch 8: 虛擬員工與 Agent Card", desc: "Agent Card 作為標準履歷 (CV)。Registry 註冊表實現全球 Marketplace 與私有安全共享。" },
+                { id: 9, x: 420, y: 480, name: "Ch 9: A2A ADK 落地代碼", desc: "Exposing Server 供應端 vs Connecting Client 需求端。Google ADK 硬編碼與 Registry 動態發現代碼。" },
+                { id: 10, x: 580, y: 480, name: "Ch 10: AaaS 與 x402 微支付", desc: "GCP Marketplace 混合計費變現生命週期。HTTP 402/L402 免許可機器間微支付與 Proof-of-Payment。" },
+                { id: 11, x: 500, y: 220, name: "Ch 11: A2UI 與 Generative UI", desc: "消除人機 JSON 鴻溝。A2UI 宣告式『樂譜』安全適配渲染，SoC 關注點分離避免 XSS 注入。" },
+                { id: 12, x: 500, y: 380, name: "Ch 12: Basic Catalog 與 AP2/UCP", desc: "18 種基礎元件組裝與 updateDataModel 資料流。UCP 採購大腦與 AP2 限額數位期票錢包協同。" }
+            ],
+            links: [
+                { source: 1, target: 2 },
+                { source: 2, target: 3 },
+                { source: 3, target: 4 },
+                { source: 4, target: 5 },
+                { source: 5, target: 6 },
+                { source: 6, target: 7 },
+                { source: 7, target: 8 },
+                { source: 8, target: 9 },
+                { source: 9, target: 10 },
+                { source: 10, target: 11 },
+                { source: 11, target: 12 },
+                { source: 12, target: 1 },
+                // 互聯線 (跨章節網絡)
+                { source: 2, target: 5 },
+                { source: 3, target: 9 },
+                { source: 6, target: 9 },
+                { source: 7, target: 11 },
+                { source: 10, target: 12 }
+            ]
+        };
+
+        function drawMindmap() {
+            const svgGroup = document.getElementById('mindmap-content-group');
+            let content = '';
+
+            // 1. 繪製中心點到所有節點的放射線 (灰色)
+            mindmapData.nodes.forEach(node => {
+                content += `<line class="mindmap-link" x1="${mindmapData.center.x}" y1="${mindmapData.center.y}" x2="${node.x}" y2="${node.y}" />`;
+            });
+
+            // 2. 繪製節點間的互聯線 (虛線，懸停可高亮)
+            mindmapData.links.forEach((link, idx) => {
+                const s = mindmapData.nodes.find(n => n.id === link.source);
+                const t = mindmapData.nodes.find(n => n.id === link.target);
+                if (s && t) {
+                    content += `<path class="mindmap-link" d="M ${s.x} ${s.y} Q ${(s.x+t.x)/2 + 20} ${(s.y+t.y)/2 - 20} ${t.x} ${t.y}" id="link-${idx}" data-source="${link.source}" data-target="${link.target}"/>`;
+                }
+            });
+
+            // 3. 繪製節點卡片
+            mindmapData.nodes.forEach(node => {
+                content += `
+                <g class="mindmap-node" transform="translate(${node.x}, ${node.y})" onclick="showMindmapPopup(${node.id})" onmouseover="highlightNodeLinks(${node.id}, true)" onmouseout="highlightNodeLinks(${node.id}, false)" id="node-${node.id}">
+                    <rect x="-90" y="-20" width="180" height="40" />
+                    <text x="0" y="5" text-anchor="middle">${node.name}</text>
+                </g>`;
+            });
+
+            // 4. 繪製中心節點
+            content += `
+            <g class="mindmap-node center-node" transform="translate(${mindmapData.center.x}, ${mindmapData.center.y})" onclick="showMindmapPopup('center')">
+                <circle cx="0" cy="0" r="55" fill="var(--primary)" stroke="var(--primary)" />
+                <text x="0" y="-8" text-anchor="middle">Agent Tools &</text>
+                <text x="0" y="12" text-anchor="middle">Interoperability</text>
+            </g>`;
+
+            svgGroup.innerHTML = content;
+        }
+
+        // 高亮節點相連的連線
+        function highlightNodeLinks(nodeId, highlight) {
+            const links = document.querySelectorAll('.mindmap-link');
+            links.forEach(link => {
+                const src = link.getAttribute('data-source');
+                const tgt = link.getAttribute('data-target');
+                if (src == nodeId || tgt == nodeId) {
+                    if (highlight) {
+                        link.classList.add('highlight');
+                    } else {
+                        link.classList.remove('highlight');
+                    }
+                }
+            });
+            const nodeG = document.getElementById(`node-${nodeId}`);
+            if (nodeG) {
+                if (highlight) {
+                    nodeG.classList.add('active');
+                } else {
+                    nodeG.classList.remove('active');
+                }
+            }
+        }
+
+        // 顯示心智圖彈窗說明
+        function showMindmapPopup(id) {
+            const popup = document.getElementById('mindmap-popup');
+            const titleEl = document.getElementById('popup-title');
+            const descEl = document.getElementById('popup-desc');
+
+            if (id === 'center') {
+                titleEl.textContent = mindmapData.center.name;
+                descEl.textContent = mindmapData.center.desc;
+            } else {
+                const node = mindmapData.nodes.find(n => n.id === id);
+                if (node) {
+                    titleEl.textContent = node.name;
+                    descEl.textContent = node.desc;
+                }
+            }
+            popup.style.display = 'block';
+        }
+
+        // 心智圖 Pan & Zoom 實作
+        let mindmapScale = 1;
+        let mindmapX = 0;
+        let mindmapY = 0;
+        
+        function initMindmapPanZoom() {
+            const container = document.getElementById('mindmap-container');
+            const svgContent = document.getElementById('mindmap-content-group');
+            if (!container || !svgContent) return;
+
+            let isDragging = false;
+            let startX, startY;
+
+            container.addEventListener('mousedown', (e) => {
+                // 如果點擊的是節點本身，不觸發拖拽
+                if (e.target.closest('.mindmap-node') || e.target.closest('.mindmap-info-popup')) return;
+                isDragging = true;
+                container.style.cursor = 'grabbing';
+                startX = e.clientX - mindmapX;
+                startY = e.clientY - mindmapY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                mindmapX = e.clientX - startX;
+                mindmapY = e.clientY - startY;
+                updateMindmapTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                if (container) container.style.cursor = 'grab';
+            });
+
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomFactor = 1.1;
+                if (e.deltaY < 0) {
+                    mindmapScale *= zoomFactor;
+                } else {
+                    mindmapScale /= zoomFactor;
+                }
+                mindmapScale = Math.min(Math.max(mindmapScale, 0.4), 3.0);
+                updateMindmapTransform();
+            });
+        }
+
+        function updateMindmapTransform() {
+            const svgContent = document.getElementById('mindmap-content-group');
+            if (svgContent) {
+                svgContent.setAttribute('transform', `translate(${mindmapX}, ${mindmapY}) scale(${mindmapScale})`);
+            }
+        }
+
+        function zoomMindmap(factor) {
+            mindmapScale *= factor;
+            mindmapScale = Math.min(Math.max(mindmapScale, 0.4), 3.0);
+            updateMindmapTransform();
+        }
+
+        function resetMindmapZoom() {
+            mindmapScale = 1;
+            mindmapX = 0;
+            mindmapY = 0;
+            updateMindmapTransform();
+            const popup = document.getElementById('mindmap-popup');
+            if (popup) popup.style.display = 'none';
+        }
+
+
+        // ------------------ 流程圖繪製 ------------------
+        const flowchartData = {
+            '第一章': `
+                <rect x="20" y="75" width="80" height="50" rx="8" fill="var(--primary)" stroke="var(--primary)" />
+                <text x="60" y="105" fill="white" font-size="10" font-weight="600" text-anchor="middle">軟體範式轉移</text>
+                
+                <path d="M 100 100 L 140 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+                
+                <rect x="140" y="75" width="100" height="50" rx="8" fill="var(--card-bg)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="190" y="98" fill="var(--text-main)" font-size="10" font-weight="600" text-anchor="middle">Agent Formula</text>
+                <text x="190" y="112" fill="var(--primary)" font-size="9" text-anchor="middle">Model + Harness</text>
+                
+                <path d="M 240 100 L 280 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+                
+                <rect x="280" y="75" width="100" height="50" rx="8" fill="var(--success-bg)" stroke="var(--success-border)" stroke-width="1.5" />
+                <text x="330" y="98" fill="var(--success-text)" font-size="10" font-weight="600" text-anchor="middle">統一工業標準</text>
+                <text x="330" y="112" fill="var(--success-text)" font-size="9" text-anchor="middle">MCP / A2A / A2UI</text>
+            `,
+            '第二章': `
+                <rect x="10" y="75" width="90" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="55" y="98" fill="var(--primary)" font-size="10" font-weight="600" text-anchor="middle">1. Discovery 發現</text>
+                <text x="55" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">Public / 3P / Internal</text>
+
+                <path d="M 100 100 L 130 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="130" y="75" width="110" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="185" y="98" fill="var(--primary)" font-size="10" font-weight="600" text-anchor="middle">2. Configuration 配置</text>
+                <text x="185" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">Scopes / Credentials</text>
+
+                <path d="M 240 100 L 270 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="270" y="75" width="110" height="50" rx="8" fill="var(--success-bg)" stroke="var(--success-border)" stroke-width="1.5" />
+                <text x="325" y="98" fill="var(--success-text)" font-size="10" font-weight="600" text-anchor="middle">3. Connection 連接</text>
+                <text x="325" y="112" fill="var(--success-text)" font-size="8" text-anchor="middle">Handshake & Tool List</text>
+            `,
+            '第三章': `
+                <rect x="15" y="40" width="120" height="40" rx="6" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" />
+                <text x="75" y="65" fill="#991b1b" font-size="9" font-weight="600" text-anchor="middle">傳統整合 Effort: O(N x M)</text>
+                
+                <rect x="15" y="120" width="120" height="40" rx="6" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5" />
+                <text x="75" y="145" fill="#166534" font-size="9" font-weight="600" text-anchor="middle">MCP 整合 Effort: O(N + M)</text>
+
+                <path d="M 135 60 L 200 60 L 200 80" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+                <path d="M 135 140 L 200 140 L 200 120" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="220" y="75" width="150" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="295" y="98" fill="var(--primary)" font-size="10" font-weight="600" text-anchor="middle">傳輸通道選擇</text>
+                <text x="295" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">stdio (本地) vs SSE (遠端)</text>
+            `,
+            '第四章': `
+                <rect x="10" y="75" width="90" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="55" y="98" fill="var(--primary)" font-size="10" font-weight="600" text-anchor="middle">出現故障異常</text>
+                <text x="55" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">幻覺 / 連線失敗</text>
+
+                <path d="M 100 100 L 130 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="130" y="75" width="110" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="185" y="98" fill="var(--primary)" font-size="10" font-weight="600" text-anchor="middle">Inspector / DevTools</text>
+                <text x="185" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">捕獲 JSON-RPC 原始包</text>
+
+                <path d="M 240 100 L 270 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="270" y="75" width="110" height="50" rx="8" fill="var(--success-bg)" stroke="var(--success-border)" stroke-width="1.5" />
+                <text x="325" y="98" fill="var(--success-text)" font-size="10" font-weight="600" text-anchor="middle">遵循 Do's & Don'ts</text>
+                <text x="325" y="112" fill="var(--success-text)" font-size="8" text-anchor="middle">RAG for Tools / HITL</text>
+            `,
+            '第五章': `
+                <rect x="10" y="75" width="90" height="50" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" />
+                <text x="55" y="95" fill="#991b1b" font-size="9" font-weight="600" text-anchor="middle">Swiss Army Knife</text>
+                <text x="55" y="108" fill="#991b1b" font-size="8" text-anchor="middle">單體 Agent 瓶頸</text>
+                <text x="55" y="118" fill="#991b1b" font-size="7" text-anchor="middle">上下文超載/故障連鎖</text>
+
+                <path d="M 100 100 L 130 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="130" y="75" width="110" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="185" y="98" fill="var(--primary)" font-size="9" font-weight="600" text-anchor="middle">Internal Specialization</text>
+                <text x="185" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">邏輯拆解 Sub-agents</text>
+
+                <path d="M 240 100 L 270 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="270" y="75" width="110" height="50" rx="8" fill="var(--success-bg)" stroke="var(--success-border)" stroke-width="1.5" />
+                <text x="325" y="98" fill="var(--success-text)" font-size="9" font-weight="600" text-anchor="middle">Distributed Architecture</text>
+                <text x="325" y="112" fill="var(--success-text)" font-size="8" text-anchor="middle">跨網絡委派 A2A 專家</text>
+            `,
+            '第六章': `
+                <rect x="15" y="75" width="100" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="65" y="98" fill="var(--primary)" font-size="9" font-weight="600" text-anchor="middle">3P Agents 碎片化</text>
+                <text x="65" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">Python / Go / Java</text>
+
+                <path d="M 115 100 L 155 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="155" y="75" width="90" height="50" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" />
+                <text x="200" y="98" fill="#991b1b" font-size="9" font-weight="600" text-anchor="middle">Bespoke 橋接碼</text>
+                <text x="200" y="112" fill="#991b1b" font-size="8" text-anchor="middle">沈重 Maintenance Tax</text>
+
+                <path d="M 245 100 L 285 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="285" y="75" width="100" height="50" rx="8" fill="var(--success-bg)" stroke="var(--success-border)" stroke-width="1.5" />
+                <text x="335" y="98" fill="var(--success-text)" font-size="10" font-weight="600" text-anchor="middle">A2A 統一語言</text>
+                <text x="335" y="112" fill="var(--success-text)" font-size="8" text-anchor="middle">Standardized Workforce</text>
+            `,
+            '第七章': `
+                <rect x="10" y="30" width="110" height="50" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="65" y="53" fill="var(--primary)" font-size="9" font-weight="600" text-anchor="middle">被動工具 (Bounded)</text>
+                <text x="65" y="65" fill="var(--text-muted)" font-size="8" text-anchor="middle">Fire-and-Forget / 單次</text>
+
+                <rect x="10" y="120" width="110" height="50" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="65" y="143" fill="var(--primary)" font-size="9" font-weight="600" text-anchor="middle">專家夥伴 (Unbounded)</text>
+                <text x="65" y="155" fill="var(--text-muted)" font-size="8" text-anchor="middle">多輪對話 / Crooked Walls</text>
+
+                <path d="M 120 145 L 180 145 L 180 110" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="200" y="75" width="180" height="50" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" />
+                <text x="290" y="98" fill="#991b1b" font-size="9" font-weight="600" text-anchor="middle">Orchestrator GOTO 瓶頸</text>
+                <text x="290" y="112" fill="#991b1b" font-size="8" text-anchor="middle">控制流懸空死鎖 -> A2A 隔離破解</text>
+            `,
+            '第八章': `
+                <rect x="15" y="75" width="90" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="60" y="98" fill="var(--primary)" font-size="10" font-weight="600" text-anchor="middle">Agent Card</text>
+                <text x="60" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">Capabilities/Security/Specs</text>
+
+                <path d="M 105 100 L 145 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="145" y="75" width="100" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="195" y="98" fill="var(--primary)" font-size="10" font-weight="600" text-anchor="middle">Agent Registry</text>
+                <text x="195" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">服務發現與索引</text>
+
+                <path d="M 245 100 L 285 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="285" y="75" width="100" height="50" rx="8" fill="var(--success-bg)" stroke="var(--success-border)" stroke-width="1.5" />
+                <text x="335" y="98" fill="var(--success-text)" font-size="10" font-weight="600" text-anchor="middle">Marketplaces</text>
+                <text x="335" y="112" fill="var(--success-text)" font-size="8" text-anchor="middle">一鍵動態 onboard 雇用</text>
+            `,
+            '第九章': `
+                <rect x="15" y="75" width="90" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="60" y="98" fill="var(--primary)" font-size="9" font-weight="600" text-anchor="middle">A2A Exposing</text>
+                <text x="60" y="112" fill="var(--text-muted)" font-size="7" text-anchor="middle">Card/Executor/Endpoint</text>
+
+                <path d="M 105 100 L 145 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="145" y="75" width="100" height="50" rx="8" fill="var(--success-bg)" stroke="var(--success-border)" stroke-width="1.5" />
+                <text x="195" y="98" fill="var(--success-text)" font-size="10" font-weight="600" text-anchor="middle">A2A Connecting</text>
+                <text x="195" y="112" fill="var(--success-text)" font-size="8" text-anchor="middle">硬編碼 vs 註冊表發現</text>
+
+                <path d="M 245 100 L 285 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="285" y="75" width="100" height="50" rx="8" fill="var(--card-bg)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="335" y="98" fill="var(--text-main)" font-size="9" font-weight="600" text-anchor="middle">Google ADK 實作</text>
+                <text x="335" y="112" fill="var(--primary)" font-size="8" text-anchor="middle">RemoteA2aAgent</text>
+            `,
+            '第十章': `
+                <rect x="15" y="75" width="95" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="62.5" y="98" fill="var(--primary)" font-size="9" font-weight="600" text-anchor="middle">GCP Marketplace</text>
+                <text x="62.5" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">混合計費 (Flat + Usage)</text>
+
+                <path d="M 110 100 L 145 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="145" y="75" width="105" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="197.5" y="98" fill="var(--primary)" font-size="9" font-weight="600" text-anchor="middle">HTTP 402 Intercept</text>
+                <text x="197.5" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">Payment Required</text>
+
+                <path d="M 250 100 L 285 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="285" y="75" width="100" height="50" rx="8" fill="var(--success-bg)" stroke="var(--success-border)" stroke-width="1.5" />
+                <text x="335" y="98" fill="var(--success-text)" font-size="9" font-weight="600" text-anchor="middle">L402 / x402 支付</text>
+                <text x="335" y="112" fill="var(--success-text)" font-size="8" text-anchor="middle">Cryptographic Proof</text>
+            `,
+            '第十一章': `
+                <rect x="15" y="75" width="90" height="50" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" />
+                <text x="60" y="95" fill="#991b1b" font-size="9" font-weight="600" text-anchor="middle">JSON 溝通鴻溝</text>
+                <text x="60" y="108" fill="#991b1b" font-size="8" text-anchor="middle">Generative UI 安全紅線</text>
+                <text x="60" y="118" fill="#991b1b" font-size="7" text-anchor="middle">XSS / Code Injection</text>
+
+                <path d="M 105 100 L 145 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="145" y="75" width="100" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="195" y="98" fill="var(--primary)" font-size="10" font-weight="600" text-anchor="middle">A2UI 宣告式 JSON</text>
+                <text x="195" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">SoC 關注點分離</text>
+
+                <path d="M 245 100 L 285 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="285" y="75" width="100" height="50" rx="8" fill="var(--success-bg)" stroke="var(--success-border)" stroke-width="1.5" />
+                <text x="335" y="98" fill="var(--success-text)" font-size="10" font-weight="600" text-anchor="middle">Native 渲染</text>
+                <text x="335" y="112" fill="var(--success-text)" font-size="8" text-anchor="middle">Lego 積木 / 樂譜適配</text>
+            `,
+            '第十二章': `
+                <rect x="10" y="75" width="90" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="55" y="98" fill="var(--primary)" font-size="9" font-weight="600" text-anchor="middle">A2UI 18種元件</text>
+                <text x="55" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">雙模式 / Data Bind</text>
+
+                <path d="M 100 100 L 130 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="130" y="75" width="110" height="50" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5" />
+                <text x="185" y="98" fill="var(--primary)" font-size="9" font-weight="600" text-anchor="middle">UCP 採購大腦</text>
+                <text x="185" y="112" fill="var(--text-muted)" font-size="8" text-anchor="middle">詢價 / 購物車 / 訂單流</text>
+
+                <path d="M 240 100 L 270 100" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)" />
+
+                <rect x="270" y="75" width="110" height="50" rx="8" fill="var(--success-bg)" stroke="var(--success-border)" stroke-width="1.5" />
+                <text x="325" y="98" fill="var(--success-text)" font-size="9" font-weight="600" text-anchor="middle">AP2 安全錢包</text>
+                <text x="325" y="112" fill="var(--success-text)" font-size="8" text-anchor="middle">Mandate 限額 / 期票簽章</text>
+            `
+        };
+
+        // 繪製各章節流程圖
+        function generateFlowchart(chapter) {
+            const svg = document.getElementById('flowchart-svg');
+            if (!svg) return;
+            
+            // 清理舊標記
+            svg.innerHTML = `
+            <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--text-muted)"/>
+                </marker>
+            </defs>
+            <g id="flowchart-content-group">
+                ${flowchartData[chapter.substring(0, 3)] || ''}
+            </g>`;
+        }
+
+        // 流程圖 Pan & Zoom 實作
+        let chartScale = 1;
+        let chartX = 0;
+        let chartY = 0;
+        
+        function initChartPanZoom() {
+            const viewport = document.getElementById('chart-viewport');
+            const svgContent = document.getElementById('flowchart-content-group');
+            if (!viewport || !svgContent) return;
+
+            let isDragging = false;
+            let startX, startY;
+
+            viewport.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                viewport.style.cursor = 'grabbing';
+                startX = e.clientX - chartX;
+                startY = e.clientY - chartY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                chartX = e.clientX - startX;
+                chartY = e.clientY - startY;
+                updateChartTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                if (viewport) viewport.style.cursor = 'grab';
+            });
+
+            viewport.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomFactor = 1.1;
+                if (e.deltaY < 0) {
+                    chartScale *= zoomFactor;
+                } else {
+                    chartScale /= zoomFactor;
+                }
+                chartScale = Math.min(Math.max(chartScale, 0.5), 4.0);
+                updateChartTransform();
+            });
+        }
+
+        function updateChartTransform() {
+            const svgContent = document.getElementById('flowchart-content-group');
+            if (svgContent) {
+                svgContent.setAttribute('transform', `translate(${chartX}, ${chartY}) scale(${chartScale})`);
+            }
+        }
+
+        window.zoomChart = function(factor) {
+            chartScale *= factor;
+            chartScale = Math.min(Math.max(chartScale, 0.5), 4.0);
+            updateChartTransform();
+        }
+
+        window.resetChartZoom = function() {
+            chartScale = 1;
+            chartX = 0;
+            chartY = 0;
+            updateChartTransform();
+        }
+
+
+        // ------------------ 播放器路由控制 ------------------
+        function setMode(mode) {
+            if (currentMode === mode) return;
+            currentMode = mode;
+            currentSlideIndex = 0;
+
+            if (mode === 'overview') {
+                btnOverview.classList.add('active');
+                btnDetail.classList.remove('active');
+                chapterSelector.style.display = 'none';
+            } else {
+                btnOverview.classList.remove('active');
+                btnDetail.classList.add('active');
+                chapterSelector.style.display = 'block';
+            }
+
+            renderSlide();
+        }
+
+        function navigateSlide(dir) {
+            const slides = getCurrentSlides();
+            const newIndex = currentSlideIndex + dir;
+            if (newIndex >= 0 && newIndex < slides.length) {
+                currentSlideIndex = newIndex;
+                renderSlide();
+                
+                // 如果是詳細模式，同步章節下拉選單的選中狀態
+                if (currentMode === 'detail' && currentSlideIndex !== 1) {
+                    const slide = slides[currentSlideIndex];
+                    syncChapterSelector(slide.chapter);
+                }
+            }
+        }
+
+        // 同步章節下拉選單選中狀態
+        function syncChapterSelector(chapterName) {
+            const cleanName = chapterName.substring(0, 3); // "第一章", "第二章"
+            const options = chapterSelector.options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].textContent.includes(cleanName)) {
+                    chapterSelector.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        // 綁定 DOM 事件
+        btnOverview.addEventListener('click', () => setMode('overview'));
+        btnDetail.addEventListener('click', () => setMode('detail'));
+        btnPrev.addEventListener('click', () => navigateSlide(-1));
+        btnNext.addEventListener('click', () => navigateSlide(1));
+
+        // 章節選擇事件
+        chapterSelector.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (val === 'all') {
+                currentSlideIndex = 0;
+                renderSlide();
+                return;
+            }
+            
+            // 找出對應章節的第一張投影片 index
+            const targetCh = chapters.find(ch => ch.id === val);
+            if (targetCh) {
+                const cleanName = targetCh.name.split('：')[0]; // "第一章", "第二章"
+                const idx = detailSlides.findIndex(s => s.chapter && s.chapter.includes(cleanName));
+                if (idx !== -1) {
+                    currentSlideIndex = idx;
+                    renderSlide();
+                }
+            }
+        });
+
+        // 鍵盤控制
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                navigateSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                navigateSlide(-1);
+            } else if (e.key.toLowerCase() === 'm') {
+                // 切換章節目錄下拉
+                chapterSelector.focus();
+            } else if (e.key.toLowerCase() === 'f') {
+                toggleFullscreen();
+            }
+        });
+
+        // 深淺色主題切換
+        btnTheme.addEventListener('click', () => {
+            if (activeTheme === 'light') {
+                document.body.setAttribute('data-theme', 'dark');
+                activeTheme = 'dark';
+                btnTheme.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+            } else {
+                document.body.removeAttribute('data-theme');
+                activeTheme = 'light';
+                btnTheme.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a7 7 0 1 1-7.64-7.64c.44.06.9.1 1.36.1z"/></svg>`;
+            }
+            // 重新繪製當前投影片，以適應主題顏色
+            renderSlide();
+        });
+
+        // 全螢幕切換
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`無法開啟全螢幕模式: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        btnFullscreen.addEventListener('click', toggleFullscreen);
+
+        // 初始化
+        initChapterSelector();
+        chapterSelector.style.display = 'none'; // 預設 overview 隱藏目錄
+        renderSlide();
+    </script>
+</body>
+</html>

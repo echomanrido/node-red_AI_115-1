@@ -1,0 +1,5149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding Agent Security and Evaluation - 說明投影片</title>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --color-primary: #2563eb;
+            --color-primary-hover: #1d4ed8;
+            --color-success: #059669;
+            --color-success-bg: #ecfdf5;
+            --color-warning: #dc2626;
+            --color-warning-bg: #fef2f2;
+            --color-accent: #8b5cf6;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
+        }
+
+        .dark-mode {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --color-primary: #3b82f6;
+            --border-color: #334155;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+
+        .logo-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background-color: var(--bg-main);
+            padding: 0.25rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1.25rem;
+            border: none;
+            background: none;
+            font-family: var(--font-family);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: var(--bg-card);
+            color: var(--color-primary);
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        select.chapter-select {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: 0.9rem;
+            outline: none;
+            max-width: 250px;
+            cursor: pointer;
+        }
+
+        .icon-btn {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background-color: var(--bg-main);
+        }
+
+        /* Main Container Styles */
+        main {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slide-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 100%;
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .slide-header {
+            padding: 1.5rem 2rem 0.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            padding: 1rem 2rem 2rem 2rem;
+            gap: 2.5rem;
+            overflow-y: auto;
+        }
+
+        /* Left Column Styles */
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .slide-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        .slide-subtitle {
+            font-size: 1.1rem;
+            color: var(--color-primary);
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .section-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            width: 100%;
+        }
+
+        .bullet-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .bullet-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            list-style: none;
+        }
+
+        .bullet-item {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            font-size: 1.05rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+
+        .bullet-num {
+            background-color: #eff6ff;
+            color: var(--color-primary);
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            border: 1px solid #dbeafe;
+        }
+
+        .detailed-explanation {
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Code Block Styling */
+        .code-block-container {
+            margin-top: 1rem;
+            background-color: #0f172a;
+            color: #f8fafc;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            border: 1px solid #334155;
+            position: relative;
+        }
+
+        .code-block-container::before {
+            content: "PYTHON";
+            position: absolute;
+            top: 0.25rem;
+            right: 0.5rem;
+            font-size: 0.7rem;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        /* Right Column Styles */
+        .right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .metaphor-card {
+            background-color: var(--color-success-bg);
+            border-left: 5px solid var(--color-success);
+        }
+
+        .metaphor-card.dark {
+            background-color: rgba(5, 150, 105, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .metaphor-icon {
+            color: var(--color-success);
+        }
+
+        .metaphor-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .visual-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 280px;
+        }
+
+        .visual-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reset-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-family: var(--font-family);
+        }
+
+        .visual-viewport {
+            flex: 1;
+            border: 1px dashed var(--border-color);
+            border-radius: 0.5rem;
+            background-color: var(--bg-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .visual-fallback-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 1rem;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .footer-shortcuts {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .footer-shortcuts kbd {
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            padding: 0.1rem 0.4rem;
+            font-size: 0.75rem;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+        }
+
+        .footer-pagination {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1.25rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background-color: var(--bg-main);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* SVG 圖表樣式 */
+        .zoomable-svg {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .zoomable-svg:active {
+            cursor: grabbing;
+        }
+
+        .svg-node {
+            cursor: pointer;
+            transition: filter 0.2s;
+        }
+
+        .svg-node:hover {
+            filter: drop-shadow(0px 4px 8px rgba(37, 99, 235, 0.4));
+        }
+
+        /* 心智圖特定樣式 */
+        .mindmap-node rect, .mindmap-node circle {
+            fill: var(--bg-card);
+            stroke: var(--color-primary);
+            stroke-width: 2;
+            rx: 6;
+            ry: 6;
+        }
+
+        .mindmap-node.center circle {
+            fill: var(--color-primary);
+            stroke: var(--color-accent);
+            stroke-width: 3;
+        }
+
+        .mindmap-node.center text {
+            fill: white !important;
+            font-weight: 800;
+        }
+
+        .mindmap-node.chapter rect {
+            stroke: var(--color-accent);
+        }
+
+        .mindmap-node text {
+            font-family: var(--font-family);
+            font-size: 11px;
+            font-weight: 600;
+            fill: var(--text-primary);
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .mindmap-link {
+            fill: none;
+            stroke: var(--border-color);
+            stroke-width: 1.5;
+            stroke-dasharray: 4,4;
+            transition: stroke 0.2s, stroke-width 0.2s, stroke-dasharray 0.2s;
+        }
+
+        .mindmap-link.active {
+            stroke: var(--color-accent);
+            stroke-width: 3;
+            stroke-dasharray: none;
+        }
+
+        .mindmap-node:hover rect, .mindmap-node:hover circle {
+            fill: #eff6ff;
+            stroke: var(--color-accent);
+            stroke-width: 3;
+        }
+
+        /* 心智圖詳細卡片浮窗 */
+        .mindmap-info-card {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            width: 320px;
+            background-color: var(--bg-card);
+            border: 2px solid var(--color-primary);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            display: none;
+            pointer-events: none;
+        }
+
+        .mindmap-info-card h4 {
+            font-size: 0.95rem;
+            color: var(--color-primary);
+            margin-bottom: 0.25rem;
+            font-weight: 700;
+        }
+
+        .mindmap-info-card p {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: var(--text-primary);
+        }
+
+        /* 響應式佈局 */
+        @media (max-width: 1024px) {
+            .slide-content {
+                grid-template-columns: 1fr;
+                overflow-y: auto;
+            }
+            body {
+                overflow: auto;
+                height: auto;
+            }
+            main {
+                height: auto;
+            }
+            .slide-container {
+                height: auto;
+                min-height: 600px;
+            }
+        }
+
+        /* 整頁模式特定樣式 */
+        .slide-content.fullscreen-layout {
+            grid-template-columns: 1fr !important;
+            height: 100% !important;
+            padding: 1rem !important;
+        }
+        .slide-content.fullscreen-layout .left-col {
+            display: none !important;
+        }
+        .slide-content.fullscreen-layout .right-col {
+            gap: 0 !important;
+            height: 100% !important;
+        }
+        .slide-content.fullscreen-layout .right-col .metaphor-card {
+            display: none !important;
+        }
+        .slide-content.fullscreen-layout .right-col .visual-card {
+            height: 100% !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+        .slide-content.fullscreen-layout .right-col .visual-card .visual-viewport {
+            border: none !important;
+            background-color: var(--bg-card) !important;
+        }
+
+        /* 全螢幕模式額外樣式 */
+        .fullscreen-active {
+            padding: 0 !important;
+            background-color: var(--bg-main) !important;
+        }
+        .fullscreen-active .slide-container {
+            max-width: 100% !important;
+            border-radius: 0 !important;
+            border: none !important;
+            height: 100vh !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">Q</div>
+            <div>
+                <div class="logo-title">Vibe Coding 安全與評估</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">Day 4 課程說明簡報</div>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="tab-overview" onclick="switchTab('overview')">大綱簡報 (Overview)</button>
+            <button class="tab-btn" id="tab-detail" onclick="switchTab('detail')">詳細說明 (Step-by-Step)</button>
+        </div>
+
+        <div class="header-controls">
+            <select class="chapter-select" id="chapter-select" onchange="jumpToChapter()">
+                <option value="all">所有章節目錄</option>
+                <option value="0">第一章：導論與軟體工程典範轉移 (P.6-8)</option><option value="1">第二章：7柱安全防禦架構藍圖 (P.9-12)</option><option value="2">第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)</option><option value="3">第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)</option><option value="4">第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)</option><option value="5">第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)</option><option value="6">第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)</option><option value="7">第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)</option><option value="8">第九章：實務評估技巧與程式碼實作 (P.31-41)</option>
+            </select>
+
+            <button class="icon-btn" onclick="toggleDarkMode()" title="切換深色/淺色模式">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707-.707M12 5a7 7 0 100 14 7 7 0 000-14z"></path></svg>
+            </button>
+            <button class="icon-btn" onclick="toggleFullscreen()" title="全螢幕模式">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div class="slide-container">
+            <div class="slide-header">
+                <span id="slide-chapter-tag">載入中...</span>
+                <span id="slide-pdf-page">PDF 第 - 頁</span>
+            </div>
+
+            <div class="slide-content">
+                <div class="left-col">
+                    <div class="slide-title" id="slide-title">標題載入中</div>
+                    <div class="slide-subtitle" id="slide-subtitle">副標題載入中</div>
+                    <div class="section-divider"></div>
+                    <div>
+                        <div class="bullet-title">核心宣示 (Takeaway)</div>
+                        <div class="bullet-item" style="font-weight: 700; color: var(--color-primary); margin-bottom: 1rem;">
+                            <div class="bullet-num">★</div>
+                            <div id="slide-takeaway">核心意圖載入中</div>
+                        </div>
+                        
+                        <div class="bullet-title">論證細節</div>
+                        <ul class="bullet-list" id="slide-bullets">
+                            <!-- 動態填充 -->
+                        </ul>
+                    </div>
+
+                    <div id="slide-code-container" class="code-block-container" style="display: none;">
+                        <pre><code id="slide-code"># code</code></pre>
+                    </div>
+                </div>
+
+                <div class="right-col">
+                    <div class="card metaphor-card" id="slide-metaphor-card">
+                        <div class="card-header">
+                            <span class="metaphor-icon">💡</span>
+                            <span id="slide-metaphor-title">概念類比與實例</span>
+                        </div>
+                        <p class="metaphor-text" id="slide-metaphor-text">類比說明載入中...</p>
+                    </div>
+
+                    <div class="card visual-card">
+                        <div class="visual-title">
+                            <span id="slide-visual-title">本章邏輯流程圖 (可縮放)</span>
+                            <button class="reset-btn" onclick="resetSvgTransform()">重置</button>
+                        </div>
+                        <div class="visual-viewport" id="visual-viewport">
+                            <!-- SVG 動態插入區 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 心智圖懸停資訊卡 -->
+            <div class="mindmap-info-card" id="mindmap-info-card">
+                <h4 id="mindmap-info-title">章節名稱</h4>
+                <p id="mindmap-info-desc">章節說明內容...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-shortcuts">
+            切換：<kbd>←</kbd> <kbd>→</kbd> / <kbd>Space</kbd> &nbsp;|&nbsp; 目錄：<kbd>M</kbd> &nbsp;|&nbsp; 全螢幕：<kbd>F</kbd>
+        </div>
+        <div class="footer-pagination" id="footer-pagination">
+            投影片 1 / -
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-btn" id="btn-prev" onclick="prevSlide()">← 上一頁</button>
+            <button class="nav-btn" id="btn-next" onclick="nextSlide()">下一頁 →</button>
+        </div>
+    </footer>
+
+    <script>
+        // 載入簡報數據
+        const overviewSlides = [
+  {
+    "id": "ov-1",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "導論：Vibe Coding 時代的來臨",
+    "subtitle": "從撰寫代碼到表達意圖的轉移",
+    "pdfPage": 6,
+    "takeaway": "軟體工程正經歷深刻變革，開發者從寫代碼轉為表達意圖，我們必須為非人勞動力建立全新信任模型。",
+    "details": [
+      "典範轉移：從 Casual Vibe Coding（寫自然語言並接受 AI 生成物）到 Disciplined Agentic Engineering（在設計約束下運作）。",
+      "核心衝突：傳統 deterministic 的安全機制（編譯通過、靜態憑證）在 non-deterministic 的 Agent 環境中失效。",
+      "落地挑戰：如何確保自主運行、具備環境修改能力的 Agent 團隊在邊界內安全運作並產出有價值的代碼。"
+    ],
+    "metaphorTitle": "從手工業到智慧工廠",
+    "metaphor": "傳統程式設計就像工匠一針一線編織毛衣（寫代碼），而 Vibe Coding 就像設計師向自動化智慧工廠下達設計圖紙（表達意圖）。我們不再監督每一針，而是要確保工廠的安全圍欄與產品質量檢驗線運作正常。",
+    "visual": "左側：傳統 vs Agentic 開發對比矩陣；右側：開發光譜圖（Casual -> Disciplined）"
+  },
+  {
+    "id": "ov-2",
+    "chapter": "大綱簡報",
+    "title": "全書章節核心互聯網狀心智圖",
+    "subtitle": "9 大章節核心關係導覽",
+    "pdfPage": 9,
+    "takeaway": "透過互動式互聯心智圖，快速導覽 Vibe Coding Agent 安全與評估的 9 大章節相互關係與核心結構。",
+    "details": [
+      "心智圖節點：涵蓋 7 柱安全架構、供應鏈防禦、應用邏輯、身分與 JIT、SecOps 三聯軍、可觀測性、評估維度與方法、實務程式碼。",
+      "互聯關係：心智圖上各個節點相互關聯，例如：觀測性 (Ch 7) 是評估 (Ch 8) 的前提；身分 (Ch 5) 是 SecOps (Ch 6) 的基礎。",
+      "互動操作：支援滑鼠拖曳、滾輪縮放（Pan & Zoom），懸停節點高亮其關聯線，並可點擊節點直接跳轉至該章節投影片。"
+    ],
+    "metaphorTitle": "智慧城市的交通網絡",
+    "metaphor": "把整本書的架構想像成一座智慧城市，心智圖就是地鐵路線圖。每個章節是一個轉運站，彼此間有鐵路相連。沒有觀測線就無法建立評估線，沒有安全區就無法建立交通樞紐。",
+    "visual": "全螢幕互動式網狀心智圖，包含 9 大章節節點與動態互聯曲線。右下角設有懸停詳細卡片。"
+  },
+  {
+    "id": "ov-3",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "安全與評估：重塑信任的雙軸",
+    "subtitle": "定義 Effective Trust 運作邊界",
+    "pdfPage": 7,
+    "takeaway": "企業落地 Vibe Coding 必須重新定義信任：安全（Security）劃定運作邊界，評估（Evaluation）驗證邊界內的價值。",
+    "details": [
+      "安全（Security）：確保 Agent 留在安全圍欄內，安全運行且無惡意意圖。",
+      "評估（Evaluation）：確保在圍欄內發生的行為及產出的代碼真正符合意圖、值得部署。",
+      "Effective Trust（有效信任）：不再是一次性的靜態憑證驗證，而是基於運行時上下文、供應鏈與身分的動態、持續評估指標。"
+    ],
+    "metaphorTitle": "保全系統與品質檢驗員",
+    "metaphor": "安全是工廠門口的保全與監視器，確保沒有小偷進來，員工也沒有帶走違禁品；評估則是生產線終點的品質檢測儀，確保工廠生產的產品符合設計圖紙，沒有瑕疵。",
+    "visual": "左側：安全 vs 評估雙軸象限圖；右側：Effective Trust 四大要素（供應鏈、身分、行為、上下文）"
+  },
+  {
+    "id": "ov-4",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "基礎：7柱 Agent 安全架構",
+    "subtitle": "多學科外部「安全包絡」的 mandatory 藍圖",
+    "pdfPage": 9,
+    "takeaway": "不要指望 AI 模型自身是安全的；我們必須在模型外部，建立橫跨七個層級的 strict 安全包絡。",
+    "details": [
+      "基礎三柱：1. 基礎架構與網路（核心隔離）、2. 數據（CMEK/mTLS/向量分區）、3. 模型（提示詞 attested 認證）。",
+      "執行與控管三柱：4. 應用與運行（LLM 防火牆、閘道）、5. IAM（SPIFFE ID、JIT 授權）、6. 觀測與 SecOps（Red/Blue/Green 聯防）。",
+      "合規一柱：7. 治理（EU AI Act 衝擊評估、 plain-English 邏輯審查）。"
+    ],
+    "metaphorTitle": "太空艙的防護盾",
+    "metaphor": "Agent 就像太空艙裡脆弱的太空人（AI模型），我們不能靠太空人皮膚防禦宇宙輻射。必須建立多層防護盾：外層裝甲（基礎架構）、生命維持系統（數據控制）、通訊加密（IAM）與外部監控（觀測治理）。",
+    "visual": "7柱金字塔圖形，由底層 Infrastructure 向上延伸至最頂層 Governance，每柱搭配圖示與關鍵詞。"
+  },
+  {
+    "id": "ov-5",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "沙箱防禦與供應鏈阻斷",
+    "subtitle": "應對 Slopsquatting 與容器逃逸",
+    "pdfPage": 13,
+    "takeaway": "所有動態生成的代碼必須在核心級沙箱（如 gVisor）執行，且嚴防 AI 幻覺套件被惡意利用。",
+    "details": [
+      "暫時性沙箱 (Ephemeral Sandbox)：運行時硬隔離，每次執行完完全重置狀態，防止惡意代碼持久化或影響宿主主機。",
+      "Slopsquatting（套件幻覺劫持）：攻擊者主動監控 AI 幻覺套件並發布同名惡意套件。防禦手段為：強制內部 Enterprise 鏡像、版本鎖定與 SBOM 簽章驗證。",
+      "非互動式網路限制：嚴禁 Agent 直接與外網互動，僅能存取預先清理的離線快取或代理網頁，杜絕間接提示詞注入與資料外洩。"
+    ],
+    "metaphorTitle": "無塵實驗室與消毒通道",
+    "metaphor": "測試 Agent 生成的未驗證代碼，就像在「無塵隔離室」中處理未知病毒。每次實驗完畢，房間必須進行徹底的紫外線消毒與重置（狀態重置）。所有外來物質（依賴套件）必須通過嚴格檢疫（SBOM），杜絕境外污染。",
+    "visual": "動態沙箱循環圖（產生 -> 隔離執行 -> 狀態重置）與 Slopsquatting 攻擊鏈示意圖"
+  },
+  {
+    "id": "ov-6",
+    "chapter": "第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)",
+    "title": "應用安全與邏輯防護",
+    "subtitle": "解決過度信任瀏覽器與 MCP 欺騙",
+    "pdfPage": 15,
+    "takeaway": "Agent 生成代碼常因求快而將敏感邏輯置於前端；我們必須在 CI/CD 中強制靜態安全掃描，並建立 MCP 閘道。",
+    "details": [
+      "前端安全缺陷：AI 傾向於前端寫死 API Keys、密碼驗證與 Session Flags，後端大開。須依賴開發期 IDE Linters 與 CI/CD 中的 SAST/SCA 進行強攔截。",
+      "MCP Spoofing：惡意/偽造的 Model Context Protocol 伺服器可能提供特權工具注入攻擊。防禦方案為：在 Agent 前部署運行時 LLM 防火牆。",
+      "Contextual Authorisation：集中式 Agent 閘道動態評估「關聯性」信賴因子，核對工具調用是否與開發者最初意圖完全一致。"
+    ],
+    "metaphorTitle": "社區門禁與假冒的快遞員",
+    "metaphor": "MCP 協議讓 Agent 能夠向外招募工具。這就像社區（Agent 系統）允許外部快遞員（MCP 伺服器）進入。如果沒有中央警衛室（Agent 閘道）核對快遞單與住戶意圖（Contextual Auth），假冒快遞員就會進入社區行竊。",
+    "visual": "左側：前端 vs 後端漏洞對比卡片；右側：MCP 閘道攔截偽造工具調用的邏輯圖"
+  },
+  {
+    "id": "ov-7",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "身分、授權與高風險動作",
+    "subtitle": "SPIFFE ID、零環境權限與 Vibe Diff",
+    "pdfPage": 18,
+    "takeaway": "絕不能賦予 Agent 廣泛的環境管理權限；必須實施 SPIFFE 唯一身分與 JIT Token 縮容，並以 Vibe Diff 進行二階段人工確認。",
+    "details": [
+      "身分隔離：拒絕讓 Agent 共用開發者帳號。必須賦予 Agent 專屬的 Agentic Identity (SPIFFE ID)，以利精細審計。",
+      "Zero Ambient Authority（零環境權限）：結合 Just-in-Time (JIT) 授權與檔案樹白名單，權限僅在該次任務執行時臨時發放，隨用隨滅。",
+      "防範確認疲勞：針對刪除庫、轉帳等高風險行為，禁止使用簡單的 Approve 按鈕，必須強制觸動硬體 MFA，並展示 Vibe Diff（將生成程式碼翻譯成白話文摘要）。"
+    ],
+    "metaphorTitle": "一次性電子鎖與白話文合約",
+    "metaphor": "不要給 Agent 家裡的萬能鑰匙。每次牠要進門修水管，只發給牠一把只能開衛生間門、且10分鐘後過期的「一次性密碼鎖」（JIT）。當牠要挖地基（高風險行為）時，必須請牠在「白話文合約」（Vibe Diff）簽字，並由主人按壓指紋（MFA）確認。",
+    "visual": "JIT Downscoping 時序圖；Vibe Diff 翻譯對比介面設計"
+  },
+  {
+    "id": "ov-8",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "主動防禦：Red, Blue, Green 聯防",
+    "subtitle": "以 Agent 速度對抗 Agent 威脅",
+    "pdfPage": 20,
+    "takeaway": "非人開發勞動力生成與執行代碼速度極快，安全防禦必須同樣 Agent 化，部署紅藍綠三聯軍主動對抗。",
+    "details": [
+      "紅軍 (Red Team - 攻擊者)：虛擬紅軍 Agent 主動在 RAG 上下文或論壇貼文中注入「Adversarial Vibes」（角色扮演惡意指令），測試企業 Agent 是否會中毒。",
+      "藍軍 (Blue Team - 防禦者)：利用 ABA (Agent 行為分析) 建立行為基準，即時監控動態生成的 AgBOM，發現邏輯飄移或資源無限循環。",
+      "綠軍 (Green Team - 修復者)：當藍軍警報觸發時，綠軍執行 SOAR 劇本進行「有狀態隔離」（Stateful Quarantine，凍結工具存取但保留短時記憶），並啟動 Auto-Refactoring 自主重構修復程式碼。"
+    ],
+    "metaphorTitle": "醫院的免疫系統演練",
+    "metaphor": "這就像人體的免疫系統。紅軍是疫苗，主動注入減毒病毒測試免疫反應；藍軍是白血球，24小時監控體內是否有異常細胞（ABA/AgBOM）；綠軍是抗體與自我修復機制，第一時間把受感染細胞隔離（有狀態隔離），並啟動細胞重組修復傷口。",
+    "visual": "三聯軍三角形協同關係圖；Planner -> Evaluator -> Executor 三階段防禦矩陣"
+  },
+  {
+    "id": "ov-9",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "觀測性：審計 Agent 的心智",
+    "subtitle": "以 Vibe Trajectory 與斷路器瓦解錢包攻擊",
+    "pdfPage": 24,
+    "takeaway": "不可防禦你看不到的威脅。必須利用 OpenTelemetry 記錄 Agent 心智軌跡，並設置狀態斷路器防止錢包拒絕服務攻擊。",
+    "details": [
+      "錢包拒絕服務攻擊 (Denial of Wallet, DoW)：攻擊者惡意引導 Agent 陷入無限調用 API 的死循環，迅速耗盡雲端與 LLM 帳單。必須以 API 200 OK 以外的「心智指標」防禦。",
+      "Vibe Trajectory（心智軌跡）：透過 `agent.session`、`agent.think` 和 `agent.tool` 三層 OTEL Spans，還原 Agent 從模糊意圖到產生抽象語法樹 (AST) 的決策過程。",
+      "Stateful Circuit Breaker（有狀態斷路器）：在執行修改前強制 Git Checkpoint 備份。若 Agent 信任評分跌破閥值，立刻切斷工具存取並以 Checkpoint 完美回滾。"
+    ],
+    "metaphorTitle": "飛機黑盒子與保險絲",
+    "metaphor": "Agent 運作就像飛機在濃霧中飛行。我們不能只看它有沒有墜機（HTTP 200）。必須有一個黑盒子（Vibe Trajectory）記錄飛行員的每一個決策與操作。一旦飛機遭遇強氣流出現異常傾斜（評分降低），自動保險絲（斷路器）立刻彈開，飛機自動切換回上一個安全航點（Checkpoint 回滾）。",
+    "visual": "Vibe Trajectory 追蹤鏈圖；有狀態斷路器觸發與回滾邏輯流程圖"
+  },
+  {
+    "id": "ov-10",
+    "chapter": "第八章：意圖驅動評估體系 (P.27-31)",
+    "title": "評估架構：為何與眾不同？",
+    "subtitle": "突破無規格限制、用戶驗證困境與狀態化代碼庫",
+    "pdfPage": 28,
+    "takeaway": "評估 Vibe Coding Agent 不能沿用傳統測試。它面臨三大獨特挑戰：無規格、無法人工逐行審查、多輪對話狀態複合。",
+    "details": [
+      "無規格挑戰 (Underspecification Gap)：「讓儀表板載入變快」不是測試案例。Agent 必須依賴潛在知識、美學判斷填補意圖空白。評估的第一步是看 Agent 能否成功重建「未明說的規格」。",
+      "代碼無法驗證：非技術用戶與繁忙的工程師都無法即時審查 600 行代碼。必須將評估重心從「代碼語法」移至「運作表現」。",
+      "狀態化與多輪迭代：Vibe Coding 每次對話都在修改真實檔案，早期錯誤會複合放大。評估必須覆蓋多輪對話的完整弧線（Full Arc）。"
+    ],
+    "metaphorTitle": "裝潢設計師與客戶的默契",
+    "metaphor": "傳統開發像拿著 100 頁藍圖蓋大樓。Vibe Coding 像業主對裝潢設計師說：「我要客廳看起來有北歐風、溫馨一點。」業主沒有詳細規格，也看不懂電路圖（無法驗證代碼）。設計師必須先畫出 3D 模擬圖（重建規格），並在多輪溝通中微調，最終以客廳實際看起來的樣子來驗收。",
+    "visual": "左側：傳統測試 vs Vibe Coding 評估對比圖；右側：多輪對話早期錯誤複合放大示意圖"
+  },
+  {
+    "id": "ov-11",
+    "chapter": "第八章：意圖驅動評估體系 (P.27-31)",
+    "title": "評估什麼：7維度評估體系",
+    "subtitle": "用戶側與內部側的雙重檢驗",
+    "pdfPage": 29,
+    "takeaway": "評估應拆解為用戶側四大指標、內部側三大指標，並以負責任 AI 與安全指標貫穿全局。",
+    "details": [
+      "用戶側指標 (User-facing - 體驗優先)：1. 意圖滿意度（滿意用戶所想而非所說）、2. 功能正確性（代碼能跑通）、3. 視覺與行為正確性（UI looks and behaves right）、4. 成本與效率（Token與迭代次數）。",
+      "內部側指標 (Internal - 架構質量)：5. 代碼質量與規範（風格一致性）、6. 軌跡質量（決策路徑合理）、7. 自我修復行為（面對失敗是自我復原還是 compounding 崩潰）。",
+      "橫向貫穿指標：安全與負責任 AI (RAI)，在所有指標評估中進行一票否決制。"
+    ],
+    "metaphorTitle": "新車上市的多維度測試",
+    "metaphor": "評估一個 Agent 就像測試新車。車主在乎的是外觀好看、省油、開起來順暢（用戶側）；工程師在乎的是底盤結構、電路走線、避震器在撞擊時能否正常運作（內部側）。同時，安全氣囊與剎車防鎖死系統（安全與 RAI）必須在所有測試中隨時待命。",
+    "visual": "7維度蜂巢式結構圖，區分 User-facing (4項) 與 Internal (3項)，安全指標包覆在外圍"
+  },
+  {
+    "id": "ov-12",
+    "chapter": "第八章：意圖驅動評估體系 (P.27-31)",
+    "title": "如何評估：8大評估方法矩陣",
+    "subtitle": "從自動化測試到 LLM-as-judge 與線上抽樣",
+    "pdfPage": 31,
+    "takeaway": "沒有任何單一方法能評估所有維度；必須結合自動測試、LLM 裁判、瀏覽器模擬與心智軌跡審計的混合流水線。",
+    "details": [
+      "自動化與安全性測試：以 pytest/jest/eslint 提供基礎功能綠燈；以 Snyk/Semgrep 進行靜態程式碼漏洞與憑證外洩攔截。",
+      "LLM-as-judge & Agent-as-judge：使用強大模型（如 Gemini）對照原提示詞評估意圖滿意度 (D1)，或審查心智軌跡的邏輯連貫性 (D6)。",
+      "模擬與審計：利用 Playwright 運行瀏覽器端多步工作流，截圖比對 UI 視覺；利用 OpenTelemetry 軌跡審查 Agent 工具調用順序與自我修復表現。"
+    ],
+    "metaphorTitle": "綜合運動會的多元裁判團",
+    "metaphor": "評估 Agent 不能只用碼表（自動測試）。就像體操比賽，既要有碼表記錄時間，也要有專業評審打難度分與美感分（LLM-as-judge），還要有錄影回放確認動作細節（軌跡審計），甚至要抽樣藥檢（安全性評估）。",
+    "visual": "8大評估方法對應 7維度的雷達圖或矩陣勾選圖（參考 PDF 圖4）"
+  },
+  {
+    "id": "ov-13",
+    "chapter": "第八章：意圖驅動評估體系 (P.27-31)",
+    "title": "標準化基準測試的陷阱與 Kaggle 考試",
+    "subtitle": "預防 Benchmark Overfitting 與實現 API 化零設定評估",
+    "pdfPage": 34,
+    "takeaway": "標準化基準（如 SWE-bench）是認知能力的校準器而非替代品。我們應引進 Kaggle SAE 進行零設定 API 測試，但嚴防過度擬合。",
+    "details": [
+      "標準基準：SWE-bench Verified 評估真實代碼修改，LiveCodeBench 預防資料污染。但高分並不保證 Agent 具備 Vibe Coding 所需的美學與用戶意圖理解力。",
+      "Kaggle Agent Exams (SAE)：革命性的「零設定」自主評估。Agent 透過 SKILL.md 自動註冊 Kaggle、拉取考題、在封閉沙箱執行並上傳成績至排行榜。",
+      "Overfitting 危機：過度優化靜態基準會使 Agent 在面對生產環境中混亂、矛盾的真實人類意圖時，發生災難性崩潰。"
+    ],
+    "metaphorTitle": "考試機器與職場實戰的差距",
+    "metaphor": "基準測試就像是「大學聯考」。Kaggle SAE 提供了一個隨插隨用的考場（API化零設定）。一個學生可以天天刷模擬題拿到聯考滿分（Benchmark Overfitting），但進入職場面對客戶混亂、模糊的需求時，可能連第一步都踏不出去。考試只能校準智商，實戰才能檢驗意圖滿意度。",
+    "visual": "左側：Kaggle SAE 零設定評估架構圖；右側：過度擬合（高考試分 vs 低實戰意圖滿意度）對比圖"
+  },
+  {
+    "id": "ov-14",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "實務技巧：意圖指標與 artifacts 判定",
+    "subtitle": "以會話前綴自動生成驗收標準，多模態檢驗網頁外觀",
+    "pdfPage": 35,
+    "takeaway": "利用會話的前 1-2 輪提示詞動態生成驗收 criteria，並以多模態模型直接「看」網頁畫面進行美學與佈局判定。",
+    "details": [
+      "動態 Criteria 生成：Vibe Coding 沒有寫死的規格書。開發時，先調用 Gemini 根據用戶最初的模糊指令自動產生 3-5 條 JSON 格式的驗收標準。",
+      "多模態 Artifact 評估：程式碼編譯成功不等於 UI 正確。必須使用 Multimodal LLM 檢查網頁截圖的佈局匹配、色彩對比度、行動端響應性及按鈕狀態。",
+      "意圖漂移評估：在多輪對話中，每一輪都調用 LLM-as-judge，打分（1-5分）並說明該輪輸出是否符合先前生成的 criteria，動態繪製意圖趨勢線。"
+    ],
+    "metaphorTitle": "盲測品酒師",
+    "metaphor": "評估 UI 不要看它的代碼。這就像評估一瓶紅酒，工程師去化驗化學成分（看程式碼語法）是沒用的。必須請一位多模態品酒師（Multimodal LLM）親自喝一口、看一眼顏色（看截圖與體驗），根據一開始設定的風味指標打分。",
+    "visual": "代碼與截圖雙路評估架構圖（前端截圖 -> 多模態 LLM 裁判 vs 開發 criteria）"
+  },
+  {
+    "id": "ov-15",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "總結：從代碼生成到架構判斷",
+    "subtitle": "2026 年軟體工程的新手藝",
+    "pdfPage": 40,
+    "takeaway": "代碼生成已是解決的問題，驗證、安全性與架構判斷是工程師的新手藝。落實雙軸機制，才能真正發揮 Agent 生產力。",
+    "details": [
+      "瓶頸轉移：我們不再等待人類雙手敲擊鍵盤產生樣板代碼；我們正在等待人類大腦定義安全邊界、評估輸出並維護執行環境。",
+      "企業級黃金組合：7 柱安全架構限制 Agent 不做惡（做對的事）；7 維評估體系證明 Agent 真正完成了任務（把事做好）。",
+      "未來展望：擁抱 AI 作為高速度執行引擎的團隊，若能保持嚴格的架構紀律與安全防線，將引領下一代軟體開發浪潮。"
+    ],
+    "metaphorTitle": "從司機到自動駕駛的監督員",
+    "metaphor": "未來的軟體工程師不再是踩油門、轉方向盤的司機（寫代碼），而是監控多個自駕儀表的「飛行監督員」。你的價值在於設定目的地（意圖）、看懂自駕系統的警報（觀測）、規劃安全的航線邊界（安全），以及確保乘客舒適安全抵達（評估）。",
+    "visual": "左側：軟體工程瓶頸轉移時間軸（2020 -> 2026）；右側：安全防線與評估流水線雙重齒輪咬合圖"
+  }
+];
+        const detailedSlides = [
+  {
+    "id": "det-1",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "Day 4 架構全貌",
+    "subtitle": "安全與評估的大師級指引",
+    "pdfPage": 1,
+    "takeaway": "企業引進 Agent 開發時，必須同步建立安全與評估雙軌制度。",
+    "details": [
+      "PDF Page 1 為本白皮書的起點，宣示主題為安全與評估。",
+      "作者群來自 Google Cloud 與 Mandiant 安全專家。",
+      "Vibe Coding 在 2026 年已成為企業軟體開發的主流典範。"
+    ],
+    "metaphorTitle": "大門與安檢閘口",
+    "metaphor": "進入一座高科技園區，除了大門口有身份識別卡（安全），園區內各研發大樓還必須有專案進度與品質考核（評估），兩者缺一不可。",
+    "visual": "左側：白皮書封面圖示；右側：全書主題架構矩陣",
+    "code": ""
+  },
+  {
+    "id": "det-2",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "專家作者群介紹",
+    "subtitle": "Google 與 Mandiant 的聯合獻禮",
+    "pdfPage": 1,
+    "takeaway": "本指南結合了 Google 的 AI 工程實踐與 Mandiant 的前線威脅情報。",
+    "details": [
+      "Sokratis Kartakis: Google 首席安全架構師。",
+      "Aron Eidelman, Wafae Bakkali 等工程團隊成員共同撰寫。",
+      "Mandiant 提供了 2026 年最新的 LLM 漏洞與攻擊者行為指標。"
+    ],
+    "metaphorTitle": "名醫會診",
+    "metaphor": "就像面對疑難雜症，既需要內科專家（AI 模型開發者）來調養身體，也需要外科手術專家（Mandiant 威脅情報）來精準切除腫瘤（安全威脅）。",
+    "visual": "作者資歷與專長對比表",
+    "code": ""
+  },
+  {
+    "id": "det-3",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "研究背景與年份",
+    "subtitle": "定位於 2026 年的前沿技術規格",
+    "pdfPage": 1,
+    "takeaway": "本白皮書所提出的架構代表了 2026 年企業級 Agent 安全防護的黃金標準。",
+    "details": [
+      "以 2026 年最新的威脅地圖為基礎，不再侷限於 2024 年的簡單 prompt 注入。",
+      "軟體工程已經過了單純使用模型生成代碼的階段，正式進入自主運行的 Agent 團隊時代。",
+      "安全評估不再是後置的，而是與開發流程並行且高度自動化。"
+    ],
+    "metaphorTitle": "時間膠囊",
+    "metaphor": "這份報告是從 2026 年寄給現在的技術指南，它告訴我們當 AI Agent 成為你的日常同事時，你該如何跟牠安全共處。",
+    "visual": "2026 安全技術演進時間軸",
+    "code": ""
+  },
+  {
+    "id": "det-4",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "企業痛點宣示",
+    "subtitle": "非人勞動力帶來的安全真空",
+    "pdfPage": 1,
+    "takeaway": "企業在享受 Vibe Coding 帶來的 10 倍速度提升時，正暴露在全新的非人安全真空中。",
+    "details": [
+      "傳統安全防護假設所有代碼都是由人類編寫、審查並手動發布的。",
+      "當 Agent 擁有自主權，能實時編寫並就地執行代碼時，傳統的審查鏈條即刻斷裂。",
+      "這是一場無聲的變革，也是企業資安長（CISO）面臨的最大挑戰。"
+    ],
+    "metaphorTitle": "失控的工廠自動化",
+    "metaphor": "這就像原本手動控制的工廠，一夜之間全部升級為無人自適應機器人，但警報系統還停留在按鈕警報器時代。一旦機器人邏輯出錯，將會以人類無法反應的速度損壞整座生產線。",
+    "visual": "痛點分析矩陣與資安防護漏洞對比圖",
+    "code": ""
+  },
+  {
+    "id": "det-5",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "白皮書核心願景",
+    "subtitle": "讓 Vibe Coding 安全地進入生產線",
+    "pdfPage": 1,
+    "takeaway": "我們的最終目標不是阻止 Vibe Coding，而是透過嚴格的 harness 讓其成為企業生產力的引擎。",
+    "details": [
+      "安全包絡（Safety Envelope）不應阻礙開發速度，而應成為開發者的隱形護欄。",
+      "建立 Effective Trust 的可量化指標，讓管理層有信心發布 Agent 生成的代碼。",
+      "本指南提供從基礎架構到運行時 SecOps，再到多模態評估的完整閉環解決方案。"
+    ],
+    "metaphorTitle": "高速公路的護欄",
+    "metaphor": "護欄不是為了阻礙賽車手（開發者）前進，相反地，正因為有堅固的護欄，賽車手才敢以時速 300 公里在彎道上全力衝刺。",
+    "visual": "安全防護與開發效率的雙螺旋上升圖",
+    "code": ""
+  },
+  {
+    "id": "det-6",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "致謝名單導讀",
+    "subtitle": "企業落地背後的實踐者們",
+    "pdfPage": 2,
+    "takeaway": "致謝名單揭示了本框架在多個 Google 內部與合作企業環境中的實踐驗證。",
+    "details": [
+      "Priya Pandey, Antonio Gulli 等內容貢獻者是 Google 內部 Agent 安全小組的主管。",
+      "Michael Lanning 負責架構視覺與版面設計，確保複雜概念能直觀呈現。",
+      "這套框架並非純學術理論，而是經過多輪紅藍軍實戰對抗演練後的總結。"
+    ],
+    "metaphorTitle": "智囊團的集體智慧",
+    "metaphor": "就像一份國家級的防疫指南，是由流行病學家、臨床醫生、公共衛生主管共同研討出來的結晶，確保在各個層面都有實操性。",
+    "visual": "貢獻者角色與驗證場景分佈圖",
+    "code": ""
+  },
+  {
+    "id": "det-7",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "策展人與編輯的角色",
+    "subtitle": "保證技術一致性與架構嚴謹度",
+    "pdfPage": 2,
+    "takeaway": "Anant Nawalgaria 的策展保證了 7 柱架構與 7 維評估在邏輯上能完美嚙合。",
+    "details": [
+      "將複雜的多學科知識（安全隔離、網路工程、密碼學、LLM微調、軟體測試）融合成一個統一的白皮書。",
+      "確保術語（如 AgBOM、Vibe Trajectory）在全書的定義與使用完全一致。",
+      "本白皮書經過三輪安全合規審查與外部專家評估。"
+    ],
+    "metaphorTitle": "總工程師的藍圖整合",
+    "metaphor": "一輛太空梭由成千上萬個零件組成，總工程師（編輯/策展人）不負責畫每個螺絲釘的設計圖，但要確保推進器、導航與維生系統在對接時完全密封。",
+    "visual": "白皮書章節結構剪裁與流向圖",
+    "code": ""
+  },
+  {
+    "id": "det-8",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "設計師的美學價值",
+    "subtitle": "高品質視覺是架構可讀性的關鍵",
+    "pdfPage": 2,
+    "takeaway": "Michael Lanning 的設計證明了，視覺美學與技術深度同樣是企業報告的重要部分。",
+    "details": [
+      "簡報白底設計與高對比度的莫蘭迪色系，有助於決策者快速抓取重點。",
+      "將複雜的 A2A（Agent-to-Agent）流程簡化為直觀的互動圖形。",
+      "圖表具有高信息密度，避免了傳統幻燈片的單調條列。"
+    ],
+    "metaphorTitle": "儀表板的美學",
+    "metaphor": "如果太空艙的儀表板設計得混亂難看，太空人在緊急關頭就會看錯數據。優秀的視覺設計（UI/UX）能讓人在 0.1 秒內做出正確的架構判斷。",
+    "visual": "視覺版面配置與美學指標雷達圖",
+    "code": ""
+  },
+  {
+    "id": "det-9",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "Day 4 內容大綱概覽",
+    "subtitle": "安全與評估的完整修煉路徑",
+    "pdfPage": 2,
+    "takeaway": "Day 4 課程涵蓋從最底層的基礎沙箱防禦，一路攀升到最上層的多模態意圖評估。",
+    "details": [
+      "第一部分 (P.6-12)：導論與 7 柱安全架構基礎。",
+      "第二部分 (P.13-26)：沙箱、供應鏈、MCP 安全、身分 JIT 與主動防禦聯防實務。",
+      "第三部分 (P.27-41)：評估指標、8 大方法、Kaggle SAE 零設定評估與 Python 實作程式碼解析。"
+    ],
+    "metaphorTitle": "登山指南的路線圖",
+    "metaphor": "在攀登高峰前，嚮導會先在地圖上畫出營地（基礎架構）、危險滑坡（套件幻覺、MCP欺騙）與衝頂路線（動態評估與指標），讓你心中有全景圖。",
+    "visual": "Day 4 模組流向與核心里程碑時間軸",
+    "code": ""
+  },
+  {
+    "id": "det-10",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "本指南與前三天的關係",
+    "subtitle": "從工具調用昇華至安全合規",
+    "pdfPage": 2,
+    "takeaway": "Day 4 是前三天課程的集大成，將單純的「會用 Agent」升級為「敢在企業用 Agent」。",
+    "details": [
+      "Day 1 談 New SDLC 概念，Day 2 談工具互操作，Day 3 談技能封裝。",
+      "Day 4 則是在這些技能與工具之上，加上最關鍵的『手銬』（安全 harness）與『量尺』（評估系統）。",
+      "沒有 Day 4，前三天的成果在企業合規與安全團隊眼裡都是無法上線的『玩具』。"
+    ],
+    "metaphorTitle": "地基與大樓的關係",
+    "metaphor": "前三天我們學會了如何用水泥、鋼筋（工具與技能）蓋起高樓；第四天我們學會如何安裝避雷針、防火門與防震阻尼器（安全與評估）。",
+    "visual": "Day 1-4 知識承接與架構演進圖",
+    "code": ""
+  },
+  {
+    "id": "det-11",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "目錄解析：安全演進",
+    "subtitle": "從 7 柱基礎到供應鏈防禦",
+    "pdfPage": 3,
+    "takeaway": "目錄展示了安全架構從靜態防禦向運行時動態治理的演進歷程。",
+    "details": [
+      "Introduction 闡述典範轉移背景。",
+      "7 柱架構提供了 mandatory 的安全基準。",
+      "Pillar 1 & 4 重點在沙箱與套件幻覺防堵。"
+    ],
+    "metaphorTitle": "防空演習地圖",
+    "metaphor": "先劃定安全區（沙箱），再檢查補給線（供應鏈），最後部署雷達站（觀測性）。",
+    "visual": "目錄結構樹狀圖",
+    "code": ""
+  },
+  {
+    "id": "det-12",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "目錄解析：應用邏輯",
+    "subtitle": "聚焦 Pillar 4 與 MCP 安全細節",
+    "pdfPage": 3,
+    "takeaway": "目錄第二部分深入探討了應用漏洞、IDE 衝突與 MCP 協議的安全防護。",
+    "details": [
+      "Application Vulnerabilities 揭示了前端暴露憑證的通病。",
+      "MCP Spoofing 指出了 forged server 調用漏洞。",
+      "Contextual Authorisation 則是解決 lateral movement 的核心。"
+    ],
+    "metaphorTitle": "防盜門與內部保全",
+    "metaphor": "除了外門有密碼鎖，家裡的保險箱（API/後端）和各房間門禁（MCP閘道）也必須有獨立的動態鎖。",
+    "visual": "應用與運行安全章節關聯圖",
+    "code": ""
+  },
+  {
+    "id": "det-13",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "目錄解析：身分信賴",
+    "subtitle": "Pillar 5 與 JIT token 控制",
+    "pdfPage": 3,
+    "takeaway": "目錄第三部分關注身分、認證以及高風險行為的人工介入點。",
+    "details": [
+      "SPIFFE ID 實現 Agentic Identity 隔離。",
+      "JIT downscoping 實現 Token 最小化限期使用。",
+      "Vibe Diff 與 Hardware MFA 解決確認疲勞。"
+    ],
+    "metaphorTitle": "信用額度與印鑑證明",
+    "metaphor": "給業務員專屬帳戶，每次請款（JIT）都要核對合約內容（Vibe Diff），大額轉帳還得老闆按印章（MFA）。",
+    "visual": "身分信賴章節流向示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-14",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "目錄解析：主動防禦",
+    "subtitle": "Red/Blue/Green 三聯軍協同",
+    "pdfPage": 3,
+    "takeaway": "目錄第四部分說明了如何以 AI 速度建立主動安全監控與修復體系。",
+    "details": [
+      "紅軍主動注入 Adversarial Vibes 測試強度。",
+      "藍軍監控 AgBOM 發現邏輯飄移。",
+      "綠軍實施 Stateful Quarantine 與代碼自動重構。"
+    ],
+    "metaphorTitle": "醫院感染控制小組",
+    "metaphor": "院感科主動投放無毒病毒（紅軍），監測儀即時發現異常升溫（藍軍），隔離病房與特效藥迅速介入（綠軍）。",
+    "visual": "三聯軍防禦演進流程",
+    "code": ""
+  },
+  {
+    "id": "det-15",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "目錄解析：觀測與評估",
+    "subtitle": "從心智審計到 7 維度評估",
+    "pdfPage": 3,
+    "takeaway": "目錄最後部分展示了可觀測性如何作為評估的 prerequisite，並引入 Kaggle 考場。",
+    "details": [
+      "Observability 審計 Agent 心智軌跡以防 DoW 攻擊。",
+      "Evaluation 區分 Why, What, How 三大支柱。",
+      "Applied Tips 則包含 4 大 Python 實作程式碼。"
+    ],
+    "metaphorTitle": "飛行記錄儀與實戰考核",
+    "metaphor": "黑盒子（觀測）記錄飛行軌跡，教官（評估）根據多維度指標給學員打分並進行實操模擬。",
+    "visual": "觀測與評估章節鏈接圖",
+    "code": ""
+  },
+  {
+    "id": "det-16",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.4 目錄導覽 - 第二部分 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 4,
+    "takeaway": "深入解析 PDF 第 4 頁關於 目錄導覽 - 第二部分 的第一個核心要點。",
+    "details": [
+      "PDF 第 4 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-17",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.4 目錄導覽 - 第二部分 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 4,
+    "takeaway": "分析在企業落地第 4 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-18",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.4 目錄導覽 - 第二部分 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 4,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-19",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.4 目錄導覽 - 第二部分 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 4,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-20",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.4 目錄導覽 - 第二部分 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 4,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-21",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.5 目錄導覽 - 第三部分 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 5,
+    "takeaway": "深入解析 PDF 第 5 頁關於 目錄導覽 - 第三部分 的第一個核心要點。",
+    "details": [
+      "PDF 第 5 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-22",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.5 目錄導覽 - 第三部分 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 5,
+    "takeaway": "分析在企業落地第 5 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-23",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.5 目錄導覽 - 第三部分 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 5,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-24",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.5 目錄導覽 - 第三部分 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 5,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-25",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.5 目錄導覽 - 第三部分 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 5,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-26",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "軟體工程的深刻轉移",
+    "subtitle": "從編寫代碼到表達意圖",
+    "pdfPage": 6,
+    "takeaway": "當代軟體開發正從「手寫語法」轉變為「表達意圖」，AI 成為我們的實作引擎。",
+    "details": [
+      "我們不再需要手動編寫大量樣板代碼（Boilerplate）。",
+      "開發者的核心工作是描述「做什麼」，而非「如何做」。",
+      "這場變革徹底改變了開發的速度與規模。"
+    ],
+    "metaphorTitle": "從司機到導航員",
+    "metaphor": "以前寫程式像開手排車，你要踩離合器、換檔（寫語法）。現在像坐自駕計程車，你只需要告訴車子目的地（意圖），車子自己會走。",
+    "visual": "開發方式轉移時間軸對比圖",
+    "code": ""
+  },
+  {
+    "id": "det-27",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "Casual Vibe Coding",
+    "subtitle": "隨性、無約束的意圖表達",
+    "pdfPage": 6,
+    "takeaway": "Casual Vibe Coding 適合個人快速原型開發，但在企業環境中存在極大風險。",
+    "details": [
+      "開發者用自然語言描述需求，直接接受 AI 輸出的任何程式碼。",
+      "沒有編譯約束、沒有安全審查，完全依賴模型「感覺」。",
+      "這種方式可能引入隱性漏洞或架構設計缺陷。"
+    ],
+    "metaphorTitle": "街頭即興說唱",
+    "metaphor": "這就像街頭藝人隨興即興表演，氣氛很 High（速度快），但如果用在國家級音樂會（企業生產線），就會有節奏失控的危險。",
+    "visual": "Casual 開發流程圖",
+    "code": ""
+  },
+  {
+    "id": "det-28",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "Disciplined Engineering",
+    "subtitle": "受約束的 Agentic 工程",
+    "pdfPage": 6,
+    "takeaway": "企業級 Vibe Coding 必須升級為受約束的 Disciplined Agentic Engineering。",
+    "details": [
+      "AI 作為執行引擎，必須運行在精心設計的安全包絡（Constraints）之內。",
+      "模型輸出的程式碼必須通過靜態測試與動態沙箱驗證。",
+      "透過約束，將不確定性（Non-deterministic）轉化為可控結果。"
+    ],
+    "metaphorTitle": "高精密的數控機床",
+    "metaphor": "設計師輸入圖紙（意圖），但機床（AI Engine）外圍有鋼鐵防護罩、有急停按鈕、有精密光柵儀檢測公差（安全約束），確保成品分毫不差。",
+    "visual": "受控開發架構圖",
+    "code": ""
+  },
+  {
+    "id": "det-29",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "信任模型的粉碎",
+    "subtitle": "傳統 Deterministic 信任的失效",
+    "pdfPage": 6,
+    "takeaway": "當 Agent 擁有自主代碼執行與敏感 API 存取權時，傳統信任模型徹底瓦解。",
+    "details": [
+      "在傳統軟體中，信任是二元的：編譯通過、測試綠燈、憑證有效即視為安全。",
+      "Agent 可以在持有有效 Token 的情況下，因為「意圖飄移」做出破壞性動作。",
+      "我們必須防範一個會自主變更環境的「非人勞動力」。"
+    ],
+    "metaphorTitle": "擁有鑰匙的夢遊者",
+    "metaphor": "這就像你雇了一個有合法證件的保全（憑證有效），但他晚上會夢遊（意圖飄移），在夢遊中把金庫的錢搬到垃圾桶。你不能只檢查他的證件，你得盯著他的夢遊行為。",
+    "visual": "傳統二元信任 vs Agentic 動態信任對比圖",
+    "code": ""
+  },
+  {
+    "id": "det-30",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "雙軸重塑信任",
+    "subtitle": "Security 與 Evaluation 的協同",
+    "pdfPage": 6,
+    "takeaway": "要在企業成功落地 Agent 團隊，必須同時在「安全」與「評估」兩條軸線上重塑信任。",
+    "details": [
+      "Security 告訴你 Agent 是否留在邊界內，確保其運作安全且無惡意。",
+      "Evaluation 告訴你在該邊界內發生的事情是否真正符合意圖、值得上線。",
+      "這兩者結合，構成了企業敢於發布 Agent 代碼的前提。"
+    ],
+    "metaphorTitle": "軌道與紅綠燈",
+    "metaphor": "安全是火車的軌道，確保火車不會開進田野（出界）；評估是軌道上的紅綠燈與調度系統，確保火車開得對、沒有超速且能在正確的車站停靠。",
+    "visual": "安全/評估雙嚙合齒輪圖",
+    "code": ""
+  },
+  {
+    "id": "det-31",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.7 安全與評估的信任雙軸 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 7,
+    "takeaway": "深入解析 PDF 第 7 頁關於 安全與評估的信任雙軸 的第一個核心要點。",
+    "details": [
+      "PDF 第 7 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-32",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.7 安全與評估的信任雙軸 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 7,
+    "takeaway": "分析在企業落地第 7 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-33",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.7 安全與評估的信任雙軸 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 7,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-34",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.7 安全與評估的信任雙軸 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 7,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-35",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.7 安全與評估的信任雙軸 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 7,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-36",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.8 非人勞動力的核心威脅 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 8,
+    "takeaway": "深入解析 PDF 第 8 頁關於 非人勞動力的核心威脅 的第一個核心要點。",
+    "details": [
+      "PDF 第 8 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-37",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.8 非人勞動力的核心威脅 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 8,
+    "takeaway": "分析在企業落地第 8 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-38",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.8 非人勞動力的核心威脅 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 8,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-39",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.8 非人勞動力的核心威脅 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 8,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-40",
+    "type": "detail",
+    "chapter": "第一章：導論與軟體工程典範轉移 (P.6-8)",
+    "title": "P.8 非人勞動力的核心威脅 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 8,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-41",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "架構圖整體概覽",
+    "subtitle": "Active Defense 執行工作流",
+    "pdfPage": 9,
+    "takeaway": "Secure Vibe Coding Agent Framework 將安全防禦分為三層，各層緊密嚙合。",
+    "details": [
+      "底層為 7 Pillars 基礎安全支柱。",
+      "中層為 Code & Execution 工作流，包含沙箱與防套件幻覺閘口。",
+      "頂層為 Active Defense Layer 主動防禦層，涵蓋身分與紅藍綠聯防。"
+    ],
+    "metaphorTitle": "城堡的三道防線",
+    "metaphor": "最外面是護城河（沙箱與網路治理），中間是城牆與衛兵（身分與閘道），最裡面是暗哨與特工（紅藍綠聯防），層層防護。",
+    "visual": "Figure 1 完整三層架構重繪 SVG",
+    "code": ""
+  },
+  {
+    "id": "det-42",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "三層架構的互動流向",
+    "subtitle": "從 fuzzy 意圖到 real-world 動作",
+    "pdfPage": 9,
+    "takeaway": "所有開發者的 fuzzy 意圖在轉換為動作前，必須穿過多層安全防線。",
+    "details": [
+      "1. 意圖輸入 -> 2. 紅軍威脅評估 -> 3. JIT Token 發放 -> 4. 沙箱編譯執行 -> 5. 藍軍 ABA 監控 -> 6. 綠軍自動修復。",
+      "任何一層被觸發都會拋出異常，阻斷執行。",
+      "這是一條自動化的安全流水線。"
+    ],
+    "metaphorTitle": "工廠的自動檢驗裝配線",
+    "metaphor": "原料（意圖）送進來，先進行化學分析（防毒），然後送入無塵室加工（沙箱），裝配過程有紅外線掃描儀監控公差（藍軍監控），發現瑕疵品立刻自動挑出並修補（綠軍修復）。",
+    "visual": "6步驟互動流向圖",
+    "code": ""
+  },
+  {
+    "id": "det-43",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "7支柱基礎的作用",
+    "subtitle": "為動態執行奠定 deterministic 底座",
+    "pdfPage": 9,
+    "takeaway": "動態的 Agent 必須運行在 deterministic 的底層基礎之上。",
+    "details": [
+      "Infrastructure 確保容器逃逸無法發生。",
+      "Data 確保 context 窗內數據不外洩、RAG不中毒。",
+      "Model 確保 system instructions 不被輕易纂改。"
+    ],
+    "metaphorTitle": "大樓的鋼筋水泥地基",
+    "metaphor": "無論樓上的房間如何動態重新裝潢（Agent代碼變更），地基、承重牆與水電總閥（基礎架構與數據安全）必須是穩固、雷打不動的。",
+    "visual": "7支柱底座立體展示圖",
+    "code": ""
+  },
+  {
+    "id": "det-44",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "代碼執行工作流的串聯",
+    "subtitle": "沙箱、包與閘道的防禦嚙合",
+    "pdfPage": 9,
+    "takeaway": "Code & Execution 工作流負責在運行時攔截最常見的 Vibe Coding 風險。",
+    "details": [
+      "Ephemeral Sandbox 與 Egress Governance 構成網路邊界。",
+      "Hallucinated Package Blockers 在編譯期阻斷惡意依賴。",
+      "MCP Spoofing Defense 阻斷 lateral movement 側向移動。"
+    ],
+    "metaphorTitle": "實驗室的安全排風系統",
+    "metaphor": "在進行化學實驗時，排風扇、過濾網與氣壓差（沙箱、網路閘道、依賴攔截）共同運作，確保即使試管破裂，毒氣也不會擴散到外部辦公室。",
+    "visual": "Code Work-flow 流程銜接圖",
+    "code": ""
+  },
+  {
+    "id": "det-45",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "主動防禦層的日常演練",
+    "subtitle": "紅藍綠三聯軍的並行協同",
+    "pdfPage": 9,
+    "takeaway": "Active Defense Layer 是動態的、以毒攻毒的 AI 協同防線。",
+    "details": [
+      "Agentic Identity 為每個動作提供 cryptographic 簽章。",
+      "The Vibe Diff 提供 plain-English 審查，阻斷確認疲勞。",
+      "Red/Blue/Green Teaming 實現 24小時無休對抗。"
+    ],
+    "metaphorTitle": "特警部隊的日常實戰對抗",
+    "metaphor": "紅軍是喬裝成劫匪的教官，藍軍是全天候巡邏的特警，綠軍是隨時準備拆彈的防爆專家，三者在同一個系統內實戰演練。",
+    "visual": "三聯軍動態演算法流向圖",
+    "code": ""
+  },
+  {
+    "id": "det-46",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "Pillar 1：網路基礎防禦",
+    "subtitle": "以 kernel 級沙箱阻斷容器逃逸",
+    "pdfPage": 10,
+    "takeaway": "基礎架構工程師必須使用 kernel 級沙箱（如 gVisor）來隔離 Agent 代碼執行。",
+    "details": [
+      "傳統 Docker 共享宿主內核，容易發生 container escape 逃逸。",
+      "gVisor 提供獨立虛擬內核，阻斷對實體主機的直接系統調用。",
+      "這是安全運行 untrusted 生成代碼的 floor，不是 ceiling。"
+    ],
+    "metaphorTitle": "雙重隔離的防彈玻璃監獄",
+    "metaphor": "犯人（未驗證代碼）被關在防彈玻璃房（gVisor）裡。他可以看到外面，但他的拳頭（系統調用）打在玻璃上會被虛擬內核（gVisor）吸收，根本碰不到外面的警察（宿主主機內核）。",
+    "visual": "gVisor 虛擬內核隔離對比圖",
+    "code": ""
+  },
+  {
+    "id": "det-47",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "網路 Egress 治理",
+    "subtitle": "以離線快取與代理防範 public exfiltration",
+    "pdfPage": 10,
+    "takeaway": "必須嚴格限制 Agent 的出網流量，僅允許通過 authorized 的內部代理或離線快取。",
+    "details": [
+      "Agent 的 outbound 流量是非 deterministic 的，容易被惡意代碼利用。",
+      "實施嚴格的 egress filters，阻止敏感 context 數據向公網發送。",
+      "使用 pre-sanitised 的爬蟲服務替代 Agent 直接上網。"
+    ],
+    "metaphorTitle": "海關進出口申報口",
+    "metaphor": "企業內的數據要出海關（出網），必須逐件開箱檢查（Proxy代理）。所有帶出去的行李（請求內容）必須申報，禁止走私敏感文件（Context外洩）。",
+    "visual": "Egress Governance 代理流向圖",
+    "code": ""
+  },
+  {
+    "id": "det-48",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "Pillar 2：數據靜態與傳輸防禦",
+    "subtitle": "CMEK 與 mTLS 的組合拳",
+    "pdfPage": 10,
+    "takeaway": "資料架構師必須在儲存與傳輸層實施最嚴格的加密，防止 context 數據洩露。",
+    "details": [
+      "Data at rest 必須使用 Customer-Managed Encryption Keys (CMEK) 加密。",
+      "Data in transit 必須強制使用 mutual TLS (mTLS) 雙向身分驗證。",
+      "確保即使通道被竊聽，Agent 傳輸的代碼意圖也不會洩漏。"
+    ],
+    "metaphorTitle": "運送黃金的裝甲運鈔車",
+    "metaphor": "黃金（敏感數據）存放在專屬保險庫裡，鑰匙在客戶手裡（CMEK）；運送時使用裝甲車（mTLS），且裝甲車司機與收件人必須互相出示指紋與密碼（雙向驗證），防止中途被劫。",
+    "visual": "mTLS 與 CMEK 數據流防護圖",
+    "code": ""
+  },
+  {
+    "id": "det-49",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "Context Engineering 安全",
+    "subtitle": "防範 context window 洩露與 RAG 中毒",
+    "pdfPage": 10,
+    "takeaway": "Context Engineering 既要提供豐富的上下文，也要防止資料庫被中毒攻擊。",
+    "details": [
+      "Agent 的 context 窗包含程式碼庫與商業機密，極易成為攻擊目標。",
+      "必須限制 Agent 僅能讀取 least privilege 權限內的文件。",
+      "對 RAG 資料源實施 strict 權限過濾，避免惡意注入。"
+    ],
+    "metaphorTitle": "圖書館的機密檔案室",
+    "metaphor": "研究員（Agent）進檔案室查資料，管理員只把與他課題相關的檔案夾（Context）拿給他，機密檔案箱（其他 tenant 數據）鎖死，防止他看錯或帶走別人的機密。",
+    "visual": "Context 權限過濾與 RAG 安全隔離圖",
+    "code": ""
+  },
+  {
+    "id": "det-50",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "Cross-Tenant Vector Poisoning",
+    "subtitle": "防範向量資料庫的多租戶污染",
+    "pdfPage": 10,
+    "takeaway": "向量資料庫必須實施 strict 租戶隔離，防止惡意向量被相似度檢索帶出。",
+    "details": [
+      "在多租戶環境中，惡意用戶可能上傳中毒向量（Poisoned Vector）。",
+      "當另一個租戶進行相似度檢索時，可能無意中檢索出惡意 payload 注入其 context 窗。",
+      "解決方案為：實施嚴格的 Metadata 租戶過濾與物理分區。"
+    ],
+    "metaphorTitle": "公共快遞儲物櫃的混亂",
+    "metaphor": "如果快遞櫃沒有密碼格（租戶隔離），郵差放快遞時，不小心把有毒的包裹放進了你的格子（檢索出中毒向量）。你拿錯包裹回家打開，就會導致系統中毒。",
+    "visual": "租戶向量污染與 Metadata 過濾機制圖",
+    "code": ""
+  },
+  {
+    "id": "det-51",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "P.11 安全支柱 3, 4, 5, 6：模型、應用、身分與觀測 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 11,
+    "takeaway": "深入解析 PDF 第 11 頁關於 安全支柱 3, 4, 5, 6：模型、應用、身分與觀測 的第一個核心要點。",
+    "details": [
+      "PDF 第 11 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-52",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "P.11 安全支柱 3, 4, 5, 6：模型、應用、身分與觀測 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 11,
+    "takeaway": "分析在企業落地第 11 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-53",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "P.11 安全支柱 3, 4, 5, 6：模型、應用、身分與觀測 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 11,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-54",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "P.11 安全支柱 3, 4, 5, 6：模型、應用、身分與觀測 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 11,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-55",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "P.11 安全支柱 3, 4, 5, 6：模型、應用、身分與觀測 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 11,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-56",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "P.12 安全支柱 7：治理、法規與 Logic Reviews (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 12,
+    "takeaway": "深入解析 PDF 第 12 頁關於 安全支柱 7：治理、法規與 Logic Reviews 的第一個核心要點。",
+    "details": [
+      "PDF 第 12 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-57",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "P.12 安全支柱 7：治理、法規與 Logic Reviews (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 12,
+    "takeaway": "分析在企業落地第 12 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-58",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "P.12 安全支柱 7：治理、法規與 Logic Reviews (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 12,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-59",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "P.12 安全支柱 7：治理、法規與 Logic Reviews (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 12,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-60",
+    "type": "detail",
+    "chapter": "第二章：7柱安全防禦架構藍圖 (P.9-12)",
+    "title": "P.12 安全支柱 7：治理、法規與 Logic Reviews (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 12,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-61",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "動態 Vibe Loop",
+    "subtitle": "高頻、反覆運算的生成與執行循環",
+    "pdfPage": 13,
+    "takeaway": "Vibe Coding 是一個寫代碼、編譯、報錯、重寫的動態 high-velocity 閉環。",
+    "details": [
+      "Agent 很少能一次寫出完美的代碼。",
+      "牠必須不斷執行、讀取 error 檔案、自主修改程式碼直至符合 vibe。",
+      "如果這個循環在主機運行，會帶來嚴重的系統風險。"
+    ],
+    "metaphorTitle": "賽車手的維修站調試",
+    "metaphor": "賽車手（Agent）在賽道上跑一圈，發現剎車太軟（報錯），立刻開進維修站調校（重寫），然後再開出去跑（執行）。這個過程必須在封閉的測試賽道上進行，不能在公共馬路上調試。",
+    "visual": "Vibe Loop 四階段（Generate -> Run -> Read Error -> Rewrite）SVG",
+    "code": ""
+  },
+  {
+    "id": "det-62",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "暫時性沙箱隔離",
+    "subtitle": "以 Ephemeral Sandbox 防止惡意代碼持久化",
+    "pdfPage": 13,
+    "takeaway": "任何 Agent 生成的代碼必須在一次性、運行完即銷毀的沙箱中執行。",
+    "details": [
+      "每次代碼執行完畢，沙箱狀態立刻 100% 重置。",
+      "即使 Agent 被 prompt injection 寫入了木馬程式，也無法在沙箱外持久化。",
+      "保證宿主機與主 Agent 的 absolute 安全。"
+    ],
+    "metaphorTitle": "一次性實驗手套",
+    "metaphor": "醫生做手術（運行代碼）時必須戴一次性手套（Ephemeral Sandbox）。做完手術立刻把手套丟棄銷毀（重置狀態）。即使手套沾染了病毒（惡意代碼），下一位病人也不會被感染。",
+    "visual": "沙箱建立與銷毀生命週期時序圖",
+    "code": ""
+  },
+  {
+    "id": "det-63",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "硬體資源限制與監控",
+    "subtitle": "防範 CPU/記憶體被惡意耗盡",
+    "pdfPage": 13,
+    "takeaway": "沙箱必須設置 strict 的 CPU 核心、記憶體大小與執行時間閥值（Timeout）。",
+    "details": [
+      "惡意代碼或無盡遞迴邏輯會迅速榨乾宿主機資源。",
+      "設定 cgroups 限制，記憶體超限立刻觸發 OOM Kill。",
+      "超時未結束的腳本強制中斷，發送失敗狀態給主 Agent。"
+    ],
+    "metaphorTitle": "廚房的安全定時器",
+    "metaphor": "你在燉湯（運行代碼），但給瓦斯爐設了定時器與防乾燒感應（資源限制）。即使你睡著了（死循環），時間一到或水一燒乾，瓦斯會自動關閉，防止廚房起火。",
+    "visual": "資源限制監控與 OOM 觸發時序圖",
+    "code": ""
+  },
+  {
+    "id": "det-64",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "沙箱狀態管理與快照",
+    "subtitle": "利用快照快速還原乾淨環境",
+    "pdfPage": 13,
+    "takeaway": "利用快照（Snapshot）技術，沙箱能在毫秒內還原到初始乾淨狀態。",
+    "details": [
+      "在 Vibe Loop 中，每次重試如果重啟虛擬機太慢，會極大影響開發速度。",
+      "使用輕量級容器快照（如 Firecracker or gVisor 快照），實現瞬間還原。",
+      "兼顧開發速度（High velocity）與極致安全性。"
+    ],
+    "metaphorTitle": "單機遊戲的存檔點",
+    "metaphor": "玩遊戲挑戰大 Boss，你可以在打Boss前存檔（快照）。一旦角色陣亡（代碼報錯/中毒），你不需要重玩整個遊戲，直接讀取存檔（還原快照）即可立刻滿血復活。",
+    "visual": "快照備份與還原延遲對比圖",
+    "code": ""
+  },
+  {
+    "id": "det-65",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "多沙箱協同安全",
+    "subtitle": "Agent-to-Sandbox 的權限限制",
+    "pdfPage": 13,
+    "takeaway": "主 Agent 與沙箱之間必須實施嚴格的 API 隔離，防止沙箱反向控制主 Agent。",
+    "details": [
+      "沙箱內運行的代碼只能通過 stdout/stderr 回傳數據，嚴禁訪問主 Agent 記憶體。",
+      "通訊通道應為單向或受到極窄的協定限制。",
+      "防止沙箱被攻破後，攻擊者劫持主 Agent 的大腦。"
+    ],
+    "metaphorTitle": "監獄探監室的單向玻璃",
+    "metaphor": "家屬（主 Agent）去探監，與犯人（沙箱內代碼）之間隔著防彈單向玻璃，只能通過電話筒（stdout）講話。犯人無法打破玻璃衝出來劫持家屬。",
+    "visual": "主 Agent 與 Sandbox 通訊隔離拓撲圖",
+    "code": ""
+  },
+  {
+    "id": "det-66",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "套件幻覺威脅",
+    "subtitle": "什麼是 Slopsquatting 攻擊？",
+    "pdfPage": 14,
+    "takeaway": "LLM 經常幻覺出不存在的 dependency 依賴包名稱，攻擊者會搶註這些名稱植入惡意軟體。",
+    "details": [
+      "AI 在寫代碼時，可能隨手 import 一個不存在的包（如 `helper-utils-v9`）。",
+      "攻擊者監控開源論壇或通過主動探测，發現這些不存在的熱門幻覺包名稱。",
+      "在 npm/pip 公開倉庫搶先發布同名惡意包，等待 Agent 自動下載。"
+    ],
+    "metaphorTitle": "搶註不存在的專利",
+    "metaphor": "這就像一家大公司在發表會上口誤提到了他們將推出一個未公開的商標產品（AI 幻覺包）。投機分子（攻擊者）聽到後，立刻去商標局搶註這個商標並製造假貨，等著這家公司的採購部門（Agent）自動下單。",
+    "visual": "Slopsquatting 攻擊鏈示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-67",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "防禦機制 1：Enterprise 私有倉庫",
+    "subtitle": "強制 Agent 僅能使用 vetted 的套件來源",
+    "pdfPage": 14,
+    "takeaway": "嚴禁 Agent 從 public registries 直接拉取 dependency，必須強制使用內部私有鏡像源。",
+    "details": [
+      "私有鏡像源只包含經過 Security Team 審核通過的安全套件白名單。",
+      "任何幻覺套件在私有倉庫中都會查詢失敗，阻斷下載。",
+      "這是杜絕 Slopsquatting 的第一道物理防線。"
+    ],
+    "metaphorTitle": "公司的辦公用品採購清單",
+    "metaphor": "員工採購用品（下載依賴套件）時，不能自己去淘寶（Public npm）買，必須在公司系統的「特約供應商白名單」（內部私有倉庫）裡挑選。白名單上沒有的品牌，財務一律不予付款。",
+    "visual": "公網倉庫 vs 私有倉庫依賴下載流向對比",
+    "code": ""
+  },
+  {
+    "id": "det-68",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "防禦機制 2：密碼學版本鎖定",
+    "subtitle": "以 sha256 哈希值強制鎖定依賴套件版本",
+    "pdfPage": 14,
+    "takeaway": "所有套件依賴檔案（如 requirements.txt, package-lock.json）必須寫死精確的版本號與 sha256 簽名。",
+    "details": [
+      "防止攻擊者透過覆蓋已發布版本（Version squatting）來注入惡意更新。",
+      "編譯時，系統自動校驗套件的 Hash 值，不一致立刻中斷編譯。",
+      "確保下載的套件與最初審查通過的套件 100% 相同。"
+    ],
+    "metaphorTitle": "產品出廠的防偽防撬標籤",
+    "metaphor": "你向廠商訂購了一批零件。零件箱上貼有密碼防偽標籤（sha256哈希）。貨物送到工地（編譯環境）時，工程師先核對標籤。只要標籤被撕開過或號碼不對，一律退貨並報警。",
+    "visual": "Lockfile 版本與 Hash 校驗示意代碼",
+    "code": ""
+  },
+  {
+    "id": "det-69",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "防禦機制 3：CI/CD 中的 SBOM 審查",
+    "subtitle": "自動產出與驗證 Software Bill of Materials",
+    "pdfPage": 14,
+    "takeaway": "CI/CD 管道必須自動掃描代碼，產出並驗證 SBOM，作為生產環境部署的 binary gate。",
+    "details": [
+      "SBOM 是軟體所有依賴零件的明細表，詳列每個包的來源與許可證。",
+      "CI/CD 自動比對 SBOM 與安全漏洞庫（如 CVE），發現高危依賴立刻攔截。",
+      "結合 Binary Authorisation，無 SBOM 簽章代碼無法發布。"
+    ],
+    "metaphorTitle": "食品包裝上的成分配料表",
+    "metaphor": "超商上架食品（生產部署）前，質檢部門必須要求食品包裝上印有完整的配料表（SBOM），列出防腐劑、添加劑（依賴包）。一旦查出配料表含有違禁成分，立刻整批下架。",
+    "visual": "SBOM 生成與漏洞比對流程圖",
+    "code": ""
+  },
+  {
+    "id": "det-70",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "Egress 治理的配合",
+    "subtitle": "以阻斷公網連線防範隱性依賴拉取",
+    "pdfPage": 14,
+    "takeaway": "若沙箱網路被限制為 offline 模式，套件幻覺威脅將被徹底化解。",
+    "details": [
+      "在編譯沙箱中，關閉一切外網連線，僅允許連線本地快取的依賴庫。",
+      "這樣一來，任何 Agent 試圖拉取幻覺包的動作都會直接因「無法連線外網」而失敗。",
+      "以網絡物理隔離直接阻斷 dependency 供應鏈漏洞。"
+    ],
+    "metaphorTitle": "斷網的安裝電腦",
+    "metaphor": "這就像用一台完全不插網線的電腦安裝軟體。你只能用已經拷貝在隨身碟（本地快取）裡的安裝包。就算軟體想去網上下載木馬依賴，也因為沒有網絡而無法得逞。",
+    "visual": "離線編譯環境與網絡拓撲圖",
+    "code": ""
+  },
+  {
+    "id": "det-71",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "P.15 非互動式網路限制與 egress 治理 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 15,
+    "takeaway": "深入解析 PDF 第 15 頁關於 非互動式網路限制與 egress 治理 的第一個核心要點。",
+    "details": [
+      "PDF 第 15 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-72",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "P.15 非互動式網路限制與 egress 治理 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 15,
+    "takeaway": "分析在企業落地第 15 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-73",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "P.15 非互動式網路限制與 egress 治理 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 15,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-74",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "P.15 非互動式網路限制與 egress 治理 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 15,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-75",
+    "type": "detail",
+    "chapter": "第三章：沙箱隔離與軟體供應鏈安全 (P.13-15)",
+    "title": "P.15 非互動式網路限制與 egress 治理 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 15,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-76",
+    "type": "detail",
+    "chapter": "第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)",
+    "title": "應用漏洞：前端信任陷阱",
+    "subtitle": "過度將敏感邏輯放在 Frontend 的通病",
+    "pdfPage": 16,
+    "takeaway": "AI 在快速構建應用時，常為了求快而將 API Keys、驗證與 session 控制直接寫在瀏覽器前端。",
+    "details": [
+      "AI 傾向於採取「阻力最小路徑」（Path of least resistance）來寫代碼。",
+      "這會導致密碼驗證、API 私鑰或管理員權限 flags 暴露在 client 端的 JS 中。",
+      "任何人只要打開 Chrome DevTools 就能輕鬆竊取並繞過驗證。"
+    ],
+    "metaphorTitle": "把金庫密碼貼在玻璃大門上",
+    "metaphor": "這就像銀行為了方便客戶核對（求快），把金庫的密碼鎖和密碼貼在門口的玻璃大門上。任何人走過去（DevTools）看一眼，就能自己開門進去拿錢，完全不需要銀行經理（後端服務器）的同意。",
+    "visual": "前端代碼暴露 API 密鑰之代碼漏洞示例",
+    "code": ""
+  },
+  {
+    "id": "det-77",
+    "type": "detail",
+    "chapter": "第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)",
+    "title": "後端門戶大開",
+    "subtitle": "缺少 default-deny 與 Row-Level Security",
+    "pdfPage": 16,
+    "takeaway": "AI 生成的後端代碼經常缺少基本的身分校驗與資料庫行級安全控制（RLS）。",
+    "details": [
+      "模型很擅長連接資料庫與寫 SQL，但很少主動啟用防禦性的「默認拒絕」訪問控制。",
+      "例如：產生一個 Admin Dashboard 卻沒有檢查用戶的 Session 角色。",
+      "這會使 staging 測試環境或私有數據庫介面直接暴露在公網上。"
+    ],
+    "metaphorTitle": "沒有鎖門的豪華樣品屋",
+    "metaphor": "建商（Agent）很快地蓋好了一間漂亮的樣品屋（Dashboards），擺滿了昂貴的家具（敏感數據）。但因為趕著交屋，忘記給大門安裝鎖具（Default-deny），結果任何路人都可以隨便走進去搬走東西。",
+    "visual": "SQL Row-Level Security 缺失與修復代碼對比",
+    "code": ""
+  },
+  {
+    "id": "det-78",
+    "type": "detail",
+    "chapter": "第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)",
+    "title": "IDE 摩擦與安全左移的衝突",
+    "subtitle": "為什麼不能在 IDE 暴力阻攔 Prompt？",
+    "pdfPage": 16,
+    "takeaway": "在開發者 IDE 中強行 hard-block 疑似不安全的 prompt 會帶來嚴重的摩擦，導致效率降低。",
+    "details": [
+      "開發者在迭代複雜邏輯時，需要自由嘗試各種語法。",
+      "如果 IDE 隨時跳出安全警告並拒絕生成代碼，會打斷開發者的心流（Friction）。",
+      "這會導致開發者主動關閉安全工具，使防線失效。"
+    ],
+    "metaphorTitle": "開車時隨時插手方向盤的副駕駛",
+    "metaphor": "這就像你在開車（開發程式），旁邊的副駕駛只要看到前面有塊小石頭，就立刻伸手幫你踩死剎車、搶奪方向盤（IDE暴力攔截）。這不僅讓你很火大，還可能在正常超車時引發連環車禍。",
+    "visual": "開發摩擦力 (Friction) 與開發 velocity 關係曲線圖",
+    "code": ""
+  },
+  {
+    "id": "det-79",
+    "type": "detail",
+    "chapter": "第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)",
+    "title": "安全左移的正確姿勢",
+    "subtitle": "IDE 開發者顧問 Linting 機制",
+    "pdfPage": 16,
+    "takeaway": "應該在 IDE 中使用「顧問式（Advisory）Linting」提供實時安全引導而非強制阻斷。",
+    "details": [
+      "Linter 以黃線或提示框提醒開發者：「此處 API 密鑰可能暴露，建議改用環境變量。」",
+      "開發者可以繼續編寫，保持 velocity，但能隨時獲得安全糾錯建議。",
+      "這是一種 friendly、無侵入性的輔助機制。"
+    ],
+    "metaphorTitle": "文法檢查與拼字糾錯",
+    "metaphor": "這就像你在寫報告時，Word 只是默默在錯字下面畫一條紅色波浪線（Advisory Linting），你可以繼續寫完，再回頭點擊修改。它不會在你打錯字的一瞬間鎖死你的鍵盤。",
+    "visual": "VS Code 整合 IDE Linter 提示畫面模擬",
+    "code": ""
+  },
+  {
+    "id": "det-80",
+    "type": "detail",
+    "chapter": "第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)",
+    "title": "CI/CD Pipeline 的確定性防線",
+    "subtitle": "以 SAST/SCA 進行強管控與發布閘口",
+    "pdfPage": 16,
+    "takeaway": "不妥協的安全控管應被推遲到 CI/CD pipeline 中，實施 deterministic 靜態掃描。",
+    "details": [
+      "在代碼提交並準備部署到測試/生產環境時，啟動靜態分析測試（SAST）。",
+      "檢測依賴套件是否包含漏洞（SCA），或代碼中是否暴露了 secrets。",
+      "在 Pipeline 實施 hard-block，只要檢測不通過，絕對拒絕發布。"
+    ],
+    "metaphorTitle": "飛機起飛前的登機安檢",
+    "metaphor": "旅客（開發代碼）在候機室可以自由活動、聊天（IDE自由開發）。但當你要登機（部署上線）時，必須通過嚴格的安檢金屬門與 X 光機（CI/CD SAST/SCA）。只要隨身行李裡查出危禁品，一律扣留，絕對不能登機。",
+    "visual": "CI/CD Pipeline 靜態安全檢測閘口流程圖",
+    "code": ""
+  },
+  {
+    "id": "det-81",
+    "type": "detail",
+    "chapter": "第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)",
+    "title": "P.17 MCP Spoofing 與上下文授權閘道 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 17,
+    "takeaway": "深入解析 PDF 第 17 頁關於 MCP Spoofing 與上下文授權閘道 的第一個核心要點。",
+    "details": [
+      "PDF 第 17 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-82",
+    "type": "detail",
+    "chapter": "第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)",
+    "title": "P.17 MCP Spoofing 與上下文授權閘道 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 17,
+    "takeaway": "分析在企業落地第 17 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-83",
+    "type": "detail",
+    "chapter": "第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)",
+    "title": "P.17 MCP Spoofing 與上下文授權閘道 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 17,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-84",
+    "type": "detail",
+    "chapter": "第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)",
+    "title": "P.17 MCP Spoofing 與上下文授權閘道 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 17,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-85",
+    "type": "detail",
+    "chapter": "第四章：應用邏輯安全與 Model Context Protocol 防護 (P.15-17)",
+    "title": "P.17 MCP Spoofing 與上下文授權閘道 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 17,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-86",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.18 身分信賴：SPIFFE ID 與 Confused Deputy 防範 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 18,
+    "takeaway": "深入解析 PDF 第 18 頁關於 身分信賴：SPIFFE ID 與 Confused Deputy 防範 的第一個核心要點。",
+    "details": [
+      "PDF 第 18 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-87",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.18 身分信賴：SPIFFE ID 與 Confused Deputy 防範 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 18,
+    "takeaway": "分析在企業落地第 18 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-88",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.18 身分信賴：SPIFFE ID 與 Confused Deputy 防範 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 18,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-89",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.18 身分信賴：SPIFFE ID 與 Confused Deputy 防範 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 18,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-90",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.18 身分信賴：SPIFFE ID 與 Confused Deputy 防範 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 18,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-91",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.19 Zero Ambient Authority 與 JIT Downscoping (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 19,
+    "takeaway": "深入解析 PDF 第 19 頁關於 Zero Ambient Authority 與 JIT Downscoping 的第一個核心要點。",
+    "details": [
+      "PDF 第 19 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-92",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.19 Zero Ambient Authority 與 JIT Downscoping (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 19,
+    "takeaway": "分析在企業落地第 19 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-93",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.19 Zero Ambient Authority 與 JIT Downscoping (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 19,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-94",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.19 Zero Ambient Authority 與 JIT Downscoping (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 19,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-95",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.19 Zero Ambient Authority 與 JIT Downscoping (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 19,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-96",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.20 硬體 MFA 與 Vibe Diff 代碼白話審查 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 20,
+    "takeaway": "深入解析 PDF 第 20 頁關於 硬體 MFA 與 Vibe Diff 代碼白話審查 的第一個核心要點。",
+    "details": [
+      "PDF 第 20 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-97",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.20 硬體 MFA 與 Vibe Diff 代碼白話審查 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 20,
+    "takeaway": "分析在企業落地第 20 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-98",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.20 硬體 MFA 與 Vibe Diff 代碼白話審查 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 20,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-99",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.20 硬體 MFA 與 Vibe Diff 代碼白話審查 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 20,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-100",
+    "type": "detail",
+    "chapter": "第五章：身分信賴、JIT 授權與高風險行為管控 (P.18-20)",
+    "title": "P.20 硬體 MFA 與 Vibe Diff 代碼白話審查 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 20,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-101",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.21 隱形載荷、字元欺騙與虛擬紅軍攻擊者 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 21,
+    "takeaway": "深入解析 PDF 第 21 頁關於 隱形載荷、字元欺騙與虛擬紅軍攻擊者 的第一個核心要點。",
+    "details": [
+      "PDF 第 21 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-102",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.21 隱形載荷、字元欺騙與虛擬紅軍攻擊者 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 21,
+    "takeaway": "分析在企業落地第 21 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-103",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.21 隱形載荷、字元欺騙與虛擬紅軍攻擊者 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 21,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-104",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.21 隱形載荷、字元欺騙與虛擬紅軍攻擊者 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 21,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-105",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.21 隱形載荷、字元欺騙與虛擬紅軍攻擊者 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 21,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-106",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.22 虛擬藍軍 AgBOM 行為分析與綠軍 Stateful Quarantine (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 22,
+    "takeaway": "深入解析 PDF 第 22 頁關於 虛擬藍軍 AgBOM 行為分析與綠軍 Stateful Quarantine 的第一個核心要點。",
+    "details": [
+      "PDF 第 22 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-107",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.22 虛擬藍軍 AgBOM 行為分析與綠軍 Stateful Quarantine (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 22,
+    "takeaway": "分析在企業落地第 22 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-108",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.22 虛擬藍軍 AgBOM 行為分析與綠軍 Stateful Quarantine (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 22,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-109",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.22 虛擬藍軍 AgBOM 行為分析與綠軍 Stateful Quarantine (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 22,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-110",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.22 虛擬藍軍 AgBOM 行為分析與綠軍 Stateful Quarantine (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 22,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-111",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.23 小批次控制與 Planner/Evaluator/Executor 三階段 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 23,
+    "takeaway": "深入解析 PDF 第 23 頁關於 小批次控制與 Planner/Evaluator/Executor 三階段 的第一個核心要點。",
+    "details": [
+      "PDF 第 23 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-112",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.23 小批次控制與 Planner/Evaluator/Executor 三階段 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 23,
+    "takeaway": "分析在企業落地第 23 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-113",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.23 小批次控制與 Planner/Evaluator/Executor 三階段 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 23,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-114",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.23 小批次控制與 Planner/Evaluator/Executor 三階段 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 23,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-115",
+    "type": "detail",
+    "chapter": "第六章：主動防禦：Red, Blue, Green 聯防機制 (P.20-23)",
+    "title": "P.23 小批次控制與 Planner/Evaluator/Executor 三階段 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 23,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-116",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.24 心智審計：Denial of Wallet 錢包攻擊防禦 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 24,
+    "takeaway": "深入解析 PDF 第 24 頁關於 心智審計：Denial of Wallet 錢包攻擊防禦 的第一個核心要點。",
+    "details": [
+      "PDF 第 24 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-117",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.24 心智審計：Denial of Wallet 錢包攻擊防禦 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 24,
+    "takeaway": "分析在企業落地第 24 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-118",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.24 心智審計：Denial of Wallet 錢包攻擊防禦 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 24,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-119",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.24 心智審計：Denial of Wallet 錢包攻擊防禦 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 24,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-120",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.24 心智審計：Denial of Wallet 錢包攻擊防禦 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 24,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-121",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.25 Vibe Trajectory 軌跡追踪與狀態斷路器 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 25,
+    "takeaway": "深入解析 PDF 第 25 頁關於 Vibe Trajectory 軌跡追踪與狀態斷路器 的第一個核心要點。",
+    "details": [
+      "PDF 第 25 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-122",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.25 Vibe Trajectory 軌跡追踪與狀態斷路器 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 25,
+    "takeaway": "分析在企業落地第 25 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-123",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.25 Vibe Trajectory 軌跡追踪與狀態斷路器 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 25,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-124",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.25 Vibe Trajectory 軌跡追踪與狀態斷路器 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 25,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-125",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.25 Vibe Trajectory 軌跡追踪與狀態斷路器 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 25,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-126",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.26 安全性實務 Baseline 總整理 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 26,
+    "takeaway": "深入解析 PDF 第 26 頁關於 安全性實務 Baseline 總整理 的第一個核心要點。",
+    "details": [
+      "PDF 第 26 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-127",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.26 安全性實務 Baseline 總整理 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 26,
+    "takeaway": "分析在企業落地第 26 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-128",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.26 安全性實務 Baseline 總整理 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 26,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-129",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.26 安全性實務 Baseline 總整理 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 26,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-130",
+    "type": "detail",
+    "chapter": "第七章：可觀測性與 Agent 心智軌跡審計 (P.24-26)",
+    "title": "P.26 安全性實務 Baseline 總整理 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 26,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-131",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.27 安全 Agent 不等於有效 Agent (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 27,
+    "takeaway": "深入解析 PDF 第 27 頁關於 安全 Agent 不等於有效 Agent 的第一個核心要點。",
+    "details": [
+      "PDF 第 27 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-132",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.27 安全 Agent 不等於有效 Agent (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 27,
+    "takeaway": "分析在企業落地第 27 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-133",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.27 安全 Agent 不等於有效 Agent (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 27,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-134",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.27 安全 Agent 不等於有效 Agent (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 27,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-135",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.27 安全 Agent 不等於有效 Agent (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 27,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-136",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.28 評估框架：Why, What, How 核心矩陣 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 28,
+    "takeaway": "深入解析 PDF 第 28 頁關於 評估框架：Why, What, How 核心矩陣 的第一個核心要點。",
+    "details": [
+      "PDF 第 28 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-137",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.28 評估框架：Why, What, How 核心矩陣 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 28,
+    "takeaway": "分析在企業落地第 28 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-138",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.28 評估框架：Why, What, How 核心矩陣 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 28,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-139",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.28 評估框架：Why, What, How 核心矩陣 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 28,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-140",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.28 評估框架：Why, What, How 核心矩陣 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 28,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-141",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.29 評估特質：無規格、無法人工驗證、狀態複合 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 29,
+    "takeaway": "深入解析 PDF 第 29 頁關於 評估特質：無規格、無法人工驗證、狀態複合 的第一個核心要點。",
+    "details": [
+      "PDF 第 29 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-142",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.29 評估特質：無規格、無法人工驗證、狀態複合 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 29,
+    "takeaway": "分析在企業落地第 29 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-143",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.29 評估特質：無規格、無法人工驗證、狀態複合 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 29,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-144",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.29 評估特質：無規格、無法人工驗證、狀態複合 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 29,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-145",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.29 評估特質：無規格、無法人工驗證、狀態複合 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 29,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-146",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.30 評估維度：意圖滿意度、功能正確性、視覺正確性 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 30,
+    "takeaway": "深入解析 PDF 第 30 頁關於 評估維度：意圖滿意度、功能正確性、視覺正確性 的第一個核心要點。",
+    "details": [
+      "PDF 第 30 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-147",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.30 評估維度：意圖滿意度、功能正確性、視覺正確性 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 30,
+    "takeaway": "分析在企業落地第 30 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-148",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.30 評估維度：意圖滿意度、功能正確性、視覺正確性 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 30,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-149",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.30 評估維度：意圖滿意度、功能正確性、視覺正確性 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 30,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-150",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.30 評估維度：意圖滿意度、功能正確性、視覺正確性 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 30,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-151",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.31 評估維度：成本效率、代碼質量、軌跡與自我修復 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 31,
+    "takeaway": "深入解析 PDF 第 31 頁關於 評估維度：成本效率、代碼質量、軌跡與自我修復 的第一個核心要點。",
+    "details": [
+      "PDF 第 31 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-152",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.31 評估維度：成本效率、代碼質量、軌跡與自我修復 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 31,
+    "takeaway": "分析在企業落地第 31 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-153",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.31 評估維度：成本效率、代碼質量、軌跡與自我修復 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 31,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-154",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.31 評估維度：成本效率、代碼質量、軌跡與自我修復 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 31,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-155",
+    "type": "detail",
+    "chapter": "第八章：意圖驅動評估體系：為何不同、評估什麼與如何評估 (P.27-31)",
+    "title": "P.31 評估維度：成本效率、代碼質量、軌跡與自我修復 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 31,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-156",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.32 評估方法：自動化功能測試與安全防護評估 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 32,
+    "takeaway": "深入解析 PDF 第 32 頁關於 評估方法：自動化功能測試與安全防護評估 的第一個核心要點。",
+    "details": [
+      "PDF 第 32 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-157",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.32 評估方法：自動化功能測試與安全防護評估 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 32,
+    "takeaway": "分析在企業落地第 32 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-158",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.32 評估方法：自動化功能測試與安全防護評估 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 32,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-159",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.32 評估方法：自動化功能測試與安全防護評估 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 32,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-160",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.32 評估方法：自動化功能測試與安全防護評估 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 32,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-161",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.33 評估方法：LLM 裁判、瀏覽器 Playwright 與線上抽樣 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 33,
+    "takeaway": "深入解析 PDF 第 33 頁關於 評估方法：LLM 裁判、瀏覽器 Playwright 與線上抽樣 的第一個核心要點。",
+    "details": [
+      "PDF 第 33 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-162",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.33 評估方法：LLM 裁判、瀏覽器 Playwright 與線上抽樣 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 33,
+    "takeaway": "分析在企業落地第 33 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-163",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.33 評估方法：LLM 裁判、瀏覽器 Playwright 與線上抽樣 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 33,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-164",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.33 評估方法：LLM 裁判、瀏覽器 Playwright 與線上抽樣 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 33,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-165",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.33 評估方法：LLM 裁判、瀏覽器 Playwright 與線上抽樣 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 33,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-166",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.34 Kaggle SAE 零設定評估與基準測試過度擬合 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 34,
+    "takeaway": "深入解析 PDF 第 34 頁關於 Kaggle SAE 零設定評估與基準測試過度擬合 的第一個核心要點。",
+    "details": [
+      "PDF 第 34 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-167",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.34 Kaggle SAE 零設定評估與基準測試過度擬合 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 34,
+    "takeaway": "分析在企業落地第 34 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-168",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.34 Kaggle SAE 零設定評估與基準測試過度擬合 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 34,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-169",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.34 Kaggle SAE 零設定評估與基準測試過度擬合 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 34,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-170",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.34 Kaggle SAE 零設定評估與基準測試過度擬合 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 34,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-171",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.35 觀測指標：OTEL Spans 與會話前綴意圖生成 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 35,
+    "takeaway": "深入解析 PDF 第 35 頁關於 觀測指標：OTEL Spans 與會話前綴意圖生成 的第一個核心要點。",
+    "details": [
+      "PDF 第 35 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-172",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.35 觀測指標：OTEL Spans 與會話前綴意圖生成 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 35,
+    "takeaway": "分析在企業落地第 35 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-173",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.35 觀測指標：OTEL Spans 與會話前綴意圖生成 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 35,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-174",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.35 觀測指標：OTEL Spans 與會話前綴意圖生成 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 35,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-175",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.35 觀測指標：OTEL Spans 與會話前綴意圖生成 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 35,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-176",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "程式碼片段 1 深度解讀",
+    "subtitle": "從會話前綴動態衍生驗收指標",
+    "pdfPage": 36,
+    "takeaway": "解析 Snippet 1 如何使用 `gemini-3-pro` 從用戶最初的模糊意圖中提取 JSON 格式的驗收標準。",
+    "details": [
+      "導入 `google.genai` 套件，建立 API Client 連線。",
+      "讀取 `session.user_messages[:2]`（前兩輪提示詞）作為意圖輸入。",
+      "調用模型，生成 3-5 條明確的 acceptance criteria 並以 JSON 格式回傳。"
+    ],
+    "metaphorTitle": "將模糊指示變成合約條款",
+    "metaphor": "這就像客戶跟你說：「我要一個看起來像蘋果官網的高質感商城。」你身為 PM（Snippet 1 程式碼），立刻把這句話發給設計師，要求他寫出 3 條具體合約：1. 白底極簡風、2. 支援滑動放大產品圖、3. 首頁加載小於 1 秒。這就是 Criteria。",
+    "visual": "Snippet 1 第一部分程式碼（Criteria生成）大字展示",
+    "code": "# Derive criteria from the user's opening turns\nopening = \" \".join(session.user_messages[:2])\ncriteria = client.models.generate_content(\n    model=\"gemini-3-pro\",\n    contents=f\"Produce 3-5 criteria for: {opening}.\",\n).parsed[\"criteria\"]"
+  },
+  {
+    "id": "det-177",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "程式碼片段 1：打分機制",
+    "subtitle": "對每一輪 Agent 的輸出進行 Criteria 檢驗與打分",
+    "pdfPage": 36,
+    "takeaway": "分析 Snippet 1 如何將 Agent 的實時 Response 對照已生成的 Criteria 進行 1-5 分的打分評估。",
+    "details": [
+      "調用 `generate_content`，Prompt 為：『此輸出是否符合 {criteria}？請給予 1-5 打分並附帶 rationale 原因。』",
+      "回傳 parsed JSON 結果，儲存打分與 rationale 到審計庫。",
+      "這實現了意圖滿意度 (D1) 的自動化量化監控。"
+    ],
+    "metaphorTitle": "期末考的自動閱卷機",
+    "metaphor": "這就像老師（Snippet 1 評估引擎）拿著先前印好的標準答案卡（Criteria），逐題對照學生的考卷（Agent Response）進行批改，不僅打出分數（1-5分），還在考卷旁邊寫下批語（Rationale）。",
+    "visual": "Snippet 1 第二部分程式碼（Score打分）大字展示",
+    "code": "# Score every agent turn against the derived criteria\nscore = client.models.generate_content(\n    model=\"gemini-3-pro\",\n    contents=f\"Does this output satisfy {criteria}? Score 1-5.\"\n    f\"Output: {agent_response}\",\n).parsed"
+  },
+  {
+    "id": "det-178",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "Snippet 1 的核心價值",
+    "subtitle": "解決 Vibe Coding 沒有規格書的盲區",
+    "pdfPage": 36,
+    "takeaway": "Snippet 1 的實踐證明了：規格不需要事先手寫，而是可以在運行時由 AI 動態衍生與自我對照。",
+    "details": [
+      "克服了 Underspecification Gap，讓「模糊意圖」有了明確的「量規（Rubric）」。",
+      "使意圖滿意度從主觀感受，變成可以被持續追蹤與記錄的數字。",
+      "為 CI/CD 提供了一個動態的合規門檻。"
+    ],
+    "metaphorTitle": "可伸縮的量尺",
+    "metaphor": "以前我們要用鋼鐵尺量一切，但 Vibe Coding 的需求是橡皮泥做的。Snippet 1 就像是一把智慧光學尺，能根據橡皮泥的形狀（意圖前綴），自動調整自己的刻度來測量它。",
+    "visual": "意圖滿意度分數趨勢波動圖（多輪對話打分變化）",
+    "code": ""
+  },
+  {
+    "id": "det-179",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "Snippet 1 部署最佳實踐",
+    "subtitle": "選擇合適的模型與 Prompt 設計",
+    "pdfPage": 36,
+    "takeaway": "在生產環境部署 Snippet 1 時，應注意 Prompt 的嚴謹度與輸出 Schema 的限制。",
+    "details": [
+      "必須強制模型使用 `response_schema` 回傳結構化 JSON，避免 parsed 失敗。",
+      "建議使用認知能力強大的 `gemini-3-pro` 或更高版本模型作為 Judge，確保 rationales 的深度。",
+      "定期抽樣 Judge 的打分結果，由 senior 工程師進行人工校準（Calibration）。"
+    ],
+    "metaphorTitle": "給裁判的打分細則說明書",
+    "metaphor": "如果跳水比賽沒有給裁判手冊，裁判就會憑心情打分。在代碼中，我們必須用 Schema 和明確的 Prompt（打分細則說明書）規範 Gemini，確保牠打分標準穩定，不會忽高忽低。",
+    "visual": "Snippet 1 結構化 JSON 輸出 schema 定義程式碼",
+    "code": ""
+  },
+  {
+    "id": "det-180",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "Snippet 1 的局限與互補防線",
+    "subtitle": "為何不能單靠 LLM-as-judge？",
+    "pdfPage": 36,
+    "takeaway": "LLM 裁判可能存在幻覺或偏見，必須搭配確定性測試共同運作。",
+    "details": [
+      "LLM 無法百分之百確認代碼裡有沒有隱藏的 runtime syntax errors。",
+      "有些編譯錯誤是 LLM 在文字上看不出來的。",
+      "因此，Snippet 1 的打分必須與 pytest/jest 的 functional tests（D2）嚙合，作為雙重閥值。"
+    ],
+    "metaphorTitle": "雙人簽章制度",
+    "metaphor": "就像銀行取款，經理看你長得像本人、簽名也對（LLM審查），但櫃員還是要把存摺晶片插進機器裡逼一下（確定性編譯測試），機器綠燈亮起才准給錢。兩者互補才是最安全的。",
+    "visual": "LLM 打分 vs Jest 測試結果的整合流水線圖",
+    "code": ""
+  },
+  {
+    "id": "det-181",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.37 程式實作 2：多模態截圖評估與布局驗證 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 37,
+    "takeaway": "深入解析 PDF 第 37 頁關於 程式實作 2：多模態截圖評估與布局驗證 的第一個核心要點。",
+    "details": [
+      "PDF 第 37 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-182",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.37 程式實作 2：多模態截圖評估與布局驗證 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 37,
+    "takeaway": "分析在企業落地第 37 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-183",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.37 程式實作 2：多模態截圖評估與布局驗證 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 37,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-184",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.37 程式實作 2：多模態截圖評估與布局驗證 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 37,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-185",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.37 程式實作 2：多模態截圖評估與布局驗證 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 37,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-186",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.38 程式實作 3：Google Cloud Trace 與會話收斂分析 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 38,
+    "takeaway": "深入解析 PDF 第 38 頁關於 程式實作 3：Google Cloud Trace 與會話收斂分析 的第一個核心要點。",
+    "details": [
+      "PDF 第 38 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-187",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.38 程式實作 3：Google Cloud Trace 與會話收斂分析 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 38,
+    "takeaway": "分析在企業落地第 38 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-188",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.38 程式實作 3：Google Cloud Trace 與會話收斂分析 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 38,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-189",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.38 程式實作 3：Google Cloud Trace 與會話收斂分析 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 38,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-190",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.38 程式實作 3：Google Cloud Trace 與會話收斂分析 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 38,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-191",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.39 程式實作 4：用戶修正 Emb 與 KMeans 聚類分析 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 39,
+    "takeaway": "深入解析 PDF 第 39 頁關於 程式實作 4：用戶修正 Emb 與 KMeans 聚類分析 的第一個核心要點。",
+    "details": [
+      "PDF 第 39 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-192",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.39 程式實作 4：用戶修正 Emb 與 KMeans 聚類分析 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 39,
+    "takeaway": "分析在企業落地第 39 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-193",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.39 程式實作 4：用戶修正 Emb 與 KMeans 聚類分析 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 39,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-194",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.39 程式實作 4：用戶修正 Emb 與 KMeans 聚類分析 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 39,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-195",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.39 程式實作 4：用戶修正 Emb 與 KMeans 聚類分析 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 39,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-196",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.40 結語：軟體工程的新手藝與自動化執行引擎 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 40,
+    "takeaway": "深入解析 PDF 第 40 頁關於 結語：軟體工程的新手藝與自動化執行引擎 的第一個核心要點。",
+    "details": [
+      "PDF 第 40 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-197",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.40 結語：軟體工程的新手藝與自動化執行引擎 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 40,
+    "takeaway": "分析在企業落地第 40 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-198",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.40 結語：軟體工程的新手藝與自動化執行引擎 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 40,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-199",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.40 結語：軟體工程的新手藝與自動化執行引擎 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 40,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-200",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.40 結語：軟體工程的新手藝與自動化執行引擎 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 40,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  },
+  {
+    "id": "det-201",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.41 文獻參考與 Wiz/Mandiant/Knostic 研究背書 (焦點1)",
+    "subtitle": "企業級安全架構細節剖析",
+    "pdfPage": 41,
+    "takeaway": "深入解析 PDF 第 41 頁關於 文獻參考與 Wiz/Mandiant/Knostic 研究背書 的第一個核心要點。",
+    "details": [
+      "PDF 第 41 頁詳細探討了此處的安全挑戰與企業架構定位。",
+      "系統設計時必須考慮此處的邊界效應與性能瓶頸。",
+      "安全團隊必須落實此處的安全規則設定。"
+    ],
+    "metaphorTitle": "齒輪的嚙合",
+    "metaphor": "任何複雜的安全架構，就像手錶內部的無數齒輪，只要有一個小齒輪（本頁焦點）卡死或磨損，整個安全手錶就會停止走時。",
+    "visual": "左側：核心機制流向圖；右側：關鍵威脅比對卡片",
+    "code": ""
+  },
+  {
+    "id": "det-202",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.41 文獻參考與 Wiz/Mandiant/Knostic 研究背書 (焦點2)",
+    "subtitle": "實務落地的阻礙與防禦方案",
+    "pdfPage": 41,
+    "takeaway": "分析在企業落地第 41 頁技術時會遇到的阻礙與對應防禦措施。",
+    "details": [
+      "開發速度與資安管控的拉鋸平衡。",
+      "如何透過 automated 工具減少開發人員的負擔。",
+      "以 Policy as Code (PaC) 方式將規範固化到系統中。"
+    ],
+    "metaphorTitle": "高速公路的限速牌與測速照相",
+    "metaphor": "為了行車安全必須限速，但如果限制時速 10 公里（過度安全控管）就會癱瘓交通。我們需要設定合理限速並用自動照相機（自動審查）代替警察人工攔檢，兼顧速度與安全。",
+    "visual": "安全管理與開發速度的動態平衡圖",
+    "code": ""
+  },
+  {
+    "id": "det-203",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.41 文獻參考與 Wiz/Mandiant/Knostic 研究背書 (類比與範例)",
+    "subtitle": "生活化實體類比與應用情境",
+    "pdfPage": 41,
+    "takeaway": "為本頁的核心觀念提供直觀的生活化類比，拉近技術與現實的距離。",
+    "details": [
+      "將技術術語對應到日常可見的物理實體。",
+      "提供一個簡單的 business 情境範例說明。",
+      "幫助沒有技術背景的聽眾快速融入狀況。"
+    ],
+    "metaphorTitle": "超市的防盜磁扣",
+    "metaphor": "這就像超市裡的衣服（代碼/資源）都別有防盜磁扣（身分 attestations）。一旦有人想偷偷帶出收銀台（出網），警報器（egress filter）就會大聲作響，而合法的購買者則可以在收銀台輕鬆解鎖。",
+    "visual": "生活化類比卡片設計與情景故事插圖",
+    "code": ""
+  },
+  {
+    "id": "det-204",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.41 文獻參考與 Wiz/Mandiant/Knostic 研究背書 (版面視覺建議)",
+    "subtitle": "數據視覺化與版面配置指南",
+    "pdfPage": 41,
+    "takeaway": "本頁內容在簡報中的版面配置建議，以達到最強的 McKinsey 故事說服力。",
+    "details": [
+      "左側放置生活化類比卡片，使用淡綠色背景突出溫暖感。",
+      "右側放置 2x2 對比矩陣，對比傳統 SDLC 與 Vibe Coding 的差異。",
+      "下方使用大字重擊核心數據（例如：攔截率 99.9%）。"
+    ],
+    "metaphorTitle": "宣傳海報的視覺焦點",
+    "metaphor": "就像電影海報，主角（核心 Takeaway）要在最顯眼的位置，配角（論證細節）在周圍烘托，配上強烈的色彩對比（數據大字），讓人一眼難忘。",
+    "visual": "推薦版面配置 Wireframe 示意圖",
+    "code": ""
+  },
+  {
+    "id": "det-205",
+    "type": "detail",
+    "chapter": "第九章：實務評估技巧與程式碼實作 (P.31-41)",
+    "title": "P.41 文獻參考與 Wiz/Mandiant/Knostic 研究背書 (章節連結與小結)",
+    "subtitle": "本頁在章節中的承上啟下定位",
+    "pdfPage": 41,
+    "takeaway": "總結本頁觀點，並引導至下一個技術防線的銜接說明。",
+    "details": [
+      "本頁內容是該章節安全鏈條中的關鍵一環。",
+      "如果此處防線失守，將對後續 IAM 與觀測層造成巨大壓力。",
+      "小結：安全無小事，每一頁的防線都必須百分之百合規。"
+    ],
+    "metaphorTitle": "多米諾骨牌的鏈接",
+    "metaphor": "每個安全節點（每頁內容）都是一張立著的骨牌。只要有一張牌因為疏忽而倒下（漏洞），就會引發連鎖反應，把後面的骨牌全推倒，最後導致系統徹底崩潰。",
+    "visual": "章節知識鏈接圖與下一頁預告",
+    "code": ""
+  }
+];
+
+        let currentTab = 'overview'; // 'overview' or 'detail'
+        let overviewIndex = 0;
+        let detailIndex = 0;
+
+        // SVG 縮放和平移狀態
+        let svgTransform = { x: 0, y: 0, scale: 1 };
+        let isDragging = false;
+        let startPan = { x: 0, y: 0 };
+
+        // 心智圖節點數據，用於渲染第 2 頁心智圖與懸停提示
+        const mindmapNodes = [
+            { id: "center", text: "Vibe Coding 安全與評估", x: 600, y: 350, r: 80, type: "center", desc: "Day 4 核心主題：在 Vibe Coding 時代如何重塑信任與建立評估機制。" },
+            { id: "ch1", text: "Ch 1: 導論與典範轉移", x: 250, y: 150, type: "chapter", slideIdx: 0, desc: "探討從撰寫代碼到表達意圖的深刻轉移，及 deterministic 信任的失效。" },
+            { id: "ch2", text: "Ch 2: 7柱安全防禦架構", x: 250, y: 280, type: "chapter", slideIdx: 15, desc: "介紹 Mandiant 推薦的多層外部「安全包絡」架構基礎。" },
+            { id: "ch3", text: "Ch 3: 沙箱與供應鏈安全", x: 250, y: 410, type: "chapter", slideIdx: 30, desc: "解析 Ephemeral Sandbox 動態執行與 Slopsquatting 幻覺套件防禦。" },
+            { id: "ch4", text: "Ch 4: 應用邏輯與 MCP 安全", x: 250, y: 550, type: "chapter", slideIdx: 45, desc: "解決前端 API 密鑰洩漏漏洞與 MCP 偽造工具攻擊威脅。" },
+            { id: "ch5", text: "Ch 5: 身分信賴與高權限動作", x: 950, y: 150, type: "chapter", slideIdx: 60, desc: "以 SPIFFE ID、JIT downscoping 與 Vibe Diff 阻斷權限濫用。" },
+            { id: "ch6", text: "Ch 6: 主動防禦三聯軍", x: 950, y: 280, type: "chapter", slideIdx: 75, desc: "透過 Red-teaming 注入 Adversarial Vibes，與 Blue/Green 聯防自我修復。" },
+            { id: "ch7", text: "Ch 7: 心智觀測與軌跡審計", x: 950, y: 410, type: "chapter", slideIdx: 90, desc: "以 Vibe Trajectory 與狀態斷路器防範 Denial of Wallet 錢包攻擊。" },
+            { id: "ch8", text: "Ch 8: 意圖驅動評估體系", x: 950, y: 550, type: "chapter", slideIdx: 105, desc: "剖析評估的 7 個指標維度與 8 大主流評估方法。" },
+            { id: "ch9", text: "Ch 9: 實務評估技巧與程式", x: 600, y: 600, type: "chapter", slideIdx: 120, desc: "深度解讀 4 大 Python 程式碼片段與多模態截圖打分實作。" }
+        ];
+
+        // 連接關係 (心智圖的相互關係連線)
+        const mindmapLinks = [
+            { source: "center", target: "ch1" },
+            { source: "center", target: "ch2" },
+            { source: "center", target: "ch3" },
+            { source: "center", target: "ch4" },
+            { source: "center", target: "ch5" },
+            { source: "center", target: "ch6" },
+            { source: "center", target: "ch7" },
+            { source: "center", target: "ch8" },
+            { source: "center", target: "ch9" },
+            // 節點間的互聯網狀關係
+            { source: "ch2", target: "ch5", label: "身分與安全基礎" },
+            { source: "ch7", target: "ch8", label: "觀測是評估前提" },
+            { source: "ch3", target: "ch6", label: "沙箱與修復隔離" },
+            { source: "ch4", target: "ch7", label: "MCP 閘道審計" },
+            { source: "ch6", target: "ch9", label: "三聯軍程式實作" }
+        ];
+
+        // 初始化
+        window.onload = function() {
+            renderSlide();
+            setupKeyboardShortcuts();
+        };
+
+        function getSlides() {
+            return currentTab === 'overview' ? overviewSlides : detailedSlides;
+        }
+
+        function getIndex() {
+            return currentTab === 'overview' ? overviewIndex : detailIndex;
+        }
+
+        function setIndex(val) {
+            if (currentTab === 'overview') {
+                overviewIndex = val;
+            } else {
+                detailIndex = val;
+            }
+        }
+
+        // 渲染投影片
+        function renderSlide() {
+            const slides = getSlides();
+            const idx = getIndex();
+            const slide = slides[idx];
+
+            // 填寫基本資料
+            document.getElementById('slide-chapter-tag').innerText = slide.chapter;
+            document.getElementById('slide-pdf-page').innerText = `PDF 第 ${slide.pdfPage} 頁`;
+            document.getElementById('slide-title').innerText = slide.title;
+            document.getElementById('slide-subtitle').innerText = slide.subtitle;
+            document.getElementById('slide-takeaway').innerText = slide.takeaway;
+
+            // 渲染論證細節
+            const bulletContainer = document.getElementById('slide-bullets');
+            bulletContainer.innerHTML = '';
+            slide.details.forEach((bullet, index) => {
+                const li = document.createElement('li');
+                li.className = 'bullet-item';
+                li.innerHTML = `<div class="bullet-num">${index + 1}</div><div>${bullet}</div>`;
+                bulletContainer.appendChild(li);
+            });
+
+            // 處理代碼區塊
+            const codeContainer = document.getElementById('slide-code-container');
+            if (slide.code && slide.code.trim() !== '') {
+                codeContainer.style.display = 'block';
+                document.getElementById('slide-code').innerText = slide.code;
+            } else {
+                codeContainer.style.display = 'none';
+            }
+
+            // 類比卡片
+            document.getElementById('slide-metaphor-title').innerText = `概念類比：${slide.metaphorTitle}`;
+            document.getElementById('slide-metaphor-text').innerText = slide.metaphor;
+
+            // 渲染分頁
+            document.getElementById('footer-pagination').innerText = `投影片 ${idx + 1} / ${slides.length}`;
+            document.getElementById('btn-prev').disabled = idx === 0;
+            document.getElementById('btn-next').disabled = idx === slides.length - 1;
+
+            // 處理整頁模式 (全書章節核心互聯網狀心智圖)
+            const contentArea = document.querySelector('.slide-content');
+            if (currentTab === 'overview' && idx === 1) {
+                contentArea.classList.add('fullscreen-layout');
+            } else {
+                contentArea.classList.remove('fullscreen-layout');
+            }
+
+            // 更新下拉選單
+            updateDropdownSelection(slide.chapter);
+
+            // 渲染右側圖表/心智圖
+            renderRightVisual(slide);
+        }
+
+        // 根據投影片章節同步下拉選單
+        function updateDropdownSelection(chapterName) {
+            if (!chapterName) return;
+            const select = document.getElementById('chapter-select');
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].text.includes(chapterName) || chapterName.includes(select.options[i].text)) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        // 渲染右側 SVG 視窗
+        function renderRightVisual(slide) {
+            const viewport = document.getElementById('visual-viewport');
+            viewport.innerHTML = '';
+            resetSvgTransformValues();
+
+            // 如果是大綱的第二張投影片，繪製「核心網狀心智圖」
+            if (currentTab === 'overview' && getIndex() === 1) {
+                document.getElementById('slide-visual-title').innerText = "全書 9 章節核心互聯網狀心智圖 (滾輪可縮放，可拖曳，點擊跳轉)";
+                drawMindmap(viewport);
+            } else {
+                document.getElementById('slide-visual-title').innerText = "本章邏輯流程圖 (滾輪可縮放，可拖曳)";
+                drawChapterFlowchart(viewport, slide.chapter);
+            }
+        }
+
+        // 繪製心智圖 (SVG)
+        function drawMindmap(container) {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 1200 700");
+            svg.setAttribute("class", "zoomable-svg");
+            svg.setAttribute("id", "interactive-svg");
+
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            g.setAttribute("id", "svg-group");
+            svg.appendChild(g);
+
+            // 1. 繪製連線
+            mindmapLinks.forEach(link => {
+                const sourceNode = mindmapNodes.find(n => n.id === link.source);
+                const targetNode = mindmapNodes.find(n => n.id === link.target);
+                if (sourceNode && targetNode) {
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    // 使用二次貝茲曲線使線條柔和
+                    const dx = targetNode.x - sourceNode.x;
+                    const dy = targetNode.y - sourceNode.y;
+                    const cx = sourceNode.x + dx / 2;
+                    const cy = sourceNode.y + dy / 2 + (link.label ? 40 : 0);
+                    
+                    line.setAttribute("d", `M ${sourceNode.x} ${sourceNode.y} Q ${cx} ${cy} ${targetNode.x} ${targetNode.y}`);
+                    line.setAttribute("class", "mindmap-link");
+                    line.setAttribute("id", `link-${link.source}-${link.target}`);
+                    g.appendChild(line);
+
+                    if (link.label) {
+                        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        text.setAttribute("x", cx);
+                        text.setAttribute("y", cy - 10);
+                        text.setAttribute("fill", "var(--text-secondary)");
+                        text.setAttribute("font-size", "9px");
+                        text.setAttribute("text-anchor", "middle");
+                        text.textContent = link.label;
+                        g.appendChild(text);
+                    }
+                }
+            });
+
+            // 2. 繪製節點
+            mindmapNodes.forEach(node => {
+                const nodeG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                nodeG.setAttribute("class", `svg-node mindmap-node ${node.type}`);
+                nodeG.setAttribute("transform", `translate(${node.x}, ${node.y})`);
+
+                if (node.type === 'center') {
+                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    circle.setAttribute("r", node.r);
+                    nodeG.appendChild(circle);
+
+                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    text.setAttribute("y", 0);
+                    text.textContent = node.text;
+                    nodeG.appendChild(text);
+                } else {
+                    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    const width = 160;
+                    const height = 40;
+                    rect.setAttribute("x", -width/2);
+                    rect.setAttribute("y", -height/2);
+                    rect.setAttribute("width", width);
+                    rect.setAttribute("height", height);
+                    nodeG.appendChild(rect);
+
+                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    text.setAttribute("y", 0);
+                    text.textContent = node.text;
+                    nodeG.appendChild(text);
+                }
+
+                // 綁定心智圖滑鼠互動
+                nodeG.onmouseenter = function(e) {
+                    highlightMindmapConnections(node.id);
+                    showMindmapInfoCard(node, e);
+                };
+                nodeG.onmouseleave = function() {
+                    resetMindmapHighlights();
+                    hideMindmapInfoCard();
+                };
+                nodeG.onclick = function() {
+                    if (node.type !== 'center') {
+                        switchTab('detail');
+                        detailIndex = node.slideIdx;
+                        renderSlide();
+                    }
+                };
+
+                g.appendChild(nodeG);
+            });
+
+            container.appendChild(svg);
+            setupSvgPanZoom(svg, g);
+        }
+
+        // 高亮心智圖連結
+        function highlightMindmapConnections(nodeId) {
+            mindmapLinks.forEach(link => {
+                if (link.source === nodeId || link.target === nodeId) {
+                    const line = document.getElementById(`link-${link.source}-${link.target}`);
+                    if (line) line.classList.add('active');
+                }
+            });
+        }
+
+        // 重置心智圖高亮
+        function resetMindmapHighlights() {
+            const lines = document.querySelectorAll('.mindmap-link');
+            lines.forEach(line => line.classList.remove('active'));
+        }
+
+        // 顯示心智圖節點資訊卡
+        function showMindmapInfoCard(node, event) {
+            const card = document.getElementById('mindmap-info-card');
+            document.getElementById('mindmap-info-title').innerText = node.text;
+            document.getElementById('mindmap-info-desc').innerText = node.desc;
+            card.style.display = 'block';
+        }
+
+        function hideMindmapInfoCard() {
+            document.getElementById('mindmap-info-card').style.display = 'none';
+        }
+
+        // 繪製章節流程圖 (SVG)
+        function drawChapterFlowchart(container, chapterName) {
+            if (!chapterName) chapterName = "";
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 600 400");
+            svg.setAttribute("class", "zoomable-svg");
+            svg.setAttribute("id", "interactive-svg");
+
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            g.setAttribute("id", "svg-group");
+            svg.appendChild(g);
+
+            // 依據不同章節，動態產生簡單流程圖節點與箭頭
+            // 這裡實作一個美觀的流程圖範本
+            let steps = ["步驟 1：意圖輸入", "步驟 2：安全閘道審查", "步驟 3：沙箱安全執行", "步驟 4：行為觀測與修復"];
+            if (chapterName.includes("第一章")) {
+                steps = ["表達意圖 (Fuzzy Intent)", "AI 生成引擎 (Coding Engine)", "安全包絡限制 (Harness)", "Effective Trust 生產發布"];
+            } else if (chapterName.includes("第二章")) {
+                steps = ["Infrastructure (硬隔離)", "Data/Model (資料/指令安全)", "IAM/App (授權防火牆)", "Observability/Governance (審計治理)"];
+            } else if (chapterName.includes("第三章")) {
+                steps = ["Agent 提交代碼", "SBOM 依賴包比對", "gVisor 隔離執行", "狀態徹底重置"];
+            } else if (chapterName.includes("第四章")) {
+                steps = ["IDE Advisory Linting", "CI/CD Pipeline SAST/SCA", "MCP Contextual Auth", "A2A Gateways"];
+            } else if (chapterName.includes("第五章")) {
+                steps = ["SPIFFE ID 身分註冊", "JIT Token 最小權限分配", "高風險行為偵測", "Vibe Diff / 硬體 MFA"];
+            } else if (chapterName.includes("第六章")) {
+                steps = ["Red Team (攻擊注入)", "Blue Team (AgBOM 監控)", "Green Team (有狀態隔離)", "Auto-Refactoring (自我修復)"];
+            } else if (chapterName.includes("第七章")) {
+                steps = ["OTEL Trace 追蹤", "Vibe Trajectory 心智分析", "Agent Trust Score 計分", "Stateful Circuit Breaker"];
+            } else if (chapterName.includes("第八章")) {
+                steps = ["Underspecification Gap", "7維度評估體系", "8方法混合評估線", "Kaggle SAE 認知校準"];
+            } else if (chapterName.includes("第九章")) {
+                steps = ["意圖 Criteria 自動生成", "多模態截圖外觀打分", "Cloud Trace 收斂運算", "KMeans 聚類失敗模式"];
+            }
+
+            // 繪製流程圖背景線與箭頭
+            for (let i = 0; i < steps.length - 1; i++) {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", 300);
+                line.setAttribute("y1", 60 + i * 90 + 40);
+                line.setAttribute("x2", 300);
+                line.setAttribute("y2", 60 + (i + 1) * 90);
+                line.setAttribute("stroke", "var(--color-primary)");
+                line.setAttribute("stroke-width", "2");
+                line.setAttribute("marker-end", "url(#arrow)");
+                g.appendChild(line);
+            }
+
+            // 繪製 marker
+            const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+            marker.setAttribute("id", "arrow");
+            marker.setAttribute("viewBox", "0 0 10 10");
+            marker.setAttribute("refX", "6");
+            marker.setAttribute("refY", "5");
+            marker.setAttribute("markerWidth", "6");
+            marker.setAttribute("markerHeight", "6");
+            marker.setAttribute("orient", "auto-start-reverse");
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
+            path.setAttribute("fill", "var(--color-primary)");
+            marker.appendChild(path);
+            defs.appendChild(marker);
+            svg.appendChild(defs);
+
+            // 繪製步驟節點
+            steps.forEach((step, i) => {
+                const nodeG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                nodeG.setAttribute("transform", `translate(150, ${60 + i * 90})`);
+
+                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rect.setAttribute("width", "300");
+                rect.setAttribute("height", "40");
+                rect.setAttribute("rx", "8");
+                rect.setAttribute("ry", "8");
+                rect.setAttribute("fill", "var(--bg-card)");
+                rect.setAttribute("stroke", "var(--border-color)");
+                rect.setAttribute("stroke-width", "2");
+                nodeG.appendChild(rect);
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", "150");
+                text.setAttribute("y", "20");
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("dominant-baseline", "middle");
+                text.setAttribute("font-family", "var(--font-family)");
+                text.setAttribute("font-size", "12px");
+                text.setAttribute("font-weight", "bold");
+                text.setAttribute("fill", "var(--text-primary)");
+                text.textContent = step;
+                nodeG.appendChild(text);
+
+                g.appendChild(nodeG);
+            });
+
+            container.appendChild(svg);
+            setupSvgPanZoom(svg, g);
+        }
+
+        // 綁定 SVG 拖曳與滾輪縮放 (Pan & Zoom)
+        function setupSvgPanZoom(svg, g) {
+            svg.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startPan = { x: e.clientX - svgTransform.x, y: e.clientY - svgTransform.y };
+            });
+
+            window.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+
+            svg.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                svgTransform.x = e.clientX - startPan.x;
+                svgTransform.y = e.clientY - startPan.y;
+                applySvgTransform(g);
+            });
+
+            svg.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                const zoomFactor = 1.1;
+                if (e.deltaY < 0) {
+                    svgTransform.scale *= zoomFactor;
+                } else {
+                    svgTransform.scale /= zoomFactor;
+                }
+                // 限制縮放範圍
+                svgTransform.scale = Math.max(0.3, Math.min(5, svgTransform.scale));
+                applySvgTransform(g);
+            });
+        }
+
+        function applySvgTransform(g) {
+            g.setAttribute("transform", `translate(${svgTransform.x}, ${svgTransform.y}) scale(${svgTransform.scale})`);
+        }
+
+        function resetSvgTransformValues() {
+            svgTransform = { x: 0, y: 0, scale: 1 };
+        }
+
+        function resetSvgTransform() {
+            resetSvgTransformValues();
+            const g = document.getElementById('svg-group');
+            if (g) applySvgTransform(g);
+        }
+
+        // 切換大綱與詳細頁籤
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab-overview').classList.toggle('active', tab === 'overview');
+            document.getElementById('tab-detail').classList.toggle('active', tab === 'detail');
+            renderSlide();
+        }
+
+        // 上一頁、下一頁
+        function prevSlide() {
+            const idx = getIndex();
+            if (idx > 0) {
+                setIndex(idx - 1);
+                renderSlide();
+            }
+        }
+
+        function nextSlide() {
+            const idx = getIndex();
+            const slides = getSlides();
+            if (idx < slides.length - 1) {
+                setIndex(idx + 1);
+                renderSlide();
+            }
+        }
+
+        // 以章節下拉選單跳轉
+        function jumpToChapter() {
+            const select = document.getElementById('chapter-select');
+            const val = select.value;
+            if (val === 'all') return;
+            
+            // 跳轉至詳細說明中該章節的第一張投影片
+            const chapterIndex = parseInt(val);
+            const chapterName = select.options[select.selectedIndex].text;
+            
+            switchTab('detail');
+            const targetIdx = detailedSlides.findIndex(s => s.chapter.includes(chapterName));
+            if (targetIdx !== -1) {
+                detailIndex = targetIdx;
+                renderSlide();
+            }
+        }
+
+        // 切換深色模式
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.querySelectorAll('.metaphor-card').forEach(c => {
+                c.classList.toggle('dark', isDark);
+            });
+            renderRightVisual(getSlides()[getIndex()]);
+        }
+
+        // 全螢幕模式
+        function toggleFullscreen() {
+            const main = document.getElementById('main-content');
+            main.classList.toggle('fullscreen-active');
+            
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`全螢幕切換失敗: ${err.message}`);
+                });
+            }
+        }
+
+        // 鍵盤快捷鍵綁定
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                if (event.key === 'ArrowRight' || event.key === ' ') {
+                    event.preventDefault();
+                    nextSlide();
+                } else if (event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    prevSlide();
+                } else if (event.key.toLowerCase() === 'm') {
+                    document.getElementById('chapter-select').focus();
+                } else if (event.key.toLowerCase() === 'f') {
+                    toggleFullscreen();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

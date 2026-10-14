@@ -1,0 +1,366 @@
+[
+  {
+    "id": "111",
+    "chapter": "第七章",
+    "pdf_page": "23",
+    "title": "工具與專門 Agent 的分水嶺",
+    "takeaway": "外部專門智能體在架構上是協同夥伴，絕對不能被降級為簡單的標準工具！",
+    "details": [
+      "許多開發者直覺地將遠端 Agent 包裝成一個簡單的 API 工具 (Tool) 供模型調用。",
+      "這種作法忽視了兩者在互動模式、狀態管理與領域範疇上的本質差異。"
+    ],
+    "metaphor": "👉 就像是『你想蓋房子，你買一把鋸子回來自己用 (工具)，跟你雇用一位木工師傅幫你蓋 (夥伴)』，這兩者有天壤之別。",
+    "layout": "左側為一把錘子圖示，右側為兩個人握手協作的圖示，中間有紅色的分水嶺斷崖，標示兩者不可混淆。"
+  },
+  {
+    "id": "112",
+    "chapter": "第七章",
+    "pdf_page": "23",
+    "title": "什麼是 Bounded (受限) 領域",
+    "takeaway": "標準工具運作在受限領域，採用 fire-and-forget (即發即忘) 機制！",
+    "details": [
+      "工具（如計算機或數據庫查詢）期望接收單次、格式完全正確的 request payload。",
+      "執行完畢後立即回傳 response，沒有任何中間的懸掛狀態與多輪澄清需求。"
+    ],
+    "metaphor": "👉 就像是『自動販賣機』，投幣、按按鈕、掉出飲料 (Fire-and-forget)，機器不需要問你今天心情好不好，也沒有討價還價的空間。",
+    "layout": "左側展示一個完全閉合的矩形邊框（標示 Bounded Domain），框內為 input -> process -> output 的直線箭頭。"
+  },
+  {
+    "id": "113",
+    "chapter": "第七章",
+    "pdf_page": "23",
+    "title": "什麼是 Unbounded (開放) 領域",
+    "takeaway": "專門 Agent 運作在開放領域，面對現實世界 Ambiguity (曖昧性) 的挑戰！",
+    "details": [
+      "現實任務（如撰寫合約、設計架構）充滿了歪斜的牆 (Crooked Walls)：曖昧的數據、衝突的偏好。",
+      "無法透過單次請求完成，必須在執行過程中主動暫停、回頭向人類或 Coordinator 澄清。"
+    ],
+    "metaphor": "👉 就像是『你請了室內設計師來裝潢客廳，他拆開牆壁發現水管漏水 (Crooked Wall)，必須停下來問你先修水管還是直接封牆』。",
+    "layout": "左側展示一個沒有邊界的網狀拓撲（標示 Unbounded Domain），線條向外延伸，中央標示 Crooked Walls 警示卡片。"
+  },
+  {
+    "id": "114",
+    "chapter": "第七章",
+    "pdf_page": "23",
+    "title": "解讀 Crooked Walls (歪斜牆面)",
+    "takeaway": "現實世界充滿了 Crooked Walls，單次 API 調用無法解決任何曖昧需求！",
+    "details": [
+      "Crooked Walls 是指現實環境中不規範的數據結構、模糊的商業規則與人類搖擺不定的主觀偏好。",
+      "如果強行要求 Agent 一鍵完成，只會得到看似正確但充滿漏洞的幻覺結果。"
+    ],
+    "metaphor": "👉 就像是『去量身訂做西裝，裁縫師發現你的肩膀左右不對稱 (Crooked Wall)，他不能照標準版型剪裁，必須邊量邊調整』。",
+    "layout": "左側展示完美筆直的理想數據線，右側展示扭曲、帶有問號的真實數據線，下方重擊：LLM 必須具備多輪協商能力。"
+  },
+  {
+    "id": "115",
+    "chapter": "第七章",
+    "pdf_page": "23",
+    "title": "智能體 GOTO 瓶頸的由來",
+    "takeaway": "強行將協作 Agent 包裝為標準工具，會在 Orchestrator 中引發 GOTO 亂象！",
+    "details": [
+      "當 Coordinator 調用這個『Agent 工具』時，程序的控制流 (Control Flow) 離開了原本預期的上下文。",
+      "若被調用的 Agent 需要等待人類確認或陷入長對話，控制流將長期懸空，甚至永遠無法返回。"
+    ],
+    "metaphor": "👉 就像是『在寫代碼時濫用了 GOTO 語句，讓程序隨意跳轉到第 999 行，結果整個主程序邏輯斷線，變成義大利麵條代碼』。",
+    "layout": "左側展示一條流暢的循環控制流，中間被一個巨大的紅色 GOTO 箭頭強行拉扯到外部的混亂網絡中，右側標示程式崩潰。"
+  },
+  {
+    "id": "116",
+    "chapter": "第七章",
+    "pdf_page": "24",
+    "title": "分析 GOTO 造成的死鎖與懸掛",
+    "takeaway": "控制流懸掛會導致 Orchestrator 的 Working Memory 被無端消耗，引發內存洩漏！",
+    "details": [
+      "主智能體在等待外部 Agent 回應時，必須掛起當前線程，並持續保存對話上下文。",
+      "一旦用戶在中途改變主意或放棄任務，這些懸掛的對話狀態將永遠滯留，浪費系統資源。"
+    ],
+    "metaphor": "👉 就像是『你撥打客服電話被語音引導到轉接中，結果等了 3 小時沒人接聽，你又不敢掛電話，你的手機就一直被佔線』。",
+    "layout": "左欄展示掛起的 Coordinator 內存條，右欄展示無限等待的轉圈動畫，下方數據顯示懸掛狀態對系統延遲的負面影響。"
+  },
+  {
+    "id": "117",
+    "chapter": "第七章",
+    "pdf_page": "24",
+    "title": "A2A 協定如何破解 GOTO 難題",
+    "takeaway": "A2A 透過在獨立協作層隔離多輪對話狀態，保持 MCP 工具層的純淨！",
+    "details": [
+      "A2A 協定接管了智能體之間複雜的、有狀態的路由與中斷協商邏輯。",
+      "MCP 傳輸層得以保持簡單、可預測的 fire-and-forget 結構，免受 GOTO 污染。"
+    ],
+    "metaphor": "👉 就像是『把所有討價還價、討論細節的雜事交給法務秘書去談 (A2A 層)，談妥後直接把標準合約遞給老闆簽字 (MCP 工具層)』。",
+    "layout": "雙層架構圖。上層為 A2A Collaboration Layer（處理中斷、協商與狀態），下層為 MCP Tool Layer（處理純粹的數據 IO 與讀寫）。"
+  },
+  {
+    "id": "118",
+    "chapter": "第七章",
+    "pdf_page": "24",
+    "title": "第七章邏輯關係回顧",
+    "takeaway": "認清 Bounded 與 Unbounded 的範疇，是規避 GOTO 瓶頸、設計健壯系統的關鍵！",
+    "details": [
+      "工具 (Bounded/即發即忘) 與 Agent 夥伴 (Unbounded/多輪協商) 的本質差異。",
+      "強行包裝引發 GOTO 混亂 -> A2A 協定透過狀態隔離層破解死鎖。"
+    ],
+    "metaphor": "👉 就像是『理解了為什麼廚具 (工具) 只能切菜，而大廚 (夥伴) 才能根據客人的口味臨時修改菜單』。",
+    "layout": "全螢幕流程圖，展示第七章關係：任務派發 -> 判定領域類型 -> 工具直接調用 -> 智能體協商 -> A2A 攔截中斷 -> 順暢返回主流程。"
+  },
+  {
+    "id": "119",
+    "chapter": "第八章",
+    "pdf_page": "24",
+    "title": "建構虛擬員工隊伍",
+    "takeaway": "引進 A2A 協定與分工架構，為去中心化的虛擬人才市場奠定了商業基礎！",
+    "details": [
+      "這不僅僅是技術上的優化，更是軟體價值交付與變現模型的革命。",
+      "開發者能專注於打造單一領域的頂尖專家，並將其出租給全球的 Orchestrator。"
+    ],
+    "metaphor": "👉 就像是『從每個公司都得自己招聘全職清潔工、會計師，演進到可以直接向專業的外包公司聘請按工時收費的派遣員工』。",
+    "layout": "左側為分散在全球的開發者，中間為統一的 A2A 人才市場，右側為企業 Orchestrator 一鍵下載/雇用虛擬員工。"
+  },
+  {
+    "id": "120",
+    "chapter": "第八章",
+    "pdf_page": "25",
+    "title": "虛擬員工的 CV：Agent Card",
+    "takeaway": "Agent Card 是 AI 世界標準的履歷表，提供機器可讀的規格說明！",
+    "details": [
+      "每一位 A2A 智能體都必須攜帶一份標準的宣告式 Agent Card 檔案。",
+      "這讓外部的 Orchestrator 能瞬間評估其技能、安全性與對接協議，實現自動化 onboard。"
+    ],
+    "metaphor": "👉 就像是『你去面試時帶的標準履歷表』，HR 掃一眼就能知道你的專長、學歷與期望待遇，不用花三天去背景調查。",
+    "layout": "左側為一張帶有照片與藍色標籤的 Agent Card 卡片，卡片上劃分：Capabilities, Security, Protocol 三大區塊。"
+  },
+  {
+    "id": "121",
+    "chapter": "第八章",
+    "pdf_page": "25",
+    "title": "Agent Card 核心維度 1：技能",
+    "takeaway": "Capabilities 定義了智能體能夠執行的具體任務與輸出格式！",
+    "details": [
+      "包含精準的自然語言描述與機器可讀的 API 關鍵字標籤。",
+      "Orchestrator 藉此判斷是否要將當前任務委派給此 Agent (例如：處理稅務計算)。"
+    ],
+    "metaphor": "👉 就像是『廚師的技能證照』，上面寫著『擅長粵菜、精通雕花、能處理海鮮』，老闆一目了然。",
+    "layout": "卡片視圖。高亮顯示 Agent Card 中的 Capabilities JSON 節點，右側以圖示列出對應的實體技能標籤。"
+  },
+  {
+    "id": "122",
+    "chapter": "第八章",
+    "pdf_page": "25",
+    "title": "Agent Card 核心維度 2：安全",
+    "takeaway": "Security & Compliance 定義了資料處理政策與權限請求限制！",
+    "details": [
+      "明文宣告該 Agent 是否會將用戶數據發送至第三方伺服器，或是否需要讀寫硬碟。",
+      "Orchestrator 在調用前進行安全合規性自動比對，不合規者直接拒絕加載。"
+    ],
+    "metaphor": "👉 就像是『App 的權限聲明』，當你安裝手電筒 App 時，如果它請求獲取你的通訊錄和定位權限 (不合規)，你就會拒絕安裝。",
+    "layout": "左側展示隱私合規條款，右側展示通過與未通過的對比圖章，強調安全合規的自動校對。"
+  },
+  {
+    "id": "123",
+    "chapter": "第八章",
+    "pdf_page": "25",
+    "title": "Agent Card 核心維度 3：協議",
+    "takeaway": "Interaction Schemas 定義了外部智能體與之通訊的標準接口規格！",
+    "details": [
+      "包含對話入口點 (Endpoints)、支援的協商語意與輸入輸出參數的 Schema 定義。",
+      "確保調用端能以正確的語法格式封裝 Request，實現零摩擦連線。"
+    ],
+    "metaphor": "👉 就像是『電器的說明書』，標明這台電視需要 110V 電壓 (輸入規格)，且插頭是兩腳扁頭 (介面格式)。",
+    "layout": "左側展示 Interaction Schemas 的 JSON Schema 定義代碼塊，右側展示標準通訊介面的類比圖示。"
+  },
+  {
+    "id": "124",
+    "chapter": "第八章",
+    "pdf_page": "25",
+    "title": "解讀 Registry 註冊表機制",
+    "takeaway": "Agent Registry 扮演人才媒合市場，讓 Agent 變為 discoverable 服務！",
+    "details": [
+      "Registry 儲存並索引所有上線 Agent 的 Agent Card 元數據。",
+      "Orchestrator 通過向 Registry 發起檢索，實現動態的服務發現與加載。"
+    ],
+    "metaphor": "👉 就像是『人力資源外包介面』，雇主 (Orchestrator) 輸入『需要懂法務的 AI』，平台自動篩選出符合要求的專家清單。",
+    "layout": "左側為 Orchestrator，中間為 Registry 服務器，右側為多個 Agent 履歷庫，展示動態查詢與回傳流程。"
+  },
+  {
+    "id": "125",
+    "chapter": "第八章",
+    "pdf_page": "25",
+    "title": "公共註冊表：全球人才市場",
+    "takeaway": "Public Registries (Marketplace) 讓全球開發者共享並授權專家 Agent！",
+    "details": [
+      "開發者可以將自研的領域專家上架至公開的雲端 Marketplaces (如 Google Cloud Marketplace)。",
+      "其他企業可以直接採購這些專家的使用授權，促進去中心化 AI 生態繁榮。"
+    ],
+    "metaphor": "👉 就像是『手機的 App Store』，全球程式設計師都能在上面發布 App，用戶一鍵點擊付費下載使用。",
+    "layout": "左側為全球各地的開發者，中間為 Google Cloud Marketplace 標誌，右側為各大企業用戶的採購終端。"
+  },
+  {
+    "id": "126",
+    "chapter": "第八章",
+    "pdf_page": "26",
+    "title": "私有註冊表：企業安全沙盒",
+    "takeaway": "企業內部部署 Private Registries，實現部門間安全無縫的資產共享！",
+    "details": [
+      "在企業邊界內，將研發、財務、人力資源等部門的私有 Agent 登錄於內部註冊表中。",
+      "確保數據不外流，滿足嚴格的安全治理、IAM 權限審查與法規遵循。"
+    ],
+    "metaphor": "👉 就像是『公司內部的專利與技術文檔庫』，只有公司內部員工才能憑權限登入查閱，外部人員無法訪問。",
+    "layout": "左側展示帶有安全防護鎖的 Enterprise Firewall，牆內包含一個 Private Registry，連接多個內部業務 Agent。"
+  },
+  {
+    "id": "127",
+    "chapter": "第八章",
+    "pdf_page": "26",
+    "title": "第八章邏輯關係回顧",
+    "takeaway": "Agent Card 與 Registry 機制，是將零散代碼升級為 discoverable 虛擬員工的關鍵！",
+    "details": [
+      "虛擬員工團隊概念 -> Agent Card 標準履歷 (技能, 安全, 協議三大維度)。",
+      "Registry 註冊表機制 -> 全球 Marketplace 與企業 Private Registry 的落地應用。"
+    ],
+    "metaphor": "👉 就像是『建立了全廠員工的人事檔案庫與打卡系統』，讓每個崗位的員工都有名有姓、職責清晰。",
+    "layout": "全螢幕流程圖，展示第八章關係：Agent 編寫完畢 -> 產生 Agent Card -> 上傳註冊表 -> Orchestrator 動態檢索 -> 媒合成功 -> 啟動對話。"
+  },
+  {
+    "id": "128",
+    "chapter": "第九章",
+    "pdf_page": "26",
+    "title": "A2A 協定的實作雙軌",
+    "takeaway": "A2A 的落地包含 Exposing (供應端) 與 Connecting (需求端) 兩大開發動態！",
+    "details": [
+      "供應端 (Supply Side)：學習如何將本地的 AI Agent 包裝並暴露為 A2A-compliant 端點。",
+      "需求端 (Demand Side)：學習如何利用 Orchestrator 發現並連線調用遠端 A2A 智能體。"
+    ],
+    "metaphor": "👉 就像是『插座與插頭：供應端負責在牆上安裝標準插座 (Exposing)；需求端負責把電器插頭插上去 (Connecting)』。",
+    "layout": "左右分欄佈局。左分欄標示 Supply Side (Exposing)，右分欄標示 Demand Side (Connecting)，各自列出實作子步驟。"
+  },
+  {
+    "id": "129",
+    "chapter": "第九章",
+    "pdf_page": "26",
+    "title": "供應端實作步驟 1：定義 Card",
+    "takeaway": "編寫標準 YAML/JSON 檔案，精確聲明 Agent Card 的元數據！",
+    "details": [
+      "定義 metadata 區塊，寫入 name, version, author, description 等資訊。",
+      "在 capabilities 區塊中，以語意化詞彙定義該智能體的專長範圍。"
+    ],
+    "metaphor": "👉 就像是『填寫新員工報到登記表』，一字一句把名字、聯絡方式與專長特點寫在紙上存檔。",
+    "layout": "左側展示一份寫有 metadata 與 capabilities 的 YAML 配置代碼塊，右側展示其對應的機器可讀性驗證標記。"
+  },
+  {
+    "id": "130",
+    "chapter": "第九章",
+    "pdf_page": "26",
+    "title": "供應端實作步驟 2：Agent Executor",
+    "takeaway": "實作 Executor 作為 Translation Layer，翻譯 A2A 消息與底層框架調用！",
+    "details": [
+      "遠端傳入的 A2A 協商請求是標準格式的 Protocol Buffer / JSON。",
+      "Executor 將其翻譯成底層 LangGraph, ADK 或自研代碼能看懂的具體 method 呼叫。"
+    ],
+    "metaphor": "👉 就像是『公司的外語秘書』，負責把外國客戶發來的英文電子郵件 (A2A 請求) 翻譯成中文工作單 (底層調用) 給工程師。",
+    "layout": "中央為 Agent Executor (Translation Layer)，左側輸入 A2A 封包，右側輸出 LangGraph / ADK 呼叫參數。"
+  },
+  {
+    "id": "131",
+    "chapter": "第九章",
+    "pdf_page": "26",
+    "title": "供應端實作步驟 3：部署 Endpoint",
+    "takeaway": "將 Executor 暴露為 A2A-compliant Webhook 端點，供全球網絡調用！",
+    "details": [
+      "使用 FastAPI 或 Flask 將翻譯層封裝成一個標準的 HTTPS POST 接口 (Endpoint)。",
+      "配置 API Gateway 進行身份驗證，確保只有授權的 Orchestrator 才能對接連線。"
+    ],
+    "metaphor": "👉 就像是『在公司大門口裝上一個聯絡電話分機 (Endpoint)』，外部客戶撥打這個分機就能直接轉接到秘書處。",
+    "layout": "左側為 Internet 發送的 HTTP POST 請求，中央為暴露的 Webhook URL，右側為運行的 Executor 進程。"
+  },
+  {
+    "id": "132",
+    "chapter": "第九章",
+    "pdf_page": "27",
+    "title": "解讀 A2A Client-Server 消費流",
+    "takeaway": "Client 發送任務委派，Server 解析、運行並回傳標準協商消息！",
+    "details": [
+      "A2A Client (Demand Side) 將任務封裝入信封，向 A2A Server (Supply Side) 發起調用。",
+      "Server 端接收後，啟動 Executor 驅動內部模型運算，完成後回傳 A2A 響應。"
+    ],
+    "metaphor": "👉 就像是『發包工程：業主 (Client) 填寫工程委託書發給包商 (Server)，包商蓋章確認後開始施工，完工後交件』。",
+    "layout": "時序圖。左側為 A2A Client，右側為 A2A Server，中間展示 POST /a2a/request -> 處理 -> 200 OK Response 消息流。"
+  },
+  {
+    "id": "133",
+    "chapter": "第九章",
+    "pdf_page": "27",
+    "title": "需求端連線模式 1：點對點硬編碼",
+    "takeaway": "在代碼中直接硬編碼遠端端點 URL，適用於私有對接與特定廠商整合！",
+    "details": [
+      "使用 Google ADK 的 RemoteA2aAgent 類，直接傳入名為 billing_agent 與 endpoint URL。",
+      "適合在開發測試期或是與已簽約的特定供應商進行安全的點對點對接。"
+    ],
+    "metaphor": "👉 就像是『在手機通訊錄裡把合作夥伴的電話號碼直接設為快速鍵 1』，按一下就能直通，不用查黃頁。",
+    "layout": "左欄介紹適用場景，右欄展示 Python 程式碼，代碼中硬編碼 endpoint='https://api.vendor.com/v1/billing/a2a'，重點標黃。"
+  },
+  {
+    "id": "134",
+    "chapter": "第九章",
+    "pdf_page": "28",
+    "title": "實作點對點硬編碼 Python 代碼",
+    "takeaway": "僅需 5 行 Python 代碼，即可在 ADK 中直接實例化遠端 A2A 智能體！",
+    "details": [
+      "導入 Google ADK 中的 RemoteA2aAgent 適配器類。",
+      "宣告實例並傳入 endpoint 參數，後續即可像調用本地對象一樣調用遠端專家。"
+    ],
+    "metaphor": "👉 就像是『在本地宣告一個虛擬對象，代碼裡調用它時，SDK 會自動在背後發送網絡請求』，對開發者無感。",
+    "layout": "全螢幕代碼塊，展示：from google.adk.agents import RemoteA2aAgent; agent = RemoteA2aAgent(name='...', endpoint='...')。"
+  },
+  {
+    "id": "135",
+    "chapter": "第九章",
+    "pdf_page": "28",
+    "title": "需求端連線模式 2：註冊表動態發現",
+    "takeaway": "透過 Agent Registry 動態發現遠端端點，實現彈性且安全的服務綁定！",
+    "details": [
+      "主系統不寫死任何 URL，只宣告所需的資源名稱 (例如：projects/{id}/agents/{name})。",
+      "ADK 自動向 Registry 查詢該資源名稱，Registry 負責解析端點 URL 並校對驗證 credentials。"
+    ],
+    "metaphor": "👉 就像是『你在公司撥打內部代號 101 找研發部經理 (動態發現)，不管經理今天換到哪間辦公室，系統都會自動幫你轉接過去』。",
+    "layout": "左側為 Orchestrator 宣告資源代號，中央為動態解析的 Agent Registry 閘道，右側為被拉起連接的 A2A 遠端服務。"
+  },
+  {
+    "id": "136",
+    "chapter": "第九章",
+    "pdf_page": "28",
+    "title": "實作註冊表動態發現 Python 代碼",
+    "takeaway": "利用 AgentRegistry 類，動態抓取並實例化安全的遠端 A2A 智能體！",
+    "details": [
+      "建立 AgentRegistry 實例，傳入 project_id 與 location 參數。",
+      "調用 registry.get_remote_a2a_agent 並傳入標準的 GCP 資源路徑字串。"
+    ],
+    "metaphor": "👉 就像是『上網查黃頁目錄，查到對應的商戶名稱後，由黃頁系統自動幫你撥號接通』。",
+    "layout": "全螢幕代碼塊，展示：registry = AgentRegistry(project_id, location); my_remote_agent = registry.get_remote_a2a_agent(agent_name)。"
+  },
+  {
+    "id": "137",
+    "chapter": "第九章",
+    "pdf_page": "28",
+    "title": "動態發現中的憑證校驗 (Auth)",
+    "takeaway": "註冊表在解析名稱的同時，會自動完成 OAuth 金鑰與 IAM 權限校驗！",
+    "details": [
+      "Orchestrator 不需要手動在請求中附加 credentials，Registry 會自動關聯當前的環境 Default Credentials (ADC)。",
+      "簡化了開發者的安全管理負擔，避免金鑰在網絡傳輸中意外洩漏。"
+    ],
+    "metaphor": "👉 就像是『你在公司刷識別證進大門，門禁系統自動確認你的部門和職級，不需要你每次進門都出示身分證和印章』。",
+    "layout": "左側為帶有 ADC (Application Default Credentials) 憑證的 Client，中間為 Registry 驗證鎖頭，右側為放行的 A2A 通道。"
+  },
+  {
+    "id": "138",
+    "chapter": "第九章",
+    "pdf_page": "28",
+    "title": "第九章邏輯關係回顧",
+    "takeaway": "掌握 A2A 的供應端部署與需求端雙模式連線，是虛擬團隊落地的最後一公里！",
+    "details": [
+      "A2A 實作雙軌 -> 供應端 Exposing 三步驟 (定義 Card, 實作 Executor, 暴露 Endpoint)。",
+      "需求端 Connecting 雙模式 -> 點對點硬編碼連線 vs 註冊表動態發現 (ADK Python 代碼)。"
+    ],
+    "metaphor": "👉 就像是『成功把工廠的對講機分發給每位員工，且教會大家如何按照通訊錄撥打內線和外線電話』。",
+    "layout": "全螢幕流程圖，展示第九章關係：程式編寫 -> Expose A2A Server -> 連線模式決策 -> 執行 ADK 連接 -> 成功建立網絡對話。"
+  }
+]

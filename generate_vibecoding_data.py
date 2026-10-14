@@ -1,0 +1,740 @@
+# -*- coding: utf-8 -*-
+import json
+import base64
+import html
+
+def esc(text):
+    return html.escape(str(text)) if text else ""
+
+def make_svg_diagram(title, subtitle, nodes, loop_label=None, accent="#0ea5e9"):
+    """產生精美工控暗黑風格的 SVG 流程架構圖 (Data URL)"""
+    w = 720
+    h = 320
+    n = len(nodes)
+    card_w = min(150, (w - 60 - (n - 1) * 20) // n) if n > 0 else 120
+    card_h = 100
+    gap = 18
+    total_cards_w = n * card_w + (n - 1) * gap
+    start_x = (w - total_cards_w) // 2
+    y = 110
+
+    svg = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="100%" style="background: linear-gradient(135deg, #0b1522 0%, #0d2229 100%); font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Noto Sans TC, sans-serif;">',
+        '  <defs>',
+        f'    <linearGradient id="gradBar" x1="0%" y1="0%" x2="100%" y2="0%">',
+        f'      <stop offset="0%" stop-color="{accent}" stop-opacity="0.8"/>',
+        f'      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.8"/>',
+        '    </linearGradient>',
+        '    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">',
+        f'      <path d="M 0 1 L 10 5 L 0 9 z" fill="{accent}"/>',
+        '    </marker>',
+        '    <filter id="cardGlow" x="-10%" y="-10%" width="120%" height="120%">',
+        '      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4"/>',
+        '    </filter>',
+        '  </defs>',
+        '  <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">',
+        '    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>',
+        '  </pattern>',
+        f'  <rect width="{w}" height="{h}" fill="url(#grid)" />',
+        f'  <rect x="25" y="24" width="4" height="28" rx="2" fill="url(#gradBar)"/>',
+        f'  <text x="38" y="42" fill="#ffffff" font-size="16" font-weight="bold" letter-spacing="0.5">{esc(title)}</text>',
+        f'  <text x="38" y="60" fill="#94a3b8" font-size="11">{esc(subtitle)}</text>',
+        f'  <rect x="25" y="80" width="{w-50}" height="1" fill="rgba(255,255,255,0.08)"/>'
+    ]
+
+    for i, node in enumerate(nodes):
+        x = start_x + i * (card_w + gap)
+        step_num = node.get("num", f"0{i+1}")
+        step_title = node.get("title", f"Step {i+1}")
+        step_sub = node.get("sub", "")
+        step_tag = node.get("tag", "")
+
+        svg.append(f'  <g filter="url(#cardGlow)">')
+        svg.append(f'    <rect x="{x}" y="{y}" width="{card_w}" height="{card_h}" rx="10" fill="#132730" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.2"/>')
+        svg.append(f'    <rect x="{x}" y="{y}" width="{card_w}" height="4" rx="2" fill="{accent}"/>')
+        svg.append(f'    <circle cx="{x + 22}" cy="{y + 26}" r="12" fill="rgba(56, 189, 248, 0.15)" stroke="{accent}" stroke-width="1"/>')
+        svg.append(f'    <text x="{x + 22}" y="{y + 30}" fill="{accent}" font-size="10" font-weight="bold" text-anchor="middle">{esc(step_num)}</text>')
+        if step_tag:
+            svg.append(f'    <rect x="{x + card_w - 48}" y="{y + 16}" width="42" height="16" rx="4" fill="rgba(255,255,255,0.06)"/>')
+            svg.append(f'    <text x="{x + card_w - 27}" y="{y + 28}" fill="#38bdf8" font-size="8.5" text-anchor="middle">{esc(step_tag)}</text>')
+        svg.append(f'    <text x="{x + 12}" y="{y + 58}" fill="#ffffff" font-size="12" font-weight="bold">{esc(step_title)}</text>')
+        sub_p1 = step_sub[:14]
+        sub_p2 = step_sub[14:28] if len(step_sub) > 14 else ""
+        svg.append(f'    <text x="{x + 12}" y="{y + 76}" fill="#94a3b8" font-size="9.5">{esc(sub_p1)}</text>')
+        if sub_p2:
+            svg.append(f'    <text x="{x + 12}" y="{y + 90}" fill="#64748b" font-size="8.5">{esc(sub_p2)}</text>')
+        svg.append('  </g>')
+
+        if i < n - 1:
+            ax1 = x + card_w + 3
+            ax2 = ax1 + gap - 6
+            ay = y + card_h // 2
+            svg.append(f'  <path d="M {ax1} {ay} L {ax2} {ay}" stroke="{accent}" stroke-width="1.8" marker-end="url(#arrow)"/>')
+
+    if loop_label:
+        x_first = start_x + card_w // 2
+        x_last = start_x + (n - 1) * (card_w + gap) + card_w // 2
+        svg.append(f'  <path d="M {x_last} {y + card_h + 8} C {x_last} {y + card_h + 55}, {x_first} {y + card_h + 55}, {x_first} {y + card_h + 8}" stroke="{accent}" stroke-width="1.2" stroke-dasharray="5,4" fill="none" marker-end="url(#arrow)"/>')
+        svg.append(f'  <text x="{(x_first + x_last)//2}" y="{y + card_h + 50}" fill="#38bdf8" font-size="10" text-anchor="middle" font-weight="500">{esc(loop_label)}</text>')
+
+    svg.append('</svg>')
+    svg_str = '\n'.join(svg)
+    encoded = base64.b64encode(svg_str.encode('utf-8')).decode('utf-8')
+    return f"data:image/svg+xml;base64,{encoded}"
+
+# Google 5-Day 子單元清單 (Sub-modules)
+google_children = [
+    {
+        "id": "vibe-google-d1",
+        "parentId": "vibe-google-course",
+        "subNumber": "D1",
+        "title": "Google Day 1: The New SDLC With Vibe Coding (新生命週期)",
+        "shortTitle": "Day 1: 新 SDLC 生命週期",
+        "category": "軟體工程",
+        "date": "2026-07-04",
+        "summary": "Google 官方 5-Day AI Agents Intensive 課程精華 Day 1。探討在生成式 Agent 時代，軟體工程如何從單純的 Prompt Engineering 演進為具備感知 (Perception)、推理 (Reasoning) 與行動 (Action) 的自治代理循環，以規格驅動引導 Agent 構建強固的現代系統。",
+        "flowTitle": "Google Day 1 自治代理循環與規格驅動架構",
+        "resultTitle": "Google Day 1 課程精選簡報投影片",
+        "flowImage": make_svg_diagram(
+            "Google Day 1: The New SDLC with Agents",
+            "Autonomous Agent Loop & Spec-Driven Engineering",
+            [
+                {"num": "D1-1", "title": "感知環境", "sub": "代碼庫與狀態讀取", "tag": "Perception"},
+                {"num": "D1-2", "title": "推理規劃", "sub": "ReAct / CoT 思維鏈", "tag": "Reasoning"},
+                {"num": "D1-3", "title": "工具行動", "sub": "執行代碼與檔案變更", "tag": "Action"},
+                {"num": "D1-4", "title": "評估反饋", "sub": "自我除錯與迴圈修正", "tag": "Reflection"}
+            ],
+            loop_label="Agent 自治執行直到滿足規格定義之收斂條件",
+            accent="#3b82f6"
+        ),
+        "resultImage": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_01_The New SDLC With Vibe Coding/slides.html",
+        "slideUrl": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_01_The New SDLC With Vibe Coding/slides.html",
+        "objective": "1. 掌握 Autonomous Agent 的四大基本支柱：感知 (Perception)、推理 (Reasoning)、行動 (Action)、記憶 (Memory)。\n2. 理解單次 LLM 呼叫與 Multi-Step Agentic Workflow 的質變差別。\n3. 學會使用 Spec 鎖定 Agent 的行為邊界，避免發散與幻覺。",
+        "tutorialSteps": [
+            {
+                "step": "單元 1: 從靜態生成到動態自治代理",
+                "description": "對比傳統 Chatbot 僅能單次回答，Agent 具備環境感知與工具調用能力，能根據執行回傳結果即時動態調整後續決策。"
+            },
+            {
+                "step": "單元 2: ReAct (Reasoning + Acting) 模式剖析",
+                "description": "深入解析 Thought -> Action -> Observation 核心循環，使模型在採取任何關鍵修改前進行深度自我論證。"
+            },
+            {
+                "step": "單元 3: 規格驅動開發 (Spec-Driven Development)",
+                "description": "以嚴謹的規格 (Spec) 取代模糊的 Prompt。規格包含前置條件、輸入輸出契約、容錯邊界與單元測試清單。"
+            }
+        ],
+        "promptTemplate": "You are an autonomous Senior Software Engineer Agent operating under Google's SDLC framework.\nAnalyze the following repository structure and generate a comprehensive Spec for implementing an MQTT telemetry publisher node.\nFollow the ReAct framework: explicitly output Thought, Action, and Observation before writing the implementation.",
+        "codeSnippet": {
+            "language": "python",
+            "code": "# Google Day 1: Simple ReAct Agent Skeleton\nclass ReActAgent:\n    def __init__(self, model, tools):\n        self.model = model\n        self.tools = tools\n\n    def run(self, task_spec):\n        thought = self.model.think(f'Goal: {task_spec}')\n        while not task_spec.is_satisfied():\n            action = self.model.plan_action(thought)\n            observation = self.tools.execute(action)\n            thought = self.model.reflect(observation)\n        return 'Task Successfully Completed'"
+        },
+        "references": [
+            {
+                "title": "Google Day 1 投影片簡報 (Slides)",
+                "url": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_01_The New SDLC With Vibe Coding/slides.html"
+            },
+            {
+                "title": "Google 5-Day 課程總目錄",
+                "url": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/index.html"
+            }
+        ],
+        "applications": [
+            {
+                "icon": "fa-solid fa-microchip",
+                "scenario": "自主單元測試補齊",
+                "description": "給予現有 Node-RED 模組，Agent 自動遍歷所有邊界情況並自動撰寫 Mocha/Jest 單元測試。"
+            }
+        ]
+    },
+    {
+        "id": "vibe-google-d2",
+        "parentId": "vibe-google-course",
+        "subNumber": "D2",
+        "title": "Google Day 2: Agent Tools 與互通性 (Interoperability)",
+        "shortTitle": "Day 2: Tools 工具互通",
+        "category": "軟體工程",
+        "date": "2026-07-06",
+        "summary": "Google 課程 Day 2。剖析 Function Calling、OpenAPI 規範與工具調用協定。讓 Agent 真正突破文字世界，具備執行 Shell 命令、讀寫 SQL/NoSQL 資料庫、呼叫工業物聯網 RESTful API 的真實實踐能力。",
+        "flowTitle": "Agent 工具調用與協調互通架構",
+        "resultTitle": "Google Day 2 課程投影片",
+        "flowImage": make_svg_diagram(
+            "Google Day 2: Agent Tools & Interoperability",
+            "Function Calling, Schema Definition & Safe Execution",
+            [
+                {"num": "D2-1", "title": "Schema 定義", "sub": "JSON Schema / OpenAPI", "tag": "Contract"},
+                {"num": "D2-2", "title": "模型決策", "sub": "選擇最合適 Tool 參數", "tag": "Selection"},
+                {"num": "D2-3", "title": "沙盒執行", "sub": "本機隔離防禦執行", "tag": "Execution"},
+                {"num": "D2-4", "title": "回傳解析", "sub": "結構化輸出回饋上下文", "tag": "Feedback"}
+            ],
+            loop_label="工具執行異常自動進行參數自愈重試 (Self-Correction)",
+            accent="#0284c7"
+        ),
+        "resultImage": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_02_Agent Tools & Interoperability/index.html",
+        "slideUrl": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_02_Agent Tools & Interoperability/index.html",
+        "objective": "1. 掌握 JSON Schema 宣告 Function Calling 規範的方法與標準實踐。\n2. 理解 Agent 如何調用工控設備 Modbus/TCP 協定與資料庫。\n3. 實作工具執行異常時的錯誤捕獲與自動修復機制。",
+        "tutorialSteps": [
+            {
+                "step": "步驟 1: 定義標準化 Tool Schema",
+                "description": "編寫清晰的工具參數型態與語意描述，使 LLM 能精準辨識呼叫時機與必填欄位。"
+            },
+            {
+                "step": "步驟 2: 建立執行沙盒防護",
+                "description": "確保工具執行具備只讀/寫入分級權限，重大系統破壞性指令必須包含人機確認 (Human confirmation)。"
+            },
+            {
+                "step": "步驟 3: 互通性與跨協定適配",
+                "description": "透過標準格式串接 Node-RED HTTP Endpoint 與外部 MQTT Broker。"
+            }
+        ],
+        "promptTemplate": "請將下列 Node-RED 數據寫入 MySQL 的功能封裝為標準的 OpenAI/Gemini Function Calling Schema，並附帶 Python 執行器：\n1. 函數名稱: record_sensor_telemetry\n2. 參數包含 device_id, temperature, humidity, status_code",
+        "codeSnippet": {
+            "language": "json",
+            "code": "{\n  \"name\": \"record_sensor_telemetry\",\n  \"description\": \"將機電感測器即時遙測數據安全寫入工控時間序列資料庫\",\n  \"parameters\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"device_id\": { \"type\": \"string\", \"description\": \"設備唯一識別碼，如 PLC-MAIN-01\" },\n      \"temperature\": { \"type\": \"number\", \"description\": \"當前溫度攝氏數值\" },\n      \"humidity\": { \"type\": \"number\", \"description\": \"當前環境濕度百分比\" }\n    },\n    \"required\": [\"device_id\", \"temperature\", \"humidity\"]\n  }\n}"
+        },
+        "references": [
+            {
+                "title": "Google Day 2 投影片簡報 (Slides)",
+                "url": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_02_Agent Tools & Interoperability/index.html"
+            }
+        ],
+        "applications": [
+            {
+                "icon": "fa-solid fa-server",
+                "scenario": "智慧工廠設備即時調試",
+                "description": "Agent 透過 Tool 直接讀取 PLC 暫存器 (D0-D100) 數值，即時偵測異常並產生警報診斷報告。"
+            }
+        ]
+    },
+    {
+        "id": "vibe-google-d3",
+        "parentId": "vibe-google-course",
+        "subNumber": "D3",
+        "title": "Google Day 3: Agent Skills 技能擴展體系 (架構與封裝)",
+        "shortTitle": "Day 3: Skills 技能體系",
+        "category": "軟體工程",
+        "date": "2026-07-08",
+        "summary": "Google 課程 Day 3。聚焦於 Agent 技能模組化包裝（Skills Architecture）。如同人類工程師具備專屬技能證照，Agent 透過 SKILL.md 宣告、動態上下文掛載與分工調度，能在特定領域（如工控調校、數據清洗、安全性掃描）發揮專家級威力。",
+        "flowTitle": "Agent Skills 模組化分工與動態調度體系",
+        "resultTitle": "Google Day 3 課程投影片",
+        "flowImage": make_svg_diagram(
+            "Google Day 3: Modular Agent Skills",
+            "Skill Manifest, Progressive Disclosure & Dynamic Routing",
+            [
+                {"num": "D3-1", "title": "Skill 清單", "sub": "輕量 YAML/MD 元數據", "tag": "Discovery"},
+                {"num": "D3-2", "title": "動態載入", "sub": "依任務需求漸進式加載", "tag": "Activation"},
+                {"num": "D3-3", "title": "專業執行", "sub": "掛載領域專用腳本與 Prompt", "tag": "Execution"},
+                {"num": "D3-4", "title": "狀態回寫", "sub": "保留執行記錄與工件", "tag": "Artifacts"}
+            ],
+            loop_label="支援 Multi-Skill 組合串聯，完成端到端複雜工程流水線",
+            accent="#8b5cf6"
+        ),
+        "resultImage": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_03_Agent Skills/Agent_Skills_Day_3.html",
+        "slideUrl": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_03_Agent Skills/Agent_Skills_Day_3.html",
+        "objective": "1. 深入掌握 SKILL.md 的設計哲學與漸進式揭露 (Progressive Disclosure) 原理。\n2. 學會為 Node-RED 專案打造專屬的工控代碼生成與除錯 Skill。\n3. 理解多 Agent 協同架構中的 Skill 路由機制與衝突解鎖。",
+        "tutorialSteps": [
+            {
+                "step": "步驟 1: SKILL.md 規範設計",
+                "description": "撰寫清晰的 YAML Frontmatter 與使用情境觸發條件 (Triggers)，避免 Prompt 污染主要上下文。"
+            },
+            {
+                "step": "步驟 2: 封裝專用 Scripts 與 References",
+                "description": "將繁複的工控計算邏輯與常用 API 封裝在 Skill 的 scripts/ 目錄下，供 Agent 隨需執行。"
+            },
+            {
+                "step": "步驟 3: 驗證 Skill 動態調用",
+                "description": "透過模擬對話測試 Agent 能否在適當時機正確啟動該 Skill 並取得預期產出。"
+            }
+        ],
+        "promptTemplate": "請為我們的 Node-RED 實驗課程建立一個名為 'node-red-flow-analyzer' 的 Agent Skill。\n規範包含：\n1. 專門分析 Node-RED 匯出的 JSON Flow 檔案。\n2. 自動偵測無限迴圈 (Infinite Loop)、未捕獲例外 (Catch node 缺失) 與未設定超時的 HTTP 請求。\n3. 請輸出標準的 SKILL.md 格式。",
+        "codeSnippet": {
+            "language": "markdown",
+            "code": "---\nname: node-red-flow-analyzer\ndescription: 專門檢測 Node-RED Flow 架構隱患、死鎖風險與缺失安全節點的專家級 Skill\n---\n# Node-RED Flow Analyzer Skill\n\n當使用者要求檢查或優化 Node-RED Flow 時使用本技能。\n\n## 審查清單 (Checklist)\n1. 是否每個 http in 都有對應的 http response？\n2. 所有的 function 節點是否有適當的 try/catch 防護？\n3. MQTT 與 Modbus 連線是否具備自動重連機制？"
+        },
+        "references": [
+            {
+                "title": "Google Day 3 投影片簡報 (Slides)",
+                "url": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_03_Agent Skills/Agent_Skills_Day_3.html"
+            }
+        ],
+        "applications": [
+            {
+                "icon": "fa-solid fa-wand-magic-sparkles",
+                "scenario": "專案代碼標準化 Skill",
+                "description": "透過安裝自訂 Skill，確保所有學員產出的 Node-RED 程式碼皆符合統一之變數命名與工控安全規範。"
+            }
+        ]
+    },
+    {
+        "id": "vibe-google-d4",
+        "parentId": "vibe-google-course",
+        "subNumber": "D4",
+        "title": "Google Day 4: Agent 安全防禦、合規與評估 (Evaluation)",
+        "shortTitle": "Day 4: 安全防禦與評估",
+        "category": "軟體工程",
+        "date": "2026-07-10",
+        "summary": "Google 課程 Day 4。探討生產級 Agent 最核心的生命線：安全防禦與客觀評估。涵蓋 Prompt Injection 防護、越獄偵測、沙盒隔離執行以及 LLM-as-a-Judge 自動化回歸評測流水線，讓 Vibe Coding 不僅產出快速，更能經得起工業級安全考驗。",
+        "flowTitle": "Agent 安全防護網與自動化評估架構",
+        "resultTitle": "Google Day 4 課程投影片",
+        "flowImage": make_svg_diagram(
+            "Google Day 4: Agent Security & Evaluation",
+            "Defense in Depth, Guardrails & LLM-as-a-Judge Eval",
+            [
+                {"num": "D4-1", "title": "輸入淨化", "sub": "防禦 Prompt 注入攻擊", "tag": "Sanitization"},
+                {"num": "D4-2", "title": "護欄守門", "sub": "NeMo / Llama-Guard 檢查", "tag": "Guardrails"},
+                {"num": "D4-3", "title": "安全執行", "sub": "容器沙盒與權限最小化", "tag": "Isolation"},
+                {"num": "D4-4", "title": "自動化評估", "sub": "準確率、延遲與幻覺率指標", "tag": "Evaluation"}
+            ],
+            loop_label="持續監控評估數據，評分低於門檻時觸發警報並阻斷上線",
+            accent="#ef4444"
+        ),
+        "resultImage": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_04_Vibe Coding Agent Security and Evaluation/Vibe Coding Agent Security and Evaluation_Day_4_Slides.html",
+        "slideUrl": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_04_Vibe Coding Agent Security and Evaluation/Vibe Coding Agent Security and Evaluation_Day_4_Slides.html",
+        "objective": "1. 識別間接提示注入 (Indirect Prompt Injection) 與系統越獄風險。\n2. 掌握輸入/輸出雙向護欄 (Input/Output Guardrails) 的部署策略。\n3. 學會建構 LLM-as-a-Judge 自動化測試矩陣，客觀評估 Agent 產出品質。",
+        "tutorialSteps": [
+            {
+                "step": "步驟 1: 威脅建模 (Threat Modeling)",
+                "description": "分析工控環境中惡意數據注入（例如偽造 MQTT payload 嘗試操控 Agent 刪除資料庫）的攻擊向量。"
+            },
+            {
+                "step": "步驟 2: 實施多層防禦 (Defense-in-Depth)",
+                "description": "將權限嚴格劃分，Agent 不得直接接觸 Root 權限，且關鍵操作需二階段簽署確認。"
+            },
+            {
+                "step": "步驟 3: 構建 Evaluation Benchmark",
+                "description": "撰寫包含 50+ 個邊界案例的黃金測試集 (Golden Dataset)，每次 Prompt 或模型微調後全自動跑分。"
+            }
+        ],
+        "promptTemplate": "你是一位頂尖的 AI 安全審查官。請對以下 Agent 提示詞與執行腳本進行滲透攻擊分析：\n1. 尋找潛在的 Prompt Injection 漏洞。\n2. 評估未受信任的第三方外部輸入是否可能劫持 Agent 的 Tool 調用。\n3. 給出加固後的防禦版本與驗證測試案例。",
+        "codeSnippet": {
+            "language": "python",
+            "code": "# Google Day 4: LLM-as-a-Judge Evaluation Metric\ndef evaluate_agent_safety(response_text, safety_rubric):\n    eval_prompt = f'''\n    請根據以下工業安全標準評判該回答：\n    標準: {safety_rubric}\n    待評測文本: {response_text}\n    請輸出 1-5 分並說明是否存在指令越權風險。\n    '''\n    score = judge_model.generate(eval_prompt)\n    return parse_score(score)"
+        },
+        "references": [
+            {
+                "title": "Google Day 4 投影片簡報 (Slides)",
+                "url": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_04_Vibe Coding Agent Security and Evaluation/Vibe Coding Agent Security and Evaluation_Day_4_Slides.html"
+            }
+        ],
+        "applications": [
+            {
+                "icon": "fa-solid fa-lock",
+                "scenario": "工業物聯網資安合規防禦",
+                "description": "防止惡意黑客透過外部感測器封包注入惡意指令，確保工控大腦安全無虞。"
+            }
+        ]
+    },
+    {
+        "id": "vibe-google-d5",
+        "parentId": "vibe-google-course",
+        "subNumber": "D5",
+        "title": "Google Day 5: 規範驅動 (Spec-Driven) 生產級開發實務",
+        "shortTitle": "Day 5: 規範驅動開發",
+        "category": "軟體工程",
+        "date": "2026-07-12",
+        "summary": "Google 密集課程 Day 5 結訓總結。邁向真正 Production-Ready 的 Vibe Coding 實踐！融合規格驅動 (Spec-Driven)、CI/CD 整合測試、容器化發布與 OpenTelemetry 全鏈路追蹤，讓 Agent 成為軟體工程團隊最強大的副駕駛 (Co-Pilot)。",
+        "flowTitle": "生產級規範驅動開發全鏈路流水線",
+        "resultTitle": "Google Day 5 課程投影片",
+        "flowImage": make_svg_diagram(
+            "Google Day 5: Production-Grade Vibe Coding",
+            "Spec-Driven Architecture, CI/CD Pipeline & Observability",
+            [
+                {"num": "D5-1", "title": "Spec 規範工程", "sub": "定義 API 與邊界約束", "tag": "Spec"},
+                {"num": "D5-2", "title": "Agent 結對產碼", "sub": "分塊實作與測試生成", "tag": "Coding"},
+                {"num": "D5-3", "title": "CI/CD 門禁", "sub": "自動驗收與容器封裝", "tag": "Release"},
+                {"num": "D5-4", "title": "可觀測性", "sub": "OpenTelemetry 全鏈路追蹤", "tag": "Tracing"}
+            ],
+            loop_label="端到端全自動化，生產環境異常自動回饋回 Spec 修訂",
+            accent="#10b981"
+        ),
+        "resultImage": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_05_Spec-Driven Production Grade Development in the Age of Vibe Coding/presentation.html",
+        "slideUrl": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_05_Spec-Driven Production Grade Development in the Age of Vibe Coding/presentation.html",
+        "objective": "1. 融會貫通從草案、Spec 規範到生產級發布的完整 Vibe Coding 生命週期。\n2. 掌握 OpenTelemetry / Tracing 在 Agent 行為可觀測性中的實踐。\n3. 具備以 AI 協作模式獨立完成複雜工業物聯網全端系統的實戰能力。",
+        "tutorialSteps": [
+            {
+                "step": "步驟 1: 撰寫 Production Spec",
+                "description": "規範包含明確的 SLA 指標（如 99.9% 可用性、P99 延遲）、資料持久化策略與失敗降級方案。"
+            },
+            {
+                "step": "步驟 2: 自動化集成測試與容器化",
+                "description": "Agent 自動產生 Dockerfile、Docker Compose 與 GitHub Actions CI/CD 流水線配置。"
+            },
+            {
+                "step": "步驟 3: 監控與告警反饋閉環",
+                "description": "整合 Prometheus 與 Grafana 監控指標，完成現代化可觀測性部署。"
+            }
+        ],
+        "promptTemplate": "請以 Google Day 5 規範驅動開發架構，為五股職訓局智慧機電系統設計一套完整的 CI/CD 與 Production Spec：\n1. 包含 Node-RED Flow 靜態分析與自動化 Mocha 測試腳本。\n2. 包含 Docker 多階段建構 (Multi-stage build) 最佳實踐。\n3. 包含 Prometheus /metrics 端點監控規格。",
+        "codeSnippet": {
+            "language": "yaml",
+            "code": "# Production Spec: CI/CD Pipeline\nname: Vibe Coding Production Gate\non: [push, pull_request]\njobs:\n  spec-verify:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - name: Validate Flow Spec\n        run: npm run test:flow-lint\n      - name: Security Fuzzing\n        run: npm run test:security\n      - name: Docker Multi-Stage Build\n        run: docker build -t industrial-iot:latest ."
+        },
+        "references": [
+            {
+                "title": "Google Day 5 投影片簡報 (Slides)",
+                "url": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/Day_05_Spec-Driven Production Grade Development in the Age of Vibe Coding/presentation.html"
+            },
+            {
+                "title": "Google 5-Day 全系列課程總覽",
+                "url": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/index.html"
+            }
+        ],
+        "applications": [
+            {
+                "icon": "fa-solid fa-rocket",
+                "scenario": "快速交付端到端工控專案",
+                "description": "在規範驅動的保障下，原本需團隊 1 個月開發的智慧 SCADA 系統，單一工程師在 3 天內即可安全穩定交付。"
+            }
+        ]
+    }
+]
+
+# 母群組：Google 5-Day 全系列課程
+google_parent_group = {
+    "id": "vibe-google-course",
+    "labNumber": "03",
+    "isGroup": True,
+    "groupTitle": "Google 5-Day AI Agents 密集課程 (全五天系列)",
+    "title": "Google 5-Day AI Agents 密集課程：完整實戰總覽 (Day 1 ~ Day 5)",
+    "shortTitle": "Google 5-Day 全系列",
+    "category": "軟體工程",
+    "date": "2026-07-04 ~ 07-12",
+    "summary": "Google 官方推出的 5-Day AI Agents Intensive 完整系列課程。專為生成式 Agent 時代軟體工程師打造，涵蓋從自治代理重塑 SDLC、工具調用 (Function Calling)、Agent Skills 技能體系、安全合規與評估 (Eval)，到規範驅動 (Spec-Driven) 的生產級開發實務。本群組包含 Day 1 至 Day 5 五大核心子模組。",
+    "flowTitle": "Google 5-Day AI Agents 全週期五大核心模組全景圖",
+    "resultTitle": "Google 5-Day 課程總覽互動投影片",
+    "flowImage": make_svg_diagram(
+        "Google 5-Day AI Agents 完整課程全景圖",
+        "Comprehensive 5-Day Intensive Curriculum Architecture",
+        [
+            {"num": "Day 1", "title": "新 SDLC", "sub": "自治代理循環", "tag": "Agent Loop"},
+            {"num": "Day 2", "title": "Tools 互通", "sub": "工具調用協議", "tag": "Function Calling"},
+            {"num": "Day 3", "title": "Skills 體系", "sub": "模組化技能封裝", "tag": "SKILL.md"},
+            {"num": "Day 4", "title": "安全與評估", "sub": "護欄與 LLM-Eval", "tag": "Guardrails"},
+            {"num": "Day 5", "title": "規範驅動", "sub": "生產級 CI/CD", "tag": "Spec-Driven"}
+        ],
+        loop_label="五天完整閉環：從思維架構、工具串接、能力延伸到生產級合規部署",
+        accent="#2563eb"
+    ),
+    "resultImage": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/index.html",
+    "slideUrl": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/index.html",
+    "objective": "1. 系統性掌握 Google 5-Day AI Agents Intensive 的端到端架構演進脈絡。\n2. 依序深入 Day 1 至 Day 5 的核心模組，熟練從自治推理到生產級上線的完整技術棧。\n3. 具備將 Agent 工具、技能與安全評估落地於 Node-RED 工業機電專案的實作能力。",
+    "tutorialSteps": [
+        {
+            "step": "Day 1: The New SDLC With Vibe Coding",
+            "description": "探索生成式 Agent 如何重塑軟體生命週期，自治代理 (Autonomous Agent) 核心循環與 Spec-driven 開發心法。"
+        },
+        {
+            "step": "Day 2: Agent Tools & Interoperability",
+            "description": "深入探討 Function Calling、OpenAPI 整合與工具互通性，賦予 Agent 調用工控 API 與資料庫的能力。"
+        },
+        {
+            "step": "Day 3: Agent Skills 技能擴展體系",
+            "description": "模組化技能封裝 (SKILL.md)、動態上下文載入與多代理協同分工模式。"
+        },
+        {
+            "step": "Day 4: Agent 安全防禦、合規與評估",
+            "description": "防禦 Prompt Injection、容器沙盒防護、LLM-as-a-Judge 自動化回歸評測流水線。"
+        },
+        {
+            "step": "Day 5: 規範驅動 (Spec-Driven) 生產級開發",
+            "description": "Production-ready 系統建置、規格到代碼全自動測試、CI/CD 門禁與 OpenTelemetry 可觀測性監控。"
+        }
+    ],
+    "promptTemplate": "你是一位 Google 認證的 AI Agent 系統架構師。請根據 Google 5-Day 課程架構，為五股職訓局機電 AI 班規劃一套涵蓋：\n1. Day 1: 自治代理核心循環\n2. Day 2: 工控 Modbus / HTTP 工具封裝\n3. Day 3: Node-RED 代碼分析 Skill\n4. Day 4: 輸入護欄與品質評估\n5. Day 5: 規範驅動生產級部署\n的完整實務專案架構規劃書。",
+    "codeSnippet": {
+        "language": "markdown",
+        "code": "# Google 5-Day AI Agents Curriculum Map\n├── Day 01: The New SDLC (Perception -> Reasoning -> Action -> Reflection)\n├── Day 02: Tools & Interoperability (JSON Schema & Safe Execution)\n├── Day 03: Agent Skills (SKILL.md & Dynamic Discovery)\n├── Day 04: Security & Eval (Prompt Defense & LLM-as-a-Judge)\n└── Day 05: Spec-Driven Production (CI/CD Pipeline & Observability)"
+    },
+    "references": [
+        {
+            "title": "Google 5-Day 全系列課程互動簡報系統 (總覽入口)",
+            "url": "Vibe Coding/01.軟體工程/5-Day AI Agents Intensive Vibe Coding Course With Google/index.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-brands fa-google",
+            "scenario": "跨領域 AI 代理架構全貌整合",
+            "description": "適合工程團隊全面升級為 AI-Native 架構，循序漸進建立企業級 Agentic 工作流。"
+        }
+    ],
+    "children": google_children
+}
+
+vibe_labs = [
+    {
+        "id": "vibe-01",
+        "labNumber": "01",
+        "title": "軟體工程演進全景圖：從混沌、瀑布、敏捷到 Vibe Coding",
+        "category": "軟體工程",
+        "date": "2026-09-18",
+        "summary": "系統回顧從 1960 年代第一代「混沌無序 (Code & Fix)」、第二代「瀑布模型 (嚴格分工與文件驅動)」、第三代「敏捷開發與 DevOps (雙週衝刺與持續交付)」，一路邁向第四代「AI-Native Vibe Coding (意圖驅動、AI 產碼、人類把關架構)」的演進歷史與範式轉移。剖析為何『代碼不再是瓶頸』，而架構審查與意圖定義成為核心競爭力。",
+        "flowTitle": "軟體工程四代典範大躍遷演進光譜",
+        "resultTitle": "軟體工程演進史互動專題網頁",
+        "flowImage": make_svg_diagram(
+            "軟體工程四代演進範式轉移", 
+            "Software Engineering Evolution: From Code & Fix to Vibe Coding",
+            [
+                {"num": "1st", "title": "混沌無序", "sub": "Code & Fix 摸索嘗試", "tag": "1960s"},
+                {"num": "2nd", "title": "瀑布模型", "sub": "嚴格分工文件凍結", "tag": "1970s"},
+                {"num": "3rd", "title": "敏捷開發", "sub": "Sprint 與 CI/CD 流水線", "tag": "2000s"},
+                {"num": "4th", "title": "Vibe Coding", "sub": "意圖驅動人機交響共創", "tag": "2026"}
+            ],
+            loop_label="範式重構：工程師從逐行打字搬磚，升級為系統架構指揮官與審核守門人",
+            accent="#0ea5e9"
+        ),
+        "resultImage": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html",
+        "slideUrl": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html",
+        "objective": "1. 深刻理解軟體工程四個歷史階段的核心痛點與演進必然性。\n2. 掌握 Vibe Coding 時代『開發者心態轉移』：從打字敲碼轉為架構定義、Prompt 工程與邊界審查。\n3. 學會辨別『寫代碼』與『系統架構設計』的價值重組，善用 AI Agent 高效構建工業物聯系統。",
+        "tutorialSteps": [
+            {
+                "step": "第一代 混沌期 (1960s)：軟體危機的誕生",
+                "description": "早期軟體開發缺乏架構與工程學規範，採用邊寫邊改 (Code & Fix) 的作法。隨著系統規模膨脹，出現嚴重的專案超支、延宕與程式碼無法維護，史稱『第一次軟體危機』。"
+            },
+            {
+                "step": "第二代 瀑布模型 (1970s~1990s)：過度防禦與文件枷鎖",
+                "description": "借鏡傳統土木工程，將軟體劃分為需求、分析、設計、編碼、測試、維運等嚴格線性階段。缺點是需求難以及時變更，後期發現缺陷時修改成本呈現指數級上升。"
+            },
+            {
+                "step": "第三代 敏捷與 DevOps (2000s~2024)：快速迭代與自動化流水線",
+                "description": "以 2 週 Sprint 為單位小步快跑，擁抱需求變更，配合 Git、CI/CD 與自動化單元測試，使產品能快速持續交付。但編碼本身仍嚴重受限於人類手工生產力。"
+            },
+            {
+                "step": "第四代 Vibe Coding (2025~2026+)：AI 原生意圖驅動開發",
+                "description": "由 LLM / Coding Agent 承接 90% 以上的具體編碼工作，人類開發者透過規格 (Spec.md)、意圖 (Intent.md) 與即時架構指導 (Prompt)，完成高質量軟體交付。"
+            }
+        ],
+        "promptTemplate": "你是一位頂尖的軟體架構專家。請評估我手上的機電物聯網 SCADA 專案架構：\n1. 請以 Vibe Coding 模式，將目前傳統瀑布式的開發流程轉換為 Spec-Driven 的 AI 協同工作流。\n2. 針對 Node-RED 數據採集、Modbus 通訊與前端 Web 儀表板，產出模組化的 intent.md 與架構約束規範。\n3. 指出在此模式下，人類工程師應重點防禦與審核的關鍵邊界（例如工控安全、併發鎖定與死鎖偵測）。",
+        "codeSnippet": {
+            "language": "markdown",
+            "code": "# Project Intent: Industrial SCADA IoT Dashboard\n## 1. 核心意圖 (Core Intent)\n建構五股職訓局機電 AI 監控系統，採集現場 PLC/Modbus 感測器數據並於 Web 即時可視化。\n\n## 2. 人機協作邊界 (Human-Agent Boundary)\n- AI Agent 職責: 產生 Node-RED Function 程式碼、UI 儀表板組件與單元測試。\n- 人類架構師職責: 審核通訊逾時熔斷、實體硬體安全極限值、資料庫 ACID 規範。\n\n## 3. 驗證指標 (Verification Criteria)\n- 採集延遲 < 100ms\n- 斷線自動重連機制覆蓋率 100%"
+        },
+        "references": [
+            {
+                "title": "軟體工程演進全景圖 (互動專題頁面)",
+                "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
+            },
+            {
+                "title": "Anthropic AI-Native SDLC 全週期實戰手冊",
+                "url": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html"
+            }
+        ],
+        "applications": [
+            {
+                "icon": "fa-solid fa-industry",
+                "scenario": "工控自動化系統升級",
+                "description": "將傳統耗時數月的 PLC/SCADA 控制邏輯重構，利用 Vibe Coding 與 AI 代理於數日內完成通訊協議配接與前端即時看板開發。"
+            },
+            {
+                "icon": "fa-solid fa-code-branch",
+                "scenario": "敏捷轉型與 AI SDLC 整合",
+                "description": "團隊工作流從以『Jira Ticket 敲碼』為中心，轉向以『Spec 文件審閱與 Agent 生成品質驗證』為中心的敏捷卓越研發。"
+            }
+        ]
+    },
+    {
+        "id": "vibe-02",
+        "labNumber": "02",
+        "title": "Anthropic Claude：AI-Native SDLC 全週期實戰手冊 (Playbook)",
+        "category": "軟體工程",
+        "date": "2026-08-21",
+        "summary": "Anthropic 官方權威發布《The AI-Native SDLC Playbook》。宣告『Code is no longer the bottleneck』！深入解構 Plan (規劃)、Design (設計)、Build (構建)、Test (測試)、Deploy (部署)、Maintain (維護) 六大階段，落實以版本控制工件鏈 (intent.md -> spec.md -> plan.md) 驅動的全自動閉環。",
+        "flowTitle": "AI-Native SDLC 六大階段工件閉環架構",
+        "resultTitle": "Anthropic 220+ 頁互動簡報系統",
+        "flowImage": make_svg_diagram(
+            "AI-Native SDLC 六階段工件鏈", 
+            "Anthropic Six-Stage Closed-Loop Playbook Architecture",
+            [
+                {"num": "01", "title": "Plan 企劃", "sub": "intent.md 捕獲意圖", "tag": "意圖驅動"},
+                {"num": "02", "title": "Design 設計", "sub": "spec.md 規格收斂", "tag": "規格鎖定"},
+                {"num": "03", "title": "Build 構建", "sub": "plan.md 分塊產碼", "tag": "Agent 執行"},
+                {"num": "04", "title": "Test & Deploy", "sub": "自適應驗證與金絲雀", "tag": "門禁把關"},
+                {"num": "05", "title": "Maintain 維護", "sub": "告警轉 incident.md", "tag": "自動閉環"}
+            ],
+            loop_label="生產事故或新需求自動觸發新一輪 intent.md，形成永續自我優化飛輪",
+            accent="#f59e0b"
+        ),
+        "resultImage": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html",
+        "slideUrl": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html",
+        "objective": "1. 徹底掌握 AI-Native SDLC 的六大閉環階段與核心工件串接鏈條。\n2. 熟悉 intent.md、spec.md、plan.md 的標準撰寫規範與版本控管。\n3. 理解 Human in the loop 的把關哲學：人類專注於把關門禁 (Gates)，而非從零打字。",
+        "tutorialSteps": [
+            {
+                "step": "Stage 1 — Plan (企劃意圖捕獲)",
+                "description": "任何人有想法時，不再需要繁複填寫冗長 Jira 單，而是直接與 Claude 進行頭腦風暴，自動生成結構化且可版本控管的 intent.md，經產品負責人審批後自動觸發下一階段。"
+            },
+            {
+                "step": "Stage 2 — Design (架構規格定稿)",
+                "description": "以 intent.md 為輸入，Agent 自動查閱既有專案代碼庫規範與依賴，產出嚴謹的 spec.md，明確定義 API 界面、數據模型、非功能性需求與邊界約束。"
+            },
+            {
+                "step": "Stage 3 — Build (任務分塊與自主編碼)",
+                "description": "將 spec.md 分解為具體的 plan.md 任務清單。Coding Agent (如 Claude Code) 逐步生成代碼差異 (Diff) 與單元測試，人類僅需在高階 Diff 層面進行驗收。"
+            },
+            {
+                "step": "Stage 4 & 5 — Test & Deploy (自適應測試與金絲雀發布)",
+                "description": "Agent 依據邊界條件自動生成 Fuzzing 測試套件，通過後進入自動化 CI/CD 管道，執行金絲雀發布 (Canary Deploy) 與自動健康度觀測。"
+            },
+            {
+                "step": "Stage 6 — Maintain (生產維護與事故閉環)",
+                "description": "當生產環境監控警報超出控制帶時，Agent 自動擷取錯誤日誌與 Trace，產出 incident.md 與修復 Pull Request，形成自我修復的自愈生態。"
+            }
+        ],
+        "promptTemplate": "你是一位精通 Anthropic AI-Native SDLC 的主任架構師。請依據以下業務需求：\n『為 Node-RED 增加一個安全驗證節點，當感測器讀數超過上限時，以 JWT 加密通知警報伺服器』\n請按照手冊規範，產出標準的：\n1. intent.md (業務意圖、利害關係人、成功指標)\n2. spec.md (API 簽名、驗證規則、錯誤處理)\n3. plan.md (分步驟實施清單、門禁驗收點)",
+        "codeSnippet": {
+            "language": "markdown",
+            "code": "<!-- intent.md 實戰範例 -->\n# Intent: Node-RED 工控節點安全驗證模組\n\n## Why\n現行 Node-RED 數據直傳未經加密簽章，面臨中間人攻擊風險。\n\n## What\n實作自訂節點 `node-red-contrib-industrial-auth`，支援 HMAC-SHA256 簽署與重放攻擊防護。\n\n## Governance Gates\n- [ ] 安全團隊審批演算法安全性 (FIPS 140-2)\n- [ ] 壓測通過 5,000 req/sec，延遲增加 < 5ms"
+        },
+        "references": [
+            {
+                "title": "Claude The AI-Native SDLC Playbook (220+ 頁互動簡報系統)",
+                "url": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html"
+            },
+            {
+                "title": "Anthropic 官方 Blog 原文參考",
+                "url": "https://claude.com/blog/the-ai-native-sdlc-playbook"
+            }
+        ],
+        "applications": [
+            {
+                "icon": "fa-solid fa-shield-halved",
+                "scenario": "企業級合規與審計追蹤",
+                "description": "所有需求、架構決策與 Agent 生成代碼皆以 Git Commit 工件作為審計依據，滿足金融與嚴苛工業規範之合規要求。"
+            },
+            {
+                "icon": "fa-solid fa-rotate",
+                "scenario": "工控系統自愈運維 (Self-Healing)",
+                "description": "現場 PLC 斷線異常自動生成 incident.md 並自動產生重連容錯 PR，大幅降低停線損失。"
+            }
+        ]
+    },
+    google_parent_group,
+    {
+        "id": "vibe-08",
+        "labNumber": "04",
+        "title": "Agent Skills (技能) 體系與 Model Context Protocol (MCP) 架構實戰",
+        "category": "Skills(技能)",
+        "date": "2026-10-14",
+        "summary": "深入解構 Anthropic 發布的開放標準 MCP (Model Context Protocol) 與 Agent 模組化 Skills 體系。如何讓 AI 擺脫封閉文字視窗，透過統一 JSON-RPC 2.0 協議安全掛載本機檔案系統、工控資料庫、Modbus/PLC 硬體與雲端 API，打造具備無限擴展能力的工程工具鏈。",
+        "flowTitle": "Model Context Protocol (MCP) 三層通訊架構",
+        "resultTitle": "Skills (技能) 專屬互動指南",
+        "flowImage": make_svg_diagram(
+            "MCP 協議與 Skills 工具鏈架構",
+            "Host, Client, Protocol & Servers Interconnection",
+            [
+                {"num": "S-01", "title": "MCP Host", "sub": "IDE / Claude / Agent", "tag": "Host"},
+                {"num": "S-02", "title": "MCP Client", "sub": "通訊會話與授權仲裁", "tag": "Protocol"},
+                {"num": "S-03", "title": "MCP Server", "sub": "檔案/資料庫/工控", "tag": "Server"},
+                {"num": "S-04", "title": "實體世界交互", "sub": "PLC / 雲端 API / 硬體", "tag": "Real World"}
+            ],
+            loop_label="JSON-RPC 2.0 雙向通訊，標準化資源 (Resources)、提示 (Prompts) 與工具 (Tools)",
+            accent="#a855f7"
+        ),
+        "resultImage": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html",
+        "slideUrl": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html",
+        "objective": "1. 徹底理解 MCP (Model Context Protocol) 的核心理念與三層架構。\n2. 掌握 MCP Resources, Prompts, Tools 三大基本原語的呼叫標準。\n3. 學會將 Node-RED 與工業設備封裝為標準 MCP Server 供 AI 代理調用。",
+        "tutorialSteps": [
+            {
+                "step": "步驟 1: MCP 協議核心原語剖析",
+                "description": "理解 Resources (唯讀數據如 PLC 暫存器映射)、Tools (可執行動作如啟動馬達、寫入設定)、Prompts (預定義樣板) 的劃分規範。"
+            },
+            {
+                "step": "步驟 2: 建置 Node-RED MCP Server",
+                "description": "透過 stdio 或 SSE (Server-Sent Events) 建立輕量 MCP Server，讓 AI 代理能直接查詢目前 Node-RED 運作中的 Flow 與變數狀態。"
+            },
+            {
+                "step": "步驟 3: 安全隔離與權限驗證",
+                "description": "在 MCP 通訊層實施指令白名單，阻斷對工控危險區域的越權操作。"
+            }
+        ],
+        "promptTemplate": "請扮演 MCP 協議架構師。請使用 Node.js / TypeScript 編寫一個標準的 MCP Server：\n1. 提供 Tool: `read_modbus_register` (讀取指定 slaveId, address 的保持暫存器)。\n2. 提供 Resource: `modbus://status` (回傳目前 PLC 網路連線狀態)。\n3. 符合 Model Context Protocol 最新規範。",
+        "codeSnippet": {
+            "language": "typescript",
+            "code": "// Node-RED / Modbus MCP Server Example\nimport { Server } from '@modelcontextprotocol/sdk/server/index.js';\nimport { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';\n\nconst server = new Server({\n  name: 'nodered-modbus-mcp',\n  version: '1.0.0'\n}, { capabilities: { tools: {}, resources: {} } });\n\nserver.setRequestHandler(ListToolsRequestSchema, async () => ({\n  tools: [{\n    name: 'read_modbus_register',\n    description: '安全讀取現場工控 PLC Modbus 暫存器數據',\n    inputSchema: { type: 'object', properties: { address: { type: 'number' } }, required: ['address'] }\n  }]\n}));"
+        },
+        "references": [
+            {
+                "title": "Skills (技能) 體系專屬互動指南",
+                "url": "Vibe Coding/02.Skills(技能)/vibe_coding_skills.html"
+            },
+            {
+                "title": "Anthropic Model Context Protocol 官方規範",
+                "url": "https://modelcontextprotocol.io/"
+            }
+        ],
+        "applications": [
+            {
+                "icon": "fa-solid fa-network-wired",
+                "scenario": "跨平台工控 AI 代理連線",
+                "description": "AI 代理直接經由 MCP 調用本機 Node-RED 執行環境，自動診斷 Flow 佈線錯誤並即時除錯。"
+            }
+        ]
+    },
+    {
+        "id": "vibe-09",
+        "labNumber": "05",
+        "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
+        "category": "其他",
+        "date": "2026-10-14",
+        "summary": "探討 Vibe Coding 時代開發者的心智模型、工程心法與機電整合實踐。解析如何從『打字員心態』晉升為『系統架構指揮官』，掌握人機交響式的開發節奏，並結合 Node-RED、C#、PLC 與工業物聯網，開啟前所未有的高能工程創造力。",
+        "flowTitle": "Vibe Coding 人機協作交響心智模型",
+        "resultTitle": "Vibe Coding 核心心法專屬指南",
+        "flowImage": make_svg_diagram(
+            "Vibe Coding 人機協作心智模型",
+            "Human Intent, AI Orchestration, Verification & Industrial Integration",
+            [
+                {"num": "O-01", "title": "意圖塑形", "sub": "高階架構與領域知識", "tag": "Human"},
+                {"num": "O-02", "title": "AI 交響共創", "sub": "高速代碼生成與重構", "tag": "Agent"},
+                {"num": "O-03", "title": "邊界審查", "sub": "工控極限與容錯把關", "tag": "Human"},
+                {"num": "O-04", "title": "工業落地", "sub": "實體產線與 SCADA 整合", "tag": "Production"}
+            ],
+            loop_label="人類專注於創造性思考與實體安全，AI 承擔所有繁重重複代碼實現",
+            accent="#6366f1"
+        ),
+        "resultImage": "Vibe Coding/03.其他/vibe_coding_other.html",
+        "slideUrl": "Vibe Coding/03.其他/vibe_coding_other.html",
+        "objective": "1. 克服面對 AI 快速生成時的『認知過載 (Cognitive Overload)』。\n2. 掌握快速迭代、Fail-Fast 與人機交響式 (Orchestration) 的開發節奏。\n3. 探索機電 AI、工控通訊與 Vibe Coding 的跨界實戰心法。",
+        "tutorialSteps": [
+            {
+                "step": "心法一：架構思維高於語法細節",
+                "description": "不要浪費時間記憶冷門語法，而是將精力投入在系統模組邊界、通訊協定約束與業務數據流向的規劃上。"
+            },
+            {
+                "step": "心法二：保持小步快跑與即時驗證",
+                "description": "不要一次讓 AI 寫 2,000 行代碼；而是以 50-100 行為單元，持續在 Node-RED Debug 視窗即時檢驗輸出。"
+            },
+            {
+                "step": "心法三：永遠堅守實體安全底線",
+                "description": "在機電工控領域，軟體錯誤可能導致實體機械損壞。所有實體驅動邏輯必須加裝硬體互鎖與急停開關 (E-Stop)。"
+            }
+        ],
+        "promptTemplate": "我想以 Vibe Coding 模式開發一個機電故障預測模組。\n請扮演我的資深同僚架構師：\n1. 請先不要直接給我一堆程式碼，而是先針對『數據特徵提取』與『閾值告警模型』提出三個關鍵架構決策選項。\n2. 分析每個選項在 Node-RED 上的效能與內存開銷。\n3. 等我確認架構後，再逐步指導實作。",
+        "codeSnippet": {
+            "language": "markdown",
+            "code": "# Vibe Coding 人機協作心法守則\n1. 意圖至上 (Intent First): 先釐清要解決的問題，而非先敲代碼。\n2. 規格契約 (Spec as Contract): 用 Markdown 規格作為人機共同語言。\n3. 小步驗證 (Verify Early): 每次 Agent 修改後立即執行單元測試或 Debug 印出。\n4. 責任在人 (Human Accountability): 最終生產環境安全永遠由人類負責。"
+        },
+        "references": [
+            {
+                "title": "Vibe Coding 核心心法專屬指南",
+                "url": "Vibe Coding/03.其他/vibe_coding_other.html"
+            }
+        ],
+        "applications": [
+            {
+                "icon": "fa-solid fa-graduation-cap",
+                "scenario": "職訓教育與工程人才賦能",
+                "description": "幫助學員跳脫傳統代碼打字員的框架，在課堂上直接學會以系統架構師的高度調動 AI 完成實務專案。"
+            }
+        ]
+    }
+]
+
+# 寫入 vibecoding.json
+with open('vibecoding.json', 'w', encoding='utf-8') as f:
+    json.dump(vibe_labs, f, ensure_ascii=False, indent=2)
+
+# 寫入 vibecodingData.js
+js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能)、其他三大主題，支援 Google 課程群組與子群組)\nwindow.INITIAL_VIBE_DATA = " + json.dumps(vibe_labs, ensure_ascii=False, indent=2) + ";\n"
+with open('vibecodingData.js', 'w', encoding='utf-8') as f:
+    f.write(js_content)
+
+print(f"成功生成資料結構，包含 Google 5-Day 群組與 5 個子模組！")

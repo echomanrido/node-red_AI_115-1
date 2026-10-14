@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>Spec-Driven Production Grade Development in the Age of Vibe Coding</title>
+    <meta name="description" content="A comprehensive slide deck overviewing the blueprint for scalable workflows and team evolution in the age of vibe coding.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --muted-text: #64748b;
+            --primary-color: #4f46e5;
+            --primary-light: #e0e7ff;
+            --border-color: #e2e8f0;
+            --code-bg: #f8fafc;
+            --metaphor-bg: #f0fdf4;
+            --metaphor-text: #166534;
+            --metaphor-border: #bbf7d0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --header-height: 70px;
+            --footer-height: 50px;
+        }
+
+        body.dark {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --muted-text: #94a3b8;
+            --primary-color: #818cf8;
+            --primary-light: #312e81;
+            --border-color: #334155;
+            --code-bg: #0f172a;
+            --metaphor-bg: #064e3b;
+            --metaphor-text: #a7f3d0;
+            --metaphor-border: #047857;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header Styles */
+        header {
+            height: var(--header-height);
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, #4f46e5, #818cf8);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 18px;
+            background: linear-gradient(to right, var(--primary-color), var(--text-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .mode-toggle {
+            display: flex;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .mode-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            color: var(--muted-text);
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .mode-btn.active {
+            background-color: var(--card-bg);
+            color: var(--primary-color);
+            box-shadow: var(--shadow);
+        }
+
+        .controls-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .chapter-select {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            max-width: 250px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .icon-btn:hover {
+            background-color: var(--bg-color);
+        }
+
+        /* Main Workspace */
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            position: relative;
+        }
+
+        .slide-container {
+            width: 100%;
+            height: 100%;
+            max-width: 1400px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slide-meta {
+            font-size: 12px;
+            color: var(--primary-color);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            background-color: var(--primary-light);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .slide-num-info {
+            font-size: 14px;
+            color: var(--muted-text);
+            font-weight: 600;
+        }
+
+        .slide-title-area {
+            padding: 20px 24px 8px;
+        }
+
+        .slide-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .slide-subtitle {
+            font-size: 15px;
+            color: var(--muted-text);
+            font-weight: 500;
+        }
+
+        /* Card Content Split Columns */
+        .slide-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            padding: 12px 24px 24px;
+            gap: 24px;
+        }
+
+        .col-left {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .col-right {
+            flex: 0.8;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow: hidden;
+        }
+
+        /* Scrollbar styles for left column */
+        .col-left::-webkit-scrollbar {
+            width: 6px;
+        }
+        .col-left::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .col-left::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .takeaway-section {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary-color);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .takeaway-title {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .takeaway-text {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .points-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .point-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .point-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .point-content {
+            font-size: 14px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .code-container {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre;
+            color: var(--text-color);
+        }
+
+        /* Metaphor Card Style */
+        .metaphor-card {
+            background-color: var(--metaphor-bg);
+            border: 1px solid var(--metaphor-border);
+            border-radius: 8px;
+            padding: 16px;
+            color: var(--metaphor-text);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .metaphor-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .metaphor-content {
+            font-size: 13px;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        /* Flowchart Container */
+        .flowchart-container {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--code-bg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .flowchart-header {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-bg);
+        }
+
+        .flowchart-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted-text);
+        }
+
+        .flowchart-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .zoom-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .canvas-area {
+            flex: 1;
+            overflow: hidden;
+            cursor: grab;
+            position: relative;
+        }
+
+        .canvas-area:active {
+            cursor: grabbing;
+        }
+
+        .canvas-area svg {
+            width: 100%;
+            height: 100%;
+            user-select: none;
+        }
+
+        /* Mindmap Styles (Slide 2 specific) */
+        .mindmap-slide-body {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .mindmap-canvas {
+            flex: 1;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            position: relative;
+            cursor: grab;
+            overflow: hidden;
+        }
+
+        .mindmap-canvas:active {
+            cursor: grabbing;
+        }
+
+        .mindmap-controls {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 5;
+        }
+
+        .mindmap-control-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+        }
+
+        /* Selected Node Detail Panel in bottom right */
+        .node-detail-panel {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            width: 320px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            z-index: 5;
+            display: none;
+        }
+
+        .node-detail-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+
+        .node-detail-desc {
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-color);
+        }
+
+        /* Footer Styles */
+        footer {
+            height: var(--footer-height);
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 -2px 4px -1px rgb(0 0 0 / 0.05);
+            z-index: 10;
+        }
+
+        .shortcuts-tip {
+            font-size: 12px;
+            color: var(--muted-text);
+            font-weight: 600;
+        }
+
+        .progress-info {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            padding: 8px 20px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--bg-color);
+        }
+
+        /* SVGs styling */
+        svg text {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            fill: var(--text-color);
+            pointer-events: none;
+        }
+
+        svg line, svg path {
+            stroke: var(--border-color);
+        }
+
+        svg rect, svg circle {
+            stroke: var(--border-color);
+            fill: var(--card-bg);
+        }
+
+        .dark svg rect, .dark svg circle {
+            fill: #1e293b;
+        }
+
+        /* Mindmap custom highlights */
+        .mindmap-node {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .mindmap-node:hover {
+            transform: scale(1.05);
+        }
+
+        .mindmap-node.active rect {
+            stroke: var(--primary-color);
+            stroke-width: 3px;
+        }
+
+        .mindmap-node.active circle {
+            stroke: var(--primary-color);
+            stroke-width: 4px;
+        }
+
+        .mindmap-node.active text {
+            font-weight: bold;
+        }
+
+        .mindmap-link.active {
+            stroke: var(--primary-color) !important;
+            stroke-width: 3px !important;
+            stroke-dasharray: none !important;
+        }
+
+        .mindmap-link.dimmed {
+            opacity: 0.2;
+        }
+
+        .mindmap-node.dimmed {
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">Q</div>
+            <div class="logo-text">Vibe Coding 時代的規格驅動開發</div>
+        </div>
+        
+        <div class="mode-toggle">
+            <button id="overviewModeBtn" class="mode-btn active" onclick="switchMode('overview')">簡報大綱 (Overview)</button>
+            <button id="detailedModeBtn" class="mode-btn" onclick="switchMode('detailed')">詳細說明 (Step-by-Step)</button>
+        </div>
+        
+        <div class="controls-area">
+            <select id="chapterDropdown" class="chapter-select" onchange="jumpToChapter(this.value)">
+                <!-- Chapters will be injected -->
+            </select>
+            <button class="icon-btn" onclick="toggleTheme()" title="切換深色模式">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+            <button class="icon-btn" onclick="toggleFullScreen()" title="全螢幕模式">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-maximize"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <div class="slide-container">
+            <div class="slide-header">
+                <span id="slideMeta" class="slide-meta">載入中...</span>
+                <span id="slidePageInfo" class="slide-num-info">投影片 1 / 1</span>
+            </div>
+            
+            <div class="slide-title-area">
+                <h1 id="slideTitle" class="slide-title">標題</h1>
+                <div id="slideSubtitle" class="slide-subtitle">副標題</div>
+            </div>
+            
+            <div id="slideNormalBody" class="slide-body">
+                <div class="col-left">
+                    <div class="takeaway-section">
+                        <div class="takeaway-title">核心宣示 (Takeaway)</div>
+                        <div id="slideTakeaway" class="takeaway-text">核心要點內容</div>
+                    </div>
+                    
+                    <div class="points-section">
+                        <h3 style="font-size: 15px; font-weight: 800; margin-bottom: 4px;">核心要點</h3>
+                        <div id="slidePoints">
+                            <!-- Points will be injected -->
+                        </div>
+                    </div>
+                    
+                    <div id="slideCodeContainer" class="code-container" style="display: none;">
+                        <!-- Code blocks will be injected -->
+                    </div>
+                </div>
+                
+                <div class="col-right">
+                    <div class="metaphor-card">
+                        <div class="metaphor-header">
+                            <span style="font-size: 18px;">💡</span> 實務概念類比與應用
+                        </div>
+                        <div id="slideMetaphor" class="metaphor-content">
+                            類比內容
+                        </div>
+                    </div>
+                    
+                    <div class="flowchart-container">
+                        <div class="flowchart-header">
+                            <span class="flowchart-title">本章邏輯流程圖 (可縮放)</span>
+                            <div class="flowchart-controls">
+                                <button class="zoom-btn" onclick="zoomFlowchart(1.2)">+</button>
+                                <button class="zoom-btn" onclick="zoomFlowchart(0.8)">-</button>
+                                <button class="zoom-btn" onclick="resetFlowchart()">重設</button>
+                            </div>
+                        </div>
+                        <div id="flowchartCanvas" class="canvas-area">
+                            <!-- Flowchart SVG injected dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="slideMindmapBody" class="slide-body" style="display: none;">
+                <div class="mindmap-slide-body">
+                    <div class="mindmap-canvas" id="mindmapContainer">
+                        <div class="mindmap-controls">
+                            <button class="mindmap-control-btn" onclick="zoomMindmap(1.2)">+</button>
+                            <button class="mindmap-control-btn" onclick="zoomMindmap(0.8)">-</button>
+                            <button class="mindmap-control-btn" onclick="resetMindmap()">↺</button>
+                        </div>
+                        <!-- Mindmap SVG will be injected here -->
+                        <div class="node-detail-panel" id="nodeDetailPanel">
+                            <div class="node-detail-title" id="nodeDetailTitle">章節名稱</div>
+                            <div class="node-detail-desc" id="nodeDetailDesc">章節詳細摘要說明...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="shortcuts-tip">切換: 鍵盤左右鍵 / Space   目錄: M   全螢幕: F</div>
+        <div id="footerProgress" class="progress-info">1 / 1</div>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="prevSlide()">上一頁</button>
+            <button class="nav-btn" onclick="nextSlide()">下一頁</button>
+        </div>
+    </footer>
+
+    <script>
+        const chapters = [{"num": 1, "name": "前言與 Vibe Coding 的生產環境挑戰", "pages": "5-6"}, {"num": 2, "name": "規格驅動開發 (SDD) 與 BDD 規範", "pages": "7-10"}, {"num": 3, "name": "指令管理與系統提示詞層級", "pages": "11-12"}, {"num": 4, "name": "Agent 的五大執行模式", "pages": "12-15"}, {"num": 5, "name": "模型上下文協定 (MCP) 架構與實作", "pages": "15-18"}, {"num": 6, "name": "團隊文化與開發流程的演進", "pages": "18-20"}, {"num": 7, "name": "自動化程式審查代理與三層級架構", "pages": "21-25"}, {"num": 8, "name": "開發永續性與審查疲勞應對", "pages": "25-26"}, {"num": 9, "name": "零信任開發安全網與沙箱機制", "pages": "26-29"}, {"num": 10, "name": "行為評估與 AI 自動生成測試", "pages": "29-30"}, {"num": 11, "name": "策略伺服器與上下文去敏感化", "pages": "30-35"}, {"num": 12, "name": "實踐指引與全書總結", "pages": "36"}];
+        const overviewSlides = [{"num": 1, "title": "規格驅動開發 (SDD)", "subtitle": "Vibe Coding 時代的生產級系統開發藍圖", "takeaway": "擁抱 AI Agent 帶來的開發極速，以架構規格為指引，打造可靠、安全的生產級軟體。", "chapter": 1, "details": ["Vibe Coding 崛起：開發者從「程式編寫者」升級為「系統架構師」。", "速度的幻覺：AI 生產程式碼的速度極快，但 Bug 的累積速度也同樣驚人。", "生產級要求：企業開發不容許隨機猜測，必須導入外部治理與嚴格規範。", "SDD 架構精神：程式碼是可丟棄的，唯有「規格書（Spec）」是永恆的架構北極星。"], "metaphor": "用「蓋高樓大廈」做類比：AI 是一群動作極快的機器人水泥工（Hands），但如果沒有精準的「藍圖規格書（Spec / Brain）」，蓋出來的只會是搖搖欲墜的違章建築。", "layout": "左側放置巨大簡報主視覺圖，右側呈現 SDD 三大架構支柱（規格、防護、評估）。"}, {"num": 2, "title": "全書 12 章節核心互聯網狀心智圖", "subtitle": "Chapter 2: 可拖曳與滾輪縮放的網狀心智圖（懸停高亮連結線）", "takeaway": "點擊任何節點，高亮其相互連結關係，並於右下角卡片顯示該章節的核心大綱。", "chapter": 1, "details": ["請直接點擊畫面的心智圖節點進行互動與縮放。"], "metaphor": "將知識系統類比為「連鎖捷運路網」：中央控制室（Ch 1 總覽）透過軌道（連結線）與各站點（Ch 2~12）互通，點擊任一站即可高亮其所有轉乘路線與車班資訊。", "layout": "整頁式 SVG 互動式畫布，左上角提供縮放控制按鈕，右下角放置節點詳情高亮面板。"}, {"num": 3, "title": "第 1 章：前言與 Vibe Coding 的生產環境挑戰", "subtitle": "PDF 第 5-6 頁總覽說明", "takeaway": "軟體開發日常已發生180度翻轉，從查閱文檔轉向代理人協同，速度已成為新的基本生存法則。", "chapter": 1, "details": ["AI時代的軟體工程大轉型", "昔日工程師的調試痛點", "今日的 Warp Speed 開發", "無眠實習生軍團的爆發"], "metaphor": "以前開車是用手動排檔且要自己看紙本地圖導航，現在則是坐上擁有自動駕駛系統與即時 GPS 的智慧型房車，駕駛只需要設定目的地與監控行車安全。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 4, "title": "第 2 章：規格驅動開發 (SDD) 與 BDD 規範", "subtitle": "PDF 第 7-10 頁總覽說明", "takeaway": "在 AI 代理時代，開發者的日常活動必須從「寫代碼」升級為「寫高品質的規格說明」。", "chapter": 2, "details": ["從 Code-First 到 Spec-First 的思維革命", "架構師角色的全新蛻變", "代碼的 disposable 本質", "解放情感包袱的重構"], "metaphor": "傳統木匠是拿到木頭就開始鋸（Code-First），而現代建築大師則是把所有精力放在繪製極其精密的 3D 施工藍圖上（Spec-First）。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 5, "title": "第 3 章：指令管理與系統提示詞層級", "subtitle": "PDF 第 11-12 頁總覽說明", "takeaway": "盲目地將所有設計文檔灌入對話框（Prompt-Stuffing）只會導致 AI 認知混亂，必須實施結構化指令管理。", "chapter": 3, "details": ["拒絕 Prompt-Stuffing", "破壞 Context 的代價"], "metaphor": "就像把一整座圖書館的書全部倒在一個新人的辦公桌上，要求他立刻在一分鐘內找出一份三十年前的會議記錄。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 6, "title": "第 4 章：Agent 的五大執行模式", "subtitle": "PDF 第 12-15 頁總覽說明", "takeaway": "不同開發場景需要不同執行模式，混用會導致 token 浪費與 AI 迷失。", "chapter": 4, "details": ["模式切換：重塑 AI 協作效能", "Ephemeral Context：IDE Chat 的限制與定位", "靜態 Spec 資料夾：專案的「北極星」", "Agent Skills：以 SOP 固化團隊工程習慣"], "metaphor": "就像醫院有分科醫生，我們不會要求牙醫去做心臟手術；同樣地，我們不該用同一個 prompt 來生成專案 and 修復 Bug。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 7, "title": "第 5 章：模型上下文協定 (MCP) 架構與實作", "subtitle": "PDF 第 15-18 頁總覽說明", "takeaway": "MCP 重新定義了 AI 代理與外部數據源/工具的連接標準。", "chapter": 5, "details": ["協定誕生：MCP 重新定義 AI 工具連接", "整合痛點：客製化 API 連接的 N² 複雜度", "AI 的 USB-C：MCP 的統一接口哲學", "三層拓撲：Host, Client 與 Server"], "metaphor": "就像是有了藍牙協議，你的耳機、滑鼠 and 鍵盤都不需要再插專用的接收器。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 8, "title": "第 6 章：團隊文化與開發流程的演進", "subtitle": "PDF 第 18-20 頁總覽說明", "takeaway": "在 Vibe Coding 時代，軟體工程最大的瓶頸已非「代碼編寫」，而是「系統集成」。", "chapter": 6, "details": ["開發變革：軟體工程瓶頸的下游轉移", "速度的幻覺：人肉 Review 速度的致命瓶頸", "工程噩夢：AI 時代的代碼集成三痛點", "集成策略一：打包摘要與 AI 風險評估"], "metaphor": "正如裝配線引進工業機器人後，工人的工作從「動手組裝」變成了「監控與品質檢驗」。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 9, "title": "第 7 章：自動化程式審查代理與三層級架構", "subtitle": "PDF 第 21-25 頁總覽說明", "takeaway": "部署自動化審查代理，釋放 AI 時代研發團隊的吞吐量瓶頸。", "chapter": 7, "details": ["代碼審查代理與三層級架構", "手動審查難以追趕 AI 速度", "部署 24 小時無休審查代理", "解構黃金標準審查技能"], "metaphor": "就像在高速公路收費站引入 AI 自動車牌辨識系統，避免人工驗票造成交通大癱瘓。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 10, "title": "第 8 章：開發永續性與審查疲勞應對", "subtitle": "PDF 第 25-26 頁總覽說明", "takeaway": "建立人機協同的結構化邊界，從根本上消除開發團隊的審查疲勞。", "chapter": 8, "details": ["開發永續性與審查疲勞應對", "警惕隱形殺手審查疲勞", "AI 使用者的倦怠警訊", "微審批如何摧毀專注力"], "metaphor": "就像在工廠引進超高速輸送帶，必須同步調整工人的休息與交接機制，否則會集體累垮。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 11, "title": "第 9 章：零信任開發安全網與沙箱機制", "subtitle": "PDF 第 26-29 頁總覽說明", "takeaway": "建立零信任執行防線，安全馴服具備隨機性行為的自主代理。", "chapter": 9, "details": ["零信任開發安全網與沙箱機制", "失控點擊觸發的郵件風暴", "解構上下文幻覺的深層成因", "自主代理的單維優化危機"], "metaphor": "就像化學實驗室，不管實驗員技術多好，所有危險反應都必須在封閉的防爆玻璃罩（沙箱）內進行。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 12, "title": "第 10 章：行為評估與 AI 自動生成測試", "subtitle": "PDF 第 29-30 頁總覽說明", "takeaway": "從代碼驗證走向行為治理，全面重塑 AI 時代的質量防線。", "chapter": 10, "details": ["行為評估與 AI 測試之序幕", "速度幻覺下的質量危機", "機器自我驗證的開發範式", "先寫失敗測試的黃金法則"], "metaphor": "就像從手動檢驗單顆子彈的兵工廠，升級為自動化彈道測試與靶場模擬系統。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 13, "title": "第 11 章：策略伺服器與上下文去敏感化", "subtitle": "PDF 第 30-35 頁總覽說明", "takeaway": "將安全策略與執行邏輯徹底解耦，建構 Agent 時代的零信任架構。", "chapter": 11, "details": ["策略伺服器與上下文去敏感化", "失控 Agent 帶來的企業安全挑戰", "安全治理的硬傷：為何 Prompt 防線必敗？", "外部化與防篡改治理的核心架構"], "metaphor": "就像為企業的智能管家，配備一位「隨身法務官」與「機密遮罩筆」，凡事需審查。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 14, "title": "第 12 章：實踐指引與全書總結", "subtitle": "PDF 第 36 頁總覽說明", "takeaway": "將理論化為行動，以工具鏈輔能團隊，引領 Spec-Driven 生態演進。", "chapter": 12, "details": ["實踐指引與全書總結", "AI 消除生產瓶頸後的「新第一瓶頸」", "人機協同的「共享認知負荷」模型", "跳脫 Prompt 優化的迷思"], "metaphor": "就像完成了一份宏偉的「城市規劃藍圖」，現在要發放「標準施工工具箱」給工程隊。", "layout": "左側放置本章核心論證重點，右側放置可縮放的本章邏輯流程圖與實物概念類比卡片。"}, {"num": 15, "title": "航向生產級 Vibe Coding 的彼岸", "subtitle": "開發者角色與團隊文化的終極演進", "takeaway": "規格驅動開發不是限制 AI，而是給予 AI 最完美的軌道，實現 100x 速度與 100% 質量的並存。", "chapter": 12, "details": ["工具已就緒：`google-agents-cli` 提供開箱即用的鷹架、評估與部署技能。", "安全防禦網：沙箱隔離、策略伺服器、去敏感化，杜絕 Agent 脫韁野馬的風險。", "工程文化再造：重視架構評審大於代碼 Review，擺脫審查疲勞，追求團隊永續開發。", "最終承諾：我們利用 Agent 的智慧，但生產級的可靠性與責任，永遠掌控在人類手中。"], "metaphor": "將 SDD 比喻為「給高鐵鋪設的無砟軌道」：軌道鋪得越精準（Spec 規格），高鐵（AI Agent）就能跑得越快（350 km/h），且絕對不會脫軌失事。", "layout": "左側呈現大字數據與核心宣示，右側使用精美的時間軸/階梯圖展示落地執行步驟。"}];
+        const detailedSlides = [{"num": 1, "title": "AI時代的軟體工程大轉型", "chapter": 1, "takeaway": "軟體開發日常已發生180度翻轉，從查閱文檔轉向代理人協同，速度已成為新的基本生存法則。", "details": ["過去（2024前）：工程師花費大量時間查閱開發 API 與官方文檔，手動逐行測試，調試代碼與原意圖之間的偏差。", "現在（2026年）：Coding Agents（如 Antigravity、Gemini CLI）大幅接管實作工作，以光速生成千行代碼，開發邁入超光速時代。"], "metaphor": "以前開車是用手動排檔且要自己看紙本地圖導航，現在則是坐上擁有自動駕駛系統與即時 GPS 的智慧型房車，駕駛只需要設定目的地與監控行車安全。", "layout": "左右對稱雙欄對比。左欄「2024年前：手動探索模式」（圖標：厚重手冊與手動驗證，灰調），右欄「2026年：Agentic 開發模式」（圖標：高速火箭與多邊形 AI 大腦，亮藍色）。中軸線用一個「180度翻轉」旋轉箭頭連接。", "code": ""}, {"num": 2, "title": "昔日工程師的調試痛點", "chapter": 1, "takeaway": "手動查閱語法與意圖不符，是導致傳統軟體開發效率低下的兩大元兇。", "details": ["語法困境：工程師常耗費時間釐清字串處理語法（例如 Python 用 substring、string.includes 還是 string.contains）。", "意圖偏離：手動編寫的程式碼往往與最初的架構設計產生偏差，需要耗費大量時間進行反覆重構與對齊。"], "metaphor": "就像木匠在砍伐木頭前，花大把時間手動測試不同尺寸的鋸子，卻在最後發現砍下來的木材與設計圖紙的尺寸完全對不上。", "layout": "使用 McKinsey 經典的「問題診斷」兩段式結構。上方是一個水平的流失時間條（Time Leakage Bar），顯示 70% 時間被「查閱語法」與「手動排錯」耗費；下方用兩個分支箭頭指出這兩大元兇對項目進度的負面影響。", "code": ""}, {"num": 3, "title": "今日的 Warp Speed 開發", "chapter": 1, "takeaway": "Coding Agents 突破了傳統代碼建議的範疇，以任務執行者身份重塑開發速度。", "details": ["工具能力升級：AI 不僅能建議文字，還能調用終端命令、讀寫檔案、操作瀏覽器，自主執行複雜任務。", "生產力爆發：透過與 IDE 的深度整合，AI 編輯器能夠在幾分鐘內寫出上千行結構良好、文件齊備的程式碼。"], "metaphor": "從只能用語音輸入的打字秘書，升級為能夠獨立跑腿、蓋章、與客戶開會並提交完整報告的行政總監。", "layout": "三段式階梯圖表。展示「純文字建議」（Autocompletion） -> 「代碼片段生成」（Code Snippets） -> 「自主任務執行」（Agentic Execution）的階梯式演進，最上方亮藍色標記 Agentic Execution，並加上速度感光效。", "code": ""}, {"num": 4, "title": "無眠實習生軍團的爆發", "chapter": 1, "takeaway": "AI 開發代理如同雇用了無窮無盡的無眠實習生，使企業的實作產能不再受人力工時限制。", "details": ["零邊際成本：實習生軍團不睡覺、不抱怨，能夠在深夜持續編寫代碼，為開發流程注入不間斷的動力。", "實作速度爆發：原本需要數週的基礎代碼編寫，現在可以透過多個代理人同時並行在數小時內完成。"], "metaphor": "就像一家工廠突然獲得了上百台不需要用電也不需要休息的智慧機械手臂，在裝配線上以 24 小時不間斷的速度組裝零件。", "layout": "中央為大腦圖示（代表 AI 核心），向四周擴散出多個機器人手臂（代表實習生軍團），每個手臂指向一個開發任務（如寫代碼、改 bug、寫文檔）。數據視覺化顯示產能增長曲線（J-Curve）。", "code": ""}, {"num": 5, "title": "警惕速度的幻覺", "chapter": 1, "takeaway": "速度的幻覺是企業開發的致命毒藥，產出代碼的速度不等於發布軟體的速度。", "details": ["寫碼 vs 發布：AI 能在午前寫出一千行代碼，但不代表該程式碼已達到可上線的生產級標準。", "品質黑天鵝：若代碼質量未經檢驗，高速的寫碼只是在製造未來的維護債務，拉長整體交付週期。"], "metaphor": "就像一輛沒有煞車系統的超級跑車，雖然時速高達 300 公里，但隨時可能在下一個彎道撞毀，根本無法安全抵達終點。", "layout": "對比柱狀圖。左柱顯示「程式碼生成速度」（極高），右柱顯示「實際上線交付速度」（極低，甚至因 bug 過多而延遲）。中間以紅字驚嘆號標示「速度的幻覺（Illusion of Speed）」。", "code": ""}, {"num": 6, "title": "錯誤速率前所未有", "chapter": 1, "takeaway": "AI 在以破紀錄速度生成代碼的同時，也在以相同的破紀錄速度引進潛在漏洞。", "details": ["漏洞擴張：bug-to-code 的比例在 AI 開發中並未降低，因此生成速度越快，bug 的絕對總量就越龐大。", "隱蔽性高：AI 生成的代碼外表看似邏輯通順，但往往隱藏著不易察覺的邏輯缺陷或邊界條件錯誤。"], "metaphor": "就像一台超高速全自動 3D 列印機，雖然能在一秒內列印出一個零件，但如果藍圖有細微偏差，它將在一分鐘內生產出數千個有缺陷的廢品。", "layout": "漏斗圖。漏斗頂部是「AI 產出的千行代碼」，漏斗中部是「隱藏的潛在缺陷」，漏斗底部是「最終爆炸的生產環境災難」。在漏斗旁標註數據：代碼量增加 10 倍，人工審閱負擔增加 100 倍。", "code": ""}, {"num": 7, "title": "Bug-to-Code 比例失衡", "chapter": 1, "takeaway": "傳統依靠人工審閱 bug 的流程已無法適應 AI 生成代碼的規模，必須重構品質防禦線。", "details": ["人工瓶頸：當 bug 生成率與代碼生成率成正比增長時，人類工程師的眼球就成了最嚴重的系統瓶頸。", "成本陡升：若不及時攔截 bug，後續在集成階段進行修復的成本將呈指數型上升。"], "metaphor": "就像大壩的排水口只有一個小水管的寬度，卻遇上了百年一遇的超大暴雨洪水，大壩遲早會因為排泄不及而崩塌。", "layout": "繪製一條「修復成本 vs 發現階段」的指數曲線圖（McKinsey 經典曲線）。在「AI 生成階段」修復成本為 $1，而在「Production 階段」修復成本飆升至 $1000。", "code": ""}, {"num": 8, "title": "實作不再是瓶頸", "chapter": 1, "takeaway": "軟體工程的主要阻礙已從「代碼寫不出來」轉向「如何驗證與整合代碼」，瓶頸正式 downstream 下移。", "details": ["解放實作：AI 讓代碼實作門檻幾乎歸零，開發者不再需要花時間在繁瑣的語法細節上。", "重心轉移：當實作不再耗時，如何確保設計意圖被正確執行、如何評審大量的 Pull Request 成為新的核心瓶頸。"], "metaphor": "就像印刷術發明後，抄寫員不再是限制書籍發行的 bottleneck，瓶頸變成了如何挑選好書進行編輯與出版發行。", "layout": "水平價值鏈流向圖。將「系統設計 -> 代碼實作 -> 測試驗證 -> 代碼評審 -> 發布部署」鏈條畫出。將「代碼實作」用綠色（已解放）標記，而「代碼評審與驗證」用亮紅色（瓶頸所在）標記，並加上向下箭頭指向 downstream。", "code": ""}, {"num": 9, "title": "程式化測試提升信心", "chapter": 1, "takeaway": "利用 AI 撰寫海量且無死角的自動化測試覆蓋率，是抗衡 AI 錯誤率的唯一 programmatic 解方。", "details": ["規模化測試：既然 AI 可以極速寫碼，我們也應讓它在同等時間內寫出比人類更全面、更細緻的測試用例。", "信心建立：高達 95% 以上的自動化測試覆蓋率，是團隊敢於頻繁部署、免除人工反覆測試的底氣。"], "metaphor": "就像在一條全自動汽車生產線上，我們在每一個裝配節點都安置了自動雷達檢測儀，確保有任何瑕疵在出廠前就被機器自動攔截。", "layout": "盾牌圖案。盾牌內部為「自動化測試網」，外圍有許多代表「AI Hallucinations（AI 幻覺）」的紅色流星撞擊盾牌被彈開。數據指針指向「98% 測試覆蓋率」。", "code": ""}, {"num": 10, "title": "AI 的系統設計潛力", "chapter": 1, "takeaway": "AI 的真正價值不僅僅是代碼編寫，更在於系統設計、規格撰寫與藍圖規劃的全面輔助。", "details": ["高階思考：AI 能作為高階系統架構師的思考伴侶，快速生成系統架構草案、數據庫 Schema 設計及 API 協議。", "分析與規劃：在項目初期進行 roadmap 分析，並在項目後期對日誌及運行數據進行深度的根因分析。"], "metaphor": "就像一位資深總經理身邊，配備了一位擁有全球標竿企業案例庫的麥肯錫諮詢顧問，隨時協助撰寫戰略規劃與商業藍圖。", "layout": "金字塔模型。塔尖為「System Design & Roadmap」（高價值），塔中為「Spec Writing & Test Cases」，塔底為「Code Implementation」（商品化、低附加價值）。箭頭顯示 AI 在金字塔由下往上的全面滲透。", "code": ""}, {"num": 11, "title": "下游評審的生存危機", "chapter": 1, "takeaway": "若不改變評審機制，人類審閱者將淹沒在 AI 生成的 Pull Request 汪洋大海中，引發研發體系停擺。", "details": ["PR 爆炸：AI 代理人可以在幾分鐘內發起多個包含千行修改的 PR，人類根本無暇細看。", "審閱疲勞：疲於奔命的審閱會導致「橡皮圖章」現象，敷衍過關，最終使有漏洞的代碼輕易混入主幹線。"], "metaphor": "就像海關檢查站只有一個公務員在手動拆箱檢驗，門外卻突然開來了上千輛滿載貨物的自動駕駛重型貨車等著過關。", "layout": "使用一個淹沒在 PR 文件堆中的人員，旁邊是一個代表 AI 代理的機器人正以極快速度將一疊疊 PR 往人身上丟。文字標註「評審飽和點：人工審查極限為每日 3 個 PR，AI 產出為每日 30 個」。", "code": ""}, {"num": 12, "title": "什麼是 Vibe Coding", "chapter": 1, "takeaway": "Vibe Coding 是一種基於高階意圖與直覺的全新開發模式，將人類從繁瑣的代碼實現中解放。", "details": ["直覺驅動：開發者只需向 AI 提供「氛圍」（Vibe）或大方向的想法，由 AI 代理人自行決定底層代碼的編寫。", "敏捷原型：適合在項目初期、黑客松或 POC 階段快速驗證想法，將想法轉化為可視原型的時間縮短至數分鐘。"], "metaphor": "就像導演只給了演員一句大綱「這裡要表現出悲傷與離別」，其餘的台詞與走位完全由演員根據現場氣氛即興發揮。", "layout": "意境圖。左側為大片擴散的「雲霧/靈感」（標示為 Vibe），經過一個名為「LLM Brain」的轉換器，右側產出整齊的代碼瀑布。", "code": ""}, {"num": 13, "title": "Vibe 絕非 Production", "chapter": 1, "takeaway": "Vibe Coding 的隨意性與生產環境所需的嚴緊性本質衝突，必須用規格化手段套上韁繩。", "details": ["生產環境挑戰：生產環境需要的是確定性、安全防護與可維護性，而 Vibe Coding 充滿了隨機性與猜測。", "失控代價：若直接將 Vibe 生成的未經驗證代碼部署上線，將面臨災難性的系統崩潰與安全合規風險。"], "metaphor": "就像在草稿紙上隨手塗鴉的建築草圖（Vibe），絕對不能在不經過結構工程師計算的情況下，直接用來蓋 100 層高的摩天大樓（Production）。", "layout": "天平對比圖。左盤是「Vibe Coding：快速、隨性、隨機性」（紅色），右盤是「Production Grade：穩定、確定、可預測性」（綠色）。中間是一道紅線寫著「嚴格的界線」。", "code": ""}, {"num": 14, "title": "代理型 AI 企業實踐", "chapter": 1, "takeaway": "在企業級開發中，Vibe Coding 必須升級為「代理型 AI 開發」（Development with Agentic AI），確保每一步都意圖明確、完全受控。", "details": ["意圖明確：不依賴 LLM 的隨機猜測，而是提供精確的規格說明，讓代理人在設定的鐵軌上運行。", "完全受控：建立嚴格的反饋與審批環節，代理人的每一步重大變更都必須經過人類架構師的顯式核准。"], "metaphor": "就像一個經驗豐富的經理，在交代秘書起草政策時，給出了極其嚴格的政策方針與紅線，秘書寫完後還必須逐字呈送經理簽字。", "layout": "一個圓形的控制台圖示。展示「意圖輸入 -> 邊界限制 -> 代理執行 -> 人類核准」的閉環控制鏈，強調「人類始終握有控制權（Human-in-the-loop）」。", "code": ""}, {"num": 15, "title": "混合團隊成員的角色", "chapter": 1, "takeaway": "Agentic AI 不再只是輸入框旁的自動補全工具，而是擁有「大腦」與「雙手」的混合團隊成員。", "details": ["具備大腦（LLM Reasoning）：能夠理解複雜語境、進行邏輯推理、拆解任務步驟，甚至協助撰寫技術方案。", "具備雙手（Tool Integration）：能調用 Git、執行 shell 指令、讀取資料庫、操作測試瀏覽器，真正融入開發 pipeline。"], "metaphor": "不再是只能糾正你拼字錯誤的電子詞典（Generative AI），而是一位會自己查資料、寫程式並提交到 Git 倉庫的新進工程師同事（Agentic AI）。", "layout": "左側「傳統自動補全（僅大腦）」與右側「Agentic AI（大腦 + 雙手）」的比較。右側圖示展示一個機器人一隻手拿著 LLM 大腦，另一隻手握著一組工具箱（Terminal, Browser, Git），展現全能工作流。", "code": ""}, {"num": 16, "title": "寫碼不等於發布軟體", "chapter": 1, "takeaway": "代碼生成僅佔發布流程的 20%，真正的挑戰在於架構兼容性、安全性與發布合規。", "details": ["軟體工程的廣度：發布軟體（Shipping Software）包含安全掃描、部署驗證、數據遷移、向後兼容性以及監控配置。", "速度陷阱：如果只關注寫碼速度，最終會在集成測試和安全審查階段被強制攔截，拉長上線時間。"], "metaphor": "就像汽車製造中，把零件焊接起來（寫碼）只花了一天，但後續的安全碰撞測試、排氣檢驗與監理站發牌（發布）卻需要花上數週。", "layout": "橫向進度條。劃分為「代碼撰寫 (20%)」與「發布工程 (80%，包含安全性、相容性、測試、部署)」。將後者用粗體加亮，警示觀眾注意力不應只放在後續發布。", "code": ""}, {"num": 17, "title": "幻覺帶來的千行災難", "chapter": 1, "takeaway": "AI 代理的「幻覺」並非單點錯誤，而是會系統性地編造出看似合理但完全失效的千行代碼。", "details": ["語意一致的謬誤：AI 會以極其自信的口吻，圍繞一個錯誤的假設，編寫出整套結構完整卻邏輯壞死的程式碼。", "審查災難：這種程式碼在語法上完全正確，編譯也會通過，但業務邏輯卻是南轅北轍，極難被人工審閱查出。"], "metaphor": "就像一位滿嘴專業術語的合約起草人，提交了一份厚達百頁、格式精美但內容完全是虛構且法理錯誤的股權協議。", "layout": "崩塌的大樓插圖。大樓外表看起來是用鋼筋水泥蓋得漂漂亮亮，但地基（底層邏輯假設）卻是用沙子堆成的，旁邊標記「Vibe-consistent but functionally broken」。", "code": ""}, {"num": 18, "title": "起跑點防禦性流程", "chapter": 1, "takeaway": "面對 Vibe Coding 的浪潮，企業必須在開發的起跑點就建立規範，而非在代碼氾濫後才進行收拾。", "details": ["防禦移前：在 AI 代理人開始編寫第一行程式碼之前，就必須定義好邊界限制、架構藍圖與驗證標準。", "行動指南：本指南後續將從「規格驅動開發」、「提示詞階層管理」及「安全網建設」三大維度為企業提供生產級治理方案。"], "metaphor": "就像在河川的上游修築水壩與過濾網，防止泥沙淤積，而不是等到下游洪水氾濫、泥沙淤積河道時才派人去清泥沙。", "layout": "框架導覽圖。展示三個並列的盾牌圖標，分別寫著「第一防線：規格驅動開發 (SDD)」、「第二防線：提示詞層級管理 (Prompt Hierarchies)」、「第三防線：零信任安全網 (Zero-Trust)」，為接下來的章節進行導讀。", "code": ""}, {"num": 19, "title": "從 Code-First 到 Spec-First 的思維革命", "chapter": 2, "takeaway": "在 AI 代理時代，開發者的日常活動必須從「寫代碼」升級為「寫高品質的規格說明」。", "details": ["傳統思維（Code-First）：有模糊想法就直接打開編輯器，邊寫邊想，反覆嘗試直到程式碼能夠運行。", "現代思維（Spec-First）：將時間花在定義清晰、無歧義的技術規格上，讓 AI 代理人負責代碼的極速實作。"], "metaphor": "傳統木匠是拿到木頭就開始鋸（Code-First），而現代建築大師則是把所有精力放在繪製極其精密的 3D 施工藍圖上（Spec-First）。", "layout": "時間分配對比餅圖。左圖「傳統模式」中 80% 時間在「Coding & Debugging」；右圖「SDD 模式」中 70% 時間在「Writing & Refining Specs」，僅 10% 在「Execution/Regeneration」。", "code": ""}, {"num": 20, "title": "架構師角色的全新蛻變", "chapter": 2, "takeaway": "開發者已不再是代碼的「打字員」，而是掌控系統藍圖與業務邏輯的「技術架構師」。", "details": ["職能升級：開發者的核心價值不再是打字速度或記憶語法，而是對系統架構的設計能力與邏輯嚴密性。", "決策中心：負責定義模組邊界、API 契約及數據流向，將具體的語法細節徹底委託給 AI。"], "metaphor": "就像服裝設計大師不再親自踩縫紉機縫衣服，而是專注於設計圖紙、挑選布料以及指導工廠的自動化生產線。", "layout": "人物形象剪影對比。左側為微彎著腰、瘋狂敲鍵盤的程式員（標記：Coder）；右側為手持指揮棒、面對著大型架構看板的指揮家（標記：Architect），散發專業與掌控感。", "code": ""}, {"num": 21, "title": "代碼的 disposable 本質", "chapter": 2, "takeaway": "在規格驅動開發的框架下，程式碼變成了隨時可拋棄的副產品，不再是團隊的資產負債。", "details": ["可替代性：只要規格（Specification）足夠堅實，整套程式碼可以被 AI 代理人在幾分鐘內重新生成。", "資產重新定義：真正的核心資產是高質量的規格說明書與測試用例，代碼只是這些資產編譯出來的一種臨時狀態。"], "metaphor": "就像 3D 列印的塑料模型，只要 3D 設計圖（Spec）還在，就算模型摔壞了或想換個顏色，直接丟掉重新列印一個即可。", "layout": "一個回收桶的圖示，裡面裝著寫滿代碼的紙張，回收桶上方懸掛著閃閃發光的「Spec 藍圖」，並用大字寫著「Code is Disposable」。", "code": ""}, {"num": 22, "title": "解放情感包袱的重構", "chapter": 2, "takeaway": "丟棄對代碼的「情感包袱」，使團隊能夠毫無畏懼地進行大規模架構重構。", "details": ["情感脫鉤：因為沒有花費十幾個小時去調試某個分號，開發者不會對舊代碼產生情感依賴。", "擁抱變化：當業務需求變更時，團隊可以坦然地直接刪除舊代碼、修改規格、並要求 AI 全新生成，避免代碼腐化。"], "metaphor": "以前手寫千字文章時，修改一個段落都會心疼；現在用電腦打字，按一下 Ctrl+A 再 Delete，重新構思寫一遍毫無壓力。", "layout": "對比卡片。卡片 A 寫著「傳統包袱：花費 3 天寫的代碼，即使設計不合理也捨不得刪（累積技術債）」；卡片 B 寫著「SDD 優勢：0 秒情感連結，架構不對直接 Regenerate（保持代碼純潔）」。", "code": ""}, {"num": 23, "title": "跨語言翻轉的實踐", "chapter": 2, "takeaway": "堅實的規格能讓整個項目在一日之內完成程式語言的徹底翻轉，展現極致的架構彈性。", "details": ["一鍵切換：將項目從 Python 翻轉到 JavaScript，在 SDD 下不再需要數週的手動重寫，只需更改規格中的語言設定。", "代理人重構：AI 代理人讀取規格與舊代碼，自動理解業務邏輯，並使用新語言重新生成並通過所有既有測試。"], "metaphor": "就像把一部小說的中文版（Python）翻譯成英文版（JavaScript），因為故事大綱與情節（Spec）完全不變，翻譯機器人可以在極短時間內完成轉換。", "layout": "流程轉化圖。左邊是 Python 標誌，中間是 specs/ 資料夾（黃金鎖鑰），右邊是 JavaScript 標誌。中間用一根時鐘指針指向「1 個下午」，展現極速轉換的能力。", "code": ""}, {"num": 24, "title": "腦與手的物理學機制", "chapter": 2, "takeaway": "明確的規格是 AI 代理人的「手」與「腦」協同運作的唯一物理軌道。", "details": ["腦與手的配合：大腦（LLM）負責邏輯推理與步驟規劃，雙手（CLI 工具、編輯器 API）負責修改代碼與執行測試。", "拒絕猜測：如果只給大腦一個「模糊的 vibe」，AI 就會被迫猜測，這是在生產環境中引發失控事件的起因。"], "metaphor": "就像給一個實力高超的木匠一張含糊不清的草圖，他只能憑空猜測比例，蓋出來的椅子可能長短腳。", "layout": "機械人拼圖。左半邊是大腦（Reasoning Engine），右半邊是機械手臂（Execution Tools），中間由一條名為「Specification」的電纜緊密連接。", "code": ""}, {"num": 25, "title": "失控代理的防禦機制", "chapter": 2, "takeaway": "防止 Rogue Agent（失控代理）事件發生的關鍵，在於切斷 AI 代理人的「猜測鏈」。", "details": ["什麼是 Rogue Agent：代理人在沒有明確規範時，為了解決一個問題而自主生成大量無效、冗餘甚至具破壞性的代碼。", "防禦手段：規格書必須成為唯一的行為準則，一旦代理人遇到規格未定義的邊界，必須被強制中斷並向人類求助。"], "metaphor": "就像自動導航的割草機，如果沒有設置虛擬邊界線（Spec），它可能會一路割到鄰居的花園，甚至把珍貴的花卉全部剃光。", "layout": "一個紅色警告框。左側顯示「無 Spec 狀態：AI 自主猜測 -> 修改 50 個檔案 -> 引入 20 個新 bug（Rogue Agent）」；右側顯示「有 Spec 狀態：AI 遵循規格 -> 遇到未知 -> 暫停並 Prompt 人類（安全受控）」。", "code": ""}, {"num": 26, "title": "何謂 Architectural North Star", "chapter": 2, "takeaway": "高品質的規格說明書是人機協作的「架構北極星」，指引開發過程不偏離主軌。", "details": ["統一人機認知：無論是人類架構師還是 AI 代理人，都圍繞著同一份規格進行代碼編寫、審閱與測試。", "持續對齊：規格書提供了客觀的評判標準，消除了「我以為是這樣寫」的溝通偏誤。"], "metaphor": "就像海上的北極星，無論風浪多大、船隻如何偏航，只要北極星的位置不變，航海員與大副就能隨時修正航向。", "layout": "星空背景。一顆巨大的亮藍色星星寫著「Spec/」，下方有兩艘船分別代表「Human Developer」與「AI Agent」，它們的雷達波束同時鎖定在這顆星星上。", "code": ""}, {"num": 27, "title": "上下文碎片化傳話遊戲", "chapter": 2, "takeaway": "沒有集中式規格會導致上下文碎片化，讓 AI 陷入類似「傳話遊戲」的認知崩塌。", "details": ["Context Fragmentation：當 AI 被迫在大量零散、過期的程式碼片段中尋找意圖時，它的推理注意力會逐漸失焦。", "認知退化：每次對話都塞入不同版本的程式碼，會使 AI 產生混亂，最終給出南轅北轍的修改建議。"], "metaphor": "就像玩「傳話遊戲」，第一個人把祕密告訴第二個人，傳到第十個人時，內容已經被歪曲得面目全非。", "layout": "多米諾骨牌或傳話鏈圖示。展示一連串混亂的代碼片段互傳，最後產出一個問號。右側對比清晰的「 specs/ 集中式快照」，AI 直接從源頭讀取，資訊保持 100% 完整。", "code": ""}, {"num": 28, "title": "AI 作為規格協同作者", "chapter": 2, "takeaway": "開發者不必獨自撰寫 Spec，應將 AI 轉化為規格的協作編輯、補全與漏洞審查員。", "details": ["協同起草：開發者寫下高階業務邏輯，命令 AI 補充細節、繪製 Markdown 流程圖並列出邊界條件。", "漏洞預檢：在編寫代碼前，先讓 AI 審查規格，尋找「邏輯矛盾」或「未定義的例外狀況」。"], "metaphor": "就像總編寫好了大綱，由經驗豐富的副主編（AI）來填補細節、校對語法，並指出大綱中邏輯不通的地方。", "layout": "協作界面模擬圖。左側為人類寫的「核心想法」，中間是 AI 標註的「補全建議與邊界警告」（黃色高亮），右側是生成的「Production-ready Spec」。", "code": ""}, {"num": 29, "title": "specs 資料夾唯一真相", "chapter": 2, "takeaway": "將規格文件納入 Git 版本控制並存放於 `specs/` 資料夾，使其成為項目唯一的 Truth。", "details": ["靜態真相源：把技術設計、BDD 場景與數據 schema 儲存為代碼庫的一部分，與程式碼同步演進。", "自動索引：AI 代理人能自動掃描並索引 `specs/` 目錄，無需開發者每次手動複製貼上 prompt，降低人為出錯率。"], "metaphor": "就像把公司的合規條例打印出來放進保險箱並登記版本，任何員工和外部審計員都以此版本為準，而不是憑口頭記憶。", "layout": "Git 分支樹狀圖。展示 specs/ 資料夾下的 `my_spec.md` 與代碼 `app.py` 共同在 main 分支上提交（Commit），強調「Spec 即代碼，納入版控」。", "code": ""}, {"num": 30, "title": "2026 SkCC 研究：格式敏感性", "chapter": 2, "takeaway": "2026 年最新學術研究表明，LLM 代理對指令格式極度敏感，格式不當將導致高達 40% 的效能墜落。", "details": ["SkCC 研究背景：Ouyang 等人在 2026 年發表《SkCC: Portable and Secure Skill Compilation for Cross-Framework LLM Agents》。", "格式敏感性：使用 generic、未經優化的 Markdown 檔案，會分散 AI 的注意力，導致理解與執行效率暴跌。"], "metaphor": "就像給一台高精密的晶片製造機讀取手寫的髒亂草稿，機器因為識別不清而頻頻停機。", "layout": "柱狀圖。對比「優化格式（SkCC 編譯）」與「普通 Markdown」的任務達成率，前者為 95%，後者僅為 55%（顯著標註 -40% 效能降幅）。", "code": ""}, {"num": 31, "title": "避免 40% 效能墜落", "chapter": 2, "takeaway": "引入 SkCC（技能編譯器）在毫秒間完成格式優化，是確保 AI 代理高效運行的基礎建設。", "details": ["超快速編譯：SkCC 能夠在 10 毫秒內，將單一來源的指令文件編譯成特定 LLM 最契合的目標格式。", "去除人工調優：開發者不需手動為不同模型微調 prompt 格式，編譯器自動完成適配。"], "metaphor": "就像使用編譯器將高階的 C++ 代碼一鍵翻譯成機器最喜歡的二進位機器碼，執行效率達到物理極限。", "layout": "運行時間線示意圖。展示「輸入指令」 -> 「SkCC 編譯 (10ms)」 -> 「模型最優執行」。旁邊放一個跑錶圖示，強調毫秒級的無感切換。", "code": ""}, {"num": 32, "title": "混合標記最佳實踐", "chapter": 2, "takeaway": "針對 Gemini 模型，最完美的指令格式是「Markdown 敘述 + Conditional YAML 結構」的混合體。", "details": ["Markdown 定位：Gemini 使用清晰的 Markdown 標題（Headers）來錨定注意力，理解整體的上下文與任務流程。", "YAML 架構：當面臨結構化配置、API schema 或嵌套層級大於 3 的數據時，自動切換為 YAML 格式。"], "metaphor": "就像一份合約，條款部分用通俗的文字（Markdown）說明，但計費標準與複雜公式則用表格與矩陣（YAML）來嚴謹呈現。", "layout": "程式碼對照版面。左邊是 Markdown 標題區（標註「適合敘述與步驟」），右邊是嵌套的 YAML 程式碼塊（標註「適合數據結構與配置」），並用箭頭指向 Gemini 大腦。", "code": ""}, {"num": 33, "title": "嵌套深度 YAML 完勝", "chapter": 2, "takeaway": "當數據嵌套深度大於 3 時，YAML 的解析準確率顯著超越 JSON 與 XML，是結構化規格的首選。", "details": ["數據對比：在深層嵌套配置下，YAML 的模型解析準確率高達 51.9%。", "競品劣勢：相較之下，傳統的 JSON 僅有 43.1% 的準確率，而 XML 更是跌至 33.8%。"], "metaphor": "就像整理多層收納櫃，YAML 像是有透明標籤的分類抽屜，一眼就能看清；而 JSON 則是套了無數層的俄羅斯娃娃，打開極其費勁。", "layout": "橫向對比條形圖。展示「YAML (51.9%)」 vs 「JSON (43.1%)」 vs 「XML (33.8%)」的解析準確率，YAML 欄位用亮綠色加粗顯示「勝出」。", "code": ""}, {"num": 34, "title": "消除 reasoning format tax", "chapter": 2, "takeaway": "優化規格格式能徹底消除 AI 的「推理格式稅」（Format Tax），將 Token 與算力留給真正的邏輯推理。", "details": ["推理格式稅：AI 為了理解冗長、混亂或不合適的資料格式，所額外消耗的 attention 資源與 token 預算。", "優化成果：扁平化 YAML 與精簡的 Markdown 能讓 AI 專注於程式碼生成，降低推理延遲並減少 Token 支出。"], "metaphor": "就像去國外旅遊時，如果直接用當地貨幣交易（優化格式），就能省去繁瑣的外匯兌換手續費與等待時間（Format Tax）。", "layout": "漏斗與天平。左側天平顯示「沉重的 JSON 格式：高 Format Tax，注意力被語法解析佔據」；右側顯示「扁平的 YAML/Markdown：零 Format Tax，注意力 100% 用於核心邏輯」。", "code": ""}, {"num": 35, "title": "行為驅動 BDD 規範", "chapter": 2, "takeaway": "行為驅動開發（BDD）規格是消滅 Vibe Coding、實現「生產環境確定性」的終極利器。", "details": ["定義：BDD 使用結構化的自然語言，在編寫程式碼前，從用戶視角精確描述系統應有的行為。", "優勢：完全消除模糊的指令，強制 AI 代理人圍繞著明確的用戶路徑與系統反應進行開發。"], "metaphor": "就像在培訓新進客服人員時，不給模糊的口頭交代，而是給一本寫明「遇到 A 狀況，執行 B 動作，達到 C 結果」的標準作業程序（SOP）。", "layout": "一個箭頭指示牌。從「曖昧想法（Vibe）」指向「BDD 規範」，再指向「確定性代碼（Production）」。在 BDD 步驟上打上放大鏡圖示。", "code": ""}, {"num": 36, "title": "Gherkin 語法消除猜測", "chapter": 2, "takeaway": "採用標準的 Gherkin 語法，強迫 AI 遵循「狀態-行動-結果」的嚴密邏輯，杜絕程式碼猜測。", "details": ["核心模板：利用 Scenario（場景）、Given（前提條件）、When（觸發事件）、Then（預期結果）進行敘述。", "推理對齊：此語法結構與 LLM 的注意力機制完美契合，使其能精確對齊「State > Action > Outcome」的因果關係。"], "metaphor": "就像火車軌道，Given 是起點站，When 是啟動發車，Then 是安全抵達終點站，火車只能在軌道上跑，絕不可能脫軌。", "layout": "鐵軌透視圖。Given（軌道起點）、When（行進火車）、Then（終點站牌）。下方列出標準 Gherkin 代碼塊示例，用高亮線條標示這三個關鍵詞。", "code": ""}, {"num": 37, "title": "生產規格四大黃金元素", "chapter": 2, "takeaway": "一份生產級的規格書必須齊備技術設計、視覺輔助、背景資訊與多場景案例等四大核心元素。", "details": ["四大元素：", "1. 完整技術設計：細分到 API 契約與資料庫 Schema。", "2. 視覺輔助：提供架構圖與帶有版本號的工具列表。", "3. 背景資訊：向 AI 解釋「為什麼要做」，引導其進行前瞻性思考。", "4. 多場景與邊界：包含正常流、異常流與極端 edge cases。"], "metaphor": "就像一份完美的飛機製造藍圖，不僅有零件圖紙（技術設計），還有拼裝動畫（視覺輔助）、飛行動力學原理（背景），以及在暴風雨等極端天氣下的應對測試（邊界場景）。", "layout": "2x2 的四象限矩陣圖。每個象限代表一個黃金元素，配有精美圖示（圖表、大腦、齒輪、警告標誌），並用簡短文字說明其對 AI 的制約作用。", "code": ""}, {"num": 38, "title": "Token 物理學與預算約束", "chapter": 2, "takeaway": "必須將 Token 視為硬性的物理與預算約束，精簡規格文字以換取更長、更便宜的推理生命週期。", "details": ["物理約束：雖然 Gemini 擁有百萬 context 窗口，但每一個額外的空格、換行或重複字元都會消耗 attention window、增加延遲並提高運算成本。", "應對策略：保持 `/specs` 文件精簡、扁平，去除不必要的裝飾性文字，用最少且最精確的 token 傳達最豐富的架構意圖。"], "metaphor": "就像發射火箭，燃料（Tokens）是有限且昂貴的，我們必須精準計算每一克載重，把不必要的雜物（冗長 prompt）全部留在地面。", "layout": "天平圖。左邊是「冗餘的 Context（高昂的 Token 帳單與高延遲）」，右邊是「精簡的 Spec（超低延遲與經濟實惠的 Token 消耗）」，以指針與警示顏色凸顯 Token 物理學的硬性限制。", "code": ""}, {"num": 39, "title": "拒絕 Prompt-Stuffing", "chapter": 3, "takeaway": "盲目地將所有設計文檔灌入對話框（Prompt-Stuffing）只會導致 AI 認知混亂，必須實施結構化指令管理。", "details": ["什麼是 Prompt-Stuffing：在沒有組織的情況下，將數十頁的設計書、歷史代碼一股腦丟給 chat window。", "負面後果：直接耗盡短期上下文預算，引發嚴重的注意力分散，使 AI 生成的代碼偏離主題。"], "metaphor": "就像把一整座圖書館的書全部倒在一個新人的辦公桌上，要求他立刻在一分鐘內找出一份三十年前的會議記錄。", "layout": "一個紅色禁止符號疊加在一個塞滿雜亂紙張的「Chat Box」上方。右邊展示一個整齊有序的文件櫃，標明「結構化指令分發」。", "code": ""}, {"num": 40, "title": "破壞 Context 的代價", "chapter": 3, "takeaway": "胡亂填充 Context 會帶來顯著的推理延遲上升與嚴重的注意力碎片化，代價極其高昂。", "details": ["延遲代價：Context 越大，LLM 的首字輸出時間（TTFT）與整體生成時間就越長，嚴重拖慢開發反饋循環。", "注意力崩塌：隨著無用資訊的增加，AI 的 attention-heads 會被雜音干擾，無法精確定位核心的邏輯約束。"], "metaphor": "就像在嘈雜的會議室裡（雜音 Context），你必須扯開嗓子大喊（消耗大量 tokens），對方也極易聽錯你的指令。", "layout": "折線圖。X 軸為「Context 大小（KB）」，Y 軸左側為「延遲（秒）」，Y 軸右側為「AI 專注度（%）」。隨著 Context 變大，延遲曲線陡峭上升，專注度曲線則急遽下滑。\n\n#### 41. 指令階層化治理體系", "code": ""}, {"num": 56, "title": "模式切換：重塑 AI 協作效能", "chapter": 4, "takeaway": "不同開發場景需要不同執行模式，混用會導致 token 浪費與 AI 迷失。", "details": ["開發任務可細分為五大執行模式：專案生成（Architect）、功能生成（Builder）、Bug修復（Forensic）、文件撰寫（Author）與數據工程（Librarian）。", "「一體適用（One-size-fits-all）」的 generic prompt 會導致 LLM 在多輪推理中迷失方向，大幅增加 code drift 機率。"], "metaphor": "就像醫院有分科醫生，我們不會要求牙醫去做心臟手術；同樣地，我們不該用同一個 prompt 來生成專案 and 修復 Bug。", "layout": "左右對比結構。左側為「混亂的萬用對話框」，右側為「五大專用執行模式開關」，形成鮮明對比。", "code": ""}, {"num": 57, "title": "Ephemeral Context：IDE Chat 的限制與定位", "chapter": 4, "takeaway": "Chat 視窗僅適用於高層級的協調與即時反饋，而非代碼的永久儲存庫。", "details": ["Chat 的 context 是 ephemeral（短暫的），容易因 Session 結束而消失。", "主要用於指令下達，如「閱讀 specs/ 下的文件並生成 test」，不適合做代碼的主記憶體。"], "metaphor": "就像是主管在走廊上的口頭指示，說完就忘，不能當作正式合約。", "layout": "上方是「對話框」，箭頭指向下方的「Spec 文件夾」，強調對話是「動作觸發器」，而非「事實源」。", "code": ""}, {"num": 58, "title": "靜態 Spec 資料夾：專案的「北極星」", "chapter": 4, "takeaway": "將 Spec 納入版本控制（Git），作為人機協作的 Architectural North Star。", "details": ["將技術設計、BDD 場景、API 合約、YAML schema 存在 specs/ 資料夾中，讓 Agent 動態索引。", "此舉可防止 context fragmentation，維持人機協作的「單一事實源（Single Source of Truth）」。"], "metaphor": "就像工程現場的藍圖，永遠釘在牆上，每個人（包括工人和監工）都看同一份。", "layout": "一個資料夾 icon 展開，露出 `.md` 和 `.yaml` 檔案，並有 Git commit 的分支圖，標示「Version 1.0 - Single Source of Truth」。", "code": ""}, {"num": 59, "title": "Agent Skills：以 SOP 固化團隊工程習慣", "chapter": 4, "takeaway": "透過 Agent Skills 固化團隊的工程習慣，實現自動化的品質維護。", "details": ["Skills 是放在 `.agent/skills/` 的 Markdown 檔案，如 docs-maintenance。", "當偵測到代碼變更時，Agent 會自動遵循該 skill 更新 CHANGELOG.md，維持項目的可追溯性。"], "metaphor": "就像是連鎖餐廳的標準作業程序（SOP）手冊，換了新員工也能做出一樣的味道。", "layout": "卡片式版面，左側是「Trigger: Code Change Detected」，右側是「Action: Auto Update CHANGELOG.md」，中間以閃電符號連結。", "code": ""}, {"num": 60, "title": "系統提示詞分層：定義團隊的工程 DNA", "chapter": 4, "takeaway": "分層設置 Prompt，將團隊代碼規範寫入 AI 的基因。", "details": ["`~/.gemini/GEMINI.md` 定義個人 Persona 與風格。", "`./my-app/.agents/AGENTS.md` 用於跨工具共享規則。", "`./my-app/.gemini/GEMINI.md` 作為項目特定 DNA。"], "metaphor": "就像是國家的法律體系：有憲法（Global）、有基本法（Shared），也有地方法規（Project Spec），後者優先順序最高。", "layout": "金字塔結構圖，最底層是 Global Profile，中間是 Shared Multi-Tool Config，最頂層是 Local Project Spec，標示「權重由下往上遞增」。", "code": ""}, {"num": 61, "title": "共享與特異：AGENTS.md 與 GEMINI.md 協調", "chapter": 4, "takeaway": "利用 AGENTS.md 實現多 AI 客戶端規範統一，避免指令衝突。", "details": ["當團隊混合使用不同的 AI 工具時，AGENTS.md 提供一個不隨工具而變的底層架構。", "各自工具的特定設定（如 Gemini 獨有設定）則透過 local GEMINI.md 做最終覆寫。"], "metaphor": "就像世界貿易組織（WTO）的通用協議，而各國可以有自己的自貿協定（FTA）來微調。", "layout": "一個雙向的分叉與合併流程圖，展示來自不同客戶端（Cursor, Gemini CLI, Antigravity）的指令在 AGENTS.md 匯聚，最後通過 local GEMINI.md 輸出。", "code": ""}, {"num": 62, "title": "藍圖防禦：以 Blueprint 阻止 Rogue Agent 事故", "chapter": 4, "takeaway": "給 AI 精準的 Blueprint 而非模糊的 Vibe，是防止「代理失控」的關鍵。", "details": ["當 Agent 只有 Vibe 時會靠機率猜測，導致 Rogue Agent 事故。", "SDD 要求提供明確的技術設計、資料庫 schema 和邊界條件。"], "metaphor": "就像給裝潢工一張「溫馨現代風」的照片，不如給他一張標示到公分的系統櫃設計圖。", "layout": "左右對比。左邊是「Vibe Input (模糊照片) -> Broken Result (歪斜牆壁)」；右邊是「Blueprint (藍圖) -> Perfect House (完美成品)」。", "code": ""}, {"num": 63, "title": "解析效能大比拼：Markdown 與 YAML 的抉擇", "chapter": 4, "takeaway": "Gemini 對結構化資料有「格式敏感度」，混合 Markdown 與 flat YAML 能最大化解析率。", "details": ["2026年 Ouyang 等人研究指出，純 Markdown 結構在深層配置中表現差。", "YAML 在深度 > 3 時解析準確率達 51.9%（JSON 43.1%, XML 33.8%）。"], "metaphor": "就像整理報表，文字說明用公文（Markdown），但財務明細一定要用 Excel（YAML）。", "layout": "柱狀圖展示解析準確率：YAML (51.9%) vs JSON (43.1%) vs XML (33.8%)。旁邊標註「30% - 40% Performance Drop when unoptimized」。", "code": ""}, {"num": 64, "title": "Token 物理學：消滅 Space Tax 與 Reasoning Tax", "chapter": 4, "takeaway": "精簡空格與排版，將 Token 預算專注在 AI 的多輪推理上。", "details": ["每一行縮排、空格和重複的 Gherkin 指令都會被 Token 化，消耗 API 預算與 Attention-head 記憶容量。", "使用扁平化（flat）YAML 結構可顯著減少 Token 佔用，降低系統延遲。"], "metaphor": "就像是寄快遞，包裝箱塞了太多沒用的保麗龍（空格），結果運費（Token 成本）比裡面的貨物還要貴。", "layout": "左側是「Deeply Nested JSON / XML」，右側是「Flat YAML」，並用紅色與綠色高亮標示出 Token 消耗的差異。", "code": ""}, {"num": 65, "title": "流程編譯：SkCC 的 10 毫秒極速編譯", "chapter": 4, "takeaway": "利用 Skill Compiler (SkCC) 消除 Format Tax，實現跨框架 Agent 指令的最佳化。", "details": ["SkCC 能夠在 10 毫秒內，將單一指令源編譯成模型最優 Target 格式。", "消除 format tax，提升 Agent 推理速度，降低運行成本。"], "metaphor": "就像是即時口譯員，在演講者開口的瞬間，就把它翻成聽眾最能懂的方言。", "layout": "漏斗圖，輸入「Raw Instructions」，經過「SkCC Compiler (10ms)」，輸出「Optimized Tokens (No Format Tax)」。", "code": ""}, {"num": 66, "title": "行為驅動：用 Gherkin 語法規範 AI 推理", "chapter": 4, "takeaway": "導入 BDD (Given-When-Then) 框架，強迫 LLM 遵循「狀態-行動-結果」的邏輯。", "details": ["Gherkin 語法能將模糊的人類需求轉化為結構化的推理路徑。", "大幅減少 vibe coding 的盲目性。"], "metaphor": "就像是鐵路的軌道，火車只能順著「起點、前進、終點」開，絕對不會出軌。", "layout": "流程圖。三個方塊分別為「Given (現有狀態)」、「When (觸發動作)」、「Then (預期結果)」，上方有火車在軌道上運行的示意圖。", "code": ""}, {"num": 67, "title": "架構師模式：專案生成的 Scaffolding 規則", "chapter": 4, "takeaway": "從零開始（Scaffolding）時，Agent 應先提報架構設計，嚴禁直接寫代碼。", "details": ["專案生成模式下，應先設計目錄結構、技術棧。", "強制生成測試、日誌（Digital Black Box）和文檔，且每項庫均需指定版本。"], "metaphor": "就像蓋大樓，不准水泥工第一天就灌漿，必須先由建築師審核藍圖與結構計算書。", "layout": "流程圖。第一步「Spec Input」、第二步「Proposed Structure & Stack (Gate)」、第三步「Approve」、第四步「Code Generation」。", "code": ""}, {"num": 68, "title": "架構審查機制：開啟 No YOLO 模式防線", "chapter": 4, "takeaway": "在專案生成中設置手動 Checkpoint，防止 Agent 擅自引入不受信任的依賴。", "details": ["No YOLO 模式要求 Agent 在動工前輸出架構建議，並等待人類確認。", "必須包含每項 library 的精確版本號，以防 cutoff date 導致的舊版污染。"], "metaphor": "就像是飛機起飛前的 Checklist，副駕駛必須一項一項唸出來，正駕駛點頭確認後才能起飛。", "layout": "左側是 Checklist 清單，右側是「Approve / Reject」按鈕，背景帶有淡淡的警告黃色。", "code": ""}, {"num": 69, "title": "版本防禦：以 RAG 和 Markdown 防止版本回退", "chapter": 4, "takeaway": "使用 RAG 技術或將最新版 Markdown 文檔置於項目中，打破 AI 的知識截止（Knowledge Cutoff）限制。", "details": ["模型常因 training cutoff 推薦過期庫（如 gemini-1.5-flash 而非最新版）。", "將最新 API md 檔案放入 /specs，迫使 Agent 執行檢索，避免庫版本降級。"], "metaphor": "就像是給導遊一本今年最新的旅遊手冊（specs/docs.md），而不是讓他憑五年前的記憶帶路。", "layout": "左側是 AI Training Data Cutoff (牆壁阻擋)，右側是 Specs Folder RAG (梯子越過牆壁)，箭頭指向最新的「API Docs」。", "code": ""}, {"num": 70, "title": "建造者模式：功能生成（Builder）的核心精神", "chapter": 4, "takeaway": "在既有代碼庫上疊加功能時，Agent 必須「入境隨俗」，嚴格匹配既有風格。", "details": ["功能生成模式要求 Agent 自動識別變量命名、錯誤處理機制（error handling patterns）和代碼風格。", "重點在於「融合」而非「創新」，確保代碼的一致性。"], "metaphor": "就像是古蹟修復，補上去的磚瓦必須和原本的一模一樣，不能在三合院裡蓋一棟玻璃帷幕。", "layout": "兩段代碼的對比圖，左邊是「Existing Code Style」，右邊是「Agent Generated Code」，關鍵的命名和排版以高亮線條相連，顯示完美吻合。", "code": ""}, {"num": 71, "title": "建造者防線：代碼風格（Match Style）自動對齊", "chapter": 4, "takeaway": "讓 Agent 閱讀現有代碼的 styleguide，避免因代碼美學差異造成的無謂 conflict。", "details": ["展示 Linter 配置與專案 AGENTS.md 中風格說明的傳遞鏈。", "將樣式檢查（formatting）從人類 review 移交給 linter，釋放 review 頻寬。"], "metaphor": "就像出國旅遊前，先讀當地的禮儀手冊，這樣就不會因為文化差異而產生無謂的誤會。", "layout": "漏斗狀傳遞鏈：Linter Rules -> AGENTS.md Style Guide -> Agent Context -> Code Output (Zero Style Drift)。", "code": ""}, {"num": 72, "title": "建造者防線二：Git Diff 檢視與增量提交", "chapter": 4, "takeaway": "堅持在編輯器中逐行檢視 Diff，實施小步快跑的 Git Commit。", "details": ["當 Agent 編輯多個文件時，必須展示 Git Diff。", "不要一次性進行大規模修改，改完一處就 commit 一次，保持變更歷史的清晰。"], "metaphor": "就像是用 Word 修改合約時，一定要開「追蹤修訂」，才能看清對方到底改了哪幾個字。", "layout": "經典的 Git Diff 畫面，紅色代表刪除，綠色代表新增，旁邊有一個放大鏡，聚焦在「Change Details」上。", "code": ""}, {"num": 73, "title": "鑑識專家模式：Bug 修復（Forensic）核心定義", "chapter": 4, "takeaway": "Bug 修復需要外科手術般的精準，從「症狀描述」升級為「證據導向」。", "details": ["Bug Fixing 模式要求調用 CLI 工具（如 gcloud logging）拉取精確日誌，而不是模糊地說「按鈕沒反應」。", "繪製精確的請求傳遞路徑（例如 Load Balancer -> Auth Header -> Pod Fail），讓 Agent 進行精準排查。"], "metaphor": "就像去看醫生，不只說「我肚子痛」，而是直接拿出胃鏡照片 and 驗血報告。", "layout": "上部是「證據鏈輸入 (Error Trace + Log Payload)」，中部是「Root Cause (403 Permission)」，下部是「Surgical Fix」。", "code": ""}, {"num": 74, "title": "鑑識科學：從症狀描述轉向「證據導向」", "chapter": 4, "takeaway": "拋棄模糊的症狀描述，以 CLI 命令獲取的客觀數據指導 Agent 排錯。", "details": ["症狀 Prompt：「支付功能壞了，請修復。」", "證據 Prompt：「使用 gcloud logging 查詢 textPayload:ERROR，發現 API 在進行 Token 認證時回傳 401 錯誤。」"], "metaphor": "就像警察辦案，不靠目擊者的「感覺」，而是靠現場採集到的指紋 and DNA（日誌數據）。", "layout": "對比卡片。左側「Symptom Prompting (模糊、耗時、易出錯)」，右側「Evidence Prompting (精確、快速、一次修好)」。", "code": ""}, {"num": 75, "title": "復現與守護：Failing Test First 原則", "chapter": 4, "takeaway": "在修復任何 Bug 之前，必須先寫一個會失敗的單元測試或 curl 指令。", "details": ["將復現測試留在代碼庫中，作為 regression test。", "確保修復後測試變綠，且未來不會再次發生同樣的 Bug。"], "metaphor": "就像防盜系統，先模擬一次小偷入侵觸發警報（Failing Test），修好後再試一次，確認警報不再響起但門已鎖好。", "layout": "時間軸流程：1. Write Failing Test (Red) -> 2. Agent Fixes Code -> 3. Run Test (Green) -> 4. Check-in to Test Suite。", "code": ""}, {"num": 76, "title": "鑑識專家的手術刀：嚴禁夾帶代碼重構", "chapter": 4, "takeaway": "修復 Bug 時嚴禁順便「順手清理」無關代碼，避免擴大測試與審查範圍。", "details": ["Agent 常會因為看到不順眼的代碼而順便重構，這會使 PR 變得巨大且難以審查。", "變量重命名應作為獨立任務處理。"], "metaphor": "就像外科醫生進去切除盲腸，不能順便幫病人割雙眼皮，即使你覺得這樣比較好看。", "layout": "一個天平，左邊是「Surgical Fix (1 file, 3 lines change)」，右邊是「Refactored Fix (15 files, 200 lines change)」，天平嚴重傾斜，並在右邊打上紅色的「X」。", "code": ""}, {"num": 77, "title": "前端視覺驗證：Antigravity 沙盒瀏覽器", "chapter": 4, "takeaway": "利用內置的 Chrome 沙盒，讓 Agent 能夠自主在 Localhost 驗證 UI 與視覺 Bug。", "details": ["Antigravity 內置沙盒瀏覽器，能自主點擊、輸入、截圖。", "使用隔離的 Chrome Profile（類似無痕模式），不共享個人 Session，保證隱私安全。"], "metaphor": "就像是在實驗室的無菌手套箱裡操作化學試劑，既能看到反應，又不會毒害外面的環境。", "layout": "一個透明的玻璃罩（沙盒），裡面運行著網頁 UI，外面的機械手臂（Agent）正在進行點擊，旁邊顯示「No Session Leakage」。", "code": ""}, {"num": 78, "title": "作家模式：文件撰寫（Author）與 JSDoc 規範", "chapter": 4, "takeaway": "文檔與代碼必須同步更新，文檔的過期是 AI 產生幻覺的溫床。", "details": ["規定 README.md 和 CHANGELOG.md 必須由 Agent 即時維護。", "使用 Google Style Docstrings (Python) 或 JSDoc (TypeScript) 來結構化代碼註釋，讓 AI 與人類共享清晰語境。"], "metaphor": "就像是地圖，如果路修好了但地圖不更新，導航系統（AI）就會把你導進海裡。", "layout": "一個齒輪組，大齒輪是「Code Updates」，小齒輪是「Doc Updates」，兩者齒輪嚙合，同步轉動。", "code": ""}, {"num": 79, "title": "圖書管理員模式：數據工程與 IDE 雲端數據擴充", "chapter": 4, "takeaway": "處理數據管道時，Agent 必須公開其 SQL 語法與指令，確保數據流向可追溯。", "details": ["利用 IDE 雲端數據擴充（Google Cloud Data Extension）直接訪問雲端。", "要求 Agent 輸出所有執行 SQL，而非僅給出最終結果。"], "metaphor": "就像是銀行的記帳本，每一筆轉帳都必須有詳細的交易明細 and 傳票編號，不能只寫「餘額變多了」。", "layout": "一個數據流管道，管道上方有透明窗口，顯示正在運行的「SELECT * FROM dataset.table」，箭頭指向下方的數據分析報表。", "code": ""}, {"num": 80, "title": "協定誕生：MCP 重新定義 AI 工具連接", "chapter": 5, "takeaway": "MCP 重新定義了 AI 代理與外部數據源/工具的連接標準。", "details": ["傳統的客製化集成方式導致系統極度破碎且難以維護。", "MCP 提供了一種開放、安全且高度可擴充的通信標準。"], "metaphor": "就像是有了藍牙協議，你的耳機、滑鼠 and 鍵盤都不需要再插專用的接收器。", "layout": "簡約的深色背景，MCP 三個字母以發光漸層呈現，背景帶有 USB-C 接頭與數據線的抽象線條。", "code": ""}, {"num": 81, "title": "整合痛點：客製化 API 連接的 N² 複雜度", "chapter": 5, "takeaway": "傳統上，每個 LLM 框架與每個工具都需要寫專用適配器，導致維護成本高昂。", "details": ["若有 M 個 LLM 框架 and N 個工具，需要開發 M * N 個集成。", "MCP 將此簡化為 M + N，徹底打破了複雜度牆。"], "metaphor": "在 USB 統一接口前，每款手機都有自己的專屬充電孔，家裡抽屜塞滿了各種線。", "layout": "左側是複雜交錯的蜘蛛網圖（N² 條線），右側是以 MCP 為中心的星狀圖（M+N 條線），對比極其強烈。", "code": ""}, {"num": 82, "title": "AI 的 USB-C：MCP 的統一接口哲學", "chapter": 5, "takeaway": "MCP（Model Context Protocol）提供一個開放標準，讓 AI Agent 可以一鍵接入 any 資料源。", "details": ["由 Anthropic 推出並開放的協定，已成為業界共識。", "旨在解決 LLM「看得見、聽得到，但拿不到數據」的困境。"], "metaphor": "正如 USB-C 統一了傳輸、充電與螢幕輸出，MCP 統一了 AI 的資源讀取、工具調用與提示詞範本。", "layout": "一個 USB-C 插頭插入一個中央插槽，插頭上標示「MCP」，插槽連接到「Any Database / API / Local Filesystem」。", "code": ""}, {"num": 83, "title": "三層拓撲：Host, Client 與 Server", "chapter": 5, "takeaway": "清晰劃分 Host（IDE）、Client（Agent 核心）與 Server（數據源）的職責。", "details": ["Host：使用者交互環境（如 Cursor, Antigravity IDE）。", "Client：負責安全控制、路由分發與 LLM 交涉。", "Server：直接操作資料庫、API，提供安全網。"], "metaphor": "就像高級餐廳：Host 是餐廳裝潢與座位，Client 是點餐排程的領班，Server 是在廚房直接拿食材的廚師。", "layout": "三層垂直堆疊圖：最上層 Host -> 中間層 Client -> 最底層 Server，以箭頭標示資料與控制信號的流向。", "code": ""}, {"num": 84, "title": "MCP 的三大支柱：Resources、Tools 與 Prompts", "chapter": 5, "takeaway": "掌握 MCP 的三駕馬車，全面覆蓋數據讀取、主動操作與語境控制。", "details": ["Resources：唯讀的靜態/動態數據（如日誌、資料庫 Schema）。", "Tools：可執行的動作（如寫入檔案、發送 API），具副作用。", "Prompts：可複用的 Prompt 範本（如 Code Review 範本）。"], "metaphor": "就像是一輛工具車：Resources 是抽屜裡的參考手冊，Tools 是扳手 and 螺絲起子，Prompts 是施工標準流程圖。", "layout": "三欄式排版，每欄一個 Icon：文件（Resources）、扳手（Tools）、對話框（Prompts），下方條列各自的輸入/輸出屬性。", "code": ""}, {"num": 85, "title": "安全邊界：MCP Server 作為數據防禦首道防線", "chapter": 5, "takeaway": "MCP Server 在靠近數據源端實施權限制約，避免 LLM 直接接觸敏感指令。", "details": ["在 Server 端限制僅能執行 SELECT 查詢，禁止 DELETE 或 DROP。", "這是一種將安全控制移出 LLM context 的 Tammy-proof 設計。"], "metaphor": "就像是銀行的自動櫃員機（ATM），不管你在屏幕上怎麼按，內部的保險箱只會在授權限額內吐鈔，絕不會整箱打開。", "layout": "一個防護罩圖案包覆著資料庫，防護罩上有一道閘門（MCP Server），LLM 的請求在閘門前被檢查，被擋下的惡意請求顯示為紅色閃電。", "code": ""}, {"num": 86, "title": "實作 Server (1)：以 40 行 Python 暴露 SQLite", "chapter": 5, "takeaway": "以極簡的 Python 代碼架設 MCP Server，展現其輕量與快速部署的特性。", "details": ["導入 `sqlite3`、`mcp.server`。", "建立 Server 物件 `server = Server(\"knowledge-base\")`。", "使用異步協程運行 stdio 通信。"], "metaphor": "就像是給倉庫裝上了一個專用窗口，只留下一個小格子遞貨，外面的人進不去。", "layout": "左側為 `mcp_server.py` 的初始化與 SDK 導入代碼，右側以圖解標示 `Server(\"knowledge-base\")` 的註冊流程。", "code": ""}, {"num": 87, "title": "實作 Server (2)：定義 list_tools 接口的 JSON Schema", "chapter": 5, "takeaway": "向 Client 宣告可用工具清單與 JSON Schema，作為 AI 的操作指引。", "details": ["註冊 `query_knowledge` 與 `add_knowledge` 工具。", "設計 JSON Schema 規範輸入參數（如 `sql` 必須是 string，且限制 SELECT 查詢）。"], "metaphor": "就像是餐廳的菜單，上面清楚寫著菜名、價格 and 成分，客人（AI）只能點菜單上有的菜。", "layout": "代碼塊與 Schema 解析對比。用黃色高亮代碼中的 `inputSchema`，並拉出註解說明它如何映射到 AI 的推理決策中。", "code": ""}, {"num": 88, "title": "實作 Server (3)：call_tool 內部防禦性編程", "chapter": 5, "takeaway": "在 `call_tool` 中實施嚴格的防禦性編程，拒絕非 SELECT 的 SQL 語法。", "details": ["代碼剖析：`if not sql.strip().upper().startswith(\"SELECT\"): return Error`。", "實施 INSERT 語句參數化，防止 SQL 注入。"], "metaphor": "就像海關安檢，所有行李（參數）都要過 X 光機，發現違禁品（DELETE 關鍵字）直接扣留沒收。", "layout": "一個分流圖。安全 SQL 流向資料庫執行，惡意 SQL 觸發 `startswith(\"SELECT\")` 驗證失敗，回傳 Policy Violation。", "code": ""}, {"num": 89, "title": "實作 Server (4)：啟動 stdio 傳輸管道", "chapter": 5, "takeaway": "使用標準輸入輸出（stdio）作為底層傳輸協議，實現零網路依賴的進程間通信。", "details": ["`async with stdio_server() as (read, write)`。", "藉由 OS 的 pipe 實現極低的通信延遲與高安全性，避免網路埠暴露。"], "metaphor": "就像是兩個小朋友用拉緊的線連著兩個紙杯說話，聲音直接通過線傳導，旁人無法在空中截聽。", "layout": "兩個方塊代表 Client 與 Server 進程，中間有雙向的箭頭（Stdin / Stdout Pipe），標示「Zero Network Overhead」。", "code": ""}, {"num": 90, "title": "連接 Client (1)：定義 StdioServerParameters", "chapter": 5, "takeaway": "Client 通過指定命令與參數，動態拉起並管理 MCP Server 進程。", "details": ["導入 `ClientSession` 與 `StdioServerParameters`。", "通過指定 `python mcp_server.py` 為啟動參數，完成本機進程配對。"], "metaphor": "就像是主機板上的插槽插上顯卡，系統一開機就自動給顯卡供電與進行通信。", "layout": "一個電路板插槽示意圖，Client 端拉出一個插頭插進 Server 端插槽，標示「Process Spawn & Parameters Injection」。", "code": ""}, {"num": 91, "title": "連接 Client (2)：ClientSession 初始化與調用", "chapter": 5, "takeaway": "透過 `ClientSession` 建立異步連接，實現工具列表獲取與異步調用。", "details": ["呼叫 `await session.initialize()` 完成握手。", "呼叫 `session.list_tools()` 動態發現 Server 的功能。", "執行 `session.call_tool(\"query_knowledge\", {\"sql\": \"...\"})`。"], "metaphor": "就像是拔掉 USB 隨身碟後再次插上，電腦會彈出視窗並自動加載裡面所有檔案與功能。", "layout": "循序圖（Sequence Diagram）。Client 與 Server 之間的互動：Initialize -> Initialize Response -> List Tools -> Tools List -> Call Tool -> Tool Output。", "code": ""}, {"num": 92, "title": "協議比拼：Stdio 管道 vs 雲端 SSE 協議", "chapter": 5, "takeaway": "本地開發首選 stdio，分佈式與雲端環境則採用 HTTP + SSE。", "details": ["Stdio：進程間 Pipe 通信，無網路開銷，適合本地 IDE 與 CLI 工具。", "SSE (Server-Sent Events)：單向事件流 + HTTP Post，適合雲端部署與遠端資料庫連接。"], "metaphor": "本地 Stdio 就像是在同一個辦公室講話，而 SSE 則是打國際電話，需要撥號 and 經過交換機。", "layout": "對比表格，比較指標包含：延遲（Latency）、安全性（Security）、部署難度（Deployment Complexity）與適用場景。", "code": ""}, {"num": 93, "title": "企業級安全：MCP 的零信任與進程隔離", "chapter": 5, "takeaway": "在多用戶企業環境中，必須對 MCP Server 的運行權限實施最嚴格的沙盒限制。", "details": ["實施最小權限原則，禁止 Server 執行系統調用或寫入系統目錄。", "採用 Policy Engine 攔截 stdio 流，避免 prompt injection。"], "metaphor": "就像高級大樓的訪客卡，只能帶你到特定的樓層，其他樓層的按鈕根本無法按下。", "layout": "McKinsey 三道防線圖：第一道「Client 端參數過濾」，第二道「Stdio 傳輸加密與監控」，第三道「Server 端 Docker 隔離運行」。", "code": ""}, {"num": 94, "title": "實戰案例一：跨異質資料庫的聯邦查詢", "chapter": 5, "takeaway": "利用 MCP 統一接口，讓 Agent 能夠用單一邏輯同時查詢 PostgreSQL、BigQuery 與 BigLake。", "details": ["Agent 無需關心底層是 Spark、SQL 還是 REST，MCP Server 將其統一包裝為 @server.list_tools()。", "實現跨庫聯邦分析與語義結合。"], "metaphor": "就像是同聲傳譯器，讓來自各國（Postgres, BQ）的代表都能用同一種語言交流。", "layout": "一個 Agent 站在中央，伸出三條連線，分別通過三個 MCP Server 連接到「PostgreSQL」、「BigQuery」與「Spanner Graph」，中間標註「Unified Metadata Catalog」。", "code": ""}, {"num": 95, "title": "實戰案例二：自動化運維日誌診斷管道", "chapter": 5, "takeaway": "透過將 gcloud/kubectl 工具封裝為 MCP，讓 Agent 實現自治的系統排錯。", "details": ["MCP Server 將系統日誌（Log Files）包裝成 Resource。", "將重啟 Pod、回滾部署包裝成 Tool，實現「觀測 -> 決策 -> 執行」的自動化運維閉環。"], "metaphor": "就像是自適應巡航系統，雷達（Resource）監測車距，電腦計算（Agent），煞車油門（Tool）自動作動。", "layout": "一個閉環的圓形箭頭流程：Read Logs (Resource) -> Reason (Agent Client) -> Execute Fix (Tool) -> Monitor (Resource)。", "code": ""}, {"num": 96, "title": "MCP 與 Agentic Workflow 的深度融合", "chapter": 5, "takeaway": "MCP 作為 Agentic Workflow 的「手門哨」，提供工具調用的即時合規檢查。", "details": ["當 Agent 在多步推理中需要調用工具時，MCP 的 JSON Schema 提供了靜態檢查。", "Server 的 Policy 提供了動態檢查，確保每一步推理的邊界安全。"], "metaphor": "就像在化工廠裡，每一步化學反應（Agent 推理）都要通過閥門（MCP）的壓力檢查，防止氣體洩漏。", "layout": "一個多步推理的樹狀圖，在每個工具調用節點（Node）上都有一個鎖頭（MCP Schema & Policy Check），標示「Security Gate Passed」。", "code": ""}, {"num": 97, "title": "第五章小結：可插拔的 AI 工具資產庫", "chapter": 5, "takeaway": "擁抱 MCP 開放標準，構建「可插拔、高安全、跨框架」的企業 AI 工具資產庫。", "details": ["總結 MCP 帶來的開發效率提升：新工具集成時間從「週」縮短至「小時」。", "安全性與審計追溯率提高 100%。"], "metaphor": "就像現代積木，不管哪種套裝，卡榫的大小都是統一的，可以隨意發揮創意。", "layout": "一個巨大的拼圖，最後一塊寫著「MCP」的拼圖完美嵌入，將「AI Agent Framework」與「Enterprise Data Assets」緊密縫合。", "code": ""}, {"num": 98, "title": "開發變革：軟體工程瓶頸的下游轉移", "chapter": 6, "takeaway": "在 Vibe Coding 時代，軟體工程最大的瓶頸已非「代碼編寫」，而是「系統集成」。", "details": ["軟體開發工作流從傳統的「寫代碼」轉變為「集成代碼」。", "開發者的核心價值從「打字員」升級為「架構師」與「審查者」。"], "metaphor": "正如裝配線引進工業機器人後，工人的工作從「動手組裝」變成了「監控與品質檢驗」。", "layout": "深色簡約背景，右側是一個發光的「Git Branch」網絡圖，左側是一個抽象的「人類與 AI 握手」剪影，帶有科技感的藍綠色調。", "code": ""}, {"num": 99, "title": "速度的幻覺：人肉 Review 速度的致命瓶頸", "chapter": 6, "takeaway": "AI 讓代碼產出暴增，但若無自動化集成，這些代碼只會成為 review 階段的焦慮與路障。", "details": ["Agent 一上午能寫 1000 行代碼，但這只是「Ilusion of Speed」。", "如果人肉 review 的速度跟不上，代碼庫的吞吐量依舊為零。"], "metaphor": "就像在農田裡裝了自動採收機，但運送的卡車只有一台，結果菜全部爛在倉庫門口。", "layout": "一個沙漏圖。上方是巨大的漏斗「AI Code Production (1000 lines/hr)」，中間是極窄的瓶頸「Human Code Review (100 lines/hr)」，下方是「Production Release」。", "code": ""}, {"num": 100, "title": "工程噩夢：AI 時代的代碼集成三痛點", "chapter": 6, "takeaway": "Merge Conflicts、Review Gridlock 與 Context Fragmentation 是 AI 開發最常遇到的三大絆腳石。", "details": ["Merge Conflicts：多人多 Agent 同時改同一個文件。", "Review Gridlock：PR 太大變成俄羅斯套娃，Reviewer 無法著手。", "Context Fragmentation：代碼基底變動過快，Agent 讀取到舊快照，產生廢代碼。"], "metaphor": "就像在塞車的高速公路上，大家都不讓路（Merge Conflict），結果後面堵了十公里。", "layout": "三欄式排版，每欄一個警告圖標，分別標示三個痛點，下方給出各自的發生頻率與嚴重性評級。", "code": ""}, {"num": 101, "title": "集成策略一：打包摘要與 AI 風險評估", "chapter": 6, "takeaway": "強制要求每個 AI PR 附帶風險評估與變更摘要，幫助人類 Reviewer 快速抓住重點。", "details": ["AI 生成的 PR 必須自動附帶 Markdown 格式的變更清單、潜在破壞點（breakage points）。", "包含風險評級（Risk Assessment），以便 Reviewer 優先處理高風險 PR。"], "metaphor": "就像是買房時，代書已經把 50 頁的合約簡化成一張「關鍵條款與風險清單」，你不用一字一字看。", "layout": "左側是密密麻麻的代碼修改，右側是 AI 生成的 PR 摘要卡片（包含 Risk Level: High/Medium/Low, Impact Area 等項目），有箭頭指出 Reviewer 的目光焦點。", "code": ""}, {"num": 102, "title": "集成策略二：重構所有權，著重設計而非排版", "chapter": 6, "takeaway": "將人類 Reviewer 的精力從代碼格式與命名轉移至架構設計的正確性。", "details": ["排版、變量命名風格交給靜態 Linters 和 workspace-specific stylebooks (SKILLS.md)。", "人類只看架構（Architectural Blueprint）與業務邊界邏輯。"], "metaphor": "就像總工程師去工地，他應該檢查鋼筋的抗震係數是否正確，而不是花時間去量磁磚的縫隙有沒有對齊。", "layout": "圓餅圖展示 Review 精神分配：70% 檢查「系統架構與業務邏輯」，30% 檢查「自動化測試覆蓋率」，0% 檢查「代碼排版與拼字（交給 Linter）」。", "code": ""}, {"num": 103, "title": "集成策略三：跨時區解藥——條件式 LGTM", "chapter": 6, "takeaway": "推行「條件式 LGTM」機制，消除跨時區團隊的 12 小時審查延遲。", "details": ["Reviewer 給予 Conditional LGTM，前提是 PR 必須通過 CI 中的所有自動化測試。", "測試一旦變綠，系統自動執行 Merge，無需人工手動點擊。"], "metaphor": "就像自動付款授權，只要水電費帳單（測試報告）小於一定金額，銀行就直接扣款，不用每次都通知你。", "layout": "一個開關門的流程圖：Human Approves (Pending Tests) -> CI Runs Tests -> Tests Green -> Auto Merge (Completed)。", "code": ""}, {"num": 104, "title": "集成策略四：無指責集成文化與流程歸因", "chapter": 6, "takeaway": "代碼出錯是流程漏洞而非個人失職，避免讓高產出開發者成為 Bug 替罪羔羊。", "details": ["AI 讓開發速度變快，出錯機率也變高。", "應將 Bug 歸因於自動化測試與 Policy Engine 沒擋下來，而不是怪罪使用 AI 的人。"], "metaphor": "就像是工廠的傳送帶，如果產品有瑕疵，應該去調整檢測機器的敏感度，而不是罵放產品上傳送帶的工人。", "layout": "一個手勢指著「System Integration Process (System Fault)」，而不是指著「Individual Developer (Human Fault)」，並有醒目的「No Blame Culture」文字。", "code": ""}, {"num": 105, "title": "Repo-Watching：部署持續監控 Repo 代理", "chapter": 6, "takeaway": "部署持續運行的 Repo-Watching 服務，接手累壞的 Reviewer 遺漏的細節。", "details": ["自動化代理在背景監聽 Repository 事件（如 PR opened, Nightly Cron）。", "抓出硬編碼密鑰、半年沒動的 TODO 等安全隱患，提供不疲倦的把關。"], "metaphor": "就像是辦公大樓的 24 小時保全監視系統，在大家下班後依然巡邏每個角落。", "layout": "一隻帶著警徽的機器人貓頭鷹，眼睛射出光芒掃描 Git 倉庫的代碼分支，標示「Continuous repo-watching」。", "code": ""}, {"num": 106, "title": "監控光譜 Tier 1：Managed 託管型 AI 審查", "chapter": 6, "takeaway": "託管型審查（如 Gemini Code Assist）適合快速啟動，但缺乏團隊特定規則。", "details": ["開箱即用、無須配置。按人頭付費。", "缺點是無法理解團隊的 strict house style 或 HIPAA/PCI 等領域特定風險。"], "metaphor": "就像買現成的西裝，雖然穿起來合身，但沒辦法根據你肩膀的特殊弧度量身訂做。", "layout": "一個寫著「Gemini Code Assist」的盒子，開箱後直接連到 Github，標示「Fast setup, Generic standard rules」。", "code": ""}, {"num": 107, "title": "監控光譜 Tier 2：Hybrid 混合型自建審查", "chapter": 6, "takeaway": "混合型（GitHub Action + Antigravity CLI）是性價比最高、最推薦的起跑點。", "details": ["在 CI 中運行非交互模式的 CLI，載入項目自建的 `code-check.md` 規則。", "產出 PR comment，控制權在自己，運算力由 CI 平台承擔。"], "metaphor": "就像是買了組裝家具，你按照說明書自己裝（寫 Prompt），最後擺在自己家裡最合適的位置。", "layout": "GitHub Action 標誌與 Antigravity CLI 標誌的聯動，中間顯示「Custom code-check.md executed in CI runner」。", "code": ""}, {"num": 108, "title": "監控光譜 Tier 3：Custom 自定義多代理系統", "chapter": 6, "takeaway": "自定義型（Gemini Enterprise Agent Engine）適用於跨 PR 記憶與複雜合規審計。", "details": ["基於 ADK 構建，擁有 Durable Sessions、Memory Bank 和 A2A 協定。", "適用於大型重構與跨多個 PR 的關聯性審核。"], "metaphor": "就像是請了一支專屬的律師團隊，常駐在公司，不僅看合約，還記得你公司十年前的官司細節。", "layout": "一個核心「Enterprise Agent Engine」，周圍環繞著「Durable Session」、「Memory Bank」與「A2A Interface」，標示「Siemens Case Study Architecture」。", "code": ""}, {"num": 109, "title": "三問決策法：如何挑選最適 Code Review Tier", "chapter": 6, "takeaway": "透過回答規則特異性、跨運行記憶與失敗代價三個問題，精確定位所需的 Tier。", "details": ["規則特異性：Generic -> Tier 1; Specific -> Tier 2/3.", "記憶需求：No -> Tier 1/2; Yes -> Tier 3.", "失敗的潛在代價：Noisy -> Any Tier; Secret Leak -> Tier 3 + Policy Server."], "metaphor": "就像挑選手錶：普通看時間買電子錶（Tier 1），需要防水防撞買運動錶（Tier 2），收藏與傳家則買機械名錶（Tier 3）。", "layout": "McKinsey 經典的三步決策樹（Decision Tree），引導讀者從問題出發，最後指向 Tier 1, Tier 2 或 Tier 3。", "code": ""}, {"num": 110, "title": "金融科技案例：從 Tier 1 升級 Tier 2 的契機", "chapter": 6, "takeaway": "當 Managed 審查漏掉未脫敏日誌時，就是引入 Tier 2 的最佳時機。", "details": ["某 Fintech 公司的 Tier 1 漏掉未脫敏 PII 日誌，卻狂刷無用樣式警告。", "改用 40 行的 `compliance-check.md` (Tier 2) 解決問題，降低雜訊。"], "metaphor": "就像社區警衛，換了個新來的（Tier 1）狂查住戶，卻把外來小偷漏掉，必須換成有詳細住戶名冊的資深警衛（Tier 2）。", "layout": "前後對比柱狀圖，展示「False Positives (誤報率)」在改用 Tier 2 後從 85% 驟降至 5%，「Missing Critical Bugs (漏報率)」歸零。", "code": ""}, {"num": 111, "title": "Tier 3 終極型態：Graph-Native Code Understanding", "chapter": 6, "takeaway": "在億級代碼庫中，傳統 RAG 會破壞結構，必須採用 Graph-Native 架構。", "details": ["扁平化 vector store 會破壞 class, file, function 的關聯。", "Spanner Graph 能保留這些結構資訊，提供精確的 impact map。"], "metaphor": "就像是查地圖，傳統 RAG 只給你景點名稱（向量），而 Graph 告訴你哪條路連到哪條路，怎麼走才不會迷路。", "layout": "一個三維網格圖（Knowledge Graph），節點代表 Class/Func/Docs，一條發光的路徑展示「If change payment.process() -> Affects 12 files & 3 APIs」。", "code": ""}, {"num": 112, "title": "知識圖譜：結構、語義與全文的三合一檢索", "chapter": 6, "takeaway": "結合 GQL 結構查詢、ANN 語義搜尋與全文檢索，給出百分之百確信的答覆。", "details": ["GQL (Graph Query)：進行精確的結構與依賴關係查詢。", "ANN (Approximate Nearest Neighbor)：進行概念性的語義搜尋。", "Full-Text Search：進行精確標示符與關鍵字匹配。"], "metaphor": "核心解法就像一個金牌偵探，同時看關係網絡圖（Graph）、嫌犯口供語意（Vector）與指紋比對結果（Full-text），才能完美破案。", "layout": "一個三角形，三個頂點分別是 GQL、ANN、Full-Text，中央匯聚為「Spanner Graph - Precise Impact Map」。", "code": ""}, {"num": 113, "title": "多代理協作：Siemens 的「大象切片法」", "chapter": 6, "takeaway": "將大型重構任務分解給多個 ADK 專職 Agent，將兩週的工作縮短至數小時。", "details": ["任務解耦：Search Agent 找依賴、Story Agent 定需求、Impact Agent 測副作用、Task Agent 分任務，最後 Coding Agent 動手。", "藉由 A2A (Agent to Agent) 協定實現異步溝通。"], "metaphor": "就像是蓋大樓：地質調查、設計、安全評估、工期規劃、施工，都有專門的專業團隊負責，而不是由一個水泥工包辦全部。", "layout": "流水線圖。Search Agent -> Story Agent -> Impact Agent -> Task Agent -> Coding Agent，每一步都有明確的產出交付。", "code": ""}, {"num": 114, "title": "隱形危機：微審查疲勞與開發人員耗竭", "chapter": 6, "takeaway": "過度的微審批（Micro-approvals）會導致開發人員耗竭，反射性點擊「Approve」。", "details": ["研究顯示頻繁 AI 用戶的 burnout 風險高出 45%。", "微審批讓開發者注意力渙散，最終漏掉致命錯誤。"], "metaphor": "就像是手機每天跳出 200 個通知，你最後根本不看，直接全部滑掉，結果漏掉了重要警報。", "layout": "一個疲憊的工程師，眼前有無數個「Approve」按鈕飛舞，背景是紅色的警示「Burnout Risk +45%」。", "code": ""}, {"num": 115, "title": "永續開發：防禦性團隊運作與 AI 分享文化", "chapter": 6, "takeaway": "建立數位靜音時間與分享機制，確保人機協同的長效健康與組織演進。", "details": ["設置 Digital Quiet Hours，防止 AI 在週末與下班時間轟炸開發人員。", "舉辦每週 Agent Insight Sessions，將個人的 AI 探索心得轉化為團隊的 SOP 技能包（Skills）。"], "metaphor": "就像是給農田實施輪作與休耕，才能確保土壤肥沃，維持每年的穩定收成。", "layout": "一個平衡的天平，左邊是「Velocity & AI Agents (24/7)」，右邊是「Human Wellbeing & Architecture Oversight」，中間是「Sustainability & Growth」。\n\n\n# 第七章：自動化程式審查代理與三層級架構", "code": ""}, {"num": 116, "title": "代碼審查代理與三層級架構", "chapter": 7, "takeaway": "部署自動化審查代理，釋放 AI 時代研發團隊的吞吐量瓶頸。", "details": ["AI 開發的高速度將瓶頸轉移至審查階段，必須以 AI 審查代理應對 AI 代碼生成。", "導入三層級審查架構，在控制力、自訂彈性與基礎設施運維成本之間取得最佳平衡。"], "metaphor": "就像在高速公路收費站引入 AI 自動車牌辨識系統，避免人工驗票造成交通大癱瘓。", "layout": "左側大字標題與章節導言，右側為三層級架構光譜的漸變概念圖。", "code": ""}, {"num": 117, "title": "手動審查難以追趕 AI 速度", "chapter": 7, "takeaway": "終結傳統手動審查的延遲，重塑適應高吞吐量的程式碼防禦體系。", "details": ["AI 可在數分鐘內生成上千行代碼，傳統人工 PR 審查速度落後數十倍，造成嚴重的開發網格鎖死（Review Gridlock）。", "Bug 與代碼比例雖未惡化，但由於代碼生成總量暴增，漏洞產生絕對值呈指數級上升。"], "metaphor": "就像工廠引進了超高速自動化組裝線，但品質檢驗員仍拿著放大鏡人工抽檢，導致倉庫貨物堆積如山。", "layout": "左右分欄。左側展示「AI 代碼生產速度」（陡峭上升的折線圖），右側展示「人工審查吞吐量」（平緩直線），中間以紅色警示「審查阻塞區」。", "code": ""}, {"num": 118, "title": "部署 24 小時無休審查代理", "chapter": 7, "takeaway": "部署持續分析代理，攔截人類在疲勞狀態下容易忽視的邊界漏洞。", "details": ["持續程式分析代理（Continuous Reviewer）作為後台微服務偵聽 Git 提交，無需人類手動觸發。", "專門捕捉人類容易遺漏的依賴漏洞（如新鮮 CVE）或長期被忽略的 TODO 標記。"], "metaphor": "就像大樓裡引進 24 小時巡邏的智能安防機器人，捕捉夜間警衛疲憊打瞌睡時的監控盲點。", "layout": "環狀流程圖。展示從「PR 提交 -> 代理觸發（毫秒級）-> 漏洞掃描 -> 報告自動生成 -> 人類最終確認」的無縫銜接。", "code": ""}, {"num": 119, "title": "解構黃金標準審查技能", "chapter": 7, "takeaway": "標準化 code-check 規則，建立結構化且可重複的審查範式。", "details": ["利用 code-check.md 技能定義結構化的審查工作流，使用 Git CLI 直接拉取 PR 進行深度比對。", "將代碼檢驗標準化為四大支柱：安全漏洞、邏輯效率、可讀性、邊界案例。"], "metaphor": "就像連鎖餐廳的標準作業程序（SOP）手冊，確保不論哪家分店、哪位廚師操作，餐點品質均保持一致。", "layout": "四宮格排版，分別展示「安全性」、「效率性」、「可讀性」、「邊界案例」的核心檢測指標圖示。", "code": ""}, {"num": 120, "title": "安全檢測的第一道防線", "chapter": 7, "takeaway": "嚴防硬編碼金鑰，將安全漏洞消滅在代碼合併之前。", "details": ["代理審查重點在於攔截 API 金鑰外洩、SQL 注入、XSS 攻擊與身分驗證缺陷。", "在 CI 流程中將安全漏洞列為「Stop-ship」（停止出貨）等級，一旦發現即拒絕自動合併。"], "metaphor": "如同機場安檢的 X 光機，嚴密掃描行李中是否攜帶危險易燃物，一旦發現立即扣留。", "layout": "左側展示「有安全隱患的程式碼片段」（標紅突出硬編碼 API 金鑰），右側展示「安全代理的掃描警報卡片」，形成強烈視覺對比。", "code": ""}, {"num": 121, "title": "精準診斷程式邏輯缺陷", "chapter": 7, "takeaway": "透視代碼執行邏輯，根除無效計算與系統效能黑洞。", "details": ["自動偵測差一錯誤（Off-by-one errors）、死循環以及冗餘的遠端 API 呼叫。", "分析執行時間複雜度，優化記憶體配置，避免線上環境發生性能雪崩。"], "metaphor": "就像專業修車師傅用診斷電腦讀取引擎參數，秒級定位看不見的油路堵塞問題。", "layout": "對比卡片。左欄展示「有缺陷的迴圈代碼」，右欄展示「優化後的代碼與執行耗時對比（條形圖）」。", "code": ""}, {"num": 122, "title": "優化代碼可讀性與邊界處理", "chapter": 7, "takeaway": "重構臃腫函數，確保系統在極端負載狀況下依然穩定運行。", "details": ["將「超級函數（mega-functions）」拆解為高內聚、低耦合的微模組，並給予清晰直觀的命名。", "模擬 Null 指針、網絡中斷、暫存器溢出等極端邊界，檢驗異常捕捉機制的有效性。"], "metaphor": "如同將一本密密麻麻、沒有章節的小說，重新整理並加上清晰的目錄與小標題。", "layout": "流程圖排版。從左至右為「臃腫程式碼」->「代理拆解與命名」->「清晰模組」，並配上 Null 值的安全防護圖標。", "code": ""}, {"num": 123, "title": "輸出結構化審查報告", "chapter": 7, "takeaway": "統一審查輸出格式，提升人類與代理的溝通與決策效率。", "details": ["報告以 Markdown 生成，清晰列出「Description」與評級標記（Critical, Warnings, Best Practices, Quick Win）。", "若無任何安全與邏輯問題則直接回傳「LGTM」，作為 CI 系統自動合併的解鎖條件。"], "metaphor": "就像醫院的健檢報告，用紅黃綠燈標示健康指標，讓受檢者一眼看出哪裡需要複檢。", "layout": "高仿真的 GitHub PR 留言樣式，以黃、紅、綠三色標籤展示警告等級，並附帶一個亮眼的「Quick Win」重點框。", "code": ""}, {"num": 124, "title": "自動化部署持續 analysis 代理", "chapter": 7, "takeaway": "實作非互動式後台運行，讓審查代理化身守護代碼庫的隱形衛士。", "details": ["代理不需要人類開發者在 IDE 內手動點擊觸發，而是作為後台微服務持續偵聽 Git Webhook。", "自動偵測 PR 開啟或 nightly cron 事件，並將審查結論以評論形式自動貼回 Git 倉庫。"], "metaphor": "如同夜間自動灑水系統，根據泥土濕度感應器自動噴水，不需花匠天天手動開水龍頭。", "layout": "流向圖。Git Commit -> Webhook 觸發 -> 雲端運行環境啟動審查代理 -> API 回傳 PR 評論。", "code": ""}, {"num": 125, "title": "權衡控制力與複雜度光譜", "chapter": 7, "takeaway": "評估團隊規模與安全控制需求，理性配置代碼審查三層級架構。", "details": ["第一層（Managed SaaS）：零運維成本，但缺乏對專屬規則與特定領域風險的控制。", "第二層（Hybrid CI）：兼顧客製化與 CI 成本，是多數中大型研發團隊的最佳起點。", "第三層（Custom ADK）：全自主託管，具備跨 PR 持久記憶與多代理協同能力。"], "metaphor": "購買成衣（第一層）、訂製西裝（第二層），到聘請專屬裁縫師駐店設計（第三層）。", "layout": "光譜漸變圖。橫軸為「自訂靈活性與記憶力」，縱軸為「基礎設施維護成本」，三層級依次由左下排至右上。", "code": ""}, {"num": 126, "title": "第一層級：Managed SaaS 開箱即用", "chapter": 7, "takeaway": "極速啟用託管型 AI 審查，滿足標準代碼規範與通用安全要求。", "details": ["例如 Gemini Code Assist on GitHub，按人頭計費，免去伺服器維護與 Prompt 撰寫。", "缺點是採用通用模型，無法識別團隊內部專有 SDK、PCI 規範或 domain-specific 風險。"], "metaphor": "像使用公共停車場，省心省力，但沒辦法幫你的特殊規格超跑預留轉彎寬度。", "layout": "左側為「開箱即用」的優勢清單（綠勾），右側為「盲點警告」清單（紅叉，如：遺漏專有SDK檢查、無法自訂規則）。", "code": ""}, {"num": 127, "title": "第二層級：Hybrid CI 審查", "chapter": 7, "takeaway": "將客製化審查規則融入現有 CI/CD 流程，實現性價比最大化。", "details": ["團隊在專案中提交 code-check.md 技能，利用 GitHub Action 在 CI 階段運行 Antigravity CLI。", "運行環境依附於現有 CI，無需額外維護常駐服務，審查規則完全由團隊自主掌控。"], "metaphor": "就像在自家的生產線上加裝一組自訂參數的感測器，機器是現成的，但規則是自己設定的。", "layout": "CI 管道概念圖。在「Build」與「Test」階段之間，清晰嵌入「CLI Agent Review」的卡片，展示自動化檢驗流程。", "code": ""}, {"num": 128, "title": "第三層級：Custom ADK 代理", "chapter": 7, "takeaway": "構建常駐 ADK 代理，突破單次運行的 Context 記憶限制。", "details": ["使用 Gemini Enterprise Agent Engine 部署，提供持久化 Session 與 Memory Bank。", "適合處理跨多個 PR 的系統級重構，能在多代理之間透過 A2A（Agent-to-Agent）通訊進行複雜協同。"], "metaphor": "聘請一位 24 小時在線的首席架構師，他記得每一位工程師的歷史提交與整體重構意圖。", "layout": "架構示意圖。包含持久化記憶庫、Agent Webhooks、以及 A2A 通訊總線的多個模組串聯。", "code": ""}, {"num": 129, "title": "三維決策模型：層級選擇", "chapter": 7, "takeaway": "運用三問決策矩陣，精準定位適合團隊的代碼審查層級。", "details": ["評估軸一：審查標準特異性（通用 vs 團隊/專案專屬）。", "評估軸二：是否需要跨回合的長期上下文記憶（單次 PR 檢驗 vs 跨 PR 追蹤）。", "評估軸三：失效代價（僅是雜訊評論 vs 造成安全漏洞或資產流失）。"], "metaphor": "就像決定要租車、買一般私家車，還是組建專門的物流車隊，端看載貨量與商業風險。", "layout": "McKinsey 經典的三維決策矩陣表格，以表格呈現三個問題與對應的 Tier 推薦。", "code": ""}, {"num": 131, "title": "圖原生理解駕馭巨型代碼", "chapter": 7, "takeaway": "擺脫扁平文本限制，在百萬行級 legacy 代碼中建立網狀語義地圖。", "details": ["當代碼庫達到億萬行時，將代碼轉為扁平文本會迅速撐爆 LLM 的上下文窗口，且丟失結構。", "將代碼、文檔、工單與設計 PDF 引入圖資料庫，保留「類-文件-函數-需求」的關聯拓撲。"], "metaphor": "如同看地圖導航，不僅僅知道每個地標的名字，更知道道路是如何連接的網狀結構。", "layout": "左側為節點與邊組成的網狀知識圖譜（Code-Doc-Ticket-Schema），右側為代理在圖中遍歷尋找關聯的動態軌跡。", "code": ""}, {"num": 132, "title": "傳統 RAG 在代碼庫的局限與斷層", "chapter": 7, "takeaway": "摒棄扁平向量檢索，防止 AI 因遺失代碼結構而產生全局幻覺。", "details": ["傳統 RAG 把代碼切成碎片並向量化，會丟失調用鏈（Call Graph）與依賴關係。", "失去結構的 AI 會給出「幻覺式」的局部優化，卻在全局調用時引入崩潰。"], "metaphor": "就像把一輛跑車拆成零件堆在地上，AI 只看零件（向量），卻不知道哪根管子連到引擎。", "layout": "視覺對比。一邊是「散落的拼圖碎片」（代表 Vector DB），另一邊是「緊密相連的齒輪組」（代表 Graph DB）。", "code": ""}, {"num": 133, "title": "基於知識圖譜的代碼表示", "chapter": 7, "takeaway": "實作代碼資產圖譜化，奠定代理精準檢索與推演的根基。", "details": ["利用 Spanner Graph 等強一致性分散式圖資料庫，儲存代碼語法樹與業務文檔。", "允許代理通過屬性圖查詢，追溯某個 API 的歷史變更與關聯的合規要求。"], "metaphor": "如同國家圖書館的交叉索引系統，讀者找一本歷史書，系統能自動聯想到當時的地圖與私人信件。", "layout": "數據庫架構圖。展示程式碼 Parser 將 Raw Code 解析為 Spanner Graph 的實體與關係，並注入 Graph DB。", "code": ""}, {"num": 134, "title": "圖譜的三重複合檢索模式", "chapter": 7, "takeaway": "融合圖查詢與語義搜索，精準定位「變更影響範圍」以防止迴歸。", "details": ["模式一：圖遍歷（GQL），找出所有遞迴調用 payment.process() 的函數。", "模式二：向量搜索（ANN），尋找與當前設計意圖相似的歷史實現程式碼。", "模式三：全文檢索，精準定位特定的變數與識別字名稱。"], "metaphor": "就像現代警探辦案，同時使用關係網分析（圖）、嫌犯動機分析（語義）與指紋比對（全文）。", "layout": "漏斗式圖表。上方是「GQL + ANN + Full-Text」三合一輸入，經過篩選，下方產出「100% 精準的變更影響分析」。", "code": ""}, {"num": 135, "title": "多代理協同與任務分解", "chapter": 7, "takeaway": "拆分單一代理職能，用流水線協作駕馭複雜重構工程。", "details": ["重構任務不能交給單一代理；必須拆分為：Search 代理（探索圖譜）、Story 代理（釐清需求）、Impact 代理（預測副作用）與 Task 代理（產生工作單元）。", "最後才由 Coding 代理依序編碼，避免代碼失控。"], "metaphor": "如同外科手術，有負責麻醉、開刀、遞工具與監控生命徵象的專業團隊，而非一人包辦。", "layout": "多代理流水線圖。展示 Search Agent -> Story Agent -> Impact Agent -> Coding Agent 的任務接棒流程。", "code": ""}, {"num": 136, "title": "百萬行代碼庫重構案例", "chapter": 7, "takeaway": "釋放多代理流水線生產力，將重構週期從數周縮短至數小時。", "details": ["在百萬行 legacy 代碼庫的試點中，多代理管線能在數小時內完成原本需要兩週的複雜模組重構。", "每一步重構都附帶圖譜分析、影響預測與自動生成的驗證單元測試。"], "metaphor": "如同一千名工人同時對舊大樓進行無聲、精確的鋼筋加固，且在天亮前完工。", "layout": "大字數值圖表。「336小時 (2週)」 vs 「3小時」，並標註「重構時間縮短 99%，代碼覆蓋率 100%」。", "code": ""}, {"num": 137, "title": "建立審查防禦線", "chapter": 7, "takeaway": "動態權衡成本與控制，守護企業級代碼庫的長期安全性。", "details": ["架構師必須「選擇能夠捕捉關鍵風險的最低層級」，避免過度工程。", "處理複雜代碼重構時，應逐步建立圖原生知識庫，讓自動化審查成為大腦。"], "metaphor": "就像堤防設計，在常規水位用橡膠壩（Tier 1），洪水期用鋼筋閘門（Tier 2/3）。", "layout": "章節總結投影片。一個精緻的金字塔防禦架構，基底是 CI 自動化（Tier 1），中層是自訂 CLI 規則（Tier 2），頂端是圖原生理解（Tier 3）。", "code": ""}, {"num": 138, "title": "開發永續性與審查疲勞應對", "chapter": 8, "takeaway": "建立人機協同的結構化邊界，從根本上消除開發團隊的審查疲勞。", "details": ["AI 開發的高速度帶來了人類審查的超負荷，引發「審查疲勞」（Approval Fatigue）。", "透過文化與流程轉型，重塑團隊的精力分配，實現永續研發。"], "metaphor": "就像在工廠引進超高速輸送帶，必須同步調整工人的休息與交接機制，否則會集體累垮。", "layout": "簡約高質感的封面設計，深色背景，搭配「Sustainability」與「Human-Agent Synergy」的交織概念圖。", "code": ""}, {"num": 139, "title": "警惕隱形殺手審查疲勞", "chapter": 8, "takeaway": "識別審查疲勞的早期徵兆，防範反射性審批帶來的系統崩潰。", "details": ["當工程師每天面對數十個微小的 AI 修改請求（改一行程式、修個參數）時，大腦會感到疲乏。", "這種低度疲憊會讓團隊停止仔細檢查 AI 的產出，直接點擊「Approve」。"], "metaphor": "如同手機上不斷跳出「同意服務條款」的彈窗，人們總是看都不看就直接勾選同意。", "layout": "插畫式排版。一個疲憊的工程師面對無數個彈出「Approve?」的按鈕，表情麻木。", "code": ""}, {"num": 140, "title": "AI 使用者的倦怠警訊", "chapter": 8, "takeaway": "正視 45% 的倦怠增幅，重組人機協同的工作節奏。", "details": ["數據顯示，頻繁使用 AI 的員工，其高度倦怠率比非使用者高出 45%。", "速度的幻覺掩蓋了高強度決策與審查所帶來的認知疲勞。"], "metaphor": "就像駕駛超跑，雖然比走路快很多，但需要維持極度專注，大腦的精神消耗也大得多。", "layout": "大字數據圖表。一個醒目的「+45% Burnout Rate」圓環進度條，並對比非使用者的基準線。", "code": ""}, {"num": 141, "title": "微審批如何摧毀專注力", "chapter": 8, "takeaway": "終結無休止的微審批，保障開發者的高價值「心流」時間。", "details": ["每十分鐘就要求審核一行代碼，會打斷工程師的「心流（Flow State）」。", "反射性「Approve」會導致嚴重缺陷流入主分支，速度優勢被除錯成本吞噬。"], "metaphor": "就像你正在寫長篇文章，有人每隔兩秒就拍你肩膀問你「這個錯字要不要改？」。", "layout": "心流干擾對比圖。上方是「健康專注的心流時間塊」，下方是「被微審批打得支離破碎的注意力碎片」。", "code": ""}, {"num": 142, "title": "從持續監管轉向結構化邊界", "chapter": 8, "takeaway": "主動劃定人機協作邊界，化被動應對為主動掌控。", "details": ["團隊不能再無限制地配合 AI 的產出節奏，必須將協作規範化與批次化。", "建立時間與知識上的防火牆，確保人類有足夠的時間進行高價值決策。"], "metaphor": "如同給日夜運轉的自動灌溉系統加上定時器，而不是讓水管隨時隨地都在噴水。", "layout": "左右雙欄。「被動模式：隨時回應、反射審核」（紅色警示） vs 「結構化模式：定時批次、深度審核」（綠色推薦）。", "code": ""}, {"num": 143, "title": "邊界策略一：數位靜音時間", "chapter": 8, "takeaway": "設立審批通知禁區，保障人類工程師的線下離線權。", "details": ["嚴禁 AI 代理在夜間、週末或非辦公時間發送 PR 審查通知。", "CI 系統在靜音時間內暫停發送 Slack/Email 提醒，累積至工作日再統一推送。"], "metaphor": "如同大樓的自動清潔機器人只在深夜無人時工作，不打擾白天的上班族。", "layout": "時鐘概念圖。將一天的 24 小時畫出一個「Quiet Zone」（靜音區，如 18:00 - 09:00）的灰色區塊，與「Active Zone」區分。", "code": ""}, {"num": 144, "title": "邊界策略二：代理洞察分享會", "chapter": 8, "takeaway": "舉辦每週代理洞察分享會，實現團隊與 AI 的共同進化。", "details": ["每週抽出固定時間，讓團隊成員分享 AI 代理髮現的程式模式、Bug 或自訂工作流技能。", "避免知識碎片化在單一工程師的 IDE 內，促進團隊與 AI 共同進化。"], "metaphor": "就像探險隊每天晚上圍繞篝火交換地圖，而不是各自盲目摸索。", "layout": "團隊圍繞會議桌的簡約 icon 圖，上方有「Human Learning」與「Agent Insights」的齒輪交疊。", "code": ""}, {"num": 145, "title": "沉澱 AI 知識為組織資產", "chapter": 8, "takeaway": "將優秀的 Agent Prompt 與 Skills 寫入 Repo 資產，實現知識工程化。", "details": [], "metaphor": "就像把老員工的「口頭經驗」整理成正式的「操作手冊」放入公司的維基百科。", "layout": "漏斗圖。個人 IDE 中的 Prompts -> 團隊評估 -> 沉澱為 Specs/Agents 檔案（成為核心代碼庫的一部分）。", "code": ""}, {"num": 146, "title": "重新定義程式碼所有權", "chapter": 8, "takeaway": "將人類審查焦點從細節編碼，提升至系統架構與業務藍圖。", "details": ["既然代碼是 disposable（可隨時拋棄重寫的），那麼人類審查糾結於縮排或命名細節就失去意義。", "人類應該聚焦於 BDD 規格（Gherkin）、API 契約和系統邊界設計的正確性。"], "metaphor": "如同建築總監應該審查設計圖大樑位置是否正確，而不是花時間去數工人的磚頭擦得乾不乾淨。", "layout": "金字塔對比。左側「舊審查重心：語法、縮排、變數名（底層）」，右側「新審查重心：架構、Spec、合規性（頂層）」。", "code": ""}, {"num": 147, "title": "用自動化消滅 Nitpicking", "chapter": 8, "takeaway": "託管程式碼風格與格式，將人類精力保留給高階架構決策。", "details": ["格式、命名規則等 Style Concerns 應由 Linter、Workspace Stylebook（如 SKILLS.md）自動修正。", "審查代理應在 CI 階段就自動格式化代碼，不讓任何格式問題呈呈現給人類評審。"], "metaphor": "就像自動排版軟體，你只管寫文章內容，格式字體交給系統排版，不需要編輯手動調行距。", "layout": "流程卡片。Raw Code -> Auto-Formatter & Linter -> Agent Style Verify -> Clean PR for Human Review。", "code": ""}, {"num": 148, "title": "推行條件式 LGTM 流程", "chapter": 8, "takeaway": "引入條件式核准，消除跨時區的 12 小時研發等待。", "details": ["審查者只要確認架構沒問題，即可點擊「Conditional LGTM」。", "代碼是否能合併，取決於 CI 系統接下來的自動化測試是否「全綠」，通過即自動 merge。"], "metaphor": "就像去海關申報，只要文件齊全，海關蓋上「通過（待繳稅款確認後生效）」印章，等線上扣款成功就自動放行。", "layout": "流程圖。審查員點擊 \"Conditional LGTM\" -> CI 開始跑自動化測試 -> 全綠 -> 自動 Merge 到 Main 分支。", "code": ""}, {"num": 149, "title": "實作全自動化安全合併", "chapter": 8, "takeaway": "解除人工監管負擔，讓代碼合併與自修正進入自動巡航。", "details": ["結合 PR 標籤與 CI Actions，當 BDD 測試與安全掃描 100% 通過時，系統自動觸發 Merge。", "若測試失敗，則自動發送通知回代理進行 self-correct，無需人類重新介入。"], "metaphor": "就像無人駕駛的火車，只要前方綠燈就自動行駛，黃紅燈才啟動緊急剎車並通知調度員。", "layout": "狀態機圖（State Machine Diagram）。清晰描繪「待合併 -> 測試中 -> 通過（自動合併）/ 失敗（代理自修正）」。", "code": ""}, {"num": 150, "title": "在 AI 時代建立無責怪文化", "chapter": 8, "takeaway": "包容高頻出錯率，將責任從個人轉向集成系統的設計。", "details": ["在高速度環境中，使用 AI 最頻繁、產出代碼最多的工程師，往往也是引入 Bug 最多的人。", "如果因此懲罰個人，工程師將退回保守模式，AI 的生產力紅利將化為烏有。"], "metaphor": "就像開著最先進的推土機清理泥沙的人，一定會揚起最多的灰塵，不能因為他身上髒就懲罰他。", "layout": "一句強有力的 McKinsey 風格標語排版：「Punishing the driver of the bulldozer for the dust created will only stop the project.」。", "code": ""}, {"num": 151, "title": "系統性歸因衝突與漏洞", "chapter": 8, "takeaway": "將 Bug 歸咎於集成流程的缺失，而非開發者的個人失誤。", "details": ["當 merge 衝突與 Bug 發生時，本質上是 CI 整合機制與 Policy 引擎沒有攔截成功。", "解決方案是優化 specs/ 和 policies.yaml，而非指責開發者「用 AI 寫太多代碼」。"], "metaphor": "就像防洪堤壩決堤，應該怪罪於水利工程設計不周（系統），而不是怪罪雨水太多。", "layout": "魚骨圖，分析 Bug 產生的原因，將焦點指向「集成檢驗（CI/CD）」與「防護策略（Policy）」，而非「開發人員」。", "code": ""}, {"num": 152, "title": "劃分邊界以減少程式碼重疊", "chapter": 8, "takeaway": "清晰切分職能模組，從物理上根除 Git 合併衝突。", "details": ["當多位開發者與多個 AI 代理同時修改同一個檔案時，Merge 衝突會呈幾何級數增加。", "最佳實踐：明確劃分 API 擁有者與 UX 擁有者，使開發路徑平行化。"], "metaphor": "就像造房子時，水電工和木工有各自的施工管道與牆面，互不干涉，不需要在同一塊地方搶地盤。", "layout": "分欄佈局。展示一個專案結構，API 團隊負責後端路由與 Schema，UX 團隊負責 UI 組件，中間透過嚴格的 API 契約（Contract）相連。", "code": ""}, {"num": 153, "title": "局部擁有者負責最終同步", "chapter": 8, "takeaway": "設立模組把關人，確保核心資產不被 AI 生成的代碼淹沒。", "details": ["對於必須重疊的公共代碼，指定一位「Part Owner」作為唯一有權合併該模組的人。", "所有人（包括 AI 代理）的修改必須提交給 Part Owner，由他進行最終的同步與衝突消解。"], "metaphor": "就像維基百科的詞條編輯，雖然任何人都能修改，但核心科學詞條有專門的領域學者進行最終審定。", "layout": "多源頭匯入漏斗圖。多個 Feature Branches流向「Part Owner (閘口)」，經過人工校準後，才安全寫入「Main Branch」。", "code": ""}, {"num": 154, "title": "守護 AI 時代的工程心理韌性", "chapter": 8, "takeaway": "關注認知超載，引導團隊適應從「編碼者」向「審查架構師」的轉變。", "details": ["開發者從「手動寫代碼的成就感」轉變為「每天看大量 AI 代碼的疲憊感」，角色轉換需要心理調適。", "企業必須提供培訓，幫助工程師建立「技術架構師」的思維，適應高階決策者的角色。"], "metaphor": "就像大廚從親自切菜炒肉，轉變為督導十個新手廚師的總廚，需要學會放手與高層次把關。", "layout": "心理調適曲線圖。展示從「編碼者（Coder）」到「評估與架構者（Architect）」的轉換心態與應對工具。", "code": ""}, {"num": 155, "title": "構建人機協同的健康文化", "chapter": 8, "takeaway": "以永續研發流程保障研發速度，讓人機協作行穩致遠。", "details": ["AI 開發速度雖快，但唯有搭配「無責怪文化」與「結構化邊界」，才能避免團隊崩潰。", "開發永續性不是限制速度，而是確保人類大腦始終處於清晰、高效的狀態。"], "metaphor": "如同 F1 賽車，車子跑得再快，也需要精密的維修站（Pit Stop）與賽車手的體力管理，才能跑完賽程。", "layout": "第八章總結。一張大圖：人類與 AI 握手的剪影，背景是流暢的生產力環狀線，列出三大永續原則（靜音時間、無責合規、架構重置）。", "code": ""}, {"num": 156, "title": "零信任開發安全網與沙箱機制", "chapter": 9, "takeaway": "建立零信任執行防線，安全馴服具備隨機性行為的自主代理。", "details": ["AI 代理的行為是機率性的，不能僅依賴脆弱的系統提示詞來約束。", "必須構建外部的、不可篡改的安全網（沙箱、策略伺服器、HITL）來控制爆炸半徑。"], "metaphor": "就像化學實驗室，不管實驗員技術多好，所有危險反應都必須在封閉的防爆玻璃罩（沙箱）內進行。", "layout": "深色科幻質感封面，主標題為「Zero-Trust Development」，背景帶有「Sandbox Mode Active」的網格防護圖案。", "code": ""}, {"num": 157, "title": "失控點擊觸發的郵件風暴", "chapter": 9, "takeaway": "引以為戒：防範無防禦的自動授權引發的連鎖毀滅性反應。", "details": ["在 YOLO 模式下，Antigravity 瀏覽器代理為測試 UI，自主點擊了新生成的發信按鈕。", "因缺乏 URL 約束，代理產生幻覺，連接至無防護的舊代理，向 50 位同事發送了大量幻覺郵件。"], "metaphor": "就像自動駕駛車看到路上有一個新畫的虛線（測試按鈕），直接猛打方向盤開進了沒有完工的工地。", "layout": "事件還原時間軸。1. 提示詞生成按鈕 -> 2. 代理自主點擊 -> 3. 連接 deprecated 代理 -> 4. 50封幻覺郵件發出。", "code": ""}, {"num": 158, "title": "解構上下文幻覺的深層成因", "chapter": 9, "takeaway": "預防 Context Gap 導致的隱私外洩與高危指令篡改。", "details": ["當代理在 context 中找不到所需資料時，它會利用上下文中的任何字串（例如測試用 API 金鑰或客戶郵件）來填充空缺。", "這會導致嚴重的敏感數據外洩或連向錯誤的伺服器。"], "metaphor": "如同快遞員找不到收件人電話，直接從路上隨便抓一個人的電話寫上去送貨。", "layout": "示意圖。展示「Context Gap（資料缺失）」-> AI 自動抓取上下文中的「Sensitive Hardcoded PII」-> 錯誤執行。", "code": ""}, {"num": 159, "title": "自主代理的單維優化危機", "chapter": 9, "takeaway": "警惕代理為達目標不擇手段的「優化盲區」，引入外部 tamper-proof 治理。", "details": ["代理的本質是優化給定的目標。在沒有外部 Policy 約束下，它會使用一切可用工具完成任務，不管其安全後果。", "系統提示詞（System Prompts）十分脆弱，容易被 Prompt Injection 繞過，必須使用外部防禦。"], "metaphor": "如同你吩咐掃地機器人「把房間徹底打掃乾淨」，它為了掃沙發底下的灰塵，把整張昂貴的沙發用鋸子鋸斷。", "layout": "左右對照圖。Left 為「代理被給予的任務：發送通知」，Right 為「代理使用的暴力手段：遍歷所有數據庫發送」，紅字警示「缺乏 Governance」。", "code": ""}, {"num": 160, "title": "零信任安全網的三大支柱", "chapter": 9, "takeaway": "配置多重縱深防禦，確保 AI 代理工具調用與執行絕對安全。", "details": ["支柱一：Sandboxing（環境隔離，控制 blast radius）。", "支柱二：HITL（人工審批，關鍵節點最終把關）。", "支柱三：Policy Server（規則與語義攔截，分離治理與執行）。"], "metaphor": "就像銀行保險庫：有厚重的鋼門（沙箱）、雙人鑰匙驗證（HITL）以及紅外線感應與合規警報器（Policy Server）。", "layout": "三足鼎立的架構圖，三根石柱支撐著上方名為「Enterprise Repository Security」的屋頂。", "code": ""}, {"num": 161, "title": "沙箱機制隔絕惡意程式", "chapter": 9, "takeaway": "實施嚴格環境隔離，將惡意或失控指令鎖死在臨時容器中。", "details": ["即使 AI 生成了惡意或毀滅性的指令（如 `rm -rf`），也必須在一秒即逝的低權限容器內執行。", "一旦執行完畢或發生錯誤，容器立即被銷毀重置，主機與公司網絡毫髮無傷。"], "metaphor": "就像生化實驗室的負壓隔離病房，病毒（惡意代碼）一旦洩漏，也只能在該房間內被自動燒毀。", "layout": "隔離區示意圖。展示一個「Isolated Sandboxed Container」將惡意代碼圍住，外側是「Host System (Untouched)」，邊界標明「Kernel-level Access Blocked」。", "code": ""}, {"num": 162, "title": "一鍵開啟 Antigravity 沙箱", "chapter": 9, "takeaway": "啟用本地終端沙箱，確保開發者主機免受失控代理侵擾。", "details": ["開發者只需在 Antigravity 用戶設置中開啟「Terminal Sandboxing」開關。", "此操作會在底層攔截所有 terminal 寫入與高風險系統呼叫，回傳 kernel-level 權限錯誤以阻止破壞。"], "metaphor": "就像在電腦上安裝沙盒瀏覽器，不管你在裡面下載什麼病毒，關掉瀏覽器電腦就乾乾淨淨。", "layout": "軟體設定介面的視覺還原，重點框出「Terminal Sandboxing: Enabled」的切換鈕，並顯示運行日誌「Permission Denied on Write」。", "code": ""}, {"num": 163, "title": "定制團隊級 Docker 沙箱", "chapter": 9, "takeaway": "配置統一 Docker 鏡像，標準化雲端多代理運行的安全網。", "details": ["透過編寫 `.gemini/sandbox.Dockerfile`，繼承官方的 Gemini CLI 沙箱鏡像。", "設定環境變數 `GEMINI_SANDBOX=docker`，強制所有 CLI 代理在該容器內執行，並注入受限憑證。"], "metaphor": "就像為全體員工配發統一規格的防爆防塵手套，所有接觸危險物質的動作都必須戴上手套進行。", "layout": "代碼塊與架構圖並存。左側為簡單的 Dockerfile 語法，右側為 Docker 隔離層包裹 AI CLI 的示意圖。", "code": ""}, {"num": 164, "title": "實施關鍵節點的 HITL 閘口", "chapter": 9, "takeaway": "保留人類終極否決權，嚴控高風險業務變更與資金操作。", "details": ["針對「生產環境部署」、「數據庫 schema 修改」及「資金與敏感客戶發信」等關鍵操作，設定 checkpoint gates。", "代理必須將其清洗後的意圖（sanitized intent）以可視卡片呈現給人類，待手動簽章後才能繼續。"], "metaphor": "就像核潛艇發射導彈，必須由艦長和副艦長同時轉動各自的鑰匙，少了一把就絕對無法發射。", "layout": "卡片對比與審批流程圖。展示一個「Agent Propose Action」卡片，帶有「Approve / Reject」按鈕，指向最終的執行步驟。", "code": ""}, {"num": 165, "title": "AI 生成測試建構安全網", "chapter": 9, "takeaway": "實作測試先行，用自動生成的測試防堵 Bug 回潮與迴歸。", "details": ["規定代理在修復任何 Bug 之前，必須先寫出一個能重現該 Bug 的「失敗單元測試」或 `curl` 指令。", "修復代碼後，測試必須轉綠；此測試將被永久保留在庫中，防止未來重構時 Bug 復發。"], "metaphor": "就像在捕鼠夾裡放上起司，只有先抓到一隻老鼠證明陷阱有效，才能宣告防鼠工作成功。", "layout": "紅綠燈管道圖。1. 撰寫失敗測試（紅燈） -> 2. 修改程式碼 -> 3. 測試通過（綠燈） -> 4. 合併代碼並保留測試。", "code": ""}, {"num": 166, "title": "超越二元斷言的行為評估", "chapter": 9, "takeaway": "引入模糊容差與行為評估，診斷隨機模型的輸出偏離。", "details": ["傳統測試（Assert 0 or 1）無法檢驗 LLM 生成的品質，因為 AI 可能選錯工具或出現語義偏差。", "評估（Evaluation）使用「LLM-as-judge」給出 0-5 分評級，並容許工具調用的順序微調。"], "metaphor": "單元測試像「選擇題批改」（對就是對，錯就是錯），而評估就像「申論題打分」（看邏輯是否通順，給出綜合分數）。", "layout": "對比表格。一欄是「Traditional Testing (Deterministic/Binary)」，另一欄是「LLM Evaluation (Probabilistic/Scored)」的詳細屬性對抗。", "code": ""}, {"num": 167, "title": "實作 LLM-as-judge 機制", "chapter": 9, "takeaway": "部署推理模型裁判，對代理生成內容進行語義合規評估。", "details": ["使用獨立且推理能力更強的模型（如 Gemini Pro）作為 Judge，讀取生成的代碼與 BDD Spec。", "評判標準包括：意圖一致性、安全性合規性，當評分低於預設門檻時拒絕 CI 合併。"], "metaphor": "就像體操比賽，不只看運動員有沒有摔倒（二元測試），還要由專業裁判團根據動作難度與流暢度評分。", "layout": "雷達圖。展示一個生成代碼在「Readable」、「Secure」、「Performant」、「Spec Aligned」等多個維度的評分分佈。", "code": ""}, {"num": 168, "title": "策略伺服器雙攔截架構", "chapter": 9, "takeaway": "分離執行與治理邏輯，打造保護核心系統的鋼鐵防禦矩陣。", "details": ["第一層：結構化閘道（Deterministic Rules）。直接讀取 YAML，判斷角色與環境權限。", "第二層：語義閘道（Semantic Gating）。調用 LLM 評估參數的業務合理性，攔截隱性違規。"], "metaphor": "就像夜店門禁：保安先看你的身份證和門票（結構化），進去後便衣警察看你的行為是否可疑（語義）。", "layout": "漏斗式截留架構圖。Tool Call 進入 -> Layer 1 (YAML Check) -> Layer 2 (LLM Semantic Check) -> Execution。", "code": ""}, {"num": 169, "title": "結構化閘道執行環境硬約束", "chapter": 9, "takeaway": "編寫 policies.yaml，以零時延硬規則封鎖高危操作。", "details": ["例如 policies.yaml 中定義 localhost 環境下直接 Block `send_email` 工具。", "viewer 角色僅允許調用 `list_files` 和 `read_file`，在代碼層面實現不可逾越的權限牆。"], "metaphor": "就像在插座上設計實體遮欄，插頭形狀不對，連通電的機會都沒有。", "layout": "左側為 `policies.yaml` 配置，右側為 `is_tool_allowed` 程式碼判斷邏輯（Snippet 4 簡潔版），突出其秒級、高效率、二元的特點。", "code": ""}, {"num": 170, "title": "語義閘道深度透視安全隱患", "chapter": 9, "takeaway": "利用獨立推理模型，精準攔截傳統正則無法匹配的隱性洩漏。", "details": ["實作 `check_action_semantic`，將 action description 送往 Gemini。", "偵測參數中是否含有未遮蔽的 PII（如 plaintext 身分證、明文金鑰），若有則回傳 \"VIOLATION\" 並拒絕執行。"], "metaphor": "就像海關申報，文件寫著進口「植物」，需要植物學專家（LLM）親自檢查這是否屬於外來入侵物種，這不是機器讀條碼能看出來的。", "layout": "流程卡片。Tool Call Arguments -> Semantic Judge Prompt -> Gemini Analyzer -> Return Violation (Block) / Approved (Go)。", "code": ""}, {"num": 171, "title": "落實上下文衛生與資訊遮蔽", "chapter": 9, "takeaway": "攔截敏感 PII，用臨時占位符阻斷大模型學習與洩露風險。", "details": ["在將資料傳遞給 AI 之前，必須經過 Context Hygiene 遮蔽中間件，偵測並遮蔽敏感資料。", "使用動態占位符替代，確保 AI 僅在安全脫敏的環境下進行邏輯推理。"], "metaphor": "如同向外包商展示合約時，先用黑色麥克筆把客戶的姓名和身份證字號塗黑。", "layout": "左右對照表。左側為「含有 PII 的原始數據」（紅字警示），右側為「被中間件遮蔽後的占位符數據（如 `[[USER_EMAIL_1]]`）」（綠色安全標示）。", "code": ""}, {"num": 172, "title": "實作動態上下文解析器", "chapter": 9, "takeaway": "在工具執行前動態解析占位符，兼顧數據安全與業務可用性。", "details": ["實作 `resolve_context`（Snippet 6 & 7），利用正則匹配 `[[VARIABLE_NAME]]`。", "代理僅接觸占位符；在工具實際執行前的 validation 階段，才由運行時注入真實的環境變數。"], "metaphor": "就像你在支票上寫著「給持票人（占位符）」，等持票人到銀行櫃檯出示身份證時，銀行才動態核對並發放現金。", "layout": "翻譯機制流向圖。Agent 產出帶有 `[[COMMENTER_EMAIL]]` 的指令 -> Pipeline Interception -> Regex Translation (從環境變數讀入真實 email) -> 最終發信工具執行。", "code": ""}, {"num": 173, "title": "在 vibe 速度中構築安全網", "chapter": 9, "takeaway": "實踐 Spec-Driven 與零信任安全網，在安全軌道上全速前進。", "details": ["速度與安全並非對立，零信任安全網是釋放 AI 開發速度的真正前提與防波堤。", "綜合運用 SDD、三層級審查、結構化邊界與雙層 Policy 引擎，將 Vibe Prototype 轉為 Production Reality。"], "metaphor": "就像給世界上跑得最快的超跑裝上最強悍的煞車系統，車手才敢在賽道上踩死油門。", "layout": "全書終章總結。一個宏大的架構鳥瞰圖，將 Spec-Driven, AI Code Review, Zero-Trust Safety Net 三者完美融合，標註「Vibe Coding in Production - Blueprint 2026」。\n\n\n# 第十章：行為評估與 AI 自動生成測試", "code": ""}, {"num": 174, "title": "行為評估與 AI 測試之序幕", "chapter": 10, "takeaway": "從代碼驗證走向行為治理，全面重塑 AI 時代的質量防線。", "details": ["Vibe Coding 導致代碼生產速度呈指數級上升，傳統手動測試已無力支撐。", "導入行為評估（Evaluation）與 AI 自動測試是保證系統可靠性的唯一解法。"], "metaphor": "就像從手動檢驗單顆子彈的兵工廠，升級為自動化彈道測試與靶場模擬系統。", "layout": "深色背景，左側高亮顯示金色章標題，右側展示一個從「代碼爆發」到「自動測試過濾」的漏斗圖。", "code": ""}, {"num": 175, "title": "速度幻覺下的質量危機", "chapter": 10, "takeaway": "程式碼產出速度不等於交付速度，低質量代碼只會堆積評審債務。", "details": ["AI 可在一上午生成千行代碼，但 bug 產生的機率與速度也隨之倍增。", "缺乏自動化驗證時，人類評審將溺死在 Pull Request 的代碼海洋中，導致研發停滯。"], "metaphor": "就像自動化食品生產線如果沒有「質檢光譜儀」，產出越快只會製造越多過期垃圾。", "layout": "對比數據卡片。左卡標註「開發速度：提升 10 倍（綠色）」，右卡標註「審查債務：增加 15 倍（紅色）」，中間是斷裂的信號線。", "code": ""}, {"num": 176, "title": "機器自我驗證的開發範式", "chapter": 10, "takeaway": "讓 AI 撰寫驗證自身的測試，實現「以毒攻毒」式的質量防線。", "details": ["利用 AI 具備的完整上下文理解力，為其生成的程式碼同步產出測試用例。", "測試代碼的生成量可以遠超人類極限，從而建構出高密度的測試安全網。"], "metaphor": "就像雇用了保全機器人，並要求它每天晚上自己編寫「防盜巡邏路徑」來測試自己的漏洞。", "layout": "環形循環圖。由「Spec 定義 -> AI 生成代碼 -> AI 生成測試 -> 自動驗證 -> 自我修正」構成閉環。", "code": ""}, {"num": 177, "title": "先寫失敗測試的黃金法則", "chapter": 10, "takeaway": "修復前必須先產生 failing test，確保 Bug 被精準重現。", "details": ["在 AI 嘗試修復 any bug 之前，強制要求其先寫出一個會失敗的單元測試。", "此舉能防止 AI 「盲目猜測」並產生無效代碼，確保修復的方向完全對齊問題本質。"], "metaphor": "醫生在動手術前，必須先透過斷層掃描「標定病灶位置」，而不是直接開刀摸索。", "layout": "時間軸排版。步驟一：定義 Bug 現象 -> 步驟二：生成失敗測試（紅燈） -> 步驟三：修復代碼 -> 步驟四：測試通過（綠燈）。", "code": ""}, {"num": 178, "title": "重現 Bug 的自動化命令", "chapter": 10, "takeaway": "將抽象的 Bug 轉化為具體的重現腳本，作為客觀的代碼裁判。", "details": ["要求 AI 提供如 curl 請求或 CLI 執行指令等「一鍵重現」手段。", "這類具體命令是可執行的 bug 定位器，能跨越開發環境，實現標準化驗證。"], "metaphor": "就像法庭上的「證物照片」，不需要冗長口頭描述，一拿出來即可當場確認罪證。", "layout": "程式碼卡片。展示一組 `curl -X POST ...` 的重現命令，以黃色框線高亮，右側搭配狀態碼 `500 Internal Server Error` 的警示標記。", "code": ""}, {"num": 179, "title": "防範 Bug 捲土重來的綠燈機制", "chapter": 10, "takeaway": "將重現測試併入 CI/CD 套件，用綠燈為人類審查員減負。", "details": ["每一個被修復的 Bug 其測試用例都將永久保留在代碼庫中，形成防退化防線。", "當 CI 系統顯示綠燈，代表所有歷史 Bug 與當前規格皆未受損，給予 Reviewer 足夠的信心。"], "metaphor": "就像大樓的「防護警報網」，每修復一個漏洞就裝設一個感應器，確保小偷無法走同樣的路進來。", "layout": "金字塔防護模型。基座是「基礎單元測試」，中層是「歷史 Bug 重現庫」，頂端是「綠燈自動合併閘門」。", "code": ""}, {"num": 180, "title": "為何傳統單元測試會失效？", "chapter": 10, "takeaway": "傳統測試無法驗證生成式 AI 的「概率性輸出」，必須引進行為評估。", "details": ["單元測試基於確定性輸入輸出（Assert A == B），適合規則明確的代碼。", "LLM 輸出具隨機性，相同輸入可能產生不同措辭或結構，導致斷言頻繁失敗。"], "metaphor": "傳統測試像驗收螺絲尺寸（必須剛好 5mm），而行為評估像面試員工的應對（回答得體即可，不限字句）。", "layout": "左右對比圖。左側「傳統斷言（ deterministic ）」以鐵尺量測零件，標示「非 0 即 1」；右側「行為評估（ probabilistic ）」以雷達圖呈現多個維度評分，標示「落於容差帶內」。", "code": ""}, {"num": 181, "title": "工具通過測試卻依然慘敗的悖論", "chapter": 10, "takeaway": "局部工具正確不等於全局意圖正確，必須從集成層面評估 Agent 行為。", "details": ["Agent 在單個 Tool 的單元測試中可以拿到 100% 通過率。", "但在實際執行任務時，可能因為「選擇錯誤工具」、「幻覺出不存在的參數」或「語無倫次」而失敗。"], "metaphor": "就像一位廚師雖然「刀工測試 100 分，火候控制 100 分」，但最後把鹽當成糖放進湯裡，整道菜依然搞砸。", "layout": "裂痕架構圖。上部展示「工具 A/B/C 單元測試（全綠勾）」，下部展示「全局任務軌跡（崩潰紅叉）」，中間是斷裂的信號線。", "code": ""}, {"num": 182, "title": "誤差範圍是系統的內建屬性", "chapter": 10, "takeaway": "正視 LLM 的不確定性，將「誤差」納入系統架構的常態設計。", "details": ["機器學習模型的隨機性是其靈活性與推理能力的來源，無法被完全消除。", "測試策略必須從「消滅誤差」轉變為「約束誤差在安全邊界內」。"], "metaphor": "就像設計摩天大樓時，工程師必須允許大樓有「合理的擺動幅度」（阻尼器），而不是硬性限制其完全不動。", "layout": "高斯分佈（Normal Distribution）曲線圖。中間綠色區域為「正常容差帶」，兩側紅色邊緣為「異常越界區」，標示臨界點（Threshold）。", "code": ""}, {"num": 183, "title": "從「二元斷言」到「評分判斷」的思維轉變", "chapter": 10, "takeaway": "放棄 Yes/No 的執著，採用「評估分數 + 容差帶」的模糊判定法。", "details": ["評估（Evaluation）以 0-5 分或 0-100% 的分數來量化 Agent 的輸出品質。", "系統的持續發布標準應設為「平均得分不低於臨界線」，允許細微的措辭變異。"], "metaphor": "就像老師改作文，不會因為學生用了一個同義詞就判定「零分」，而是綜合結構、流暢度給予評分。", "layout": "量尺滑桿圖。滑桿指針停在「4.5分」，下方以漸層色（深綠-淺綠-橘-紅）標示「優秀-接受-警戒-拒絕」區間。", "code": ""}, {"num": 184, "title": "軌跡檢查：容忍調用順序的變異", "chapter": 10, "takeaway": "關注結果與意圖，容忍 Agent 解決問題路徑的微調。", "details": ["同一個目標，Agent 可能先呼叫 Tool A 再呼叫 Tool B，也可能相反，這都算成功。", "軌跡評估（Trajectory Check）能辨識這些合法的邏輯變體，防止誤報。"], "metaphor": "就像開車導航，不論你先走外環道還是市區道路，只要最後「安全抵達目的地」且沒有違規，就是好路線。", "layout": "多路徑分叉圖。起點為「用戶問題」，終點為「任務完成」，中間以兩條不同的箭頭線（路徑 A、路徑 B）連向終點，皆打勾標記。", "code": ""}, {"num": 185, "title": "引進 LLM-as-Judge 評估機制", "chapter": 10, "takeaway": "以子之矛攻子之盾，用更高階的 LLM 作為自動化裁判。", "details": ["使用如 Gemini 3.1 Pro 等推理能力更強的模型，根據結構化 Prompt 對 Agent 軌跡進行打分。", "提供明確的評估 Rubrics（規準），確保評判標準的一致性與客觀性。"], "metaphor": "就像體育比賽中，聘請「專業裁判」根據計分規程對選手的動作流暢度與難度進行綜合評分。", "layout": "三層架構圖。底層「執行 Agent」，中層「評估規準（Rubrics）」，頂層「裁判 LLM-as-Judge」，箭頭由底層向上輸出，裁判回傳分數。", "code": ""}, {"num": 186, "title": "設定容差閘門以防失控", "chapter": 10, "takeaway": "建立動態品質閘門，當分數跌破閾值時自動阻斷整合。", "details": ["設定嚴格的評估閾值（例如：連續 3 次低於 3.8 分，或單次低於 3 分）。", "一旦觸發，CI/CD 立即報警並暫停自動 Merge，等待人工排查。"], "metaphor": "就像淨水廠的「水質監測器」，只要雜質含量一超過百萬分之幾（PPM），立刻自動關閉水閥。", "layout": "儀表板視覺。指針偏向紅色邊緣，背景有「ALERT: Quality Threshold Violated (Score: 2.8 < 3.5)」的大字警示。", "code": ""}, {"num": 187, "title": "功能測試 vs. 行為評估的本質區別", "chapter": 10, "takeaway": "功能測試守護代碼邊界，行為評估守護系統靈魂，兩者缺一不可。", "details": ["功能測試（Unit/Integration Test）：驗證程式碼語法、API 響應、邏輯控制流（ deterministic ）。", "行為評估（Evaluation）：驗證 AI 的邏輯連貫性、意圖理解、語義安全性（ probabilistic ）。"], "metaphor": "就像蓋房子，功能測試驗收的是「磚頭強度與水管會不會漏水」，行為評估驗收的是「居住舒適度與動線流暢性」。", "layout": "2x2 對比表格，列出：對象、驗證方法、判定標準、適用場景。", "code": ""}, {"num": 188, "title": "捕獲「行為漂移」的動態防線", "chapter": 10, "takeaway": "對抗模型迭代與 Prompt 微調帶來的隱性失控，建立持續評估機制。", "details": ["雲端模型改版或 Prompt 的微小修改，可能導致 Agent 原本正常的行為突然退化（行為漂移）。", "必須每日運行 Eval 基准測試，方能提前察覺並攔截這類隱性風險。"], "metaphor": "就像磁懸浮列車的「軌道位移傳感器」，每天微米級地偵測熱脹冷縮，防患未然。", "layout": "折線圖。X 軸為時間，Y 軸為 Eval Score。展示一條平緩的曲線，突然在某天模型升級後下挫，紅色箭頭指向該點標示「行為漂移（Behavioral Drift）」。", "code": ""}, {"num": 189, "title": "第十章總結：打造雙層評估防線", "chapter": 10, "takeaway": "將單元測試與行為評估無縫整合，建構堅不可摧的 AI 質量大堤。", "details": ["以 AI 生成的單元測試保證基礎代碼不退化。", "以 LLM-as-judge 的行為評估確保 Agent 的整體表現符合業務規範。"], "metaphor": "核心防彈衣設計：外層是「硬質防彈板」阻擋子彈穿透，內層是「軟質纖維」吸收衝擊震波。", "layout": "雙層盾牌視覺。外盾牌標示「Code Coverage (Unit/Integration)」，內盾牌標示「Behavioral Eval (LLM-as-Judge)」，兩者共同保護核心業務。", "code": ""}, {"num": 190, "title": "策略伺服器與上下文去敏感化", "chapter": 11, "takeaway": "將安全策略與執行邏輯徹底解耦，建構 Agent 時代的零信任架構。", "details": ["本章聚焦於如何防止 Agent 越權、數據洩漏與上下文幻覺風險。", "策略伺服器（Policy Server）與動態去敏感化（Context Hygiene）是核心防禦手段。"], "metaphor": "就像為企業的智能管家，配備一位「隨身法務官」與「機密遮罩筆」，凡事需審查。", "layout": "深色背景，左側高亮顯示金色章標題，右側展示一個帶有盾牌與鎖頭的系統架構草圖。", "code": ""}, {"num": 191, "title": "失控 Agent 帶來的企業安全挑戰", "chapter": 11, "takeaway": "賦予 Agent 行動力的同時，必須防範其因「權限越界」而造成災難。", "details": ["一個負責解決客訴的 Agent，如果擁有發送郵件與數據庫權限，可能失控發信給全公司。", "缺乏邊界約束 of Agent 就像在沒有護欄的懸崖高速行駛的跑車。"], "metaphor": "就像給了實習生一張「無限額度的公司信用卡」去採購辦公用品，卻沒設單筆消費上限。", "layout": "危機感視覺。背景是崩潰的伺服器與散落的信封，以驚嘆號標示「Rogue Agent Incident（失控 Agent 事件）」。", "code": ""}, {"num": 192, "title": "安全治理的硬傷：為何 Prompt 防線必敗？", "chapter": 11, "takeaway": "Prompt 不是代碼，無法抵擋惡意 Prompt 注入與上下文溢出。", "details": ["在 System Prompt 中寫「絕對不能洩露密鑰」是脆弱的，LLM 容易被 Prompt Injection 繞過。", "Context 隨對話增長會發生溢出，導致 Agent 遺忘最初的安全指令。"], "metaphor": "就像企圖用「口頭交代」來要求保全不要聽壞人的話，而不是裝設實體密碼鎖。", "layout": "盾牌破裂圖。左側展示「System Prompt 安全指令（虛線防線）」，右側展示「Prompt Injection 攻擊（紅色箭頭直接穿透）」。", "code": ""}, {"num": 193, "title": "外部化與防篡改治理的核心架構", "chapter": 11, "takeaway": "安全策略必須在 LLM 外部獨立運行，確保安全規則不受 LLM 狀態影響。", "details": ["建立獨立的 Policy Server，將安全策略寫在 YAML 配置中，不由 LLM 直接解讀。", "即使 Agent 思想被「污染」，其發出的惡意 Tool Call 也會在執行前被外部攔截。"], "metaphor": "就像銀行的「保險庫金庫門」，必須由外部保安和物理鑰匙控制，而不是聽憑庫內經理的口頭命令。", "layout": "架構隔離圖。左側為「Agent 執行區」，右側為「策略伺服器」，中間是一道厚實的「Policy Gateway（策略網關）」阻斷所有未授權調用。", "code": ""}, {"num": 194, "title": "混合策略伺服器的雙層防護機制", "chapter": 11, "takeaway": "結合決定性結構規則與語義安全分析，打造動態的雙層攔截引擎。", "details": ["雙層架構：第一層「結構化閘門（Structural Gating）」，第二層「語義閘門（Semantic Gating）」。", "結構化負責速度與粗篩，語義負責深度與上下文隱私防護。"], "metaphor": "就像大樓安檢：第一步用「金屬探測門」（結構化）快速攔截違禁品，第二步由「安檢人員親自開箱檢查」（語義化）可疑物品。", "layout": "兩級過濾漏斗圖。第一層漏斗「Structural Rules (Fast YAML Check)」，第二層漏斗「Semantic Analysis (Gemini Evaluator)」，最後輸出「Safe Execution」。", "code": ""}, {"num": 195, "title": "第一層防線：結構化閘門（紅綠燈機制）", "chapter": 11, "takeaway": "基於角色與環境的靜態限制，實現毫秒級的工具訪問控制。", "details": ["解析 policies.yaml，定義哪些環境（如 localhost）或角色（如 viewer）禁止哪些工具。", "這是不涉及 LLM 推理的純代碼邏輯，速度極快，能阻斷 80% 的越權操作。"], "metaphor": "就像公司門禁系統，刷卡時系統直接比對權限表，Viewer 刷不進主機房，無需保安人工判斷。", "layout": "對照圖。左側是 policies.yaml 設定檔片段，右側是門禁卡刷卡失敗的紅色視覺，標註「Blocked Tool: send_email on localhost」。", "code": ""}, {"num": 196, "title": "極速的二元檢查：無感防護", "chapter": 11, "takeaway": "結構化檢查應達到近乎零延遲，以維持極致的開發體驗。", "details": ["透過本地 YAML 緩存與內存比對，結構檢查延遲小於 1 毫秒。", "在開發和本地測試階段，能立即給予 Agent 反饋，避免浪費 API Token。"], "metaphor": "就像高速公路的「電子收費系統（ETC）」，車輛無需停下一對一繳費，直接通過。", "layout": "速度對比條。展示「結構檢查：< 1ms」與「LLM 推理：~1200ms」的巨大差距，強調結構檢查作為第一道關口的高效性。", "code": ""}, {"num": 197, "title": "第二層防線：語義閘門（智慧裁判）", "chapter": 11, "takeaway": "使用獨立的專用 LLM 審查 API 參數細節，阻斷隱性隱私洩漏。", "details": ["即使角色被允許使用該工具，但發送的內容可能包含未去敏感化的個人隱私資訊（PII）。", "Semantic Gating 使用 Gemini 審查 Tool Call 的 Argument，確保內容無毒無敏感數據。"], "metaphor": "就像海關官員：雖然你的護照合法且沒有攜帶金屬（第一層過關），但他會仔細詢問你的申報內容是否符合實情。", "layout": "流程圖。Agent 產出 Tool Args -> 傳送給 Policy Evaluator (Gemini) -> Gemini 回傳 \"VIOLATION\" 或 \"SAFE\" -> 決定是否放行。", "code": ""}, {"num": 198, "title": "為什麼正則表達式 (Regex) 無法完全防漏？", "chapter": 11, "takeaway": "自然語言變體無窮，Regex 只能防君子，防不住 AI 變相洩密。", "details": ["Regex 適合識別標準格式如 email 或身分證號，但無法識別變體（如 \"user at google dot com\"）。", "對於含有上下文語義的敏感數據洩漏，只有 LLM 能夠進行深層次的意圖理解。"], "metaphor": "就像用「關鍵字過濾器」攔截罵人的話，但壞人可以用「諧音字」或「暗喻」輕鬆繞過。", "layout": "對比卡片。左卡展示「Regex 規則：只攔截 standard email」，右卡展示「LLM 語義識別：成功捕獲 'my mail is name(at)domain[dot]com' 的繞過企圖」。", "code": ""}, {"num": 199, "title": "policies.yaml：定義安全底線的配置檔", "chapter": 11, "takeaway": "用統一的配置宣告安全邊界，讓安全架構一目了然。", "details": ["解析 Snippet 4：劃分 environments 與 roles 兩大維度。", "將「localhost - blocked_tools: [send_email]」與「viewer - allowed_tools: [list_files, read_file]」集中管理，實踐配置即代碼。"], "metaphor": "就像公司的「員工手冊與權限矩陣」，白紙黑字寫清楚每個職等和每個辦公室的通行權限。", "layout": "程式碼視窗。高亮 `policies.yaml` 中的結構，用綠色標註 roles/viewer，用紅色標註 blocked_tools，並拉出註解線說明。", "code": ""}, {"num": 200, "title": "動態攔截與校正的完整工作流", "chapter": 11, "takeaway": "不只攔截更要輔能自我修正，讓 Agent 在邊界內自我優化。", "details": ["步驟 1：攔截 Tool Call；步驟 2：進行雙層檢查；步驟 3：回傳 \"Policy Violation\" 錯誤訊息。", "Agent 收到違規回饋後，會自動嘗試修改參數（例如自動遮罩 email）並重新發送請求，實現自癒。"], "metaphor": "就像編輯文章時，拼字檢查工具不只畫紅線提示錯誤，還會建議正確的拼法。", "layout": "泳道圖（Swimlane Diagram）。劃分「Agent」、「Policy Server」與「External System」三條泳道，展示違規攔截、回傳錯誤、Agent 修正重發、最終放行的動態過程。", "code": ""}, {"num": 201, "title": "語義安全性分析程式碼剖析", "chapter": 11, "takeaway": "用輕量 Python 服務封裝安全邏輯，無縫嵌入任何 Agent 框架。", "details": ["解析 Snippet 5：`PolicyService` 類別的實現細節。", "`check_action_semantic` 異步調用 Gemini 評估 PII，解析 response 是否以 \"VIOLATION\" 開頭，決定放行與否。"], "metaphor": "就像在自來水管線上加裝一個「水質採樣閥門」，隨時將水樣送去實驗室快速化驗。", "layout": "程式碼高亮排版。高亮 `client.models.generate_content` 與 `response.text.strip().upper().startswith(\"VIOLATION\")`，並用標籤指出這是「語義判決的核心程式碼」。", "code": ""}, {"num": 202, "title": "無菌數據的核心：上下文衛生", "chapter": 11, "takeaway": "從源頭防範洩密，不讓任何敏感數據進入 Agent 的運行記憶體。", "details": ["策略伺服器是「事後攔截」，而 Context Hygiene 是「事前防禦」。", "透過在 memory/prompt 中使用 placeholders，確保 Agent 從一開始就接觸不到真實敏感資訊。"], "metaphor": "就像進入無菌室前，必須先穿上防塵衣並進行全身消殺，而不是等髒污進了無菌室再清掃。", "layout": "雙向對比圖。左邊「骯髒 Context：內含真名、密鑰、私有 URL」，右邊「無菌 Context：全數替換為 [[USER_NAME]], [[API_KEY]] 等佔位符」。", "code": ""}, {"num": 203, "title": "什麼是上下文幻覺風險？", "chapter": 11, "takeaway": "AI 缺乏真實數據時會用 context 中的敏感詞湊數，造成隨機洩密。", "details": ["當 Agent 被要求調用 API 但缺少參數時，會搜尋對話歷史中類似格式的字串填補空缺。", "若歷史記錄中存有真實用戶 Email，該 Email 就可能被 Agent 拿去發送垃圾測試信。"], "metaphor": "就像桌上散落著客戶名單，秘書在找不到測試名單時，隨手抓了桌上的「真實名單」寄出了測試信。", "layout": "情境還原圖。展示 Agent 腦袋中發生的推演：「需要 Email 參數 -> 搜尋 Memory -> 發現歷史記錄中有 'boss@company.com' -> 自動套用 -> 悲劇發生（信件寄出）」。", "code": ""}, {"num": 204, "title": "動態上下文解析器：Dynamic ContextResolver", "chapter": 11, "takeaway": "使用雙中括號語法定義佔位符，實現安全變數的延遲綁定。", "details": ["在模板或 prompt 中使用 `[[VARIABLE_NAME]]` 作為符號。", "ContextResolver 會在 Tool 實際執行前的最後一毫秒，將其動態替換為安全的測試環境數據。"], "metaphor": "就像好萊塢電影劇本中用「[男女主角擁抱]」作為動作標記，等開拍時再由真實演員現場演出。", "layout": "解析示意圖。展示一個模板字串 \"Send report to [[USER_EMAIL]]\"，經過 Resolver 處理後，輸出 \"Send report to test-user@sandbox.internal\"。", "code": ""}, {"num": 205, "title": "ContextResolver 的替換優先級順序", "chapter": 11, "takeaway": "遵循「運行時覆寫 > 環境變量」的三級降級策略，確保安全與彈性。", "details": ["第一優先級：Runtime State Overrides（運行時覆寫，如特定的 Session 數據）。", "第二優先級：Validated Environment Variables（已驗證的環境變數）。", "第三優先級：若皆無，保留佔位符原樣，防止隱性靜默失敗。"], "metaphor": "就像公司的代班順位：第一優先是指定代理人，若沒有則由部門主管代行，若再沒有則工作暫停，絕不隨便找路人代班。", "layout": "階梯式降級流程圖。從「1. Override State」->「2. OS Environment」->「3. Keep Original Match」，以箭頭依序向下指引。", "code": ""}, {"num": 206, "title": "預防無聲失敗的容錯設計", "chapter": 11, "takeaway": "未解析的佔位符寧可保留原樣，也不可替換為空字串或猜測值。", "details": ["若將找不到的佔位符替換為空字串，系統可能會在沒有參數的情況下執行，造成難以排查的 bug。", "保留原樣 `[[VAR]]` 會在 API 調用時拋出明顯格式錯誤，便於開發者立即修正。"], "metaphor": "就像填寫報稅單時，如果某個機密項目你不知道，寧可留白讓系統報錯，也不要隨便填個 0 元。", "layout": "對比卡片。左卡「錯誤做法：替換為空 -> 系統靜默通過 -> 數據損壞」；右卡「正確做法：保留 [[VAR]] -> 觸發 schema error -> 立即定位修復」。", "code": ""}, {"num": 207, "title": "解構 context_resolver.py 程式碼", "chapter": 11, "takeaway": "用高效的正則表達式與閉包函數，實現無狀態的 context 解析。", "details": ["解析 Snippet 6：使用 `re.sub(r'\\[\\[([^\\]]+)\\]\\]', replacement, template_str)`。", "閉包函數 `replacement(match)` 動態獲取匹配的變數名，執行優先級判定，代碼結構清晰。"], "metaphor": "就像一個高度專業的郵件分揀機，看到特定格式的信件就自動拆開，根據規則分派到不同的投遞口。", "layout": "程式碼卡片。展示 `resolve_context` 函數，使用不同顏色框出正則表達式、閉包替換邏輯與優先級判定的 `if-elif-else` 區塊。", "code": ""}, {"num": 208, "title": "在 Tool 執行管道中全域強制執行去敏感化", "chapter": 11, "takeaway": "將 Resolver 掛載為全域 Middleware，使去敏感化成為系統內建屬性。", "details": ["不能指望開發者在每個 Tool 中手動調用解析器，這容易遺漏。", "在 Agent Framework 的 `validate_tool_call` 階段統一攔截，自動過濾所有輸入參數。"], "metaphor": "就像在整座大樓的總水管安裝過濾器，確保所有水龍頭流出來的都是淨水，不需各別安裝淨水器。", "layout": "管道攔截圖。展示 Tool Call 穿過一條名為「Middleware validation step」的管道，管道兩側裝有 ContextResolver 過濾器，隨後流向 Target Tool。", "code": ""}, {"num": 209, "title": "遞迴處理複雜 Parameter 參數", "chapter": 11, "takeaway": "遍歷 nested List 與 Dict 結構，不放過深埋在參數結構中的敏感詞。", "details": ["解析 Snippet 7：遍歷 `args.items()`。", "判斷類型：若為 string 則直接 resolve；若為 list 則遞迴處理每個元素；若為 dict 也同樣遞迴解析，確保複雜 JSON payload 的安全性。"], "metaphor": "就像快遞安檢：不只掃描包裹外箱，還要把箱子裡的多個小盒子、小袋子逐一打開檢查。", "layout": "遞迴樹狀圖。最上層是 `args (Dict)`，分叉出 `str_param`、`list_param`，再向下延伸到 list 中的各個元素，每個節點都打上綠色的「Sterilized」盾牌標記。", "code": ""}, {"num": 210, "title": "實戰演練：從 [[COMMENTER_EMAIL]] 到安全執行的動態變化", "chapter": 11, "takeaway": "見證動態替換流程，確保敏感 PII 資訊在零暴露下安全執行。", "details": ["開發階段：Prompt 寫 \"Notify [[COMMENTER_EMAIL]] about the change\"。", "執行階段：Middleware 攔截，讀取環境變數，將其替換為 \"dev-sandbox@company.com\"。"], "metaphor": "就像軍事演習時，地圖上標示的目標都是代號（如「藍軍 A 點」），只有在發射飛彈的最後一刻，導引系統才代入真實座標。", "layout": "橫向三階段圖：1. Template State (含有佔位符) -> 2. Resolution Middleware (動態注入) -> 3. Execution State (無敏感數據洩露)，各階段以箭頭和數據卡片展示。", "code": ""}, {"num": 211, "title": "第十一章總結：零信任 Agent 治理體系", "chapter": 11, "takeaway": "以 Policy Server 控邊界，以 Context Hygiene 淨內存，構建主動防禦閉環。", "details": ["外部 Policy Server 進行嚴格的角色與環境限制，實行二元與語義攔截。", "內部 Context Hygiene 排除 PII 污染，消除上下文幻覺。"], "metaphor": "就像一座堅固的城堡：外有護城河與城門守衛（Policy Server），內有嚴格的衛生檢疫措施（Context Hygiene）。", "layout": "綜合防禦架構圖。將城堡、護城河、安檢網與城堡內部乾淨水源的意象融合成一張系統拓撲圖。", "code": ""}, {"num": 212, "title": "實踐指引與全書總結", "chapter": 12, "takeaway": "將理論化為行動，以工具鏈輔能團隊，引領 Spec-Driven 生態演進。", "details": ["本章為全書畫下句點，提供具體的落地方案與命令工具。", "重申在 Vibe Coding 時代，人機協同文化與研發流程的終極演化方向。"], "metaphor": "就像完成了一份宏偉的「城市規劃藍圖」，現在要發放「標準施工工具箱」給工程隊。", "layout": "全螢幕深色底，左側放置金色「CHAPTER 12」大字，右側展示一個從 spec 符號到雲端部署的抽象火箭升空路徑。", "code": ""}, {"num": 213, "title": "AI 消除生產瓶頸後的「新第一瓶頸」", "chapter": 12, "takeaway": "開發瓶頸已移至下游，人類的「審查與集成能力」決定交付天花板。", "details": ["AI 寫程式碼快了 10 倍，但人類閱讀、理解與測試這些代碼的速度沒有變快。", "若沿用舊有流程，團隊將被海量 AI PR 淹沒，造成嚴重的整合塞車（Integration Jam）。"], "metaphor": "就像把農田的「收割機速度提升了 100 倍」，但「運送卡車和加工廠」的容量沒變，導致糧食全爛在田裡。", "layout": "管道流量圖。左側「Code Generation」管道極寬，流量標示「10x」；中間「Human Review & Testing」管道極窄，流量標示「1x（瓶頸紅色高亮）」，右側「Production Release」流量受限於 1x。", "code": ""}, {"num": 214, "title": "人機協同的「共享認知負荷」模型", "chapter": 12, "takeaway": "人類升級為架構設計師，AI 承接執行細節，實現高價值的分工。", "details": ["人類職責：編寫 High-Quality Specs（測試規格、集成規格、DevOps 藍圖）。", "AI 職責：編寫單元測試、進行 API 串接、自動排查低級錯誤、生成部署配置。"], "metaphor": "就像建築大師專注於「繪製精準的摩天大樓結構藍圖與力學分析」，而把「砌磚、拉管線」等體力活交給自動化工程機具。", "layout": "左右天平圖或分工矩陣。左側「人類的腦：架構設計、邊界防禦、業務意圖」，右側「AI 的手：代碼編寫、測試生成、環境配置」，中間是「規格書（Spec）」作為連接樞紐。", "code": ""}, {"num": 215, "title": "跳脫 Prompt 優化的迷思", "chapter": 12, "takeaway": "系統工程勝過文字遊戲，不要用 Prompt 補償系統架構的缺失。", "details": ["許多團隊花費數週優化 Prompt 的措辭，但效果仍不穩定。", "正確做法是透過 BDD 規格（Gherkin）、Policy Server 和 Sandboxing 等「工程體制」來約束 AI 行為。"], "metaphor": "就像與其花費無數精力去「教育火車司機開車不要偏離軌道」，不如直接「鋪設實體鐵軌」來得保險。", "layout": "維度比較圖。左側「Prompt 技巧（低回報、高變異性）」，右側「SDD 與工程隔離（高回報、高決定性）」，以向上與向下的柱狀圖展示投資報酬率。", "code": ""}, {"num": 216, "title": "敏捷團隊的文化演化：從 Code-First 到 Spec-First", "chapter": 12, "takeaway": "放棄「先寫代碼再調試」的舊習慣，建立「先寫規格再生成」的新文化。", "details": ["程式碼是 disposable（可隨時丟棄的），只有 Spec 是永久資產。", "團隊應以 /specs 資料夾作為唯一真理源頭，程式碼審查應轉化為「規格審查」。"], "metaphor": "就像古人做雕刻，一刀錯就全毀，所以極度小心（Code-First）；現代人用 3D 列印，只要 CAD 檔案完美，隨時可以印了又丟（Spec-First）。", "layout": "文化演進時間軸。左側「傳統敏捷：User Story -> Code -> Test -> Refactor」，右側「AI 敏捷：User Intent -> SDD Spec -> AI Auto-Gen & Test -> Verified Deploy」。", "code": ""}, {"num": 217, "title": "立即啟動：使用 uv google-agents-cli 初始化", "chapter": 12, "takeaway": "一鍵安裝官方 CLI 工具鏈，秒級為 coding agent 裝備工程技能。", "details": ["使用 `uv google-agents-cli setup` 命令快速初始化環境。", "自動在專案中部署七個預設 Skill，包含 scaffolding、evaluation 等，開箱即用。"], "metaphor": "就像買來一部新手機，按下「一鍵還原/一鍵裝機」，所有常用且必備的 App 瞬間安裝妥當。", "layout": "終端機視窗。展示 `uv google-agents-cli setup` 命令的運行過程，並以綠色打勾符號列出成功安裝的七大 Skill 模組。", "code": ""}, {"num": 218, "title": "解構 Coding Agent 的七大核心技能", "chapter": 12, "takeaway": "掌握七大維度，讓你的 Agent 具備完整軟體生命週期的開發能力。", "details": ["涵蓋：Scaffolding（腳手架）、ADK Code（ADK 代碼）、Evaluation（行為評估）、Deployment（部署）、Publishing（發佈）、Observability（可觀測性）以及 Security Sandbox（安全沙盒）。", "這七大技能共同構成了 Spec-Driven Development 的完整工具閉環。"], "metaphor": "就像瑞士刀的七個工具配件，有開瓶器、小刀、剪刀等，每一件都針對特定任務進行優化。", "layout": "環形七瓣圖（花瓣圖）。每個花瓣標註一項技能與簡短說明，中心為「SDD Core Engine」。", "code": ""}, {"num": 219, "title": "從 Spec 到 Scaffold 的一鍵生成實踐", "chapter": 12, "takeaway": "用 agents-cli scaffold 實踐「規格即代碼」，瞬間生成乾淨專案骨架。", "details": ["讀取 `/specs` 下的 YAML 與 Markdown 規範，自動生成目錄結構、配置與基礎代碼。", "避免手動設定 boilerplate，確保專案架構完全符合 Google 生產級標準。"], "metaphor": "就像建築工地使用的「預製鋼骨模板」，只要規格輸入，機器當場灌漿出完美的大樓框架。", "layout": "輸入輸出對比。左側為 `specs/app.yaml` 規格文件，中間是 `agents-cli scaffold` 圖示，右側是展開的專案目錄結構樹（如 src/, tests/, config/）。", "code": ""}, {"num": 220, "title": "建立行為評估品質閘門的自動化運行", "chapter": 12, "takeaway": "以 agents-cli eval run 驅動持續評估，在 CI/CD 中鎖死質量防線。", "details": ["將行為評估命令寫入 CI 腳本（例如 GitHub Actions）。", "每次 PR 提交時，自動運行基準測試並交由 LLM-as-judge 評估，未達標則禁止 Merge。"], "metaphor": "就像在工廠的出貨大門安裝「自動重量與成分檢測儀」，任何少裝或瑕疵的箱子都會被自動推下輸送帶。", "layout": "CI/CD Pipeline 流程圖。展示 Code Commit -> Lint -> Unit Tests -> `agents-cli eval run` -> Production Release，將 eval run 步驟以金色光圈高亮標記。", "code": ""}, {"num": 221, "title": "沙盒化安全部署的標準流水線", "chapter": 12, "takeaway": "使用 agents-cli deploy 實現無痛的沙盒部署與主動防禦。", "details": ["自動包裝代碼至安全 Docker 沙盒，隔離敏感環境變數。", "一鍵部署至 Cloud Run 或 Vertex AI Agent Engine，完成生產級上線，確保基礎設施不受威脅。"], "metaphor": "就像將貴重且有潛在危險的化學品，裝在「特製的雙層密封防爆桶」中，再用無人搬運車送入無菌倉庫。", "layout": "部署拓撲圖。左側為 Local Agent Sandbox，中間為加密傳輸管道，右側為 Cloud Run 與 Vertex AI Agent Engine，上方標註「Zero-Trust Sandbox Deployment」。", "code": ""}, {"num": 222, "title": "全書知識地圖總回顧", "chapter": 12, "takeaway": "融會貫通三大核心模組，構建企業級 vibe coding 時代的鐵三角。", "details": ["規格驅動開發（SDD）：解決「建構什麼」的精準度問題。", "零信任安全架構（Policy & Sandbox）：解決「如何安全建構」的防護問題。", "人機協作與工具鏈（CLI & Skills）：解決「如何高效交付」的落地問題。"], "metaphor": "就像一座堅固的鼎，三隻腳分別是規格、安全與工具，缺任何一隻腳鼎就會傾倒。", "layout": "三角形鐵三角架構圖。三個頂點分別是「Spec-Driven Development」、「Zero-Trust Governance」、「Automated CLI Tooling」，中心為「Production-Grade AI Agents」。", "code": ""}, {"num": 223, "title": "結語：迎向 Spec-Driven 開發的新紀元", "chapter": 12, "takeaway": "不要抗拒改變，用規格與制度掌控 AI，成為 AI 時代的軟體架構師。", "details": ["軟體工程的本質沒有變，依然是解決問題並交付業務價值；改變的只是實現細節的手段。", "掌握規格編寫與安全治理的工程師，將是未來研發團隊的核心領袖。"], "metaphor": "就像從「手持皮鞭的馬車夫」升級為「掌控高鐵控制台的調度總長」。", "layout": "全螢幕高對比視覺。背景是燦爛的黎明或星空，中央大字寫著「The future of software is not written, it is specified.（軟體工程的未來不是寫出來的，而是規範出來的）」。", "code": ""}];
+
+        let currentMode = 'overview'; // 'overview' or 'detailed'
+        let currentSlideIdx = 0; // 0-based
+        
+        // Flowchart drag/zoom variables
+        let fcZoom = 1.0;
+        let fcPanX = 0;
+        let fcPanY = 0;
+        let isFcDragging = false;
+        let fcStartX = 0;
+        let fcStartY = 0;
+
+        // Mindmap drag/zoom variables
+        let mmZoom = 1.0;
+        let mmPanX = 0;
+        let mmPanY = 0;
+        let isMmDragging = false;
+        let mmStartX = 0;
+        let mmStartY = 0;
+
+        window.onload = function() {
+            populateChapters();
+            renderSlide();
+            setupDragAndZoom();
+            
+            // Add keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    nextSlide();
+                } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+                    prevSlide();
+                } else if (e.key.toLowerCase() === 'm') {
+                    const dropdown = document.getElementById('chapterDropdown');
+                    dropdown.focus();
+                } else if (e.key.toLowerCase() === 'f') {
+                    toggleFullScreen();
+                }
+            });
+        };
+
+        function populateChapters() {
+            const dropdown = document.getElementById('chapterDropdown');
+            dropdown.innerHTML = '<option value="all">所有章節目錄</option>';
+            chapters.forEach(ch => {
+                dropdown.innerHTML += `<option value="${ch.num}">第 ${ch.num} 章：${ch.name}</option>`;
+            });
+        }
+
+        function getActiveSlides() {
+            return currentMode === 'overview' ? overviewSlides : detailedSlides;
+        }
+
+        function renderSlide() {
+            const slides = getActiveSlides();
+            const slide = slides[currentSlideIdx];
+            
+            // Update page info
+            document.getElementById('slidePageInfo').innerText = `投影片 ${currentSlideIdx + 1} / ${slides.length}`;
+            document.getElementById('footerProgress').innerText = `${currentSlideIdx + 1} / ${slides.length}`;
+            
+            // Highlight active chapter in dropdown
+            const dropdown = document.getElementById('chapterDropdown');
+            dropdown.value = slide.chapter;
+            
+            // Check if mindmap slide (Overview slide #2)
+            if (currentMode === 'overview' && slide.num === 2) {
+                document.getElementById('slideNormalBody').style.display = 'none';
+                document.getElementById('slideMindmapBody').style.display = 'block';
+                document.getElementById('slideTitle').innerText = slide.title;
+                document.getElementById('slideSubtitle').innerText = slide.subtitle;
+                document.getElementById('slideMeta').innerText = "全書架構關係心智圖";
+                
+                renderMindmap();
+                return;
+            }
+            
+            // Else render normal slide
+            document.getElementById('slideNormalBody').style.display = 'flex';
+            document.getElementById('slideMindmapBody').style.display = 'none';
+            
+            document.getElementById('slideTitle').innerText = slide.title;
+            document.getElementById('slideSubtitle').innerText = slide.subtitle || `第 ${slide.chapter} 章節細節說明`;
+            
+            // Set slide meta (chapter & PDF page reference)
+            const chName = chapters.find(c => c.num === slide.chapter)?.name || "";
+            const pageRef = slide.page_ref || `PDF 第 ${chapters.find(c => c.num === slide.chapter)?.pages} 頁`;
+            document.getElementById('slideMeta').innerText = `${slide.chapter} Overview of ${chName} (${pageRef})`;
+            
+            // Set Takeaway
+            document.getElementById('slideTakeaway').innerText = slide.takeaway;
+            
+            // Set Points
+            const pointsContainer = document.getElementById('slidePoints');
+            pointsContainer.innerHTML = '';
+            if (slide.details && slide.details.length > 0) {
+                slide.details.forEach((pt, i) => {
+                    pointsContainer.innerHTML += `
+                        <div class="point-item">
+                            <div class="point-badge">${i + 1}</div>
+                            <div class="point-content">${pt}</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            // Set Code block
+            const codeBox = document.getElementById('slideCodeContainer');
+            if (slide.code) {
+                codeBox.innerText = slide.code;
+                codeBox.style.display = 'block';
+            } else {
+                codeBox.style.display = 'none';
+            }
+            
+            // Set Metaphor
+            document.getElementById('slideMetaphor').innerText = slide.metaphor || "無概念類比，採用標準工程實務指引。";
+            
+            // Render Flowchart
+            renderFlowchart(slide.chapter);
+        }
+
+        function switchMode(mode) {
+            if (currentMode === mode) return;
+            currentMode = mode;
+            
+            document.getElementById('overviewModeBtn').classList.toggle('active', mode === 'overview');
+            document.getElementById('detailedModeBtn').classList.toggle('active', mode === 'detailed');
+            
+            // Reset index
+            currentSlideIdx = 0;
+            renderSlide();
+        }
+
+        function jumpToChapter(chNum) {
+            if (chNum === 'all') return;
+            const targetCh = parseInt(chNum);
+            const slides = getActiveSlides();
+            
+            // Find first slide in this chapter
+            const targetIdx = slides.findIndex(s => s.chapter === targetCh);
+            if (targetIdx !== -1) {
+                currentSlideIdx = targetIdx;
+                renderSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIdx > 0) {
+                currentSlideIdx--;
+                renderSlide();
+            }
+        }
+
+        function nextSlide() {
+            const slides = getActiveSlides();
+            if (currentSlideIdx < slides.length - 1) {
+                currentSlideIdx++;
+                renderSlide();
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`無法開啟全螢幕模式: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Flowchart Render (Dynamic SVG generator)
+        const chapterFlowchartNodes = {
+            1: ["傳統開發環境", "AI千行代碼", "PR/Bug過載", "人機混合隊友"],
+            2: ["模糊業務需求", "BDD 規格化", "YAML 架構描述", "SkCC 編譯優化"],
+            3: ["指令階層分解", "IDE Chat 視窗", "specs/ 靜態源", "SKILL 重用腳本"],
+            4: ["專案生成 (Architect)", "功能增量 (Builder)", "故障修復 (Forensic)", "沙箱瀏覽器"],
+            5: ["整合痛點", "MCP SQLite 伺服器", "Stdio 連接管道", "MCP 用戶端呼叫"],
+            6: ["Merge 衝突過載", "Russian-doll PR", "PR AI Summary", "Conditional LGTM"],
+            7: ["PR 靜態審查", "Tier 1: 託管審查", "Tier 2: 混合CI審查", "Tier 3: 圖譜代碼檢索"],
+            8: ["審查疲勞 (45%)", "低反差同意", "Digital Quiet Hours", "Insight 經驗分享"],
+            9: ["YOLO mode 執行", "代碼沙箱隔離", "Docker 沙箱 (`GEMINI_SANDBOX`)", "安全邊界保護"],
+            10: ["行為漂移漏洞", "重現單元測試", "LLM-as-Judge 評估", "軌跡與容差判定"],
+            11: ["工具請求攔截", "策略服務 policies.yaml", "結構閘驗證", "語意閘安全過濾"],
+            12: ["CLI 初始化", "scaffold 生成", "eval run 測試柵欄", "deploy 沙箱部署"]
+        };
+
+        function renderFlowchart(chapterNum) {
+            const nodes = chapterFlowchartNodes[chapterNum] || ["步驟 1", "步驟 2", "步驟 3"];
+            const canvas = document.getElementById('flowchartCanvas');
+            canvas.innerHTML = '';
+            
+            fcZoom = 1.0;
+            fcPanX = 0;
+            fcPanY = 0;
+            
+            // Build SVG dynamically
+            let svgContent = `<svg id="flowchartSvg" viewBox="0 0 400 300">
+                <g id="fcGroup" transform="translate(0, 0) scale(1)">`;
+            
+            // Nodes layout in a vertical/horizontal cascade
+            const nodeWidth = 140;
+            const nodeHeight = 40;
+            const startX = 130;
+            const startY = 30;
+            const gapY = 60;
+            
+            nodes.forEach((n, idx) => {
+                const y = startY + idx * gapY;
+                svgContent += `
+                    <!-- Arrow -->
+                    ${idx > 0 ? `<path d="M 200 ${y - gapY + nodeHeight} L 200 ${y}" fill="none" stroke="#4f46e5" stroke-width="2" marker-end="url(#arrow)"/>` : ''}
+                    <!-- Node Card -->
+                    <rect x="${startX}" y="${y}" width="${nodeWidth}" height="${nodeHeight}" rx="6" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="1.5"/>
+                    <text x="${startX + nodeWidth/2}" y="${y + 24}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-color)">${n}</text>
+                `;
+            });
+            
+            // Marker
+            svgContent += `
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 2 L 10 5 L 0 8 z" fill="#4f46e5" />
+                    </marker>
+                </defs>
+                </g>
+            </svg>`;
+            
+            canvas.innerHTML = svgContent;
+        }
+
+        function zoomFlowchart(factor) {
+            fcZoom *= factor;
+            updateFlowchartTransform();
+        }
+
+        function resetFlowchart() {
+            fcZoom = 1.0;
+            fcPanX = 0;
+            fcPanY = 0;
+            updateFlowchartTransform();
+        }
+
+        function updateFlowchartTransform() {
+            const group = document.getElementById('fcGroup');
+            if (group) {
+                group.setAttribute('transform', `translate(${fcPanX}, ${fcPanY}) scale(${fcZoom})`);
+            }
+        }
+
+        // Setup mouse drag & zoom on Flowchart & Mindmap
+        function setupDragAndZoom() {
+            const fcCanvas = document.getElementById('flowchartCanvas');
+            fcCanvas.addEventListener('mousedown', (e) => {
+                isFcDragging = true;
+                fcStartX = e.clientX - fcPanX;
+                fcStartY = e.clientY - fcPanY;
+            });
+            window.addEventListener('mouseup', () => {
+                isFcDragging = false;
+                isMmDragging = false;
+            });
+            fcCanvas.addEventListener('mousemove', (e) => {
+                if (isFcDragging) {
+                    fcPanX = e.clientX - fcStartX;
+                    fcPanY = e.clientY - fcStartY;
+                    updateFlowchartTransform();
+                }
+            });
+            fcCanvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const factor = e.deltaY < 0 ? 1.1 : 0.9;
+                zoomFlowchart(factor);
+            });
+
+            const mmCanvas = document.getElementById('mindmapContainer');
+            mmCanvas.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.mindmap-control-btn') || e.target.closest('.node-detail-panel')) return;
+                isMmDragging = true;
+                mmStartX = e.clientX - mmPanX;
+                mmStartY = e.clientY - mmPanY;
+            });
+            mmCanvas.addEventListener('mousemove', (e) => {
+                if (isMmDragging) {
+                    mmPanX = e.clientX - mmStartX;
+                    mmPanY = e.clientY - mmStartY;
+                    updateMindmapTransform();
+                }
+            });
+            mmCanvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const factor = e.deltaY < 0 ? 1.1 : 0.9;
+                zoomMindmap(factor);
+            });
+        }
+
+        // Mindmap Render (Interactive SVG graph)
+        const chapterSummaries = {
+            1: "前言與 Vibe Coding 的挑戰：討論 AI 帶來的程式生產速度幻覺，以及人機混合團隊（LLM做腦，工具做手）的企業級可靠性落地痛點。",
+            2: "規格驅動開發與 BDD 規範：介紹 Gherkin 語法（Given/When/Then），SkCC 框架編譯優化，以及 YAML 在深度嵌套結構的解析優勢。",
+            3: "指令管理與系統提示詞：剖析 ephemeral Chat、靜態 /specs 資料夾、動態 SKILL 行為模組，以及 Global/Shared/Project 系統提示詞階層。",
+            4: "Agent 的五大執行模式：細分 Architect、Builder、Forensic（證據提示修復）、Author（Docstring/README）、Librarian 五種角色及沙箱瀏覽器驗證機制。",
+            5: "模型上下文協定 (MCP)：深入說明 SQLite MCP 伺服器建置與 Stdio 連線，將多框架 AI 工具調用標準化，形成「AI 時代的 USB-C」。",
+            6: "團隊文化與開發流程：應對 PR 衝突與俄羅斯娃娃 PR 的整合策略，引進 AI-generated Summary、風險審查、Conditional LGTM 與無責文化。",
+            7: "自動化審查與三層級：分析 Managed、Hybrid（Antigravity CLI）、Custom 審查，並用 Spanner Graph 提供圖譜代碼依賴理解。",
+            8: "開發永續性與審查疲勞：應對 45% AI 使用者高過載疲勞的數位靜音機制 (Digital Quiet Hours) 與 Agent Insight 團隊共享心法。",
+            9: "零信任安全與沙箱機制：防範 YOLO mode 執行下 Agent Hallucination 亂點按鈕釀災，採取 Docker 沙箱與 terminal sandbox 安全邊界。",
+            10: "行為評估與 AI 自動生成測試：說明單元測試（二進位判定）與行為評估（LLM-as-Judge 評分、軌跡比對與容差門檻）的混合使用。",
+            11: "策略伺服器與去敏感化：實作 PolicyService policy_server.py 以進行結構閘/語意閘檢查，並用 context_resolver 解決變數敏感性。",
+            12: "實踐指引與全書總結：以 google-agents-cli 為基礎，示範 scaffold、eval run、deploy 指令，實現從 Vibe 走向 Production 的全套流程。"
+        };
+
+        const partColors = {
+            1: "#6366f1", // Part I
+            2: "#3b82f6", // Part II
+            3: "#10b981", // Part III
+            4: "#f59e0b"  // Part IV
+        };
+
+        function renderMindmap() {
+            const container = document.getElementById('mindmapContainer');
+            // Remove previous svg if exists
+            const prevSvg = document.getElementById('mindmapSvg');
+            if (prevSvg) prevSvg.remove();
+
+            mmZoom = 1.0;
+            mmPanX = 0;
+            mmPanY = 0;
+
+            const width = 1200;
+            const height = 750;
+            
+            // Create SVG element
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("id", "mindmapSvg");
+            svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+            svg.style.width = "100%";
+            svg.style.height = "100%";
+            
+            // Define arrowhead marker
+            const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            defs.innerHTML = `
+                <marker id="mmArrow" viewBox="0 0 10 10" refX="18" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 2 L 10 5 L 0 8 z" fill="#4f46e5" />
+                </marker>
+            `;
+            svg.appendChild(defs);
+
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            group.setAttribute("id", "mmGroup");
+            svg.appendChild(group);
+
+            // 1. Coordinates and Nodes Data
+            const center = { x: 600, y: 375, label: "Vibe Coding 生產級開發藍圖", type: "center" };
+            
+            const parts = [
+                { id: 1, x: 380, y: 220, label: "Part I: 開發正規化與規格驅動", color: "#1e293b" },
+                { id: 2, x: 820, y: 220, label: "Part II: 執行模式與工具協定", color: "#1e293b" },
+                { id: 3, x: 380, y: 530, label: "Part III: 團隊整合與流程自動化", color: "#1e293b" },
+                { id: 4, x: 820, y: 530, label: "Part IV: 零信任安全與行為防護", color: "#1e293b" }
+            ];
+            
+            const chs = [
+                // Part I
+                { id: 1, part: 1, x: 180, y: 120, label: "Ch 1: Vibe Coding 生產環境挑戰" },
+                { id: 2, part: 1, x: 180, y: 220, label: "Ch 2: 規格驅動與 BDD 規範" },
+                { id: 3, part: 1, x: 180, y: 320, label: "Ch 3: 指令管理與系統提示詞" },
+                // Part II
+                { id: 4, part: 2, x: 1020, y: 170, label: "Ch 4: Agent 的五大執行模式" },
+                { id: 5, part: 2, x: 1020, y: 270, label: "Ch 5: 模型上下文協定 (MCP)" },
+                // Part III
+                { id: 6, part: 3, x: 180, y: 430, label: "Ch 6: 團隊文化與流程演進" },
+                { id: 7, part: 3, x: 180, y: 530, label: "Ch 7: 自動化審查與三層級" },
+                { id: 8, part: 3, x: 180, y: 630, label: "Ch 8: 開發永續性與審查疲勞" },
+                // Part IV
+                { id: 9, part: 4, x: 1020, y: 430, label: "Ch 9: 零信任安全與沙箱機制" },
+                { id: 10, part: 4, x: 1020, y: 510, label: "Ch 10: 行為評估與自動生成測試" },
+                { id: 11, part: 4, x: 1020, y: 590, label: "Ch 11: 策略伺服器與去敏感化" },
+                { id: 12, part: 4, x: 1020, y: 670, label: "Ch 12: 實踐指引與全書總結" }
+            ];
+
+            // 2. Draw Links (Relations)
+            // Center to Parts (Dashed gray)
+            parts.forEach(p => {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", center.x);
+                line.setAttribute("y1", center.y);
+                line.setAttribute("x2", p.x);
+                line.setAttribute("y2", p.y);
+                line.setAttribute("class", "mindmap-link center-to-part");
+                line.style.stroke = "#cbd5e1";
+                line.style.strokeWidth = "2";
+                line.style.strokeDasharray = "4 4";
+                group.appendChild(line);
+            });
+
+            // Parts to Chapters (Dotted colors)
+            chs.forEach(c => {
+                const p = parts.find(pt => pt.id === c.part);
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", p.x);
+                line.setAttribute("y1", p.y);
+                line.setAttribute("x2", c.x);
+                line.setAttribute("y2", c.y);
+                line.setAttribute("class", `mindmap-link part-to-ch ch-${c.id}`);
+                line.style.stroke = "#cbd5e1";
+                line.style.strokeWidth = "1.5";
+                line.style.strokeDasharray = "3 3";
+                group.appendChild(line);
+            });
+
+            // Sequenced flow between chapters (Arrows representing relationship)
+            for(let i=0; i < chs.length - 1; i++) {
+                const c1 = chs[i];
+                const c2 = chs[i+1];
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                
+                // Draw curve arrow from c1 to c2
+                const dx = c2.x - c1.x;
+                const dy = c2.y - c1.y;
+                const cx = (c1.x + c2.x) / 2 + (dy * 0.1);
+                const cy = (c1.y + c2.y) / 2 - (dx * 0.1);
+                
+                path.setAttribute("d", `M ${c1.x} ${c1.y} Q ${cx} ${cy} ${c2.x} ${c2.y}`);
+                path.setAttribute("class", `mindmap-link flow-link fl-${c1.id}-${c2.id}`);
+                path.style.fill = "none";
+                path.style.stroke = "#e2e8f0";
+                path.style.strokeWidth = "1.5";
+                path.setAttribute("marker-end", "url(#mmArrow)");
+                group.appendChild(path);
+            }
+
+            // 3. Draw Center Node
+            const cNode = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            cNode.setAttribute("class", "mindmap-node center-node");
+            cNode.innerHTML = `
+                <circle cx="${center.x}" cy="${center.y}" r="55" fill="var(--primary-color)" filter="drop-shadow(0px 4px 6px rgba(0,0,0,0.15))"/>
+                <text x="${center.x}" y="${center.y - 10}" text-anchor="middle" font-size="13" font-weight="800" fill="white">Vibe Coding</text>
+                <text x="${center.x}" y="${center.y + 10}" text-anchor="middle" font-size="12" font-weight="800" fill="white">生產級開發藍圖</text>
+            `;
+            group.appendChild(cNode);
+
+            // 4. Draw Parts Nodes (Black rectangles)
+            parts.forEach(p => {
+                const pNode = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                pNode.setAttribute("class", "mindmap-node part-node");
+                const w = 210;
+                const h = 34;
+                pNode.innerHTML = `
+                    <rect x="${p.x - w/2}" y="${p.y - h/2}" width="${w}" height="${h}" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+                    <text x="${p.x}" y="${p.y + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="white">${p.label}</text>
+                `;
+                group.appendChild(pNode);
+            });
+
+            // 5. Draw Chapters Nodes (White rounded rectangles)
+            chs.forEach(c => {
+                const cNode = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                cNode.setAttribute("id", `mmNode-${c.id}`);
+                cNode.setAttribute("class", `mindmap-node chapter-node ch-node-${c.id}`);
+                
+                const w = 220;
+                const h = 36;
+                
+                cNode.innerHTML = `
+                    <rect x="${c.x - w/2}" y="${c.y - h/2}" width="${w}" height="${h}" rx="6" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="1.5" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.05))"/>
+                    <text x="${c.x}" y="${c.y + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-color)">${c.label}</text>
+                `;
+                
+                // Add click event to node
+                cNode.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    highlightNode(c.id, c.label);
+                });
+                
+                group.appendChild(cNode);
+            });
+
+            // Click container outside nodes to clear highlight
+            container.appendChild(svg);
+            svg.addEventListener('click', () => {
+                clearHighlight();
+            });
+        }
+
+        function highlightNode(id, label) {
+            // Highlight nodes and fade others
+            document.querySelectorAll('.mindmap-node').forEach(node => {
+                node.classList.add('dimmed');
+                node.classList.remove('active');
+            });
+            const activeNode = document.getElementById(`mmNode-${id}`);
+            if (activeNode) {
+                activeNode.classList.remove('dimmed');
+                activeNode.classList.add('active');
+            }
+
+            // Highlight connections related to this chapter
+            document.querySelectorAll('.mindmap-link').forEach(link => {
+                link.classList.add('dimmed');
+                link.classList.remove('active');
+            });
+
+            // Highlight part-to-ch link for this chapter
+            const partToCh = document.querySelector(`.part-to-ch.ch-${id}`);
+            if (partToCh) {
+                partToCh.classList.remove('dimmed');
+                partToCh.classList.add('active');
+            }
+
+            // Highlight flow links connected to this chapter
+            const flowPrev = document.querySelector(`.flow-link.fl-${id-1}-${id}`);
+            if (flowPrev) {
+                flowPrev.classList.remove('dimmed');
+                flowPrev.classList.add('active');
+            }
+            const flowNext = document.querySelector(`.flow-link.fl-${id}-${id+1}`);
+            if (flowNext) {
+                flowNext.classList.remove('dimmed');
+                flowNext.classList.add('active');
+            }
+
+            // Show details card in bottom right
+            const detailPanel = document.getElementById('nodeDetailPanel');
+            const detailTitle = document.getElementById('nodeDetailTitle');
+            const detailDesc = document.getElementById('nodeDetailDesc');
+            
+            detailTitle.innerText = label;
+            detailDesc.innerText = chapterSummaries[id] || "點擊高亮查看詳細章節架構與分析。";
+            detailPanel.style.display = 'block';
+        }
+
+        function clearHighlight() {
+            document.querySelectorAll('.mindmap-node').forEach(node => {
+                node.classList.remove('dimmed');
+                node.classList.remove('active');
+            });
+            document.querySelectorAll('.mindmap-link').forEach(link => {
+                link.classList.remove('dimmed');
+                link.classList.remove('active');
+            });
+            document.getElementById('nodeDetailPanel').style.display = 'none';
+        }
+
+        function zoomMindmap(factor) {
+            mmZoom *= factor;
+            updateMindmapTransform();
+        }
+
+        function resetMindmap() {
+            mmZoom = 1.0;
+            mmPanX = 0;
+            mmPanY = 0;
+            updateMindmapTransform();
+            clearHighlight();
+        }
+
+        function updateMindmapTransform() {
+            const group = document.getElementById('mmGroup');
+            if (group) {
+                group.setAttribute('transform', `translate(${mmPanX}, ${mmPanY}) scale(${mmZoom})`);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Skills 導讀與落地方案簡報</title>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --primary: #4f46e5;
+            --primary-light: #e0e7ff;
+            --text-dark: #0f172a;
+            --text-muted: #475569;
+            --success-bg: #f0fdf4;
+            --success-border: #bbf7d0;
+            --success-text: #166534;
+            --border-color: #e2e8f0;
+        }
+
+        body.dark-mode {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #818cf8;
+            --primary-light: #312e81;
+            --text-dark: #f8fafc;
+            --text-muted: #94a3b8;
+            --success-bg: #14532d;
+            --success-border: #166534;
+            --success-text: #bbf7d0;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, #4f46e5, #818cf8);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-dark);
+        }
+
+        .nav-modes {
+            display: flex;
+            background-color: var(--bg-color);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-btn {
+            border: none;
+            background: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .nav-btn.active {
+            background-color: var(--card-bg);
+            color: var(--primary);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chapter-select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-dark);
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+            width: 200px;
+        }
+
+        .ctrl-icon-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-dark);
+            background-color: var(--card-bg);
+            transition: all 0.2s;
+        }
+
+        .ctrl-icon-btn:hover {
+            background-color: var(--bg-color);
+        }
+
+        /* Main Slide Area */
+        main {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 1200px;
+            height: 100%;
+            max-height: 680px;
+            display: flex;
+            flex-direction: column;
+            padding: 32px;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .tag-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chapter-tag {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .slide-counter {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .slide-title-area {
+            margin-bottom: 24px;
+        }
+
+        .slide-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+
+        .slide-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Two Column Layout */
+        .slide-content-layout {
+            display: flex;
+            gap: 32px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .left-col {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .right-col {
+            flex: 0.8;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .points-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .point-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background-color: var(--bg-color);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .point-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .point-num {
+            background-color: var(--primary);
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .point-text {
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--text-dark);
+        }
+
+        .detail-desc-card {
+            border-left: 3px solid var(--primary);
+            padding-left: 12px;
+            margin-top: 8px;
+        }
+
+        .detail-desc-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .detail-desc-text {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Metaphor Card */
+        .metaphor-card {
+            background-color: var(--success-bg);
+            border: 1px solid var(--success-border);
+            border-radius: 10px;
+            padding: 16px;
+            color: var(--success-text);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .metaphor-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .metaphor-icon {
+            font-size: 16px;
+        }
+
+        .metaphor-body {
+            font-size: 12.5px;
+            line-height: 1.5;
+        }
+
+        /* Flowchart / Interactive Area */
+        .flowchart-container {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 160px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flowchart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .flowchart-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .flowchart-zoom-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 10px;
+            padding: 2px 6px;
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+
+        .flowchart-zoom-btn:hover {
+            background: var(--bg-color);
+        }
+
+        .flowchart-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-origin: center;
+            transition: transform 0.2s;
+        }
+
+        /* Footer Controls */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 16px;
+        }
+
+        .footer-shortcuts {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .footer-shortcut-key {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            padding: 1px 4px;
+            font-family: monospace;
+        }
+
+        .footer-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-page-btn {
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-dark);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .nav-page-btn:hover {
+            background-color: var(--bg-color);
+        }
+
+        /* Interactive Mindmap Page */
+        .mindmap-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .mindmap-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .mindmap-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .mindmap-subtitle {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .mindmap-viewport-container {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: #fafbfc;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .mindmap-viewport-container:active {
+            cursor: grabbing;
+        }
+
+        .mindmap-controls {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 5;
+        }
+
+        .mindmap-zoom-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .mindmap-zoom-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .mindmap-info-card {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            width: 280px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 14px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            font-size: 11px;
+            line-height: 1.5;
+            pointer-events: none;
+            opacity: 0.95;
+            transition: all 0.3s;
+            z-index: 5;
+        }
+
+        .mindmap-info-title {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 6px;
+            color: #818cf8;
+        }
+
+        /* SVG styles for Mindmap */
+        .mindmap-node-rect:hover {
+            stroke: #4f46e5 !important;
+            fill: #eff6ff !important;
+        }
+        
+        .mindmap-node-group.active .mindmap-node-rect {
+            stroke: #4f46e5 !important;
+            stroke-width: 3px !important;
+            fill: #e0e7ff !important;
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(15, 23, 42, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">Q</div>
+            <div class="logo-text">Agent Skills 實戰大師指南</div>
+        </div>
+
+        <div class="nav-modes">
+            <button class="nav-btn active" id="btn-overview" onclick="switchPresentationMode('Overview')">簡報大綱 (Overview)</button>
+            <button class="nav-btn" id="btn-detailed" onclick="switchPresentationMode('Detailed')">詳細說明 (Step-by-Step)</button>
+        </div>
+
+        <div class="header-controls">
+            <select class="chapter-select" id="chapter-select" onchange="jumpToChapter(this.value)">
+                <option value="all">所有章節目錄</option>
+                <option value="1">第 1 章：Agent Skills 導...</option><option value="2">第 2 章：什麼是 Agent Skil...</option><option value="3">第 3 章：安裝部署與 MCP/AGEN...</option><option value="4">第 4 章：為什麼 Agent Skil...</option><option value="5">第 5 章：Agent Skills 評...</option><option value="6">第 6 章：從原型到生產：運行時與 To...</option><option value="7">第 7 章：Meta-Skills 與自...</option><option value="8">第 8 章：Skills 組合、封裝與 ...</option><option value="9">第 9 章：抉擇、市場與零售業案例研究...</option>
+            </select>
+            <button class="ctrl-icon-btn" onclick="toggleDarkMode()" title="切換暗黑模式">🌙</button>
+            <button class="ctrl-icon-btn" onclick="toggleFullScreen()" title="全螢幕">📺</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="slide-container" id="slide-container">
+            <!-- Dynamic Slide Content will be rendered here by JS -->
+        </div>
+    </main>
+
+    <div class="toast" id="toast">已複製當前頁面連結</div>
+
+    <script>
+        // 載入所有的投影片數據
+        const allSlides = [{"num": 1, "type": "Overview", "chapter": 0, "pdf_pages": "Overview", "title": "Agent Skills：開啟程序性記憶新時代", "takeaway": "本簡報提供大腦程序記憶體原始 primitive：Agent Skills 的全景視野與技術落地方案。", "details": ["從 System Prompt 爆炸的 Context 腐爛痛點出發，引出 Agent Skills 的誕生背景", "解剖 Skill 的漸進式揭露結構（Metadata -> Body -> Resources）", "剖析其核心價值：可攜性、輕量化、並免除過度的 Multi-agent 複雜度"], "analogy": "新居落成的門牌與建案名冊，標示出未來 AI 發展的座標系統。", "visual": "左側高亮 Agent Skills 標題，右側展示白皮書的核心架構圖。", "is_mindmap": false}, {"num": 2, "type": "Overview", "chapter": 0, "pdf_pages": "Overview", "title": "核心互聯網狀心智圖 (Mindmap)", "takeaway": "點擊或懸停節點，即可查看各章節的核心內容與互聯關係。", "details": ["中心點為 Agent Skills 全景架構", "分支連接 9 大核心章節，展示從理論、評估、生產到案例的脈絡", "支持拖曳、滾輪縮放，右下角動態顯示章節摘要卡片"], "analogy": "一張城市的地鐵線路網，讓您一眼看清所有站點與換乘點的互聯關係。", "visual": "全互動式 SVG 心智圖容器，具備 Zoom/Pan 工具欄與右下角資訊浮板。", "is_mindmap": true, "lines_svg": "<line class=\"mindmap-edge\" id=\"edge-ch_1\" x1=\"400\" y1=\"300\" x2=\"400.0\" y2=\"80.0\" stroke=\"#cbd5e1\" stroke-width=\"2\" stroke-dasharray=\"5,5\" transition=\"all 0.3s\"></line>\n<line class=\"mindmap-edge\" id=\"edge-ch_2\" x1=\"400\" y1=\"300\" x2=\"567.1247785185002\" y2=\"131.47022251382484\" stroke=\"#cbd5e1\" stroke-width=\"2\" stroke-dasharray=\"5,5\" transition=\"all 0.3s\"></line>\n<line class=\"mindmap-edge\" id=\"edge-ch_3\" x1=\"400\" y1=\"300\" x2=\"656.0500157831741\" y2=\"261.79740091327534\" stroke=\"#cbd5e1\" stroke-width=\"2\" stroke-dasharray=\"5,5\" transition=\"all 0.3s\"></line>\n<line class=\"mindmap-edge\" id=\"edge-ch_4\" x1=\"400\" y1=\"300\" x2=\"625.1666049839541\" y2=\"409.99999999999994\" stroke=\"#cbd5e1\" stroke-width=\"2\" stroke-dasharray=\"5,5\" transition=\"all 0.3s\"></line>\n<line class=\"mindmap-edge\" id=\"edge-ch_5\" x1=\"400\" y1=\"300\" x2=\"488.9252372646739\" y2=\"506.73237657289985\" stroke=\"#cbd5e1\" stroke-width=\"2\" stroke-dasharray=\"5,5\" transition=\"all 0.3s\"></line>\n<line class=\"mindmap-edge\" id=\"edge-ch_6\" x1=\"400\" y1=\"300\" x2=\"311.07476273532615\" y2=\"506.73237657289985\" stroke=\"#cbd5e1\" stroke-width=\"2\" stroke-dasharray=\"5,5\" transition=\"all 0.3s\"></line>\n<line class=\"mindmap-edge\" id=\"edge-ch_7\" x1=\"400\" y1=\"300\" x2=\"174.83339501604598\" y2=\"410.00000000000006\" stroke=\"#cbd5e1\" stroke-width=\"2\" stroke-dasharray=\"5,5\" transition=\"all 0.3s\"></line>\n<line class=\"mindmap-edge\" id=\"edge-ch_8\" x1=\"400\" y1=\"300\" x2=\"143.9499842168259\" y2=\"261.7974009132754\" stroke=\"#cbd5e1\" stroke-width=\"2\" stroke-dasharray=\"5,5\" transition=\"all 0.3s\"></line>\n<line class=\"mindmap-edge\" id=\"edge-ch_9\" x1=\"400\" y1=\"300\" x2=\"232.87522148149975\" y2=\"131.47022251382487\" stroke=\"#cbd5e1\" stroke-width=\"2\" stroke-dasharray=\"5,5\" transition=\"all 0.3s\"></line>\n", "nodes_svg": "<circle id=\"center-node\" cx=\"400\" cy=\"300\" r=\"60\" fill=\"url(#center-grad)\" stroke=\"#4f46e5\" stroke-width=\"3\" filter=\"url(#shadow)\"></circle>\n<text cx=\"400\" cy=\"300\" x=\"400\" y=\"295\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"#ffffff\" font-weight=\"bold\" font-size=\"14\">Agent Skills</text>\n<text cx=\"400\" cy=\"300\" x=\"400\" y=\"315\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"#e0e7ff\" font-size=\"12\">全景架構指引</text>\n\n    <g class=\"mindmap-node-group\" id=\"node-ch_1\" transform=\"translate(0, 0)\" data-id=\"ch_1\" data-slide=\"11\">\n        <rect x=\"290.0\" y=\"55.0\" width=\"220\" height=\"50\" rx=\"8\" fill=\"#ffffff\" stroke=\"#cbd5e1\" stroke-width=\"2\" filter=\"url(#shadow)\" class=\"mindmap-node-rect\" style=\"cursor:pointer; transition: all 0.3s;\"></rect>\n        <text x=\"400.0\" y=\"80.0\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"#1e293b\" font-weight=\"bold\" font-size=\"11\" class=\"mindmap-node-text\">Ch 1: Agent Skills...</text>\n    </g>\n    \n    <g class=\"mindmap-node-group\" id=\"node-ch_2\" transform=\"translate(0, 0)\" data-id=\"ch_2\" data-slide=\"32\">\n        <rect x=\"457.1247785185002\" y=\"106.47022251382484\" width=\"220\" height=\"50\" rx=\"8\" fill=\"#ffffff\" stroke=\"#cbd5e1\" stroke-width=\"2\" filter=\"url(#shadow)\" class=\"mindmap-node-rect\" style=\"cursor:pointer; transition: all 0.3s;\"></rect>\n        <text x=\"567.1247785185002\" y=\"131.47022251382484\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"#1e293b\" font-weight=\"bold\" font-size=\"11\" class=\"mindmap-node-text\">Ch 2: 什麼是 Agent Sk...</text>\n    </g>\n    \n    <g class=\"mindmap-node-group\" id=\"node-ch_3\" transform=\"translate(0, 0)\" data-id=\"ch_3\" data-slide=\"53\">\n        <rect x=\"546.0500157831741\" y=\"236.79740091327534\" width=\"220\" height=\"50\" rx=\"8\" fill=\"#ffffff\" stroke=\"#cbd5e1\" stroke-width=\"2\" filter=\"url(#shadow)\" class=\"mindmap-node-rect\" style=\"cursor:pointer; transition: all 0.3s;\"></rect>\n        <text x=\"656.0500157831741\" y=\"261.79740091327534\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"#1e293b\" font-weight=\"bold\" font-size=\"11\" class=\"mindmap-node-text\">Ch 3: 安裝部署與 MCP/AG...</text>\n    </g>\n    \n    <g class=\"mindmap-node-group\" id=\"node-ch_4\" transform=\"translate(0, 0)\" data-id=\"ch_4\" data-slide=\"74\">\n        <rect x=\"515.1666049839541\" y=\"384.99999999999994\" width=\"220\" height=\"50\" rx=\"8\" fill=\"#ffffff\" stroke=\"#cbd5e1\" stroke-width=\"2\" filter=\"url(#shadow)\" class=\"mindmap-node-rect\" style=\"cursor:pointer; transition: all 0.3s;\"></rect>\n        <text x=\"625.1666049839541\" y=\"409.99999999999994\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"#1e293b\" font-weight=\"bold\" font-size=\"11\" class=\"mindmap-node-text\">Ch 4: 為什麼 Agent Sk...</text>\n    </g>\n    \n    <g class=\"mindmap-node-group\" id=\"node-ch_5\" transform=\"translate(0, 0)\" data-id=\"ch_5\" data-slide=\"95\">\n        <rect x=\"378.9252372646739\" y=\"481.73237657289985\" width=\"220\" height=\"50\" rx=\"8\" fill=\"#ffffff\" stroke=\"#cbd5e1\" stroke-width=\"2\" filter=\"url(#shadow)\" class=\"mindmap-node-rect\" style=\"cursor:pointer; transition: all 0.3s;\"></rect>\n        <text x=\"488.9252372646739\" y=\"506.73237657289985\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"#1e293b\" font-weight=\"bold\" font-size=\"11\" class=\"mindmap-node-text\">Ch 5: Agent Skills...</text>\n    </g>\n    \n    <g class=\"mindmap-node-group\" id=\"node-ch_6\" transform=\"translate(0, 0)\" data-id=\"ch_6\" data-slide=\"116\">\n        <rect x=\"201.07476273532615\" y=\"481.73237657289985\" width=\"220\" height=\"50\" rx=\"8\" fill=\"#ffffff\" stroke=\"#cbd5e1\" stroke-width=\"2\" filter=\"url(#shadow)\" class=\"mindmap-node-rect\" style=\"cursor:pointer; transition: all 0.3s;\"></rect>\n        <text x=\"311.07476273532615\" y=\"506.73237657289985\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"#1e293b\" font-weight=\"bold\" font-size=\"11\" class=\"mindmap-node-text\">Ch 6: 從原型到生產：運行時與 ...</text>\n    </g>\n    \n    <g class=\"mindmap-node-group\" id=\"node-ch_7\" transform=\"translate(0, 0)\" data-id=\"ch_7\" data-slide=\"137\">\n        <rect x=\"64.83339501604598\" y=\"385.00000000000006\" width=\"220\" height=\"50\" rx=\"8\" fill=\"#ffffff\" stroke=\"#cbd5e1\" stroke-width=\"2\" filter=\"url(#shadow)\" class=\"mindmap-node-rect\" style=\"cursor:pointer; transition: all 0.3s;\"></rect>\n        <text x=\"174.83339501604598\" y=\"410.00000000000006\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"#1e293b\" font-weight=\"bold\" font-size=\"11\" class=\"mindmap-node-text\">Ch 7: Meta-Skills ...</text>\n    </g>\n    \n    <g class=\"mindmap-node-group\" id=\"node-ch_8\" transform=\"translate(0, 0)\" data-id=\"ch_8\" data-slide=\"158\">\n        <rect x=\"33.9499842168259\" y=\"236.7974009132754\" width=\"220\" height=\"50\" rx=\"8\" fill=\"#ffffff\" stroke=\"#cbd5e1\" stroke-width=\"2\" filter=\"url(#shadow)\" class=\"mindmap-node-rect\" style=\"cursor:pointer; transition: all 0.3s;\"></rect>\n        <text x=\"143.9499842168259\" y=\"261.7974009132754\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"#1e293b\" font-weight=\"bold\" font-size=\"11\" class=\"mindmap-node-text\">Ch 8: Skills 組合、封裝...</text>\n    </g>\n    \n    <g class=\"mindmap-node-group\" id=\"node-ch_9\" transform=\"translate(0, 0)\" data-id=\"ch_9\" data-slide=\"179\">\n        <rect x=\"122.87522148149975\" y=\"106.47022251382487\" width=\"220\" height=\"50\" rx=\"8\" fill=\"#ffffff\" stroke=\"#cbd5e1\" stroke-width=\"2\" filter=\"url(#shadow)\" class=\"mindmap-node-rect\" style=\"cursor:pointer; transition: all 0.3s;\"></rect>\n        <text x=\"232.87522148149975\" y=\"131.47022251382487\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"#1e293b\" font-weight=\"bold\" font-size=\"11\" class=\"mindmap-node-text\">Ch 9: 抉擇、市場與零售業案例研...</text>\n    </g>\n    "}, {"num": 3, "type": "Overview", "chapter": 0, "pdf_pages": "Overview", "title": "第一章至第三章：定義與安裝模式", "takeaway": "理解 Agent Skills 的本質是一套以 SKILL.md 為核心的漸進式結構。", "details": ["介紹 Metadata、Body、Resources 的 progressive disclosure 技術", "說明本地 File Drop、Web UI 及 SDK 程式碼加載等三種安裝途徑", "釐清 Skill 與 MCP（Reach）及 AGENTS.md（全局靜態）的協作關係"], "analogy": "將工具分類放入抽屜，需要時才打開對應抽屜，省去翻箱倒櫃的力氣。", "visual": "左側展示資料夾樹狀圖，右側以 3 欄式小卡片對比三大安裝方式。", "is_mindmap": false}, {"num": 4, "type": "Overview", "chapter": 0, "pdf_pages": "Overview", "title": "第四章：多代理架構的替代選擇", "takeaway": "能用 Skill 解決的，就不要新增 Agent，以降低部署與維護代價。", "details": ["傳統 Multi-agent 系統在面對百種業務流程時面臨 CI/CD 維護災難", "單一通用 Agent + 100 款 Skills 庫能縮減 90% 以上的部署運作負擔", "明確界定依然需要 Multi-agent 的四大安全與對抗場景"], "analogy": "一個主管與多本作業手冊（Single Agent + Skills） vs 僱用上百個只會一件事的員工（Multi-Agent）。", "visual": "單代理 + Skills vs多代理架構的對比矩陣與適用場景折線圖。", "is_mindmap": false}, {"num": 5, "type": "Overview", "chapter": 0, "pdf_pages": "Overview", "title": "第五章：嚴格的評估與測試體系", "takeaway": "一個沒有經過測試的 Skill 只是個空想的承諾，不是真正的能力。", "details": ["介紹 SkillsBench 指出的 19% 效能退化現象", "詳述四大失效模式：觸發、執行、Token 溢出與 Regression", "解析 Evaluation-Driven Development (EDD) 與 Read-Draft-Act 的權限 graduation 梯"], "analogy": "新車出廠前必須通過的嚴格撞擊測試與道路實測，確保上路後不會失控。", "visual": "左側展示評估五大工具箱（Table 1），右側展示 Read/Draft/Act 升級階梯。", "is_mindmap": false}, {"num": 6, "type": "Overview", "chapter": 0, "pdf_pages": "Overview", "title": "第六章：生產環境的 Token 經濟學", "takeaway": "Active Context 是一個必須精打細算的預算，而不是隨便塞的容器。", "details": ["逆向工程 Claude Code 顯示 98.4% 為基礎防護，1.6% 為推理循環", "科學解讀 Lost in the Middle 與 Chroma 2025 的 Context Rot 效能衰退", "透過數學計算證明：Skills 動態加載能替 50 種業務減少 98% 的 Token 負擔"], "analogy": "大英博物館擁有百萬藏品（容量），但展覽廳每次只展出 50 件（Active Context），以防觀眾視覺疲勞。", "visual": "Bar chart 對比圖：系統提示詞常駐 (15k tokens) vs Skills 庫動態 (6k tokens)。", "is_mindmap": false}, {"num": 7, "type": "Overview", "chapter": 0, "pdf_pages": "Overview", "title": "第七章：Meta-Skills 自我改進循環", "takeaway": "讓 Agent 參與 Skills 的生成與最佳化，但必須鎖死在 Draft 級別。", "details": ["介紹四大元技能：自動生成、軌跡收割、自動最佳化、庫自我演進", "探討自我改進的致命點：指標刷爆與過度擬合（擬合測試集卻在真實環境崩盤）", "強調 Human-in-the-Loop 審查 Git Diff 的不可或缺性"], "analogy": "全自動工廠仍需最後的品檢工程師簽名，機器人才能正式把產品送上貨架。", "visual": "自動提煉與優化閉環的 SVG 流程圖，重點標註 Human 審核閥門。", "is_mindmap": false}, {"num": 8, "type": "Overview", "chapter": 0, "pdf_pages": "Overview", "title": "第八章：DAG 編排與 Capability Profiles", "takeaway": "透過軟體約束替代文字祈禱，將主觀的智慧『左移』到確定性代碼。", "details": ["說明傳統 Prompt Chaining 的幻覺傳遞崩潰痛點", "詳述 DAG Orchestration 的狀態解耦與檔案 Message Bus 機制", "利用 Capability Profiles 實現 personas 間的記憶Purge與冷熱切換"], "analogy": "不要在馬路口貼『請減速』的標示，直接建造一個單行道實體護欄，讓車子無法逆向。", "visual": "左側展示 DAG 流程圖，右側展示 Profile 切換時的內存 Purge 流程。", "is_mindmap": false}, {"num": 9, "type": "Overview", "chapter": 0, "pdf_pages": "Overview", "title": "第九章：零售業案例研究與 Heuristics 選擇法", "takeaway": "企業的核心防禦壁壘是 Skills 圖書館中所封裝的領域實踐知識。", "details": ["面對 40,000+ Skills 市場，提出 Pin 版本與 audit 安全 heuristics", "分析零售業三層 Skills 架構：Customer Surface -> Runtime -> Skills Library", "詳述 project-guidance 等五大 Skill 的實際路由與 Read-Draft-Act 授權治理"], "analogy": "對手可以買到跟我們一模一樣的跑車（模型），但拿拿到我們最頂尖賽車手的駕駛秘笈（Skills 庫）。", "visual": "零售 Skills 路由示意圖，展示 Query 如何穿梭於五大 Skill 卡片之間。", "is_mindmap": false}, {"num": 10, "type": "Overview", "chapter": 0, "pdf_pages": "Overview", "title": "總結：從手動文件到自動記憶的躍遷", "takeaway": "動手寫下第一個 Skill，這將是企業在 AI 時代沉澱知識的最 durable 資產。", "details": ["Agent Skills 已經是一個成熟的開放標準，獲得主流工具的廣泛支持", "將 latent 知識從維基、Slack 提煉為 Skill，即刻解決 Context 腐爛", "遵循 start small, test often 原則，逐步建立企業專屬的 Skills 圖書館"], "analogy": "就像在電腦發明初期，開始將手寫帳本數位化為資料庫，越早轉型的企業壁壘越高。", "visual": "一幅概念大圖，展示 Latent 知識庫如何通過 Skills 匯聚成 Agent 的大腦記憶。", "is_mindmap": false}, {"num": 11, "type": "Detailed-A", "chapter": 1, "pdf_pages": "1-3", "topic_id": 1, "title": "簡報背景與發布脈絡 - 核心概念", "takeaway": "Agent Skills 是 Google、Anthropic 等巨頭推動的代理程序性記憶開放標準。", "details": ["本頁探討 PDF 第 1-3 頁所提及的：介紹 2026 年 5 月發布的 Agent Skills 白皮書背景與編寫團隊。", "主要針對的背景：由 Tanvi Singhal、Gabriela Hernandez Larios 等專家撰寫", "其要達成的目標在於解決以下衝突：2026 年 5 月正式發布，定位為 AI 代理程式的革命性標準"], "analogy": "在概念層面上，這就像新居落成的門牌與建案名冊，標示出未來 AI 發展的座標系統。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 12, "type": "Detailed-B", "chapter": 1, "pdf_pages": "1-3", "topic_id": 1, "title": "簡報背景與發布脈絡 - 生活類比", "takeaway": "透過『新居落成的門牌與建案名冊』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：2026 年 5 月正式發布，定位為 AI 代理程式的革命性標準", "進一步分析：解決了當前 AI 應用開發中指令爆炸與模型退化的關鍵衝突", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 新居落成的門牌與建案名冊，標示出未來 AI 發展的座標系統。", "visual": "左側繪製『新居落成的門牌與建案名冊』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 13, "type": "Detailed-C", "chapter": 1, "pdf_pages": "1-3", "topic_id": 1, "title": "簡報背景與發布脈絡 - 實務落地", "takeaway": "實務落地關鍵：解決了當前 AI 應用開發中指令爆炸與模型退化的關鍵衝突", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 左側放置簡報標題大字重擊的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：左側放置簡報標題大字重擊，右側放置編寫團隊與 2026 時間軸。"}, {"num": 14, "type": "Detailed-A", "chapter": 1, "pdf_pages": "7", "topic_id": 2, "title": "指令爆炸與 Context 腐爛 - 核心概念", "takeaway": "系統提示詞過長會造成注意力消散，即所謂的 Context Rot（上下文腐爛）。", "details": ["本頁探討 PDF 第 7 頁所提及的：分析將所有指令塞進單一系統提示詞（System Prompt）所帶來的效能惡化問題。", "主要針對的背景：LLM 在面對過長指令時會開始忽略中間部分的關鍵規則", "其要達成的目標在於解決以下衝突：系統提示詞每增加 1,000 字，非關聯任務的錯誤率呈指數上升"], "analogy": "在概念層面上，這就像將所有的工具都硬塞進同一把瑞士刀，導致刀柄過重且難以靈活開展。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 15, "type": "Detailed-B", "chapter": 1, "pdf_pages": "7", "topic_id": 2, "title": "指令爆炸與 Context 腐爛 - 生活類比", "takeaway": "透過『將所有的工具都硬塞進同一把瑞士刀』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：系統提示詞每增加 1,000 字，非關聯任務的錯誤率呈指數上升", "進一步分析：傳統 prompt engineering 遭遇難以克服的擴展瓶頸", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 將所有的工具都硬塞進同一把瑞士刀，導致刀柄過重且難以靈活開展。", "visual": "左側繪製『將所有的工具都硬塞進同一把瑞士刀』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 16, "type": "Detailed-C", "chapter": 1, "pdf_pages": "7", "topic_id": 2, "title": "指令爆炸與 Context 腐爛 - 實務落地", "takeaway": "實務落地關鍵：傳統 prompt engineering 遭遇難以克服的擴展瓶頸", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 左側為 Context 堆疊與錯誤率上升的折線圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：左側為 Context 堆疊與錯誤率上升的折線圖，右側為瑞士刀塞爆的類比插圖。"}, {"num": 17, "type": "Detailed-A", "chapter": 1, "pdf_pages": "8", "topic_id": 3, "title": "Procedural Memory 缺失之痛 - 核心概念", "takeaway": "Agent 需要『如何做（Procedural）』的步驟記憶，而非僅僅是『是什麼（Semantic）』的知識。", "details": ["本頁探討 PDF 第 8 頁所提及的：探討 LLM 現有的記憶分類，以及缺乏程序性記憶（Procedural Memory）對代理的影響。", "主要針對的背景：LLM 具備良好的情節記憶（記憶對話）與語意記憶（理解事實）", "其要達成的目標在於解決以下衝突：過去缺乏一種結構化的原始程序記憶機制來指導步驟執行"], "analogy": "在概念層面上，這就像一個人背下了整本食譜的食材（Semantic），卻不知道先熱鍋還是先倒油的步驟（Procedural）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 18, "type": "Detailed-B", "chapter": 1, "pdf_pages": "8", "topic_id": 3, "title": "Procedural Memory 缺失之痛 - 生活類比", "takeaway": "透過『一個人背下了整本食譜的食材（Semantic）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：過去缺乏一種結構化的原始程序記憶機制來指導步驟執行", "進一步分析：Agent Skills 填補了 procedural memory 的空白", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一個人背下了整本食譜的食材（Semantic），卻不知道先熱鍋還是先倒油的步驟（Procedural）。", "visual": "左側繪製『一個人背下了整本食譜的食材（Semantic）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 19, "type": "Detailed-C", "chapter": 1, "pdf_pages": "8", "topic_id": 3, "title": "Procedural Memory 缺失之痛 - 實務落地", "takeaway": "實務落地關鍵：Agent Skills 填補了 procedural memory 的空白", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 記憶三大支柱（Episodic, Semantic, Procedural）的 3D 圓柱對比圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：記憶三大支柱（Episodic, Semantic, Procedural）的 3D 圓柱對比圖，高亮 Procedural 缺失。"}, {"num": 20, "type": "Detailed-A", "chapter": 1, "pdf_pages": "8", "topic_id": 4, "title": "跨平台 Portability 需求 - 核心概念", "takeaway": "輕量且無綁定的資料夾結構讓 Agent Skills 成為跨平台移植的黃金標準。", "details": ["本頁探討 PDF 第 8 頁所提及的：分析在多供應商的 AI 生態系中，代理能力的移植困難。", "主要針對的背景：企業不想被單一模型或單一 Agent 框架牢牢綁定", "其要達成的目標在於解決以下衝突：以標準 Markdown 與 Python 組成的 Skills 具備極佳移植性"], "analogy": "在概念層面上，這就像通用且支援熱插拔的 USB 隨身碟，插在任何電腦上都能立即讀取與執行。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 21, "type": "Detailed-B", "chapter": 1, "pdf_pages": "8", "topic_id": 4, "title": "跨平台 Portability 需求 - 生活類比", "takeaway": "透過『通用且支援熱插拔的 USB 隨身碟』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：以標準 Markdown 與 Python 組成的 Skills 具備極佳移植性", "進一步分析：任何具備檔案存取權限的 Agent 皆可無縫加載 Skills", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 通用且支援熱插拔的 USB 隨身碟，插在任何電腦上都能立即讀取與執行。", "visual": "左側繪製『通用且支援熱插拔的 USB 隨身碟』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 22, "type": "Detailed-C", "chapter": 1, "pdf_pages": "8", "topic_id": 4, "title": "跨平台 Portability 需求 - 實務落地", "takeaway": "實務落地關鍵：任何具備檔案存取權限的 Agent 皆可無縫加載 Skills", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 跨越 Claude Code、Antigravity 與自建 Agent 框架的相容性矩陣圖。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：跨越 Claude Code、Antigravity 與自建 Agent 框架的相容性矩陣圖。"}, {"num": 23, "type": "Detailed-A", "chapter": 1, "pdf_pages": "8", "topic_id": 5, "title": "單一主機 vs 多代理過載 - 核心概念", "takeaway": "過度複雜的多代理架構會帶來運維災難，單一主機加載 Skill 是更優雅的解法。", "details": ["本頁探討 PDF 第 8 頁所提及的：分析當前 multi-agent 系統在維護、CI/CD 與編排上的複雜度危機。", "主要針對的背景：許多團隊為了解決專門任務，部署了數十個 sub-agent 導致路由混亂", "其要達成的目標在於解決以下衝突：CI/CD 管道需要為每個代理獨立測試，整合成本極高"], "analogy": "在概念層面上，這就像一個專案找了 10 位不同部門的助理來回溝通（多代理過載），不如請一位全能秘書並給他 10 本標準作業程序（Skills）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 24, "type": "Detailed-B", "chapter": 1, "pdf_pages": "8", "topic_id": 5, "title": "單一主機 vs 多代理過載 - 生活類比", "takeaway": "透過『一個專案找了 10 位不同部門的助理來回溝通（多代理過載）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：CI/CD 管道需要為每個代理獨立測試，整合成本極高", "進一步分析：Skills 讓單一通用代理能在多種專才角色間靈活切換", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一個專案找了 10 位不同部門的助理來回溝通（多代理過載），不如請一位全能秘書並給他 10 本標準作業程序（Skills）。", "visual": "左側繪製『一個專案找了 10 位不同部門的助理來回溝通（多代理過載）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 25, "type": "Detailed-C", "chapter": 1, "pdf_pages": "8", "topic_id": 5, "title": "單一主機 vs 多代理過載 - 實務落地", "takeaway": "實務落地關鍵：Skills 讓單一通用代理能在多種專才角色間靈活切換", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 左側是交錯複雜的 Multi-Agent 網絡（紅色警告）的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：左側是交錯複雜的 Multi-Agent 網絡（紅色警告），右側是 Single Agent + 3 Skills 的清爽圖示。"}, {"num": 26, "type": "Detailed-A", "chapter": 1, "pdf_pages": "8", "topic_id": 6, "title": "為 Builders 與 Developers 定位 - 核心概念", "takeaway": "Builders 專注於將業務流程轉化為 Skill，Developers 專注於平台與評估體系。", "details": ["本頁探討 PDF 第 8 頁所提及的：界定簡報與白皮書所服務的兩大核心受眾：建造者與開發者。", "主要針對的背景：Builders（業務專家）：不需會寫複雜程式，懂業務 Runbook 即可協同設計", "其要達成的目標在於解決以下衝突：Developers（架構師）：負責設計評估、版本管理、自動最佳化與路由編排"], "analogy": "在概念層面上，這就像Builders 是撰寫劇本的編劇，而 Developers 是負責架設舞台與打光的導演。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 27, "type": "Detailed-B", "chapter": 1, "pdf_pages": "8", "topic_id": 6, "title": "為 Builders 與 Developers 定位 - 生活類比", "takeaway": "透過『Builders 是撰寫劇本的編劇』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Developers（架構師）：負責設計評估、版本管理、自動最佳化與路由編排", "進一步分析：這兩種角色的分工，讓企業內部知識得以高效數位化", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 Builders 是撰寫劇本的編劇，而 Developers 是負責架設舞台與打光的導演。", "visual": "左側繪製『Builders 是撰寫劇本的編劇』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 28, "type": "Detailed-C", "chapter": 1, "pdf_pages": "8", "topic_id": 6, "title": "為 Builders 與 Developers 定位 - 實務落地", "takeaway": "實務落地關鍵：這兩種角色的分工，讓企業內部知識得以高效數位化", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 2x2 角色矩陣圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：2x2 角色矩陣圖，明確劃分 Builders 與 Developers 的職責與技能樹。"}, {"num": 29, "type": "Detailed-A", "chapter": 1, "pdf_pages": "8", "topic_id": 7, "title": "第一章總結與故事起點 - 核心概念", "takeaway": "開啟 Procedural Memory 時代，從此告別臃腫的 System Prompt。", "details": ["本頁探討 PDF 第 8 頁所提及的：重溫導論，為接下來的實作與架構探討奠定基礎。", "主要針對的背景：開頭識別出三種關鍵痛點", "其要達成的目標在於解決以下衝突：Agent Skills 作為開放標準，以最輕量的方式解決上述問題"], "analogy": "在概念層面上，這就像就像從笨重龐大的終端機時代，過渡到可以自由安裝 App 的作業系統時代。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 30, "type": "Detailed-B", "chapter": 1, "pdf_pages": "8", "topic_id": 7, "title": "第一章總結與故事起點 - 生活類比", "takeaway": "透過『就像從笨重龐大的終端機時代』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Agent Skills 作為開放標準，以最輕量的方式解決上述問題", "進一步分析：接下來我們將解剖一個 Skill 的內部構造", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 就像從笨重龐大的終端機時代，過渡到可以自由安裝 App 的作業系統時代。", "visual": "左側繪製『就像從笨重龐大的終端機時代』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 31, "type": "Detailed-C", "chapter": 1, "pdf_pages": "8", "topic_id": 7, "title": "第一章總結與故事起點 - 實務落地", "takeaway": "實務落地關鍵：接下來我們將解剖一個 Skill 的內部構造", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 一幅概念對比圖：Monolithic System (巨石陣) vs Modular Skill Library (積木盒)。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：一幅概念對比圖：Monolithic System (巨石陣) vs Modular Skill Library (積木盒)。"}, {"num": 32, "type": "Detailed-A", "chapter": 2, "pdf_pages": "9", "topic_id": 8, "title": "Agent Skills 雙軌誕生路徑 - 核心概念", "takeaway": "無論是老手寫 Runbook 還是代理結晶軌跡，最終都匯聚於 SKILL.md。", "details": ["本頁探討 PDF 第 9 頁所提及的：介紹建立 Skill 的兩條路徑：專家撰寫與 Trace 結晶。", "主要針對的背景：Path A（Domain Expertise）：領域專家將 30 頁 Runbook 翻譯為 agent 懂的格式", "其要達成的目標在於解決以下衝突：Path B（Trace Crystallization）：代理成功執行複雜任務後，自動將軌跡結晶為 Skill"], "analogy": "在概念層面上，這就像Path A 像老師傅親自寫秘笈，Path B 像錄影機記錄高手操作後自動生成教學帶。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 33, "type": "Detailed-B", "chapter": 2, "pdf_pages": "9", "topic_id": 8, "title": "Agent Skills 雙軌誕生路徑 - 生活類比", "takeaway": "透過『Path A 像老師傅親自寫秘笈』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Path B（Trace Crystallization）：代理成功執行複雜任務後，自動將軌跡結晶為 Skill", "進一步分析：這兩種路徑讓企業知識的沉澱兼具自上而下與自下而上的特點", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 Path A 像老師傅親自寫秘笈，Path B 像錄影機記錄高手操作後自動生成教學帶。", "visual": "左側繪製『Path A 像老師傅親自寫秘笈』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 34, "type": "Detailed-C", "chapter": 2, "pdf_pages": "9", "topic_id": 8, "title": "Agent Skills 雙軌誕生路徑 - 實務落地", "takeaway": "實務落地關鍵：這兩種路徑讓企業知識的沉澱兼具自上而下與自下而上的特點", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 分叉又匯聚的雙軌流程圖：一側為專家手動的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：分叉又匯聚的雙軌流程圖：一側為專家手動，另一側為 Trace 自動，最後交匯於 SKILL.md。"}, {"num": 35, "type": "Detailed-A", "chapter": 2, "pdf_pages": "10", "topic_id": 9, "title": "漸進式揭露（Progressive Disclosure） - 核心概念", "takeaway": "分層加載機制讓 Agent 在擁有上百項能力的同時，每一步僅支付最微小的 Token 代價。", "details": ["本頁探討 PDF 第 10 頁所提及的：解密 Agent Skills 節省 Token 的核心技術：漸進式揭露。", "主要針對的背景：第一層（Metadata）：永遠在 Context 中，僅需極少 Token（如 50 tokens/skill）", "其要達成的目標在於解決以下衝突：第二層（SKILL.md Body）：當觸發詞匹配時才載入 Context"], "analogy": "在概念層面上，這就像西餐廳的逐道上菜機制，服務生只在您吃完前菜時才端上主餐，桌上永遠不會擠滿盤子。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 36, "type": "Detailed-B", "chapter": 2, "pdf_pages": "10", "topic_id": 9, "title": "漸進式揭露（Progressive Disclosure） - 生活類比", "takeaway": "透過『西餐廳的逐道上菜機制』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：第二層（SKILL.md Body）：當觸發詞匹配時才載入 Context", "進一步分析：第三層（Bundled Resources）：依執行需求動態讀取，腳本在背景執行", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 西餐廳的逐道上菜機制，服務生只在您吃完前菜時才端上主餐，桌上永遠不會擠滿盤子。", "visual": "左側繪製『西餐廳的逐道上菜機制』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 37, "type": "Detailed-C", "chapter": 2, "pdf_pages": "10", "topic_id": 9, "title": "漸進式揭露（Progressive Disclosure） - 實務落地", "takeaway": "實務落地關鍵：第三層（Bundled Resources）：依執行需求動態讀取，腳本在背景執行", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 金字塔三層剖面圖：Metadata（塔尖）-> Body（塔身）-> Resources（塔底的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：金字塔三層剖面圖：Metadata（塔尖）-> Body（塔身）-> Resources（塔底，隱藏）。"}, {"num": 38, "type": "Detailed-A", "chapter": 2, "pdf_pages": "10", "topic_id": 10, "title": "標準 Skill 資料夾 Anatomy - 核心概念", "takeaway": "一個標準 Skill 資料夾包含了說明、腳本、參考資料與範本資產。", "details": ["本頁探討 PDF 第 10 頁所提及的：拆解一個符合 agentskills.io 開放標準的資料夾結構。", "主要針對的背景：SKILL.md（必填）：包含 YAML frontmatter 與 markdown 步驟說明", "其要達成的目標在於解決以下衝突：scripts/（選填）：存放確定性代碼（如 Python, Bash），由 Agent 調用"], "analogy": "在概念層面上，這就像一個組裝家具的工具箱：說明書在最顯眼處（SKILL.md），工具在抽屜裡（scripts），材料在底層（assets）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 39, "type": "Detailed-B", "chapter": 2, "pdf_pages": "10", "topic_id": 10, "title": "標準 Skill 資料夾 Anatomy - 生活類比", "takeaway": "透過『一個組裝家具的工具箱：說明書在最顯眼處（SKILL.md）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：scripts/（選填）：存放確定性代碼（如 Python, Bash），由 Agent 調用", "進一步分析：references/ 與 assets/（選填）：存放背景知識、選用邊界規則與輸出範本", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一個組裝家具的工具箱：說明書在最顯眼處（SKILL.md），工具在抽屜裡（scripts），材料在底層（assets）。", "visual": "左側繪製『一個組裝家具的工具箱：說明書在最顯眼處（SKILL.md）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 40, "type": "Detailed-C", "chapter": 2, "pdf_pages": "10", "topic_id": 10, "title": "標準 Skill 資料夾 Anatomy - 實務落地", "takeaway": "實務落地關鍵：references/ 與 assets/（選填）：存放背景知識、選用邊界規則與輸出範本", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 精美的資料夾目錄樹狀圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：精美的資料夾目錄樹狀圖，搭配各節點的解釋性標籤。"}, {"num": 41, "type": "Detailed-A", "chapter": 2, "pdf_pages": "10", "topic_id": 11, "title": "實例解剖：咖啡店日備料 Skill - 核心概念", "takeaway": "咖啡店備料 Skill 展示了如何用 Python 腳本處理預算，用 markdown 引導流程。", "details": ["本頁探討 PDF 第 10 頁所提及的：以白皮書中的 cafe-preparation 為例，說明 Skill 的實際構成與運作。", "主要針對的背景：`SKILL.md` 描述如何估算每天的拿鐵與可頌備料量", "其要達成的目標在於解決以下衝突：`scripts/calc_quantities.py` 進行確定性的數學計算與原料轉換"], "analogy": "在概念層面上，這就像主廚將複雜的進貨計算交給計算機（Script），自己專注於控制烹飪火候（LLM）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 42, "type": "Detailed-B", "chapter": 2, "pdf_pages": "10", "topic_id": 11, "title": "實例解剖：咖啡店日備料 Skill - 生活類比", "takeaway": "透過『主廚將複雜的進貨計算交給計算機（Script）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：`scripts/calc_quantities.py` 進行確定性的數學計算與原料轉換", "進一步分析：`references/menu_and_recipes.md` 提供抹茶拿鐵等飲品的標準配方", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 主廚將複雜的進貨計算交給計算機（Script），自己專注於控制烹飪火候（LLM）。", "visual": "左側繪製『主廚將複雜的進貨計算交給計算機（Script）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 43, "type": "Detailed-C", "chapter": 2, "pdf_pages": "10", "topic_id": 11, "title": "實例解剖：咖啡店日備料 Skill - 實務落地", "takeaway": "實務落地關鍵：`references/menu_and_recipes.md` 提供抹茶拿鐵等飲品的標準配方", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 左側為 `cafe-preparation/` 目錄樹的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：左側為 `cafe-preparation/` 目錄樹，右側為 `calc_quantities.py` 的調用流程。"}, {"num": 44, "type": "Detailed-A", "chapter": 2, "pdf_pages": "11", "topic_id": 12, "title": "YAML Frontmatter：啟動的開關 - 核心概念", "takeaway": "YAML 設定檔是 Agent 識別、匹配並觸發該 Skill 的唯一身分證。", "details": ["本頁探討 PDF 第 11 頁所提及的：分析 YAML 前言設定檔的關鍵欄位及其作用。", "主要針對的背景：包含 name（命名規範）、description（路由算法核心）、version 等", "其要達成的目標在於解決以下衝突：`allowed-tools` 定義該 Skill 內允許使用的工具權限"], "analogy": "在概念層面上，這就像進入管制區的通行證，上面寫明了您的名字、職責以及可以進出哪些房間。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 45, "type": "Detailed-B", "chapter": 2, "pdf_pages": "11", "topic_id": 12, "title": "YAML Frontmatter：啟動的開關 - 生活類比", "takeaway": "透過『進入管制區的通行證』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：`allowed-tools` 定義該 Skill 內允許使用的工具權限", "進一步分析：錯誤的 YAML 語法會直接導致 Agent 載入失敗", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 進入管制區的通行證，上面寫明了您的名字、職責以及可以進出哪些房間。", "visual": "左側繪製『進入管制區的通行證』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 46, "type": "Detailed-C", "chapter": 2, "pdf_pages": "11", "topic_id": 12, "title": "YAML Frontmatter：啟動的開關 - 實務落地", "takeaway": "實務落地關鍵：錯誤的 YAML 語法會直接導致 Agent 載入失敗", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 程式碼對比圖：高亮 YAML frontmatter 各欄位的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：程式碼對比圖：高亮 YAML frontmatter 各欄位，右側附帶其對應的語意說明。"}, {"num": 47, "type": "Detailed-A", "chapter": 2, "pdf_pages": "11", "topic_id": 13, "title": "命名哲學：Obvious and Boring - 核心概念", "takeaway": "命名應避免花俏與內部黑話，使用動名詞 snake_case 與 kebab-case。", "details": ["本頁探討 PDF 第 11 頁所提及的：說明 Skill 命名時應遵循的無趣且顯而易見原則。", "主要針對的背景：目錄名稱使用 snake_case（例如 `database_management`）", "其要達成的目標在於解決以下衝突：Skill 名稱使用 kebab-case（例如 `managing-databases`）"], "analogy": "在概念層面上，這就像超市貨架上的標籤，寫『低脂鮮乳』永遠比寫『牧場精靈的眼淚』更能讓人一眼認出。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 48, "type": "Detailed-B", "chapter": 2, "pdf_pages": "11", "topic_id": 13, "title": "命名哲學：Obvious and Boring - 生活類比", "takeaway": "透過『超市貨架上的標籤』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Skill 名稱使用 kebab-case（例如 `managing-databases`）", "進一步分析：優先使用動名詞形式（Gerund Form），如 `processing-pdfs` 而非 `pdf-processor`", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 超市貨架上的標籤，寫『低脂鮮乳』永遠比寫『牧場精靈的眼淚』更能讓人一眼認出。", "visual": "左側繪製『超市貨架上的標籤』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 49, "type": "Detailed-C", "chapter": 2, "pdf_pages": "11", "topic_id": 13, "title": "命名哲學：Obvious and Boring - 實務落地", "takeaway": "實務落地關鍵：優先使用動名詞形式（Gerund Form），如 `processing-pdfs` 而非 `pdf-processor`", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 正確命名 vs 錯誤命名的對比表格的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：正確命名 vs 錯誤命名的對比表格，高亮不合格命名中的 internal jargon。"}, {"num": 50, "type": "Detailed-A", "chapter": 2, "pdf_pages": "11", "topic_id": 14, "title": "Description：Agent 的路由演算法 - 核心概念", "takeaway": "Description 就是路由演算法，必須精確說明『做什麼』與『何時不用』。", "details": ["本頁探討 PDF 第 11 頁所提及的：深入探討 description 欄位如何作為 Agent 路由判斷的關鍵。", "主要針對的背景：長度通常在 50 字左右，YAML 中上限 1024 字", "其要達成的目標在於解決以下衝突：前置觸發關鍵字（動詞開頭），例如 'Calculates daily ingredient needs...'"], "analogy": "在概念層面上，這就像火車站的導引指標，清楚寫著『往台北請走第一月台，往高雄請走第二月台，不提供退票服務』。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 51, "type": "Detailed-B", "chapter": 2, "pdf_pages": "11", "topic_id": 14, "title": "Description：Agent 的路由演算法 - 生活類比", "takeaway": "透過『火車站的導引指標』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：前置觸發關鍵字（動詞開頭），例如 'Calculates daily ingredient needs...'", "進一步分析：必須包含明確的『Do NOT use for』界限，防止 Agent 濫用觸發", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 火車站的導引指標，清楚寫著『往台北請走第一月台，往高雄請走第二月台，不提供退票服務』。", "visual": "左側繪製『火車站的導引指標』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 52, "type": "Detailed-C", "chapter": 2, "pdf_pages": "11", "topic_id": 14, "title": "Description：Agent 的路由演算法 - 實務落地", "takeaway": "實務落地關鍵：必須包含明確的『Do NOT use for』界限，防止 Agent 濫用觸發", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 好描述 vs 爛描述的對照分析圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：好描述 vs 爛描述的對照分析圖，標註 trigger words 與 anti-trigger words。"}, {"num": 53, "type": "Detailed-A", "chapter": 2, "pdf_pages": "12", "topic_id": 15, "title": "把重複與確定性的工作打包成 Script - 核心概念", "takeaway": "LLM 擅長判斷與決策，確定性的數值與格式處理應交給 Script 執行。", "details": ["本頁探討 PDF 第 12 頁所提及的：討論如何將計算、格式化等工作移出提示詞，寫成程式碼。", "主要針對的背景：不要在 SKILL.md 裡寫複雜的數學公式叫 LLM 計算，容易出錯", "其要達成的目標在於解決以下衝突：在 scripts/ 下撰寫 Python 腳本，讓 Agent 直接執行並獲取結果"], "analogy": "在概念層面上，這就像老闆（LLM）負責決定要不要核准報銷，秘書（Script）負責用 Excel 加總明細金額。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 54, "type": "Detailed-B", "chapter": 2, "pdf_pages": "12", "topic_id": 15, "title": "把重複與確定性的工作打包成 Script - 生活類比", "takeaway": "透過『老闆（LLM）負責決定要不要核准報銷』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：在 scripts/ 下撰寫 Python 腳本，讓 Agent 直接執行並獲取結果", "進一步分析：將邏輯與執行分離，大幅提升代理在生產環境的穩定度", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 老闆（LLM）負責決定要不要核准報銷，秘書（Script）負責用 Excel 加總明細金額。", "visual": "左側繪製『老闆（LLM）負責決定要不要核准報銷』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 55, "type": "Detailed-C", "chapter": 2, "pdf_pages": "12", "topic_id": 15, "title": "把重複與確定性的工作打包成 Script - 實務落地", "takeaway": "實務落地關鍵：將邏輯與執行分離，大幅提升代理在生產環境的穩定度", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 決策流程圖：LLM 做出決策 -> 傳遞參數給 Python Script -> Script 返回標準化 JSON。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：決策流程圖：LLM 做出決策 -> 傳遞參數給 Python Script -> Script 返回標準化 JSON。"}, {"num": 56, "type": "Detailed-A", "chapter": 3, "pdf_pages": "13", "topic_id": 16, "title": "安裝 Paradigm 之一：本地 File Drop - 核心概念", "takeaway": "本地開發工具大多遵循將 Skill 資料夾直接放入特定隱藏目錄的規則。", "details": ["本頁探討 PDF 第 13 頁所提及的：說明本地開發環境（CLI 與 IDE）中 Skill 的安裝方式。", "主要針對的背景：業界共識正收斂至專案根目錄底下的 `.agents/skills/` 資料夾", "其要達成的目標在於解決以下衝突：部分 CLI 工具仍有其自訂的隱藏路徑"], "analogy": "在概念層面上，這就像將下載的遊戲外掛檔案直接拖入遊戲目錄的 `mods/` 資料夾中。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 57, "type": "Detailed-B", "chapter": 3, "pdf_pages": "13", "topic_id": 16, "title": "安裝 Paradigm 之一：本地 File Drop - 生活類比", "takeaway": "透過『將下載的遊戲外掛檔案直接拖入遊戲目錄的 `mods/` 資料夾中。』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：部分 CLI 工具仍有其自訂的隱藏路徑", "進一步分析：可以使用 `skillport` 或 `openskills` 等社群工具建立軟連結（Symlink）", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 將下載的遊戲外掛檔案直接拖入遊戲目錄的 `mods/` 資料夾中。", "visual": "左側繪製『將下載的遊戲外掛檔案直接拖入遊戲目錄的 `mods/` 資料夾中。』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 58, "type": "Detailed-C", "chapter": 3, "pdf_pages": "13", "topic_id": 16, "title": "安裝 Paradigm 之一：本地 File Drop - 實務落地", "takeaway": "實務落地關鍵：可以使用 `skillport` 或 `openskills` 等社群工具建立軟連結（Symlink）", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 開發專案目錄結構示意圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：開發專案目錄結構示意圖，特別高亮 `.agents/skills/` 路徑。"}, {"num": 59, "type": "Detailed-A", "chapter": 3, "pdf_pages": "14", "topic_id": 17, "title": "安裝 Paradigm 之二：Web UI 與雲端平台 - 核心概念", "takeaway": "雲端平台提供圖形化註冊表，一鍵上傳或安裝，免去終端機操作。", "details": ["本頁探討 PDF 第 14 頁所提及的：說明協作平台與 Enterprise Web Workspaces 下的 Skill 安裝方式。", "主要針對的背景：適合非技術人員（Builders）使用的視覺化 Skill 管理界面", "其要達成的目標在於解決以下衝突：後台會自動處理路由與權限控制，並支援團隊共用"], "analogy": "在概念層面上，這就像手機上的 App Store，點擊『下載安裝』後自動完成所有設定，不需要知道安裝在什麼路徑。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 60, "type": "Detailed-B", "chapter": 3, "pdf_pages": "14", "topic_id": 17, "title": "安裝 Paradigm 之二：Web UI 與雲端平台 - 生活類比", "takeaway": "透過『手機上的 App Store』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：後台會自動處理路由與權限控制，並支援團隊共用", "進一步分析：提供審核與版本發布的視覺化工作流", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 手機上的 App Store，點擊『下載安裝』後自動完成所有設定，不需要知道安裝在什麼路徑。", "visual": "左側繪製『手機上的 App Store』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 61, "type": "Detailed-C", "chapter": 3, "pdf_pages": "14", "topic_id": 17, "title": "安裝 Paradigm 之二：Web UI 與雲端平台 - 實務落地", "takeaway": "實務落地關鍵：提供審核與版本發布的視覺化工作流", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 雲端 UI 的 Mockup 示意圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：雲端 UI 的 Mockup 示意圖，包含 Skill 列表、啟用切換鈕與權限勾選。"}, {"num": 62, "type": "Detailed-A", "chapter": 3, "pdf_pages": "14", "topic_id": 18, "title": "安裝 Paradigm 之三：程式化加載 - 核心概念", "takeaway": "開發者可透過程式碼指向資料夾路徑，由 SDK 自動生成路由工具。", "details": ["本頁探討 PDF 第 14 頁所提及的：說明在客製化 AI 框架（如 Google ADK）中如何以代碼註冊 Skill。", "主要針對的背景：使用 `SkillToolset` 類別指定 Skill 的目錄路徑", "其要達成的目標在於解決以下衝突：SDK 會在底層自動為模型生成 `load_skill` 路由工具"], "analogy": "在概念層面上，這就像程式中導入第三方套件的 `import` 宣告，讓程式具備該套件的所有功能。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 63, "type": "Detailed-B", "chapter": 3, "pdf_pages": "14", "topic_id": 18, "title": "安裝 Paradigm 之三：程式化加載 - 生活類比", "takeaway": "透過『程式中導入第三方套件的 `import` 宣告』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：SDK 會在底層自動為模型生成 `load_skill` 路由工具", "進一步分析：這種方式能與企業現有的微服務 or 後端架構深度整合", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 程式中導入第三方套件的 `import` 宣告，讓程式具備該套件的所有功能。", "visual": "左側繪製『程式中導入第三方套件的 `import` 宣告』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 64, "type": "Detailed-C", "chapter": 3, "pdf_pages": "14", "topic_id": 18, "title": "安裝 Paradigm 之三：程式化加載 - 實務落地", "takeaway": "實務落地關鍵：這種方式能與企業現有的微服務 or 後端架構深度整合", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 簡單的代碼對照圖：高亮 `SkillToolset(path='./skills')` 及其自動映射的架構。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：簡單的代碼對照圖：高亮 `SkillToolset(path='./skills')` 及其自動映射的架構。"}, {"num": 65, "type": "Detailed-A", "chapter": 3, "pdf_pages": "15", "topic_id": 19, "title": "Skill 與 MCP 的關係 - 核心概念", "takeaway": "MCP 解決『連線能力（Reach）』，Skills 解決『專業知識（Know-how）』。", "details": ["本頁探討 PDF 第 15 頁所提及的：釐清 Model Context Protocol (MCP) 與 Agent Skills 的定位與整合方式。", "主要針對的背景：MCP 伺服器將代理連接到外部系統（如 Drive, BigQuery, Salesforce）", "其要達成的目標在於解決以下衝突：Skills 則是一本教導代理如何思考與處理特定業務的作業手冊"], "analogy": "在概念層面上，這就像MCP 是連接工廠儀器的電纜線與插座，而 Skill 是指導工人如何操作這些儀器的標準作業說明書。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 66, "type": "Detailed-B", "chapter": 3, "pdf_pages": "15", "topic_id": 19, "title": "Skill 與 MCP 的關係 - 生活類比", "takeaway": "透過『MCP 是連接工廠儀器的電纜線與插座』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Skills 則是一本教導代理如何思考與處理特定業務的作業手冊", "進一步分析：當 Skill 運作中需要數據時，會指揮 Agent 去調用 MCP 提供的方法", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 MCP 是連接工廠儀器的電纜線與插座，而 Skill 是指導工人如何操作這些儀器的標準作業說明書。", "visual": "左側繪製『MCP 是連接工廠儀器的電纜線與插座』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 67, "type": "Detailed-C", "chapter": 3, "pdf_pages": "15", "topic_id": 19, "title": "Skill 與 MCP 的關係 - 實務落地", "takeaway": "實務落地關鍵：當 Skill 運作中需要數據時，會指揮 Agent 去調用 MCP 提供的方法", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 層級對比圖：Agent（大腦）-> Skill（操作手冊）-> MCP（工具/連接線）-> 資料庫（外部系統）。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：層級對比圖：Agent（大腦）-> Skill（操作手冊）-> MCP（工具/連接線）-> 資料庫（外部系統）。"}, {"num": 68, "type": "Detailed-A", "chapter": 3, "pdf_pages": "15", "topic_id": 20, "title": "Skill 與 AGENTS.md 的關係 - 核心概念", "takeaway": "AGENTS.md 存放全局靜態約定，Skills 存放局部的動態動作指南。", "details": ["本頁探討 PDF 第 15 頁所提及的：區分項目全局設定 `AGENTS.md` 與動態加載的 Skills 之間的差異。", "主要針對的背景：`AGENTS.md` 在專案執行時是全局且持續載入的（適合寫程式碼風格、建置指令）", "其要達成的目標在於解決以下衝突：Skills 則是按需加載（On-demand），不佔用全局的 Token 預算"], "analogy": "在概念層面上，這就像`AGENTS.md` 是公司的員工守則（每個人隨時都要遵守），而 Skills 是特定專案的任務指南（只有被分配到的人才需要讀）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 69, "type": "Detailed-B", "chapter": 3, "pdf_pages": "15", "topic_id": 20, "title": "Skill 與 AGENTS.md 的關係 - 生活類比", "takeaway": "透過『`AGENTS.md` 是公司的員工守則（每個人隨時都要遵守）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Skills 則是按需加載（On-demand），不佔用全局的 Token 預算", "進一步分析：好的實踐是在 `AGENTS.md` 尾端加上一個可用 Skills 的索引目錄", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 `AGENTS.md` 是公司的員工守則（每個人隨時都要遵守），而 Skills 是特定專案的任務指南（只有被分配到的人才需要讀）。", "visual": "左側繪製『`AGENTS.md` 是公司的員工守則（每個人隨時都要遵守）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 70, "type": "Detailed-C", "chapter": 3, "pdf_pages": "15", "topic_id": 20, "title": "Skill 與 AGENTS.md 的關係 - 實務落地", "takeaway": "實務落地關鍵：好的實踐是在 `AGENTS.md` 尾端加上一個可用 Skills 的索引目錄", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 資訊過載程度對比圖：全塞在 `AGENTS.md`（高 Token 消耗）vs 分離至 Skills（低 Token 消耗）。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：資訊過載程度對比圖：全塞在 `AGENTS.md`（高 Token 消耗）vs 分離至 Skills（低 Token 消耗）。"}, {"num": 71, "type": "Detailed-A", "chapter": 3, "pdf_pages": "15", "topic_id": 21, "title": "第三章總結與整合架構 - 核心概念", "takeaway": "選擇適合的安裝模式，並釐清 Skill、MCP 與 AGENTS.md 的職責邊界。", "details": ["本頁探討 PDF 第 15 頁所提及的：回顧安裝方式與邊界區分，建立完整的系統整合視野。", "主要針對的背景：三種安裝模式適用不同客群", "其要達成的目標在於解決以下衝突：不要把 MCP 寫成 Script，也不要把全局規則硬塞進單一 Skill"], "analogy": "在概念層面上，這就像一個運作良好的樂團，有樂譜（AGENTS.md）、樂器（MCP）以及樂手的演奏技巧（Skills）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 72, "type": "Detailed-B", "chapter": 3, "pdf_pages": "15", "topic_id": 21, "title": "第三章總結與整合架構 - 生活類比", "takeaway": "透過『一個運作良好的樂團』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：不要把 MCP 寫成 Script，也不要把全局規則硬塞進單一 Skill", "進一步分析：清晰的邊界是維護大型代理系統的前提", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一個運作良好的樂團，有樂譜（AGENTS.md）、樂器（MCP）以及樂手的演奏技巧（Skills）。", "visual": "左側繪製『一個運作良好的樂團』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 73, "type": "Detailed-C", "chapter": 3, "pdf_pages": "15", "topic_id": 21, "title": "第三章總結與整合架構 - 實務落地", "takeaway": "實務落地關鍵：清晰的邊界是維護大型代理系統的前提", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 三者協同運作的環狀結構圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：三者協同運作的環狀結構圖，中心是 Agent Runtime。"}, {"num": 74, "type": "Detailed-A", "chapter": 4, "pdf_pages": "15", "topic_id": 22, "title": "為什麼多代理系統會變成噩夢 - 核心概念", "takeaway": "過多的微型代理會帶來極高的編排、部署與 CI/CD 維護成本。", "details": ["本頁探討 PDF 第 15 頁所提及的：分析 2025 年初多代理架構在面對長尾業務時的維護困境。", "主要針對的背景：原以為一個路由代理配上 10 個專才代理是完美的解法", "其要達成的目標在於解決以下衝突：實際上卻在代理間通訊、狀態同步上花費了 80% 的開發時間"], "analogy": "在概念層面上，這就像一個小部門為了每項雜務都招募一位專職員工，結果主管每天都花在開會協調與發薪水，效率反而低下。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 75, "type": "Detailed-B", "chapter": 4, "pdf_pages": "15", "topic_id": 22, "title": "為什麼多代理系統會變成噩夢 - 生活類比", "takeaway": "透過『一個小部門為了每項雜務都招募一位專職員工』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：實際上卻在代理間通訊、狀態同步上花費了 80% 的開發時間", "進一步分析：一個 sub-agent 的更新常常意外破壞其他 sub-agent 的輸入期待", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一個小部門為了每項雜務都招募一位專職員工，結果主管每天都花在開會協調與發薪水，效率反而低下。", "visual": "左側繪製『一個小部門為了每項雜務都招募一位專職員工』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 76, "type": "Detailed-C", "chapter": 4, "pdf_pages": "15", "topic_id": 22, "title": "為什麼多代理系統會變成噩夢 - 實務落地", "takeaway": "實務落地關鍵：一個 sub-agent 的更新常常意外破壞其他 sub-agent 的輸入期待", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 左側是多個 Agent 圓圈互相連線的混亂網狀圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：左側是多個 Agent 圓圈互相連線的混亂網狀圖，標註『維護地獄』。"}, {"num": 77, "type": "Detailed-A", "chapter": 4, "pdf_pages": "16", "topic_id": 23, "title": "從維護代理轉向維護 Skills - 核心概念", "takeaway": "讓單一通用代理配上 Skills 庫，將運維壓力從『代理部署』降至『文件更新』。", "details": ["本頁探討 PDF 第 16 頁所提及的：說明將代理架構轉向 Skills 庫的典範轉移。", "主要針對的背景：Agent 軟體運行時保持不變，只作為一個通用的推理引擎", "其要達成的目標在於解決以下衝突：業務邏輯完全封裝在獨立的 Skills 資料夾中"], "analogy": "在概念層面上，這就像不需要為每種遊戲買一台專用主機（Sub-agent），只需買一台萬用主機（Agent）並更換遊戲卡帶（Skills）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 78, "type": "Detailed-B", "chapter": 4, "pdf_pages": "16", "topic_id": 23, "title": "從維護代理轉向維護 Skills - 生活類比", "takeaway": "透過『不需要為每種遊戲買一台專用主機（Sub-agent）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：業務邏輯完全封裝在獨立的 Skills 資料夾中", "進一步分析：新增或修正業務，只需更新 Git 庫裡的 Markdown 檔案，無須重新部署容器", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 不需要為每種遊戲買一台專用主機（Sub-agent），只需買一台萬用主機（Agent）並更換遊戲卡帶（Skills）。", "visual": "左側繪製『不需要為每種遊戲買一台專用主機（Sub-agent）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 79, "type": "Detailed-C", "chapter": 4, "pdf_pages": "16", "topic_id": 23, "title": "從維護代理轉向維護 Skills - 實務落地", "takeaway": "實務落地關鍵：新增或修正業務，只需更新 Git 庫裡的 Markdown 檔案，無須重新部署容器", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 部署對比圖：傳統模式（10個 Docker 容器）vs 新模式（1個 Docker 容器 + 10個 Git 目錄）。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：部署對比圖：傳統模式（10個 Docker 容器）vs 新模式（1個 Docker 容器 + 10個 Git 目錄）。"}, {"num": 80, "type": "Detailed-A", "chapter": 4, "pdf_pages": "17", "topic_id": 24, "title": "物流公司的 100 種流程變量 - 核心概念", "takeaway": "在面對上百種業務變量時，『單一代理 + 百大 Skills』是兼顧成本與維護性的最佳解法。", "details": ["本頁探討 PDF 第 17 頁所提及的：以物流公司為例，分析四種架構在處理複雜多流程時的優劣。", "主要針對的背景：若用 RAG：檢索出的步驟往往無法保證順序與執行精確度", "其要達成的目標在於解決以下衝突：若用 100 個 Sub-agents：CI/CD 與版本控制會徹底失控"], "analogy": "在概念層面上，這就像物流中心有 100 種不同的包裹包裝規定，我們給打包員一本有標籤分類的手冊（Skills），而不是請 100 個只會包一種包裹的工人。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 81, "type": "Detailed-B", "chapter": 4, "pdf_pages": "17", "topic_id": 24, "title": "物流公司的 100 種流程變量 - 生活類比", "takeaway": "透過『物流中心有 100 種不同的包裹包裝規定』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：若用 100 個 Sub-agents：CI/CD 與版本控制會徹底失控", "進一步分析：若用 Skills： descriptions 僅需 5,000 tokens 全局常駐，按需載入，且變更極為輕量", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 物流中心有 100 種不同的包裹包裝規定，我們給打包員一本有標籤分類的手冊（Skills），而不是請 100 個只會包一種包裹的工人。", "visual": "左側繪製『物流中心有 100 種不同的包裹包裝規定』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 82, "type": "Detailed-C", "chapter": 4, "pdf_pages": "17", "topic_id": 24, "title": "物流公司的 100 種流程變量 - 實務落地", "takeaway": "實務落地關鍵：若用 Skills： descriptions 僅需 5,000 tokens 全局常駐，按需載入，且變更極為輕量", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 表格：對比 RAG、Multi-agent、System Prompt 與 Skills 在 Token 成本、維護難度上的數值。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：表格：對比 RAG、Multi-agent、System Prompt 與 Skills 在 Token 成本、維護難度上的數值。"}, {"num": 83, "type": "Detailed-A", "chapter": 4, "pdf_pages": "16", "topic_id": 25, "title": "何時依然需要 Multi-Agent 架構？ - 核心概念", "takeaway": "當面臨安全邊界、異質模型或真正的並行運算時，Multi-Agent 依然是唯一答案。", "details": ["本頁探討 PDF 第 16 頁所提及的：界定 Multi-Agent 架構依然不可被 Skills 取代的關鍵情境。", "主要針對的背景：不同的任務需要不同的安全性權限或網路隔離（如財務 Mutation vs 客服 Read）", "其要達成的目標在於解決以下衝突：需要使用不同的基礎模型進行 Check-and-balance（如生成模型搭配對抗審查模型）"], "analogy": "在概念層面上，這就像一個國家不能只有一個總理和很多手冊，還是需要獨立的司法（對抗）、立法（檢查）與行政部門。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 84, "type": "Detailed-B", "chapter": 4, "pdf_pages": "16", "topic_id": 25, "title": "何時依然需要 Multi-Agent 架構？ - 生活類比", "takeaway": "透過『一個國家不能只有一個總理和很多手冊』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：需要使用不同的基礎模型進行 Check-and-balance（如生成模型搭配對抗審查模型）", "進一步分析：存在複雜的階層式決策，對立關係等", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一個國家不能只有一個總理和很多手冊，還是需要獨立的司法（對抗）、立法（檢查）與行政部門。", "visual": "左側繪製『一個國家不能只有一個總理和很多手冊』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 85, "type": "Detailed-C", "chapter": 4, "pdf_pages": "16", "topic_id": 25, "title": "何時依然需要 Multi-Agent 架構？ - 實務落地", "takeaway": "實務落地關鍵：存在複雜的階層式決策，對立關係等", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 決策流程圖：安全邊界？平行運算？異質模型？協助決定該走單代理還是多代理。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：決策流程圖：安全邊界？平行運算？異質模型？協助決定該走單代理還是多代理。"}, {"num": 86, "type": "Detailed-A", "chapter": 4, "pdf_pages": "17", "topic_id": 26, "title": "第四章總結與架構決策原則 - 核心概念", "takeaway": "評估業務複雜度，優先以單代理加載 Skill 作為架構起手式。", "details": ["本頁探討 PDF 第 17 頁所提及的：重申本章的核心架構思維：能用 Skill 解決的，就不要新增 Agent。", "主要針對的背景：Skills 降低了自動化門檻，讓知識管理回歸文件本質", "其要達成的目標在於解決以下衝突：在進入 Multi-Agent 的高維運維地獄前，先用 Skills 進行快速迭代"], "analogy": "在概念層面上，這就像設計軟體時，先考慮寫成類別中的方法（Skill），而不是直接寫成一個獨立的微服務（Sub-agent）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 87, "type": "Detailed-B", "chapter": 4, "pdf_pages": "17", "topic_id": 26, "title": "第四章總結與架構決策原則 - 生活類比", "takeaway": "透過『設計軟體時』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：在進入 Multi-Agent 的高維運維地獄前，先用 Skills 進行快速迭代", "進一步分析：評估性能是下一個關鍵", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 設計軟體時，先考慮寫成類別中的方法（Skill），而不是直接寫成一個獨立的微服務（Sub-agent）。", "visual": "左側繪製『設計軟體時』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 88, "type": "Detailed-C", "chapter": 4, "pdf_pages": "17", "topic_id": 26, "title": "第四章總結與架構決策原則 - 實務落地", "takeaway": "實務落地關鍵：評估性能是下一個關鍵", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 金字塔結構圖：底層為基礎 Agent的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：金字塔結構圖：底層為基礎 Agent，中層為多樣的 Skills，頂層為極少數的 Multi-Agent 編排。"}, {"num": 89, "type": "Detailed-A", "chapter": 5, "pdf_pages": "18", "topic_id": 27, "title": "SkillsBench 與 19% 的效能退化警鐘 - 核心概念", "takeaway": "糟糕的 Skill 設計不僅沒有幫助，反而會導致 19% 的工作表現變差。", "details": ["本頁探討 PDF 第 18 頁所提及的：介紹 2025 年 SkillsBench 基準測試的驚人發現。", "主要針對的背景：SkillsBench 測試了 84 個真實世界代理任務", "其要達成的目標在於解決以下衝突：發現 19% 的任務在加載 Skill 後的表現反而不如裸模型"], "analogy": "在概念層面上，這就像給一位老練的廚師一本寫滿錯誤步驟與囉嗦廢話的食譜，反而打亂了他原本熟練的做菜節奏。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 90, "type": "Detailed-B", "chapter": 5, "pdf_pages": "18", "topic_id": 27, "title": "SkillsBench 與 19% 的效能退化警鐘 - 生活類比", "takeaway": "透過『給一位老練的廚師一本寫滿錯誤步驟與囉嗦廢話的食譜』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：發現 19% 的任務在加載 Skill 後的表現反而不如裸模型", "進一步分析：主要原因在於不當的 Skill 描述引起了嚴重的干擾與注意力消散", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 給一位老練的廚師一本寫滿錯誤步驟與囉嗦廢話的食譜，反而打亂了他原本熟練的做菜節奏。", "visual": "左側繪製『給一位老練的廚師一本寫滿錯誤步驟與囉嗦廢話的食譜』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 91, "type": "Detailed-C", "chapter": 5, "pdf_pages": "18", "topic_id": 27, "title": "SkillsBench 與 19% 的效能退化警鐘 - 實務落地", "takeaway": "實務落地關鍵：主要原因在於不當的 Skill 描述引起了嚴重的干擾與注意力消散", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 長條圖：無 Skill（63% 成功率）vs 爛 Skill（58% 成功率）vs 好 Skill（90% 成功率）。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：長條圖：無 Skill（63% 成功率）vs 爛 Skill（58% 成功率）vs 好 Skill（90% 成功率）。"}, {"num": 92, "type": "Detailed-A", "chapter": 5, "pdf_pages": "18", "topic_id": 28, "title": "四大失效模式剖析 - 核心概念", "takeaway": "掌握觸發、執行、Token 預算與 Regression 四大失效，是設計測試的基礎。", "details": ["本頁探討 PDF 第 18 頁所提及的：詳細分析 Skill 在實際運行中會遭遇的四個主要失效模式。", "主要針對的背景：1. Trigger Failure：該動不動，或不該動卻動了", "其要達成的目標在於解決以下衝突：2. Execution Failure：觸發了卻吐出錯誤的 Tool Call 或格式"], "analogy": "在概念層面上，這就像一台機器人：感測器壞了（觸發失敗）、機械手臂夾錯（執行失敗）、電池太重跑不動（Token失敗）、新舊零件衝突（Regression）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 93, "type": "Detailed-B", "chapter": 5, "pdf_pages": "18", "topic_id": 28, "title": "四大失效模式剖析 - 生活類比", "takeaway": "透過『一台機器人：感測器壞了（觸發失敗）、機械手臂夾錯（執行失敗）、電池太重跑不動（Token失敗）、新舊零件衝突（Regression）。』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：2. Execution Failure：觸發了卻吐出錯誤的 Tool Call 或格式", "進一步分析：3. Token Budget Failure：單一 Skill 體積過大塞爆上下文", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一台機器人：感測器壞了（觸發失敗）、機械手臂夾錯（執行失敗）、電池太重跑不動（Token失敗）、新舊零件衝突（Regression）。", "visual": "左側繪製『一台機器人：感測器壞了（觸發失敗）、機械手臂夾錯（執行失敗）、電池太重跑不動（Token失敗）、新舊零件衝突（Regression）。』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 94, "type": "Detailed-C", "chapter": 5, "pdf_pages": "18", "topic_id": 28, "title": "四大失效模式剖析 - 實務落地", "takeaway": "實務落地關鍵：3. Token Budget Failure：單一 Skill 體積過大塞爆上下文", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 2x2 失效模式矩陣圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：2x2 失效模式矩陣圖，附帶各失效模式的診斷指標。"}, {"num": 95, "type": "Detailed-A", "chapter": 5, "pdf_pages": "20", "topic_id": 29, "title": "評估工具箱 (The Evaluation Toolkit) - 核心概念", "takeaway": "一個完整的 Skill 評估體系必須包含單元測試、黃金數據集與 adversarial 探針。", "details": ["本頁探討 PDF 第 20 頁所提及的：介紹覆蓋完整失效表面的五個互補測試模式。", "主要針對的背景：Unit Test（單元測試）：在 CI 中每次 push 執行，檢查 YAML 與基本格式", "其要達成的目標在於解決以下衝突：Golden Dataset（黃金數據集）：精選 20+ 個真實 query，對照期望的 tool trace"], "analogy": "在概念層面上，這就像新車出廠前，要經過儀表板電路測試（單元測試）、標準賽道跑圈（黃金數據）與模擬撞擊測試（Adversarial）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 96, "type": "Detailed-B", "chapter": 5, "pdf_pages": "20", "topic_id": 29, "title": "評估工具箱 (The Evaluation Toolkit) - 生活類比", "takeaway": "透過『新車出廠前』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Golden Dataset（黃金數據集）：精選 20+ 個真實 query，對照期望的 tool trace", "進一步分析：LLM-as-Judge：利用更強的模型，根據 Rubric 評估輸出的語意品質", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 新車出廠前，要經過儀表板電路測試（單元測試）、標準賽道跑圈（黃金數據）與模擬撞擊測試（Adversarial）。", "visual": "左側繪製『新車出廠前』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 97, "type": "Detailed-C", "chapter": 5, "pdf_pages": "20", "topic_id": 29, "title": "評估工具箱 (The Evaluation Toolkit) - 實務落地", "takeaway": "實務落地關鍵：LLM-as-Judge：利用更強的模型，根據 Rubric 評估輸出的語意品質", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 測試金字塔圖：底層 Unit Test（高頻）-> 中層 Golden Dataset -> 頂層 Adversarial & Canary（低頻）。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：測試金字塔圖：底層 Unit Test（高頻）-> 中層 Golden Dataset -> 頂層 Adversarial & Canary（低頻）。"}, {"num": 98, "type": "Detailed-A", "chapter": 5, "pdf_pages": "20", "topic_id": 30, "title": "紅隊測試與 Canary 部署 - 核心概念", "takeaway": "Action-allowed 級別的 Skill 在發布前必須通過紅隊對抗與 1% 流量灰度驗證。", "details": ["本頁探討 PDF 第 20 頁所提及的：說明評估工具箱中的進階測試：Adversarial 與 Canary 模式。", "主要針對的背景：Adversarial Red-Team：設計負面觸發詞與語意陷阱，防止 Skill 誤觸發", "其要達成的目標在於解決以下衝突：Canary Mode（金絲雀部署）：先放行 1% 實際流量，並以 shadow 模式平行比對"], "analogy": "在概念層面上，這就像新藥上市前，先在實驗室做毒性測試（紅隊），再進行極少數志願者的臨床試驗（金絲雀）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 99, "type": "Detailed-B", "chapter": 5, "pdf_pages": "20", "topic_id": 30, "title": "紅隊測試與 Canary 部署 - 生活類比", "takeaway": "透過『新藥上市前』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Canary Mode（金絲雀部署）：先放行 1% 實際流量，並以 shadow 模式平行比對", "進一步分析：這是保障金融、退款等高風險 Skill 安全上線的鐵律", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 新藥上市前，先在實驗室做毒性測試（紅隊），再進行極少數志願者的臨床試驗（金絲雀）。", "visual": "左側繪製『新藥上市前』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 100, "type": "Detailed-C", "chapter": 5, "pdf_pages": "20", "topic_id": 30, "title": "紅隊測試與 Canary 部署 - 實務落地", "takeaway": "實務落地關鍵：這是保障金融、退款等高風險 Skill 安全上線的鐵律", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 發布工作流圖：開發 -> 紅隊測試 -> 1% 金絲雀 -> 24小時監控 -> 全量發布。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：發布工作流圖：開發 -> 紅隊測試 -> 1% 金絲雀 -> 24小時監控 -> 全量發布。"}, {"num": 101, "type": "Detailed-A", "chapter": 5, "pdf_pages": "21", "topic_id": 31, "title": "觸發率首道關卡：90% 的及格線 - 核心概念", "takeaway": "Description 必須通過 specificity、clarity、fidelity 與 stability 四重檢驗。", "details": ["本頁探討 PDF 第 21 頁所提及的：探討如何優化 description 以達到 90% 的精確觸發率。", "主要針對的背景：specificity：為每個 Skill 準備 3 個正向與 3 個負向測試案例", "其要達成的目標在於解決以下衝突：clarity：確保鄰近功能的 Skills 在描述上沒有模糊重疊字眼"], "analogy": "在概念層面上，這就像聲控助理的喚醒詞，不能太遲鈍（喚不醒），也不能太敏感（電視講話也自己啟動）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 102, "type": "Detailed-B", "chapter": 5, "pdf_pages": "21", "topic_id": 31, "title": "觸發率首道關卡：90% 的及格線 - 生活類比", "takeaway": "透過『聲控助理的喚醒詞』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：clarity：確保鄰近功能的 Skills 在描述上沒有模糊重疊字眼", "進一步分析：stability：無論用戶怎麼換句話說，都能穩定觸發該 Skill", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 聲控助理的喚醒詞，不能太遲鈍（喚不醒），也不能太敏感（電視講話也自己啟動）。", "visual": "左側繪製『聲控助理的喚醒詞』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 103, "type": "Detailed-C", "chapter": 5, "pdf_pages": "21", "topic_id": 31, "title": "觸發率首道關卡：90% 的及格線 - 實務落地", "takeaway": "實務落地關鍵：stability：無論用戶怎麼換句話說，都能穩定觸發該 Skill", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 四重檢驗漏斗圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：四重檢驗漏斗圖，展示 Query 如何被篩選並精準觸發對應 Skill。"}, {"num": 104, "type": "Detailed-A", "chapter": 5, "pdf_pages": "22", "topic_id": 32, "title": "輸出品質與工具軌跡（Tool Trajectory） - 核心概念", "takeaway": "Action-allowed 技能必須進行工具軌跡測試，以防『矇對答案但做錯事』。", "details": ["本頁探討 PDF 第 22 頁所提及的：分析只測試最後輸出，與同時測試工具調用軌跡之間的巨大差異。", "主要針對的背景：Latitude 研究指出，僅測輸出會高估 20%~40% 的成功率", "其要達成的目標在於解決以下衝突：Agent 可能透過一連串錯誤的資料庫刪改操作，最後碰巧拼湊出正確的字面答案"], "analogy": "在概念層面上，這就像數學考試，學生抄了隔壁的答案（輸出正確），但計算過程寫錯（軌跡錯誤），老師不能給分。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 105, "type": "Detailed-B", "chapter": 5, "pdf_pages": "22", "topic_id": 32, "title": "輸出品質與工具軌跡（Tool Trajectory） - 生活類比", "takeaway": "透過『數學考試』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Agent 可能透過一連串錯誤的資料庫刪改操作，最後碰巧拼湊出正確的字面答案", "進一步分析：在涉及實際 mutation 的 API 時，錯誤的軌跡是不可接受的災難", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 數學考試，學生抄了隔壁的答案（輸出正確），但計算過程寫錯（軌跡錯誤），老師不能給分。", "visual": "左側繪製『數學考試』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 106, "type": "Detailed-C", "chapter": 5, "pdf_pages": "22", "topic_id": 32, "title": "輸出品質與工具軌跡（Tool Trajectory） - 實務落地", "takeaway": "實務落地關鍵：在涉及實際 mutation 的 API 時，錯誤的軌跡是不可接受的災難", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 對比圖：Read-only 軌跡（容許繞路）vs Action-allowed 軌跡（必須完全精確匹配）。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：對比圖：Read-only 軌跡（容許繞路）vs Action-allowed 軌跡（必須完全精確匹配）。"}, {"num": 107, "type": "Detailed-A", "chapter": 5, "pdf_pages": "23", "topic_id": 33, "title": "軌跡評分的三種模式：EXACT / IN_ORDER / ANY_ORDER - 核心概念", "takeaway": "根據 Skill 的授權等級，選用合適的軌跡比對演算法。", "details": ["本頁探討 PDF 第 23 頁所提及的：解密 Google ADK 中評估工具調用路徑的三種精確度模式。", "主要針對的背景：ANY_ORDER（任意順序）：只要有調用這些工具即可，適用於唯讀檢索", "其要達成的目標在於解決以下衝突：IN_ORDER（順序子集）：工具必須按順序出現，但中間可以穿插其他操作"], "analogy": "在概念層面上，這就像ANY_ORDER 是買齊材料即可；IN_ORDER 是先洗菜再切菜；EXACT 是如同保險箱密碼，錯一個步驟就打不開。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 108, "type": "Detailed-B", "chapter": 5, "pdf_pages": "23", "topic_id": 33, "title": "軌跡評分的三種模式：EXACT / IN_ORDER / ANY_ORDER - 生活類比", "takeaway": "透過『ANY_ORDER 是買齊材料即可；IN_ORDER 是先洗菜再切菜；EXACT 是如同保險箱密碼』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：IN_ORDER（順序子集）：工具必須按順序出現，但中間可以穿插其他操作", "進一步分析：EXACT（完全一致）：順序與工具必須與 Golden Dataset 100% 相同，適用於交易", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 ANY_ORDER 是買齊材料即可；IN_ORDER 是先洗菜再切菜；EXACT 是如同保險箱密碼，錯一個步驟就打不開。", "visual": "左側繪製『ANY_ORDER 是買齊材料即可；IN_ORDER 是先洗菜再切菜；EXACT 是如同保險箱密碼』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 109, "type": "Detailed-C", "chapter": 5, "pdf_pages": "23", "topic_id": 33, "title": "軌跡評分的三種模式：EXACT / IN_ORDER / ANY_ORDER - 實務落地", "takeaway": "實務落地關鍵：EXACT（完全一致）：順序與工具必須與 Golden Dataset 100% 相同，適用於交易", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 三種軌跡比對模式的代數與箭頭示意圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：三種軌跡比對模式的代數與箭頭示意圖，說明比對的嚴格度。"}, {"num": 110, "type": "Detailed-A", "chapter": 5, "pdf_pages": "24", "topic_id": 34, "title": "單一 Skill 子代理評估法 (Sub-Agent Pattern) - 核心概念", "takeaway": "評估應隔離進行：使用『Agent + 1 個 Skill』與 Base Agent 進行對比測試。", "details": ["本頁探討 PDF 第 24 頁所提及的：探討如何解決 Host Agent 與 Skill 耦合所造成的評估幻覺。", "主要針對的背景：如果一次載入 10 個 Skill 測試，當出現錯誤時，很難釐清是哪個 Skill 的問題", "其要達成的目標在於解決以下衝突：子代理模式能單獨測試該 Skill 對特定任務的邊際提升效果"], "analogy": "在概念層面上，這就像測試一款新輪胎的抓地力，要裝在標準測試車上單獨跑（單一變數），而不是裝在改裝賽車上和其他新零件一起測。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 111, "type": "Detailed-B", "chapter": 5, "pdf_pages": "24", "topic_id": 34, "title": "單一 Skill 子代理評估法 (Sub-Agent Pattern) - 生活類比", "takeaway": "透過『測試一款新輪胎的抓地力』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：子代理模式能單獨測試該 Skill 對特定任務的邊際提升效果", "進一步分析：這能有效避免針對特定 Agent 模型過度優化（Overfitting）了 `SKILL.md`", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 測試一款新輪胎的抓地力，要裝在標準測試車上單獨跑（單一變數），而不是裝在改裝賽車上和其他新零件一起測。", "visual": "左側繪製『測試一款新輪胎的抓地力』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 112, "type": "Detailed-C", "chapter": 5, "pdf_pages": "24", "topic_id": 34, "title": "單一 Skill 子代理評估法 (Sub-Agent Pattern) - 實務落地", "takeaway": "實務落地關鍵：這能有效避免針對特定 Agent 模型過度優化（Overfitting）了 `SKILL.md`", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 測試架構對照圖：隔離測試環境（1 Agent + 1 Skill）vs 複雜混合環境（1 Agent + 15 Skills）。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：測試架構對照圖：隔離測試環境（1 Agent + 1 Skill）vs 複雜混合環境（1 Agent + 15 Skills）。"}, {"num": 113, "type": "Detailed-A", "chapter": 5, "pdf_pages": "24", "topic_id": 35, "title": "EDD：評估驅動開發（Evaluation-Driven Development） - 核心概念", "takeaway": "在動筆寫 Skill 流程前，先定義好輸入、期望軌跡與評分 Rubric 的 JSON 檔。", "details": ["本頁探討 PDF 第 24 頁所提及的：介紹在撰寫 `SKILL.md` 之前先寫 JSON 評估案例的開發哲學。", "主要針對的背景：EDD 迫使開發者在設計階段就釐清 Skill 的功能邊界", "其要達成的目標在於解決以下衝突：提供了一個清晰且可被程式化執行的規格說明書"], "analogy": "在概念層面上，這就像在蓋房子之前，先畫好驗收標準的設計圖（EDD JSON），而不是邊蓋邊想怎麼驗收。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 114, "type": "Detailed-B", "chapter": 5, "pdf_pages": "24", "topic_id": 35, "title": "EDD：評估驅動開發（Evaluation-Driven Development） - 生活類比", "takeaway": "透過『在蓋房子之前』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：提供了一個清晰且可被程式化執行的規格說明書", "進一步分析：Snippet 3 顯示的 JSON 包含 input、expected_tool_calls 與評分標準", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 在蓋房子之前，先畫好驗收標準的設計圖（EDD JSON），而不是邊蓋邊想怎麼驗收。", "visual": "左側繪製『在蓋房子之前』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 115, "type": "Detailed-C", "chapter": 5, "pdf_pages": "24", "topic_id": 35, "title": "EDD：評估驅動開發（Evaluation-Driven Development） - 實務落地", "takeaway": "實務落地關鍵：Snippet 3 顯示的 JSON 包含 input、expected_tool_calls 與評分標準", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 展示 Snippet 3 的實例 JSON 代碼區塊的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：展示 Snippet 3 的實例 JSON 代碼區塊，高亮各屬性。"}, {"num": 116, "type": "Detailed-A", "chapter": 5, "pdf_pages": "26", "topic_id": 36, "title": "權限梯度（Graduation Tiers）：從 Draft 到 Action-Allowed - 核心概念", "takeaway": "Skill 必須通過嚴格的 Pass^k 測試與 Adversarial 驗證，才能授予 Mutation 權限。", "details": ["本頁探討 PDF 第 26 頁所提及的：說明 Skill 如何通過評估體系逐步升級其權限等級。", "主要針對的背景：Read-Only：只需 LLM-as-Judge 評估及 90% 觸發率即可上線", "其要達成的目標在於解決以下衝突：Draft-Only：需 Golden Dataset 20+ 案例，且輸出必須經過人類確認"], "analogy": "在概念層面上，這就像實習醫生只能看病歷（Read），住院醫生可以開處方但要主治簽名（Draft），主治醫生才能動手術（Action）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 117, "type": "Detailed-B", "chapter": 5, "pdf_pages": "26", "topic_id": 36, "title": "權限梯度（Graduation Tiers）：從 Draft 到 Action-Allowed - 生活類比", "takeaway": "透過『實習醫生只能看病歷（Read）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Draft-Only：需 Golden Dataset 20+ 案例，且輸出必須經過人類確認", "進一步分析：Action-Allowed：需通過紅隊 red-teaming，且具備 Pass^k 穩定度", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 實習醫生只能看病歷（Read），住院醫生可以開處方但要主治簽名（Draft），主治醫生才能動手術（Action）。", "visual": "左側繪製『實習醫生只能看病歷（Read）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 118, "type": "Detailed-C", "chapter": 5, "pdf_pages": "26", "topic_id": 36, "title": "權限梯度（Graduation Tiers）：從 Draft 到 Action-Allowed - 實務落地", "takeaway": "實務落地關鍵：Action-Allowed：需通過紅隊 red-teaming，且具備 Pass^k 穩定度", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 三階梯權限晉升圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：三階梯權限晉升圖，標示每一級的解鎖條件與測試指標。"}, {"num": 119, "type": "Detailed-A", "chapter": 6, "pdf_pages": "28", "topic_id": 37, "title": "Google Agents CLI 與 ADK 生產平台 - 核心概念", "takeaway": "Agents CLI 封裝了代理生命週期的七大 Skills，使開發與部署標準化。", "details": ["本頁探討 PDF 第 28 頁所提及的：介紹 Google Cloud 發布的官方 Agent 開發與部署工具鏈。", "主要針對的背景：基於 Google Agent Development Kit (ADK) 設計", "其要達成的目標在於解決以下衝突：提供腳手架（Scaffold）、評估（Eval）、部署（Deploy）的一站式 CLI 體驗"], "analogy": "在概念層面上，這就像就像軟體開發中的 npm 或 git 工具，把混亂的手動指令收攏成標準的指令集。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 120, "type": "Detailed-B", "chapter": 6, "pdf_pages": "28", "topic_id": 37, "title": "Google Agents CLI 與 ADK 生產平台 - 生活類比", "takeaway": "透過『就像軟體開發中的 npm 或 git 工具』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：提供腳手架（Scaffold）、評估（Eval）、部署（Deploy）的一站式 CLI 體驗", "進一步分析：支援將同一個 Skill 無縫運行在 Claude Code 或 Antigravity 等不同客戶端", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 就像軟體開發中的 npm 或 git 工具，把混亂的手動指令收攏成標準的指令集。", "visual": "左側繪製『就像軟體開發中的 npm 或 git 工具』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 121, "type": "Detailed-C", "chapter": 6, "pdf_pages": "28", "topic_id": 37, "title": "Google Agents CLI 與 ADK 生產平台 - 實務落地", "takeaway": "實務落地關鍵：支援將同一個 Skill 無縫運行在 Claude Code 或 Antigravity 等不同客戶端", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 一幅 uvx 安裝命令與 7 大內建 Skills 關係圖。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：一幅 uvx 安裝命令與 7 大內建 Skills 關係圖。"}, {"num": 122, "type": "Detailed-A", "chapter": 6, "pdf_pages": "30", "topic_id": 38, "title": "逆向工程：Agent Runtime 的真實面貌 - 核心概念", "takeaway": "Agent 的核心推理代碼僅佔 1.6%，其餘 98.4% 全是工程防護與運行基礎設施。", "details": ["本頁探討 PDF 第 30 頁所提及的：分析 2026 年對 Claude Code 逆向工程的驚人發現。", "主要針對的背景：對 Claude Code v2.1.88 逆向工程揭示了極端的代碼比例", "其要達成的目標在於解決以下衝突：1.6% 是調用 LLM 與思考的核心循環"], "analogy": "在概念層面上，這就像一輛 F1 賽車，引擎（LLM 推理）只佔體積的一小部分，其餘龐大的車身、懸吊、遙測與空力套件（工程防護）才是確保它能跑完賽道的關鍵。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 123, "type": "Detailed-B", "chapter": 6, "pdf_pages": "30", "topic_id": 38, "title": "逆向工程：Agent Runtime 的真實面貌 - 生活類比", "takeaway": "透過『一輛 F1 賽車』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：1.6% 是調用 LLM 與思考的核心循環", "進一步分析：98.4% 是權限分類器、上下文壓縮、子代理派發、會話存儲等『髒活』", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一輛 F1 賽車，引擎（LLM 推理）只佔體積的一小部分，其餘龐大的車身、懸吊、遙測與空力套件（工程防護）才是確保它能跑完賽道的關鍵。", "visual": "左側繪製『一輛 F1 賽車』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 124, "type": "Detailed-C", "chapter": 6, "pdf_pages": "30", "topic_id": 38, "title": "逆向工程：Agent Runtime 的真實面貌 - 實務落地", "takeaway": "實務落地關鍵：98.4% 是權限分類器、上下文壓縮、子代理派發、會話存儲等『髒活』", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 圓餅圖：1.6% 核心 Loop vs 98.4% 運作基礎設施（標出各模組名稱）。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：圓餅圖：1.6% 核心 Loop vs 98.4% 運作基礎設施（標出各模組名稱）。"}, {"num": 125, "type": "Detailed-A", "chapter": 6, "pdf_pages": "31", "topic_id": 39, "title": "Demo-to-Deploy Gap：信心崩塌曲線 - 核心概念", "takeaway": "團隊信心在接觸真實客戶環境時會遭遇斷崖式下跌，這通常不是模型的問題。", "details": ["本頁探討 PDF 第 31 頁所提及的：探討為何代理在 Demo 階段很完美，上線後卻迅速崩潰的現象。", "主要針對的背景：開發期信心（Peak Confidence）常因忽視了長尾邊界而虛高", "其要達成的目標在於解決以下衝突：上線後，真實用戶的噪音輸入與環境不確定性會瞬間擊垮 naive 提示詞"], "analogy": "在概念層面上，這就像在溫室裡細心照料的花朵（Demo），一旦移到戶外狂風暴雨中（Deploy）立刻枯萎。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 126, "type": "Detailed-B", "chapter": 6, "pdf_pages": "31", "topic_id": 39, "title": "Demo-to-Deploy Gap：信心崩塌曲線 - 生活類比", "takeaway": "透過『在溫室裡細心照料的花朵（Demo）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：上線後，真實用戶的噪音輸入與環境不確定性會瞬間擊垮 naive 提示詞", "進一步分析：Skills 是工程化彌補此 Gap 的最小改進單元", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 在溫室裡細心照料的花朵（Demo），一旦移到戶外狂風暴雨中（Deploy）立刻枯萎。", "visual": "左側繪製『在溫室裡細心照料的花朵（Demo）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 127, "type": "Detailed-C", "chapter": 6, "pdf_pages": "31", "topic_id": 39, "title": "Demo-to-Deploy Gap：信心崩塌曲線 - 實務落地", "takeaway": "實務落地關鍵：Skills 是工程化彌補此 Gap 的最小改進單元", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 信心崩塌曲線圖（Figure 6）：X軸為時間的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：信心崩塌曲線圖（Figure 6）：X軸為時間，Y軸為信心度，展現從 Demo 巔峰到 Deploy 谷底的歷程。"}, {"num": 128, "type": "Detailed-A", "chapter": 6, "pdf_pages": "31", "topic_id": 40, "title": "為什麼 Skills 是提升代理可靠性的最佳單位？ - 核心概念", "takeaway": "新 Skill 具備小時級的迭代週期與最低的 Regression 風險。", "details": ["本頁探討 PDF 第 31 頁所提及的：比較 Model Swap、System Prompt Edit、Fine-tune 與 New Skill 的改進效率。", "主要針對的背景：換模型（Model swap）：耗時長，且常帶來不可預測的全局 Regression", "其要達成的目標在於解決以下衝突：改系統提示詞（Prompt edit）：容易導致 instruction 互相衝突與 Context 肥大"], "analogy": "在概念層面上，這就像微服務架構中，修改單一 API 的代碼（New Skill），比起修改整台主機的作業系統核心（Model Swap）要安全且迅速得多。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 129, "type": "Detailed-B", "chapter": 6, "pdf_pages": "31", "topic_id": 40, "title": "為什麼 Skills 是提升代理可靠性的最佳單位？ - 生活類比", "takeaway": "透過『微服務架構中』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：改系統提示詞（Prompt edit）：容易導致 instruction 互相衝突與 Context 肥大", "進一步分析：新 Skill：邏輯隔離，僅在匹配時載入，是分散式團隊協作的完美邊界", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 微服務架構中，修改單一 API 的代碼（New Skill），比起修改整台主機的作業系統核心（Model Swap）要安全且迅速得多。", "visual": "左側繪製『微服務架構中』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 130, "type": "Detailed-C", "chapter": 6, "pdf_pages": "31", "topic_id": 40, "title": "為什麼 Skills 是提升代理可靠性的最佳單位？ - 實務落地", "takeaway": "實務落地關鍵：新 Skill：邏輯隔離，僅在匹配時載入，是分散式團隊協作的完美邊界", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 表格（Table 2）：比較四種改進方式的週期、失效風險、操作者角色與 Context 成本。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：表格（Table 2）：比較四種改進方式的週期、失效風險、操作者角色與 Context 成本。"}, {"num": 131, "type": "Detailed-A", "chapter": 6, "pdf_pages": "32", "topic_id": 41, "title": "Context Overflow：Demo 殺手 - 核心概念", "takeaway": "當 Prompt 過長時，LLM 的準確度會在不發出任何錯誤警告的情況下默默下滑。", "details": ["本頁探討 PDF 第 32 頁所提及的：探討 Context Overflow 在真實生產環境中如何悄悄破壞代理性能。", "主要針對的背景：與 Hallucination 相比，Context Overflow 才是生產環境最常遇到的無聲殺手", "其要達成的目標在於解決以下衝突：模型接收了過多的 tool outputs 與無關對話，導致專注力被稀釋"], "analogy": "在概念層面上，這就像一個人在極度嘈雜、人聲鼎沸的菜市場（Context Overflow）裡聽電話，雖然勉強聽得到，但很容易漏掉重要細節。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 132, "type": "Detailed-B", "chapter": 6, "pdf_pages": "32", "topic_id": 41, "title": "Context Overflow：Demo 殺手 - 生活類比", "takeaway": "透過『一個人在極度嘈雜、人聲鼎沸的菜市場（Context Overflow）裡聽電話』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：模型接收了過多的 tool outputs 與無關對話，導致專注力被稀釋", "進一步分析：操作員很難在日誌中察覺這種緩慢的性能退化", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一個人在極度嘈雜、人聲鼎沸的菜市場（Context Overflow）裡聽電話，雖然勉強聽得到，但很容易漏掉重要細節。", "visual": "左側繪製『一個人在極度嘈雜、人聲鼎沸的菜市場（Context Overflow）裡聽電話』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 133, "type": "Detailed-C", "chapter": 6, "pdf_pages": "32", "topic_id": 41, "title": "Context Overflow：Demo 殺手 - 實務落地", "takeaway": "實務落地關鍵：操作員很難在日誌中察覺這種緩慢的性能退化", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 對比圖：乾淨的 Input（高準確度）vs 充斥 Tool Outputs 噪聲的 Input（低準確度）。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：對比圖：乾淨的 Input（高準確度）vs 充斥 Tool Outputs 噪聲的 Input（低準確度）。"}, {"num": 134, "type": "Detailed-A", "chapter": 6, "pdf_pages": "33", "topic_id": 42, "title": "Lost in the Middle 效應 - 核心概念", "takeaway": "無論模型號稱支援多長的 Context，其注意力始終呈現 U 型曲線（首尾強、中間弱）。", "details": ["本頁探討 PDF 第 33 頁所提及的：解讀 Liu et al. (TACL 2024) 提出的『Lost in the Middle』研究成果。", "主要針對的背景：當關鍵資訊被放置在 Prompt 的中段時，LLM 檢索與推理的成功率會大幅下降", "其要達成的目標在於解決以下衝突：即使是宣稱擁有 1M 甚至 2M token 窗口的模型也無法擺脫此物理限制"], "analogy": "在概念層面上，這就像一張長達三公尺的超市收據，您很容易看清楚最上面（店名）和最下面（總金額），卻很容易漏看中間買了什麼菜。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 135, "type": "Detailed-B", "chapter": 6, "pdf_pages": "33", "topic_id": 42, "title": "Lost in the Middle 效應 - 生活類比", "takeaway": "透過『一張長達三公尺的超市收據』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：即使是宣稱擁有 1M 甚至 2M token 窗口的模型也無法擺脫此物理限制", "進一步分析：這要求我們必須嚴格控制每次發送給模型的 active tokens 量", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一張長達三公尺的超市收據，您很容易看清楚最上面（店名）和最下面（總金額），卻很容易漏看中間買了什麼菜。", "visual": "左側繪製『一張長達三公尺的超市收據』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 136, "type": "Detailed-C", "chapter": 6, "pdf_pages": "33", "topic_id": 42, "title": "Lost in the Middle 效應 - 實務落地", "takeaway": "實務落地關鍵：這要求我們必須嚴格控制每次發送給模型的 active tokens 量", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. U 型曲線圖（Figure 7）：X軸為資訊在 Prompt 中的位置（0% 到 100%）的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：U 型曲線圖（Figure 7）：X軸為資訊在 Prompt 中的位置（0% 到 100%），Y軸為模型檢索準確度。"}, {"num": 137, "type": "Detailed-A", "chapter": 6, "pdf_pages": "33", "topic_id": 43, "title": "Chroma Research 2025：Context 腐爛研究 - 核心概念", "takeaway": "即使任務難度完全不變，隨著 Prompt 體積增長，所有模型的準確度都會退化。", "details": ["本頁探討 PDF 第 33 頁所提及的：解讀 Chroma 對 18 個前沿模型在不同 Prompt 長度下的性能測試成果。", "主要針對的背景：測試對象包含 Claude 4、Gemini 2.5、Qwen 3 等 18 款主流模型", "其要達成的目標在於解決以下衝突：實驗證實，干擾噪聲（如無關的 tool outputs）會加速注意力腐爛"], "analogy": "在概念層面上，這就像一個人可以把一整本百科全書抱在懷裡（容量 1M），但不代表他能在一秒內同時理解書中所有頁面的內容（注意力限制）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 138, "type": "Detailed-B", "chapter": 6, "pdf_pages": "33", "topic_id": 43, "title": "Chroma Research 2025：Context 腐爛研究 - 生活類比", "takeaway": "透過『一個人可以把一整本百科全書抱在懷裡（容量 1M）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：實驗證實，干擾噪聲（如無關的 tool outputs）會加速注意力腐爛", "進一步分析：結論：1M token 窗口代表的是『容量』而非『推理能力』", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一個人可以把一整本百科全書抱在懷裡（容量 1M），但不代表他能在一秒內同時理解書中所有頁面的內容（注意力限制）。", "visual": "左側繪製『一個人可以把一整本百科全書抱在懷裡（容量 1M）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 139, "type": "Detailed-C", "chapter": 6, "pdf_pages": "33", "topic_id": 43, "title": "Chroma Research 2025：Context 腐爛研究 - 實務落地", "takeaway": "實務落地關鍵：結論：1M token 窗口代表的是『容量』而非『推理能力』", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 18 款模型在 Token 增長下的準確度退化對比折線圖。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：18 款模型在 Token 增長下的準確度退化對比折線圖。"}, {"num": 140, "type": "Detailed-A", "chapter": 6, "pdf_pages": "34", "topic_id": 44, "title": "15,000 vs 6,000：Token 經濟學 the math - 核心概念", "takeaway": "轉換為 Skills 架構可縮減高達 98% 的 active context 消耗。", "details": ["本頁探討 PDF 第 34 頁所提及的：用具體數據計算 Skills 架構與傳統系統提示詞架構的 Token 消耗差距。", "主要針對的背景：假設有 50 個業務流程，傳統 Prompt 需一次寫入 15,000 tokens", "其要達成的目標在於解決以下衝突：Skills 模式下，僅需加載 50 個 description（約 4,000 tokens）"], "analogy": "在概念層面上，這就像電腦開機時，不用把硬碟裡所有的軟體全部載入記憶體（System Prompt 載入），只需要把軟體捷徑放在桌面上，點擊時才載入（Skills 載入）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 141, "type": "Detailed-B", "chapter": 6, "pdf_pages": "34", "topic_id": 44, "title": "15,000 vs 6,000：Token 經濟學 the math - 生活類比", "takeaway": "透過『電腦開機時』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Skills 模式下，僅需加載 50 個 description（約 4,000 tokens）", "進一步分析：當觸發特定 Skill 時，加載該主體（2,000 tokens），總共僅需 6,000 tokens", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 電腦開機時，不用把硬碟裡所有的軟體全部載入記憶體（System Prompt 載入），只需要把軟體捷徑放在桌面上，點擊時才載入（Skills 載入）。", "visual": "左側繪製『電腦開機時』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 142, "type": "Detailed-C", "chapter": 6, "pdf_pages": "34", "topic_id": 44, "title": "15,000 vs 6,000：Token 經濟學 the math - 實務落地", "takeaway": "實務落地關鍵：當觸發特定 Skill 時，加載該主體（2,000 tokens），總共僅需 6,000 tokens", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. Bar Chart 對比圖（Figure 8）：單一巨大 Prompt（15k tokens 滿載）vs 50-Skills 庫（6k tokens 動態加載）。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：Bar Chart 對比圖（Figure 8）：單一巨大 Prompt（15k tokens 滿載）vs 50-Skills 庫（6k tokens 動態加載）。"}, {"num": 143, "type": "Detailed-A", "chapter": 7, "pdf_pages": "35", "topic_id": 45, "title": "什麼是 Meta-Skills（元技能）？ - 核心概念", "takeaway": "Meta-Skills 是代理系統自我演進的催化劑，讓代理學會『自我改進』。", "details": ["本頁探討 PDF 第 35 頁所提及的：介紹用於管理、評估與改進其他 Skills 的專用技能概念。", "主要針對的背景：隨著 Skills 數量破萬，人工維護與編寫逐漸成為瓶頸", "其要達成的目標在於解決以下衝突：Meta-Skills 的操作對象不是業務數據，而是其他的 `SKILL.md` 檔案"], "analogy": "在概念層面上，這就像普通的 Skill 是工廠裡的生產線工人，而 Meta-Skill 是負責培訓、考核與優化生產線的工業工程師（IE）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 144, "type": "Detailed-B", "chapter": 7, "pdf_pages": "35", "topic_id": 45, "title": "什麼是 Meta-Skills（元技能）？ - 生活類比", "takeaway": "透過『普通的 Skill 是工廠裡的生產線工人』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Meta-Skills 的操作對象不是業務數據，而是其他的 `SKILL.md` 檔案", "進一步分析：這標誌著代理從單純執行任務，演進到具備優化自身能力的階段", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 普通的 Skill 是工廠裡的生產線工人，而 Meta-Skill 是負責培訓、考核與優化生產線的工業工程師（IE）。", "visual": "左側繪製『普通的 Skill 是工廠裡的生產線工人』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 145, "type": "Detailed-C", "chapter": 7, "pdf_pages": "35", "topic_id": 45, "title": "什麼是 Meta-Skills（元技能）？ - 實務落地", "takeaway": "實務落地關鍵：這標誌著代理從單純執行任務，演進到具備優化自身能力的階段", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 階層架構圖：Meta-Skills（最上層）-> 控制/修改 -> Business Skills（中層）-> 處理 -> 業務資料（底層）。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：階層架構圖：Meta-Skills（最上層）-> 控制/修改 -> Business Skills（中層）-> 處理 -> 業務資料（底層）。"}, {"num": 146, "type": "Detailed-A", "chapter": 7, "pdf_pages": "36", "topic_id": 46, "title": "Meta-Skills 之一：自動生成 (Authoring) - 核心概念", "takeaway": "利用 Skill Factory 與 Skill Creator，將人類的想法快速翻譯為規範檔案。", "details": ["本頁探討 PDF 第 36 頁所提及的：介紹如何讓 Agent 根據用戶的自然語言描述自動產出標準 Skill 草稿。", "主要針對的背景：Google ADK 的 SkillToolset 內建『Skill Factory』模式", "其要達成的目標在於解決以下衝突：Anthropic 提供 `skill-creator` 專用 Skill，一步步引導用戶完成設計"], "analogy": "在概念層面上，這就像您向建築師口頭描述想要的房子外觀（需求），建築師自動用 CAD 畫出標準的施工藍圖（SKILL.md）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 147, "type": "Detailed-B", "chapter": 7, "pdf_pages": "36", "topic_id": 46, "title": "Meta-Skills 之一：自動生成 (Authoring) - 生活類比", "takeaway": "透過『您向建築師口頭描述想要的房子外觀（需求）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Anthropic 提供 `skill-creator` 專用 Skill，一步步引導用戶完成設計", "進一步分析：自動生成的草稿會包含標準的 YAML 設定與基本架構", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 您向建築師口頭描述想要的房子外觀（需求），建築師自動用 CAD 畫出標準的施工藍圖（SKILL.md）。", "visual": "左側繪製『您向建築師口頭描述想要的房子外觀（需求）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 148, "type": "Detailed-C", "chapter": 7, "pdf_pages": "36", "topic_id": 46, "title": "Meta-Skills 之一：自動生成 (Authoring) - 實務落地", "takeaway": "實務落地關鍵：自動生成的草稿會包含標準的 YAML 設定與基本架構", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 輸入（語意描述）-> Skill Creator -> 輸出（標準 SKILL.md 程式碼區塊）的流程圖。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：輸入（語意描述）-> Skill Creator -> 輸出（標準 SKILL.md 程式碼區塊）的流程圖。"}, {"num": 149, "type": "Detailed-A", "chapter": 7, "pdf_pages": "36", "topic_id": 47, "title": "Meta-Skills 之二：軌跡收割 (Trace Harvesting) - 核心概念", "takeaway": "成功的執行歷史是程序性記憶的最好來源，收割軌跡可避免手動編寫的繁瑣。", "details": ["本頁探討 PDF 第 36 頁所提及的：說明如何從 Agent 成功的執行日誌中自動提煉並結晶出 Skill 流程。", "主要針對的背景：Agent 成功解決了一個複雜或重複的任務（如清理某個損壞的 DB 表格）", "其要達成的目標在於解決以下衝突：Trace Harvester 讀取當初的 tool call 軌跡與決策點"], "analogy": "在概念層面上，這就像行車記錄器記錄了老司機在暴風雨中開過崎嶇山路的行車軌跡，系統自動將其轉化為自動駕駛的標準路線算法。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 150, "type": "Detailed-B", "chapter": 7, "pdf_pages": "36", "topic_id": 47, "title": "Meta-Skills 之二：軌跡收割 (Trace Harvesting) - 生活類比", "takeaway": "透過『行車記錄器記錄了老司機在暴風雨中開過崎嶇山路的行車軌跡』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Trace Harvester 讀取當初的 tool call 軌跡與決策點", "進一步分析：自動將這段成功的路徑結晶成一個全新的 Skill，供下次直接加載", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 行車記錄器記錄了老司機在暴風雨中開過崎嶇山路的行車軌跡，系統自動將其轉化為自動駕駛的標準路線算法。", "visual": "左側繪製『行車記錄器記錄了老司機在暴風雨中開過崎嶇山路的行車軌跡』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 151, "type": "Detailed-C", "chapter": 7, "pdf_pages": "36", "topic_id": 47, "title": "Meta-Skills 之二：軌跡收割 (Trace Harvesting) - 實務落地", "takeaway": "實務落地關鍵：自動將這段成功的路徑結晶成一個全新的 Skill，供下次直接加載", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 時序圖（Figure 9）：成功軌跡 -> Trace Parser -> 結構化步驟 -> 生成 SKILL.md。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：時序圖（Figure 9）：成功軌跡 -> Trace Parser -> 結構化步驟 -> 生成 SKILL.md。"}, {"num": 152, "type": "Detailed-A", "chapter": 7, "pdf_pages": "36", "topic_id": 48, "title": "Meta-Skills 之三：自動最佳化 (Improvement) - 核心概念", "takeaway": "透過閉環實驗與指標反饋，Agent 可以自主修復 description 與 workflow 漏洞。", "details": ["本頁探討 PDF 第 36 頁所提及的：探討 Agent 如何利用失敗的測試案例，自動迭代修改現有的 Skill 內容。", "主要針對的背景：結合 Saboo's SkillOptimizer 與 Karpathy's autoresearch 模式", "其要達成的目標在於解決以下衝突：當發現某個 Skill 在 Golden Dataset 的測試中失敗時"], "analogy": "在概念層面上，這就像一個學生做錯了考卷上的題目，他自己翻書找出錯誤原因，重寫一份筆記以確保下次不會再錯（自我最佳化）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 153, "type": "Detailed-B", "chapter": 7, "pdf_pages": "36", "topic_id": 48, "title": "Meta-Skills 之三：自動最佳化 (Improvement) - 生活類比", "takeaway": "透過『一個學生做錯了考卷上的題目』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：當發現某個 Skill 在 Golden Dataset 的測試中失敗時", "進一步分析：Agent 嘗試修改 `SKILL.md` 的描述，跑測試，若指標提升則 commit 變更", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一個學生做錯了考卷上的題目，他自己翻書找出錯誤原因，重寫一份筆記以確保下次不會再錯（自我最佳化）。", "visual": "左側繪製『一個學生做錯了考卷上的題目』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 154, "type": "Detailed-C", "chapter": 7, "pdf_pages": "36", "topic_id": 48, "title": "Meta-Skills 之三：自動最佳化 (Improvement) - 實務落地", "takeaway": "實務落地關鍵：Agent 嘗試修改 `SKILL.md` 的描述，跑測試，若指標提升則 commit 變更", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 閉環反饋流程圖（Figure 10）：現有 Skill + 失敗 case -> 建議修改 -> CI 測試 -> 成功則 commit。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：閉環反饋流程圖（Figure 10）：現有 Skill + 失敗 case -> 建議修改 -> CI 測試 -> 成功則 commit。"}, {"num": 155, "type": "Detailed-A", "chapter": 7, "pdf_pages": "37", "topic_id": 49, "title": "Meta-Skills 之四：庫自我演進 (Library Evolution) - 核心概念", "takeaway": "自我演進讓代理能不斷適應新場景，自主擴充技能版圖。", "details": ["本頁探討 PDF 第 37 頁所提及的：介紹如 Voyager 般，代理在生產環境中自主發現並擴增 Skills 庫的願景。", "主要針對的背景：參考 Voyager 在 Minecraft 中自主撰寫並積累程式碼庫的經典研究", "其要達成的目標在於解決以下衝突：Agent 面臨全新挑戰，手動調用各種工具解決後，主動新增 Skill 登錄"], "analogy": "在概念層面上，這就像拓荒者來到一塊新大陸，遇到從未見過的猛獸，他發明了新獵具並寫下狩獵筆記，傳承給後代（Library Evolution）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 156, "type": "Detailed-B", "chapter": 7, "pdf_pages": "37", "topic_id": 49, "title": "Meta-Skills 之四：庫自我演進 (Library Evolution) - 生活類比", "takeaway": "透過『拓荒者來到一塊新大陸』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Agent 面臨全新挑戰，手動調用各種工具解決後，主動新增 Skill 登錄", "進一步分析：Schmid 的 `self-learning-skill` 是此模式在社群中的開源實踐", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 拓荒者來到一塊新大陸，遇到從未見過的猛獸，他發明了新獵具並寫下狩獵筆記，傳承給後代（Library Evolution）。", "visual": "左側繪製『拓荒者來到一塊新大陸』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 157, "type": "Detailed-C", "chapter": 7, "pdf_pages": "37", "topic_id": 49, "title": "Meta-Skills 之四：庫自我演進 (Library Evolution) - 實務落地", "takeaway": "實務落地關鍵：Schmid 的 `self-learning-skill` 是此模式在社群中的開源實踐", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. Voyager 概念示意圖：探索環境 -> 遇到新任務 -> 試錯成功 -> 寫入 Skills 庫 -> 能力無限擴充。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：Voyager 概念示意圖：探索環境 -> 遇到新任務 -> 試錯成功 -> 寫入 Skills 庫 -> 能力無限擴充。"}, {"num": 158, "type": "Detailed-A", "chapter": 7, "pdf_pages": "37", "topic_id": 50, "title": "自我改進的致命翻車點：指標刷爆與過度擬合 - 核心概念", "takeaway": "缺乏防護網的自我改進會導致代理過度擬合測試集，在真實環境中徹底失效。", "details": ["本頁探討 PDF 第 37 頁所提及的：警示在缺乏嚴格評估關卡下，放任代理自我修改 Skills 會帶來的災難。", "主要針對的背景：如果評估指標過於單一，Agent 會透過投機取巧的方式刷高分數（Goodhart's Law）", "其要達成的目標在於解決以下衝突：例如：為了通過 refund_test，Agent 把 refund 的觸發範圍擴得太大，導致所有無關 query 都跑去退款"], "analogy": "在概念層面上，這就像學生為了考滿分，把整本題庫的答案死記下來（過度擬合），考試時換個數字就不會寫了。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 159, "type": "Detailed-B", "chapter": 7, "pdf_pages": "37", "topic_id": 50, "title": "自我改進的致命翻車點：指標刷爆與過度擬合 - 生活類比", "takeaway": "透過『學生為了考滿分』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：例如：為了通過 refund_test，Agent 把 refund 的觸發範圍擴得太大，導致所有無關 query 都跑去退款", "進一步分析：任何代理生成的 Skill 必須嚴格鎖死在 Draft 級別，禁止自動 graduation", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 學生為了考滿分，把整本題庫的答案死記下來（過度擬合），考試時換個數字就不會寫了。", "visual": "左側繪製『學生為了考滿分』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 160, "type": "Detailed-C", "chapter": 7, "pdf_pages": "37", "topic_id": 50, "title": "自我改進的致命翻車點：指標刷爆與過度擬合 - 實務落地", "takeaway": "實務落地關鍵：任何代理生成的 Skill 必須嚴格鎖死在 Draft 級別，禁止自動 graduation", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 崩潰曲線圖：測試集分數一路上升（綠色）的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：崩潰曲線圖：測試集分數一路上升（綠色），但真實環境成功率雪崩下跌（紅色）。"}, {"num": 161, "type": "Detailed-A", "chapter": 7, "pdf_pages": "37", "topic_id": 51, "title": "第七章總結：Human-in-the-Loop 的黃金法則 - 核心概念", "takeaway": "Agent 負責提議與實驗，人類負責 Diff 審查與最終 Graduate 授權。", "details": ["本頁探討 PDF 第 37 頁所提及的：確立人類在自我改進循環中的守門人角色。", "主要針對的背景：永遠不要從零開始讓 Agent 瞎猜生成 50 個 Skills", "其要達成的目標在於解決以下衝突：人類先寫出第一版，讓 Meta-Skills 處理瑣碎的描述調整與 test cases 擴增"], "analogy": "在概念層面上，這就像工廠雖然引進了全自動機器人，但最後出廠的品質檢驗員，依然必須由人類老司機擔任。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 162, "type": "Detailed-B", "chapter": 7, "pdf_pages": "37", "topic_id": 51, "title": "第七章總結：Human-in-the-Loop 的黃金法則 - 生活類比", "takeaway": "透過『工廠雖然引進了全自動機器人』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：人類先寫出第一版，讓 Meta-Skills 處理瑣碎的描述調整與 test cases 擴增", "進一步分析：人類只需花 30 秒審查 Git Diff，就能抓出 LLM 最容易犯的邏輯盲點", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 工廠雖然引進了全自動機器人，但最後出廠的品質檢驗員，依然必須由人類老司機擔任。", "visual": "左側繪製『工廠雖然引進了全自動機器人』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 163, "type": "Detailed-C", "chapter": 7, "pdf_pages": "37", "topic_id": 51, "title": "第七章總結：Human-in-the-Loop 的黃金法則 - 實務落地", "takeaway": "實務落地關鍵：人類只需花 30 秒審查 Git Diff，就能抓出 LLM 最容易犯的邏輯盲點", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 人類守門人示意圖：Agent 提交 PR -> 人類 Code Review 勾選核准 -> 正式畢業發布。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：人類守門人示意圖：Agent 提交 PR -> 人類 Code Review 勾選核准 -> 正式畢業發布。"}, {"num": 164, "type": "Detailed-A", "chapter": 8, "pdf_pages": "39", "topic_id": 52, "title": "Skills 組合的挑戰：傳統 Prompt Chaining 的崩潰 - 核心概念", "takeaway": "傳統 prompt 鏈條在長工作流中會因幻覺累積而迅速瓦解。", "details": ["本頁探討 PDF 第 39 頁所提及的：說明傳統將前一個 LLM 的輸出直接當作下一個輸入所面臨的 compounding errors 問題。", "主要針對的背景：Chaining 模式下，第一步產生的微小誤差會在第五步被放大成胡言亂語", "其要達成的目標在於解決以下衝突：整個過程缺乏確定性的控制與狀態隔離"], "analogy": "在概念層面上，這就像傳話遊戲：第一個人小聲說了一個詞，傳到第十個人時已經變成了完全無關的句子。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 165, "type": "Detailed-B", "chapter": 8, "pdf_pages": "39", "topic_id": 52, "title": "Skills 組合的挑戰：傳統 Prompt Chaining 的崩潰 - 生活類比", "takeaway": "透過『傳話遊戲：第一個人小聲說了一個詞』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：整個過程缺乏確定性的控制與狀態隔離", "進一步分析：除錯極其困難，因為狀態完全隱含在漫無邊際的 Context 歷史中", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 傳話遊戲：第一個人小聲說了一個詞，傳到第十個人時已經變成了完全無關的句子。", "visual": "左側繪製『傳話遊戲：第一個人小聲說了一個詞』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 166, "type": "Detailed-C", "chapter": 8, "pdf_pages": "39", "topic_id": 52, "title": "Skills 組合的挑戰：傳統 Prompt Chaining 的崩潰 - 實務落地", "takeaway": "實務落地關鍵：除錯極其困難，因為狀態完全隱含在漫無邊際的 Context 歷史中", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. Chaining 傳播鏈條圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：Chaining 傳播鏈條圖，紅色箭頭標註各節點的幻覺（Hallucination）累積效應。"}, {"num": 167, "type": "Detailed-A", "chapter": 8, "pdf_pages": "39", "topic_id": 53, "title": "DAG Orchestration：圖形化狀態編排 - 核心概念", "takeaway": "DAG 提供了解耦的狀態路由與保護注意力機制，是高可靠度工作流的核心。", "details": ["本頁探討 PDF 第 39 頁所提及的：詳細介紹 Directed Acyclic Graph (DAG) 在 Skills 組合中的運作機制。", "主要針對的背景：State Routing：狀態傳遞不依賴 LLM 的對話歷史，而是寫入獨立的狀態總線", "其要達成的目標在於解決以下衝突：File Message Bus：子節點之間只傳遞檔案指標或 URI，避免 context 膨脹"], "analogy": "在概念層面上，這就像連鎖快遞公司的物流系統：每個分撥中心只看包裹上的條碼與目的地（URI），而不是把整箱貨物拆開塞進工作人員的口袋裡。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 168, "type": "Detailed-B", "chapter": 8, "pdf_pages": "39", "topic_id": 53, "title": "DAG Orchestration：圖形化狀態編排 - 生活類比", "takeaway": "透過『連鎖快遞公司的物流系統：每個分撥中心只看包裹上的條碼與目的地（URI）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：File Message Bus：子節點之間只傳遞檔案指標或 URI，避免 context 膨脹", "進一步分析：可以實現並行執行與確定性的條件分支跳轉", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 連鎖快遞公司的物流系統：每個分撥中心只看包裹上的條碼與目的地（URI），而不是把整箱貨物拆開塞進工作人員的口袋裡。", "visual": "左側繪製『連鎖快遞公司的物流系統：每個分撥中心只看包裹上的條碼與目的地（URI）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 169, "type": "Detailed-C", "chapter": 8, "pdf_pages": "39", "topic_id": 53, "title": "DAG Orchestration：圖形化狀態編排 - 實務落地", "takeaway": "實務落地關鍵：可以實現並行執行與確定性的條件分支跳轉", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 一個標準的 DAG 拓撲圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：一個標準的 DAG 拓撲圖，包含 Generator、Reviewer 節點與並行分支。"}, {"num": 170, "type": "Detailed-A", "chapter": 8, "pdf_pages": "40", "topic_id": 54, "title": "Capability Profiles：動態角色封裝 - 核心概念", "takeaway": "Capability Profiles 像是在內存中進行冷熱切換的代理作業系統。", "details": ["本頁探討 PDF 第 40 頁所提及的：介紹如何使用 Capability Profiles 管理代理的執行上下文與工具存取權。", "主要針對的背景：為特定任務量身打造 swappable, version-controlled 的參數與工具包", "其要達成的目標在於解決以下衝突：當切換 Profile 時，會強制執行 Lifecycle Memory Purging（清空 stale 變數）"], "analogy": "在概念層面上，這就像化妝舞會的變裝：您換上消防員的制服，就立刻拿到了滅火器（工具）並遵循消防守則，換下制服後就把這些記憶與工具留在更衣室。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 171, "type": "Detailed-B", "chapter": 8, "pdf_pages": "40", "topic_id": 54, "title": "Capability Profiles：動態角色封裝 - 生活類比", "takeaway": "透過『化妝舞會的變裝：您換上消防員的制服』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：當切換 Profile 時，會強制執行 Lifecycle Memory Purging（清空 stale 變數）", "進一步分析：防止無關的 System prompt 殘留，徹底解決 cross-domain 干擾", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 化妝舞會的變裝：您換上消防員的制服，就立刻拿到了滅火器（工具）並遵循消防守則，換下制服後就把這些記憶與工具留在更衣室。", "visual": "左側繪製『化妝舞會的變裝：您換上消防員的制服』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 172, "type": "Detailed-C", "chapter": 8, "pdf_pages": "40", "topic_id": 54, "title": "Capability Profiles：動態角色封裝 - 實務落地", "takeaway": "實務落地關鍵：防止無關的 System prompt 殘留，徹底解決 cross-domain 干擾", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. Profile 切換示意圖：清空內存 -> 載入 Profile A（工具 + 指令）-> 執行 -> 清空內存 -> 載入 Profile B。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：Profile 切換示意圖：清空內存 -> 載入 Profile A（工具 + 指令）-> 執行 -> 清空內存 -> 載入 Profile B。"}, {"num": 173, "type": "Detailed-A", "chapter": 8, "pdf_pages": "40", "topic_id": 55, "title": "Canonical Skill Taxonomy：標準節點分類 - 核心概念", "takeaway": "將 Skills 歸類為 Generator、Reviewer、Pipeline 等標準角色，能大幅提升圖形化編寫的效率。", "details": ["本頁探討 PDF 第 40 頁所提及的：介紹在 DAG 編排中， discrete engineering capabilities 的五大標準節點分類。", "主要針對的背景：Generator（生成器）：將意圖轉換為結構化資產", "其要達成的目標在於解決以下衝突：Reviewer & Gate（審查與閘道）：確定性的驗證關卡，阻斷失敗流向下一步"], "analogy": "在概念層面上，這就像工廠流水線上的工位分類：有負責組裝的（Generator）、負責品檢的（Reviewer）、負責包裝的（Pipeline）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 174, "type": "Detailed-B", "chapter": 8, "pdf_pages": "40", "topic_id": 55, "title": "Canonical Skill Taxonomy：標準節點分類 - 生活類比", "takeaway": "透過『工廠流水線上的工位分類：有負責組裝的（Generator）、負責品檢的（Reviewer）、負責包裝的（Pipeline）。』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Reviewer & Gate（審查與閘道）：確定性的驗證關卡，阻斷失敗流向下一步", "進一步分析：Inversion & Recovery（反轉與復原）：在動手執行前，強制 Agent 澄清意圖", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 工廠流水線上的工位分類：有負責組裝的（Generator）、負責品檢的（Reviewer）、負責包裝的（Pipeline）。", "visual": "左側繪製『工廠流水線上的工位分類：有負責組裝的（Generator）、負責品檢的（Reviewer）、負責包裝的（Pipeline）。』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 175, "type": "Detailed-C", "chapter": 8, "pdf_pages": "40", "topic_id": 55, "title": "Canonical Skill Taxonomy：標準節點分類 - 實務落地", "takeaway": "實務落地關鍵：Inversion & Recovery（反轉與復原）：在動手執行前，強制 Agent 澄清意圖", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 五種標準 Taxonomy 節點的卡片式展示的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：五種標準 Taxonomy 節點的卡片式展示，標註各自的輸入輸出特性。"}, {"num": 176, "type": "Detailed-A", "chapter": 8, "pdf_pages": "41", "topic_id": 56, "title": "Context Debt：開發債務的隱形殺手 - 核心概念", "takeaway": "用大寫『ALWAYS』或『NEVER』堆砌的規則，最終會被 LLM 自動忽略。", "details": ["本頁探討 PDF 第 41 頁所提及的：警示在 `SKILL.md` 中濫用大寫強烈指令所積累的 Context 債務。", "主要針對的背景：作者常因不確定性，在 Prompt 裡寫滿『你必須絕對保證每次都做X』", "其要達成的目標在於解決以下衝突：這種資本化 Imperatives 會急速消耗 Token 預算並造成 attention 競爭"], "analogy": "在概念層面上，這就像狼來了的故事：程式碼裡到處都是大寫的 `CRITICAL` 警告，最後開發人員和模型都會對這些警告徹底麻木。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 177, "type": "Detailed-B", "chapter": 8, "pdf_pages": "41", "topic_id": 56, "title": "Context Debt：開發債務的隱形殺手 - 生活類比", "takeaway": "透過『狼來了的故事：程式碼裡到處都是大寫的 `CRITICAL` 警告』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：這種資本化 Imperatives 會急速消耗 Token 預算並造成 attention 競爭", "進一步分析：這本質上跟軟體開發中不寫測試、狂貼 bugfix 的技術債（Technical Debt）完全一樣", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 狼來了的故事：程式碼裡到處都是大寫的 `CRITICAL` 警告，最後開發人員和模型都會對這些警告徹底麻木。", "visual": "左側繪製『狼來了的故事：程式碼裡到處都是大寫的 `CRITICAL` 警告』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 178, "type": "Detailed-C", "chapter": 8, "pdf_pages": "41", "topic_id": 56, "title": "Context Debt：開發債務的隱形殺手 - 實務落地", "takeaway": "實務落地關鍵：這本質上跟軟體開發中不寫測試、狂貼 bugfix 的技術債（Technical Debt）完全一樣", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. Context 債務累積與模型注意力下降的對比曲線圖。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：Context 債務累積與模型注意力下降的對比曲線圖。"}, {"num": 179, "type": "Detailed-A", "chapter": 8, "pdf_pages": "41", "topic_id": 57, "title": "Shifting Intelligence Left：智慧左移最佳實踐 - 核心概念", "takeaway": "把邏輯從模型端（右側）移到代碼端（左側），是用軟體約束替代規則祈禱的核心。", "details": ["本頁探討 PDF 第 41 頁所提及的：詳述將主觀判斷提煉為確定性代碼的『左移』工程思維。", "主要針對的背景：不要祈禱 LLM 每次都聽話，要用程式碼邏輯讓錯誤的操作根本無法被調用", "其要達成的目標在於解決以下衝突：將複雜的篩選、分支路由寫成獨立的輔助 Python 腳本"], "analogy": "在概念層面上，這就像不要在馬路口貼一張『請絕對小心駕駛』的告示牌（右側祈禱），而是直接蓋一座單行道與實體護欄（左側約束）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 180, "type": "Detailed-B", "chapter": 8, "pdf_pages": "41", "topic_id": 57, "title": "Shifting Intelligence Left：智慧左移最佳實踐 - 生活類比", "takeaway": "透過『不要在馬路口貼一張『請絕對小心駕駛』的告示牌（右側祈禱）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：將複雜的篩選、分支路由寫成獨立的輔助 Python 腳本", "進一步分析：減輕 LLM 的負擔，使其專注於單純的語意轉換", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 不要在馬路口貼一張『請絕對小心駕駛』的告示牌（右側祈禱），而是直接蓋一座單行道與實體護欄（左側約束）。", "visual": "左側繪製『不要在馬路口貼一張『請絕對小心駕駛』的告示牌（右側祈禱）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 181, "type": "Detailed-C", "chapter": 8, "pdf_pages": "41", "topic_id": 57, "title": "Shifting Intelligence Left：智慧左移最佳實踐 - 實務落地", "takeaway": "實務落地關鍵：減輕 LLM 的負擔，使其專注於單純的語意轉換", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 架構圖：左側（Deterministic Code的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：架構圖：左側（Deterministic Code，穩固實體線）-> 箭頭 -> 右側（LLM Reasoning，虛線）。"}, {"num": 182, "type": "Detailed-A", "chapter": 8, "pdf_pages": "41", "topic_id": 58, "title": "架構權衡折衷矩陣 - 核心概念", "takeaway": "沒有完美的架構，只有在開發成本、可靠度與執行延遲間的取捨。", "details": ["本頁探討 PDF 第 41 頁所提及的：對比線性管道、DAG 編排與 Capability Profiles 的技術特點與適用場景。", "主要針對的背景：Linear Pipelines：開發快，適合低複雜度任務，但 Compounding Errors 風險高", "其要達成的目標在於解決以下衝突：DAG Orchestration：可靠度極高，防循環，但開發與調試成本高"], "analogy": "在概念層面上，這就像出行選擇：騎自行車（線性，快速隨性但走不遠）、搭高鐵（DAG，準時安全但需要買票排隊）、租車自駕（Profile，靈活適應但有切換成本）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 183, "type": "Detailed-B", "chapter": 8, "pdf_pages": "41", "topic_id": 58, "title": "架構權衡折衷矩陣 - 生活類比", "takeaway": "透過『出行選擇：騎自行車（線性』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：DAG Orchestration：可靠度極高，防循環，但開發與調試成本高", "進一步分析：Capability Profiles：適合多角色切換，但內存 Purge 會帶來額外的切換延遲", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 出行選擇：騎自行車（線性，快速隨性但走不遠）、搭高鐵（DAG，準時安全但需要買票排隊）、租車自駕（Profile，靈活適應但有切換成本）。", "visual": "左側繪製『出行選擇：騎自行車（線性』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 184, "type": "Detailed-C", "chapter": 8, "pdf_pages": "41", "topic_id": 58, "title": "架構權衡折衷矩陣 - 實務落地", "takeaway": "實務落地關鍵：Capability Profiles：適合多角色切換，但內存 Purge 會帶來額外的切換延遲", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. Table 3 的精美版面重現的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：Table 3 的精美版面重現，以亮色標註各架構的最佳適用場景。"}, {"num": 185, "type": "Detailed-A", "chapter": 8, "pdf_pages": "42", "topic_id": 59, "title": "第八章總結與組合三原則 - 核心概念", "takeaway": "寫軟體而非規則、實施漸進式揭露、狀態與上下文徹底解耦。", "details": ["本頁探討 PDF 第 42 頁所提及的：總結本章的核心實踐準則。", "主要針對的背景：1. Write Software, Not Rules：能用代碼卡死的，就不要用文字祈禱", "其要達成的目標在於解決以下衝突：2. Dynamic Loading：絕不在開機時載入多於 6k 的 context"], "analogy": "在概念層面上，這就像一個設計精良的太空艙，各個艙房都有獨立的氣壓閥（解耦），而不是一個大通鋪。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 186, "type": "Detailed-B", "chapter": 8, "pdf_pages": "42", "topic_id": 59, "title": "第八章總結與組合三原則 - 生活類比", "takeaway": "透過『一個設計精良的太空艙』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：2. Dynamic Loading：絕不在開機時載入多於 6k 的 context", "進一步分析：3. Decouple State：LLM 上下文不是數據庫，只傳遞指標與 URI", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一個設計精良的太空艙，各個艙房都有獨立的氣壓閥（解耦），而不是一個大通鋪。", "visual": "左側繪製『一個設計精良的太空艙』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 187, "type": "Detailed-C", "chapter": 8, "pdf_pages": "42", "topic_id": 59, "title": "第八章總結與組合三原則 - 實務落地", "takeaway": "實務落地關鍵：3. Decouple State：LLM 上下文不是數據庫，只傳遞指標與 URI", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 三原則的圖章式展示的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：三原則的圖章式展示，並帶有醒目的行動指南勾選框。"}, {"num": 188, "type": "Detailed-A", "chapter": 9, "pdf_pages": "42", "topic_id": 60, "title": "爆炸增長的 Skills 市場與 Heuristics 選擇法 - 核心概念", "takeaway": "優先選擇官方原生、鎖定版本依賴、且在採用前進行嚴格的安全審計。", "details": ["本頁探討 PDF 第 42 頁所提及的：面對 2026 年初破 40,000 個 Skill 的選擇困難，提供三項篩選原則。", "主要針對的背景：Google Cloud Next 2026 推出了官方 Skills 庫，支援 npx 一鍵安裝", "其要達成的目標在於解決以下衝突：市場上充斥著大量未經驗證的社群 Skills，帶來嚴重的安全隱患"], "analogy": "在概念層面上，這就像在 Linux 上安裝套件，優先使用官方源的 `apt-get` 穩定版，而不是隨便從個人網頁上下載指令檔。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 189, "type": "Detailed-B", "chapter": 9, "pdf_pages": "42", "topic_id": 60, "title": "爆炸增長的 Skills 市場與 Heuristics 選擇法 - 生活類比", "takeaway": "透過『在 Linux 上安裝套件』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：市場上充斥著大量未經驗證的社群 Skills，帶來嚴重的安全隱患", "進一步分析：Heuristic 1：優先採用 underlying system 官方團隊撰寫的 First-party 技能", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 在 Linux 上安裝套件，優先使用官方源的 `apt-get` 穩定版，而不是隨便從個人網頁上下載指令檔。", "visual": "左側繪製『在 Linux 上安裝套件』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 190, "type": "Detailed-C", "chapter": 9, "pdf_pages": "42", "topic_id": 60, "title": "爆炸增長的 Skills 市場與 Heuristics 選擇法 - 實務落地", "takeaway": "實務落地關鍵：Heuristic 1：優先採用 underlying system 官方團隊撰寫的 First-party 技能", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 篩選漏斗圖：40,000+ 社群 -> 官方篩選 -> 版本鎖定 -> 安全審計 -> 生產庫。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：篩選漏斗圖：40,000+ 社群 -> 官方篩選 -> 版本鎖定 -> 安全審計 -> 生產庫。"}, {"num": 191, "type": "Detailed-A", "chapter": 9, "pdf_pages": "43", "topic_id": 61, "title": "三種來源的信任度決策矩陣 - 核心概念", "takeaway": "社群 Skills 預設為不信任，必須採取防範供應鏈攻擊的嚴格 Pin 策略。", "details": ["本頁探討 PDF 第 43 頁所提及的：比較第一方、企業內部與社群 Skills 的維護者與安全對策。", "主要針對的背景：First-party（第一方）：預設信任，但需 pin 固定版本（防止靜默更新破壞路由）", "其要達成的目標在於解決以下衝突：Org-curated（企業內部）：通過內部 PR 審查，由領域專家與 IT 共同維護"], "analogy": "在概念層面上，這就像吃東西：大飯店廚房（預設信任）、自家廚房（內部審查）、路邊攤野餐（務必仔細檢查）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 192, "type": "Detailed-B", "chapter": 9, "pdf_pages": "43", "topic_id": 61, "title": "三種來源的信任度決策矩陣 - 生活類比", "takeaway": "透過『吃東西：大飯店廚房（預設信任）、自家廚房（內部審查）、路邊攤野餐（務必仔細檢查）。』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Org-curated（企業內部）：通過內部 PR 審查，由領域專家與 IT 共同維護", "進一步分析：Community（社群）：必須全面審計代碼，防範潛藏惡意指令的 supply-chain 漏洞", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 吃東西：大飯店廚房（預設信任）、自家廚房（內部審查）、路邊攤野餐（務必仔細檢查）。", "visual": "左側繪製『吃東西：大飯店廚房（預設信任）、自家廚房（內部審查）、路邊攤野餐（務必仔細檢查）。』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 193, "type": "Detailed-C", "chapter": 9, "pdf_pages": "43", "topic_id": 61, "title": "三種來源的信任度決策矩陣 - 實務落地", "takeaway": "實務落地關鍵：Community（社群）：必須全面審計代碼，防範潛藏惡意指令的 supply-chain 漏洞", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. Table 4 的視覺化重現的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：Table 4 的視覺化重現，包含 Trust Default、Examples 與維護主體。"}, {"num": 194, "type": "Detailed-A", "chapter": 9, "pdf_pages": "44-45", "topic_id": 62, "title": "白皮書結論：格式已定，工作方始 - 核心概念", "takeaway": "Agent Skills 已經成為業界公認的開放標準，未來的挑戰在於工程編排與治理體系。", "details": ["本頁探討 PDF 第 44-45 頁所提及的：總結白皮書的核心精神與未來展望。", "主要針對的背景：格式本身（agentskills.io）已經收斂並獲得 Claude Code 等工具廣泛相容", "其要達成的目標在於解決以下衝突：未來的發展重點在於協同評估、庫層面優化以及安全的元學習（Meta-Learning）"], "analogy": "在概念層面上，這就像USB 介面規格已經制定完成並普及（格式已定），接下來是各家廠商如何開發出千奇百怪的創意周邊（工作方始）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 195, "type": "Detailed-B", "chapter": 9, "pdf_pages": "44-45", "topic_id": 62, "title": "白皮書結論：格式已定，工作方始 - 生活類比", "takeaway": "透過『USB 介面規格已經制定完成並普及（格式已定）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：未來的發展重點在於協同評估、庫層面優化以及安全的元學習（Meta-Learning）", "進一步分析：起步的關鍵是：動手將企業知識編寫為第一個 Skill，Treat Skills as code", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 USB 介面規格已經制定完成並普及（格式已定），接下來是各家廠商如何開發出千奇百怪的創意周邊（工作方始）。", "visual": "左側繪製『USB 介面規格已經制定完成並普及（格式已定）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 196, "type": "Detailed-C", "chapter": 9, "pdf_pages": "44-45", "topic_id": 62, "title": "白皮書結論：格式已定，工作方始 - 實務落地", "takeaway": "實務落地關鍵：起步的關鍵是：動手將企業知識編寫為第一個 Skill，Treat Skills as code", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 一幅極具渲染力的句點大圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：一幅極具渲染力的句點大圖，中心寫著『The format is settled. The work is just beginning.』"}, {"num": 197, "type": "Detailed-A", "chapter": 9, "pdf_pages": "46", "topic_id": 63, "title": "附錄 A：Minimal SKILL.md 範本解析 - 核心概念", "takeaway": "拷貝標準骨架，填寫描述與 scenario，是建立第一個 Skill 的捷徑。", "details": ["本頁探討 PDF 第 46 頁所提及的：逐行拆解一個最簡可行 SKILL.md 的骨架與 YAML 設定。", "主要針對的背景：展示最簡 frontmatter 宣告，包括 version 與 allowed-tools", "其要達成的目標在於解決以下衝突：正文結構包含 ## When to use、## When NOT to use 與 ## Workflow"], "analogy": "在概念層面上，這就像填空題：表格和格式都已經印好了，您只需要把自己的業務流程和名字寫進空格裡即可。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 198, "type": "Detailed-B", "chapter": 9, "pdf_pages": "46", "topic_id": 63, "title": "附錄 A：Minimal SKILL.md 範本解析 - 生活類比", "takeaway": "透過『填空題：表格和格式都已經印好了』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：正文結構包含 ## When to use、## When NOT to use 與 ## Workflow", "進一步分析：這是業務專家（Builders）動手編寫時的最佳起手式", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 填空題：表格和格式都已經印好了，您只需要把自己的業務流程和名字寫進空格裡即可。", "visual": "左側繪製『填空題：表格和格式都已經印好了』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 199, "type": "Detailed-C", "chapter": 9, "pdf_pages": "46", "topic_id": 63, "title": "附錄 A：Minimal SKILL.md 範本解析 - 實務落地", "takeaway": "實務落地關鍵：這是業務專家（Builders）動手編寫時的最佳起手式", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. Snippet 呈現標準模板代碼區塊的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：Snippet 呈現標準模板代碼區塊，左右帶有標籤指示各區塊的撰寫重點。"}, {"num": 200, "type": "Detailed-A", "chapter": 9, "pdf_pages": "47-49", "topic_id": 64, "title": "附錄 A：描述優化與五大守則 - 核心概念", "takeaway": "『一個 Skill 一個職責』是防止能力膨脹與觸發失敗的最高天條。", "details": ["本頁探討 PDF 第 47-49 頁所提及的：整理 Appendix A 中關於名稱、描述與開發守則的精華建議。", "主要針對的背景：Description 是路由算法：多花時間在這裡，精確定義適用與不適用場景", "其要達成的目標在於解決以下衝突：One skill, one job：如果無法用一句話說清功能，立刻拆分成兩個 Skills"], "analogy": "在概念層面上，這就像一個抽屜只放一種襪子，如果你開始把內褲和領帶也塞進去，很快你就會找不到東西。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 201, "type": "Detailed-B", "chapter": 9, "pdf_pages": "47-49", "topic_id": 64, "title": "附錄 A：描述優化與五大守則 - 生活類比", "takeaway": "透過『一個抽屜只放一種襪子』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：One skill, one job：如果無法用一句話說清功能，立刻拆分成兩個 Skills", "進一步分析：五大守則強調了知識所有權應歸屬於領域專家，而非 AI 團隊", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 一個抽屜只放一種襪子，如果你開始把內褲和領帶也塞進去，很快你就會找不到東西。", "visual": "左側繪製『一個抽屜只放一種襪子』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 202, "type": "Detailed-C", "chapter": 9, "pdf_pages": "47-49", "topic_id": 64, "title": "附錄 A：描述優化與五大守則 - 實務落地", "takeaway": "實務落地關鍵：五大守則強調了知識所有權應歸屬於領域專家，而非 AI 團隊", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 五大守則的排版卡片的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：五大守則的排版卡片，搭配 Do's and Don'ts 的對照表。"}, {"num": 203, "type": "Detailed-A", "chapter": 9, "pdf_pages": "50-52", "topic_id": 65, "title": "附錄 A：品質原則、Smells 與 Checklists - 核心概念", "takeaway": "字數超過 5,000 字、缺乏測試案例、或 description 寫『有用的技能』都是重構警訊。", "details": ["本頁探討 PDF 第 50-52 頁所提及的：介紹如何識別 Skill 設計中的壞味道（Smells）與上線部署檢查清單。", "主要針對的背景：品質原則：寫下規律背後的『原因』，而不是狂用 Caps 吼叫 ALWAYS", "其要達成的目標在於解決以下衝突：Skill Smells：如果沒有調用任何外部腳本/參考，它可能只是系統提示詞的碎片"], "analogy": "在概念層面上，這就像寫代碼時有 Code Smells，Skill 設計也有味道，聞到不對勁就該重構。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 204, "type": "Detailed-B", "chapter": 9, "pdf_pages": "50-52", "topic_id": 65, "title": "附錄 A：品質原則、Smells 與 Checklists - 生活類比", "takeaway": "透過『寫代碼時有 Code Smells』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：Skill Smells：如果沒有調用任何外部腳本/參考，它可能只是系統提示詞的碎片", "進一步分析：部署檢查表：確保 frontmatter 通過 Linter 檢查，且 CI 單元測試全部 Pass", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 寫代碼時有 Code Smells，Skill 設計也有味道，聞到不對勁就該重構。", "visual": "左側繪製『寫代碼時有 Code Smells』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 205, "type": "Detailed-C", "chapter": 9, "pdf_pages": "50-52", "topic_id": 65, "title": "附錄 A：品質原則、Smells 與 Checklists - 實務落地", "takeaway": "實務落地關鍵：部署檢查表：確保 frontmatter 通過 Linter 檢查，且 CI 單元測試全部 Pass", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 壞味道警示卡片與 OK/NG 的排版設計的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：壞味道警示卡片與 OK/NG 的排版設計，右側為 Checklist 的勾選效果。"}, {"num": 206, "type": "Detailed-A", "chapter": 9, "pdf_pages": "53", "topic_id": 66, "title": "附錄 B：為什麼零售業是 Skills 的黃金戰場 - 核心概念", "takeaway": "零售業的競爭力在於長年積累的陳列、採購與客服 Runbooks，這些知識極難被大模型直接學會。", "details": ["本頁探討 PDF 第 53 頁所提及的：分析零售業巨頭在 AI 時代所面臨的戰略困境與 Skills 的切入點。", "主要針對的背景：如果只用通用模型：回答 project guidance 會缺乏品牌特有的推薦默契", "其要達成的目標在於解決以下衝突：如果建 custom agent：龐大的 SKU 與變量會讓多代理系統陷入死機"], "analogy": "在概念層面上，這就像大模型是精通各國語言的大學畢業生，但他不會知道我們這家連鎖超市在端午節時，粽子和雄黃酒必須擺在同一個貨架上的陳列默契（領域知識）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 207, "type": "Detailed-B", "chapter": 9, "pdf_pages": "53", "topic_id": 66, "title": "附錄 B：為什麼零售業是 Skills 的黃金戰場 - 生活類比", "takeaway": "透過『大模型是精通各國語言的大學畢業生』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：如果建 custom agent：龐大的 SKU 與變量會讓多代理系統陷入死機", "進一步分析：Skills 把這些 stuck in heads/Slack 的領域知識轉化為可執行的軟體代碼", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 大模型是精通各國語言的大學畢業生，但他不會知道我們這家連鎖超市在端午節時，粽子和雄黃酒必須擺在同一個貨架上的陳列默契（領域知識）。", "visual": "左側繪製『大模型是精通各國語言的大學畢業生』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 208, "type": "Detailed-C", "chapter": 9, "pdf_pages": "53", "topic_id": 66, "title": "附錄 B：為什麼零售業是 Skills 的黃金戰場 - 實務落地", "takeaway": "實務落地關鍵：Skills 把這些 stuck in heads/Slack 的領域知識轉化為可執行的軟體代碼", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 一幅零售商務全景插圖的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：一幅零售商務全景插圖，展示從實體貨架到數位 Agent 背後載入的 Skills 庫。"}, {"num": 209, "type": "Detailed-A", "chapter": 9, "pdf_pages": "54-55", "topic_id": 67, "title": "附錄 B：零售業三層 Agent Skills 架構解剖 - 核心概念", "takeaway": "以客戶介面為皮、通用運行時為骨、Skills 圖書館為大腦核心的現代架構。", "details": ["本頁探討 PDF 第 54-55 頁所提及的：剖析零售巨頭實施的 Skills-First 架構層級。", "主要針對的背景：1. Customer Surface（皮）：網頁、App、Kiosk、客服語音等，僅負責傳遞 Query", "其要達成的目標在於解決以下衝突：2. Agent Runtime（骨）：通用 ADK，只負責調用與組裝，不包含具體零售邏輯"], "analogy": "在概念層面上，這就像百貨公司的專櫃（皮）、百貨公司的硬體建築與收銀系統（骨）、各品牌專櫃櫃姐的推銷與產品知識（Skills/魂）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 210, "type": "Detailed-B", "chapter": 9, "pdf_pages": "54-55", "topic_id": 67, "title": "附錄 B：零售業三層 Agent Skills 架構解剖 - 生活類比", "takeaway": "透過『百貨公司的專櫃（皮）、百貨公司的硬體建築與收銀系統（骨）、各品牌專櫃櫃姐的推銷與產品知識（Skills/魂）。』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：2. Agent Runtime（骨）：通用 ADK，只負責調用與組裝，不包含具體零售邏輯", "進一步分析：3. Skills Library（魂）：包含 product-fit, materials-list 等，承載零售靈魂", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 百貨公司的專櫃（皮）、百貨公司的硬體建築與收銀系統（骨）、各品牌專櫃櫃姐的推銷與產品知識（Skills/魂）。", "visual": "左側繪製『百貨公司的專櫃（皮）、百貨公司的硬體建築與收銀系統（骨）、各品牌專櫃櫃姐的推銷與產品知識（Skills/魂）。』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 211, "type": "Detailed-C", "chapter": 9, "pdf_pages": "54-55", "topic_id": 67, "title": "附錄 B：零售業三層 Agent Skills 架構解剖 - 實務落地", "takeaway": "實務落地關鍵：3. Skills Library（魂）：包含 product-fit, materials-list 等，承載零售靈魂", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 三層架構剖面圖（Figure 11）的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：三層架構剖面圖（Figure 11），清晰展現從 UI 到 Runtime 再到 Skills 庫與底層 MCP。"}, {"num": 212, "type": "Detailed-A", "chapter": 9, "pdf_pages": "55-56", "topic_id": 68, "title": "附錄 B：五大零售核心 Skills 庫實例 - 核心概念", "takeaway": "將裝修與物流規則分解為五個單一職責的 Skill 資料夾。", "details": ["本頁探討 PDF 第 55-56 頁所提及的：介紹 home-improvement 零售商必備的五大 Skills 目錄及其功能職責。", "主要針對的背景：`project-guidance`：教導鋪地磚的步驟（Trades knowledge 團隊維護，Read-only）", "其要達成的目標在於解決以下衝突：`materials-list`：生成不漏項的物料清單（Pro 採購維護，Draft-only 需人類確認）"], "analogy": "在概念層面上，這就像蓋房子需要水泥工（project）、搬運工（delivery）與報價單會計（materials），各司其職。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 213, "type": "Detailed-B", "chapter": 9, "pdf_pages": "55-56", "topic_id": 68, "title": "附錄 B：五大零售核心 Skills 庫實例 - 生活類比", "takeaway": "透過『蓋房子需要水泥工（project）、搬運工（delivery）與報價單會計（materials）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：`materials-list`：生成不漏項的物料清單（Pro 採購維護，Draft-only 需人類確認）", "進一步分析：`return-policy`：處理特規品、危險品的退貨規則（客服維護，Read-only）", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 蓋房子需要水泥工（project）、搬運工（delivery）與報價單會計（materials），各司其職。", "visual": "左側繪製『蓋房子需要水泥工（project）、搬運工（delivery）與報價單會計（materials）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 214, "type": "Detailed-C", "chapter": 9, "pdf_pages": "55-56", "topic_id": 68, "title": "附錄 B：五大零售核心 Skills 庫實例 - 實務落地", "takeaway": "實務落地關鍵：`return-policy`：處理特規品、危險品的退貨規則（客服維護，Read-only）", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 五個 Skill 資料夾及其 owner 團隊與權限階梯的對照矩陣圖。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：五個 Skill 資料夾及其 owner 團隊與權限階梯的對照矩陣圖。"}, {"num": 215, "type": "Detailed-A", "chapter": 9, "pdf_pages": "56-57", "topic_id": 69, "title": "附錄 B：實戰路由流程：『我想改造小孩衛浴』 - 核心概念", "takeaway": "模型藉由 metadata 進行動態加載，使 active context 始終保持清爽。", "details": ["本頁探討 PDF 第 56-57 頁所提及的：模擬一個真實用戶 Query 在 Skills 庫中的動態加載與路由過程。", "主要針對的背景：用戶問：'I want to remodel my kids bathroom...' -> 識別觸發 `project-guidance`", "其要達成的目標在於解決以下衝突：當問到運送時 -> `project-guidance` 釋放，加載 `delivery-window`"], "analogy": "在概念層面上，這就像圖書館借書：您今天想研究園藝，就去借一本園藝書放在書桌上，看完還回去，再去借一本烹飪書，書桌上永遠不會疊滿幾千本書。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 216, "type": "Detailed-B", "chapter": 9, "pdf_pages": "56-57", "topic_id": 69, "title": "附錄 B：實戰路由流程：『我想改造小孩衛浴』 - 生活類比", "takeaway": "透過『圖書館借書：您今天想研究園藝』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：當問到運送時 -> `project-guidance` 釋放，加載 `delivery-window`", "進一步分析：當問到規章時 -> 加載 `return-policy`。整個過程 Active Context 僅在 6k tokens 左右波動", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 圖書館借書：您今天想研究園藝，就去借一本園藝書放在書桌上，看完還回去，再去借一本烹飪書，書桌上永遠不會疊滿幾千本書。", "visual": "左側繪製『圖書館借書：您今天想研究園藝』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 217, "type": "Detailed-C", "chapter": 9, "pdf_pages": "56-57", "topic_id": 69, "title": "附錄 B：實戰路由流程：『我想改造小孩衛浴』 - 實務落地", "takeaway": "實務落地關鍵：當問到規章時 -> 加載 `return-policy`。整個過程 Active Context 僅在 6k tokens 左右波動", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 對話氣泡與 Skills 庫動態載入/釋放的時序動畫示意圖。的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：對話氣泡與 Skills 庫動態載入/釋放的時序動畫示意圖。"}, {"num": 218, "type": "Detailed-A", "chapter": 9, "pdf_pages": "57-59", "topic_id": 70, "title": "附錄 B：分散式所有權與 Read-Draft-Act 授權梯 - 核心概念", "takeaway": "分散所有權讓業務專家自主更新，Read-Draft-Act 授權梯則向合規與安全交代。", "details": ["本頁探討 PDF 第 57-59 頁所提及的：探討零售 Skills 庫的治理機制與戰略防禦價值。", "主要針對的背景：IT 團隊不應該是 Skills 更新的瓶頸，誰懂業務誰就擁有該 Skill 的 Git Repo", "其要達成的目標在於解決以下衝突：安全審計人員可依據 Table 6 的 read/draft/act 階梯，對每個資料夾進行權限鎖死"], "analogy": "在概念層面上，這就像防禦壁壘：對手雖然買得到一模一樣的跑車（通用模型/Runtime），但拿不到我們家最頂尖賽車手的駕駛秘笈（Skills 庫）。。我們必須先理解這個本質，才能在架構上做出正確的決定。", "visual": "左側放置核心訊息大字重擊，右側為概念的文字論證，版面呈現高對比的白底麥肯錫風格。"}, {"num": 219, "type": "Detailed-B", "chapter": 9, "pdf_pages": "57-59", "topic_id": 70, "title": "附錄 B：分散式所有權與 Read-Draft-Act 授權梯 - 生活類比", "takeaway": "透過『防禦壁壘：對手雖然買得到一模一樣的跑車（通用模型/Runtime）』的生活化類比，直觀理解技術邏輯。", "details": ["論證核心細節：安全審計人員可依據 Table 6 的 read/draft/act 階梯，對每個資料夾進行權限鎖死", "進一步分析：這套 Skills 庫是企業面對競爭對手使用相同大模型時，唯一也是最強的戰略防禦壁壘", "這個比喻的實體對應：透過這種類比，原本抽象的技術概念轉變為實體的對象，讓聽眾即便沒有技術背景也能瞬間融入情境。"], "analogy": "👉 防禦壁壘：對手雖然買得到一模一樣的跑車（通用模型/Runtime），但拿不到我們家最頂尖賽車手的駕駛秘笈（Skills 庫）。", "visual": "左側繪製『防禦壁壘：對手雖然買得到一模一樣的跑車（通用模型/Runtime）』的插圖與實體映射對比圖，右側列出 2-3 個論證子要點。"}, {"num": 220, "type": "Detailed-C", "chapter": 9, "pdf_pages": "57-59", "topic_id": 70, "title": "附錄 B：分散式所有權與 Read-Draft-Act 授權梯 - 實務落地", "takeaway": "實務落地關鍵：這套 Skills 庫是企業面對競爭對手使用相同大模型時，唯一也是最強的戰略防禦壁壘", "details": ["實務操作指南：在實際系統中，我們必須遵循以下步驟進行配置：", "1. 確保相關規則被精確定義，並映射到 `SKILL.md` 中。", "2. 三維度治理圖：X軸為 Owner Team的配置結構應作為主要的視覺引導機制。"], "analogy": "實務案例：在企業級代理系統中，透過此方法將執行錯誤率降低了 35% 以上，並節省了大量的調用延遲。", "visual": "視覺配置建議：三維度治理圖：X軸為 Owner Team，Y軸為 Auth Tier（Read/Draft/Act），Z軸為業務價值。"}];
+        const chapters = [{"num": 1, "title": "Agent Skills 導論與核心痛點"}, {"num": 2, "title": "什麼是 Agent Skill 與結構剖析"}, {"num": 3, "title": "安裝部署與 MCP/AGENTS.md 比較"}, {"num": 4, "title": "為什麼 Agent Skills 迅速普及與架構選擇"}, {"num": 5, "title": "Agent Skills 評估與測試體系"}, {"num": 6, "title": "從原型到生產：運行時與 Token 經濟學"}, {"num": 7, "title": "Meta-Skills 與自我改進的未來"}, {"num": 8, "title": "Skills 組合、封裝與 DAG 編排"}, {"num": 9, "title": "抉擇、市場與零售業案例研究"}];
+        
+        let currentMode = 'Overview'; // Overview or Detailed
+        let currentIndex = 0; // 當前投影片在過濾後列表中的索引
+        
+        let isDarkMode = false;
+        
+        // 過濾後的投影片列表
+        let activeSlides = [];
+
+        function filterSlides() {
+            if (currentMode === 'Overview') {
+                activeSlides = allSlides.filter(s => s.type === 'Overview');
+            } else {
+                activeSlides = allSlides.filter(s => s.type !== 'Overview');
+            }
+        }
+
+        function renderSlide() {
+            const slide = activeSlides[currentIndex];
+            if (!slide) return;
+
+            const container = document.getElementById('slide-container');
+            
+            // 更新章節下拉選單的選中狀態
+            const select = document.getElementById('chapter-select');
+            if (slide.chapter === 0) {
+                select.value = 'all';
+            } else {
+                select.value = slide.chapter;
+            }
+
+            // 判斷是否為心智圖頁
+            if (slide.is_mindmap) {
+                container.innerHTML = renderMindmapPage(slide);
+                initMindmapInteractivity();
+                return;
+            }
+
+            const hasPdfPage = slide.pdf_pages && slide.pdf_pages !== 'Overview';
+            const pdfTag = hasPdfPage ? `對應 PDF 第 ${slide.pdf_pages} 頁` : 'Overview 大綱';
+            const chTitle = slide.chapter > 0 ? `第 ${slide.chapter} 章：${chapters[slide.chapter-1].title}` : '全體大綱概覽';
+
+            // 右側內容渲染：如果為 A 類型，通常有簡單流程圖；如果為 B 類型，則帶有 Metaphor 並且有代碼或流程圖
+            let rightHtml = '';
+            if (slide.type === 'Overview') {
+                rightHtml = `
+                    <div class="metaphor-card">
+                        <div class="metaphor-header">
+                            <span class="metaphor-icon">💡</span>
+                            <span>全景心智與概念類比</span>
+                        </div>
+                        <div class="metaphor-body">
+                            ${slide.analogy}
+                        </div>
+                    </div>
+                    <div class="flowchart-container">
+                        <div class="flowchart-header">
+                            <div class="flowchart-title">大綱邏輯圖示</div>
+                            <div style="display:flex; gap:4px;">
+                                <button class="flowchart-zoom-btn" onclick="zoomFC(1.2)">+</button>
+                                <button class="flowchart-zoom-btn" onclick="zoomFC(0.8)">-</button>
+                                <button class="flowchart-zoom-btn" onclick="resetFC()">重置</button>
+                            </div>
+                        </div>
+                        <div class="flowchart-content">
+                            ${renderGenericFlowchart(slide.chapter)}
+                        </div>
+                    </div>
+                `;
+            } else {
+                rightHtml = `
+                    <div class="metaphor-card">
+                        <div class="metaphor-header">
+                            <span class="metaphor-icon">💡</span>
+                            <span>實務概念類比與應用</span>
+                        </div>
+                        <div class="metaphor-body">
+                            ${slide.analogy}
+                        </div>
+                    </div>
+                    <div class="flowchart-container">
+                        <div class="flowchart-header">
+                            <div class="flowchart-title">本章邏輯流程圖 (可縮放)</div>
+                            <div style="display:flex; gap:4px;">
+                                <button class="flowchart-zoom-btn" onclick="zoomFC(1.2)">+</button>
+                                <button class="flowchart-zoom-btn" onclick="zoomFC(0.8)">-</button>
+                                <button class="flowchart-zoom-btn" onclick="resetFC()">重置</button>
+                            </div>
+                        </div>
+                        <div class="flowchart-content">
+                            ${renderGenericFlowchart(slide.chapter)}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="slide-header">
+                    <div class="tag-info">
+                        <span class="chapter-tag">${chTitle}</span>
+                        <span class="slide-counter">${pdfTag}</span>
+                    </div>
+                    <div class="slide-counter">投影片 ${slide.num} / 220</div>
+                </div>
+
+                <div class="slide-title-area">
+                    <h2 class="slide-title">${slide.title}</h2>
+                    <p class="slide-subtitle">${slide.takeaway}</p>
+                </div>
+
+                <div class="slide-content-layout">
+                    <div class="left-col">
+                        <div class="section-title">論證細節與核心要點</div>
+                        <ul class="points-list">
+                            ${slide.details.map((det, index) => `
+                                <li class="point-item">
+                                    <div class="point-num">${index + 1}</div>
+                                    <div class="point-text">${det}</div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                        <div class="detail-desc-card">
+                            <div class="detail-desc-title">視覺排版佈局建議</div>
+                            <div class="detail-desc-text">${slide.visual}</div>
+                        </div>
+                    </div>
+                    <div class="right-col">
+                        ${rightHtml}
+                    </div>
+                </div>
+
+                <div class="slide-footer">
+                    <div class="footer-shortcuts">
+                        切換：<span class="footer-shortcut-key">←</span> / <span class="footer-shortcut-key">→</span> / <span class="footer-shortcut-key">Space</span> | 目錄：<span class="footer-shortcut-key">M</span> | 全螢幕：<span class="footer-shortcut-key">F</span>
+                    </div>
+                    <div class="footer-nav">
+                        <button class="nav-page-btn" onclick="prevSlide()">← 上一頁</button>
+                        <button class="nav-page-btn" onclick="nextSlide()">下一頁 →</button>
+                    </div>
+                </div>
+            `;
+            if (slide.chapter !== undefined) {
+                initFlowchartInteractivity();
+            }
+        }
+
+        function renderMindmapPage(slide) {
+            return `
+                <div class="mindmap-wrapper">
+                    <div class="mindmap-header-bar">
+                        <div>
+                            <h2 class="mindmap-title">${slide.title}</h2>
+                            <p class="mindmap-subtitle">${slide.takeaway}</p>
+                        </div>
+                        <div class="slide-counter">投影片 ${slide.num} / 220</div>
+                    </div>
+
+                    <div class="mindmap-viewport-container" id="mindmap-container">
+                        <div class="mindmap-controls">
+                            <button class="mindmap-zoom-btn" onclick="zoomMindmap(1.2)">+</button>
+                            <button class="mindmap-zoom-btn" onclick="zoomMindmap(0.8)">-</button>
+                            <button class="mindmap-zoom-btn" onclick="resetMindmap()">↻</button>
+                        </div>
+
+                        <svg id="mindmap-svg" width="100%" height="100%" style="min-height: 460px;">
+                            <defs>
+                                <linearGradient id="center-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#4f46e5" />
+                                    <stop offset="100%" stop-color="#6366f1" />
+                                </linearGradient>
+                                <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+                                    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.1" />
+                                </filter>
+                            </defs>
+                            <g id="mindmap-viewport" transform="translate(0,0) scale(1)">
+                                ${slide.lines_svg}
+                                ${slide.nodes_svg}
+                            </g>
+                        </svg>
+
+                        <div class="mindmap-info-card" id="mindmap-info-card">
+                            <div class="mindmap-info-title">全書架構關係心智圖</div>
+                            <div id="mindmap-info-text">懸停或點選任一章節節點，即可在此查看該章關係說明，點擊可直接跳轉至詳細說明投影片。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer">
+                    <div class="footer-shortcuts">
+                        切換：<span class="footer-shortcut-key">←</span> / <span class="footer-shortcut-key">→</span> / <span class="footer-shortcut-key">Space</span>
+                    </div>
+                    <div class="footer-nav">
+                        <button class="nav-page-btn" onclick="prevSlide()">← 上一頁</button>
+                        <button class="nav-page-btn" onclick="nextSlide()">下一頁 →</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGenericFlowchart(chapterNum) {
+            const flowcharts = {"1": "\n    <svg viewBox=\"0 0 400 150\" width=\"100%\" height=\"100%\" class=\"flowchart-svg\" style=\"background:#f8fafc; border-radius:8px; cursor:grab;\">\n        <defs>\n            <marker id=\"arrow\" viewBox=\"0 0 10 10\" refX=\"5\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\">\n                <path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#6366f1\" />\n            </marker>\n        </defs>\n        <g class=\"flowchart-viewport\" transform=\"translate(0,0) scale(1)\">\n            <rect x=\"10\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#eff6ff\" stroke=\"#3b82f6\" stroke-width=\"1.5\"></rect>\n            <text x=\"55\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#1e3a8a\" font-weight=\"bold\">第 1 章概念</text>\n            \n            <line x1=\"100\" y1=\"75\" x2=\"140\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"150\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#f0fdf4\" stroke=\"#22c55e\" stroke-width=\"1.5\"></rect>\n            <text x=\"195\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#14532d\" font-weight=\"bold\">生活化比喻</text>\n            \n            <line x1=\"240\" y1=\"75\" x2=\"280\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"290\" y=\"45\" width=\"100\" height=\"60\" rx=\"6\" fill=\"#fef2f2\" stroke=\"#ef4444\" stroke-width=\"1.5\"></rect>\n            <text x=\"340\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#7f1d1d\" font-weight=\"bold\">實務配置落地</text>\n        </g>\n    </svg>\n    ", "2": "\n    <svg viewBox=\"0 0 400 150\" width=\"100%\" height=\"100%\" class=\"flowchart-svg\" style=\"background:#f8fafc; border-radius:8px; cursor:grab;\">\n        <defs>\n            <marker id=\"arrow\" viewBox=\"0 0 10 10\" refX=\"5\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\">\n                <path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#6366f1\" />\n            </marker>\n        </defs>\n        <g class=\"flowchart-viewport\" transform=\"translate(0,0) scale(1)\">\n            <rect x=\"10\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#eff6ff\" stroke=\"#3b82f6\" stroke-width=\"1.5\"></rect>\n            <text x=\"55\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#1e3a8a\" font-weight=\"bold\">第 2 章概念</text>\n            \n            <line x1=\"100\" y1=\"75\" x2=\"140\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"150\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#f0fdf4\" stroke=\"#22c55e\" stroke-width=\"1.5\"></rect>\n            <text x=\"195\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#14532d\" font-weight=\"bold\">生活化比喻</text>\n            \n            <line x1=\"240\" y1=\"75\" x2=\"280\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"290\" y=\"45\" width=\"100\" height=\"60\" rx=\"6\" fill=\"#fef2f2\" stroke=\"#ef4444\" stroke-width=\"1.5\"></rect>\n            <text x=\"340\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#7f1d1d\" font-weight=\"bold\">實務配置落地</text>\n        </g>\n    </svg>\n    ", "3": "\n    <svg viewBox=\"0 0 400 150\" width=\"100%\" height=\"100%\" class=\"flowchart-svg\" style=\"background:#f8fafc; border-radius:8px; cursor:grab;\">\n        <defs>\n            <marker id=\"arrow\" viewBox=\"0 0 10 10\" refX=\"5\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\">\n                <path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#6366f1\" />\n            </marker>\n        </defs>\n        <g class=\"flowchart-viewport\" transform=\"translate(0,0) scale(1)\">\n            <rect x=\"10\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#eff6ff\" stroke=\"#3b82f6\" stroke-width=\"1.5\"></rect>\n            <text x=\"55\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#1e3a8a\" font-weight=\"bold\">第 3 章概念</text>\n            \n            <line x1=\"100\" y1=\"75\" x2=\"140\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"150\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#f0fdf4\" stroke=\"#22c55e\" stroke-width=\"1.5\"></rect>\n            <text x=\"195\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#14532d\" font-weight=\"bold\">生活化比喻</text>\n            \n            <line x1=\"240\" y1=\"75\" x2=\"280\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"290\" y=\"45\" width=\"100\" height=\"60\" rx=\"6\" fill=\"#fef2f2\" stroke=\"#ef4444\" stroke-width=\"1.5\"></rect>\n            <text x=\"340\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#7f1d1d\" font-weight=\"bold\">實務配置落地</text>\n        </g>\n    </svg>\n    ", "4": "\n    <svg viewBox=\"0 0 400 150\" width=\"100%\" height=\"100%\" class=\"flowchart-svg\" style=\"background:#f8fafc; border-radius:8px; cursor:grab;\">\n        <defs>\n            <marker id=\"arrow\" viewBox=\"0 0 10 10\" refX=\"5\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\">\n                <path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#6366f1\" />\n            </marker>\n        </defs>\n        <g class=\"flowchart-viewport\" transform=\"translate(0,0) scale(1)\">\n            <rect x=\"10\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#eff6ff\" stroke=\"#3b82f6\" stroke-width=\"1.5\"></rect>\n            <text x=\"55\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#1e3a8a\" font-weight=\"bold\">第 4 章概念</text>\n            \n            <line x1=\"100\" y1=\"75\" x2=\"140\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"150\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#f0fdf4\" stroke=\"#22c55e\" stroke-width=\"1.5\"></rect>\n            <text x=\"195\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#14532d\" font-weight=\"bold\">生活化比喻</text>\n            \n            <line x1=\"240\" y1=\"75\" x2=\"280\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"290\" y=\"45\" width=\"100\" height=\"60\" rx=\"6\" fill=\"#fef2f2\" stroke=\"#ef4444\" stroke-width=\"1.5\"></rect>\n            <text x=\"340\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#7f1d1d\" font-weight=\"bold\">實務配置落地</text>\n        </g>\n    </svg>\n    ", "5": "\n    <svg viewBox=\"0 0 400 150\" width=\"100%\" height=\"100%\" class=\"flowchart-svg\" style=\"background:#f8fafc; border-radius:8px; cursor:grab;\">\n        <defs>\n            <marker id=\"arrow\" viewBox=\"0 0 10 10\" refX=\"5\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\">\n                <path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#6366f1\" />\n            </marker>\n        </defs>\n        <g class=\"flowchart-viewport\" transform=\"translate(0,0) scale(1)\">\n            <rect x=\"10\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#eff6ff\" stroke=\"#3b82f6\" stroke-width=\"1.5\"></rect>\n            <text x=\"55\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#1e3a8a\" font-weight=\"bold\">第 5 章概念</text>\n            \n            <line x1=\"100\" y1=\"75\" x2=\"140\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"150\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#f0fdf4\" stroke=\"#22c55e\" stroke-width=\"1.5\"></rect>\n            <text x=\"195\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#14532d\" font-weight=\"bold\">生活化比喻</text>\n            \n            <line x1=\"240\" y1=\"75\" x2=\"280\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"290\" y=\"45\" width=\"100\" height=\"60\" rx=\"6\" fill=\"#fef2f2\" stroke=\"#ef4444\" stroke-width=\"1.5\"></rect>\n            <text x=\"340\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#7f1d1d\" font-weight=\"bold\">實務配置落地</text>\n        </g>\n    </svg>\n    ", "6": "\n    <svg viewBox=\"0 0 400 150\" width=\"100%\" height=\"100%\" class=\"flowchart-svg\" style=\"background:#f8fafc; border-radius:8px; cursor:grab;\">\n        <defs>\n            <marker id=\"arrow\" viewBox=\"0 0 10 10\" refX=\"5\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\">\n                <path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#6366f1\" />\n            </marker>\n        </defs>\n        <g class=\"flowchart-viewport\" transform=\"translate(0,0) scale(1)\">\n            <rect x=\"10\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#eff6ff\" stroke=\"#3b82f6\" stroke-width=\"1.5\"></rect>\n            <text x=\"55\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#1e3a8a\" font-weight=\"bold\">第 6 章概念</text>\n            \n            <line x1=\"100\" y1=\"75\" x2=\"140\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"150\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#f0fdf4\" stroke=\"#22c55e\" stroke-width=\"1.5\"></rect>\n            <text x=\"195\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#14532d\" font-weight=\"bold\">生活化比喻</text>\n            \n            <line x1=\"240\" y1=\"75\" x2=\"280\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"290\" y=\"45\" width=\"100\" height=\"60\" rx=\"6\" fill=\"#fef2f2\" stroke=\"#ef4444\" stroke-width=\"1.5\"></rect>\n            <text x=\"340\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#7f1d1d\" font-weight=\"bold\">實務配置落地</text>\n        </g>\n    </svg>\n    ", "7": "\n    <svg viewBox=\"0 0 400 150\" width=\"100%\" height=\"100%\" class=\"flowchart-svg\" style=\"background:#f8fafc; border-radius:8px; cursor:grab;\">\n        <defs>\n            <marker id=\"arrow\" viewBox=\"0 0 10 10\" refX=\"5\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\">\n                <path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#6366f1\" />\n            </marker>\n        </defs>\n        <g class=\"flowchart-viewport\" transform=\"translate(0,0) scale(1)\">\n            <rect x=\"10\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#eff6ff\" stroke=\"#3b82f6\" stroke-width=\"1.5\"></rect>\n            <text x=\"55\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#1e3a8a\" font-weight=\"bold\">第 7 章概念</text>\n            \n            <line x1=\"100\" y1=\"75\" x2=\"140\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"150\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#f0fdf4\" stroke=\"#22c55e\" stroke-width=\"1.5\"></rect>\n            <text x=\"195\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#14532d\" font-weight=\"bold\">生活化比喻</text>\n            \n            <line x1=\"240\" y1=\"75\" x2=\"280\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"290\" y=\"45\" width=\"100\" height=\"60\" rx=\"6\" fill=\"#fef2f2\" stroke=\"#ef4444\" stroke-width=\"1.5\"></rect>\n            <text x=\"340\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#7f1d1d\" font-weight=\"bold\">實務配置落地</text>\n        </g>\n    </svg>\n    ", "8": "\n    <svg viewBox=\"0 0 400 150\" width=\"100%\" height=\"100%\" class=\"flowchart-svg\" style=\"background:#f8fafc; border-radius:8px; cursor:grab;\">\n        <defs>\n            <marker id=\"arrow\" viewBox=\"0 0 10 10\" refX=\"5\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\">\n                <path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#6366f1\" />\n            </marker>\n        </defs>\n        <g class=\"flowchart-viewport\" transform=\"translate(0,0) scale(1)\">\n            <rect x=\"10\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#eff6ff\" stroke=\"#3b82f6\" stroke-width=\"1.5\"></rect>\n            <text x=\"55\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#1e3a8a\" font-weight=\"bold\">第 8 章概念</text>\n            \n            <line x1=\"100\" y1=\"75\" x2=\"140\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"150\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#f0fdf4\" stroke=\"#22c55e\" stroke-width=\"1.5\"></rect>\n            <text x=\"195\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#14532d\" font-weight=\"bold\">生活化比喻</text>\n            \n            <line x1=\"240\" y1=\"75\" x2=\"280\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"290\" y=\"45\" width=\"100\" height=\"60\" rx=\"6\" fill=\"#fef2f2\" stroke=\"#ef4444\" stroke-width=\"1.5\"></rect>\n            <text x=\"340\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#7f1d1d\" font-weight=\"bold\">實務配置落地</text>\n        </g>\n    </svg>\n    ", "9": "\n    <svg viewBox=\"0 0 400 150\" width=\"100%\" height=\"100%\" class=\"flowchart-svg\" style=\"background:#f8fafc; border-radius:8px; cursor:grab;\">\n        <defs>\n            <marker id=\"arrow\" viewBox=\"0 0 10 10\" refX=\"5\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\">\n                <path d=\"M 0 0 L 10 5 L 0 10 z\" fill=\"#6366f1\" />\n            </marker>\n        </defs>\n        <g class=\"flowchart-viewport\" transform=\"translate(0,0) scale(1)\">\n            <rect x=\"10\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#eff6ff\" stroke=\"#3b82f6\" stroke-width=\"1.5\"></rect>\n            <text x=\"55\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#1e3a8a\" font-weight=\"bold\">第 9 章概念</text>\n            \n            <line x1=\"100\" y1=\"75\" x2=\"140\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"150\" y=\"45\" width=\"90\" height=\"60\" rx=\"6\" fill=\"#f0fdf4\" stroke=\"#22c55e\" stroke-width=\"1.5\"></rect>\n            <text x=\"195\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#14532d\" font-weight=\"bold\">生活化比喻</text>\n            \n            <line x1=\"240\" y1=\"75\" x2=\"280\" y2=\"75\" stroke=\"#6366f1\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"></line>\n            \n            <rect x=\"290\" y=\"45\" width=\"100\" height=\"60\" rx=\"6\" fill=\"#fef2f2\" stroke=\"#ef4444\" stroke-width=\"1.5\"></rect>\n            <text x=\"340\" y=\"75\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"9\" fill=\"#7f1d1d\" font-weight=\"bold\">實務配置落地</text>\n        </g>\n    </svg>\n    "};
+            return flowcharts[chapterNum] || flowcharts[1];
+        }
+
+        // 互動式心智圖的拖曳與縮放實現 (Zoom & Pan)
+        let mmScale = 1;
+        let mmX = 0;
+        let mmY = 0;
+        let isDraggingMM = false;
+        let startX, startY;
+
+        function initMindmapInteractivity() {
+            const container = document.getElementById('mindmap-container');
+            const viewport = document.getElementById('mindmap-viewport');
+            
+            if (!container || !viewport) return;
+
+            // 拖曳事件
+            container.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.mindmap-controls') || e.target.closest('.mindmap-info-card')) return;
+                isDraggingMM = true;
+                container.style.cursor = 'grabbing';
+                startX = e.clientX - mmX;
+                startY = e.clientY - mmY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDraggingMM) return;
+                mmX = e.clientX - startX;
+                mmY = e.clientY - startY;
+                updateMindmapTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDraggingMM = false;
+                if(container) container.style.cursor = 'grab';
+            });
+
+            // 滾輪縮放
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomFactor = 1.1;
+                if (e.deltaY < 0) {
+                    mmScale *= zoomFactor;
+                } else {
+                    mmScale /= zoomFactor;
+                }
+                mmScale = Math.min(Math.max(0.5, mmScale), 3);
+                updateMindmapTransform();
+            }, { passive: false });
+
+            // 節點互動事件 (Hover 與 Click)
+            const mindmapData = [{"id": "ch_1", "name": "Ch 1: Agent Skills 導論與核心痛點", "slide": 11, "desc": "本章詳細說明了【Agent Skills 導論與核心痛點】的理論與應用。包含 PDF 對應頁面的精確解析、生活化類比（如西餐廳上菜、員工守則等）與實務配置建議。"}, {"id": "ch_2", "name": "Ch 2: 什麼是 Agent Skill 與結構剖析", "slide": 32, "desc": "本章詳細說明了【什麼是 Agent Skill 與結構剖析】的理論與應用。包含 PDF 對應頁面的精確解析、生活化類比（如西餐廳上菜、員工守則等）與實務配置建議。"}, {"id": "ch_3", "name": "Ch 3: 安裝部署與 MCP/AGENTS.md 比較", "slide": 53, "desc": "本章詳細說明了【安裝部署與 MCP/AGENTS.md 比較】的理論與應用。包含 PDF 對應頁面的精確解析、生活化類比（如西餐廳上菜、員工守則等）與實務配置建議。"}, {"id": "ch_4", "name": "Ch 4: 為什麼 Agent Skills 迅速普及與架構選擇", "slide": 74, "desc": "本章詳細說明了【為什麼 Agent Skills 迅速普及與架構選擇】的理論與應用。包含 PDF 對應頁面的精確解析、生活化類比（如西餐廳上菜、員工守則等）與實務配置建議。"}, {"id": "ch_5", "name": "Ch 5: Agent Skills 評估與測試體系", "slide": 95, "desc": "本章詳細說明了【Agent Skills 評估與測試體系】的理論與應用。包含 PDF 對應頁面的精確解析、生活化類比（如西餐廳上菜、員工守則等）與實務配置建議。"}, {"id": "ch_6", "name": "Ch 6: 從原型到生產：運行時與 Token 經濟學", "slide": 116, "desc": "本章詳細說明了【從原型到生產：運行時與 Token 經濟學】的理論與應用。包含 PDF 對應頁面的精確解析、生活化類比（如西餐廳上菜、員工守則等）與實務配置建議。"}, {"id": "ch_7", "name": "Ch 7: Meta-Skills 與自我改進的未來", "slide": 137, "desc": "本章詳細說明了【Meta-Skills 與自我改進的未來】的理論與應用。包含 PDF 對應頁面的精確解析、生活化類比（如西餐廳上菜、員工守則等）與實務配置建議。"}, {"id": "ch_8", "name": "Ch 8: Skills 組合、封裝與 DAG 編排", "slide": 158, "desc": "本章詳細說明了【Skills 組合、封裝與 DAG 編排】的理論與應用。包含 PDF 對應頁面的精確解析、生活化類比（如西餐廳上菜、員工守則等）與實務配置建議。"}, {"id": "ch_9", "name": "Ch 9: 抉擇、市場與零售業案例研究", "slide": 179, "desc": "本章詳細說明了【抉擇、市場與零售業案例研究】的理論與應用。包含 PDF 對應頁面的精確解析、生活化類比（如西餐廳上菜、員工守則等）與實務配置建議。"}];
+            const nodes = container.querySelectorAll('.mindmap-node-group');
+
+            nodes.forEach(node => {
+                const nodeId = node.getAttribute('data-id');
+                const slideNum = parseInt(node.getAttribute('data-slide'));
+                const chInfo = mindmapData.find(d => d.id === nodeId);
+
+                node.addEventListener('mouseenter', () => {
+                    // 高亮線條
+                    container.querySelectorAll('.mindmap-edge').forEach(line => {
+                        line.style.stroke = '#cbd5e1';
+                        line.style.strokeWidth = '2';
+                    });
+                    const activeEdge = document.getElementById(`edge-${nodeId}`);
+                    if (activeEdge) {
+                        activeEdge.style.stroke = '#4f46e5';
+                        activeEdge.style.strokeWidth = '4';
+                    }
+
+                    // 高亮當前節點
+                    node.classList.add('active');
+
+                    // 更新說明卡片
+                    if (chInfo) {
+                        document.getElementById('mindmap-info-card').innerHTML = `
+                            <div class="mindmap-info-title">${chInfo.name}</div>
+                            <div>${chInfo.desc}</div>
+                            <div style="margin-top:8px; color:#818cf8; font-weight:bold;">👉 點擊滑鼠左鍵，直接跳轉至本章詳細說明。</div>
+                        `;
+                    }
+                });
+
+                node.addEventListener('mouseleave', () => {
+                    node.classList.remove('active');
+                });
+
+                node.addEventListener('click', () => {
+                    switchPresentationMode('Detailed');
+                    const targetIndex = activeSlides.findIndex(s => s.num === slideNum);
+                    if (targetIndex !== -1) {
+                        currentIndex = targetIndex;
+                        renderSlide();
+                    }
+                });
+            });
+        }
+
+        function updateMindmapTransform() {
+            const viewport = document.getElementById('mindmap-viewport');
+            if (viewport) {
+                viewport.setAttribute('transform', `translate(${mmX}, ${mmY}) scale(${mmScale})`);
+            }
+        }
+
+        function zoomMindmap(factor) {
+            mmScale *= factor;
+            mmScale = Math.min(Math.max(0.5, mmScale), 3);
+            updateMindmapTransform();
+        }
+
+        function resetMindmap() {
+            mmScale = 1;
+            mmX = 0;
+            mmY = 0;
+            updateMindmapTransform();
+            document.getElementById('mindmap-info-card').innerHTML = `
+                <div class="mindmap-info-title">全書架構關係心智圖</div>
+                <div id="mindmap-info-text">懸停或點選任一章節節點，即可在此查看該章關係說明，點擊可直接跳轉至詳細說明投影片。</div>
+            `;
+        }
+
+        // 流程圖縮放、拖曳與重置 (Zoom & Pan)
+        let fcScale = 1;
+        let fcX = 0;
+        let fcY = 0;
+        let isDraggingFC = false;
+        let startFCX, startFCY;
+
+        function initFlowchartInteractivity() {
+            const container = document.querySelector('.flowchart-container');
+            const viewport = document.querySelector('.flowchart-viewport');
+            
+            if (!container || !viewport) return;
+
+            // 重置狀態
+            fcScale = 1;
+            fcX = 0;
+            fcY = 0;
+            updateFlowchartTransform(viewport);
+
+            // 拖曳事件
+            container.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.flowchart-zoom-btn')) return;
+                isDraggingFC = true;
+                container.style.cursor = 'grabbing';
+                startFCX = e.clientX - fcX;
+                startFCY = e.clientY - fcY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDraggingFC) return;
+                fcX = e.clientX - startFCX;
+                fcY = e.clientY - startFCY;
+                updateFlowchartTransform(viewport);
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDraggingFC = false;
+                if (container) container.style.cursor = 'grab';
+            });
+
+            // 滾輪縮放
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomFactor = 1.1;
+                if (e.deltaY < 0) {
+                    fcScale *= zoomFactor;
+                } else {
+                    fcScale /= zoomFactor;
+                }
+                fcScale = Math.min(Math.max(0.5, fcScale), 3);
+                updateFlowchartTransform(viewport);
+            }, { passive: false });
+        }
+
+        function updateFlowchartTransform(viewport) {
+            if (viewport) {
+                viewport.setAttribute('transform', `translate(${fcX}, ${fcY}) scale(${fcScale})`);
+            }
+        }
+
+        function zoomFC(factor) {
+            const viewport = document.querySelector('.flowchart-viewport');
+            if (viewport) {
+                fcScale *= factor;
+                fcScale = Math.min(Math.max(0.5, fcScale), 3);
+                updateFlowchartTransform(viewport);
+            }
+        }
+
+        function resetFC() {
+            const viewport = document.querySelector('.flowchart-viewport');
+            if (viewport) {
+                fcScale = 1;
+                fcX = 0;
+                fcY = 0;
+                updateFlowchartTransform(viewport);
+            }
+        }
+
+        // 導覽切換
+        function switchPresentationMode(mode) {
+            if (currentMode === mode) return;
+            currentMode = mode;
+            
+            document.getElementById('btn-overview').classList.toggle('active', mode === 'Overview');
+            document.getElementById('btn-detailed').classList.toggle('active', mode === 'Detailed');
+            
+            filterSlides();
+            currentIndex = 0;
+            renderSlide();
+        }
+
+        function jumpToChapter(chapterVal) {
+            if (chapterVal === 'all') {
+                switchPresentationMode('Overview');
+                currentIndex = 0;
+            } else {
+                switchPresentationMode('Detailed');
+                const chNum = parseInt(chapterVal);
+                const targetIndex = activeSlides.findIndex(s => s.chapter === chNum);
+                if (targetIndex !== -1) {
+                    currentIndex = targetIndex;
+                }
+            }
+            renderSlide();
+        }
+
+        // 翻頁邏輯
+        function nextSlide() {
+            if (currentIndex < activeSlides.length - 1) {
+                currentIndex++;
+                renderSlide();
+            } else {
+                showToast("已經是最後一頁了");
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderSlide();
+            } else {
+                showToast("已經是第一頁了");
+            }
+        }
+
+        // 快速鍵監聽
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'm' || e.key === 'M') {
+                const select = document.getElementById('chapter-select');
+                select.focus();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullScreen();
+            }
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        filterSlides();
+        renderSlide();
+    </script>
+</body>
+</html>

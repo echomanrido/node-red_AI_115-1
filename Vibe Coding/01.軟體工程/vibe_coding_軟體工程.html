@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>軟體工程演進史：從混沌、瀑布到 Vibe Coding</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+    
+    * {
+      font-family: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+      letter-spacing: 0.025em;
+    }
+    
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Glassmorphism effects */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .glass-nav {
+      background: rgba(10, 15, 30, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* Tab active indicator transition */
+    .tab-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.6);
+      color: #38bdf8;
+      box-shadow: 0 0 20px -3px rgba(56, 189, 248, 0.3);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="bg-[#070b14] text-slate-100 min-h-screen selection:bg-cyan-500/30 selection:text-cyan-200 antialiased overflow-x-hidden">
+
+  <!-- Top Navigation Bar -->
+  <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 text-white font-bold">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="font-bold text-base tracking-wide text-white block leading-tight">軟體工程演進全景圖</span>
+          <span class="text-[10px] text-slate-400 font-mono tracking-wider">EVOLUTION OF SOFTWARE ENGINEERING</span>
+        </div>
+      </div>
+      
+      <div class="hidden md:flex items-center gap-6 text-sm">
+        <a href="#eras" class="text-slate-300 hover:text-cyan-400 transition-colors">四大典範演進</a>
+        <a href="#matrix" class="text-slate-300 hover:text-cyan-400 transition-colors">全維度橫向對比</a>
+        <a href="#simulator" class="text-slate-300 hover:text-cyan-400 transition-colors">情境實戰模擬</a>
+        <a href="#insights" class="text-slate-300 hover:text-cyan-400 transition-colors">Vibe Coding 核心論綱</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="home" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span>回課程首頁</span>
+        </a>
+        <span class="px-2.5 py-1 rounded-full text-[11px] font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-800/50 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+          2026 AI Native
+        </span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center overflow-hidden">
+    <!-- Ambient Background Glows -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-cyan-500/15 via-indigo-600/15 to-teal-400/10 blur-[130px] rounded-full pointer-events-none -z-10"></div>
+    
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/70 text-cyan-300 text-xs sm:text-sm font-medium mb-8 shadow-inner">
+      <i data-lucide="sparkles" class="w-4 h-4 text-cyan-400 flex-shrink-0"></i>
+      <span>從手工刻石、嚴密工程圖到「意圖共振」的半世紀旅程</span>
+    </div>
+
+    <!-- Main Headline with comfortable spacing -->
+    <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-100 mb-6 leading-relaxed sm:leading-snug">
+      從
+      <span class="inline-block px-3 py-1 mx-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-300 font-normal tracking-[0.22em] text-2xl sm:text-4xl shadow-sm">
+        規格書泥淖
+      </span>
+      到
+      <br class="hidden sm:inline" />
+      <span class="bg-gradient-to-r from-teal-300 via-cyan-400 to-indigo-400 bg-clip-text text-transparent font-extrabold tracking-normal">
+        Vibe Coding 人機意圖共振
+      </span>
+    </h1>
+
+    <p class="max-w-3xl mx-auto text-sm sm:text-base text-slate-400 leading-relaxed font-normal mb-10">
+      軟體工程半個多世紀的演變，本質上就是一部<strong class="text-slate-200 font-medium">「不斷消除人腦想法與可執行軟體之間延遲」</strong>的消除阻力史。從最早期無序的個人打底、瀑布模型的科層控制，到敏捷迭代的反饋閉環，再到今天由 AI Agent 自主編排執行的 Vibe Coding 時代。
+    </p>
+
+    <!-- Quick Epoch Timeline Mini Bar -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto">
+      <div class="p-3 rounded-xl glass-card border-amber-500/20 text-left">
+        <span class="text-[10px] font-mono text-amber-400 block font-semibold">1950s - 1960s</span>
+        <span class="text-xs sm:text-sm font-bold text-slate-200">1. 混沌與手工工坊</span>
+        <span class="text-[11px] text-slate-400 block mt-0.5">單兵作戰 / 軟體危機</span>
+      </div>
+      <div class="p-3 rounded-xl glass-card border-sky-500/20 text-left">
+        <span class="text-[10px] font-mono text-sky-400 block font-semibold">1970s - 1990s</span>
+        <span class="text-xs sm:text-sm font-bold text-slate-200">2. 傳統瀑布模型</span>
+        <span class="text-[11px] text-slate-400 block mt-0.5">階梯單向流 / 文檔至上</span>
+      </div>
+      <div class="p-3 rounded-xl glass-card border-indigo-500/20 text-left">
+        <span class="text-[10px] font-mono text-indigo-400 block font-semibold">2001 - 2022</span>
+        <span class="text-xs sm:text-sm font-bold text-slate-200">3. 敏捷革命 & CI/CD</span>
+        <span class="text-[11px] text-slate-400 block mt-0.5">雙環迭代 / 擁抱變更</span>
+      </div>
+      <div class="p-3 rounded-xl glass-card border-teal-500/30 bg-teal-950/20 text-left ring-1 ring-teal-500/30">
+        <span class="text-[10px] font-mono text-teal-300 block font-semibold">2023 - 2026+</span>
+        <span class="text-xs sm:text-sm font-bold text-white flex items-center gap-1">
+          4. Vibe Coding
+          <i data-lucide="zap" class="w-3.5 h-3.5 text-teal-300"></i>
+        </span>
+        <span class="text-[11px] text-teal-200/80 block mt-0.5">自然語言 / Agent 自主</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- SECTION: Four Eras Detailed Deep Dive -->
+  <section id="eras" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-8">
+      <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">四大工程時代深度解析</h2>
+      <p class="text-xs sm:text-sm text-slate-400 mt-2">點擊切換不同時代，探索流程架構圖、核心痛點與思想轉變</p>
+    </div>
+
+    <!-- ERA SELECTION TABS -->
+    <div class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-10" id="era-tab-list">
+      <button onclick="switchEra('adhoc')" id="tab-btn-adhoc" class="tab-btn px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:border-slate-700 transition-all flex items-center gap-2">
+        <i data-lucide="flame" class="w-4 h-4 text-amber-400"></i>
+        <span>1. 混沌手工時期 (Ad-hoc)</span>
+      </button>
+      <button onclick="switchEra('waterfall')" id="tab-btn-waterfall" class="tab-btn px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:border-slate-700 transition-all flex items-center gap-2">
+        <i data-lucide="git-commit" class="w-4 h-4 text-sky-400"></i>
+        <span>2. 瀑布模型 (Waterfall)</span>
+      </button>
+      <button onclick="switchEra('agile')" id="tab-btn-agile" class="tab-btn active px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:border-slate-700 transition-all flex items-center gap-2">
+        <i data-lucide="refresh-cw" class="w-4 h-4 text-teal-400"></i>
+        <span>3. 敏捷革命 (Agile & DevOps)</span>
+      </button>
+      <button onclick="switchEra('vibecoding')" id="tab-btn-vibecoding" class="tab-btn px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-900/60 text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:border-slate-700 transition-all flex items-center gap-2">
+        <i data-lucide="sparkles" class="w-4 h-4 text-teal-400"></i>
+        <span>4. Vibe Coding (AI 意圖驅動)</span>
+      </button>
+    </div>
+
+    <!-- ERA PANELS -->
+    <div id="era-panels">
+
+      <!-- ============================================== -->
+      <!-- PANEL 1: AD-HOC (Cowboy Coding)                -->
+      <!-- ============================================== -->
+      <div id="panel-adhoc" class="era-panel hidden">
+        <div class="mb-8 p-6 rounded-2xl glass-card border border-amber-500/20 bg-gradient-to-r from-amber-950/20 via-slate-900 to-slate-950">
+          <div class="flex flex-col md:flex-row items-center gap-6">
+            <div class="w-full md:w-5/12">
+              <span class="text-xs font-mono text-amber-400 font-semibold tracking-wider uppercase block mb-1">
+                [ 流程架構圖 ] 混沌單兵式工作流 (No Process)
+              </span>
+              <h4 class="text-base font-bold text-slate-200 mb-2">英雄單打獨鬥：缺乏反饋與規格的無序迴圈</h4>
+              <p class="text-xs text-slate-400 leading-relaxed mb-3">
+                需求模糊不清，直接在腦海中打草稿並動手編碼。沒有任何中介設計圖、單元測試或版本控管，遇到錯誤直接在生產環境硬改，維護風險隨規模呈指數級爆炸。
+              </p>
+              <div class="inline-flex items-center gap-1.5 text-xs text-amber-300 bg-amber-950/40 px-3 py-1 rounded-md border border-amber-800/40">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 flex-shrink-0 text-amber-400"></i>
+                <span>歷史事件：1968 年北約會議正式提出「軟體危機 (Software Crisis)」</span>
+              </div>
+            </div>
+            <div class="w-full md:w-7/12 bg-slate-950/90 rounded-xl p-4 border border-slate-800 shadow-inner flex justify-center items-center">
+              <svg viewBox="0 0 460 170" class="w-full h-auto max-w-md" xmlns="http://www.w3.org/2000/svg">
+                <rect x="15" y="55" width="105" height="50" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                <text x="67" y="78" fill="#fef3c7" font-size="11" font-weight="bold" text-anchor="middle">模糊腦力構想</text>
+                <text x="67" y="93" fill="#94a3b8" font-size="9" text-anchor="middle">無文件 / 無規格</text>
+
+                <path d="M 120 80 L 155 80" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)" fill="none"/>
+
+                <rect x="160" y="45" width="125" height="70" rx="10" fill="#78350f" fill-opacity="0.3" stroke="#f59e0b" stroke-width="2.5"/>
+                <text x="222" y="73" fill="#fef08a" font-size="12" font-weight="bold" text-anchor="middle">直接敲代碼實作</text>
+                <text x="222" y="89" fill="#fde68a" font-size="9.5" text-anchor="middle">Cowboy Coding</text>
+                <text x="222" y="103" fill="#cbd5e1" font-size="8.5" text-anchor="middle">直覺操作 / 跳過架構</text>
+
+                <path d="M 285 80 L 325 80" stroke="#ef4444" stroke-width="2" fill="none"/>
+
+                <rect x="330" y="55" width="115" height="50" rx="10" fill="#450a0a" stroke="#ef4444" stroke-width="2"/>
+                <text x="387" y="78" fill="#fca5a5" font-size="11" font-weight="bold" text-anchor="middle">上線 / 頻繁崩潰</text>
+                <text x="387" y="93" fill="#f87171" font-size="9" text-anchor="middle">爆發軟體危機</text>
+
+                <path d="M 387 110 C 387 155, 222 155, 222 125" stroke="#ef4444" stroke-dasharray="4 3" stroke-width="2" fill="none"/>
+                <text x="305" y="148" fill="#f87171" font-size="8.5" text-anchor="middle">線上緊急打補丁 (Hotfix 地獄)</text>
+
+                <defs>
+                  <marker id="arrow-amber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 8 5 L 0 9 z" fill="#f59e0b"/>
+                  </marker>
+                </defs>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-8 space-y-4">
+            <div class="p-6 rounded-2xl glass-card">
+              <h3 class="text-lg font-bold text-amber-300 mb-3 flex items-center gap-2">
+                <i data-lucide="book-open" class="w-5 h-5"></i>
+                時代本質：天才工匠與混沌摸索
+              </h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                在 1950 至 1960 年代，電腦被視為極其昂貴的硬體設備，軟體僅被視為硬體的附屬品。開發全仰賴少數極端聰明的數學家或工程師（即所謂的「黑客英雄」或「牛仔工程師」）。沒有規格書，沒有版本控管（Git），更沒有單元測試。程式碼直接在穿孔卡片或終端機上即興編寫。
+              </p>
+            </div>
+            <div class="p-6 rounded-2xl glass-card">
+              <h4 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-3">主要特徵與工作方法</h4>
+              <ul class="space-y-2 text-xs sm:text-sm text-slate-300">
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-400 font-bold">▸</span>
+                  <span><strong>單兵英雄主義：</strong>系統維護極度依賴某位天才大腦，該人一旦離職，程式碼即成無人能解的天書。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-400 font-bold">▸</span>
+                  <span><strong>零工程約束：</strong>沒有模組化抽象觀念，缺乏系統架構與自動化驗證機制。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-400 font-bold">▸</span>
+                  <span><strong>失控的專案規模：</strong>當專案從數百行激增至數十萬行時，Bug 數量成幾何級數爆發，軟體成本超越硬體成本。</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="lg:col-span-4 space-y-4">
+            <div class="p-6 rounded-2xl bg-amber-950/20 border border-amber-500/30">
+              <span class="text-xs font-mono text-amber-400 font-semibold block mb-1">FATAL FLAW</span>
+              <h4 class="text-base font-bold text-amber-200 mb-2">致命缺陷：軟體危機</h4>
+              <p class="text-xs text-amber-300/80 leading-relaxed">
+                預算嚴重超支、交付無限延期、系統上線即崩潰。人們意識到寫軟體不能再像手工藝品般靠運氣，必須引入像土木建築一樣的「嚴謹工程規範」。
+              </p>
+            </div>
+            <div class="p-5 rounded-2xl glass-card">
+              <div class="text-xs text-slate-400 font-mono space-y-2">
+                <div class="flex justify-between border-b border-slate-800 pb-1">
+                  <span>迭代週期：</span>
+                  <span class="text-slate-200">無固定週期 (隨機上線)</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-1">
+                  <span>交付物：</span>
+                  <span class="text-slate-200">神秘機器碼 / 穿孔紙帶</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>協作成本：</span>
+                  <span class="text-rose-400">極高 (無法團隊分工)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- PANEL 2: WATERFALL (Cascading Steps)           -->
+      <!-- ============================================== -->
+      <div id="panel-waterfall" class="era-panel hidden">
+        <div class="mb-8 p-6 rounded-2xl glass-card border border-sky-500/20 bg-gradient-to-r from-sky-950/20 via-slate-900 to-slate-950">
+          <div class="flex flex-col md:flex-row items-center gap-6">
+            <div class="w-full md:w-5/12">
+              <span class="text-xs font-mono text-sky-400 font-semibold tracking-wider uppercase block mb-1">
+                [ 流程架構圖 ] 傳統瀑布模型 (Cascading Steps)
+              </span>
+              <h4 class="text-base font-bold text-slate-200 mb-2">單向推進、階段凍結的階梯瀑布</h4>
+              <p class="text-xs text-slate-400 leading-relaxed mb-3">
+                猶如建築施工或工廠流水線，每個階段必須產出厚重的書面規格才能進入下一步驟。箭頭只能往下流，若在後期的測試階段發現底層設計缺陷，回滾修正的代價極高。
+              </p>
+              <div class="inline-flex items-center gap-1.5 text-xs text-rose-300 bg-rose-950/40 px-3 py-1 rounded-md border border-rose-900/50">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0 text-rose-400"></i>
+                <span>最大痛點：直到第 4 階段測試前，客戶看不見任何軟體實體</span>
+              </div>
+            </div>
+            <div class="w-full md:w-7/12 bg-slate-950/90 rounded-xl p-5 border border-slate-800 shadow-inner flex justify-center items-center">
+              <svg viewBox="0 0 460 210" class="w-full h-auto max-w-lg" xmlns="http://www.w3.org/2000/svg">
+                <rect x="20" y="15" width="120" height="32" rx="6" fill="#0369a1" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="80" y="35" fill="#f0f9ff" font-size="11" font-weight="bold" text-anchor="middle">1. 需求分析 CONCEPT</text>
+
+                <path d="M 140 31 H 175 C 190 31, 190 60, 190 68" stroke="#38bdf8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <polygon points="186,67 194,67 190,75" fill="#38bdf8"/>
+
+                <rect x="90" y="65" width="120" height="32" rx="6" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="150" y="85" fill="#f0f9ff" font-size="11" font-weight="bold" text-anchor="middle">2. 系統設計 DESIGN</text>
+
+                <path d="M 210 81 H 245 C 260 81, 260 110, 260 118" stroke="#38bdf8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <polygon points="256,117 264,117 260,125" fill="#38bdf8"/>
+
+                <rect x="160" y="115" width="120" height="32" rx="6" fill="#0369a1" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="220" y="135" fill="#f0f9ff" font-size="11" font-weight="bold" text-anchor="middle">3. 程式開發 DEVELOP</text>
+
+                <path d="M 280 131 H 315 C 330 131, 330 160, 330 168" stroke="#38bdf8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <polygon points="326,167 334,167 330,175" fill="#38bdf8"/>
+
+                <rect x="230" y="165" width="120" height="32" rx="6" fill="#0f766e" stroke="#2dd4bf" stroke-width="1.5"/>
+                <text x="290" y="185" fill="#f0fdfa" font-size="11" font-weight="bold" text-anchor="middle">4. 整合測試 TEST</text>
+
+                <path d="M 350 181 H 395" stroke="#2dd4bf" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <polygon points="393,177 403,181 393,185" fill="#2dd4bf"/>
+                
+                <rect x="400" y="165" width="55" height="32" rx="6" fill="#14532d" stroke="#4ade80" stroke-width="1.5"/>
+                <text x="427" y="185" fill="#dcfce7" font-size="10" font-weight="bold" text-anchor="middle">交付</text>
+
+                <path d="M 330 197 C 330 206, 45 206, 45 50" stroke="#f43f5e" stroke-dasharray="3 3" stroke-width="1.5" fill="none"/>
+                <text x="170" y="206" fill="#fb7185" font-size="8.5" text-anchor="middle">⚠️ 回溯變更成本極高（需整套重簽文檔）</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-8 space-y-4">
+            <div class="p-6 rounded-2xl glass-card">
+              <h3 class="text-lg font-bold text-sky-300 mb-3 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                時代本質：移植土木製造業的科層秩序
+              </h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                為了解決軟體危機，1970 年 Winston Royce 提出了階段化模型（諷刺的是，他在原文中其實是想表達此方法的脆弱性），卻被軍工機構（如美國國防部 MIL-STD-498）廣泛採納為標準。瀑布模型假設「人類只要花夠多時間思考，就能在寫第一行代碼前把所有需求完全寫死」。
+              </p>
+            </div>
+            <div class="p-6 rounded-2xl glass-card">
+              <h4 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-3">運作特徵與現實衝擊</h4>
+              <ul class="space-y-2 text-xs sm:text-sm text-slate-300">
+                <li class="flex items-start gap-2">
+                  <span class="text-sky-400 font-bold">▸</span>
+                  <span><strong>重型規格書包袱：</strong>動輒數百頁的 PRD、架構規格書（SRS），文檔簽核時間甚至比實際開發還長。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-sky-400 font-bold">▸</span>
+                  <span><strong>大爆炸式交付 (Big Bang Release)：</strong>直到專案歷經 1~2 年驗收時，客戶才第一次看到軟體長相，往往當場宣告崩潰。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-sky-400 font-bold">▸</span>
+                  <span><strong>變更抵抗體制：</strong>任何微小業務調整都被視為敵人，必須經過繁瑣的變更控制委員會（CCB）嚴密審查。</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="lg:col-span-4 space-y-4">
+            <div class="p-6 rounded-2xl bg-sky-950/20 border border-sky-500/30">
+              <span class="text-xs font-mono text-sky-400 font-semibold block mb-1">THE TRAP</span>
+              <h4 class="text-base font-bold text-sky-200 mb-2">致命陷阱：規格書泥淖</h4>
+              <p class="text-xs text-sky-300/80 leading-relaxed">
+                軟體是「軟」的，市場是「變動」的。將未知的商業探索硬套入已知的水泥灌漿模型，註定了交付當天即落伍的宿命。
+              </p>
+            </div>
+            <div class="p-5 rounded-2xl glass-card">
+              <div class="text-xs text-slate-400 font-mono space-y-2">
+                <div class="flex justify-between border-b border-slate-800 pb-1">
+                  <span>交付週期：</span>
+                  <span class="text-slate-200">6 個月 ~ 3 年</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-1">
+                  <span>變更代價：</span>
+                  <span class="text-rose-400">災難性成本</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>測試介入點：</span>
+                  <span class="text-amber-300">開發完成後 (後期整合)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- PANEL 3: AGILE & DEVOPS (Dual Loops)           -->
+      <!-- ============================================== -->
+      <div id="panel-agile" class="era-panel">
+        <div class="mb-8 p-6 rounded-2xl glass-card border border-teal-500/30 bg-gradient-to-r from-teal-950/30 via-slate-900 to-emerald-950/20">
+          <div class="flex flex-col lg:flex-row items-center gap-6">
+            <div class="w-full lg:w-4/12">
+              <span class="text-xs font-mono text-teal-300 font-semibold tracking-wider uppercase block mb-1">
+                [ 流程架構圖 ] 敏捷雙環迭代 (AGILE ITERATION LOOPS)
+              </span>
+              <h4 class="text-base font-bold text-slate-100 mb-2">敏捷式開發與傳統式開發最大差異</h4>
+              <p class="text-xs sm:text-sm text-teal-200/90 leading-relaxed mb-3 bg-teal-950/50 p-2.5 rounded-lg border border-teal-800/40 font-medium">
+                「需求切更細，短時間先開發一版本，讓市場測試、回饋。然後再進入下一循環開發。」
+              </p>
+              <div class="inline-flex items-center gap-1.5 text-xs text-emerald-300 bg-emerald-950/40 px-3 py-1.5 rounded-md border border-emerald-800/40">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 flex-shrink-0 text-emerald-400"></i>
+                <span>雙環反饋：可運作的軟體高於詳盡文件、持續交付商業價值</span>
+              </div>
+            </div>
+            
+            <!-- 1:1 Vector Graphics Matching the Uploaded Agile Slide -->
+            <div class="w-full lg:w-8/12 rounded-2xl overflow-hidden border border-teal-500/30 shadow-2xl relative select-none">
+              <svg viewBox="0 0 1200 675" class="w-full h-auto block" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <!-- Background Gradients -->
+                  <linearGradient id="agile-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#011b16"/>
+                    <stop offset="40%" stop-color="#023b31"/>
+                    <stop offset="100%" stop-color="#001813"/>
+                  </linearGradient>
+
+                  <linearGradient id="facet-l1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#054f42"/>
+                    <stop offset="100%" stop-color="#01241d"/>
+                  </linearGradient>
+
+                  <linearGradient id="facet-r1" x1="100%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#065446"/>
+                    <stop offset="100%" stop-color="#01221b"/>
+                  </linearGradient>
+
+                  <filter id="glow-text" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.5"/>
+                  </filter>
+                </defs>
+
+                <!-- Layer 1: Dark emerald polygonal faceted background -->
+                <rect width="1200" height="675" fill="url(#agile-bg)"/>
+
+                <!-- Left angled faceted polygons -->
+                <polygon points="0,0 300,0 150,675 0,675" fill="url(#facet-l1)" opacity="0.85"/>
+                <polygon points="0,0 180,0 0,450" fill="#075e4e" opacity="0.55"/>
+
+                <!-- Right angled faceted polygons -->
+                <polygon points="900,0 1200,0 1200,675 1050,675" fill="url(#facet-r1)" opacity="0.85"/>
+                <polygon points="1020,0 1200,0 1200,450" fill="#075e4e" opacity="0.55"/>
+
+                <!-- Bottom-right decorative diagonal lines -->
+                <g stroke="#ffffff" opacity="0.85" stroke-linecap="round">
+                  <line x1="910" y1="605" x2="1185" y2="330" stroke-width="2"/>
+                  <line x1="990" y1="565" x2="1200" y2="355" stroke-width="3.5"/>
+                  <line x1="1030" y1="575" x2="1200" y2="405" stroke-width="2"/>
+                  <line x1="1070" y1="570" x2="1200" y2="440" stroke-width="3"/>
+                </g>
+
+                <!-- Layer 2: Main Titles matching reference slide typography -->
+                <text x="600" y="140" fill="#ffffff" font-size="88" font-weight="900" font-family="'Inter', sans-serif" letter-spacing="5" text-anchor="middle" filter="url(#glow-text)">AGILE</text>
+                <text x="600" y="210" fill="#ffffff" font-size="44" font-weight="700" font-family="'Noto Sans TC', sans-serif" letter-spacing="2" text-anchor="middle" filter="url(#glow-text)">（敏捷開發）</text>
+
+                <!-- Labels above loops: DEVELOP -->
+                <text x="410" y="280" fill="#ffffff" font-size="28" font-weight="800" font-family="'Inter', sans-serif" letter-spacing="1.5" text-anchor="middle">DEVELOP</text>
+                <text x="790" y="280" fill="#ffffff" font-size="28" font-weight="800" font-family="'Inter', sans-serif" letter-spacing="1.5" text-anchor="middle">DEVELOP</text>
+
+                <!-- Labels inside loop centers: TEST & REITERATE -->
+                <text x="410" y="432" fill="#ffffff" font-size="28" font-weight="800" font-family="'Inter', sans-serif" letter-spacing="1.5" text-anchor="middle">TEST</text>
+                <text x="790" y="432" fill="#ffffff" font-size="28" font-weight="800" font-family="'Inter', sans-serif" letter-spacing="1.2" text-anchor="middle">REITERATE</text>
+
+                <!-- Labels below baseline: DESIGN -->
+                <text x="410" y="600" fill="#ffffff" font-size="28" font-weight="800" font-family="'Inter', sans-serif" letter-spacing="1.5" text-anchor="middle">DESIGN</text>
+                <text x="790" y="600" fill="#ffffff" font-size="28" font-weight="800" font-family="'Inter', sans-serif" letter-spacing="1.5" text-anchor="middle">DESIGN</text>
+
+                <!-- Layer 3: Solid White Horizontal Track and Arrows -->
+                <!-- Left notched tail: notch at x=220 -->
+                <polygon points="220,523 238,533 220,543 238,543 238,523" fill="#ffffff"/>
+                
+                <!-- Horizontal bar segment 1 (x: 236 to 550) -->
+                <rect x="236" y="523" width="315" height="20" fill="#ffffff"/>
+
+                <!-- Middle Transition Arrow -->
+                <polygon points="545,503 605,533 545,563" fill="#ffffff"/>
+
+                <!-- Horizontal bar segment 2 (x: 602 to 930) -->
+                <rect x="602" y="523" width="328" height="20" fill="#ffffff"/>
+
+                <!-- Final Right Exit Arrow -->
+                <polygon points="925,503 985,533 925,563" fill="#ffffff"/>
+
+                <!-- ================= LEFT CIRCLE LOOP (Center: x=410, y=420, Radius=115) ================= -->
+                <!-- Left Outer Arc -->
+                <path d="M 458 315 A 115 115 0 0 0 295 420 L 295 432" fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="butt"/>
+                <!-- Downward Arrow Head on Left Side -->
+                <polygon points="273,415 317,415 295,470" fill="#ffffff"/>
+
+                <!-- Right Outer Arc -->
+                <path d="M 325 533 C 390 533 525 490 525 420 A 115 115 0 0 0 478 332" fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="butt"/>
+                <!-- Upward Arrow Head on Right Side -->
+                <polygon points="458,348 502,348 480,293" fill="#ffffff"/>
+
+                <!-- ================= RIGHT CIRCLE LOOP (Center: x=790, y=420, Radius=115) ================= -->
+                <!-- Left Outer Arc -->
+                <path d="M 838 315 A 115 115 0 0 0 675 420 L 675 432" fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="butt"/>
+                <!-- Downward Arrow Head on Left Side -->
+                <polygon points="653,415 697,415 675,470" fill="#ffffff"/>
+
+                <!-- Right Outer Arc -->
+                <path d="M 705 533 C 770 533 905 490 905 420 A 115 115 0 0 0 858 332" fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="butt"/>
+                <!-- Upward Arrow Head on Right Side -->
+                <polygon points="838,348 882,348 860,293" fill="#ffffff"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-8 space-y-4">
+            <div class="p-6 rounded-2xl glass-card">
+              <h3 class="text-lg font-bold text-indigo-300 mb-3 flex items-center gap-2">
+                <i data-lucide="zap" class="w-5 h-5"></i>
+                時代本質：縮短回饋迴圈（Feedback Loop）
+              </h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                2001 年 17 位軟體先驅在猶他州雪鳥度假村發布《敏捷軟體開發宣言》。敏捷核心不是「不用寫文件」，而是承認「需求永遠在變」。透過將大目標拆解成 1~2 週的 Sprint，配合 DevOps、CI/CD 自動化建置、單元測試（TDD），讓產品團隊具備隨時發布上線的能力。
+              </p>
+            </div>
+            <div class="p-6 rounded-2xl glass-card">
+              <h4 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-3">核心實踐與文化轉變</h4>
+              <ul class="space-y-2 text-xs sm:text-sm text-slate-300">
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-400 font-bold">▸</span>
+                  <span><strong>MVP 漸進增量：</strong>先造滑板車驗證平衡，再造腳踏車、機車，而不是先做 4 顆輪子乾等。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-400 font-bold">▸</span>
+                  <span><strong>自動化保護網：</strong>透過 Git PR 審查、GitHub Actions 自動化測試流水線，讓發布成為日常操作。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-400 font-bold">▸</span>
+                  <span><strong>跨職能團隊：</strong>產品經理（PO）、工程師與 QA 緊密並肩，打破部門之間的深牆阻隔。</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="lg:col-span-4 space-y-4">
+            <div class="p-6 rounded-2xl bg-indigo-950/20 border border-indigo-500/30">
+              <span class="text-xs font-mono text-indigo-400 font-semibold block mb-1">NEW BOTTLENECK</span>
+              <h4 class="text-base font-bold text-indigo-200 mb-2">新的瓶頸：認知負荷與會議過載</h4>
+              <p class="text-xs text-indigo-300/80 leading-relaxed">
+                敏捷在實踐中常演變成「敏捷儀式主義」：無休止的站立會、衝刺評審會、估點撲克牌，而工程師的大腦依然被大量繁重、重複的樣板程式碼所奴役。
+              </p>
+            </div>
+            <div class="p-5 rounded-2xl glass-card">
+              <div class="text-xs text-slate-400 font-mono space-y-2">
+                <div class="flex justify-between border-b border-slate-800 pb-1">
+                  <span>迭代週期：</span>
+                  <span class="text-slate-200">1 ~ 2 週 (Sprint)</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-1">
+                  <span>發布頻率：</span>
+                  <span class="text-teal-300">每天數次 ~ 每週 (CI/CD)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>主要約束：</span>
+                  <span class="text-slate-200">人腦打字與溝通開銷</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- PANEL 4: VIBE CODING (Intent to Execution)     -->
+      <!-- ============================================== -->
+      <div id="panel-vibecoding" class="era-panel hidden">
+        <div class="mb-8 p-6 rounded-2xl glass-card border border-teal-500/30 bg-gradient-to-r from-teal-950/30 via-slate-900 to-indigo-950/20">
+          <div class="flex flex-col md:flex-row items-center gap-6">
+            <div class="w-full md:w-5/12">
+              <span class="text-xs font-mono text-teal-300 font-semibold tracking-wider uppercase block mb-1">
+                [ 流程架構圖 ] Vibe Coding 人機意圖共振 (Intent-to-Execution)
+              </span>
+              <h4 class="text-base font-bold text-slate-200 mb-2">人類導航與意圖注入 ➔ AI Agent 自主生成驗證</h4>
+              <p class="text-xs text-slate-400 leading-relaxed mb-3">
+                傳統的編程打字門檻被徹底消弭。工程師專注於系統邊界與需求直覺（Vibe），AI 在背景完成架構生成、單元測試、自動修復並透過即時熱重載反饋給人類評審。
+              </p>
+              <div class="inline-flex items-center gap-1.5 text-xs text-teal-300 bg-teal-950/40 px-3 py-1 rounded-md border border-teal-800/40">
+                <i data-lucide="zap" class="w-3.5 h-3.5 flex-shrink-0 text-teal-400"></i>
+                <span>反饋週期：從「數週」壓縮至「數秒」微迭代閉環</span>
+              </div>
+            </div>
+            <div class="w-full md:w-7/12 bg-slate-950/90 rounded-xl p-5 border border-slate-800 shadow-inner flex justify-center items-center">
+              <svg viewBox="0 0 460 210" class="w-full h-auto max-w-lg" xmlns="http://www.w3.org/2000/svg">
+                <rect x="15" y="70" width="100" height="70" rx="10" fill="#134e4a" stroke="#2dd4bf" stroke-width="2"/>
+                <text x="65" y="95" fill="#f0fdfa" font-size="11" font-weight="bold" text-anchor="middle">🧠 人類意圖</text>
+                <text x="65" y="112" fill="#99f6e4" font-size="9" text-anchor="middle">自然語言 / Vibe</text>
+                <text x="65" y="126" fill="#5eead4" font-size="8.5" text-anchor="middle">架構守門 & 審查</text>
+
+                <path d="M 115 105 H 155" stroke="#2dd4bf" stroke-width="2.5" fill="none"/>
+                <polygon points="153,101 161,105 153,109" fill="#2dd4bf"/>
+                <text x="135" y="98" fill="#5eead4" font-size="8" text-anchor="middle">Prompt</text>
+
+                <rect x="165" y="25" width="180" height="160" rx="12" fill="#0f172a" stroke="#38bdf8" stroke-dasharray="4 2" stroke-width="1.5"/>
+                <text x="255" y="45" fill="#38bdf8" font-size="10" font-weight="bold" text-anchor="middle">🤖 AI Agent (Cursor / Claude / Copilot)</text>
+
+                <rect x="180" y="58" width="150" height="30" rx="6" fill="#1e293b" stroke="#0284c7" stroke-width="1"/>
+                <text x="255" y="77" fill="#bae6fd" font-size="9.5" font-weight="bold" text-anchor="middle">1. 多檔案代碼自主生成</text>
+
+                <rect x="180" y="98" width="150" height="30" rx="6" fill="#1e293b" stroke="#0284c7" stroke-width="1"/>
+                <text x="255" y="117" fill="#bae6fd" font-size="9.5" font-weight="bold" text-anchor="middle">2. 自動終端建置 & 測資</text>
+
+                <rect x="180" y="138" width="150" height="30" rx="6" fill="#1e293b" stroke="#0284c7" stroke-width="1"/>
+                <text x="255" y="157" fill="#bae6fd" font-size="9.5" font-weight="bold" text-anchor="middle">3. 自動除錯修復 (Self-Healing)</text>
+
+                <path d="M 330 113 C 345 113, 345 73, 332 73" stroke="#f59e0b" stroke-width="1.5" fill="none"/>
+                <polygon points="334,70 326,73 334,76" fill="#f59e0b"/>
+
+                <path d="M 345 105 H 375" stroke="#4ade80" stroke-width="2.5" fill="none"/>
+                <polygon points="373,101 381,105 373,109" fill="#4ade80"/>
+
+                <rect x="380" y="70" width="70" height="70" rx="10" fill="#064e3b" stroke="#4ade80" stroke-width="2"/>
+                <text x="415" y="98" fill="#dcfce7" font-size="10.5" font-weight="bold" text-anchor="middle">⚡ 即時</text>
+                <text x="415" y="113" fill="#86efac" font-size="9.5" font-weight="bold" text-anchor="middle">原型成果</text>
+                <text x="415" y="127" fill="#bbf7d0" font-size="8" text-anchor="middle">熱重載呈現</text>
+
+                <path d="M 415 140 C 415 195, 65 195, 65 142" stroke="#2dd4bf" stroke-dasharray="3 3" stroke-width="1.5" fill="none"/>
+                <text x="240" y="202" fill="#5eead4" font-size="8.5" text-anchor="middle">直覺反饋微調 (人類審查 ➔ 指示下一輪 Vibe)</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-8 space-y-4">
+            <div class="p-6 rounded-2xl glass-card">
+              <h3 class="text-lg font-bold text-teal-300 mb-3 flex items-center gap-2">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                時代本質：英語是地表最強的編程語言
+              </h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                2025~2026 年，前 OpenAI 研究科學家 Andrej Karpathy 提出「Vibe Coding」一詞。在具備強大推論能力與 Agentic 工作流的模型賦能下，寫程式不再需要人類敲出每一行語法。工程師的角色從「打字員（Coder）」演化為「總指揮官兼品管架構師（Orchestrator & Reviewer）」。
+              </p>
+            </div>
+            <div class="p-6 rounded-2xl glass-card">
+              <h4 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-3">Vibe Coding 核心變革</h4>
+              <ul class="space-y-2 text-xs sm:text-sm text-slate-300">
+                <li class="flex items-start gap-2">
+                  <span class="text-teal-400 font-bold">▸</span>
+                  <span><strong>意圖即代碼 (Intent as Code)：</strong>你用清晰的自然語言表達業務願景，AI 自動完成多檔案調用、依賴安裝與單元測試。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-teal-400 font-bold">▸</span>
+                  <span><strong>秒級微循環 (Seconds-level Feedback)：</strong>不再等待 Sprint，按下 Enter 鍵後數秒內便看到真實介面與功能運行。</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-teal-400 font-bold">▸</span>
+                  <span><strong>自我修復閉環 (Self-Healing)：</strong>終端機報錯時，Agent 自動讀取 Stack Trace、重寫代碼並再次跑測試，直到完全通過。</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="lg:col-span-4 space-y-4">
+            <div class="p-6 rounded-2xl bg-teal-950/20 border border-teal-500/30">
+              <span class="text-xs font-mono text-teal-400 font-semibold block mb-1">NEW PARADIGM SHIFT</span>
+              <h4 class="text-base font-bold text-teal-200 mb-2">核心門檻：品味與邊界思考</h4>
+              <p class="text-xs text-teal-300/80 leading-relaxed">
+                當代碼變得廉價無比，真正的競爭力轉變為：系統安全邊界把控、產品美學品味、架構擴展性設計，以及識破 AI 幻覺與冗餘代碼的犀利眼光。
+              </p>
+            </div>
+            <div class="p-5 rounded-2xl glass-card">
+              <div class="text-xs text-slate-400 font-mono space-y-2">
+                <div class="flex justify-between border-b border-slate-800 pb-1">
+                  <span>迭代週期：</span>
+                  <span class="text-teal-300">數秒 ~ 數分鐘</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-1">
+                  <span>媒介語言：</span>
+                  <span class="text-slate-200">自然語言 / 意圖提示</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>主要挑戰：</span>
+                  <span class="text-amber-300">代碼熵增防範 & 架構純潔度</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION: Comparison Matrix Table -->
+  <section id="matrix" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-10">
+      <span class="text-xs font-mono text-cyan-400 font-semibold tracking-wider uppercase block mb-1">CROSS-ERA COMPARISON</span>
+      <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">四大時代橫向對比矩陣</h2>
+      <p class="text-xs sm:text-sm text-slate-400 mt-2">從哲學核心、反饋半徑到工程師核心職責的本質變遷</p>
+    </div>
+
+    <div class="overflow-x-auto rounded-2xl border border-slate-800 glass-card">
+      <table class="w-full text-left border-collapse text-xs sm:text-sm">
+        <thead>
+          <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-300">
+            <th class="p-4 font-bold text-slate-400">維度指標</th>
+            <th class="p-4 font-bold text-amber-300">1. 混沌手工 (1950s)</th>
+            <th class="p-4 font-bold text-sky-300">2. 傳統瀑布 (1970s)</th>
+            <th class="p-4 font-bold text-indigo-300">3. 敏捷革命 (2000s)</th>
+            <th class="p-4 font-bold text-teal-300 bg-teal-950/20">4. Vibe Coding (2025+)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/60 text-slate-300">
+          <tr class="hover:bg-slate-800/30 transition-colors">
+            <td class="p-4 font-semibold text-slate-400">核心哲學</td>
+            <td class="p-4">邊想邊做，直覺黑客</td>
+            <td class="p-4">前置凍結，文檔導向</td>
+            <td class="p-4">快速迭代，擁抱變更</td>
+            <td class="p-4 font-semibold text-teal-200 bg-teal-950/10">人機意圖共振，極速成形</td>
+          </tr>
+          <tr class="hover:bg-slate-800/30 transition-colors">
+            <td class="p-4 font-semibold text-slate-400">交付/反饋半徑</td>
+            <td class="p-4">無固定週期 (崩潰時)</td>
+            <td class="p-4 text-rose-300">數月 至 數年</td>
+            <td class="p-4 text-indigo-200">1 至 2 週 (Sprint)</td>
+            <td class="p-4 font-semibold text-teal-300 bg-teal-950/10">數秒 至 數分鐘</td>
+          </tr>
+          <tr class="hover:bg-slate-800/30 transition-colors">
+            <td class="p-4 font-semibold text-slate-400">面對需求變更</td>
+            <td class="p-4">線上隨意硬改</td>
+            <td class="p-4 text-rose-400">強烈排斥 (需簽合約變更)</td>
+            <td class="p-4 text-indigo-300">排入下一輪 Backlog</td>
+            <td class="p-4 font-semibold text-teal-200 bg-teal-950/10">對話微調，隨意重構</td>
+          </tr>
+          <tr class="hover:bg-slate-800/30 transition-colors">
+            <td class="p-4 font-semibold text-slate-400">工程師角色</td>
+            <td class="p-4">獨行孤狼工匠</td>
+            <td class="p-4">規格轉譯打字工</td>
+            <td class="p-4">跨職能團隊共創者</td>
+            <td class="p-4 font-semibold text-teal-200 bg-teal-950/10">架構導航員、審查者</td>
+          </tr>
+          <tr class="hover:bg-slate-800/30 transition-colors">
+            <td class="p-4 font-semibold text-slate-400">質量保障 (QA)</td>
+            <td class="p-4">無 (上線靠運氣)</td>
+            <td class="p-4">後期手動厚重驗收</td>
+            <td class="p-4">TDD / CI/CD 自動化管線</td>
+            <td class="p-4 font-semibold text-teal-200 bg-teal-950/10">AI 自修復 + 人類體驗驗收</td>
+          </tr>
+          <tr class="hover:bg-slate-800/30 transition-colors">
+            <td class="p-4 font-semibold text-slate-400">最大痛點/瓶頸</td>
+            <td class="p-4 text-amber-300">不可維護性與人員依賴</td>
+            <td class="p-4 text-rose-400">與市場嚴重脫節 (規格泥淖)</td>
+            <td class="p-4 text-indigo-300">會議負擔與重複代碼精力耗損</td>
+            <td class="p-4 text-teal-200 bg-teal-950/10">AI 幻覺與無序代碼膨脹</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECTION: Interactive Real-World Scenario Simulator -->
+  <section id="simulator" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="mb-10 text-center">
+      <span class="text-xs font-mono text-cyan-400 font-semibold tracking-wider uppercase block mb-1">INTERACTIVE SIMULATION</span>
+      <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">同一個需求，四個時代如何交手？</h2>
+      <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-2xl mx-auto">
+        情境題：<strong class="text-slate-200">「雙 11 即將來臨，電商主管要求緊急支援『滿 $1,000 折 $100 並贈送限量折價券』的功能」</strong>
+      </p>
+    </div>
+
+    <!-- Simulator Controller -->
+    <div class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-700/80 shadow-2xl">
+      <div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-800">
+        <div>
+          <span class="text-xs text-slate-400 block font-mono">STEP 1: 選擇模擬工程時代</span>
+          <span class="text-sm font-bold text-slate-200">觀察團隊真實反應、溝通成本與產出時間</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full sm:w-auto">
+          <button onclick="simulateEra('adhoc')" id="sim-btn-adhoc" class="sim-btn px-3 py-2 rounded-xl text-xs font-semibold border border-amber-600/30 bg-amber-950/20 text-amber-300 hover:bg-amber-900/40 transition-all">
+            1. 混沌時期
+          </button>
+          <button onclick="simulateEra('waterfall')" id="sim-btn-waterfall" class="sim-btn px-3 py-2 rounded-xl text-xs font-semibold border border-sky-600/30 bg-sky-950/20 text-sky-300 hover:bg-sky-900/40 transition-all">
+            2. 瀑布模型
+          </button>
+          <button onclick="simulateEra('agile')" id="sim-btn-agile" class="sim-btn px-3 py-2 rounded-xl text-xs font-semibold border border-indigo-600/30 bg-indigo-950/20 text-indigo-300 hover:bg-indigo-900/40 transition-all">
+            3. 敏捷衝刺
+          </button>
+          <button onclick="simulateEra('vibecoding')" id="sim-btn-vibecoding" class="sim-btn px-3 py-2 rounded-xl text-xs font-semibold border border-teal-500 bg-teal-500/20 text-teal-200 shadow-lg shadow-teal-500/20 transition-all">
+            4. Vibe Coding
+          </button>
+        </div>
+      </div>
+
+      <!-- Simulator Output Box -->
+      <div class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Dialogue & Flow -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono uppercase text-slate-400" id="sim-era-label">目前模擬：4. Vibe Coding 時代</span>
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-cyan-300" id="sim-time-label">⏱ 耗時：約 15 分鐘</span>
+          </div>
+
+          <!-- Chat bubble preview -->
+          <div class="bg-slate-950/90 rounded-2xl p-5 border border-slate-800 space-y-3 font-mono text-xs sm:text-sm" id="sim-dialogue-box">
+            <!-- Dynamic inject -->
+          </div>
+
+          <!-- Workflow Steps -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <h5 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">真實工作流程</h5>
+            <ol class="space-y-1.5 text-xs text-slate-400" id="sim-flow-steps">
+              <!-- Dynamic inject -->
+            </ol>
+          </div>
+        </div>
+
+        <!-- Right: Status Metrics -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+            <h5 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
+              <span>關鍵指標評估</span>
+              <i data-lucide="activity" class="w-4 h-4 text-cyan-400"></i>
+            </h5>
+
+            <!-- Metric 1: Delivery Velocity -->
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-400">交付速度 (Velocity)</span>
+                <span class="font-bold text-slate-200" id="metric-velocity-text">極致秒級 (99/100)</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div id="metric-velocity-bar" class="h-full bg-gradient-to-r from-teal-400 to-cyan-500 rounded-full transition-all duration-500" style="width: 98%;"></div>
+              </div>
+            </div>
+
+            <!-- Metric 2: Flexibility to Change -->
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-400">面對變更彈性 (Adaptability)</span>
+                <span class="font-bold text-slate-200" id="metric-adapt-text">極高，自然語言重構 (95/100)</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div id="metric-adapt-bar" class="h-full bg-gradient-to-r from-cyan-400 to-indigo-500 rounded-full transition-all duration-500" style="width: 95%;"></div>
+              </div>
+            </div>
+
+            <!-- Metric 3: Architectural Risk -->
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-400">潛在隱蔽風險 (Risk Profile)</span>
+                <span class="font-bold text-slate-200" id="metric-risk-text">AI 冗餘與上下文漂移 (中等)</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div id="metric-risk-bar" class="h-full bg-gradient-to-r from-amber-400 to-rose-500 rounded-full transition-all duration-500" style="width: 45%;"></div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-400 leading-relaxed" id="sim-summary-text">
+              工程師只需精確給出折抵階梯規則與優惠券扣抵原子性要求，AI Agent 即刻生成資料庫 migration、後端計算函式與前端動態結帳卡片，並自主修復測試案例。
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: Vibe Coding Manifesto & Guidelines -->
+  <section id="insights" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-12">
+      <span class="text-xs font-mono text-teal-300 font-semibold tracking-wider uppercase block mb-1">BEST PRACTICES FOR THE AI-NATIVE AGE</span>
+      <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">如何在 Vibe Coding 時代保持卓越？</h2>
+      <p class="text-xs sm:text-sm text-slate-400 mt-2">不淪為「只會亂複製的代碼組裝工」，掌握四項核心防身術</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <!-- Card 1 -->
+      <div class="p-6 rounded-2xl glass-card border-teal-500/20 hover:border-teal-500/40 transition-all">
+        <div class="w-10 h-10 rounded-xl bg-teal-950/80 border border-teal-500/40 flex items-center justify-center text-teal-300 mb-4">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <h4 class="text-base font-bold text-slate-100 mb-2">1. 堅持「架構守門」</h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          不要讓 AI 自行決定底層數據庫結構與模組分層。核心業務狀態、權限認證與金融級邊界，必須由人類架構師白紙黑字明確規範。
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="p-6 rounded-2xl glass-card border-cyan-500/20 hover:border-cyan-500/40 transition-all">
+        <div class="w-10 h-10 rounded-xl bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-300 mb-4">
+          <i data-lucide="test-tube" class="w-5 h-5"></i>
+        </div>
+        <h4 class="text-base font-bold text-slate-100 mb-2">2. 測試即規格 (Spec as Tests)</h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          在讓 AI 寫業務邏輯前，先命令 AI 根據需求產生全面的邊界單元測試（Property-based Tests）。只要測試跑通，AI 自由發揮的程式碼便擁有絕對安全網。
+        </p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="p-6 rounded-2xl glass-card border-indigo-500/20 hover:border-indigo-500/40 transition-all">
+        <div class="w-10 h-10 rounded-xl bg-indigo-950/80 border border-indigo-500/40 flex items-center justify-center text-indigo-300 mb-4">
+          <i data-lucide="git-branch" class="w-5 h-5"></i>
+        </div>
+        <h4 class="text-base font-bold text-slate-100 mb-2">3. 頻繁 Commit 與剪枝</h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          AI 生成速度極快，若數小時不提交，技術債將迅速失控。保持「微任務 ➔ 微提示 ➔ 驗證通過 ➔ 立刻 Git Commit」的敏銳節奏。
+        </p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="p-6 rounded-2xl glass-card border-amber-500/20 hover:border-amber-500/40 transition-all">
+        <div class="w-10 h-10 rounded-xl bg-amber-950/80 border border-amber-500/40 flex items-center justify-center text-amber-300 mb-4">
+          <i data-lucide="eye" class="w-5 h-5"></i>
+        </div>
+        <h4 class="text-base font-bold text-slate-100 mb-2">4. 培養極致的產品品味</h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          所有人都能在 10 分鐘內做出一款能跑的 App。最終決定產品勝負的，是細微的 UX 動畫、無阻力心流設計與深刻直覺的商業洞察。
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-950/90 py-12 text-center text-xs text-slate-500 font-mono">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2 text-slate-400">
+        <i data-lucide="terminal" class="w-4 h-4 text-cyan-400"></i>
+        <span>SOFTWARE ENGINEERING EVOLUTION: Ad-hoc → Waterfall → Agile → Vibe Coding</span>
+      </div>
+      <div>
+        <span>純單檔案架構 • 向量圖表 1:1 忠實還原</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Tab Switcher Logic
+    function switchEra(eraId) {
+      document.querySelectorAll('.era-panel').forEach(panel => {
+        panel.classList.add('hidden');
+      });
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      const targetPanel = document.getElementById(`panel-${eraId}`);
+      if (targetPanel) {
+        targetPanel.classList.remove('hidden');
+      }
+
+      const targetBtn = document.getElementById(`tab-btn-${eraId}`);
+      if (targetBtn) {
+        targetBtn.classList.add('active');
+      }
+    }
+
+    // Simulator Data and Logic
+    const simulatorData = {
+      adhoc: {
+        label: '1. 混沌與手工工坊時代 (Ad-hoc Coding, 1960s)',
+        time: '⏱ 耗時：約 3 週 (伴隨 2 天伺服器大斷線)',
+        dialogue: `
+          <div class="text-amber-300">主管：「雙 11 要滿千折百，下週前搞定！」</div>
+          <div class="text-slate-400">工程師老張：「沒問題，我今晚連進主機直接在 prod.c 裡面塞個 if-else。」</div>
+          <div class="text-rose-400">【雙 11 當晚 00:01】主機 Core Dump，金額被誤扣成負數，資料庫鎖死！</div>
+          <div class="text-amber-200">老張在機房狂喝咖啡徹夜反組譯修復記憶體洩漏...</div>
+        `,
+        steps: [
+          '1. 沒有任何需求文檔，在餐巾紙上記錄折抵規則',
+          '2. 登入生產機直接修改原始碼，沒有分支與 Git 版本控管',
+          '3. 自行用口算隨機驗證兩筆訂單便宣布上線',
+          '4. 上線瞬間高並發鎖死，爆發嚴重重大生產事故'
+        ],
+        velocity: { text: '緩慢且極不穩定 (20/100)', pct: '20%', color: 'from-amber-600 to-amber-400' },
+        adapt: { text: '脆弱，隨機修改易崩潰 (15/100)', pct: '15%', color: 'from-rose-500 to-amber-500' },
+        risk: { text: '極度危險，系統隨時瓦解 (95/100)', pct: '95%', color: 'from-red-600 to-rose-500' },
+        summary: '單兵操作缺乏規格與保護機制，任何臨時需求都是引爆系統崩潰的定時炸彈。'
+      },
+      waterfall: {
+        label: '2. 傳統瀑布模型時代 (Waterfall, 1980s-1990s)',
+        time: '⏱ 耗時：約 4 個月 (錯過雙 11，只能改在明年春節上線)',
+        dialogue: `
+          <div class="text-sky-300">主管：「雙 11 必須上線滿千折百模組！」</div>
+          <div class="text-slate-300">專案經理（PM）：「請先填寫《系統重大變更申請單 CR-2026-99》送審。」</div>
+          <div class="text-slate-400">第 3 週：召開架構評估會，撰寫 120 頁的詳細功能規格書。</div>
+          <div class="text-slate-400">第 8 週：客戶簽名凍結需求，開發團隊進場編寫代碼。</div>
+          <div class="text-rose-400">第 14 週：進入 QA 整合測試，發現底層架構不支援折價券疊加，需退回階段 1 重審...</div>
+        `,
+        steps: [
+          '1. 需求分析與可行性研究（耗時 4 週）',
+          '2. 系統架構設計與資料庫 Schema 簽核（耗時 3 週）',
+          '3. 軟體工程師按文檔編程（耗時 4 週）',
+          '4. QA 團隊手動黑箱整合測試（耗時 3 週，發現嚴重衝突退回重寫）'
+        ],
+        velocity: { text: '極端緩慢 (25/100)', pct: '25%', color: 'from-sky-700 to-sky-400' },
+        adapt: { text: '抗拒變更，科層阻力極大 (10/100)', pct: '10%', color: 'from-rose-700 to-amber-600' },
+        risk: { text: '需求脫節，交付即落伍 (70/100)', pct: '70%', color: 'from-amber-500 to-rose-400' },
+        summary: '將軟體視為水泥工程，一旦藍圖定案便不容許彈性。往往當軟體完工時，市場商機早已消逝。'
+      },
+      agile: {
+        label: '3. 敏捷革命與 CI/CD 時代 (Agile & DevOps, 2010s)',
+        time: '⏱ 耗時：約 1 個 Sprint (10 個工作天順利發布)',
+        dialogue: `
+          <div class="text-indigo-300">PO：「我們雙 11 需要滿千折百，請大家評估點數。」</div>
+          <div class="text-slate-300">Tech Lead：「大需求拆兩半：Sprint 1 先上線『滿千折百』基本版，Sprint 2 再疊加『贈券功能』。」</div>
+          <div class="text-teal-300">工程師在分支中撰寫 TDD 測試，發 PR，GitHub Actions 自動通過 84 項測資。</div>
+          <div class="text-indigo-200">週四下午透過灰度發布（Canary Release）平滑推向 10% 使用者，穩定後全量開放。</div>
+        `,
+        steps: [
+          '1. Sprint Planning：拆解成 3 張 User Story，估算 8 點工時',
+          '2. 編寫單元測試（TDD），確保折扣計算無浮點數誤差',
+          '3. 建立 PR 由兩位資深工程師 Code Review',
+          '4. 自動化 CI/CD Pipeline 部署至 Staging 與正式環境'
+        ],
+        velocity: { text: '高效穩定 (75/100)', pct: '75%', color: 'from-indigo-500 to-cyan-400' },
+        adapt: { text: '良好，按 Sprint 節奏調整 (80/100)', pct: '80%', color: 'from-indigo-400 to-teal-400' },
+        risk: { text: '低，自動化測試網全面保護 (25/100)', pct: '25%', color: 'from-teal-400 to-indigo-500' },
+        summary: '以 MVP 與小步快跑為核心，透過自動化流水線取代人肉測試，具備高度可靠的業務彈性。'
+      },
+      vibecoding: {
+        label: '4. Vibe Coding 時代 (AI-Native Agent, 2026)',
+        time: '⏱ 耗時：約 15 分鐘 (完成完整實作 + 單元測試 + 部署)',
+        dialogue: `
+          <div class="text-teal-300">產品負責人 / 工程師（開口語音輸入）：</div>
+          <div class="text-slate-200">「在結帳模組新增滿 $1,000 折 $100 功能，需支援原子性扣抵防超賣，並附帶優雅的滿額動態進度條與單元測試。」</div>
+          <div class="text-cyan-300">🤖 AI Agent（Cursor / Claude 3.7）：已修改 4 個檔案，建立 Migration，終端機執行 18 個邊界測試全部通過。</div>
+          <div class="text-slate-300">工程師快速檢查資料庫交易鎖設計，確認無誤，語音發送：「LGTM, deploy to prod!」</div>
+        `,
+        steps: [
+          '1. 人類注入明確意圖（Intent Prompt）與業務約束條件',
+          '2. AI Agent 自主編寫後端業務邏輯、UI 響應組件與資料庫腳本',
+          '3. Agent 自主在背景終端運行測試，發現一個邊界折扣漏抓並自動 Self-heal 修復',
+          '4. 人類審查核心安全邊界，幾秒內透過即時熱重載預覽成果並推送上線'
+        ],
+        velocity: { text: '極致秒級 (98/100)', pct: '98%', color: 'from-teal-400 to-cyan-400' },
+        adapt: { text: '極高，即時自然語言重構 (95/100)', pct: '95%', color: 'from-cyan-400 to-indigo-400' },
+        risk: { text: '需留意潛在幻覺與架構純潔 (35/100)', pct: '35%', color: 'from-amber-400 to-teal-500' },
+        summary: '人類專注於商業價值與架構品質，AI Agent 承擔全部機械打字與測試驗證工作，反饋週期徹底被壓縮至極致。'
+      }
+    };
+
+    function simulateEra(eraKey) {
+      const data = simulatorData[eraKey];
+      if (!data) return;
+
+      document.querySelectorAll('.sim-btn').forEach(btn => {
+        btn.classList.remove('bg-teal-500/20', 'border-teal-500', 'text-teal-200', 'shadow-lg');
+      });
+      const activeBtn = document.getElementById(`sim-btn-${eraKey}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-teal-500/20', 'border-teal-500', 'text-teal-200', 'shadow-lg');
+      }
+
+      document.getElementById('sim-era-label').textContent = `目前模擬：${data.label}`;
+      document.getElementById('sim-time-label').textContent = data.time;
+      document.getElementById('sim-dialogue-box').innerHTML = data.dialogue;
+
+      const stepsContainer = document.getElementById('sim-flow-steps');
+      stepsContainer.innerHTML = data.steps.map(step => `<li>${step}</li>`).join('');
+
+      document.getElementById('metric-velocity-text').textContent = data.velocity.text;
+      const vBar = document.getElementById('metric-velocity-bar');
+      vBar.style.width = data.velocity.pct;
+      vBar.className = `h-full bg-gradient-to-r ${data.velocity.color} rounded-full transition-all duration-500`;
+
+      document.getElementById('metric-adapt-text').textContent = data.adapt.text;
+      const aBar = document.getElementById('metric-adapt-bar');
+      aBar.style.width = data.adapt.pct;
+      aBar.className = `h-full bg-gradient-to-r ${data.adapt.color} rounded-full transition-all duration-500`;
+
+      document.getElementById('metric-risk-text').textContent = data.risk.text;
+      const rBar = document.getElementById('metric-risk-bar');
+      rBar.style.width = data.risk.pct;
+      rBar.className = `h-full bg-gradient-to-r ${data.risk.color} rounded-full transition-all duration-500`;
+
+      document.getElementById('sim-summary-text').textContent = data.summary;
+
+      lucide.createIcons();
+    }
+
+    // Initialize default simulation state
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      simulateEra('agile');
+    });
+  </script>
+</body>
+</html>

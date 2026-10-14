@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The New SDLC With Vibe Coding 說明簡報</title>
+  <style>
+    /* 載入現代字型 */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+    :root {
+      /* 設計系統色彩 */
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      
+      --blue-primary: #2563eb;
+      --blue-hover: #1d4ed8;
+      --blue-light: #eff6ff;
+      --blue-border: #bfdbfe;
+      
+      --green-primary: #10b981;
+      --green-light: #ecfdf5;
+      --green-border: #a7f3d0;
+      
+      --neutral-light: #f8fafc;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      
+      --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* 深色模式變數 */
+    body.dark-mode {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #64748b;
+      
+      --blue-primary: #3b82f6;
+      --blue-hover: #60a5fa;
+      --blue-light: #1e293b;
+      --blue-border: #334155;
+      
+      --green-primary: #34d399;
+      --green-light: #064e3b;
+      --green-border: #047857;
+      
+      --neutral-light: #0f172a;
+      --border-color: #334155;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.2);
+      --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background-color var(--transition-normal), color var(--transition-normal);
+    }
+
+    /* 頂部導覽列 */
+    header {
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      height: 60px;
+      transition: background-color var(--transition-normal), border-color var(--transition-normal);
+    }
+
+    body.dark-mode header {
+      background-color: rgba(30, 41, 59, 0.8);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    }
+
+    .brand svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--blue-primary);
+      transition: fill var(--transition-fast);
+    }
+
+    .brand span.sub {
+      font-weight: 400;
+      color: var(--blue-primary);
+      background-color: var(--blue-light);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* 下拉選單 */
+    .chapter-select-wrapper {
+      position: relative;
+    }
+
+    .chapter-select {
+      appearance: none;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 2.5rem 0.4rem 1rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      outline: none;
+      min-width: 220px;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .chapter-select:hover {
+      border-color: var(--blue-primary);
+      color: var(--text-primary);
+    }
+
+    .chapter-select-wrapper::after {
+      content: "";
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 5px solid transparent;
+      border-top-color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* 控制按鈕 */
+    .btn-icon {
+      background: none;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      background-color: var(--card-bg);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .btn-icon:hover {
+      border-color: var(--blue-primary);
+      color: var(--blue-primary);
+      transform: translateY(-1px);
+    }
+
+    .btn-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* 進度條 */
+    .progress-bar-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background-color: var(--border-color);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: var(--blue-primary);
+      transition: width var(--transition-normal);
+    }
+
+    /* 主簡報區域 */
+    main {
+      flex: 1;
+      padding: 2.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    /* 簡報卡片容器 */
+    .slide-wrapper {
+      width: 100%;
+      max-width: 1200px;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .slide-card {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      height: 100%;
+      display: none;
+      grid-template-columns: 1.5fr 1fr;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      transition: background-color var(--transition-normal), border-color var(--transition-normal);
+    }
+
+    .slide-card.active {
+      display: grid;
+      animation: slideIn var(--transition-normal);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* 左側主欄 */
+    .main-col {
+      padding: 2.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      border-right: 1px solid var(--border-color);
+      transition: border-color var(--transition-normal);
+    }
+
+    /* 頂部標籤 */
+    .slide-header-tags {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .slide-category {
+      background-color: var(--blue-light);
+      color: var(--blue-primary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    .slide-number-tag {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* 標題與副標題 */
+    .slide-titles {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .slide-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .slide-subtitle {
+      font-size: 1.1rem;
+      color: var(--blue-primary);
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    /* 核心要點 */
+    .points-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .section-title svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .points-section .section-title svg {
+      fill: var(--blue-primary);
+    }
+
+    .point-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .point-item {
+      background-color: var(--neutral-light);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .point-item:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--blue-border);
+      background-color: var(--card-bg);
+    }
+
+    .point-badge {
+      background-color: var(--blue-primary);
+      color: white;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .point-text {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* 詳細說明 */
+    .detail-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .detail-section .section-title svg {
+      fill: var(--blue-primary);
+    }
+
+    .detail-content {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      background-color: var(--neutral-light);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      white-space: pre-line;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* 右側案例欄 */
+    .case-col {
+      padding: 2.5rem;
+      background-color: var(--neutral-light);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      transition: background-color var(--transition-normal);
+    }
+
+    .case-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      border-top: 4px solid var(--green-primary);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: all var(--transition-normal);
+    }
+
+    .case-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .case-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--green-primary);
+      font-weight: 700;
+    }
+
+    .case-header svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--green-primary);
+    }
+
+    .case-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .case-body {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      white-space: pre-line;
+    }
+
+    /* 程式碼區塊排版 */
+    .case-body pre {
+      background-color: var(--neutral-light);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.75rem;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.85rem;
+      margin-top: 0.75rem;
+      color: var(--text-primary);
+    }
+
+    /* 底部控制列 */
+    footer {
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-color);
+      padding: 0.75rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      height: 60px;
+      transition: background-color var(--transition-normal), border-color var(--transition-normal);
+    }
+
+    body.dark-mode footer {
+      background-color: rgba(30, 41, 59, 0.8);
+    }
+
+    .shortcuts-info {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .shortcuts-info kbd {
+      background-color: var(--neutral-light);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 0.1rem 0.3rem;
+      font-family: inherit;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+      color: var(--text-secondary);
+    }
+
+    .slide-counter {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--blue-primary);
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-nav {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.5rem 1.2rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .btn-nav:hover:not(:disabled) {
+      border-color: var(--blue-primary);
+      color: var(--blue-primary);
+      transform: translateY(-1px);
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-nav.primary {
+      background-color: var(--blue-light);
+      color: var(--blue-primary);
+      border-color: var(--blue-border);
+    }
+
+    .btn-nav.primary:hover:not(:disabled) {
+      background-color: var(--blue-primary);
+      color: white;
+      border-color: var(--blue-primary);
+    }
+
+    .btn-nav svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* 側邊導覽選單 (Drawer) */
+    .sidebar-drawer {
+      position: fixed;
+      top: 0;
+      left: -320px;
+      width: 320px;
+      height: 100%;
+      background-color: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: left var(--transition-normal), background-color var(--transition-normal);
+    }
+
+    .sidebar-drawer.open {
+      left: 0;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .sidebar-list {
+      flex: 1;
+      overflow-y: auto;
+      list-style: none;
+      padding: 0.75rem;
+    }
+
+    .sidebar-item {
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      transition: all var(--transition-fast);
+    }
+
+    .sidebar-item:hover {
+      background-color: var(--neutral-light);
+      color: var(--text-primary);
+    }
+
+    .sidebar-item.active {
+      background-color: var(--blue-light);
+      color: var(--blue-primary);
+      font-weight: 700;
+    }
+
+    .sidebar-item .page-num {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      min-width: 24px;
+      text-align: right;
+    }
+
+    /* 遮罩背景 */
+    .drawer-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(15, 23, 42, 0.4);
+      z-index: 190;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-normal);
+    }
+
+    .drawer-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* 自定義捲軸 */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--text-muted);
+      border-radius: 9999px;
+      opacity: 0.5;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+
+    /* 響應式佈局調整 */
+    @media (max-width: 1024px) {
+      .slide-card {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1.2fr 0.8fr;
+      }
+      .main-col {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+      main {
+        padding: 1rem;
+      }
+      header {
+        padding: 0.75rem 1rem;
+      }
+      footer {
+        padding: 0.75rem 1rem;
+      }
+      .chapter-select {
+        min-width: 150px;
+      }
+      .shortcuts-info {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header>
+    <div class="brand">
+      <!-- 書本/簡報圖示 -->
+      <svg viewBox="0 0 24 24">
+        <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,19H5V5H19V19M17,17H7V15H17V17M17,13H7V11H17V13M17,9H7V7H17V9Z"/>
+      </svg>
+      <span>The New SDLC With Vibe Coding</span>
+      <span class="sub">精華簡報</span>
+    </div>
+    
+    <div class="header-controls">
+      <!-- 章節目錄下拉選單 -->
+      <div class="chapter-select-wrapper">
+        <select id="chapterSelect" class="chapter-select" onchange="jumpToSlide(this.value)">
+          <!-- 由 JS 自動填入 -->
+        </select>
+      </div>
+
+      <!-- 開啟側邊欄目錄按鈕 -->
+      <button class="btn-icon" onclick="toggleDrawer(true)" title="開啟目錄 (M)">
+        <svg viewBox="0 0 24 24">
+          <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>
+        </svg>
+      </button>
+
+      <!-- 切換深色/淺色模式 -->
+      <button class="btn-icon" onclick="toggleDarkMode()" title="切換色彩模式">
+        <svg viewBox="0 0 24 24" id="themeIcon">
+          <path d="M12,18C11.11,18 10.26,17.8 9.5,17.45C11.56,16.5 13,14.42 13,12C13,9.58 11.56,7.5 9.5,6.55C10.26,6.2 11.11,6 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31L23.31,12L20,8.69Z"/>
+        </svg>
+      </button>
+
+      <!-- 全螢幕切換 -->
+      <button class="btn-icon" onclick="toggleFullscreen()" title="全螢幕切換 (F)">
+        <svg viewBox="0 0 24 24" id="fullscreenIcon">
+          <path d="M5,5H10V7H7V10H5V5M14,5H19V10H17V7H14V5M17,14H19V19H14V17H17V14M7,14H5V19H10V17H7V14Z"/>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- 進度條 -->
+    <div class="progress-bar-container">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+  </header>
+
+  <!-- 主簡報內容區 -->
+  <main>
+    <div class="slide-wrapper" id="slideWrapper">
+      <!-- 由 JS 動態渲染簡報卡片 -->
+    </div>
+  </main>
+
+  <!-- 底部控制列 -->
+  <footer>
+    <div class="shortcuts-info">
+      切換: <kbd>←</kbd> / <kbd>→</kbd> / <kbd>Space</kbd> | 目錄: <kbd>M</kbd> | 全螢幕: <kbd>F</kbd>
+    </div>
+    
+    <div class="slide-counter" id="slideCounter">
+      投影片 1 / 51
+    </div>
+    
+    <div class="nav-buttons">
+      <button id="prevBtn" class="btn-nav" onclick="prevSlide()" disabled>
+        <svg viewBox="0 0 24 24"><path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"/></svg>
+        上一頁
+      </button>
+      <button id="nextBtn" class="btn-nav primary" onclick="nextSlide()">
+        下一頁
+        <svg viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+      </button>
+    </div>
+  </footer>
+
+  <!-- 側邊欄抽屜 (Sidebar Drawer) -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer(false)"></div>
+  <div class="sidebar-drawer" id="sidebarDrawer">
+    <div class="sidebar-header">
+      <span class="sidebar-title">所有簡報目錄</span>
+      <button class="btn-icon" onclick="toggleDrawer(false)">
+        <svg viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg>
+      </button>
+    </div>
+    <ul class="sidebar-list" id="sidebarList">
+      <!-- 由 JS 自動填入項目 -->
+    </ul>
+  </div>
+
+  <!-- SVG 圖示定義 (用於要點與案例小圖示) -->
+  <div style="display: none;">
+    <!-- 核心要點星形圖示 -->
+    <svg id="iconPoint" viewBox="0 0 24 24">
+      <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"/>
+    </svg>
+    <!-- 詳細說明清單圖示 -->
+    <svg id="iconDetail" viewBox="0 0 24 24">
+      <path d="M7,13H21V11H7V13M7,17H21V15H7V17M7,9H21V7H7V9M3,8A1,1 0 0,0 4,9A1,1 0 0,0 5,8A1,1 0 0,0 4,7A1,1 0 0,0 3,8M3,12A1,1 0 0,0 4,13A1,1 0 0,0 5,12A1,1 0 0,0 4,11A1,1 0 0,0 3,12M3,16A1,1 0 0,0 4,17A1,1 0 0,0 5,16A1,1 0 0,0 4,15A1,1 0 0,0 3,16Z"/>
+    </svg>
+    <!-- 實務案例燈泡圖示 -->
+    <svg id="iconLightbulb" viewBox="0 0 24 24">
+      <path d="M12,2A7,7 0 0,0 5,9C5,11.38 6.19,13.47 8,14.74V17A1,1 0 0,0 9,18H15A1,1 0 0,0 16,17V14.74C17.81,13.47 19,11.38 19,9A7,7 0 0,0 12,2M9,21A1,1 0 0,0 10,22H14A1,1 0 0,0 15,21V20H9V21Z"/>
+    </svg>
+  </div>
+
+  <script>
+    // 51 頁簡報數據定義
+    const SLIDES_DATA = [
+      {
+        index: 1,
+        category: "封面與主題宣告",
+        title: "The New SDLC With Vibe Coding",
+        subtitle: "From ad-hoc prompting to Agentic Engineering",
+        points: [
+          "宣告軟體生命週期正在經歷從隨性提示詞向代理工程的轉變。",
+          "探討 AI 在現代開發中所扮演的實施者角色，以及人機協同新範式。",
+          "本書作者為 Addy Osmani, Shubham Saboo, 與 Sokratis Kartakis (Google)。"
+        ],
+        description: "本白皮書旨在探討在 AI 編程代理（AI Coding Agents）時代下，軟體工程的本質如何改變。傳統上由工程師手寫語法（Syntax）的時代正在終結，未來將由人類提供意圖（Intent）與約束，而由 AI 負責具體的代碼實作與除錯。",
+        case: {
+          title: "現代軟體開發的意圖化轉變",
+          content: "● 傳統開發場景：開發者手寫 Express.js 的 CRUD 路由、處理 JSON 欄位驗證、手寫 SQL 語法，花費數小時在 boilerplate 上。\n● 現代開發範式：開發者在系統中輸入「建立一個符合 RESTful 規範的使用者管理模組，包含 API 欄位驗證與 SQL 連線」，AI 代理在幾秒內生成完整代碼並通過基本的語法檢查。"
+        }
+      },
+      {
+        index: 2,
+        category: "致謝與團隊貢獻",
+        title: "白皮書背後的團隊與發表",
+        subtitle: "Acknowledgements & Curators",
+        points: [
+          "致謝內容貢獻者：Elia Secchi, Julia Wiesinger, Anant Nawalgaria。",
+          "策劃與編輯：Anant Nawalgaria；設計師：Michael Lanning。",
+          "正式發表時間：2026 年 5 月。"
+        ],
+        description: "本報告結合了 Google 團隊在開發與實踐 AI 代理（如 Gemini CLI、Agents CLI）過程中的第一手觀察，以及與產業界專家合作的實務回饋。",
+        case: {
+          title: "實踐觀察而非憑空猜測",
+          content: "這份白皮書並非單純的學術幻想，而是奠基於 2025-2026 年間數十萬專業開發者使用 AI Agents（如 Claude Code, Cursor, Antigravity）的實際效能統計與經濟學分析。"
+        }
+      },
+      {
+        index: 3,
+        category: "章節目錄",
+        title: "目錄導航：第一部分",
+        subtitle: "導言與 Vibe Coding 的展開",
+        points: [
+          "導言與心智模型的建立：說明為什麼是現在，以及這本書為誰而寫。",
+          "從語法到意圖的移轉，以及 AI 代理的基本運作循環。",
+          "Vibe Coding 的名詞定義，以及它與 Agentic Engineering 的頻譜對比。"
+        ],
+        description: "第一部分的目錄指引讀者認識 AI Agents 的基本組成架構（模型、工具、記憶、編排、部署），並定義什麼是 Vibe Coding，進而引出 Context Engineering（上下文工程）的核心概念。",
+        case: {
+          title: "閱讀與實務指引",
+          content: "開發者可以將此目錄作為建立內部 AI 導入規範的框架，例如直接參考「Context engineering: the real skill」來優化專案的 AGENTS.md 檔案以提供 AI 更精確的指令。"
+        }
+      },
+      {
+        index: 4,
+        category: "章節目錄",
+        title: "目錄導航：第二部分",
+        subtitle: "工廠模型、裝具工程與開發者角色演進",
+        points: [
+          "工廠模型：如何建立一套「能生產代碼的軟體系統」。",
+          "裝具工程（Harness Engineering）：包裹模型的外部支架與環境約束。",
+          "開發者的演進角色：Conductor（指揮家）與 Orchestrator（編排者）模式。"
+        ],
+        description: "第二部分的目錄深入探討了軟體工程系統的硬體與軟體建設。特別是「裝具（Harness）」，即圍繞在模型外層的沙箱、工具集、護欄、測試和可觀測性，這是決定 AI 能否在生產環境落地的關鍵。",
+        case: {
+          title: "架構規劃實務",
+          content: "當技術架構師嘗試在企業內部引進 AI 代理時，此目錄提供了完整的技術地圖：不僅要引進模型，更要建設專屬的代碼沙箱與自動化測試回饋機制（Harness）。"
+        }
+      },
+      {
+        index: 5,
+        category: "章節目錄",
+        title: "目錄導航：第三部分",
+        subtitle: "AI 開發的經濟學與起步指南",
+        points: [
+          "Vibe Coding 生產級代理：在真實業務中部署安全可靠的 Agent。",
+          "AI 開發經濟學：深入分析 TCO、Token 燃燒率與智慧模型路由。",
+          "針對個人開發者、工程主管與企業組織的具體落地行動指引。"
+        ],
+        description: "第三部分目錄帶領讀者進入財務與組織落地視角。在 token 計費的經濟體制下，如何透過 Context Engineering 與智慧模型路由（Model Routing）來降低 TCO（整體擁有成本），避免 Vibe Coding 帶來的「Token 燃燒」隱性技術債。",
+        case: {
+          title: "主管決策實務",
+          content: "財務長與工程副總可直接對照本部分，評估在導入大模型時，如何透過 Skills（技能）和小型模型路由來節省高達 90% 的 API 帳單費用。"
+        }
+      },
+      {
+        index: 6,
+        category: "引言 (Introduction)",
+        title: "從編寫語法到表達意圖",
+        subtitle: "軟體工程最深刻的歷史性轉移",
+        points: [
+          "歷史上的編程是一種「翻譯」工作：理解人類問題 -> 設計抽象方案 -> 用語法呈現。",
+          "每一步的翻譯都會引入摩擦力（Friction），而這個摩擦力正在因 AI 而坍塌。",
+          "開發者與機器的主要介面不再是括號與分號，而是「意圖（Intent）」本身。"
+        ],
+        description: "傳統開發中，程式設計師花費大量精力在滿足編譯器的語法規範上（如型別檢查、語法排版）。AI 時代的到來，使得這個「翻譯」工作可以完全由智能系統接管，工程師的職責轉向「表達正確的意圖」與「架構設計的判斷」。",
+        case: {
+          title: "代碼翻譯摩擦力的崩塌",
+          content: "● 傳統方式：手寫繁瑣的 TypeScript Interface 與 Zod Schema，花費 30 分鐘調整欄位語法。\n● 意圖驅動：直接下達指令給 AI：「我需要一個處理訂單退款的資料結構，欄位必須包含訂單ID、退款金額、原因及時間戳記。」AI 自動生成對應的 TS 型別與 Zod 驗證代碼。"
+        }
+      },
+      {
+        index: 7,
+        category: "引言 (Introduction)",
+        title: "AI 程式代理的普及與演進",
+        subtitle: "2026 年初的產業實況數據",
+        points: [
+          "統計顯示，85% 專業開發者定期使用 AI 程式代理，51% 每天使用，41% 的新代碼為 AI 生成。",
+          "演進軌跡：Autocomplete -> Inline Suggestion -> Chat-based -> Coding Agents -> Autonomous Agents。",
+          "自主代理已能獨立複製 repository、規劃多檔案修改、在沙箱跑測試並提交 PR。"
+        ],
+        description: "AI 在軟體開發的應用經歷了五個世代的演進。從最早的單純 token 預測（Autocomplete），發展到如今能夠完全自主在沙箱環境中，透過「規劃-執行-測試-修正」閉環來完成任務的自主代理。",
+        case: {
+          title: "從 autocomplete 到自主代理的實踐",
+          content: "● 2021 (Autocomplete)：打出 def，編輯器提示 def calculate_total。\n● 2026 (Autonomous Agent)：在 Issue 下寫下「修正購物車在折扣碼過期時會導致結帳報錯的 bug」，Agent 自行查找代碼、定位問題、修改 3 個相關檔案、執行本機測試確認通過、最後提交 PR。"
+        }
+      },
+      {
+        index: 8,
+        category: "引言 (Introduction)",
+        title: "From Autocomplete to Autonomy",
+        subtitle: "AI 開發光譜的兩端",
+        points: [
+          "圖一解構了開發光譜：一端是隨性的 Vibe Coding，另一端是紀律嚴明的 Agentic Engineering。",
+          "Vibe Coding 依賴直覺與反覆嘗試，接受 AI 回傳的任何內容，缺乏驗證。",
+          "Agentic Engineering 在人類設計的約束、測試與反饋迴圈下，將 AI 作為強大的實施引擎。"
+        ],
+        description: "當開發者對 CTO 說「我們團隊正在 vibe coding 支付系統」時，這會引起極大警覺；但若說「我們團隊實踐 agentic engineering，讓 AI 在我們設計的自動化測試約束下執行代碼實作」，這就是一個完全不同的嚴謹對話。",
+        case: {
+          title: "光譜選擇實例",
+          content: "● Vibe Coding：開發者用 Prompt 叫 AI 寫一個發送簡訊的腳本，跑一次發現有動，就直接 commit 推上 master。\n● Agentic Engineering：在開發前先寫好規格與 Unit Test，並配置 CI 護欄（如禁止硬編碼 API Key）。AI 代理在這些約束下生成代碼，並在 sandbox 中跑通所有測試後，才提交進入 Code Review。"
+        }
+      },
+      {
+        index: 9,
+        category: "引言 (Introduction)",
+        title: "持久的心智模型與讀者定位",
+        subtitle: "為什麼需要這份白皮書",
+        points: [
+          "工具每週都在更新，工程團隊需要的是持久的「心智模型」與原則，而非短暫的工具快照。",
+          "本書適合希望在引進 AI 的同時，不犧牲生產級軟體品質的工程師與技術領袖。",
+          "讀者需要熟悉現代軟體開發實務，但不需要懂 AI 或機器學習的底層細節。"
+        ],
+        description: "這是一份為工程團隊量身打造的實務指南。當我們不再討論具體某個模型的 Prompt 技巧，而是從系統工程（System Engineering）的角度來看待 AI 時，我們才能真正建立起可靠的軟體。",
+        case: {
+          title: "評估 AI 導入工具的思維",
+          content: "技術經理在評估 Cursor、Claude Code 或自研 AI 工具時，不應只比較誰的問答比較聰明，而應評估該工具是否容易與團隊現有的 CI/CD 流程、測試套件以及安全性 Guardrails 進行整合。"
+        }
+      },
+      {
+        index: 10,
+        category: "AI 代理人快速複習",
+        title: "什麼是 AI Agent？",
+        subtitle: "代理人循環的運作本質 (圖二)",
+        points: [
+          "AI Agent 是一個感知目標、規劃步驟、呼叫工具、觀察結果並自我修正的閉環系統。",
+          "與只會單次問答的 Chatbot 有本質不同，Agent 能在後台自主運行「Perceive-Plan-Act-Observe-Iterate」循環。",
+          "當工具執行出錯時，Agent 會利用錯誤反饋，進行「自我修正（Self-Correcting）」直至目標達成。"
+        ],
+        description: "Agent 的核心能力在於「自我修正（Self-Correcting）」。當它執行的工具（例如執行編譯命令）回傳錯誤時，它不會直接放棄，而是把該錯誤作為新的輸入，重新調整計畫並採取新的行動，直到達成目標。",
+        case: {
+          title: "Agent 自我除錯實例",
+          content: "1. 目標：修復 Python 檔案中的語法錯誤。\n2. 行動：Agent 呼叫 replace_file_content 修改代碼。\n3. 觀察：執行 python script.py，終端回傳 IndentationError: expected an indented block。\n4. 迭代：Agent 讀取此報錯，自動修正縮排，再次執行直到成功。"
+        }
+      },
+      {
+        index: 11,
+        category: "AI 代理人快速複習",
+        title: "AI 代理人的五大支柱",
+        subtitle: "Agent 的底層解構",
+        points: [
+          "Model (模型)：推理引擎，決定下一步要思考、呼叫什麼工具或回覆什麼。",
+          "Tools (工具)：與世界連結的 API、執行腳本、數據庫查詢、其他 Agent。",
+          "Memory (記憶)：狀態儲存，包含短期會話日誌與長期專案規則，避免每次都從零開始。",
+          "Orchestration (編排) 與 Deployment (部署)：運行 Loop 的代碼與雲端基礎設施。"
+        ],
+        description: "一個完整的 Agent 系統必須具備這五個部分。許多人以為只有大語言模型（Model）重要，但實際上如果沒有 Tools（例如讀寫檔案的工具）與 Orchestration（引導循環的邏輯），模型就只是個無法對現實世界產生影響的聊天對象。",
+        case: {
+          title: "Antigravity 的五大支柱對照",
+          content: "● Model：Gemini 3.5 Flash (Medium)\n● Tools：view_file、write_to_file、run_command\n● Memory：讀取的專案規則與本次對話上下文\n● Orchestration：Gemini 內建的 Agent Loop 與工具調用調度邏輯\n● Deployment：本地運行期環境"
+        }
+      },
+      {
+        index: 12,
+        category: "什麼是 Vibe Coding",
+        title: "向氛圍妥協的 Vibe Coding",
+        subtitle: "Andrej Karpathy 的洞察與名詞起源",
+        points: [
+          "2025 年 2 月，Andrej Karpathy 描述了一種「完全交給 vibes，忘記代碼存在」的新寫程式方式。",
+          "開發者用自然語言描述想要什麼，接受 AI 的輸出；出錯時，就把錯誤訊息複製貼上回去叫 AI 修正。",
+          "Vibe Coding 迅速成為所有 AI 輔助開發的代名詞，但也因而被泛用而失去焦點。"
+        ],
+        description: "Vibe Coding 的魅力在於極低的前期成本與極快的初始速度。開發者不需要理解語法、不需要寫測試、甚至不需要閱讀生成的代碼。然而，隨著系統複雜度提升，這種「試誤法（Trial-and-error）」會面臨瓶頸，因為 AI 可能在修改 A 的同時改壞了 B。",
+        case: {
+          title: "典型 Vibe Coding 現場",
+          content: "● 開發者：幫我寫一個能抓取網頁資料並寄送 Email 的腳本。\n● AI 給出代碼，開發者執行後報錯：ModuleNotFoundError: No module named 'requests'。\n● 開發者不加思考，直接複製報錯丟回給 AI。\n● AI：對不起，請執行 pip install requests。開發者照做。這就是完全依靠直覺與氛圍的互動。"
+        }
+      },
+      {
+        index: 13,
+        category: "Vibe Coding 到 Agentic Engineering 頻譜",
+        title: "AI 開發的三大維度比較",
+        subtitle: "從 Vibe Coding 到 Agentic Engineering 的頻譜 (表一)",
+        points: [
+          "意圖規範：隨性口語提示 -> 詳細 Prompt 搭配約束 -> 正式 spec 與架構文件。",
+          "驗證方式：「看起來會動？」 -> 手動點擊、抽查 -> 自動化測試、CI/CD 與 LM judges。",
+          "錯誤處理：貼錯誤訊息給 AI -> 人類診斷根因再交由 AI 修 -> 代理在約束內自我診斷與修復。"
+        ],
+        description: "本頁提供 Vibe Coding、Structured AI-Assisted 以及 Agentic Engineering 三種開發模式的完整比較。從意圖、驗證、代碼庫理解、錯誤處理、適用範圍與風險狀況等維度進行了詳細對比，說明從原型開發到生產級開發的嚴謹度提升。",
+        case: {
+          title: "項目升級實例",
+          content: "一個黑客松的 Prototype 專案（使用 Vibe Coding）要上線營運時，架構師必須為其補上 Swagger Spec、Jest 測試套件，並在 CI 加上 eslint 與安全漏洞掃描，正式將其納入 Agentic Engineering 的軌道。"
+        }
+      },
+      {
+        index: 14,
+        category: "Vibe Coding 到 Agentic Engineering 頻譜",
+        title: "The Vibe Coding to Agentic Engineering Spectrum",
+        subtitle: "劃分頻譜邊界的核心指標 (圖三)",
+        points: [
+          "圖三展示了從隨性速度到系統可靠性的光譜，其核心的區分點在於「輸出是如何被驗證的」。",
+          "在 vibe coding 中，驗證是選配且隨性的，開發者點開網頁看看有沒有會動即可。",
+          "在 agentic engineering 中，必須建立「確定性驗證（Tests）」與「非確定性驗證（Evals）」的雙重機制。"
+        ],
+        description: "在 vibe coding 中，驗證是選配且隨性的。在 agentic engineering 中，必須結合 Tests 與 Evals。單純代碼跑得通（Tests 通過）並不代表它安全或符合公司架構設計（Evals 通過）。一個跳過了所有安全檢查但編譯通過的代碼，比一個有明顯語法錯誤的代碼更具危險性。",
+        case: {
+          title: "雙重驗證實踐",
+          content: "● Tests 範例：使用 pytest 測試 calculate_tax(100) == 5。\n● Evals 範例：使用 LLM-as-a-judge。傳入 AI 生成的代碼，並用以下 Prompt 叫另一個模型評估：「該代碼是否包含 SQL Injection 風險？請回答是或否。」"
+        }
+      },
+      {
+        index: 15,
+        category: "上下文工程 (Context Engineering)",
+        title: "上下文工程：AI 開發的真正核心",
+        subtitle: "決定代碼品質的關鍵並非 Prompt，而是 Context",
+        points: [
+          "隨著領域成熟，關鍵洞察出現：代碼品質取決於你提供了什麼上下文，而非 Prompt 有多聰明。",
+          "Context Engineering 是為 AI 提供結構化、豐富專案背景（代碼庫、架構、規範、意圖）的實踐。",
+          "開發者必須管理 6 種上下文：Instructions, Knowledge, Memory, Examples, Tools, Guardrails。"
+        ],
+        description: "這六大上下文決定了 Agent 的行為邊界：\nInstructions：核心角色與目標。\nKnowledge：架構圖、文檔、領域資料。\nMemory：短期會話與長期持久狀態。\nExamples：Few-shot 範例（對照組）。\nTools：API、腳本的精確宣告。\nGuardrails：硬性限制與安全規範。",
+        case: {
+          title: "上下文工程實踐",
+          content: "當我們希望 AI 幫我們寫符合公司規範的 Python 代碼時，比起在 Prompt 裡寫「請寫漂亮的 Python」，更好的做法是提供一個 pep8 的 linter（屬於 Tools）以及幾段公司現有的優秀代碼（屬於 Examples）給 Agent。"
+        }
+      },
+      {
+        index: 16,
+        category: "上下文工程 (Context Engineering)",
+        title: "靜態與動態上下文的權衡",
+        subtitle: "Token 經濟學下的架構決定",
+        points: [
+          "Static Context（靜態上下文）：預先載入，如系統指令、AGENTS.md、CLAUDE.md。定義 Agent 的身份與全局規則。費用昂貴（每次對話都佔用 token）。",
+          "Dynamic Context（動態上下文）：按需加載，如技能指令、RAG 檢索文檔、會話歷史。效率高，只在需要時付費。",
+          "這是系統設計的權衡：過多靜態上下文浪費 Token 且稀釋訊號；過少則 Agent 容易忘記關鍵規範。"
+        ],
+        description: "優良的 Agent 系統將靜態與動態的邊界視為一等公民架構決定（First-class architectural decision），這需要進行版本管理與持續審查。",
+        case: {
+          title: "專案上下文配置",
+          content: "● Static (AGENTS.md)：寫入限制「本專案一律使用 Node.js v20，並使用 Fastify 框架，禁止使用 Express」。\n● Dynamic (RAG/Skills)：當用戶要求「請幫我串接 Stripe 支付」時，Agent 才去 RAG 資料庫檢索 Stripe API 的最新文檔並加載進 context。"
+        }
+      },
+      {
+        index: 17,
+        category: "上下文工程 (Context Engineering)",
+        title: "Context Engineering - Static vs. Dynamic",
+        subtitle: "動態管理 Context 的架構設計 (圖四)",
+        points: [
+          "圖四解構了六種 Context 類型如何被分流到靜態（Static）與動態（Dynamic）上下文中。",
+          "管理動態上下文最強大的模式是「Agent Skills（代理技能）」：結構化、可移植的程序知識包，只在任務匹配時才會被加載。",
+          "讓 Agent 在啟動時維持輕量級的「全才（Generalist）」，在需要時才藉由 Metadata 匹配加載 Skills。"
+        ],
+        description: "透過 Progressive Disclosure（漸進式披露）的機制，系統在啟動時只給模型讀取 Skills 的簡短描述（Metadata）。當模型決定執行特定任務時，Orchestrator 才會把該 Skill 的完整指令（如 `SKILL.md`）加載進 context 裡。",
+        case: {
+          title: "動態技能載入案例",
+          content: "在 Google 雲端開發環境中，Agent 帶有 gcp-spark、dbt-bigquery、dataform-bigquery 等 Skills。如果任務只是普通的網頁修改，這三個 Skill 的詳細指令與參考代碼就不會載入，省下數萬 tokens。"
+        }
+      },
+      {
+        index: 18,
+        category: "上下文工程 (Context Engineering)",
+        title: "Agent Skills 解決的四大痛點",
+        subtitle: "從「預測 Token」到「傳授經驗」",
+        points: [
+          "解決 Prompt 過載引起的 Context 腐爛（Context rot）。",
+          "為 LLM 提供程序記憶（Procedural memory），確保操作流程一致。",
+          "降低多代理架構的運營與維護開銷。",
+          "實現工具與廠商之間的可移植性（Portability）。"
+        ],
+        description: "從「Prompt 工程」到「Context 工程」的轉變反映出一個更深層的真理：模型不需要你用巧妙的言詞去「欺騙」或「催眠」它，它需要的是跟一個優秀的人類開發者一樣的上下文。核心問題從「我要怎麼騙 AI 幫我寫好代碼？」變成「一個新同事要有效貢獻，他需要知道什麼？我要怎麼把這些知識編碼成 AI 能用的形式？」。",
+        case: {
+          title: "指導新同事的思維實踐",
+          content: "團隊不應該寫「你是個寫 React 的神，請務必寫出完美無 bug 的 React 代碼」這種無意義的 prompt。而是應該寫一份 .agents/rules/react_conventions.md，說明「我們使用 Functional Component、使用 TailwindCSS，並一律使用 TypeScript 嚴格模式」，這就是指導新同事的思維。"
+        }
+      },
+      {
+        index: 19,
+        category: "新軟體開發生命週期 (The New SDLC)",
+        title: "傳統 SDLC 面臨的壓縮與挑戰",
+        subtitle: "當編寫代碼不再是開發瓶頸",
+        points: [
+          "上下文工程移轉了軟體開發的瓶頸：從手寫 boilerplate code 的「手部動作」，變成了定義系統邊界的「大腦決策」。",
+          "傳統 SDLC 流程正在被 AI 以前所未有的速度壓縮。",
+          "實施階段（Implementation）從幾週縮短到幾小時，但需求、架構與驗證依然受限於人類思維的步調。"
+        ],
+        description: "這導致了 SDLC 的不均勻壓縮。這不是一個「更快版的舊 SDLC」，而是一個「全新的工作流」：各階段邊界模糊，運算能力代替了打字動作，開發者的角色轉變為系統設計師與質量仲裁者。",
+        case: {
+          title: "Agile 衝刺週期的壓縮對比",
+          content: "● 傳統 Agile：Sprint Planning 花 1 天分配任務，開發者花 5 天寫代碼，QA 花 2 天測試。\n● AI-Driven SDLC：開發者在 30 分鐘內寫好 Specs 與 Evals 規格，AI Agent 在 10 分鐘內自動在背景完成實施並通過測試。開發者與架構師隨後花 1 小時進行 CR 與架構檢驗。"
+        }
+      },
+      {
+        index: 20,
+        category: "新軟體開發生命週期 (The New SDLC)",
+        title: "Traditional SDLC vs. AI-Driven SDLC",
+        subtitle: "生命週期各階段的重塑與比較 (圖五)",
+        points: [
+          "圖五揭示了傳統 SDLC 與 AI-Driven SDLC 的耗時比例變化：實施階段從 Weeks 縮短為 Minutes to Hours。",
+          "需求與設計規格（Specs）在此範式下直接成為了評估標準（Eval criteria）。",
+          "不變的常數是：人類的判斷力、品味，以及驗證 AI 產出是否正確的技能。"
+        ],
+        description: "傳統迭代：需求 (2-3天) -> 設計 (1-2天) -> 實施 (1-3週) -> 測試 (3-5天)。\nAI 驅動迭代：需求規格（成為新瓶頸） -> 設計（架構決策被放大） -> 實施（幾分鐘到幾小時） -> 測試與驗證（結合 Output 與 Trajectory Eval，自主修正） -> 審查部署 -> 持續自動化維護。",
+        case: {
+          title: "驗證能力成為核心競爭力",
+          content: "由於 AI 能以極速生成大量代碼，如果人類沒有在「設計」與「驗證」關卡把關，系統會以極快的速度堆積難以維護的垃圾代碼，這就是為什麼「驗證能力」成為 2026 年工程師的核心競爭力。"
+        }
+      },
+      {
+        index: 21,
+        category: "AI 改變各開發階段 (Phase Transformation)",
+        title: "需求與規劃的變革",
+        subtitle: "消弭「意圖」與「實施」的歷史鴻溝",
+        points: [
+          "歷史上，將業務需求轉化為技術規格是手動、緩慢且極容易產生落差的過程。",
+          "現代 AI 能夠直接參與需求細化：自動生成 user stories、找出人類漏掉的 edge cases、從自然語言生成 API schema。",
+          "需求不再是一份被交接的靜態文件，而是一場產生規格與初始實作的人機對話。"
+        ],
+        description: "透過 Agentic 研發環境，開發者可以直接將一份業務企劃書丟給 AI，AI 會自動列出所有邊界情況（Edge cases），並生成互動原型（Interactive prototype），使需求到原型的時間近乎為零。",
+        case: {
+          title: "需求細化實務案例",
+          content: "PM 輸入「我們需要新增一個功能：使用者連續登入 7 天可以獲得折價券。」AI 自動回覆：「請確認：1. 折價券過期時間為何？2. 跨時區如何計算登入？3. 獲得折價券是否需要寄送通知？」並同步產出 API 的初步 Draft。"
+        }
+      },
+      {
+        index: 22,
+        category: "AI 改變各開發階段 (Phase Transformation)",
+        title: "設計與架構的變革",
+        subtitle: "人類最頑固的防線：Trade-offs",
+        points: [
+          "架構是 SDLC 中最頑固的人類核心階段，因為它涉及商業脈絡與長期戰略取捨（consistency vs availability 等）。",
+          "AI 無法完全理解這些 organizational constraints；但它極擅長在架構決定後，快速建立腳手架（Scaffolding）。",
+          "工程師的角色從「手寫 boilerplate」轉向「做出並記錄結構性決定」。"
+        ],
+        description: "AI 無法替你決定要用 PostgreSQL 還是 MongoDB，也無法替你承擔商業風險。但一旦你決定了「我們使用 microservices 架構，並透過 Kafka 進行非同步溝通」，AI 代理可以瞬間幫你把所有服務的 Kafka client 骨架與連線重試邏輯以一致的 pattern 寫出來。",
+        case: {
+          title: "架構決定與 AI 實施",
+          content: "人類架構師撰寫一份 ADR (Architecture Decision Record)，指出「我們需要採用 DDD (Domain-Driven Design) 來重構訂單模組」。AI Agent 讀取此 ADR，隨即自動為訂單模組生成 Entity、Value Object、Aggregate Root 與 Repository 的資料夾結構與基礎類別。"
+        }
+      },
+      {
+        index: 23,
+        category: "AI 改變各開發階段 (Phase Transformation)",
+        title: "實施、測試與品質保證的變革",
+        subtitle: "METR 研究的 19% 警訊與品質飛輪",
+        points: [
+          "AI 帶來 25-39% 生產力提升，但 METR 研究發現熟練開發者在特定任務上多花了 19% 時間，原因在於「驗證、除錯與修正 AI 輸出」。",
+          "測試 AI 代碼需要雙重評估：Output Eval (結果編譯、測試通過嗎？) 與 Trajectory Eval (過程軌跡、推理步驟正確嗎？)。",
+          "品質飛輪（Quality Flywheel）：評估 -> 診斷失敗歸類 -> 優化提示/工具 -> 迴歸測試 -> 生產監控。"
+        ],
+        description: "AI 寫程式非常流暢，但有時會給出「看起來對但實際上跳過了關鍵驗證步驟」的危險代碼。因此，Trajectory Eval（軌跡評估）非常重要，必須檢查 Agent 獲取 context 的流程，有沒有確實執行 linter 和 security scan，還是直接假裝測試通過。",
+        case: {
+          title: "品質飛輪改善實務",
+          content: "1. 評估：在 CI 中運行 Eval 套件，發現 Agent 在處理交易時有 5% 的機率會遺漏寫入日誌。\n2. 診斷：歸類原因為「Agent 混淆了非同步的寫入順序」。\n3. 優化：在專案的 .agents/AGENTS.md 中加入規則：「所有資料庫寫入操作必須使用 await 確保完成後才能回傳。」下次 Agent 產出代碼時便會自動遵循。"
+        }
+      },
+      {
+        index: 24,
+        category: "AI 改變各開發階段 (Phase Transformation)",
+        title: "審查、部署與維護的現代化",
+        subtitle: "代碼工廠中自動化防線",
+        points: [
+          "Code Review：AI 作為第一關審查，抓出語法、風格與安全性問題，降低人類審查的認知負荷。",
+          "部署：AI-aware 部署管道可監控健康度、預測發佈風險，並在異常時自動回滾（Rollback）。",
+          "維護：AI 大幅降低技術債的清理成本，讓 legacy code 容易被導覽、理解、重構與升級。"
+        ],
+        description: "在代碼維護與部署階段，AI 代理髮揮了巨大的防守作用。那些過去因為太繁瑣、太危險而沒人敢動的老舊系統重構，現在可以交給 AI 在安全的測試約束下進行。",
+        case: {
+          title: "老舊代碼重構實務",
+          content: "一個有 10 年歷史的 Python 2 專案，因為沒人敢動，累積了大量技術債；團隊利用 AI Agent 逐步將語法升級到 Python 3，並補上單元測試，整個過程都在沙箱中驗證。"
+        }
+      },
+      {
+        index: 25,
+        category: "工廠模型 (The Factory Model)",
+        title: "The Factory Model",
+        subtitle: "建立生產代碼的系統 (圖六)",
+        points: [
+          "圖六展示了工廠模型：開發者的主要產出不再是代碼，而是「生產代碼的系統（工廠）」。",
+          "開發者在「Developer Zone」負責：定義 Specs -> 設計 Guardrails -> 審查與核准。",
+          "AI Agent 在「Agent Factory Floor」負責：規劃、撰寫代碼，並在 Tests & Verification 失敗時自我修正。"
+        ],
+        description: "在工廠模型中，開發者就像工廠經理。經理不需要親手組裝每個零件，而是要設計裝配線，給予 Agent 成功的標準與約束（Tests/Guardrails），讓 Agent 自行在裝配線上迭代生產代碼，並通過質量關卡。",
+        case: {
+          title: "工廠模型開發實踐",
+          content: "● 不佳的做法：叫 AI「打開 orders.py，在第 45 行加上 async，然後在第 48 行呼叫 db_commit()，然後...」。\n● 工廠思維做法：提供訂單狀態轉換的 State Machine 規格，並附上 Unit Test。指令：「請實作 order.py 中的狀態轉換邏輯，確保通過 state_test.py 中的所有測試。」"
+        }
+      },
+      {
+        index: 26,
+        category: "裝具工程 (Harness Engineering)",
+        title: "Harness Engineering: What Surrounds the Model",
+        subtitle: "裸模型與裝具的經濟關係",
+        points: [
+          "如果開發者是經理，AI 模型只是工廠地板上的裸引擎（Engine）。",
+          "裸引擎自己無法造車，它需要傳動帶、齒輪、感測器，這在 AI 輔助開發中稱為「裝具（Harness）」。",
+          "心智模型公式：Agent = Model + Harness。裸模型可能只佔 10%，Harness 佔了 90%。"
+        ],
+        description: "許多人誤以為只要模型變聰明，Agent 就會變聰明。這是一個錯誤的直覺。模型只是輸入之一，圍繞在模型外面的 prompts、tools、context policies、hooks、sandboxes、observability 才是「Harness（裝具）」。這套 Harness 才是讓模型能夠真正「完成任務」的支架。",
+        case: {
+          title: "裝具工程的威力",
+          content: "在 LangChain 的研究中，保持底層大模型完全不動，僅僅微調 system prompt、提供更好的檢索 tools、以及加入中間件邏輯（Harness 調整），就讓 Agent 在代碼基準測試中的得分提高了 13.7 分。"
+        }
+      },
+      {
+        index: 27,
+        category: "裝具工程 (Harness Engineering)",
+        title: "Harness Anatomy",
+        subtitle: "裝具解構與層級剖析 (圖七)",
+        points: [
+          "圖七展示了完整的裝具架構：LLM 居於核心，外圍被層層 Harness 元件包覆。",
+          "裸模型是沒有狀態、無法執行工具、沒有約束的。Harness 賦予其狀態、工具執行與反饋。",
+          "開發者在使用 Cursor, Claude Code, Antigravity 時，其感受到的好用度，90% 來自於 Harness 的設計。"
+        ],
+        description: "Harness 的層級解構：\n最核心：LLM（大模型，提供基本推理）。\n框架層 (Framework Layer)：Orchestration 邏輯、Guardrails/Hooks、Instructions/Rule Files、Tools/MCP Servers。\n開發者介面 (Developer Interface)：CLI / IDE 整合。\n雲端基礎設施 (Cloud Infrastructure)：Session/Memory 儲存、Eval、可觀測性/追蹤、部署配置。",
+        case: {
+          title: "本地開發環境中的 Harness",
+          content: "當我們在本地端開發，AI Agent 能讀取我們的 workspace 目錄（透過 File Tools）並在我們本機跑 node 測試（透過 Terminal Tools），這些工具與環境的串接就是本地 IDE 提供的高效 Harness。"
+        }
+      },
+      {
+        index: 28,
+        category: "裝具工程 (Harness Engineering)",
+        title: "什麼是裝具元件？",
+        subtitle: "Harness 的具體元件清單",
+        points: [
+          "Instructions & Rule Files：定義 Agent 身份與不可做之事的文本（如 AGENTS.md、CLAUDE.md）。",
+          "Tools：函數、MCP 伺服器、API 以及說明其使用時機的描述。",
+          "Sandboxes & Execution Environments：隔離的執行空間，限制 Agent 權限，保護主機安全。",
+          "Orchestration, Guardrails, Observability：編排邏輯、生命週期 Hooks 與監控日誌。"
+        ],
+        description: "這些元件不是模型提供商（如 OpenAI、Google Vertex AI）的責任，而是「你的軟體工程團隊」的責任。團隊必須自己建立適合自己專案的 sandbox 環境、定義專屬的 MCP 伺服器，並實作 observability 監控 token 成本。",
+        case: {
+          title: "安全防範實務",
+          content: "為了防止 AI 代理不小心刪除生產資料庫，企業在其調用工具的 Harness 中加上 Hook：當 detect 到 bash 指令中包含 drop database 或 rm -rf 且路徑為敏感資料夾時，Harness 會自動攔截並拒絕執行，不需經過模型。"
+        }
+      },
+      {
+        index: 29,
+        category: "裝具工程 (Harness Engineering)",
+        title: "Harness in SDLC - Config & Run",
+        subtitle: "配置階段與實施階段的裝具角色",
+        points: [
+          "Harness 必須存在於 AI Agent 運作的每一個階段。",
+          "1. Requirements, Planning & Architecture (Configuring the Harness)：開發者配置裝具的規則檔案（如 AGENTS.md），並定義 Agent 能呼叫的專屬工具（如特定的資料庫 API 規格）。",
+          "2. Implementation (Running the Harness)：在 active coding 時，裝具作為邊界，使用沙箱、執行環境與工具來維持 AI 模型的專注與安全。"
+        ],
+        description: "在運行階段，裝具就像是防護欄。Agent 在 Sandbox 內產生代碼並呼叫工具，若需要上網查 API 文件，裝具提供 Web Search Tool；若需要讀檔，裝具提供 Read File Tool，確保一切都在可控範圍內運作。",
+        case: {
+          title: "運行邊界限制實例",
+          content: "當 Agent 被配置了「只能訪問 src/components/ 目錄」的工具限制時，即便它嘗試去讀取 .env 檔案以獲取機密，Harness 的 File Tool 會直接返回「Permission Denied」，從源頭切斷漏失機密的風險。"
+        }
+      },
+      {
+        index: 30,
+        category: "裝具工程 (Harness Engineering)",
+        title: "Harness in SDLC - Feedback Loop & Observe",
+        subtitle: "測試與維護階段的裝具角色",
+        points: [
+          "3. Testing & QA (The Feedback Loop)：測試階段高度依賴 Harness 促進自主修正。Harness 執行自動化測試，捕獲錯誤並路由回模型修正，實現「Think-Act-Observe」自我修正閉環。",
+          "4. Code Review, Deployment, & Maintenance (Observing the Harness)：執行 deterministic hooks（如攔截金鑰 commit），可觀測性層追蹤 token 成本、延遲與 Agent drift。"
+        ],
+        description: "測試與除錯是裝具發揮最大威力的地方。手動貼報錯是非常沒效率的 vibe coding 行為；而在 agentic engineering 中，裝具把執行環境的報錯 stderr 轉化為下一次推理的 prompt 上下文，讓 Agent 實現毫秒級的自動 debug。",
+        case: {
+          title: "自動除錯迴圈",
+          content: "● 步驟 1: Agent 修改了 auth.py。\n● 步驟 2: Harness 自動執行 pytest tests/test_auth.py。\n● 步驟 3: 測試失敗，拋出 NameError: name 'jwt' is not defined。\n● 步驟 4: Harness 將此報錯餵回給 Agent，Agent 自動在 auth.py 頂部補上 import jwt，重新執行測試直到通過。"
+        }
+      },
+      {
+        index: 31,
+        category: "裝具工程 (Harness Engineering)",
+        title: "多數 Agent 失敗是配置失敗",
+        subtitle: "Harness 的配置決定了 AI 的成敗",
+        points: [
+          "Vibe coding 與 Agentic engineering 的分界不在於你用什麼模型，而在於你如何配置與套用裝具。",
+          "在 Terminal Bench 2.0 上，同一個 team 只修改了 Harness，就把 Agent 排名從 Top 30 以外拉升到 Top 5，模型完全沒有變更。",
+          "當 Agent 出錯，人類的反射性動作是責怪模型笨；但多數失敗其實是「配置失敗」（缺少工具、規則含糊、護欄缺失、或是 context 灌滿雜訊）。"
+        ],
+        description: "如果一個新來的實習生因為你沒給他專案文件與資料庫帳號而寫不出正確程式，你不會怪他智商不夠；同樣地，如果沒有為 AI 提供精確的 Schema 和編程規範，它當然也無法寫出對的代碼。",
+        case: {
+          title: "診斷思維對照",
+          content: "● 失敗診斷：「這大模型太爛了，寫出來的 SQL 語法都不對，欄位名稱都寫錯。」\n● 正確做法：檢查發現我們沒有提供資料庫 schema。將 DDL 結構放入 Agent 的動態上下文，Agent 立刻寫出 100% 正確的 SQL。"
+        }
+      },
+      {
+        index: 32,
+        category: "開發者的角色演進",
+        title: "Conductor vs. Orchestrator",
+        subtitle: "人機協同的兩種核心模式 (圖八)",
+        points: [
+          "圖八解構了兩種模式：Conductor (指揮家) 與 Orchestrator (編排者)。",
+          "Conductor：實時、同步、在 IDE 中。按鍵級別控制、即時回饋。適合探索性編程、原型開發與學習新 API。",
+          "Orchestrator：非同步、高階、多代理。目標級別控制、延遲回饋。適合功能開發、代碼庫遷移與測試生成。"
+        ],
+        description: "在 Conductor 模式下，開發者緊密盯著螢幕，看著 AI 自動完成下一行代碼（Inline Completion），隨時手動微調。\n在 Orchestrator 模式下，開發者扮演專案經理，下達高階任務目標，Agent 在後台運行，開發者定期檢查輸出並提供方向修正。",
+        case: {
+          title: "模式選擇場景",
+          content: "● Conductor (指揮家)：Keystroke-level control、即時反饋、開發者隨時在 Loop 中。適合快速寫一個小 helper 函式。\n● Orchestrator (編排者)：Goal-level control、非同步、審查產出而非鍵盤動作。適合為整個模組補齊單元測試。"
+        }
+      },
+      {
+        index: 33,
+        category: "開發者的角色演進",
+        title: "Conductor 與 Orchestrator 模式深探",
+        subtitle: "開發者心流與工具鏈的對應",
+        points: [
+          "Conductor 模式非常符合傳統開發者的習慣，保留了對每一行代碼的掌控感，但會成為生產力吞吐量的瓶頸。",
+          "Orchestrator 模式將開發者推向更高抽象層，大幅釋放產能，但需要完全不同的工程技能集。",
+          "支持工具：Conductor（GitHub Copilot, Cursor Chat）；Orchestrator（Google Jules, Claude Code, Copilot Agent Mode）。"
+        ],
+        description: "在 Orchestrator 模式下，開發者不看代碼一行行跳出來，而是像對待一個 junior 同事一樣，給予清晰的 Issue 描述，Agent 在沙箱中跑編譯、跑測試、自己改錯，最後提 PR 供人類審查。",
+        case: {
+          title: "生產力瓶頸突破",
+          content: "如果一個資深工程師每天只用 inline completion（Conductor 模式），他的產出速度頂多提升 20%；但若他學會使用背景運行的 Terminal Agent（Orchestrator 模式）同時去修改 3 個獨立的 bug，他的產出吞吐量便能翻倍。"
+        }
+      },
+      {
+        index: 34,
+        category: "開發者的角色演進",
+        title: "Orchestrator 必備技能與 80% 問題",
+        subtitle: "未來工程師的核心競爭力",
+        points: [
+          "Orchestrator 核心技能：Specification (精確定義任務)、Decomposition (任務拆解)、Evaluation (品質評估)、System Design (設計約束系統)。",
+          "80% 問題：AI 能在幾分鐘內寫出 80% 的 happy path 代碼，但剩下的 20%（Edge cases、錯誤處理、複雜整合）極需人類的深層專案脈絡。",
+          "AI 錯誤已從單純語法錯演變為更隱蔽的「概念邏輯假定錯誤」。"
+        ],
+        description: "AI 生成的 code「看起來很完美」，甚至能跑通基礎測試，但在極端情況下（例如高併發、網路中斷、極端輸入）會崩潰。這就是 20% 問題。開發者必須保留精力，專注於 AI 容易掙扎的地方：需求澄清、架構取捨與正確性驗證。",
+        case: {
+          title: "任務分解實踐",
+          content: "不要丟給 AI「幫我寫一個完整的電商後台」。而是拆解為：「1. 實作訂單建立的 API 並通過輸入驗證；2. 實作當庫存不足時的錯誤拋出機制；3. 為這兩個部分撰寫 Mock 測試。」這樣 Agent 才能跨越 80% 問題，寫出可靠的代碼。"
+        }
+      },
+      {
+        index: 35,
+        category: "程式代理人實踐",
+        title: "現代開發者的一天",
+        subtitle: "AI 代理人的三種存在形式",
+        points: [
+          "現代開發者大部分工作在 terminal 中以自然語言與 Agent 對話，並叫另一個 Agent 在 IDE 中打字。",
+          "AI 程式代理出現在三個場景：In the editor (編輯器內)、In the terminal (終端內)、In the background (背景/雲端沙箱內)。",
+          "大多數開發者在一天之內會同時使用這三種形式。"
+        ],
+        description: "Editor：專注於心流維持（Completion、單一檔案解釋，如 Copilot）。\nTerminal：適合跨多個檔案重構、探索不熟悉的 repo，Agent 能在此執行命令並反應結果（如 Claude Code）。\nBackground：適合需要耗時數小時、非同步執行的獨立大任務（如 Jules）。",
+        case: {
+          title: "一日開發心流",
+          content: "● 早上：打開 Terminal Agent，叫它跑指令掃描整個 repo，找出所有沒寫註釋的 API 並回報。\n● 下午：在 IDE (Editor) 中編寫核心算法，利用 inline completion 幫忙補齊 helper 函式。\n● 傍晚：將一個遷移任務指派給 Background Agent，下班去喝咖啡，明天早上來審查它提的 PR。"
+        }
+      },
+      {
+        index: 36,
+        category: "程式代理人實踐",
+        title: "當 Agent 學會建置 Agent",
+        subtitle: "生產級代理人與原型代理人的分水嶺",
+        points: [
+          "當你要建置的「軟體產品」本身就是一個 AI Agent 時，挑戰完全不同。",
+          "原型 Agent 可以是純 vibe coding（本機跑個 script）；但面對真實使用者的生產級 Agent 是一個「產品」。",
+          "生產級 Agent 需要專屬的記憶儲存、細粒度的工具權限管理、Eval 測試覆蓋率與可觀測性追蹤。"
+        ],
+        description: "如果你在終端叫 AI 寫個網頁，AI 寫壞了，大不了重來。但如果你的產品是一個「自動替公司回覆客戶退款信件」的 Agent，一旦它判斷錯誤把 100 萬台幣退給客戶，這就是災難。因此，它需要極度嚴謹的 Harness 保護。",
+        case: {
+          title: "生產級客服 Agent 建設",
+          content: "開發一個客服 Agent，必須為其 Tools 加上嚴格的「權限沙箱」（例如限制它只能讀取該客訴用戶的訂單，禁止讀取其他用戶的隱私資料），並加上 Observability 追蹤它每一次對 LLM 呼叫的 prompt 與 output 軌跡。"
+        }
+      },
+      {
+        index: 37,
+        category: "Google 代理人工具鏈 (Agents CLI)",
+        title: "Google Agents CLI 介紹",
+        subtitle: "無縫過渡至生產級雲端代理",
+        points: [
+          "Agents CLI 是 Google Cloud 推出的小型命令列工具，旨在協助開發者在 GCP 上建置、評估與部署生產級 Agent。",
+          "它不綁定特定的 Coding Agent，無論你用 Claude Code、Cursor 還是其他工具，它都能協同工作。",
+          "安裝後，它為你的 Coding Agent 傳授 7 種涵蓋整個 ADK (Agent Development Kit) 生命週期的專業 Skills。"
+        ],
+        description: "開發者不需要花幾週去學習複雜的 GCP SDK，只需要用自然語言告訴你的 Coding Agent 你想建置什麼，Coding Agent 就會動態加載 Agents CLI 提供的 Skills，自動在背景完成腳手架建立、代碼撰寫、Eval 測試與部署。",
+        case: {
+          title: "無縫 RAG 客服建置",
+          content: "開發者在終端安裝好 Agents CLI 後，對著 Claude Code 說：「幫我建置一個能查詢公司內部 PDF 文件的 RAG 代理，並部署到 Google Cloud。」Claude Code 自動調用 CLI Skills，在背景將一切建置妥當。"
+        }
+      },
+      {
+        index: 38,
+        category: "Google 代理人工具鏈 (Agents CLI)",
+        title: "Build-Evaluate-Deploy Loop",
+        subtitle: "Agents CLI 實踐代碼片段 (代碼一)",
+        points: [
+          "一鍵配置命令：uvx google-agents-cli setup。",
+          "在 Coding Agent 中發出高階意圖指令，自動展開 ADK 專案模版、編寫代碼、生成 evalset 並進行雲端部署。",
+          "多代理協調底層架構：使用 MCP (Model Context Protocol) 存取工具，使用 A2A (Agent-to-Agent) 進行代理間的非同步委託。"
+        ],
+        description: "透過這套指令，開發者可以非常輕易地驅動複雜的雲端部署，背後會將本地的原型無縫轉化為運行在 Google Cloud 安全運行期（Agent Runtime）上的微服務，並自動串接日誌與監控。",
+        case: {
+          title: "CLI 實踐代碼",
+          content: "<pre># 步驟 1: 一次性安裝與初始化\nuvx google-agents-cli setup\n\n# 步驟 2: 在你的 Coding Agent 內直接對話驅動\n> 幫我建置一個能回答專案文檔問題的客服代理。\n> 針對 FAQ 測試集（FAQ dataset）對它進行 Evaluation。\n> 將此代理部署到 Google Cloud Agent Engine。</pre>"
+        }
+      },
+      {
+        index: 39,
+        category: "多代理協同與經濟學",
+        title: "多代理協同與 AI 經濟學",
+        subtitle: "Anthropic 編譯器實驗與 TCO",
+        points: [
+          "Anthropic 實驗：多個 Agent 協同在兩週內使用 Rust 寫出了一個運作良好的 C 編譯器，人類僅負責高階審查與方向引導。",
+          "在 AI 輔助開發中，核心評估指標是 TCO (整體擁有成本)，而非單純的開發速度。",
+          "AI 時代的財務負擔從手寫代碼的 CapEx 移轉至 Token OpEx，而 OpEx 受制於 Token 經濟學。"
+        ],
+        description: "AI 雖然能以極快速度產出代碼，但如果每次微小的改動都重新將整個代碼庫（Codebase）丟給 Frontier 大模型，所產生的 Token 帳單費用會呈指數級成長。因此，如何聰明地管理 Context 與路由模型，成為了企業必須考量的財務決策。",
+        case: {
+          title: "TCO 結構移轉",
+          content: "● 傳統開發 TCO：主要是工程師的薪資（CapEx）。\n● AI 時代開發 TCO：前期架構設計與測試建置的人力成本（CapEx）+ 運行 Agent 每次 API 呼叫所消耗的 Token 帳單與雲端執行期維護費（OpEx）。"
+        }
+      },
+      {
+        index: 40,
+        category: "AI 開發經濟學 (AI Economics)",
+        title: "The Economics of AI Development",
+        subtitle: "Vibe Coding 與 Agentic Engineering 的成本曲線 (圖九)",
+        points: [
+          "圖九解構了 TCO 與發佈功能之間的成本關係：Vibe Coding 在複雜度提升時會與 Agentic Engineering 交叉並飆升 3-10 倍成本。",
+          "Vibe Coding 具有低 CapEx，但隨之而來的是高 OpEx（Token 燃燒、維護稅、安全修復費用）。",
+          "Agentic Engineering 雖然前期 CapEx 較高，但隨時間演進其邊際成本極低，能實現永續擴展。"
+        ],
+        description: "在 vibe coding 中，開發者往往將大量無結構的檔案往 context window 塞，並不斷讓 model 來回試錯修復，這會迅速燒乾 Token 預算。且由於代碼結構混亂，後續維護稅（Maintenance Tax）與資安漏洞修補費（Security Remediation）會變得極度高昂。",
+        case: {
+          title: "Vibe Coding 隱性債務",
+          content: "● Token Burn Rate (Token 燃燒率)：反覆對大檔案試錯修正，陷入低首發成功率的提示詞循環。\n● Maintenance Tax (維護稅)：無結構的 AI spaghetti 代碼，後期需要花數天去 reverse-engineering。\n● Security Remediation (安全修復稅)：缺少 CI 掃描，將漏洞代碼部署到生產環境導致的高昂修復代價。"
+        }
+      },
+      {
+        index: 41,
+        category: "AI 開發經濟學 (AI Economics)",
+        title: "Agentic Engineering 的投資回報",
+        subtitle: "高 CapEx 與低 OpEx 的經濟優勢",
+        points: [
+          "Agentic Engineering 翻轉了經濟模型：它要求在生成第一行生產代碼前，先進行大量的 CapEx 投入（設計 API Schema、建立測試套件、結構化 Agent 上下文）。",
+          "一旦此工廠系統建立，發佈新功能與後續維護的邊際成本（OpEx）會急劇下降。",
+          "Context Engineering 是降低 token 成本、提高首發成功率的最佳「財務槓桿（Financial Lever）」納入考慮。"
+        ],
+        description: "將整個 100,000-token 的 repository 塞進每一次 prompt 是財務上不可持續的。有效的上下文工程能確保模型每次只接收到高信噪比的、精確的 context（例如精準的 `AGENTS.md` 與當前修改檔案），從而將 token 消耗降至最低。",
+        case: {
+          title: "Token 槓桿效益對比",
+          content: "● 隨性 Dump：傳送 100k tokens 專案以修正一個 typo，單次花費約 1.5 美元。\n● Context 工程：利用 RAG 搭配動態 Skill 載入，每次只傳送相關的 2k tokens 內容，單次花費僅 0.03 美元，省下 98% 的費用，且因為雜訊少，AI 修正的成功率更高。"
+        }
+      },
+      {
+        index: 42,
+        category: "AI 開發經濟學 (AI Economics)",
+        title: "智慧模型路由與動態上下文",
+        subtitle: "混合模型生態系的成本控制",
+        points: [
+          "進階的 agentic engineering 依賴動態上下文（Dynamic Context）與 Skills/MCP 來徹底優化 OpEx。",
+          "Intelligent Model Routing（智慧模型路由）：避免用最貴的 Frontier 大模型去處理所有簡單任務。",
+          "將高複雜度任務（需求規劃、架構設計）路由給大型 Frontier 模型；將低複雜度任務（單元測試生成、代碼審查、CI/CD 監控）路由給小巧、便宜、快速的模型。"
+        ],
+        description: "透過裝具層（Harness）自動進行任務分類與路由，企業能在維持極佳代碼品質的同時，系統化地壓低 API Token 支出。",
+        case: {
+          title: "模型路由策略",
+          content: "● 複雜架構設計/決策 -> 路由至 Gemini Pro 系列 (高推理成本，高智商)。\n● 單元測試/Lint除錯/Code Review -> 路由至 Gemini Flash 系列 (低單價，毫秒級響應，省下 90% 費用)。"
+        }
+      },
+      {
+        index: 43,
+        category: "行動指南 (Action Guide)",
+        title: "給個人開發者的起步建議",
+        subtitle: "將 Vibe Coding 轉化為 Agentic Engineering 的五個習慣",
+        points: [
+          "1. 設置專案 AGENTS.md：寫入 Stack、開發規範與硬性規則，每當 Agent 犯錯就往裡面加一條規則。",
+          "2. 安裝專業 Skills（如 Agents CLI），擴充 Coding Agent 的雲端整合能力。",
+          "3. 挑選單一重複流程做為第一個 Agent（如自動生成 PR 描述、代碼 Lint 審查）。"
+        ],
+        description: "個人工程師在 AI 時代保持競爭力的黃金法則。不要讓 AI 牽著你走，你要成為寫下 Spec 與 Test 的合約發起人，讓 AI 成為執行合約的工人。",
+        case: {
+          title: "個人開發實踐",
+          content: "● 4. 先寫 Tests & Evals，再生代碼：這點是核心，測試即為與 AI 的合約。\n● 5. 嚴格審查每一行要 Ship 的代碼：保持懷疑，代碼庫一旦充斥團隊看不懂的 AI 代碼，維護稅會把你壓垮。"
+        }
+      },
+      {
+        index: 44,
+        category: "行動指南 (Action Guide)",
+        title: "保持本職技能與 Context 管理",
+        subtitle: "工程主管的第一項實踐",
+        points: [
+          "6. 保持開發者的本職技能（Foundational Skills）：AI 處理 routine，你需要精進 system design、debugging 與效能直覺。",
+          "主管實踐一：將 Context Engineering 視為一等公民工程實踐。",
+          "將 AGENTS.md、system prompts、eval suites 納入 Git 版本控制，並像正式程式碼一樣進行 PR 審查。"
+        ],
+        description: "如果工程主管不對 Prompt 和 Context 進行版本控制，團隊的裝具（Harness）就會逐漸飄移，導致不同開發者的 AI 助手表現出截然不同的行為，程式碼風格走向混亂，專案變得不可重現。",
+        case: {
+          title: "Context 版本控制實踐",
+          content: "團隊在 GitHub 規定，任何修改專案架構規範 .agents/AGENTS.md 的行為，必須提交 PR，並至少獲得兩位資深工程師的 Approve 才能 merge。"
+        }
+      },
+      {
+        index: 45,
+        category: "行動指南 (Action Guide)",
+        title: "給主管與組織的系統化建議",
+        subtitle: "以 Eval 為標準與投資生產基底",
+        points: [
+          "主管實踐二：以 Eval 為標準，而不是以 Demo 為標準。一個會動的 demo 只能證明 Agent 成功了一次；通過 Eval 套件才能證明它可靠。",
+          "主管實踐三：重塑 AI 代碼 Review 流程，對幻覺依賴與錯誤處理進行額外審查。",
+          "組織實踐：1. 視 AI 輔助為工程投資；2. 規模化前投資生產基底（Observability, CI env）；3. 採用開放標準（MCP, A2A）。"
+        ],
+        description: "主管應要求，任何 Agent 要發佈到團隊工作流中，必須附帶明確的 Eval 評分標準（Rubrics），這與微服務上線前需要通過測試是一樣的道理。組織應將 AI 輔助開發視為一項「工程投資」，而非單純買個月租帳號的「效率工具」。",
+        case: {
+          title: "內部 MCP 基礎設施",
+          content: "某中型企業搭建了自己的內部 MCP Server。當任何研發團隊的 AI Agent 需要查詢公司的訂單 API 或客戶 CRM 時，一律透過此統一的 MCP Server，既安全又實現了權限的細粒度控管，避免 Agent 因為 prompt 注入而洩露敏感資料。"
+        }
+      },
+      {
+        index: 46,
+        category: "行動指南 (Action Guide)",
+        title: "重塑人機混合團隊與招聘標準",
+        subtitle: "判斷力（Judgment）是新的核心工藝",
+        points: [
+          "規劃人機混合團隊（Hybrid Teams）：重新設計 code review 流程、on-call 輪值與團隊架構，將 Agent 視為參與者。",
+          "圍繞「判斷力」而非「實施力」來重塑招聘與技能培養標準。",
+          "未來數年內最珍貴的工程師，是能夠精確引導代理、釐清規格與驗證代碼的人，而非寫最多代碼的人。"
+        ],
+        description: "「代碼生成（Generation）」的問題已經被解決了。未來的瓶頸在於「驗證（Verification）、判斷（Judgment）與方向（Direction）」。招聘時，考 LeetCode 語法背誦的價值正急劇下降，取而代之的是考察候選人如何撰寫精確的 Spec、如何設計測試以框限 AI、以及如何在 AI 產出麵條代碼時進行正確性審查。",
+        case: {
+          title: "新型面試題設計",
+          content: "面試官給候選人一個帶有 bug 的老舊系統，並配給他一個 AI Coding Agent。面試官要求：「請在 30 分鐘內引導 AI Agent 完成這個系統的重構。你需要寫出規格書、新增 Evals 測試以防止 regression，並在最後審查 Agent 提交的代碼變更。」"
+        }
+      },
+      {
+        index: 47,
+        category: "結論 (Conclusion)",
+        title: "意圖作為新介面",
+        subtitle: "AI 時代的三大永續原則",
+        points: [
+          "三大原則 1：結構能擴展，Vibes 不行。生產級軟體必須依賴嚴格的 Agentic Engineering（規格、測試、護欄）。",
+          "三大原則 2：AI 會放大你的工程文化。好的工程文化（強測試、嚴CR）導入 AI 會如虎添翼；差的文化導入 AI 只會加速技術垃圾的堆積。",
+          "三大原則 3：人類角色在演進，而非消失。"
+        ],
+        description: "語法已經降級，意圖升級為我們與機器溝通的新介面。但這並不代表人類程式設計師失業，相反地，具備良好系統架構直覺與嚴格驗證習慣的工程師，其價值被無限放大。",
+        case: {
+          title: "文化放大器效應",
+          content: "● 優秀文化團隊：導入 AI 後，AI 自動為每個 PR 生成完善的測試，團隊得以專注在重大的架構優化，產品發佈速度提升 5 倍，且零技術債。\n● 差勁文化團隊：沒有測試習慣，導入 AI 後，AI 瘋狂生成了幾萬行「看起來會動但充滿 memory leak」的程式，三個月後專案徹底崩潰。"
+        }
+      },
+      {
+        index: 48,
+        category: "結論 (Conclusion)",
+        title: "新時代的工藝",
+        subtitle: "個人與小團隊的黃金時代",
+        points: [
+          "代碼生成的問題已經解決了。驗證、判斷與引導才是新的工藝技術（New craft）。",
+          "變革將重塑軟體開發的可能性：小團隊能解決大問題，個人能建立與維護過去需要一整條部門才能支撐的複雜系統。",
+          "勝出的將是那些「既擁抱 AI 的高效，又維持傳統工程高標準紀律」的人。"
+        ],
+        description: "這是一個給予有品味、有紀律的工程師的最佳時代。AI 抹平了打字的瓶頸，讓一個人的頭腦可以指揮一個由多個 Agent 組成的虛擬開發工廠。",
+        case: {
+          title: "一人研發工廠",
+          content: "一位資深獨立開發者，搭配一組配置了完善測試與 GCP Deployment Harness 的 AI 代理人，在短短一個月內建立並上線了一套包含高併發交易、客服機器人、報表自動生成的跨國 SAS 服務，這在過去需要 15 人的研發團隊開發半年。"
+        }
+      },
+      {
+        index: 49,
+        category: "尾註 (Endnotes)",
+        title: "關鍵參考文獻 - 第一部分",
+        subtitle: "產業數據與 Vibe Coding 起源查證",
+        points: [
+          "引用 GetPanto 與 Index.dev 關於 2025-2026 開發者使用 AI 統計數據。",
+          "收錄 Andrej Karpathy 於 2025 年 2 月發表的「Vibe Coding」X 貼文與維基百科條目。",
+          "收錄 Addy Osmani 關於「Agentic Engineering」與「The Factory Model」的個人部落格文獻。"
+        ],
+        description: "提供本白皮書所引用之統計數據與心智模型的出處。讀者可深入研究 Karpathy 當初對 vibe coding 的原始論述，以及業界對 2026 年 AI Native SDLC 的討論。",
+        case: {
+          title: "商業論證引用",
+          content: "當企業內部需要撰寫導入 AI 代理的商業論證報告（Business Case）給決策層時，這些文獻提供了極佳的產業數據與權威理論支持。"
+        }
+      },
+      {
+        index: 50,
+        category: "尾註 (Endnotes)",
+        title: "關鍵參考文獻 - 第二部分",
+        subtitle: "技術標準與多代理協定",
+        points: [
+          "收錄 Google Jules（AI 編程代理）發表公告與 Google Agent Development Kit (ADK) 官方文檔。",
+          "引用 Anthropic 關於 A2A (Agent-to-Agent) 協定的研究與多代理協同開發編譯器的實驗。",
+          "引用關於 Model Context Protocol (MCP) 與 IDE 競爭（Cursor vs Claude Code vs Windsurf）的產業分析。"
+        ],
+        description: "此頁尾註著重於技術實作層面。特別是 ADK (Agent Development Kit)、A2A 協議以及 MCP。這些是目前（2026年）建立互操作性多代理系統的關鍵底層協定標準。",
+        case: {
+          title: "MCP 協定之應用",
+          content: "開發者若想自行開發可以與 Cursor 或 Claude Code 對接的內部工具，應深入研讀本頁提到的 MCP 規格，這能讓你的內部資料庫或 API 瞬間成為 AI 代理可以呼叫的工具。"
+        }
+      },
+      {
+        index: 51,
+        category: "尾註 (Endnotes)",
+        title: "關鍵參考文獻 - 第三部分",
+        subtitle: "安全風險、Token 經濟學與未來趨勢",
+        points: [
+          "收錄 Lawfare 關於 AI 生成代碼的安全性風險（When the vibes are off）與 Slopsquatting 威脅分析。",
+          "引用 O'Reilly Media 關於「Beyond Vibe Coding」的專著。",
+          "收錄 Addy Osmani 關於「My LLM Coding Workflow Going Into 2026」的實務分享。"
+        ],
+        description: "最後一頁尾註聚焦於 AI 開發的負面效應防範（如安全漏洞、惡意依雜項注入、token 帳單飆升）以及未來程式設計趨勢。這標示著白皮書的完整參考文獻地圖。",
+        case: {
+          title: "資安策略制定",
+          content: "資訊安全部門（DevSecOps）在評估 AI 生成代碼的安全管控時，應研讀此處引用的 Lawfare 安全風險分析，以建立對應的靜態掃描與沙箱隔離規範。"
+        }
+      }
+    ];
+
+    let currentIndex = 0;
+    const totalSlides = SLIDES_DATA.length;
+    let isDarkMode = false;
+
+    // 啟動初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSlides();
+      generateMenu();
+      updateSlide(0);
+      
+      // 鍵盤監聽
+      document.addEventListener('keydown', handleKeyDown);
+    });
+
+    // 渲染投影片卡片
+    function renderSlides() {
+      const wrapper = document.getElementById('slideWrapper');
+      wrapper.innerHTML = '';
+
+      SLIDES_DATA.forEach((slide) => {
+        const card = document.createElement('div');
+        card.className = `slide-card`;
+        card.id = `slide-${slide.index - 1}`;
+
+        // 產生 Points HTML
+        let pointsHTML = '';
+        slide.points.forEach((point, idx) => {
+          pointsHTML += `
+            <div class="point-item">
+              <div class="point-badge">${idx + 1}</div>
+              <div class="point-text">${point}</div>
+            </div>
+          `;
+        });
+
+        // 雙欄 HTML 內容
+        card.innerHTML = `
+          <!-- 左欄 -->
+          <div class="main-col">
+            <div class="slide-header-tags">
+              <span class="slide-category">${slide.category}</span>
+              <span class="slide-number-tag">投影片 ${slide.index} / PDF 第 ${slide.index} 頁</span>
+            </div>
+            
+            <div class="slide-titles">
+              <h1 class="slide-title">${slide.title}</h1>
+              <h2 class="slide-subtitle">${slide.subtitle}</h2>
+            </div>
+            
+            <div class="points-section">
+              <h3 class="section-title">
+                <svg><use href="#iconPoint"></use></svg>
+                核心要點
+              </h3>
+              <div class="point-list">
+                ${pointsHTML}
+              </div>
+            </div>
+            
+            <div class="detail-section">
+              <h3 class="section-title">
+                <svg><use href="#iconDetail"></use></svg>
+                詳細說明
+              </h3>
+              <div class="detail-content">${slide.description}</div>
+            </div>
+          </div>
+          
+          <!-- 右欄 -->
+          <div class="case-col">
+            <div class="case-card">
+              <div class="case-header">
+                <svg><use href="#iconLightbulb"></use></svg>
+                實務案例與應用
+              </div>
+              <h4 class="case-title">${slide.case.title}</h4>
+              <div class="case-body">${slide.case.content}</div>
+            </div>
+          </div>
+        `;
+        wrapper.appendChild(card);
+      });
+    }
+
+    // 動態生成選單目錄
+    function generateMenu() {
+      const select = document.getElementById('chapterSelect');
+      const list = document.getElementById('sidebarList');
+      
+      select.innerHTML = '';
+      list.innerHTML = '';
+
+      SLIDES_DATA.forEach((slide, idx) => {
+        // 填入頂部下拉選單
+        const option = document.createElement('option');
+        option.value = idx;
+        option.text = `P.${slide.index} - ${slide.title}`;
+        select.appendChild(option);
+
+        // 填入側邊欄
+        const li = document.createElement('li');
+        li.className = `sidebar-item`;
+        li.id = `sidebar-item-${idx}`;
+        li.onclick = () => {
+          updateSlide(idx);
+          toggleDrawer(false);
+        };
+        li.innerHTML = `
+          <span class="page-num">P.${slide.index}</span>
+          <span>${slide.title}</span>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    // 更新當前顯示投影片
+    function updateSlide(index) {
+      // 邊界檢查
+      if (index < 0 || index >= totalSlides) return;
+      
+      // 移除舊的 active
+      const oldActive = document.querySelector('.slide-card.active');
+      if (oldActive) oldActive.classList.remove('active');
+      
+      const oldActiveSidebar = document.querySelector('.sidebar-item.active');
+      if (oldActiveSidebar) oldActiveSidebar.classList.remove('active');
+
+      // 設為當前 active
+      currentIndex = index;
+      const currentCard = document.getElementById(`slide-${currentIndex}`);
+      if (currentCard) currentCard.classList.add('active');
+      
+      const currentSidebar = document.getElementById(`sidebar-item-${currentIndex}`);
+      if (currentSidebar) currentSidebar.classList.add('active');
+
+      // 滾動目錄到可見區域
+      if (currentSidebar) {
+        currentSidebar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+
+      // 更新進度條
+      const progressBar = document.getElementById('progressBar');
+      const percent = ((currentIndex + 1) / totalSlides) * 100;
+      progressBar.style.width = `${percent}%`;
+
+      // 更新頁碼指示
+      const counter = document.getElementById('slideCounter');
+      counter.innerText = `投影片 ${currentIndex + 1} / ${totalSlides}`;
+
+      // 更新下拉選單
+      document.getElementById('chapterSelect').value = currentIndex;
+
+      // 控制按鈕啟用狀態
+      document.getElementById('prevBtn').disabled = (currentIndex === 0);
+      document.getElementById('nextBtn').disabled = (currentIndex === totalSlides - 1);
+    }
+
+    // 上一頁下一頁
+    function prevSlide() {
+      if (currentIndex > 0) {
+        updateSlide(currentIndex - 1);
+      }
+    }
+
+    function nextSlide() {
+      if (currentIndex < totalSlides - 1) {
+        updateSlide(currentIndex + 1);
+      }
+    }
+
+    // 跳轉
+    function jumpToSlide(index) {
+      updateSlide(Number(index));
+    }
+
+    // 側邊欄抽屜開合
+    function toggleDrawer(open) {
+      const drawer = document.getElementById('sidebarDrawer');
+      const overlay = document.getElementById('drawerOverlay');
+      if (open) {
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+      } else {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+      }
+    }
+
+    // 鍵盤監聽處理
+    function handleKeyDown(e) {
+      if (e.code === 'ArrowRight' || e.code === 'Space') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.code === 'KeyM') {
+        e.preventDefault();
+        const drawer = document.getElementById('sidebarDrawer');
+        toggleDrawer(!drawer.classList.contains('open'));
+      } else if (e.code === 'KeyF') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    }
+
+    // 切換色彩模式 (深色/淺色)
+    function toggleDarkMode() {
+      const body = document.body;
+      body.classList.toggle('dark-mode');
+      isDarkMode = body.classList.contains('dark-mode');
+      
+      const icon = document.getElementById('themeIcon');
+      if (isDarkMode) {
+        // 月亮 SVG
+        icon.innerHTML = '<path d="M12,18C11.11,18 10.26,17.8 9.5,17.45C11.56,16.5 13,14.42 13,12C13,9.58 11.56,7.5 9.5,6.55C10.26,6.2 11.11,6 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31L23.31,12L20,8.69Z"/>';
+      } else {
+        // 太陽 SVG
+        icon.innerHTML = '<path d="M12,18C11.11,18 10.26,17.8 9.5,17.45C11.56,16.5 13,14.42 13,12C13,9.58 11.56,7.5 9.5,6.55C10.26,6.2 11.11,6 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31L23.31,12L20,8.69Z"/>';
+      }
+    }
+
+    // 全螢幕切換
+    function toggleFullscreen() {
+      const fsIcon = document.getElementById('fullscreenIcon');
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().then(() => {
+          // 縮小 icon
+          fsIcon.innerHTML = '<path d="M14,14H19V16H16V19H14V14M5,14H10V19H8V16H5V14M16,5H19V10H14V5M8,5H10V10H5V8H8V5Z"/>';
+        }).catch(err => {
+          console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen().then(() => {
+          // 放大 icon
+          fsIcon.innerHTML = '<path d="M5,5H10V7H7V10H5V5M14,5H19V10H17V7H14V5M17,14H19V19H14V17H17V14M7,14H5V19H10V17H7V14Z"/>';
+        });
+      }
+    }
+  </script>
+</body>
+</html>

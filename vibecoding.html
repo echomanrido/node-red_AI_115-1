@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>五股職訓局-機電AI_115-1期 | Vibe Coding 專區</title>
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Vibe Coding 專區專屬客製強化樣式 */
+    :root {
+      --vibe-accent: #0ea5e9;
+      --vibe-purple: #a855f7;
+      --vibe-indigo: #6366f1;
+    }
+
+    /* 頂部分類 Tab 按鈕列 */
+    .vibe-category-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+    .vibe-tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .vibe-tab-btn:hover {
+      background: rgba(14, 165, 233, 0.15);
+      color: #ffffff;
+      border-color: rgba(14, 165, 233, 0.35);
+    }
+    .vibe-tab-btn.active {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(168, 85, 247, 0.25));
+      border-color: #38bdf8;
+      color: #38bdf8;
+      font-weight: 600;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+
+    /* 分類標籤色彩 */
+    .tag-category-eng {
+      background: rgba(14, 165, 233, 0.2) !important;
+      color: #38bdf8 !important;
+      border: 1px solid rgba(56, 189, 248, 0.4) !important;
+    }
+    .tag-category-skills {
+      background: rgba(168, 85, 247, 0.2) !important;
+      color: #c084fc !important;
+      border: 1px solid rgba(192, 132, 252, 0.4) !important;
+    }
+    .tag-category-other {
+      background: rgba(99, 102, 241, 0.2) !important;
+      color: #818cf8 !important;
+      border: 1px solid rgba(129, 140, 248, 0.4) !important;
+    }
+
+    /* 即時簡報與成果預覽 iframe 容器 */
+    .slide-iframe-container {
+      width: 100%;
+      height: 290px;
+      border: none;
+      border-radius: 8px;
+      background: #0f172a;
+    }
+
+    /* 頂部導覽列按鈕群 */
+    .vibe-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .vibe-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      padding: 5px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .vibe-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* 獨立開啟按鈕 */
+    .btn-open-external {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: rgba(14, 165, 233, 0.15);
+      border: 1px solid rgba(14, 165, 233, 0.35);
+      color: #38bdf8;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-open-external:hover {
+      background: rgba(14, 165, 233, 0.3);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+
+    /* 群組與手風琴樣式 */
+    .lab-group-wrapper {
+      margin-bottom: 4px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
+    .lab-group-wrapper.open {
+      border-color: rgba(56, 189, 248, 0.3);
+      background: rgba(14, 165, 233, 0.03);
+    }
+    .group-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .group-toggle-arrow {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      padding: 6px;
+      margin-right: 4px;
+      transition: transform 0.25s ease;
+    }
+    .lab-group-wrapper.open .group-toggle-arrow {
+      transform: rotate(180deg);
+      color: #38bdf8;
+    }
+    .group-children-list {
+      display: none;
+      padding-left: 20px;
+      border-left: 2px solid rgba(56, 189, 248, 0.3);
+      margin: 4px 10px 8px 24px;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .lab-group-wrapper.open .group-children-list {
+      display: flex;
+    }
+    .sub-lab-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .sub-lab-item:hover {
+      background: rgba(14, 165, 233, 0.12);
+      color: #ffffff;
+      border-color: rgba(56, 189, 248, 0.2);
+    }
+    .sub-lab-item.active {
+      background: linear-gradient(90deg, rgba(14, 165, 233, 0.25), rgba(14, 165, 233, 0.1));
+      color: #38bdf8;
+      font-weight: 600;
+      border-color: rgba(56, 189, 248, 0.5);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    }
+    .sub-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(14, 165, 233, 0.25);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      letter-spacing: 0.5px;
+    }
+
+    /* 右側主畫面：Google 5-Day 子模組切換選單列 */
+    .submodule-tabs-nav {
+      display: flex;
+      gap: 8px;
+      padding: 12px 18px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 12px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      margin-bottom: 22px;
+      overflow-x: auto;
+      align-items: center;
+    }
+    .submodule-nav-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #38bdf8;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 6px;
+      padding-right: 12px;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .submodule-tab-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .submodule-tab-link:hover {
+      background: rgba(14, 165, 233, 0.15);
+      color: #ffffff;
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+    .submodule-tab-link.active {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(14, 165, 233, 0.25));
+      color: #38bdf8;
+      font-weight: 600;
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+
+    /* Prompt 一鍵複製反饋 */
+    .copy-success-pulse {
+      animation: copySuccess 0.4s ease;
+    }
+    @keyframes copySuccess {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); background: #22c55e; color: #fff; }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar / 左側 Vibe Coding 選單 -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">
+          <i class="fa-solid fa-microchip logo-icon"></i>
+          <div class="brand-titles">
+            <h1 class="main-title">五股職訓局</h1>
+            <span class="sub-title">機電AI_115-1期（作者：Rido老師）</span>
+          </div>
+        </div>
+        <button class="mobile-toggle-btn" id="sidebarCloseBtn" aria-label="關閉選單">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- 搜尋框 -->
+      <div class="sidebar-search">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" placeholder="搜尋主題、內容、規格..." />
+        </div>
+      </div>
+
+      <!-- 三大主題分類切換 Tabs -->
+      <div class="vibe-category-tabs">
+        <button class="vibe-tab-btn active" data-category="all">
+          <i class="fa-solid fa-layer-group"></i> 全部
+        </button>
+        <button class="vibe-tab-btn" data-category="軟體工程">
+          <i class="fa-solid fa-laptop-code"></i> 軟體工程
+        </button>
+        <button class="vibe-tab-btn" data-category="Skills(技能)">
+          <i class="fa-solid fa-puzzle-piece"></i> Skills
+        </button>
+        <button class="vibe-tab-btn" data-category="其他">
+          <i class="fa-solid fa-cubes-stacked"></i> 其他
+        </button>
+      </div>
+
+      <div class="sidebar-menu-title" style="display: flex; justify-content: space-between; align-items: center; color: #38bdf8;">
+        <span><i class="fa-solid fa-bolt"></i> VIBE CODING 專區</span>
+        <span class="lab-count-badge" id="vibeCountBadge" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);">0</span>
+      </div>
+
+      <nav class="lab-list" id="vibeList">
+        <!-- JS 動態渲染單元選單列表 -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="footer-info" style="display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem;">
+          <div><i class="fa-solid fa-bolt"></i> Vibe Coding 人機協作專區</div>
+          <div style="opacity: 0.7; font-size: 0.72rem; padding-left: 18px;">作者：Rido老師</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主內容區域 -->
+    <main class="main-content">
+      <!-- 頂部 Header -->
+      <header class="top-header">
+        <button class="mobile-toggle-btn" id="sidebarOpenBtn" aria-label="開啟選單">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="breadcrumb" id="breadcrumb">
+          <a href="index.html" class="back-home-link"><i class="fa-solid fa-house"></i> 首頁</a> / <span class="active-lab-name">載入中...</span>
+        </div>
+        <div class="header-actions">
+          <div class="vibe-nav-links">
+            <a href="labs.html" class="vibe-nav-btn"><i class="fa-solid fa-flask"></i> 實驗課程</a>
+            <a href="supplements.html" class="vibe-nav-btn"><i class="fa-solid fa-book"></i> 補充教材</a>
+            <a href="aitools.html" class="vibe-nav-btn"><i class="fa-solid fa-robot"></i> AI工具</a>
+            <span class="status-tag" style="background: rgba(14, 165, 233, 0.15); border-color: rgba(56, 189, 248, 0.35); color: #38bdf8;">
+              <i class="fa-solid fa-bolt"></i> 115-1期 Vibe Coding 專區
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <!-- 動態載入單元教學內容 -->
+      <div class="content-body" id="contentBody">
+        <!-- JS 動態插入內容 -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Lightbox Modal (圖片放大預覽) -->
+  <div class="lightbox-modal" id="lightboxModal">
+    <span class="lightbox-close" id="lightboxClose">&times;</span>
+    <img class="lightbox-content" id="lightboxImg" alt="流程架構圖放大預覽">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+
+  <!-- Toast Notification 通知 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- 資料與主程式腳本 -->
+  <script src="vibecodingData.js?v=1.0"></script>
+  <script src="vibecodingApp.js?v=1.0"></script>
+</body>
+</html>
