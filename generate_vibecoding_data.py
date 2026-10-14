@@ -677,10 +677,92 @@ unit_04_google = {
     "children": google_children
 }
 
-# 順延為 05：Skills (技能)
-unit_05_skills = {
-    "id": "vibe-08",
+# 05：OpenSpec (opsx) 指南：AI 規格驅動開發
+unit_05_openspec = {
+    "id": "vibe-openspec",
     "labNumber": "05",
+    "title": "OpenSpec (opsx)：AI 規格驅動開發 (Spec-Driven Development) 指南",
+    "shortTitle": "OpenSpec 規格驅動開發",
+    "category": "Skills(技能)",
+    "date": "2026-10-14",
+    "summary": "OpenSpec (@opsx) 是一套專為 AI 輔助編程設計的規格工作流框架。透過標準化的五個階段指令（explore 盤點、propose 規格提案、apply 任務實作、verify 對照驗收、archive 交付封存），把模糊需求轉化為結構化規格與可追蹤任務，從此終結 AI 幻覺與程式碼失控。",
+    "flowTitle": "OpenSpec 五階段生命週期閉環工作流",
+    "resultTitle": "OpenSpec 指南互動式教學頁面",
+    "flowImage": make_svg_diagram(
+        "OpenSpec 五階段規格驅動開發架構",
+        "Explore -> Propose -> Apply -> Verify -> Archive 閉環工程",
+        [
+            {"num": "01", "title": "探索盤點", "sub": "/opsx:explore 理解既有架構", "tag": "Explore"},
+            {"num": "02", "title": "規格提案", "sub": "/opsx:propose 撰寫 spec 與 tasks", "tag": "Propose"},
+            {"num": "03", "title": "循序實作", "sub": "/opsx:apply 依照任務安全產碼", "tag": "Apply"},
+            {"num": "04", "title": "對照驗收", "sub": "/opsx:verify 嚴格比對規格標準", "tag": "Verify"},
+            {"num": "05", "title": "版本封存", "sub": "/opsx:archive 變更歸檔完成交付", "tag": "Archive"}
+        ],
+        loop_label="規格即契約 (Spec as Contract)：透過結構化 Markdown 任務鏈約束 AI Agent 行為",
+        accent="#0ea5e9"
+    ),
+    "resultImage": "Vibe Coding/02.Skills(技能)/01.openspec.html",
+    "slideUrl": "Vibe Coding/02.Skills(技能)/01.openspec.html",
+    "objective": "1. 掌握 OpenSpec (@opsx) 的五大核心指令流程與規格驅動開發 (Spec-Driven Development) 心法。\n2. 理解 .openspec/ 工件結構 (proposal.md, spec.md, tasks.md) 如何作為 AI Agent 的單一真相來源。\n3. 學會在 Node-RED 與工控 AI 開發中運用 OpenSpec 進行需求收斂與零幻覺精準實作。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 快速安裝與初始化 (CLI Setup)",
+            "description": "透過 npm 全域安裝 @fission-ai/openspec@latest，並在專案根目錄執行 openspec init，建立標準化 .openspec/ 規格目錄結構與 AI Agent 協調規則。"
+        },
+        {
+            "step": "步驟 2: 第一階段 /opsx:explore (盤點問題與理解代碼庫)",
+            "description": "在動手修改代碼前，引導 AI 深入探索現有程式碼結構、相依性與既有約束，避免空中樓閣式的猜測改動。"
+        },
+        {
+            "step": "步驟 3: 第二階段 /opsx:propose (產出規格與任務拆解)",
+            "description": "明確規劃 proposal.md (業務背景)、spec.md (技術契約與驗收條件) 與 tasks.md (具體待辦清單)，將目標拆解為可驗收的獨立原子步驟。"
+        },
+        {
+            "step": "步驟 4: 第三階段 /opsx:apply (依照規格實作任務)",
+            "description": "督促 AI 專注逐一完成 tasks.md 待辦事項，每次僅改動必要模組並進行自動測試，杜絕大規模一次性代碼覆寫導致系統崩潰。"
+        },
+        {
+            "step": "步驟 5: 第四與五階段 /opsx:verify & /opsx:archive (對照驗收與封存)",
+            "description": "依據 spec.md 的 Acceptance Criteria 逐條檢查成果，確認無誤後將規格歸檔至歷史庫完成生產交付。"
+        }
+    ],
+    "promptTemplate": "你是一位專精於 Spec-Driven Development 的 OpenSpec 架構師。\n請針對我手上的 Node-RED 工控通訊與儀表板專案，啟動 /opsx:propose 流程：\n1. 深度掃描當前 Flow 架構與 Modbus/MQTT 數據流。\n2. 產出包含明確 Acceptance Criteria (驗收標準) 的 spec.md。\n3. 產出 3 至 5 個可獨立驗證的 tasks.md 實施步驟清單。\n在我們完成規格確認前，請勿直接生成大篇幅代碼。",
+    "codeSnippet": {
+        "language": "markdown",
+        "code": "# .openspec/proposals/modbus-telemetry/spec.md\n# Feature Spec: Modbus 異常自動告警節點\n\n## 1. 意圖與目標 (Intent)\n當機電 PLC Modbus 保持暫存器 (Hold Register) 數據超過上限閾值時，即時發布告警並寫入日誌。\n\n## 2. 契約規範 (Interface & Contract)\n- 輸入 msg.payload: `{ \"deviceId\": string, \"address\": number, \"value\": number }`\n- 輸出 msg.payload: `{ \"alert\": boolean, \"severity\": \"HIGH\" | \"LOW\", \"timestamp\": number }`\n\n## 3. 驗收標準 (Acceptance Criteria)\n- [ ] 當數值 > 85.0 時，觸發 HIGH 級別告警，延遲 < 50ms\n- [ ] 模擬斷線時能自愈重試 3 次，失敗後記錄 error 日誌"
+    },
+    "references": [
+        {
+            "title": "OpenSpec (opsx) 指南 (專屬互動頁面)",
+            "url": "Vibe Coding/02.Skills(技能)/01.openspec.html"
+        },
+        {
+            "title": "OpenSpec 官方網站 (openspec.dev)",
+            "url": "https://openspec.dev/"
+        },
+        {
+            "title": "OpenSpec GitHub 開源倉庫",
+            "url": "https://github.com/Fission-AI/OpenSpec"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-list-check",
+            "scenario": "杜絕 AI 幻覺與破壞式改動",
+            "description": "在讓 Agent 編寫關鍵工控與通訊邏輯前，先透過規格契約 (Spec) 鎖定邊界，防止代碼被無故洗掉或架構失控。"
+        },
+        {
+            "icon": "fa-solid fa-code-pull-request",
+            "scenario": "團隊非同步協同與 Pull Request 審查",
+            "description": "利用結構化 Markdown 規格作為 PR 審核基礎，讓工程同仁與管理層能秒速理解 Agent 的變更意圖與驗收結果。"
+        }
+    ]
+}
+
+# 順延為 06：Skills (技能)
+unit_06_skills = {
+    "id": "vibe-08",
+    "labNumber": "06",
     "title": "Agent Skills (技能) 體系與 Model Context Protocol (MCP) 架構實戰",
     "category": "Skills(技能)",
     "date": "2026-10-14",
@@ -740,10 +822,10 @@ unit_05_skills = {
     ]
 }
 
-# 順延為 06：其他
-unit_06_other = {
+# 順延為 07：其他
+unit_07_other = {
     "id": "vibe-09",
-    "labNumber": "06",
+    "labNumber": "07",
     "title": "Vibe Coding 人機協作心法、架構思維與工業整合實踐",
     "category": "其他",
     "date": "2026-10-14",
@@ -804,8 +886,9 @@ vibe_labs = [
     unit_02_guide,
     unit_03_claude,
     unit_04_google,
-    unit_05_skills,
-    unit_06_other
+    unit_05_openspec,
+    unit_06_skills,
+    unit_07_other
 ]
 
 # 寫入 vibecoding.json
@@ -817,4 +900,5 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功生成資料結構，包含新 01 權威指南，全部項目已依序順延！")
+print(f"成功生成資料結構，包含新 05 OpenSpec，全部項目已依序順延！")
+
