@@ -1237,6 +1237,85 @@ unit_11_rea = {
     ]
 }
 
+# 12：AI Coding 新時代的團隊開發
+unit_12_team_dev = {
+    "id": "vibe-ai-coding-team-dev",
+    "labNumber": "12",
+    "title": "團隊開發：AI Coding 新時代的團隊開發：從個人用 AI 到 AI-Native 組織 (陳宜昌 YC 演講精粹)",
+    "shortTitle": "AI Coding 新時代的團隊開發",
+    "category": "其他",
+    "subCategory": "團隊開發",
+    "date": "2026-10-15",
+    "summary": "改編自陳宜昌 (YC / Nova AI 創辦人) 於 HWDC 2026 的震撼演講。全方位解構 AI Coding 三大進階層次：Level 1 個人 AI 賦能、Level 2 Agentic Workflow 協同、Level 3 AI-Native 組織重構。深入探討組織架構三大黃金法則：徹底劃分「人組成決策團隊、Agent 組成執行團隊」、原型期「三大關卡」防線，以及為什麼「Spec 是鷹架不是藍圖」！本單元亦附完整演講時間軸與逐字稿索引。",
+    "flowTitle": "AI Coding 三大進階維度與決策/執行團隊切分流水線",
+    "resultTitle": "AI Coding 團隊開發實戰教學與架構模擬器",
+    "flowImage": make_svg_diagram(
+        "AI Coding 團隊開發三層次演進架構",
+        "Level 1 個人賦能 -> Level 2 代理協同 -> Level 3 AI-Native 組織重構",
+        [
+            {"num": "L-1", "title": "個人賦能", "sub": "Copilot 輔助代碼生成", "tag": "Level 1"},
+            {"num": "L-2", "title": "代理協同", "sub": "Agent 執行實作與測試", "tag": "Level 2"},
+            {"num": "L-3", "title": "AI-Native", "sub": "人做決策、Agent 執行", "tag": "Level 3"},
+            {"num": "SPEC", "title": "鷹架理論", "sub": "Spec 是鷹架而非死藍圖", "tag": "Scaffold"},
+            {"num": "GATES", "title": "三大關卡", "sub": "架構守衛、測試驗證、品質把關", "tag": "Gates"}
+        ],
+        loop_label="決策與執行徹底解耦：人類專注架構選型與探索，AI Agent 負責實作、測試與除錯閉環",
+        accent="#6366f1"
+    ),
+    "resultImage": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html",
+    "slideUrl": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html",
+    "objective": "1. 理解從「個人使用 AI」躍升至「AI-Native 組織」的三大進階層次（Level 1 ➔ Level 2 ➔ Level 3）。\n2. 掌握組織核心分工：人類專注於決策、理解工程與探索工程；Agent 團隊專注於實作、測試與第一輪 Review。\n3. 理解「Spec 是鷹架而不是藍圖」的核心心法，學會用動態演進的規格引導 AI 高效交付。",
+    "tutorialSteps": [
+        {
+            "step": "層次 1: 從工具輔助到 Agentic Workflow (Level 1 & 2)",
+            "description": "從單純敲代碼時用 Copilot 自動補全，升級到由 Agent 接收明確目標後自主規劃、執行代碼變更與單元測試。"
+        },
+        {
+            "step": "層次 2: 組織架構徹底解耦：決策團隊 vs 執行團隊 (Slide 31)",
+            "description": "實作交給 Agent 團隊（實作、測試、除錯、初審）；人類組成決策團隊，專注於架構決策、理解工程與探索更佳可能。"
+        },
+        {
+            "step": "層次 3: 破除迷思：Spec 是鷹架，不是藍圖",
+            "description": "藍圖不可動，而鷹架隨建築生長。Spec 應當作為動態演進的認知護欄，隨著 Agent 探索與反饋持續調整迭代。"
+        },
+        {
+            "step": "層次 4: 原型期的三大關卡 (Slide 32-34)",
+            "description": "設立架構邊界關卡、自動化回歸測試關卡與終端整合門禁，確保 AI 生成的速度不以犧牲架構穩定性為代價。"
+        }
+    ],
+    "promptTemplate": "你是一位 AI-Native 研發團隊的主任架構師。\n請依據陳宜昌 YC 在 HWDC 2026 的演講架構，為我們團隊規劃一套 AI 團隊協同工作流：\n1. 明確劃分【決策團隊 (人類工程師)】與【執行團隊 (Coding Agents)】的職責清單。\n2. 說明如何將 Spec 定義為「動態鷹架」而非僵化藍圖。\n3. 針對原型開發期，設計三道具備阻擋效果的品質門禁關卡 (Gates)。",
+    "codeSnippet": {
+        "language": "markdown",
+        "code": "# AI-Native 團隊分工模型 (People Team vs Agent Team)\n\n## 決策團隊 (People Team)\n- 架構選型與邊界約束 (Architecture Boundary)\n- 理解工程：審閱高風險 Diff 與技術取捨\n- 探索工程：引領 Agent 發掘架構新可能\n\n## 執行團隊 (Agent Team)\n- 依據 Spec 鷹架逐步實作代碼 (Implementation)\n- 自動生成單元測試與端到端測試 (Testing)\n- 自我反射除錯 (Self-Healing Debug)\n- 提交第一輪 Code Review 意見"
+    },
+    "references": [
+        {
+            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (互動專題頁面)",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
+        },
+        {
+            "title": "陳宜昌 YC 演講時間軸與完整逐字稿紀要",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
+        },
+        {
+            "title": "HWDC 2026 YouTube 演講原片",
+            "url": "https://youtu.be/-B9WLMJAiZM"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-users-gear",
+            "scenario": "研發團隊 AI-Native 轉型",
+            "description": "協助企業或新創工程團隊重組研發工作流，從「堆人力敲代碼」轉變為「少數高階決策者引導多 Agent 團隊」的高效組織。"
+        },
+        {
+            "icon": "fa-solid fa-building-shield",
+            "scenario": "規格驅動與防禦式門禁落地",
+            "description": "建立明確的 Spec 鷹架規範與三大驗收關卡，在加速交付的同時確保核心系統架構不發散。"
+        }
+    ]
+}
+
 vibe_labs = [
     unit_01_evolution,
     unit_02_guide,
@@ -1248,7 +1327,8 @@ vibe_labs = [
     unit_08_opsx_guide,
     unit_09_superpowers,
     unit_10_reverse_engineering,
-    unit_11_rea
+    unit_11_rea,
+    unit_12_team_dev
 ]
 
 # 寫入 vibecoding.json
@@ -1260,5 +1340,5 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功更新資料結構，包含 UML 實戰兩大單元 (05 與 06)！共保留 {len(vibe_labs)} 個單元。")
+print(f"成功更新資料結構，包含新 12 AI Coding 新時代的團隊開發！共保留 {len(vibe_labs)} 個單元。")
 
