@@ -297,6 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="lab-title-text">${escapeHtml(lab.title)}</div>
             <div class="lab-meta-text">
               <span class="tag ${catClass}" style="padding: 1px 6px; font-size: 0.68rem; border-radius: 4px; display: inline-block;">${escapeHtml(lab.category)}</span>
+              ${lab.subCategory ? `<span class="tag" style="padding: 1px 6px; font-size: 0.68rem; border-radius: 4px; display: inline-block; background: rgba(6,182,212,0.18); color: #22d3ee; border: 1px solid rgba(6,182,212,0.4);"><i class="fa-solid fa-code-compare" style="margin-right:2px;"></i>${escapeHtml(lab.subCategory)}</span>` : ''}
               • ${escapeHtml(lab.date)}
             </div>
           </div>
@@ -434,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <section class="lab-header-card">
         <div class="lab-tags">
           <span class="tag ${catClass}"><i class="${catIcon}"></i> ${escapeHtml(lab.category)}</span>
+          ${lab.subCategory ? `<span class="tag" style="background: rgba(6,182,212,0.18); color: #22d3ee; border: 1px solid rgba(6,182,212,0.4);"><i class="fa-solid fa-code-compare"></i> ${escapeHtml(lab.subCategory)}</span>` : ''}
           ${lab.parentId ? `<span class="tag" style="background: rgba(37,99,235,0.2); color:#60a5fa; border:1px solid rgba(96,165,250,0.4);"><i class="fa-brands fa-google"></i> Google 5-Day 子模組</span>` : ''}
           <span class="tag tag-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(lab.date)}</span>
         </div>
