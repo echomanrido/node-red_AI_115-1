@@ -1,0 +1,2539 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding ✕ UML：現代 AI 開發者架構實戰手冊</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            50: '#f0fdf4',
+                            500: '#10b981',
+                            600: '#059669',
+                            DEFAULT: '#06b6d4',
+                            glow: '#3b82f6'
+                        },
+                        darkslate: '#0f172a',
+                        cardbg: '#1e293b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Mermaid.js CDN for live UML rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- FontAwesome Icons for clean UI visuals -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        
+        /* Subtle glow effects */
+        .glow-border {
+            box-shadow: 0 0 15px -3px rgba(6, 182, 212, 0.25);
+        }
+        .glow-accent {
+            box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.4);
+        }
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white">
+
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-brain text-white text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-lg font-bold bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
+                        Vibe Coding ✕ UML
+                    </span>
+                    <span class="hidden sm:inline-block ml-2 px-2 py-0.5 text-xs rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800">
+                        架構輔助 AI 指南
+                    </span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex space-x-1 lg:space-x-3 text-sm font-medium">
+                <a href="#uml-catalog" class="px-3 py-2 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/60 transition">
+                    UML 14種圖表全覽
+                </a>
+                <a href="#class-relationships" class="px-3 py-2 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/60 transition">
+                    類別圖 6 大關係
+                </a>
+                <a href="#why-uml" class="px-3 py-2 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/60 transition">
+                    為什麼需要 UML？
+                </a>
+                <a href="#playground" class="px-3 py-2 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/60 transition">
+                    互動 UML 實驗室
+                </a>
+                <a href="#vibe-generator" class="px-3 py-2 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/60 transition">
+                    Vibe Prompt 產生器
+                </a>
+                <a href="#quiz-section" class="px-3 py-2 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/60 transition">
+                    思維挑戰測驗
+                </a>
+                <a href="#cheatsheet" class="px-3 py-2 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/60 transition">
+                    AI 語法手冊
+                </a>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="scrollToSection('vibe-generator')" class="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-xs font-semibold rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-600 hover:text-white text-white shadow-md transition">
+                    <span class="relative px-3 py-2 transition-all ease-in duration-75 bg-slate-900 rounded-md group-hover:bg-opacity-0 flex items-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles text-cyan-400 group-hover:text-white"></i>
+                        <span>實戰轉換器</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="relative pt-12 pb-20 overflow-hidden border-b border-slate-800/80">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(14,165,233,0.18),rgba(255,255,255,0))]"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 text-xs font-semibold mb-6">
+                    <span class="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                    完整支援 UML 2.x 規範 ✕ 14 種圖表分類全解
+                </div>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+                    用 <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-sky-300">Vibe</span> 思考直覺，<br class="hidden sm:inline" />
+                    用 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">UML</span> 規範 AI 的程式靈魂
+                </h1>
+                <p class="max-w-3xl mx-auto text-base sm:text-lg text-slate-400 mb-8 leading-relaxed">
+                    Vibe Coding 讓每個人都能用自然語言光速產出軟體，但隨意亂聊往往在專案膨脹時引發幻覺與程式碼崩塌。
+                    學會將 <strong>輕量級 UML (Mermaid)</strong> 當作 Prompt 上下文，你將獲得可擴展、可維護且直指核心的頂級軟體架構！
+                </p>
+
+                <!-- Action CTA & Quick Stats -->
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="#uml-catalog" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium shadow-lg shadow-cyan-500/25 hover:brightness-110 active:scale-95 transition flex items-center gap-2">
+                        <i class="fa-solid fa-list-check"></i> 探索 UML 14 種圖表全覽
+                    </a>
+                    <a href="#class-relationships" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 active:scale-95 transition flex items-center gap-2">
+                        <i class="fa-solid fa-link text-cyan-400"></i> 類別圖 6 大關係解析
+                    </a>
+                </div>
+
+                <!-- Comparison Cards Preview -->
+                <div class="mt-14 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
+                    <div class="p-6 rounded-2xl bg-red-950/20 border border-red-800/40 backdrop-blur-sm">
+                        <div class="flex items-center gap-3 text-red-400 font-semibold mb-2">
+                            <i class="fa-solid fa-triangle-exclamation text-lg"></i> 純靠口語 Vibe 的困境
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-300">
+                            <li class="flex items-start gap-2"><span class="text-red-400">✕</span> AI 容易遺漏邊界條件與狀態轉換。</li>
+                            <li class="flex items-start gap-2"><span class="text-red-400">✕</span> 專案超過 5 個檔案後上下文混亂，代碼重複產生。</li>
+                            <li class="flex items-start gap-2"><span class="text-red-400">✕</span> 重構時牽一髮動全身，AI 開始胡言亂語（幻覺）。</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-cyan-950/20 border border-cyan-500/40 backdrop-blur-sm">
+                        <div class="flex items-center gap-3 text-cyan-400 font-semibold mb-2">
+                            <i class="fa-solid fa-shield-halved text-lg"></i> Vibe + UML 雙劍合璧
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-300">
+                            <li class="flex items-start gap-2"><span class="text-cyan-400">✓</span> <strong>時序圖</strong> 釘死 API 與元件溝通順序，零溝通成本。</li>
+                            <li class="flex items-start gap-2"><span class="text-cyan-400">✓</span> <strong>狀態圖</strong> 精確控制複雜非同步流程（如金流、訂單）。</li>
+                            <li class="flex items-start gap-2"><span class="text-cyan-400">✓</span> <strong>輕量文字 Mermaid</strong> 直接塞入 Prompt，AI 領悟力提升 300%。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW SECTION: Comprehensive UML Catalog categorized with specific uses -->
+        <section id="uml-catalog" class="py-16 bg-slate-900/70 border-b border-slate-800 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-12">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-cyan-400 text-xs font-semibold mb-3">
+                        <i class="fa-solid fa-sitemap"></i> UML 2.x 完整規範全貌
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-3">
+                        UML 14 種圖表分類與介紹
+                    </h2>
+                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                        統一塑模語言（Unified Modeling Language，簡稱 UML）在 UML 2.x 標準中共包含 <span class="text-cyan-400 font-bold">14 種圖表（Diagram types）</span>，主要分為 <strong class="text-cyan-300">結構圖（7種）</strong> 與 <strong class="text-blue-300">行為圖（7種，含互動圖 4 種）</strong>，是精準引導 AI 架構理解的全球標準規範。
+                    </p>
+                </div>
+
+                <!-- Category 1: Structural Diagrams (7 types) -->
+                <div class="mb-14">
+                    <div class="flex items-center gap-3 mb-6 pb-2 border-b border-slate-800">
+                        <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-sm">
+                            一
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                結構圖 / 靜態圖（Structural / Static Diagrams）
+                                <span class="text-xs font-normal text-cyan-400 bg-cyan-950/80 px-2.5 py-0.5 rounded-full border border-cyan-800">共 7 種 • 描述系統靜態結構、組成元件、類別與實體關係</span>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <!-- 1. Class Diagram -->
+                        <div class="p-5 rounded-2xl bg-slate-800/90 border border-cyan-500/50 shadow-lg shadow-cyan-950/40 relative flex flex-col justify-between">
+                            <span class="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 z-10">AI 協作王牌 ★★★★★</span>
+                            <div>
+                                <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-cyan-500/30 p-2.5 mb-4 flex items-center justify-center overflow-hidden">
+                                    <!-- High-detail SVG: Class Diagram with 2 interacting classes -->
+                                    <svg viewBox="0 0 240 100" class="w-full h-full text-cyan-400" fill="none">
+                                        <!-- Class 1: Order -->
+                                        <g transform="translate(10, 8)">
+                                            <rect width="95" height="82" rx="4" fill="#082f49" fill-opacity="0.55" stroke="#06b6d4" stroke-width="1.5"/>
+                                            <rect width="95" height="22" rx="4" fill="#0e7490" fill-opacity="0.5"/>
+                                            <text x="47" y="15" text-anchor="middle" fill="#e0f2fe" font-size="9.5" font-family="JetBrains Mono" font-weight="bold">Order</text>
+                                            <line x1="0" y1="22" x2="95" y2="22" stroke="#06b6d4" stroke-width="1.2"/>
+                                            <!-- Attributes -->
+                                            <text x="6" y="34" fill="#93c5fd" font-size="7.5" font-family="JetBrains Mono">- id: UUID</text>
+                                            <text x="6" y="45" fill="#93c5fd" font-size="7.5" font-family="JetBrains Mono">- amount: float</text>
+                                            <line x1="0" y1="52" x2="95" y2="52" stroke="#06b6d4" stroke-width="1"/>
+                                            <!-- Operations -->
+                                            <text x="6" y="64" fill="#6ee7b7" font-size="7.5" font-family="JetBrains Mono">+ checkout(): bool</text>
+                                            <text x="6" y="75" fill="#6ee7b7" font-size="7.5" font-family="JetBrains Mono">+ cancel(): void</text>
+                                        </g>
+                                        <!-- Class 2: OrderItem -->
+                                        <g transform="translate(142, 14)">
+                                            <rect width="88" height="70" rx="4" fill="#082f49" fill-opacity="0.55" stroke="#06b6d4" stroke-width="1.5"/>
+                                            <rect width="88" height="20" rx="4" fill="#0e7490" fill-opacity="0.5"/>
+                                            <text x="44" y="14" text-anchor="middle" fill="#e0f2fe" font-size="9" font-family="JetBrains Mono" font-weight="bold">OrderItem</text>
+                                            <line x1="0" y1="20" x2="88" y2="20" stroke="#06b6d4" stroke-width="1.2"/>
+                                            <text x="6" y="32" fill="#93c5fd" font-size="7.5" font-family="JetBrains Mono">- qty: int</text>
+                                            <text x="6" y="43" fill="#93c5fd" font-size="7.5" font-family="JetBrains Mono">- price: float</text>
+                                            <line x1="0" y1="49" x2="88" y2="49" stroke="#06b6d4" stroke-width="1"/>
+                                            <text x="6" y="61" fill="#6ee7b7" font-size="7.5" font-family="JetBrains Mono">+ getSubtotal()</text>
+                                        </g>
+                                        <!-- Composition Arrow (Solid diamond + solid line + multiplicity) -->
+                                        <path d="M105 48 L113 44 L121 48 L113 52 Z" fill="#06b6d4" stroke="#06b6d4" stroke-width="1.2"/>
+                                        <line x1="121" y1="48" x2="142" y2="48" stroke="#06b6d4" stroke-width="1.5"/>
+                                        <text x="108" y="39" fill="#38bdf8" font-size="8" font-family="JetBrains Mono">1</text>
+                                        <text x="130" y="39" fill="#38bdf8" font-size="8" font-family="JetBrains Mono">1..*</text>
+                                    </svg>
+                                </div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-5 h-5 rounded-full bg-cyan-900 text-cyan-300 text-xs flex items-center justify-center font-mono">1</span>
+                                    <h4 class="text-base font-bold text-white">類別圖 (Class Diagram)</h4>
+                                </div>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    <strong>核心功能：</strong>顯示系統的類別、屬性、方法（操作）以及類別之間的關聯（依賴、繼承、關聯等）。
+                                </p>
+                                <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800 space-y-1">
+                                    <div><strong class="text-cyan-400">Vibe 妙用：</strong>直接讓 AI 輸出 Prisma Schema、TypeScript Interface 或 Pydantic 資料模型，杜絕欄位幻覺。</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-xs">
+                                <span class="text-slate-400 font-mono">Mermaid: classDiagram</span>
+                                <button onclick="switchDiagram('class'); scrollToSection('playground');" class="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-medium">
+                                    實戰演練 <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Object Diagram -->
+                        <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/70 flex flex-col justify-between">
+                            <div>
+                                <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-sky-500/30 p-2.5 mb-4 flex items-center justify-center overflow-hidden">
+                                    <!-- High-detail SVG: Object Diagram showing runtime instance snapshots -->
+                                    <svg viewBox="0 0 240 100" class="w-full h-full text-sky-400" fill="none">
+                                        <!-- Instance 1: order#101: Order -->
+                                        <g transform="translate(10, 10)">
+                                            <rect width="100" height="78" rx="4" fill="#0c4a6e" fill-opacity="0.4" stroke="#38bdf8" stroke-width="1.5"/>
+                                            <rect width="100" height="22" rx="4" fill="#0369a1" fill-opacity="0.45"/>
+                                            <text x="50" y="15" text-anchor="middle" fill="#bae6fd" font-size="9" font-family="JetBrains Mono" font-weight="bold" text-decoration="underline">order#101 : Order</text>
+                                            <line x1="0" y1="22" x2="100" y2="22" stroke="#38bdf8" stroke-width="1.2"/>
+                                            <text x="7" y="36" fill="#e0f2fe" font-size="8" font-family="JetBrains Mono">id = "ord_8829"</text>
+                                            <text x="7" y="49" fill="#e0f2fe" font-size="8" font-family="JetBrains Mono">status = "PAID"</text>
+                                            <text x="7" y="62" fill="#e0f2fe" font-size="8" font-family="JetBrains Mono">total = 1290.00</text>
+                                            <text x="7" y="73" fill="#38bdf8" font-size="7" font-family="JetBrains Mono">(State Snapshot)</text>
+                                        </g>
+                                        <!-- Instance 2: itemA: OrderItem -->
+                                        <g transform="translate(136, 15)">
+                                            <rect width="94" height="68" rx="4" fill="#0c4a6e" fill-opacity="0.4" stroke="#38bdf8" stroke-width="1.5"/>
+                                            <rect width="94" height="20" rx="4" fill="#0369a1" fill-opacity="0.45"/>
+                                            <text x="47" y="14" text-anchor="middle" fill="#bae6fd" font-size="8.5" font-family="JetBrains Mono" font-weight="bold" text-decoration="underline">item#1 : OrderItem</text>
+                                            <line x1="0" y1="20" x2="94" y2="20" stroke="#38bdf8" stroke-width="1.2"/>
+                                            <text x="7" y="34" fill="#e0f2fe" font-size="8" font-family="JetBrains Mono">name = "CyberBook"</text>
+                                            <text x="7" y="47" fill="#e0f2fe" font-size="8" font-family="JetBrains Mono">qty = 2</text>
+                                            <text x="7" y="60" fill="#e0f2fe" font-size="8" font-family="JetBrains Mono">subtotal = 1290</text>
+                                        </g>
+                                        <!-- Instance link -->
+                                        <line x1="110" y1="48" x2="136" y2="48" stroke="#38bdf8" stroke-width="1.6"/>
+                                        <circle cx="123" cy="48" r="2.5" fill="#38bdf8"/>
+                                    </svg>
+                                </div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-300 text-xs flex items-center justify-center font-mono">2</span>
+                                    <h4 class="text-base font-bold text-white">物件圖 (Object Diagram)</h4>
+                                </div>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    <strong>核心功能：</strong>類別圖在特定時間點的實例（Instance）快照，呈現物件具體數值與當前狀態。
+                                </p>
+                                <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                    <strong class="text-slate-300">Vibe 妙用：</strong>提供具體 Mock Data 範例（如複雜 JSON Payload 或單元測試輸入數據）。
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+                                <span>適用：測試案例資料模擬</span>
+                                <span class="text-slate-500">★★☆☆☆</span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Component Diagram -->
+                        <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/70 flex flex-col justify-between">
+                            <div>
+                                <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-indigo-500/30 p-2.5 mb-4 flex items-center justify-center overflow-hidden">
+                                    <!-- High-detail SVG: Component Diagram with provided/required interfaces (Lollipop & Socket) -->
+                                    <svg viewBox="0 0 240 100" class="w-full h-full text-indigo-400" fill="none">
+                                        <!-- Component 1: Auth Module -->
+                                        <g transform="translate(12, 16)">
+                                            <rect width="84" height="65" rx="3" fill="#1e1b4b" fill-opacity="0.6" stroke="#818cf8" stroke-width="1.5"/>
+                                            <rect x="-6" y="10" width="12" height="12" rx="1" fill="#312e81" stroke="#818cf8" stroke-width="1.2"/>
+                                            <rect x="-6" y="36" width="12" height="12" rx="1" fill="#312e81" stroke="#818cf8" stroke-width="1.2"/>
+                                            <text x="42" y="32" text-anchor="middle" fill="#e0e7ff" font-size="9" font-family="JetBrains Mono" font-weight="bold">«component»</text>
+                                            <text x="42" y="46" text-anchor="middle" fill="#c7d2fe" font-size="9.5" font-family="JetBrains Mono" font-weight="bold">AuthService</text>
+                                        </g>
+                                        <!-- Interface Connector: Lollipop (Ball) + Socket (Cup) -->
+                                        <line x1="96" y1="48" x2="116" y2="48" stroke="#818cf8" stroke-width="1.5"/>
+                                        <circle cx="120" cy="48" r="4.5" fill="#818cf8" stroke="#c7d2fe" stroke-width="1.2"/>
+                                        <path d="M128 42 A7 7 0 0 0 128 54" stroke="#a5b4fc" stroke-width="1.6" fill="none"/>
+                                        <line x1="128" y1="48" x2="144" y2="48" stroke="#818cf8" stroke-width="1.5"/>
+                                        <text x="120" y="35" text-anchor="middle" fill="#a5b4fc" font-size="7.5" font-family="JetBrains Mono">IAuthenticator</text>
+                                        <!-- Component 2: User Gateway -->
+                                        <g transform="translate(144, 16)">
+                                            <rect width="84" height="65" rx="3" fill="#1e1b4b" fill-opacity="0.6" stroke="#818cf8" stroke-width="1.5"/>
+                                            <rect x="-6" y="10" width="12" height="12" rx="1" fill="#312e81" stroke="#818cf8" stroke-width="1.2"/>
+                                            <rect x="-6" y="36" width="12" height="12" rx="1" fill="#312e81" stroke="#818cf8" stroke-width="1.2"/>
+                                            <text x="42" y="32" text-anchor="middle" fill="#e0e7ff" font-size="9" font-family="JetBrains Mono" font-weight="bold">«component»</text>
+                                            <text x="42" y="46" text-anchor="middle" fill="#c7d2fe" font-size="9.5" font-family="JetBrains Mono" font-weight="bold">ApiGateway</text>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-300 text-xs flex items-center justify-center font-mono">3</span>
+                                    <h4 class="text-base font-bold text-white">元件圖 (Component Diagram)</h4>
+                                </div>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    <strong>核心功能：</strong>顯示軟體元件（模組、函式庫、微服務）與其對外暴露的介面、彼此依賴關係。
+                                </p>
+                                <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                    <strong class="text-slate-300">Vibe 妙用：</strong>規範 Monorepo、前端模組劃分，防止 AI 寫出循環依賴的失控引用。
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+                                <span>適用：微服務與模組拆分</span>
+                                <span class="text-amber-400">★★★☆☆</span>
+                            </div>
+                        </div>
+
+                        <!-- 4. Composite Structure Diagram -->
+                        <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/70 flex flex-col justify-between">
+                            <div>
+                                <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-emerald-500/30 p-2.5 mb-4 flex items-center justify-center overflow-hidden">
+                                    <!-- High-detail SVG: Composite Structure with Ports and Internal Parts -->
+                                    <svg viewBox="0 0 240 100" class="w-full h-full text-emerald-400" fill="none">
+                                        <!-- Outer Class Boundary with dashed border -->
+                                        <rect x="15" y="8" width="210" height="84" rx="4" fill="#064e3b" fill-opacity="0.25" stroke="#34d399" stroke-width="1.4" stroke-dasharray="4 3"/>
+                                        <text x="25" y="22" fill="#6ee7b7" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">SmartCarController [Composite]</text>
+                                        <!-- External Port -->
+                                        <rect x="9" y="44" width="12" height="12" fill="#10b981" stroke="#d1fae5" stroke-width="1.2"/>
+                                        <text x="15" y="65" text-anchor="middle" fill="#a7f3d0" font-size="6.5" font-family="JetBrains Mono">p1:CAN</text>
+                                        <!-- Internal Part 1: SensorReader -->
+                                        <g transform="translate(38, 30)">
+                                            <rect width="66" height="48" rx="3" fill="#022c22" stroke="#10b981" stroke-width="1.3"/>
+                                            <text x="33" y="20" text-anchor="middle" fill="#e0f2fe" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">sensors:Part</text>
+                                            <text x="33" y="34" text-anchor="middle" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">LiDAR / Radar</text>
+                                        </g>
+                                        <!-- Port connector inside -->
+                                        <line x1="21" y1="50" x2="38" y2="50" stroke="#34d399" stroke-width="1.5"/>
+                                        <!-- Internal Part 2: ActuatorEngine -->
+                                        <g transform="translate(140, 30)">
+                                            <rect width="70" height="48" rx="3" fill="#022c22" stroke="#10b981" stroke-width="1.3"/>
+                                            <text x="35" y="20" text-anchor="middle" fill="#e0f2fe" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">engine:Part</text>
+                                            <text x="35" y="34" text-anchor="middle" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">Brake / Drive</text>
+                                        </g>
+                                        <!-- Connector line between parts with internal port squares -->
+                                        <line x1="104" y1="50" x2="140" y2="50" stroke="#34d399" stroke-width="1.5"/>
+                                        <rect x="100" y="46" width="8" height="8" fill="#34d399"/>
+                                        <rect x="136" y="46" width="8" height="8" fill="#34d399"/>
+                                    </svg>
+                                </div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-300 text-xs flex items-center justify-center font-mono">4</span>
+                                    <h4 class="text-base font-bold text-white">複合結構圖 (Composite Structure)</h4>
+                                </div>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    <strong>核心功能：</strong>描述類別或元件內部的微型結構、零件（Part）、連接埠（Port）與協作關係。
+                                </p>
+                                <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                    <strong class="text-slate-300">Vibe 妙用：</strong>設計高複雜度中繼路由器或內部模組接腳（Ports & Adapters）。
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+                                <span>適用：內部細部結構裝配</span>
+                                <span class="text-slate-500">★☆☆☆☆</span>
+                            </div>
+                        </div>
+
+                        <!-- 5. Deployment Diagram -->
+                        <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/70 flex flex-col justify-between">
+                            <div>
+                                <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-amber-500/30 p-2.5 mb-4 flex items-center justify-center overflow-hidden">
+                                    <!-- High-detail SVG: 3D Server Nodes & Artifact deployments -->
+                                    <svg viewBox="0 0 240 100" class="w-full h-full text-amber-400" fill="none">
+                                        <!-- Node 1: Web App Server (3D Box) -->
+                                        <g transform="translate(10, 10)">
+                                            <!-- Top face -->
+                                            <polygon points="0,14 80,14 96,2 16,2" fill="#78350f" fill-opacity="0.4" stroke="#f59e0b" stroke-width="1.3"/>
+                                            <!-- Right face -->
+                                            <polygon points="80,14 96,2 96,62 80,74" fill="#451a03" fill-opacity="0.7" stroke="#f59e0b" stroke-width="1.3"/>
+                                            <!-- Front face -->
+                                            <rect x="0" y="14" width="80" height="60" fill="#292524" fill-opacity="0.9" stroke="#f59e0b" stroke-width="1.3"/>
+                                            <text x="40" y="27" text-anchor="middle" fill="#fef3c7" font-size="7" font-family="JetBrains Mono">«device / node»</text>
+                                            <text x="40" y="38" text-anchor="middle" fill="#fde68a" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">EC2: K8s Node</text>
+                                            <!-- Inner Artifact -->
+                                            <rect x="8" y="44" width="64" height="24" rx="2" fill="#78350f" fill-opacity="0.4" stroke="#fbbf24" stroke-width="1" stroke-dasharray="2 2"/>
+                                            <text x="40" y="59" text-anchor="middle" fill="#fde047" font-size="7" font-family="JetBrains Mono">«artifact» api.jar</text>
+                                        </g>
+                                        <!-- Communication line: TCP/IP -->
+                                        <line x1="106" y1="48" x2="140" y2="48" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 2"/>
+                                        <text x="123" y="42" text-anchor="middle" fill="#fcd34d" font-size="7" font-family="JetBrains Mono">TLS 443</text>
+                                        <!-- Node 2: Database Server (3D Box) -->
+                                        <g transform="translate(140, 10)">
+                                            <polygon points="0,14 76,14 90,2 14,2" fill="#78350f" fill-opacity="0.4" stroke="#f59e0b" stroke-width="1.3"/>
+                                            <polygon points="76,14 90,2 90,62 76,74" fill="#451a03" fill-opacity="0.7" stroke="#f59e0b" stroke-width="1.3"/>
+                                            <rect x="0" y="14" width="76" height="60" fill="#292524" fill-opacity="0.9" stroke="#f59e0b" stroke-width="1.3"/>
+                                            <text x="38" y="27" text-anchor="middle" fill="#fef3c7" font-size="7" font-family="JetBrains Mono">«database»</text>
+                                            <text x="38" y="38" text-anchor="middle" fill="#fde68a" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">AWS RDS</text>
+                                            <!-- Inner Artifact -->
+                                            <rect x="8" y="44" width="60" height="24" rx="2" fill="#78350f" fill-opacity="0.4" stroke="#fbbf24" stroke-width="1" stroke-dasharray="2 2"/>
+                                            <text x="38" y="59" text-anchor="middle" fill="#fde047" font-size="7" font-family="JetBrains Mono">«artifact» Postgres</text>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-300 text-xs flex items-center justify-center font-mono">5</span>
+                                    <h4 class="text-base font-bold text-white">部署圖 (Deployment Diagram)</h4>
+                                </div>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    <strong>核心功能：</strong>顯示硬體節點以及軟體元件在硬體環境（伺服器、Docker、雲端叢集）上的部署架構。
+                                </p>
+                                <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                    <strong class="text-slate-300">Vibe 妙用：</strong>讓 AI 一鍵產出精準的 Docker Compose、K8s Manifest 或 Terraform IaC 代碼。
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+                                <span>適用：DevOps & IaC 自動化</span>
+                                <span class="text-amber-400">★★★★☆</span>
+                            </div>
+                        </div>
+
+                        <!-- 6. Package Diagram -->
+                        <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/70 flex flex-col justify-between">
+                            <div>
+                                <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-violet-500/30 p-2.5 mb-4 flex items-center justify-center overflow-hidden">
+                                    <!-- High-detail SVG: Package Tab Folders & Import Dependencies -->
+                                    <svg viewBox="0 0 240 100" class="w-full h-full text-violet-400" fill="none">
+                                        <!-- Package 1: Controllers -->
+                                        <g transform="translate(10, 15)">
+                                            <path d="M0 8 L32 8 L38 16 L88 16 L88 68 L0 68 Z" fill="#2e1065" fill-opacity="0.55" stroke="#a78bfa" stroke-width="1.4"/>
+                                            <rect x="0" y="16" width="88" height="52" rx="2" fill="#1e1b4b" fill-opacity="0.7" stroke="#a78bfa" stroke-width="1.4"/>
+                                            <text x="8" y="13" fill="#ddd6fe" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">Controllers</text>
+                                            <text x="12" y="34" fill="#c4b5fd" font-size="7.5" font-family="JetBrains Mono">+ OrderCtrl</text>
+                                            <text x="12" y="47" fill="#c4b5fd" font-size="7.5" font-family="JetBrains Mono">+ AuthCtrl</text>
+                                            <text x="12" y="60" fill="#a78bfa" font-size="7" font-family="JetBrains Mono">[REST Routes]</text>
+                                        </g>
+                                        <!-- Dependency line with open arrow and «import» -->
+                                        <g>
+                                            <path d="M98 48 L136 48" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="3 2"/>
+                                            <polyline points="130,44 136,48 130,52" stroke="#a78bfa" stroke-width="1.5" fill="none"/>
+                                            <text x="117" y="40" text-anchor="middle" fill="#c4b5fd" font-size="7" font-family="JetBrains Mono">«import»</text>
+                                        </g>
+                                        <!-- Package 2: Services / Domain -->
+                                        <g transform="translate(142, 15)">
+                                            <path d="M0 8 L32 8 L38 16 L88 16 L88 68 L0 68 Z" fill="#2e1065" fill-opacity="0.55" stroke="#a78bfa" stroke-width="1.4"/>
+                                            <rect x="0" y="16" width="88" height="52" rx="2" fill="#1e1b4b" fill-opacity="0.7" stroke="#a78bfa" stroke-width="1.4"/>
+                                            <text x="8" y="13" fill="#ddd6fe" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">Services</text>
+                                            <text x="12" y="34" fill="#c4b5fd" font-size="7.5" font-family="JetBrains Mono">+ OrderService</text>
+                                            <text x="12" y="47" fill="#c4b5fd" font-size="7.5" font-family="JetBrains Mono">+ PaymentSvc</text>
+                                            <text x="12" y="60" fill="#a78bfa" font-size="7" font-family="JetBrains Mono">[Business Core]</text>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-300 text-xs flex items-center justify-center font-mono">6</span>
+                                    <h4 class="text-base font-bold text-white">套件圖 (Package Diagram)</h4>
+                                </div>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    <strong>核心功能：</strong>將系統的類別或其他元素分組管理，呈現套件與套件之間的層級與依賴關係。
+                                </p>
+                                <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                    <strong class="text-slate-300">Vibe 妙用：</strong>指示 AI 建立乾淨的目錄樹架構與依賴邊界（Clean Architecture）。
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+                                <span>適用：目錄架構與職責邊界</span>
+                                <span class="text-amber-400">★★★☆☆</span>
+                            </div>
+                        </div>
+
+                        <!-- 7. Profile Diagram -->
+                        <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/70 flex flex-col justify-between">
+                            <div>
+                                <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-teal-500/30 p-2.5 mb-4 flex items-center justify-center overflow-hidden">
+                                    <!-- High-detail SVG: Profile Metamodel & Stereotype Extension -->
+                                    <svg viewBox="0 0 240 100" class="w-full h-full text-teal-400" fill="none">
+                                        <!-- Metaclass Class -->
+                                        <g transform="translate(12, 18)">
+                                            <rect width="90" height="64" rx="3" fill="#134e4a" fill-opacity="0.45" stroke="#2dd4bf" stroke-width="1.4"/>
+                                            <rect width="90" height="22" rx="3" fill="#0f766e" fill-opacity="0.4"/>
+                                            <text x="45" y="11" text-anchor="middle" fill="#ccfbf1" font-size="7" font-family="JetBrains Mono">«metaclass»</text>
+                                            <text x="45" y="20" text-anchor="middle" fill="#e6fffa" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">Class</text>
+                                            <line x1="0" y1="22" x2="90" y2="22" stroke="#2dd4bf" stroke-width="1.2"/>
+                                            <text x="8" y="36" fill="#99f6e4" font-size="7.5" font-family="JetBrains Mono">- isAbstract: bool</text>
+                                            <text x="8" y="48" fill="#99f6e4" font-size="7.5" font-family="JetBrains Mono">- visibility: Visibility</text>
+                                        </g>
+                                        <!-- Extension Arrow (Solid arrow head with filled extension) -->
+                                        <g>
+                                            <line x1="102" y1="50" x2="134" y2="50" stroke="#2dd4bf" stroke-width="1.6"/>
+                                            <polygon points="102,50 112,45 112,55" fill="#2dd4bf"/>
+                                            <text x="118" y="42" text-anchor="middle" fill="#5eead4" font-size="7" font-family="JetBrains Mono">«extend»</text>
+                                        </g>
+                                        <!-- Stereotype: Service -->
+                                        <g transform="translate(136, 14)">
+                                            <rect width="92" height="70" rx="3" fill="#134e4a" fill-opacity="0.5" stroke="#2dd4bf" stroke-width="1.4"/>
+                                            <rect width="92" height="24" rx="3" fill="#0f766e" fill-opacity="0.5"/>
+                                            <text x="46" y="11" text-anchor="middle" fill="#ccfbf1" font-size="7.5" font-family="JetBrains Mono">«stereotype»</text>
+                                            <text x="46" y="21" text-anchor="middle" fill="#e6fffa" font-size="9" font-family="JetBrains Mono" font-weight="bold">ServiceEndpoint</text>
+                                            <line x1="0" y1="24" x2="92" y2="24" stroke="#2dd4bf" stroke-width="1.2"/>
+                                            <text x="7" y="38" fill="#99f6e4" font-size="7.5" font-family="JetBrains Mono">timeoutMs: int = 5000</text>
+                                            <text x="7" y="50" fill="#99f6e4" font-size="7.5" font-family="JetBrains Mono">isIdempotent: bool</text>
+                                            <text x="7" y="62" fill="#5eead4" font-size="7" font-family="JetBrains Mono">{tags, metadata}</text>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-300 text-xs flex items-center justify-center font-mono">7</span>
+                                    <h4 class="text-base font-bold text-white">描述檔圖 (Profile Diagram)</h4>
+                                </div>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    <strong>核心功能：</strong>用來對 UML 進行擴充與領域特定客製化（自定義 Stereotypes、Tagged Values、約束條件 Constraints）。
+                                </p>
+                                <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                    <strong class="text-slate-300">Vibe 妙用：</strong>建立特定領域專用標記（如 Spring `@Service`、DDD `@AggregateRoot` 概念標記）。
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+                                <span>適用：自定義擴充與 DSL 構建</span>
+                                <span class="text-slate-500">★☆☆☆☆</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category 2: Behavioral Diagrams (7 types split into General & Interaction) -->
+                <div>
+                    <div class="flex items-center gap-3 mb-6 pb-2 border-b border-slate-800">
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm">
+                            二
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                行為圖 / 動態圖（Behavioral / Dynamic Diagrams）
+                                <span class="text-xs font-normal text-blue-400 bg-blue-950/80 px-2.5 py-0.5 rounded-full border border-blue-800">共 7 種 • 描述系統的動態行為、執行流程與時間順序</span>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <!-- Subgroup 2.1: General Behavior Diagrams (3 types) -->
+                    <div class="mb-8">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            <h4 class="text-sm font-semibold text-blue-300 tracking-wide">
+                                1. 一般行為圖（Behavior Diagrams，共 3 種）
+                            </h4>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <!-- 8. Use Case Diagram -->
+                            <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/70 flex flex-col justify-between">
+                                <div>
+                                    <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-sky-500/30 p-2.5 mb-4 flex items-center justify-center overflow-hidden">
+                                        <!-- High-detail SVG: Use Case with Actor stickman, system boundary, include & extend -->
+                                        <svg viewBox="0 0 240 100" class="w-full h-full text-sky-400" fill="none">
+                                            <!-- System boundary -->
+                                            <rect x="74" y="6" width="158" height="88" rx="4" stroke="#0284c7" stroke-width="1.2" stroke-dasharray="3 2" fill="#0369a1" fill-opacity="0.1"/>
+                                            <text x="82" y="16" fill="#7dd3fc" font-size="7.5" font-family="JetBrains Mono">Shop System</text>
+                                            <!-- Actor Stickman -->
+                                            <g transform="translate(20, 20)">
+                                                <circle cx="16" cy="12" r="7" stroke="#38bdf8" stroke-width="1.5" fill="#082f49"/>
+                                                <line x1="16" y1="19" x2="16" y2="42" stroke="#38bdf8" stroke-width="1.6"/>
+                                                <line x1="4" y1="28" x2="28" y2="28" stroke="#38bdf8" stroke-width="1.5"/>
+                                                <line x1="16" y1="42" x2="6" y2="60" stroke="#38bdf8" stroke-width="1.6"/>
+                                                <line x1="16" y1="42" x2="26" y2="60" stroke="#38bdf8" stroke-width="1.6"/>
+                                                <text x="16" y="70" text-anchor="middle" fill="#bae6fd" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">Buyer</text>
+                                            </g>
+                                            <!-- Line from Actor to Main Use Case -->
+                                            <line x1="48" y1="44" x2="88" y2="38" stroke="#38bdf8" stroke-width="1.5"/>
+                                            <!-- Use Case 1: Place Order -->
+                                            <g transform="translate(88, 24)">
+                                                <ellipse cx="44" cy="15" rx="42" ry="14" fill="#0369a1" fill-opacity="0.4" stroke="#38bdf8" stroke-width="1.4"/>
+                                                <text x="44" y="18" text-anchor="middle" fill="#f0f9ff" font-size="8" font-family="JetBrains Mono" font-weight="bold">Place Order</text>
+                                            </g>
+                                            <!-- Use Case 2: Process Payment (Include) -->
+                                            <g transform="translate(110, 62)">
+                                                <ellipse cx="40" cy="14" rx="38" ry="13" fill="#0369a1" fill-opacity="0.3" stroke="#38bdf8" stroke-width="1.2"/>
+                                                <text x="40" y="17" text-anchor="middle" fill="#e0f2fe" font-size="7.5" font-family="JetBrains Mono">Pay Stripe</text>
+                                            </g>
+                                            <!-- «include» dashed arrow -->
+                                            <path d="M132 53 L142 63" stroke="#7dd3fc" stroke-width="1.2" stroke-dasharray="2 2"/>
+                                            <polyline points="137,63 142,63 142,58" stroke="#7dd3fc" stroke-width="1.2" fill="none"/>
+                                            <text x="168" y="58" fill="#bae6fd" font-size="6.5" font-family="JetBrains Mono">«include»</text>
+                                        </svg>
+                                    </div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-300 text-xs flex items-center justify-center font-mono">8</span>
+                                        <h5 class="text-base font-bold text-white">使用案例圖 (Use Case)</h5>
+                                    </div>
+                                    <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                        <strong>核心功能：</strong>描繪系統功能（Use Cases）、使用者（Actors）以及兩者之間的互動關係與系統邊界。
+                                    </p>
+                                    <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                        <strong class="text-slate-300">Vibe 妙用：</strong>專案開局時讓 AI 快速確認 MVP 功能邊界，防止需求無窮蔓延（Scope Creep）。
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+                                    <span>適用：PRD 需求定義</span>
+                                    <span class="text-amber-400">★★★★☆</span>
+                                </div>
+                            </div>
+
+                            <!-- 9. Activity Diagram -->
+                            <div class="p-5 rounded-2xl bg-slate-800/90 border border-cyan-500/40 flex flex-col justify-between">
+                                <span class="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 z-10">決策樹必備 ★★★★☆</span>
+                                <div>
+                                    <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-cyan-500/30 p-2.5 mb-4 flex items-center justify-center overflow-hidden">
+                                        <!-- High-detail SVG: Activity with Start, Decision Diamond, Fork & End Node -->
+                                        <svg viewBox="0 0 240 100" class="w-full h-full text-cyan-400" fill="none">
+                                            <!-- Initial State (Solid circle) -->
+                                            <circle cx="20" cy="50" r="7" fill="#06b6d4" stroke="#a5f3fc" stroke-width="1.5"/>
+                                            <line x1="27" y1="50" x2="48" y2="50" stroke="#06b6d4" stroke-width="1.5"/>
+                                            <polyline points="43,46 48,50 43,54" stroke="#06b6d4" stroke-width="1.5" fill="none"/>
+                                            <!-- Action 1: Parse Request -->
+                                            <g transform="translate(50, 36)">
+                                                <rect width="64" height="28" rx="8" fill="#083344" stroke="#06b6d4" stroke-width="1.3"/>
+                                                <text x="32" y="17" text-anchor="middle" fill="#ecfeff" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">Parse JWT</text>
+                                            </g>
+                                            <!-- Arrow to Decision -->
+                                            <line x1="114" y1="50" x2="132" y2="50" stroke="#06b6d4" stroke-width="1.5"/>
+                                            <polyline points="127,46 132,50 127,54" stroke="#06b6d4" stroke-width="1.5" fill="none"/>
+                                            <!-- Decision Diamond -->
+                                            <polygon points="144,38 156,50 144,62 132,50" fill="#0e7490" stroke="#22d3ee" stroke-width="1.4"/>
+                                            <!-- Branch [valid] -> Action 2 -->
+                                            <line x1="156" y1="50" x2="176" y2="50" stroke="#22d3ee" stroke-width="1.5"/>
+                                            <polyline points="171,46 176,50 171,54" stroke="#22d3ee" stroke-width="1.5" fill="none"/>
+                                            <text x="164" y="44" fill="#a5f3fc" font-size="6.5" font-family="JetBrains Mono">[valid]</text>
+                                            <g transform="translate(178, 36)">
+                                                <rect width="40" height="28" rx="8" fill="#083344" stroke="#06b6d4" stroke-width="1.3"/>
+                                                <text x="20" y="17" text-anchor="middle" fill="#ecfeff" font-size="7" font-family="JetBrains Mono">Access</text>
+                                            </g>
+                                            <!-- Branch [invalid] -> Final Bullseye -->
+                                            <path d="M144 62 V78 H210" stroke="#ef4444" stroke-width="1.4"/>
+                                            <polyline points="205,74 210,78 205,82" stroke="#ef4444" stroke-width="1.4" fill="none"/>
+                                            <text x="160" y="73" fill="#fca5a5" font-size="6.5" font-family="JetBrains Mono">[invalid] 401</text>
+                                            <!-- Final State Node (Bullseye) -->
+                                            <circle cx="226" cy="50" r="7" stroke="#06b6d4" stroke-width="1.4" fill="none"/>
+                                            <circle cx="226" cy="50" r="4" fill="#06b6d4"/>
+                                            <line x1="218" y1="50" x2="219" y2="50" stroke="#06b6d4" stroke-width="1.5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="w-5 h-5 rounded-full bg-cyan-900 text-cyan-300 text-xs flex items-center justify-center font-mono">9</span>
+                                        <h5 class="text-base font-bold text-white">活動圖 (Activity Diagram)</h5>
+                                    </div>
+                                    <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                        <strong>核心功能：</strong>流程圖的物件導向版本，描述業務流程、工作流程或演算法執行步驟與分支判斷。
+                                    </p>
+                                    <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                        <strong class="text-cyan-400">Vibe 妙用：</strong>精準控制 If/Else 決策路徑、使用者導引流程（Onboarding）與異常捕獲。
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-xs">
+                                    <span class="text-slate-400 font-mono">Mermaid: flowchart TD</span>
+                                    <button onclick="switchDiagram('activity'); scrollToSection('playground');" class="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-medium">
+                                        實戰演練 <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 10. State Machine Diagram -->
+                            <div class="p-5 rounded-2xl bg-slate-800/90 border border-blue-500/50 shadow-lg shadow-blue-950/40 relative flex flex-col justify-between">
+                                <span class="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40 z-10">防禦型神器 ★★★★★</span>
+                                <div>
+                                    <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-blue-500/30 p-2.5 mb-4 flex items-center justify-center overflow-hidden">
+                                        <!-- High-detail SVG: State Machine with triggers, conditions & transitions -->
+                                        <svg viewBox="0 0 240 100" class="w-full h-full text-blue-400" fill="none">
+                                            <!-- Initial node -->
+                                            <circle cx="16" cy="48" r="6" fill="#3b82f6"/>
+                                            <line x1="22" y1="48" x2="42" y2="48" stroke="#3b82f6" stroke-width="1.5"/>
+                                            <polyline points="37,44 42,48 37,52" stroke="#3b82f6" stroke-width="1.5" fill="none"/>
+                                            <!-- State 1: PENDING -->
+                                            <g transform="translate(44, 28)">
+                                                <rect width="66" height="40" rx="8" fill="#1e3a8a" fill-opacity="0.5" stroke="#60a5fa" stroke-width="1.4"/>
+                                                <text x="33" y="18" text-anchor="middle" fill="#dbeafe" font-size="8" font-family="JetBrains Mono" font-weight="bold">PENDING</text>
+                                                <line x1="0" y1="24" x2="66" y2="24" stroke="#60a5fa" stroke-width="0.8"/>
+                                                <text x="33" y="33" text-anchor="middle" fill="#93c5fd" font-size="6.5" font-family="JetBrains Mono">entry / lockStock</text>
+                                            </g>
+                                            <!-- Forward Transition: paySuccess -->
+                                            <path d="M110 40 H144" stroke="#60a5fa" stroke-width="1.5"/>
+                                            <polyline points="139,36 144,40 139,44" stroke="#60a5fa" stroke-width="1.5" fill="none"/>
+                                            <text x="127" y="34" text-anchor="middle" fill="#bfdbfe" font-size="6.5" font-family="JetBrains Mono">pay200</text>
+                                            <!-- State 2: PAID -->
+                                            <g transform="translate(146, 28)">
+                                                <rect width="60" height="40" rx="8" fill="#1e3a8a" fill-opacity="0.5" stroke="#60a5fa" stroke-width="1.4"/>
+                                                <text x="30" y="18" text-anchor="middle" fill="#dbeafe" font-size="8" font-family="JetBrains Mono" font-weight="bold">PAID</text>
+                                                <line x1="0" y1="24" x2="60" y2="24" stroke="#60a5fa" stroke-width="0.8"/>
+                                                <text x="30" y="33" text-anchor="middle" fill="#93c5fd" font-size="6.5" font-family="JetBrains Mono">do / shipOrder</text>
+                                            </g>
+                                            <!-- Backward rollback loop: timeout -->
+                                            <path d="M150 68 C 130 88, 70 88, 60 68" stroke="#f87171" stroke-width="1.3" stroke-dasharray="3 2" fill="none"/>
+                                            <polyline points="64,74 60,68 67,69" stroke="#f87171" stroke-width="1.3" fill="none"/>
+                                            <text x="105" y="85" text-anchor="middle" fill="#fca5a5" font-size="6.5" font-family="JetBrains Mono">timeout [15m] / cancel</text>
+                                            <!-- End state -->
+                                            <circle cx="225" cy="48" r="7" stroke="#3b82f6" stroke-width="1.3"/>
+                                            <circle cx="225" cy="48" r="4" fill="#3b82f6"/>
+                                            <line x1="206" y1="48" x2="218" y2="48" stroke="#3b82f6" stroke-width="1.5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="w-5 h-5 rounded-full bg-blue-900 text-blue-300 text-xs flex items-center justify-center font-mono">10</span>
+                                        <h5 class="text-base font-bold text-white">狀態機器圖 (State Machine)</h5>
+                                    </div>
+                                    <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                        <strong>核心功能：</strong>描述物件在其生命週期內所經歷的各種狀態，以及如何因事件而轉換狀態。
+                                    </p>
+                                    <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                        <strong class="text-blue-400">Vibe 妙用：</strong>杜絕「未付款偷出貨」或「取消訂單還扣款」等非法狀態跳躍，打造強健狀態機。
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-xs">
+                                    <span class="text-slate-400 font-mono">Mermaid: stateDiagram-v2</span>
+                                    <button onclick="switchDiagram('state'); scrollToSection('playground');" class="text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium">
+                                        實戰演練 <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Subgroup 2.2: Interaction Diagrams (4 types) -->
+                    <div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                            <h4 class="text-sm font-semibold text-indigo-300 tracking-wide">
+                                2. 互動圖（Interaction Diagrams，行為圖的子類別，共 4 種 • 呈現物件/參與者之間的訊息傳遞與互動順序）
+                            </h4>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                            <!-- 11. Sequence Diagram -->
+                            <div class="p-5 rounded-2xl bg-slate-800/90 border border-blue-500/50 shadow-lg shadow-blue-950/40 relative flex flex-col justify-between">
+                                <span class="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40 z-10">AI 協作王牌 ★★★★★</span>
+                                <div>
+                                    <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-sky-500/30 p-2 mb-4 flex items-center justify-center overflow-hidden">
+                                        <!-- High-detail SVG: Sequence Diagram with 3 lifelines, sync request, async callback and return -->
+                                        <svg viewBox="0 0 240 100" class="w-full h-full text-sky-400" fill="none">
+                                            <!-- Lifeline Heads -->
+                                            <rect x="10" y="8" width="46" height="18" rx="3" fill="#0369a1" fill-opacity="0.5" stroke="#38bdf8" stroke-width="1.2"/>
+                                            <text x="33" y="20" text-anchor="middle" fill="#f0f9ff" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">:Client</text>
+                                            <rect x="98" y="8" width="44" height="18" rx="3" fill="#0369a1" fill-opacity="0.5" stroke="#38bdf8" stroke-width="1.2"/>
+                                            <text x="120" y="20" text-anchor="middle" fill="#f0f9ff" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">:API</text>
+                                            <rect x="180" y="8" width="46" height="18" rx="3" fill="#0369a1" fill-opacity="0.5" stroke="#38bdf8" stroke-width="1.2"/>
+                                            <text x="203" y="20" text-anchor="middle" fill="#f0f9ff" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">:DB</text>
+                                            <!-- Dashed lifelines -->
+                                            <line x1="33" y1="26" x2="33" y2="94" stroke="#0284c7" stroke-width="1" stroke-dasharray="2 2"/>
+                                            <line x1="120" y1="26" x2="120" y2="94" stroke="#0284c7" stroke-width="1" stroke-dasharray="2 2"/>
+                                            <line x1="203" y1="26" x2="203" y2="94" stroke="#0284c7" stroke-width="1" stroke-dasharray="2 2"/>
+                                            <!-- Activation boxes -->
+                                            <rect x="30" y="36" width="6" height="48" fill="#38bdf8" stroke="#bae6fd" stroke-width="0.8"/>
+                                            <rect x="117" y="40" width="6" height="38" fill="#38bdf8" stroke="#bae6fd" stroke-width="0.8"/>
+                                            <rect x="200" y="52" width="6" height="16" fill="#38bdf8" stroke="#bae6fd" stroke-width="0.8"/>
+                                            <!-- Sync message 1: Client -> API -->
+                                            <line x1="36" y1="44" x2="117" y2="44" stroke="#38bdf8" stroke-width="1.4"/>
+                                            <polygon points="112,41 117,44 112,47" fill="#38bdf8"/>
+                                            <text x="76" y="40" text-anchor="middle" fill="#e0f2fe" font-size="6.5" font-family="JetBrains Mono">1. POST /login</text>
+                                            <!-- Sync message 2: API -> DB -->
+                                            <line x1="123" y1="56" x2="200" y2="56" stroke="#38bdf8" stroke-width="1.4"/>
+                                            <polygon points="195,53 200,56 195,59" fill="#38bdf8"/>
+                                            <text x="160" y="52" text-anchor="middle" fill="#e0f2fe" font-size="6.5" font-family="JetBrains Mono">2. findUser()</text>
+                                            <!-- Return message: DB -> API -->
+                                            <line x1="200" y1="66" x2="123" y2="66" stroke="#7dd3fc" stroke-width="1.2" stroke-dasharray="2 2"/>
+                                            <polyline points="128,63 123,66 128,69" stroke="#7dd3fc" stroke-width="1.2" fill="none"/>
+                                            <!-- Return message: API -> Client (JWT) -->
+                                            <line x1="117" y1="76" x2="36" y2="76" stroke="#7dd3fc" stroke-width="1.2" stroke-dasharray="2 2"/>
+                                            <polyline points="41,73 36,76 41,79" stroke="#7dd3fc" stroke-width="1.2" fill="none"/>
+                                            <text x="76" y="73" text-anchor="middle" fill="#bae6fd" font-size="6.5" font-family="JetBrains Mono">3. 200 OK {token}</text>
+                                        </svg>
+                                    </div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="w-5 h-5 rounded-full bg-blue-900 text-blue-300 text-xs flex items-center justify-center font-mono">11</span>
+                                        <h5 class="text-base font-bold text-white">順序圖 / 時序圖 (Sequence)</h5>
+                                    </div>
+                                    <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                        <strong>核心功能：</strong>依「時間先後順序」呈現物件與參與者之間傳遞訊息的互動過程。
+                                    </p>
+                                    <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                        <strong class="text-blue-400">Vibe 妙用：</strong>徹底解決前後端 API 呼叫先後順序混亂、JWT 驗證跳過等重大時序失誤！
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-xs">
+                                    <span class="text-slate-400 font-mono">Mermaid: sequenceDiagram</span>
+                                    <button onclick="switchDiagram('sequence'); scrollToSection('playground');" class="text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium">
+                                        實戰演練 <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 12. Communication Diagram -->
+                            <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/70 flex flex-col justify-between">
+                                <div>
+                                    <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-fuchsia-500/30 p-2 mb-4 flex items-center justify-center overflow-hidden">
+                                        <!-- High-detail SVG: Communication Diagram showing Topology Network & Numbered Messages -->
+                                        <svg viewBox="0 0 240 100" class="w-full h-full text-fuchsia-400" fill="none">
+                                            <!-- Object 1: UI -->
+                                            <g transform="translate(15, 36)">
+                                                <rect width="52" height="28" rx="3" fill="#701a75" fill-opacity="0.5" stroke="#e879f9" stroke-width="1.3"/>
+                                                <text x="26" y="17" text-anchor="middle" fill="#fdf4ff" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">:CartUI</text>
+                                            </g>
+                                            <!-- Object 2: Controller -->
+                                            <g transform="translate(100, 10)">
+                                                <rect width="58" height="28" rx="3" fill="#701a75" fill-opacity="0.5" stroke="#e879f9" stroke-width="1.3"/>
+                                                <text x="29" y="17" text-anchor="middle" fill="#fdf4ff" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">:OrderMgr</text>
+                                            </g>
+                                            <!-- Object 3: Inventory -->
+                                            <g transform="translate(168, 54)">
+                                                <rect width="60" height="28" rx="3" fill="#701a75" fill-opacity="0.5" stroke="#e879f9" stroke-width="1.3"/>
+                                                <text x="30" y="17" text-anchor="middle" fill="#fdf4ff" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">:Inventory</text>
+                                            </g>
+                                            <!-- Object 4: Notifier -->
+                                            <g transform="translate(95, 66)">
+                                                <rect width="54" height="26" rx="3" fill="#701a75" fill-opacity="0.5" stroke="#e879f9" stroke-width="1.3"/>
+                                                <text x="27" y="16" text-anchor="middle" fill="#fdf4ff" font-size="7.5" font-family="JetBrains Mono" font-weight="bold">:Notifier</text>
+                                            </g>
+                                            <!-- Topology Links -->
+                                            <line x1="67" y1="44" x2="100" y2="28" stroke="#d946ef" stroke-width="1.4"/>
+                                            <line x1="158" y1="30" x2="175" y2="54" stroke="#d946ef" stroke-width="1.4"/>
+                                            <line x1="129" y1="38" x2="122" y2="66" stroke="#d946ef" stroke-width="1.4"/>
+                                            <!-- Numbered Messages with direction arrows -->
+                                            <g transform="translate(72, 26)">
+                                                <text x="0" y="0" fill="#f5d0fe" font-size="6.5" font-family="JetBrains Mono">1: submit() ➔</text>
+                                            </g>
+                                            <g transform="translate(172, 34)">
+                                                <text x="0" y="0" fill="#f5d0fe" font-size="6.5" font-family="JetBrains Mono">2: reserve() ➔</text>
+                                            </g>
+                                            <g transform="translate(94, 55)">
+                                                <text x="0" y="0" fill="#f5d0fe" font-size="6.5" font-family="JetBrains Mono">3: push() 🠗</text>
+                                            </g>
+                                        </svg>
+                                    </div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-300 text-xs flex items-center justify-center font-mono">12</span>
+                                        <h5 class="text-base font-bold text-white">溝通圖 (Communication)</h5>
+                                    </div>
+                                    <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                        <strong>核心功能：</strong>強調物件之間「連結與拓撲關係」的互動圖（舊版 UML 稱為協作圖 Collaboration Diagram）。
+                                    </p>
+                                    <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                        <strong class="text-slate-300">Vibe 妙用：</strong>用於檢查物件之間的結構耦合度，在重構複雜依賴關係時供 AI 參考。
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+                                    <span>適用：物件關係分析</span>
+                                    <span class="text-slate-500">★★☆☆☆</span>
+                                </div>
+                            </div>
+
+                            <!-- 13. Interaction Overview Diagram -->
+                            <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/70 flex flex-col justify-between">
+                                <div>
+                                    <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-rose-500/30 p-2 mb-4 flex items-center justify-center overflow-hidden">
+                                        <!-- High-detail SVG: Interaction Overview showing sequence blocks embedded into flow branches -->
+                                        <svg viewBox="0 0 240 100" class="w-full h-full text-rose-400" fill="none">
+                                            <!-- Flow container frame -->
+                                            <rect x="8" y="6" width="224" height="88" rx="4" stroke="#f43f5e" stroke-width="1.2" stroke-dasharray="3 2" fill="#881337" fill-opacity="0.15"/>
+                                            <text x="14" y="16" fill="#fecdd3" font-size="7.5" font-family="JetBrains Mono">sd CheckoutOverview</text>
+                                            <!-- Sub-interaction 1: sd Login -->
+                                            <g transform="translate(18, 24)">
+                                                <rect width="60" height="42" rx="3" fill="#4c0519" stroke="#fb7185" stroke-width="1.2"/>
+                                                <rect width="60" height="12" rx="3" fill="#881337"/>
+                                                <text x="30" y="9" text-anchor="middle" fill="#ffe4e6" font-size="6.5" font-family="JetBrains Mono">sd AuthFlow</text>
+                                                <!-- Mini lifelines inside -->
+                                                <line x1="16" y1="16" x2="16" y2="38" stroke="#f43f5e" stroke-width="0.8" stroke-dasharray="1 1"/>
+                                                <line x1="44" y1="16" x2="44" y2="38" stroke="#f43f5e" stroke-width="0.8" stroke-dasharray="1 1"/>
+                                                <line x1="16" y1="24" x2="44" y2="24" stroke="#fb7185" stroke-width="1"/>
+                                                <line x1="44" y1="32" x2="16" y2="32" stroke="#fda4af" stroke-width="0.8" stroke-dasharray="1 1"/>
+                                            </g>
+                                            <!-- Flow control arrow -->
+                                            <line x1="78" y1="45" x2="98" y2="45" stroke="#f43f5e" stroke-width="1.4"/>
+                                            <polygon points="93,42 98,45 93,48" fill="#f43f5e"/>
+                                            <!-- Decision Diamond -->
+                                            <polygon points="108,36 118,45 108,54 98,45" fill="#9f1239" stroke="#fb7185" stroke-width="1.2"/>
+                                            <!-- Sub-interaction 2: sd Pay -->
+                                            <g transform="translate(142, 14)">
+                                                <rect width="78" height="34" rx="3" fill="#4c0519" stroke="#fb7185" stroke-width="1.2"/>
+                                                <rect width="78" height="12" rx="3" fill="#881337"/>
+                                                <text x="39" y="9" text-anchor="middle" fill="#ffe4e6" font-size="6.5" font-family="JetBrains Mono">ref sd StripePay</text>
+                                                <text x="39" y="24" text-anchor="middle" fill="#fecdd3" font-size="6.5" font-family="JetBrains Mono">[Auth Valid]</text>
+                                            </g>
+                                            <line x1="118" y1="45" x2="142" y2="30" stroke="#f43f5e" stroke-width="1.3"/>
+                                            <!-- Sub-interaction 3: sd Relogin -->
+                                            <g transform="translate(142, 54)">
+                                                <rect width="78" height="32" rx="3" fill="#4c0519" stroke="#fb7185" stroke-width="1.2"/>
+                                                <rect width="78" height="12" rx="3" fill="#881337"/>
+                                                <text x="39" y="9" text-anchor="middle" fill="#ffe4e6" font-size="6.5" font-family="JetBrains Mono">ref sd RefreshToken</text>
+                                                <text x="39" y="24" text-anchor="middle" fill="#fecdd3" font-size="6.5" font-family="JetBrains Mono">[Expired]</text>
+                                            </g>
+                                            <line x1="118" y1="45" x2="142" y2="68" stroke="#f43f5e" stroke-width="1.3"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-300 text-xs flex items-center justify-center font-mono">13</span>
+                                        <h5 class="text-base font-bold text-white">互動概觀圖 (Overview)</h5>
+                                    </div>
+                                    <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                        <strong>核心功能：</strong>結合活動圖與順序圖，用來綜觀多個互動流程的宏觀控制邏輯與條件分支。
+                                    </p>
+                                    <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                        <strong class="text-slate-300">Vibe 妙用：</strong>宏觀串接多個時序子流程（例如：登入時序 ➔ 付款時序 ➔ 出貨時序）。
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+                                    <span>適用：高階時序宏觀串聯</span>
+                                    <span class="text-amber-400">★★★☆☆</span>
+                                </div>
+                            </div>
+
+                            <!-- 14. Timing Diagram -->
+                            <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/70 flex flex-col justify-between">
+                                <div>
+                                    <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-yellow-500/30 p-2 mb-4 flex items-center justify-center overflow-hidden">
+                                        <!-- High-detail SVG: Timing Diagram with Timeline, Clock, State Waveforms & Constraints -->
+                                        <svg viewBox="0 0 240 100" class="w-full h-full text-yellow-400" fill="none">
+                                            <!-- State Level Axis Labels -->
+                                            <text x="8" y="24" fill="#fde047" font-size="7" font-family="JetBrains Mono" font-weight="bold">ACTIVE</text>
+                                            <text x="8" y="48" fill="#ca8a04" font-size="7" font-family="JetBrains Mono">IDLE</text>
+                                            <text x="8" y="72" fill="#713f12" font-size="7" font-family="JetBrains Mono">OFF</text>
+                                            <!-- Horizontal Guidelines -->
+                                            <line x1="40" y1="22" x2="230" y2="22" stroke="#713f12" stroke-width="0.8" stroke-dasharray="2 2"/>
+                                            <line x1="40" y1="46" x2="230" y2="46" stroke="#713f12" stroke-width="0.8" stroke-dasharray="2 2"/>
+                                            <line x1="40" y1="70" x2="230" y2="70" stroke="#713f12" stroke-width="0.8" stroke-dasharray="2 2"/>
+                                            <!-- Timeline Base Axis -->
+                                            <line x1="40" y1="84" x2="230" y2="84" stroke="#facc15" stroke-width="1.4"/>
+                                            <!-- Ticks and Time units -->
+                                            <line x1="50" y1="84" x2="50" y2="88" stroke="#facc15" stroke-width="1.2"/>
+                                            <text x="50" y="96" text-anchor="middle" fill="#fef08a" font-size="6.5" font-family="JetBrains Mono">0ms</text>
+                                            <line x1="100" y1="84" x2="100" y2="88" stroke="#facc15" stroke-width="1.2"/>
+                                            <text x="100" y="96" text-anchor="middle" fill="#fef08a" font-size="6.5" font-family="JetBrains Mono">50ms</text>
+                                            <line x1="160" y1="84" x2="160" y2="88" stroke="#facc15" stroke-width="1.2"/>
+                                            <text x="160" y="96" text-anchor="middle" fill="#fef08a" font-size="6.5" font-family="JetBrains Mono">120ms</text>
+                                            <line x1="215" y1="84" x2="215" y2="88" stroke="#facc15" stroke-width="1.2"/>
+                                            <text x="215" y="96" text-anchor="middle" fill="#fef08a" font-size="6.5" font-family="JetBrains Mono">200ms</text>
+                                            <!-- State Pulse Waveform -->
+                                            <path d="M40 70 H65 V46 H115 V22 H175 V46 H205 V70 H230" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <!-- Duration constraint annotation {t < 70ms} -->
+                                            <line x1="115" y1="14" x2="175" y2="14" stroke="#fde047" stroke-width="1.2"/>
+                                            <line x1="115" y1="11" x2="115" y2="17" stroke="#fde047" stroke-width="1.2"/>
+                                            <line x1="175" y1="11" x2="175" y2="17" stroke="#fde047" stroke-width="1.2"/>
+                                            <text x="145" y="10" text-anchor="middle" fill="#fef08a" font-size="6.5" font-family="JetBrains Mono">{process &lt; 70ms}</text>
+                                        </svg>
+                                    </div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="w-5 h-5 rounded-full bg-slate-700 text-slate-300 text-xs flex items-center justify-center font-mono">14</span>
+                                        <h5 class="text-base font-bold text-white">時間圖 (Timing Diagram)</h5>
+                                    </div>
+                                    <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                        <strong>核心功能：</strong>著重在「時間尺度」上，精確觀察物件狀態或具體數值的實時變化與時基約束。
+                                    </p>
+                                    <div class="p-2.5 rounded-lg bg-slate-900 text-xs text-slate-400 border border-slate-800">
+                                        <strong class="text-slate-300">Vibe 妙用：</strong>即時音視訊串流、音訊封包傳輸、硬體通訊協議驅動程式開發。
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+                                    <span>適用：硬體時脈與極限性能優化</span>
+                                    <span class="text-slate-500">★☆☆☆☆</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strategic Summary Callout -->
+                <div class="mt-10 p-5 rounded-2xl bg-gradient-to-r from-cyan-950/40 via-slate-900 to-blue-950/40 border border-cyan-500/30 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 text-lg flex-shrink-0">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-300">
+                            <strong>給現代 Vibe Coder 的實戰建議：</strong> 不需要死記全部 14 種圖！在 AI 輔助開發中，掌握 <strong class="text-cyan-300">時序圖 (Sequence)</strong>、<strong class="text-cyan-300">狀態機器圖 (State)</strong>、<strong class="text-cyan-300">類別圖 (Class)</strong> 與 <strong class="text-cyan-300">活動圖 (Activity)</strong> 這 4 大天王，就能覆蓋 95% 以上的架構溝通與提示詞工程需求！
+                        </p>
+                    </div>
+                    <button onclick="scrollToSection('playground')" class="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold whitespace-nowrap transition active:scale-95 shadow-md flex items-center gap-1.5">
+                        <i class="fa-solid fa-sliders"></i> 前往 4 大必學演練場
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW SECTION: Class Relationships (6 major relationships) -->
+        <section id="class-relationships" class="py-16 bg-slate-950 border-b border-slate-800 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-12">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-cyan-400 text-xs font-semibold mb-3">
+                        <i class="fa-solid fa-link"></i> 物件導向架構基石
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-3">
+                        類別圖的 6 大關係（Class Relationships）
+                    </h2>
+                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                        在最常用的「類別圖」中，物件與類別之間常見 6 種關係。理解這 6 種關係在<strong>耦合強度（由弱到強）</strong>與<strong>生命週期依賴</strong>上的差異，能讓你在使用 Vibe Coding 時精準引導 AI 設計出符合物件導向原則與乾淨架構（Clean Architecture）的程式碼！
+                    </p>
+                </div>
+
+                <!-- Relationship strength gradient bar -->
+                <div class="max-w-4xl mx-auto mb-10 p-4 rounded-2xl bg-slate-900 border border-slate-800">
+                    <div class="flex items-center justify-between text-xs text-slate-400 mb-2 font-mono">
+                        <span class="flex items-center gap-1 text-sky-400"><i class="fa-solid fa-shield-cat"></i> 耦合度最弱（暫時性依賴）</span>
+                        <span class="text-slate-500">關係依賴強度階梯 (由弱到強)</span>
+                        <span class="flex items-center gap-1 text-rose-400">耦合度最強（生命週期緊密綁定） <i class="fa-solid fa-lock"></i></span>
+                    </div>
+                    <div class="w-full h-3 rounded-full bg-gradient-to-r from-sky-500 via-indigo-500 to-rose-500 relative">
+                        <div class="absolute inset-0 flex justify-between items-center px-2 text-[10px] text-white font-bold opacity-80 pointer-events-none">
+                            <span>1.依賴</span>
+                            <span>2.關聯</span>
+                            <span>3.聚合</span>
+                            <span>4.組合</span>
+                            <span>5.泛化/繼承</span>
+                            <span>6.實現</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6 Relationship Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 1. Dependency -->
+                    <div class="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-sky-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                                    強度：最弱 (Use-a)
+                                </span>
+                                <span class="text-xs font-mono text-slate-500">Mermaid: ..&gt;</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-arrow-right-dashed text-sky-400"></i> 1. 依賴（Dependency）
+                            </h3>
+                            <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                <strong>定義：</strong>A 的變動會影響 B，屬於<strong>暫時性關係</strong>。常見於方法參數傳入、區域變數或靜態方法調用。
+                            </p>
+
+                            <!-- High-detail SVG: Dependency Diagram -->
+                            <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-sky-500/30 p-2 mb-3 flex items-center justify-center overflow-hidden">
+                                <svg viewBox="0 0 240 95" class="w-full h-full text-sky-400" fill="none">
+                                    <!-- Class 1: OrderController -->
+                                    <g transform="translate(6, 12)">
+                                        <rect width="98" height="70" rx="3" fill="#082f49" fill-opacity="0.55" stroke="#38bdf8" stroke-width="1.3"/>
+                                        <rect width="98" height="20" rx="3" fill="#0284c7" fill-opacity="0.4"/>
+                                        <text x="49" y="14" text-anchor="middle" fill="#e0f2fe" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">OrderController</text>
+                                        <line x1="0" y1="20" x2="98" y2="20" stroke="#38bdf8" stroke-width="1"/>
+                                        <text x="5" y="32" fill="#94a3b8" font-size="7" font-family="JetBrains Mono">// no permanent field</text>
+                                        <line x1="0" y1="38" x2="98" y2="38" stroke="#38bdf8" stroke-width="0.8"/>
+                                        <text x="5" y="51" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ checkout(s: Payment)</text>
+                                    </g>
+                                    <!-- Dashed Arrow with Open Head (UML Dependency) -->
+                                    <g>
+                                        <line x1="104" y1="48" x2="142" y2="48" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3 2"/>
+                                        <polyline points="134,43 142,48 134,53" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+                                        <text x="123" y="38" text-anchor="middle" fill="#7dd3fc" font-size="6.5" font-family="JetBrains Mono">«use»</text>
+                                    </g>
+                                    <!-- Class 2: PaymentService -->
+                                    <g transform="translate(142, 12)">
+                                        <rect width="92" height="70" rx="3" fill="#082f49" fill-opacity="0.55" stroke="#38bdf8" stroke-width="1.3"/>
+                                        <rect width="92" height="20" rx="3" fill="#0284c7" fill-opacity="0.4"/>
+                                        <text x="46" y="14" text-anchor="middle" fill="#e0f2fe" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">PaymentService</text>
+                                        <line x1="0" y1="20" x2="92" y2="20" stroke="#38bdf8" stroke-width="1"/>
+                                        <text x="5" y="33" fill="#93c5fd" font-size="7" font-family="JetBrains Mono">- apiKey: str</text>
+                                        <line x1="0" y1="40" x2="92" y2="40" stroke="#38bdf8" stroke-width="0.8"/>
+                                        <text x="5" y="53" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ pay(amt): bool</text>
+                                    </g>
+                                </svg>
+                            </div>
+
+                            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-0.5 mb-3">
+                                <div class="text-slate-500">// 程式碼特徵：作為方法參數</div>
+                                <div><span class="text-cyan-400">class</span> <span class="text-amber-300">OrderController</span> {</div>
+                                <div class="pl-3">checkout(<span class="text-purple-400">service</span>: <span class="text-amber-300">PaymentService</span>) {}</div>
+                                <div>}</div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                            <strong class="text-sky-300">Vibe 提醒：</strong>避免長存欄位，指示 AI 透過依賴注入（DI）解耦。
+                        </div>
+                    </div>
+
+                    <!-- 2. Association -->
+                    <div class="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                                    強度：弱至中 (Has-a / Knows-a)
+                                </span>
+                                <span class="text-xs font-mono text-slate-500">Mermaid: --&gt;</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-link text-cyan-400"></i> 2. 關聯（Association）
+                            </h3>
+                            <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                <strong>定義：</strong>類別之間<strong>長期且具備知名度</strong>的連結。A 類別通常將 B 類別作為成員變數保存。
+                            </p>
+
+                            <!-- High-detail SVG: Association Diagram -->
+                            <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-cyan-500/30 p-2 mb-3 flex items-center justify-center overflow-hidden">
+                                <svg viewBox="0 0 240 95" class="w-full h-full text-cyan-400" fill="none">
+                                    <!-- Class 1: Teacher -->
+                                    <g transform="translate(6, 12)">
+                                        <rect width="94" height="70" rx="3" fill="#083344" fill-opacity="0.55" stroke="#06b6d4" stroke-width="1.3"/>
+                                        <rect width="94" height="20" rx="3" fill="#0891b2" fill-opacity="0.4"/>
+                                        <text x="47" y="14" text-anchor="middle" fill="#ecfeff" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">Teacher</text>
+                                        <line x1="0" y1="20" x2="94" y2="20" stroke="#06b6d4" stroke-width="1"/>
+                                        <text x="5" y="33" fill="#67e8f9" font-size="7" font-family="JetBrains Mono">- students: Student[]</text>
+                                        <line x1="0" y1="41" x2="94" y2="41" stroke="#06b6d4" stroke-width="0.8"/>
+                                        <text x="5" y="54" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ teachCourse(): void</text>
+                                    </g>
+                                    <!-- Solid Directed Arrow with Multiplicity (UML Association) -->
+                                    <g>
+                                        <line x1="100" y1="48" x2="144" y2="48" stroke="#06b6d4" stroke-width="1.5"/>
+                                        <polyline points="136,43 144,48 136,53" stroke="#06b6d4" stroke-width="1.5" fill="none"/>
+                                        <text x="105" y="40" fill="#22d3ee" font-size="7.5" font-family="JetBrains Mono">1</text>
+                                        <text x="131" y="40" fill="#22d3ee" font-size="7.5" font-family="JetBrains Mono">0..*</text>
+                                        <text x="122" y="60" text-anchor="middle" fill="#67e8f9" font-size="6.5" font-family="JetBrains Mono">teaches &gt;</text>
+                                    </g>
+                                    <!-- Class 2: Student -->
+                                    <g transform="translate(144, 12)">
+                                        <rect width="90" height="70" rx="3" fill="#083344" fill-opacity="0.55" stroke="#06b6d4" stroke-width="1.3"/>
+                                        <rect width="90" height="20" rx="3" fill="#0891b2" fill-opacity="0.4"/>
+                                        <text x="45" y="14" text-anchor="middle" fill="#ecfeff" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">Student</text>
+                                        <line x1="0" y1="20" x2="90" y2="20" stroke="#06b6d4" stroke-width="1"/>
+                                        <text x="5" y="33" fill="#67e8f9" font-size="7" font-family="JetBrains Mono">- studentId: str</text>
+                                        <text x="5" y="44" fill="#67e8f9" font-size="7" font-family="JetBrains Mono">- grade: int</text>
+                                        <line x1="0" y1="50" x2="90" y2="50" stroke="#06b6d4" stroke-width="0.8"/>
+                                        <text x="5" y="62" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ submitHomework()</text>
+                                    </g>
+                                </svg>
+                            </div>
+
+                            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-0.5 mb-3">
+                                <div class="text-slate-500">// 程式碼特徵：長期成員變數引用</div>
+                                <div><span class="text-cyan-400">class</span> <span class="text-amber-300">Teacher</span> {</div>
+                                <div class="pl-3"><span class="text-purple-400">students</span>: <span class="text-amber-300">Student</span>[];</div>
+                                <div>}</div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                            <strong class="text-cyan-300">Vibe 提醒：</strong>定義 Prisma 或 TypeORM 的一對多、多對多關係模型。
+                        </div>
+                    </div>
+
+                    <!-- 3. Aggregation -->
+                    <div class="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                    強度：中等 (Weak Whole-Part)
+                                </span>
+                                <span class="text-xs font-mono text-slate-500">Mermaid: o--</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2 mb-2">
+                                <i class="fa-regular fa-square text-indigo-400"></i> 3. 聚合（Aggregation）
+                            </h3>
+                            <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                <strong>定義：</strong>整體與部分的關係，但<strong>部分可以獨立於整體而存在</strong>（空心菱形）。整體解散，部分仍完好。
+                            </p>
+
+                            <!-- High-detail SVG: Aggregation Diagram -->
+                            <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-indigo-500/30 p-2 mb-3 flex items-center justify-center overflow-hidden">
+                                <svg viewBox="0 0 240 95" class="w-full h-full text-indigo-400" fill="none">
+                                    <!-- Whole Class: Department -->
+                                    <g transform="translate(6, 12)">
+                                        <rect width="94" height="70" rx="3" fill="#1e1b4b" fill-opacity="0.55" stroke="#818cf8" stroke-width="1.3"/>
+                                        <rect width="94" height="20" rx="3" fill="#4338ca" fill-opacity="0.4"/>
+                                        <text x="47" y="14" text-anchor="middle" fill="#e0e7ff" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">Department</text>
+                                        <line x1="0" y1="20" x2="94" y2="20" stroke="#818cf8" stroke-width="1"/>
+                                        <text x="5" y="33" fill="#a5b4fc" font-size="7" font-family="JetBrains Mono">- staff: Employee[]</text>
+                                        <line x1="0" y1="41" x2="94" y2="41" stroke="#818cf8" stroke-width="0.8"/>
+                                        <text x="5" y="54" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ disband(): void</text>
+                                    </g>
+                                    <!-- Hollow Diamond at Whole side + Line (UML Aggregation) -->
+                                    <g>
+                                        <!-- Hollow diamond touching Whole -->
+                                        <polygon points="100,48 108,42 116,48 108,54" fill="#0f172a" stroke="#818cf8" stroke-width="1.4"/>
+                                        <line x1="116" y1="48" x2="144" y2="48" stroke="#818cf8" stroke-width="1.5"/>
+                                        <text x="96" y="38" fill="#a5b4fc" font-size="7.5" font-family="JetBrains Mono">1</text>
+                                        <text x="131" y="38" fill="#a5b4fc" font-size="7.5" font-family="JetBrains Mono">*</text>
+                                        <text x="124" y="61" text-anchor="middle" fill="#c7d2fe" font-size="6" font-family="JetBrains Mono">can exist</text>
+                                    </g>
+                                    <!-- Part Class: Employee -->
+                                    <g transform="translate(144, 12)">
+                                        <rect width="90" height="70" rx="3" fill="#1e1b4b" fill-opacity="0.55" stroke="#818cf8" stroke-width="1.3"/>
+                                        <rect width="90" height="20" rx="3" fill="#4338ca" fill-opacity="0.4"/>
+                                        <text x="45" y="14" text-anchor="middle" fill="#e0e7ff" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">Employee</text>
+                                        <line x1="0" y1="20" x2="90" y2="20" stroke="#818cf8" stroke-width="1"/>
+                                        <text x="5" y="33" fill="#a5b4fc" font-size="7" font-family="JetBrains Mono">- empId: UUID</text>
+                                        <text x="5" y="44" fill="#a5b4fc" font-size="7" font-family="JetBrains Mono">- name: str</text>
+                                        <line x1="0" y1="50" x2="90" y2="50" stroke="#818cf8" stroke-width="0.8"/>
+                                        <text x="5" y="62" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ work(): void</text>
+                                    </g>
+                                </svg>
+                            </div>
+
+                            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-0.5 mb-3">
+                                <div class="text-slate-500">// 部門解散，員工依然存在</div>
+                                <div><span class="text-cyan-400">class</span> <span class="text-amber-300">Department</span> {</div>
+                                <div class="pl-3"><span class="text-cyan-400">constructor</span>(<span class="text-cyan-400">public</span> <span class="text-purple-400">members</span>: <span class="text-amber-300">Employee</span>[]) {}</div>
+                                <div>}</div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                            <strong class="text-indigo-300">Vibe 提醒：</strong>資料庫設定 `ON DELETE SET NULL`，不隨父級直接被連鎖刪除。
+                        </div>
+                    </div>
+
+                    <!-- 4. Composition -->
+                    <div class="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                    強度：強 (Strong Whole-Part)
+                                </span>
+                                <span class="text-xs font-mono text-slate-500">Mermaid: *--</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-gem text-purple-400"></i> 4. 組合（Composition）
+                            </h3>
+                            <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                <strong>定義：</strong>強烈的整體與部分關係（實心菱形），部分<strong>隨整體的誕生而生、隨整體的毀滅而亡</strong>。
+                            </p>
+
+                            <!-- High-detail SVG: Composition Diagram -->
+                            <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-purple-500/30 p-2 mb-3 flex items-center justify-center overflow-hidden">
+                                <svg viewBox="0 0 240 95" class="w-full h-full text-purple-400" fill="none">
+                                    <!-- Whole Class: Order -->
+                                    <g transform="translate(6, 12)">
+                                        <rect width="94" height="70" rx="3" fill="#3b0764" fill-opacity="0.55" stroke="#c084fc" stroke-width="1.3"/>
+                                        <rect width="94" height="20" rx="3" fill="#7e22ce" fill-opacity="0.4"/>
+                                        <text x="47" y="14" text-anchor="middle" fill="#f3e8ff" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">Order</text>
+                                        <line x1="0" y1="20" x2="94" y2="20" stroke="#c084fc" stroke-width="1"/>
+                                        <text x="5" y="33" fill="#e9d5ff" font-size="7" font-family="JetBrains Mono">- items: OrderItem[]</text>
+                                        <line x1="0" y1="41" x2="94" y2="41" stroke="#c084fc" stroke-width="0.8"/>
+                                        <text x="5" y="54" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ destroy(): void</text>
+                                    </g>
+                                    <!-- Filled Diamond at Whole side + Line (UML Composition) -->
+                                    <g>
+                                        <!-- Solid / Filled diamond touching Whole -->
+                                        <polygon points="100,48 108,42 116,48 108,54" fill="#c084fc" stroke="#c084fc" stroke-width="1.4"/>
+                                        <line x1="116" y1="48" x2="144" y2="48" stroke="#c084fc" stroke-width="1.5"/>
+                                        <text x="96" y="38" fill="#e9d5ff" font-size="7.5" font-family="JetBrains Mono">1</text>
+                                        <text x="128" y="38" fill="#e9d5ff" font-size="7.5" font-family="JetBrains Mono">1..*</text>
+                                        <text x="124" y="61" text-anchor="middle" fill="#d8b4fe" font-size="6" font-family="JetBrains Mono">cascade</text>
+                                    </g>
+                                    <!-- Part Class: OrderItem -->
+                                    <g transform="translate(144, 12)">
+                                        <rect width="90" height="70" rx="3" fill="#3b0764" fill-opacity="0.55" stroke="#c084fc" stroke-width="1.3"/>
+                                        <rect width="90" height="20" rx="3" fill="#7e22ce" fill-opacity="0.4"/>
+                                        <text x="45" y="14" text-anchor="middle" fill="#f3e8ff" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">OrderItem</text>
+                                        <line x1="0" y1="20" x2="90" y2="20" stroke="#c084fc" stroke-width="1"/>
+                                        <text x="5" y="33" fill="#e9d5ff" font-size="7" font-family="JetBrains Mono">- lineItemId: UUID</text>
+                                        <text x="5" y="44" fill="#e9d5ff" font-size="7" font-family="JetBrains Mono">- qty: int</text>
+                                        <line x1="0" y1="50" x2="90" y2="50" stroke="#c084fc" stroke-width="0.8"/>
+                                        <text x="5" y="62" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ calcSubtotal()</text>
+                                    </g>
+                                </svg>
+                            </div>
+
+                            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-0.5 mb-3">
+                                <div class="text-slate-500">// 訂單被刪除，訂單項目隨之消亡</div>
+                                <div><span class="text-cyan-400">class</span> <span class="text-amber-300">Order</span> {</div>
+                                <div class="pl-3"><span class="text-purple-400">items</span> = [<span class="text-cyan-400">new</span> <span class="text-amber-300">OrderItem</span>()];</div>
+                                <div>}</div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                            <strong class="text-purple-300">Vibe 提醒：</strong>在 Prisma Schema 必須要求 AI 配置 `onDelete: Cascade` 連動刪除。
+                        </div>
+                    </div>
+
+                    <!-- 5. Inheritance / Generalization -->
+                    <div class="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                    強度：極強 (Is-a)
+                                </span>
+                                <span class="text-xs font-mono text-slate-500">Mermaid: &lt;|--</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-sitemap text-amber-400"></i> 5. 泛化 / 繼承（Inheritance）
+                            </h3>
+                            <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                <strong>定義：</strong>親子類別關係（空心三角形箭頭指向父類），子類別繼承父類別的屬性與方法，實現程式碼重用與多型。
+                            </p>
+
+                            <!-- High-detail SVG: Generalization / Inheritance Diagram -->
+                            <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-amber-500/30 p-2 mb-3 flex items-center justify-center overflow-hidden">
+                                <svg viewBox="0 0 240 95" class="w-full h-full text-amber-400" fill="none">
+                                    <!-- Parent Class: BaseUser -->
+                                    <g transform="translate(6, 12)">
+                                        <rect width="94" height="70" rx="3" fill="#451a03" fill-opacity="0.55" stroke="#f59e0b" stroke-width="1.3"/>
+                                        <rect width="94" height="20" rx="3" fill="#b45309" fill-opacity="0.4"/>
+                                        <text x="47" y="14" text-anchor="middle" fill="#fef3c7" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">BaseUser</text>
+                                        <line x1="0" y1="20" x2="94" y2="20" stroke="#f59e0b" stroke-width="1"/>
+                                        <text x="5" y="33" fill="#fde68a" font-size="7" font-family="JetBrains Mono"># id: UUID</text>
+                                        <text x="5" y="44" fill="#fde68a" font-size="7" font-family="JetBrains Mono"># email: str</text>
+                                        <line x1="0" y1="50" x2="94" y2="50" stroke="#f59e0b" stroke-width="0.8"/>
+                                        <text x="5" y="62" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ login(): token</text>
+                                    </g>
+                                    <!-- Solid Line with Closed Hollow Triangle pointing to Parent (UML Generalization) -->
+                                    <g>
+                                        <!-- Line from Child (144) to Arrow (110) -->
+                                        <line x1="144" y1="48" x2="112" y2="48" stroke="#f59e0b" stroke-width="1.5"/>
+                                        <!-- Hollow closed triangle pointing left at Parent -->
+                                        <polygon points="100,48 112,41 112,55" fill="#0f172a" stroke="#f59e0b" stroke-width="1.4"/>
+                                        <text x="127" y="38" text-anchor="middle" fill="#fde68a" font-size="6.5" font-family="JetBrains Mono">extends</text>
+                                    </g>
+                                    <!-- Child Class: AdminUser -->
+                                    <g transform="translate(144, 12)">
+                                        <rect width="90" height="70" rx="3" fill="#451a03" fill-opacity="0.55" stroke="#f59e0b" stroke-width="1.3"/>
+                                        <rect width="90" height="20" rx="3" fill="#b45309" fill-opacity="0.4"/>
+                                        <text x="45" y="14" text-anchor="middle" fill="#fef3c7" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">AdminUser</text>
+                                        <line x1="0" y1="20" x2="90" y2="20" stroke="#f59e0b" stroke-width="1"/>
+                                        <text x="5" y="33" fill="#fde68a" font-size="7" font-family="JetBrains Mono">+ permissions: str[]</text>
+                                        <line x1="0" y1="41" x2="90" y2="41" stroke="#f59e0b" stroke-width="0.8"/>
+                                        <text x="5" y="54" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ banUser(id): void</text>
+                                    </g>
+                                </svg>
+                            </div>
+
+                            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-0.5 mb-3">
+                                <div class="text-slate-500">// 子類別繼承父類別</div>
+                                <div><span class="text-cyan-400">class</span> <span class="text-amber-300">AdminUser</span> <span class="text-cyan-400">extends</span> <span class="text-amber-300">BaseUser</span> {</div>
+                                <div class="pl-3">grantSuperAdminRole() {}</div>
+                                <div>}</div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                            <strong class="text-amber-300">Vibe 提醒：</strong>要求 AI 善用 BaseEntity 抽象基類，統一宣告 id、createdAt 等欄位。
+                        </div>
+                    </div>
+
+                    <!-- 6. Realization / Implementation -->
+                    <div class="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                    強度：合約實現 (Can-do)
+                                </span>
+                                <span class="text-xs font-mono text-slate-500">Mermaid: ..|&gt;</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-handshake text-emerald-400"></i> 6. 實現（Realization）
+                            </h3>
+                            <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                <strong>定義：</strong>類別實作介面（Interface）所定義的操作契約（虛線空心三角形箭頭指向介面），是物件導向抽象的核心。
+                            </p>
+
+                            <!-- High-detail SVG: Realization / Implementation Diagram -->
+                            <div class="w-full h-32 rounded-xl bg-slate-950/80 border border-emerald-500/30 p-2 mb-3 flex items-center justify-center overflow-hidden">
+                                <svg viewBox="0 0 240 95" class="w-full h-full text-emerald-400" fill="none">
+                                    <!-- Interface: IPaymentGateway -->
+                                    <g transform="translate(6, 12)">
+                                        <rect width="98" height="70" rx="3" fill="#064e3b" fill-opacity="0.55" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3 2"/>
+                                        <rect width="98" height="24" rx="3" fill="#047857" fill-opacity="0.4"/>
+                                        <text x="49" y="11" text-anchor="middle" fill="#a7f3d0" font-size="6.5" font-family="JetBrains Mono">«interface»</text>
+                                        <text x="49" y="21" text-anchor="middle" fill="#d1fae5" font-size="8" font-family="JetBrains Mono" font-weight="bold">IPaymentGateway</text>
+                                        <line x1="0" y1="24" x2="98" y2="24" stroke="#34d399" stroke-width="1"/>
+                                        <text x="5" y="36" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ charge(amt): bool</text>
+                                        <text x="5" y="48" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ refund(id): void</text>
+                                    </g>
+                                    <!-- Dashed Line with Closed Hollow Triangle pointing to Interface (UML Realization) -->
+                                    <g>
+                                        <!-- Dashed line from Class (144) to Arrow (116) -->
+                                        <line x1="144" y1="48" x2="116" y2="48" stroke="#34d399" stroke-width="1.5" stroke-dasharray="3 2"/>
+                                        <!-- Hollow closed triangle pointing left at Interface -->
+                                        <polygon points="104,48 116,41 116,55" fill="#0f172a" stroke="#34d399" stroke-width="1.4"/>
+                                        <text x="127" y="38" text-anchor="middle" fill="#6ee7b7" font-size="6" font-family="JetBrains Mono">implements</text>
+                                    </g>
+                                    <!-- Implementing Class: StripeGateway -->
+                                    <g transform="translate(144, 12)">
+                                        <rect width="90" height="70" rx="3" fill="#064e3b" fill-opacity="0.55" stroke="#34d399" stroke-width="1.3"/>
+                                        <rect width="90" height="20" rx="3" fill="#047857" fill-opacity="0.4"/>
+                                        <text x="45" y="14" text-anchor="middle" fill="#d1fae5" font-size="8.5" font-family="JetBrains Mono" font-weight="bold">StripeGateway</text>
+                                        <line x1="0" y1="20" x2="90" y2="20" stroke="#34d399" stroke-width="1"/>
+                                        <text x="5" y="33" fill="#a7f3d0" font-size="7" font-family="JetBrains Mono">- secretKey: str</text>
+                                        <line x1="0" y1="41" x2="90" y2="41" stroke="#34d399" stroke-width="0.8"/>
+                                        <text x="5" y="53" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ charge(amt): bool</text>
+                                        <text x="5" y="63" fill="#6ee7b7" font-size="7" font-family="JetBrains Mono">+ refund(id): void</text>
+                                    </g>
+                                </svg>
+                            </div>
+
+                            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-0.5 mb-3">
+                                <div class="text-slate-500">// 類別實作 Interface</div>
+                                <div><span class="text-cyan-400">class</span> <span class="text-amber-300">StripeGateway</span> <span class="text-cyan-400">implements</span> <span class="text-amber-300">IPaymentGateway</span> {</div>
+                                <div class="pl-3">charge(amount: number) {}</div>
+                                <div>}</div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                            <strong class="text-emerald-300">Vibe 提醒：</strong>依賴反轉原則（DIP）的關鍵！指示 AI 依賴介面而非具體實體。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="why-uml" class="py-16 bg-slate-900/50 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-14">
+                    <h2 class="text-3xl font-bold text-white mb-4">
+                        解密「Vibe-UML 正向循環」
+                    </h2>
+                    <p class="text-slate-400 text-sm sm:text-base">
+                        Vibe Coding 不是拒絕規格，而是擺脫冗長的傳統文件，改用簡潔的圖形語法賦予 AI 穿透全端的大局觀。
+                    </p>
+                </div>
+
+                <!-- 4 Step Flow -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="relative p-6 rounded-2xl bg-slate-800/80 border border-slate-700 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl font-bold mb-4">
+                                01
+                            </div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Vibe 快速發想</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                用直覺、口語化語調定義你想打造的產品、受眾與爽點功能。不拘泥細節，先抓感覺。
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-purple-300 flex items-center gap-1.5">
+                            <i class="fa-regular fa-comment-dots"></i> 模糊發想階段
+                        </div>
+                    </div>
+
+                    <div class="relative p-6 rounded-2xl bg-slate-800/80 border border-cyan-500/50 flex flex-col justify-between glow-border">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl font-bold mb-4">
+                                02
+                            </div>
+                            <h3 class="text-lg font-semibold text-white mb-2">UML 錨定架構</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                讓 AI 協助將想法收斂成 <strong>時序圖</strong> 或 <strong>類別圖</strong>。用可視化釐清資料關聯與時序責任。
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-cyan-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-diagram-project"></i> 規格降噪守門人
+                        </div>
+                    </div>
+
+                    <div class="relative p-6 rounded-2xl bg-slate-800/80 border border-slate-700 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl font-bold mb-4">
+                                03
+                            </div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Prompt 精準驅動</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                將 Mermaid 格式的 UML 程式碼貼入 Cursor / Windsurf / Claude，AI 將完全依循架構無幻覺吐出代碼。
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-blue-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-code"></i> 高保真代碼生成
+                        </div>
+                    </div>
+
+                    <div class="relative p-6 rounded-2xl bg-slate-800/80 border border-slate-700 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl font-bold mb-4">
+                                04
+                            </div>
+                            <h3 class="text-lg font-semibold text-white mb-2">持續回饋演進</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                當需求變動，先改 UML 再讓 AI 修復代碼。你的架構圖即是專案最真實活著的文檔！
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-700/60 text-xs text-emerald-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate"></i> 敏捷正向循環
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="playground" class="py-16 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-8">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-sliders"></i> Interactive Sandbox
+                        </div>
+                        <h2 class="text-3xl font-bold text-white">4 大必學 UML 實戰演練場</h2>
+                        <p class="text-slate-400 text-sm mt-1">切換不同圖表類型，實時編輯 Mermaid 代碼並觀看動態渲染結果與 AI 搭配技巧。</p>
+                    </div>
+
+                    <!-- Diagram Switcher Buttons -->
+                    <div class="flex flex-wrap gap-2 mt-4 md:mt-0" id="diagram-tabs">
+                        <button onclick="switchDiagram('sequence')" id="tab-sequence" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border border-cyan-500 bg-cyan-950/70 text-cyan-300 transition">
+                            時序圖 (Sequence)
+                        </button>
+                        <button onclick="switchDiagram('class')" id="tab-class" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800/80 text-slate-300 hover:border-slate-600 transition">
+                            類別圖 (Class)
+                        </button>
+                        <button onclick="switchDiagram('state')" id="tab-state" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800/80 text-slate-300 hover:border-slate-600 transition">
+                            狀態圖 (State)
+                        </button>
+                        <button onclick="switchDiagram('activity')" id="tab-activity" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800/80 text-slate-300 hover:border-slate-600 transition">
+                            活動/流程圖 (Activity)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Playground Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <!-- Left: Code Editor & AI Guidance -->
+                    <div class="lg:col-span-5 flex flex-col space-y-4">
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                            <div class="px-4 py-3 bg-slate-800/60 border-b border-slate-800 flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+                                    <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+                                    <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+                                    <span class="text-xs text-slate-400 font-mono ml-2" id="current-diagram-label">sequence.mmd</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="resetCurrentCode()" class="text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded bg-slate-800 border border-slate-700 transition" title="重置範例代碼">
+                                        <i class="fa-solid fa-arrow-rotate-left mr-1"></i> 重置
+                                    </button>
+                                    <button onclick="copyMermaidCode()" class="text-xs text-cyan-400 hover:text-cyan-300 px-2 py-1 rounded bg-cyan-950/60 border border-cyan-800 transition">
+                                        <i class="fa-regular fa-copy mr-1"></i> 複製語法
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Editor Textarea -->
+                            <div class="p-3">
+                                <textarea id="mermaid-input" rows="12" class="w-full bg-slate-950 text-cyan-200 font-mono text-xs sm:text-sm p-3 rounded-xl border border-slate-800 focus:outline-none focus:border-cyan-500 transition leading-relaxed" oninput="renderMermaidDebounced()"></textarea>
+                            </div>
+                            <div class="px-4 py-2.5 bg-slate-950/40 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
+                                <span>💡 支援直接編輯，右側圖表即時刷新</span>
+                                <span id="render-status" class="text-emerald-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-check"></i> 語法有效
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Card explaining why this UML helps Vibe Coding -->
+                        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800" id="diagram-explain-box">
+                            <h4 class="text-sm font-semibold text-cyan-300 flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-lightbulb"></i> 為什麼 Vibe Coder 需要這個圖？
+                            </h4>
+                            <p class="text-xs text-slate-300 leading-relaxed" id="diagram-explain-text">
+                                時序圖（Sequence Diagram）是與 AI 對齊前後端 API 與身分驗證的最佳媒介。它可以明確規範「使用者 -> 前端 -> 後端 API -> 資料庫」的非同步時序，避免 AI 寫出時序倒錯或少算 Token 檢查的程式碼。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live Rendered Diagram Output -->
+                    <div class="lg:col-span-7">
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col min-h-[460px]">
+                            <div class="px-5 py-3 bg-slate-800/40 border-b border-slate-800 flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-300 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-line text-cyan-400"></i> Mermaid 即時可視化預覽
+                                </span>
+                                <div class="flex items-center gap-2 text-xs">
+                                    <button onclick="zoomMermaid(1.1)" class="p-1.5 text-slate-400 hover:text-white rounded hover:bg-slate-800" title="放大">
+                                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                                    </button>
+                                    <button onclick="zoomMermaid(0.9)" class="p-1.5 text-slate-400 hover:text-white rounded hover:bg-slate-800" title="縮小">
+                                        <i class="fa-solid fa-magnifying-glass-minus"></i>
+                                    </button>
+                                    <button onclick="resetZoom()" class="p-1.5 text-slate-400 hover:text-white rounded hover:bg-slate-800" title="還原比例">
+                                        <i class="fa-solid fa-compress"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex-grow p-6 flex items-center justify-center overflow-auto bg-slate-950/60 relative" id="diagram-container">
+                                <div id="mermaid-output" class="mermaid transition-transform duration-200">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="vibe-generator" class="py-16 bg-slate-900/40 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-12">
+                    <div class="inline-flex items-center gap-1.5 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-wand-magic"></i> Architecture Compiler
+                    </div>
+                    <h2 class="text-3xl font-bold text-white mb-3">Vibe 構想 ➔ UML 與 AI 提示詞一鍵轉譯</h2>
+                    <p class="text-slate-400 text-sm">
+                        選取常見專案範例或輸入你腦中的直覺 Idea，系統會自動梳理出工程級 UML 架構與可以直接貼給 Cursor/Claude 的高質量 Prompt！
+                    </p>
+                </div>
+
+                <!-- Template quick select buttons -->
+                <div class="flex flex-wrap items-center justify-center gap-2 mb-8">
+                    <span class="text-xs text-slate-400 mr-2">快速載入經典情境：</span>
+                    <button onclick="loadVibeScenario('delivery')" class="scenario-btn px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800 text-slate-200 hover:border-cyan-500 transition active:scale-95">
+                        🛵 外送與即時追蹤系統
+                    </button>
+                    <button onclick="loadVibeScenario('aiagent')" class="scenario-btn px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800 text-slate-200 hover:border-cyan-500 transition active:scale-95">
+                        🤖 智慧 RAG 與 AI 助理流程
+                    </button>
+                    <button onclick="loadVibeScenario('saas')" class="scenario-btn px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800 text-slate-200 hover:border-cyan-500 transition active:scale-95">
+                        💳 SaaS 訂閱與權限階層
+                    </button>
+                </div>
+
+                <!-- Input & Output Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Left Column: User Intuitive Vibe Input -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
+                            <label for="user-vibe-input" class="block text-sm font-semibold text-slate-200 mb-2 flex items-center justify-between">
+                                <span><i class="fa-regular fa-comment-dots text-cyan-400 mr-1.5"></i> 你的口語化 Vibe 想法：</span>
+                                <span class="text-xs text-slate-500 font-normal">自然語言發想</span>
+                            </label>
+                            <textarea id="user-vibe-input" rows="8" class="w-full p-3.5 bg-slate-950 text-slate-200 rounded-xl border border-slate-800 text-sm focus:outline-none focus:border-cyan-500 transition leading-relaxed resize-none" placeholder="例如：我想做一個線上團購點餐系統，主揪可以開房間，大家透過連結點菜，系統要算金額、確認付款狀態，最後主揪送出給餐廳..."></textarea>
+                            
+                            <div class="mt-4 flex flex-col sm:flex-row gap-3">
+                                <button onclick="generateArchitectureFromVibe()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white font-medium shadow-md shadow-cyan-500/20 hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-sparkles"></i> 自動淬鍊為 UML 規格
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Architecture Best Practices Card -->
+                        <div class="p-5 rounded-2xl bg-slate-800/40 border border-slate-800 text-xs text-slate-300 space-y-2.5">
+                            <h4 class="font-semibold text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-circle-info text-cyan-400"></i> Vibe Coding 下 Prompt 的黃金公式
+                            </h4>
+                            <div class="p-2.5 rounded bg-slate-950/60 font-mono text-cyan-300 border border-slate-800">
+                                [角色定義] + [Mermaid 架構圖] + [技術堆疊] + [單一職責產出要求]
+                            </div>
+                            <p class="text-slate-400">
+                                只要在 Prompt 中附帶 UML Mermaid 區塊，多數現代 LLM (Claude 3.5 Sonnet, GPT-4o) 會自動進行依賴注入與介面設計，大幅降低程式碼 Bug 產生機率！
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Transformed UML and Ready-to-use Prompt -->
+                    <div class="lg:col-span-7 flex flex-col space-y-4">
+                        <!-- Transformed Prompt Tab Box -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex-grow flex flex-col">
+                            <div class="px-5 py-3 bg-slate-800/50 border-b border-slate-800 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <button onclick="switchPromptTab('prompt')" id="tab-prompt-btn" class="px-3 py-1 rounded-lg text-xs font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800">
+                                        🚀 完整 AI Prompt（可直接複製）
+                                    </button>
+                                    <button onclick="switchPromptTab('uml')" id="tab-uml-btn" class="px-3 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200">
+                                        📊 Mermaid UML 原始碼
+                                    </button>
+                                </div>
+                                <button onclick="copyGeneratedOutput()" class="text-xs text-white px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 font-medium transition flex items-center gap-1.5">
+                                    <i class="fa-regular fa-clipboard"></i> 一鍵複製內容
+                                </button>
+                            </div>
+
+                            <div class="p-4 flex-grow relative bg-slate-950">
+                                <!-- Prompt View -->
+                                <div id="view-prompt" class="h-full">
+                                    <pre id="generated-prompt-box" class="w-full h-80 overflow-y-auto text-xs text-slate-300 font-mono p-3 bg-slate-900/90 rounded-xl border border-slate-800 leading-relaxed whitespace-pre-wrap select-all"></pre>
+                                </div>
+                                <!-- Raw UML View (Hidden by default) -->
+                                <div id="view-uml" class="h-full hidden">
+                                    <pre id="generated-uml-box" class="w-full h-80 overflow-y-auto text-xs text-cyan-300 font-mono p-3 bg-slate-900/90 rounded-xl border border-slate-800 leading-relaxed whitespace-pre-wrap select-all"></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mini Live Diagram of the Generated Vibe -->
+                        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+                            <div class="text-xs font-semibold text-slate-300 mb-2 flex items-center gap-1.5">
+                                <i class="fa-solid fa-eye text-cyan-400"></i> 本規格的即時渲染架構圖：
+                            </div>
+                            <div id="vibe-mermaid-preview" class="mermaid overflow-x-auto p-2 bg-slate-950 rounded-xl flex justify-center">
+                                <!-- Rendered dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="quiz-section" class="py-16 border-b border-slate-800">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center gap-1.5 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-brain"></i> Interactive Challenge
+                    </div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Vibe Coder vs. 架構師 思維挑戰</h2>
+                    <p class="text-slate-400 text-sm">測驗你在 AI 協作時，能否選對最適當的 UML 圖形避免災難！</p>
+                </div>
+
+                <!-- Quiz Container -->
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden" id="quiz-card">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                        <span class="text-xs font-semibold text-cyan-400" id="quiz-progress">問題 1 / 3</span>
+                        <span class="text-xs text-slate-400">難易度：實戰思維題</span>
+                    </div>
+
+                    <div id="quiz-content">
+                        <!-- Dynamic Question Header -->
+                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3" id="quiz-question">
+                            你正請 AI 實作「第三方支付金流串接（Stripe/綠界）」，AI 老是遺漏 Webhook 簽名驗證、回調重試與訂單狀態超時。此時你應該在 Prompt 提供哪種圖表？
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-6" id="quiz-scenario-hint">
+                            提示：這個痛點的核心在於「非同步通信各參與者的調用順序」與「多個系統間事件通知的先後依賴」。
+                        </p>
+
+                        <!-- Options List -->
+                        <div class="space-y-3" id="quiz-options">
+                            <!-- Options injected by JS -->
+                        </div>
+
+                        <!-- Feedback Message Box -->
+                        <div id="quiz-feedback" class="mt-6 p-4 rounded-xl text-xs sm:text-sm hidden leading-relaxed"></div>
+                    </div>
+
+                    <!-- Navigation for Quiz -->
+                    <div class="mt-8 pt-4 border-t border-slate-800 flex justify-between items-center">
+                        <button onclick="prevQuiz()" id="quiz-prev-btn" class="px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed">
+                            上一題
+                        </button>
+                        <button onclick="nextQuiz()" id="quiz-next-btn" class="px-5 py-2 rounded-lg text-xs font-medium text-white bg-cyan-600 hover:bg-cyan-500 transition">
+                            下一題
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cheatsheet" class="py-16 bg-slate-900/60">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-14">
+                    <div class="inline-flex items-center gap-1.5 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-book-bookmark"></i> Cheatsheet & Templates
+                    </div>
+                    <h2 class="text-3xl font-bold text-white mb-3">AI 逆向工程與架構手冊</h2>
+                    <p class="text-slate-400 text-sm">
+                        如何讓 AI 把現有混亂的 Spaghetti Code 逆向畫成 UML？以及如何在 Cursor 規則中內建 UML 規範？
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Template 1: Reverse Engineering Prompt -->
+                    <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-code-merge text-indigo-400"></i>
+                                    模板一：混亂代碼 ➔ 逆向轉成 UML
+                                </h3>
+                                <button onclick="copySnippet('reverse-prompt')" class="text-xs text-slate-400 hover:text-cyan-300">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-3">
+                                接手別人（或前幾天 Vibe 出來）的一千行混亂程式碼？用這段 Prompt 請 AI 自動畫圖幫你整理架構：
+                            </p>
+                            <pre id="reverse-prompt" class="p-3 bg-slate-950 rounded-xl text-xs text-slate-300 font-mono overflow-x-auto border border-slate-800 leading-relaxed">請仔細分析以下程式碼，不要直接重構。
+請執行下列兩步驟：
+1. 繪製標準 Mermaid sequenceDiagram（時序圖），梳理出前端請求、服務層、資料庫與外部依賴的互動全流程。
+2. 繪製 Mermaid classDiagram，歸納主要實體模型（Entity）與函式介面。
+3. 點出代碼中缺乏防禦、可能造成記憶體洩漏或狀態混亂的架構漏洞。
+
+[貼上混亂代碼]</pre>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-500">
+                            適用情境：專案重構、接手遺留系統、Code Review
+                        </div>
+                    </div>
+
+                    <!-- Template 2: Cursor / Windsurf Rules Template -->
+                    <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-shield-cat text-cyan-400"></i>
+                                    模板二：.cursorrules / System Prompt 規範
+                                </h3>
+                                <button onclick="copySnippet('rules-prompt')" class="text-xs text-slate-400 hover:text-cyan-300">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-3">
+                                將此段加到你的專案 `.cursorrules` 或 AI System Prompt 中，強制 AI 先設計再寫代碼：
+                            </p>
+                            <pre id="rules-prompt" class="p-3 bg-slate-950 rounded-xl text-xs text-slate-300 font-mono overflow-x-auto border border-slate-800 leading-relaxed">【架構優先設計原則 (Spec-First Architecture)】
+在為此專案生成任何多檔案新功能前：
+1. 必須先以 Mermaid 繪製簡短 UML 狀態圖或時序圖，確認資料流向與邊界狀態。
+2. 保持元件單一職責（SRP）。若牽涉非同步狀態，需明確定義 Loading / Success / Error 狀態機。
+3. 確認架構獲我同意後，才開始編寫代碼。代碼變數命名必須與 UML 圖形中的命名 100% 嚴格一致。</pre>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-500">
+                            適用情境：Cursor Rules、Windsurf Workflows、Claude Project Instructions
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Mermaid Cheat Sheet Table -->
+                <div class="mt-12 bg-slate-900 rounded-2xl border border-slate-800 p-6">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-table-list text-cyan-400"></i> Vibe Coder 最常使用的 4 種 Mermaid 語法速記
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300 border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400 font-semibold">
+                                    <th class="py-2.5 px-3">UML 類型</th>
+                                    <th class="py-2.5 px-3">關鍵宣告</th>
+                                    <th class="py-2.5 px-3">AI 提效核心價值</th>
+                                    <th class="py-2.5 px-3">推薦 Prompt 搭配詞</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60 font-mono">
+                                <tr>
+                                    <td class="py-3 px-3 text-cyan-400 font-sans font-medium">時序圖</td>
+                                    <td class="py-3 px-3">sequenceDiagram<br>A-&gt;&gt;B: 調用</td>
+                                    <td class="py-3 px-3 font-sans">理順跨系統、非同步 API 調用與 JWT 身分驗證</td>
+                                    <td class="py-3 px-3 font-sans text-slate-400">「請依循時序圖先實作 Controller 再補 Service」</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-3 text-cyan-400 font-sans font-medium">狀態圖</td>
+                                    <td class="py-3 px-3">stateDiagram-v2<br>[*] --&gt; Pending</td>
+                                    <td class="py-3 px-3 font-sans">防止非法狀態跳躍（如：未付款卻直接發貨）</td>
+                                    <td class="py-3 px-3 font-sans text-slate-400">「請用 TypeScript Enum 嚴格實作此狀態機」</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-3 text-cyan-400 font-sans font-medium">類別圖</td>
+                                    <td class="py-3 px-3">classDiagram<br>User &lt;|-- Admin</td>
+                                    <td class="py-3 px-3 font-sans">確定 Prisma / TypeORM / Pydantic 模型關聯</td>
+                                    <td class="py-3 px-3 font-sans text-slate-400">「請依據類別圖生成 Prisma Schema 與 Migration」</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-3 text-cyan-400 font-sans font-medium">流程圖</td>
+                                    <td class="py-3 px-3">flowchart TD<br>A{判斷} --&gt;|Yes| B</td>
+                                    <td class="py-3 px-3 font-sans">處理使用者 Onboarding 流程與決策樹分歧</td>
+                                    <td class="py-3 px-3 font-sans text-slate-400">「請確保每個菱形條件判斷都有單元測試覆蓋」</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Custom Toast Notification for user feedback (replaces alert) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2.5 bg-slate-900 border border-cyan-500 text-white px-4 py-3 rounded-xl shadow-2xl">
+        <i class="fa-solid fa-circle-check text-cyan-400 text-base" id="toast-icon"></i>
+        <span class="text-xs font-medium" id="toast-msg">已成功複製到剪貼簿！</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-8 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-slate-400">
+                <span class="font-bold text-slate-300">Vibe Coding ✕ UML 指南</span>
+                <span>• 為現代 AI 工程師而生</span>
+            </div>
+            <p>
+                「先圖後碼，直覺不羈，架構不倒。」
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Mermaid with Dark Slate modern theme
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            themeVariables: {
+                darkMode: true,
+                background: '#020617',
+                primaryColor: '#0ea5e9',
+                primaryTextColor: '#f8fafc',
+                primaryBorderColor: '#0284c7',
+                lineColor: '#38bdf8',
+                secondaryColor: '#1e293b',
+                tertiaryColor: '#0f172a'
+            },
+            fontFamily: 'Inter, system-ui, sans-serif'
+        });
+
+        // Predefined UML templates for the Playground
+        const DIAGRAM_PRESETS = {
+            sequence: {
+                label: 'sequence_auth.mmd',
+                code: `sequenceDiagram
+    autonumber
+    actor User as 使用者 (Client)
+    participant UI as 前端 Web App
+    participant API as 後端 Gateway
+    participant AI as Claude / LLM 核心
+    participant DB as Vector / SQL 資料庫
+
+    User->>UI: 點擊「一鍵分析並產出架構」
+    UI->>API: POST /api/analyze (帶有 JWT & Prompt)
+    API->>API: 檢查使用者配額 (Rate Limit)
+    
+    rect rgb(20, 30, 50)
+        note right of API: 向量檢索上下文增強 (RAG)
+        API->>DB: 相似度向量檢索相關 Schema
+        DB-->>API: 回傳架構參考文件
+    end
+
+    API->>AI: 傳送系統 Prompt + 使用者需求
+    AI-->>API: 串流回傳結構化 Mermaid UML
+    API-->>UI: Server-Sent Events (SSE) 即時推播
+    UI-->>User: 畫面動態渲染即時圖形`,
+                explain: "時序圖（Sequence Diagram）是與 AI 對齊前後端 API 與身分驗證的最佳媒介。它可以明確規範「使用者 -> 前端 -> 後端 API -> 資料庫」的非同步時序，避免 AI 寫出時序倒錯或漏掉 Token 檢查的程式碼。"
+            },
+            class: {
+                label: 'domain_classes.mmd',
+                code: `classDiagram
+    class User {
+        +String id
+        +String email
+        +UserRole role
+        +createProject(name: String) Project
+        +upgradeSubscription() Boolean
+    }
+
+    class Project {
+        +String id
+        +String title
+        +String mermaidCode
+        +DateTime createdAt
+        +exportUML(format: ExportType)
+    }
+
+    class AIArchitectAgent {
+        +String modelVersion
+        +synthesizeRequirements(prompt: String) String
+        +validateMermaidSyntax(code: String) Boolean
+    }
+
+    User "1" --> "*" Project : 擁有建立
+    AIArchitectAgent ..> Project : 產生並審查規範`,
+                explain: "類別圖（Class Diagram）是實體關聯與資料庫 Schema 的守門人。直接給 AI 類別圖，AI 在寫 Prisma Schema、TypeScript Interfaces 或 Python Pydantic Models 時就不會憑空捏造不存在的欄位。"
+            },
+            state: {
+                label: 'payment_state.mmd',
+                code: `stateDiagram-v2
+    [*] --> 購物車草稿
+
+    購物車草稿 --> 待付款: 送出訂單結帳
+    
+    state 待付款 {
+        [*] --> 發送StripeSession
+        發送StripeSession --> 等待Webhook回調
+        等待Webhook回調 --> 驗證簽名
+    }
+
+    待付款 --> 付款成功: Webhook 200 OK (支付驗證通過)
+    待付款 --> 付款逾時: 超過15分鐘未付款
+    待付款 --> 交易失敗: 信用卡授權拒絕
+
+    付款成功 --> 出貨準備中: 觸發配送微服務
+    付款逾時 --> 訂單已取消: 釋出庫存鎖定
+    交易失敗 --> 待付款: 使用者重試支付
+    出貨準備中 --> [*]`,
+                explain: "狀態機（State Diagram）能斬斷 80% 的狀態邏輯 Bug。當專案涉及訂單、任務排程、音訊錄製等具有多個生命週期的功能時，狀態圖能阻止 AI 寫出「未付款就偷偷發貨」的荒謬邏輯。"
+            },
+            activity: {
+                label: 'onboarding_flow.mmd',
+                code: `flowchart TD
+    Start([使用者登入系統]) --> HasWorkspace{是否已有專案空間?}
+    
+    HasWorkspace -- 否 --> CreateOrg[引導創建個人/團隊 Workspace]
+    CreateOrg --> InputVibe[進入 Vibe Coding 提示詞編輯器]
+    
+    HasWorkspace -- 是 --> SelectProject[載入既有專案與架構歷史]
+    SelectProject --> InputVibe
+
+    InputVibe --> AIProcess[AI 剖析語意並生成 Mermaid UML]
+    AIProcess --> ValidCheck{語法是否合法?}
+
+    ValidCheck -- 否 --> AutoFix[AI 自我校正修復語法]
+    AutoFix --> ValidCheck
+
+    ValidCheck -- 是 --> RenderPreview[前端動態渲染架構圖]
+    RenderPreview --> End([工程師確認並一鍵產生代碼])`,
+                explain: "活動/流程圖（Activity/Flowchart）非常適合用來梳理「使用者旅程（User Journey）」與「條件判斷決策樹」。它能清楚向 AI 表明所有的 If/Else 邊界與重試機制。"
+            }
+        };
+
+        let currentDiagramKey = 'sequence';
+        let zoomLevel = 1.0;
+        let renderDebounceTimer = null;
+
+        function switchDiagram(type) {
+            currentDiagramKey = type;
+            
+            // Update Tab styles
+            ['sequence', 'class', 'state', 'activity'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === type) {
+                    btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-cyan-500 bg-cyan-950/70 text-cyan-300 transition";
+                } else {
+                    btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800/80 text-slate-300 hover:border-slate-600 transition";
+                }
+            });
+
+            // Update Input and Explanation
+            const preset = DIAGRAM_PRESETS[type];
+            document.getElementById('mermaid-input').value = preset.code;
+            document.getElementById('current-diagram-label').innerText = preset.label;
+            document.getElementById('diagram-explain-text').innerText = preset.explain;
+
+            renderMermaid();
+        }
+
+        function resetCurrentCode() {
+            document.getElementById('mermaid-input').value = DIAGRAM_PRESETS[currentDiagramKey].code;
+            renderMermaid();
+            showToast("已重置為預設範例代碼");
+        }
+
+        function renderMermaidDebounced() {
+            clearTimeout(renderDebounceTimer);
+            renderDebounceTimer = setTimeout(() => {
+                renderMermaid();
+            }, 400);
+        }
+
+        async function renderMermaid() {
+            const rawCode = document.getElementById('mermaid-input').value.trim();
+            const outputDiv = document.getElementById('mermaid-output');
+            const statusIndicator = document.getElementById('render-status');
+
+            try {
+                // Clear and render fresh SVG
+                outputDiv.removeAttribute('data-processed');
+                outputDiv.innerHTML = rawCode;
+                await mermaid.run({
+                    nodes: [outputDiv]
+                });
+                statusIndicator.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> <span class="text-emerald-400">語法有效</span>`;
+            } catch (err) {
+                console.warn("Mermaid syntax error:", err);
+                statusIndicator.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400"></i> <span class="text-amber-400">語法修正中...</span>`;
+            }
+        }
+
+        // Zoom helpers
+        function zoomMermaid(factor) {
+            zoomLevel = Math.max(0.5, Math.min(2.0, zoomLevel * factor));
+            const el = document.getElementById('mermaid-output');
+            el.style.transform = `scale(${zoomLevel})`;
+            el.style.transformOrigin = 'center center';
+        }
+
+        function resetZoom() {
+            zoomLevel = 1.0;
+            const el = document.getElementById('mermaid-output');
+            el.style.transform = `scale(1)`;
+        }
+
+        const SCENARIOS = {
+            delivery: {
+                vibe: "我想做一個即時美食外送配對系統。顧客下單並付款後，系統會廣播給周圍 3 公里的外送員搶單；外送員接單後前往餐廳取餐，取餐完成後送往顧客地址；顧客可以在 App 上即時看到外送員經緯度與訂單狀態（準備中、外送中、已送達）。",
+                uml: `sequenceDiagram
+    autonumber
+    actor Customer as 顧客 (App)
+    participant Server as 訂單中心 (API)
+    participant Matcher as 即時配對廣播引擎
+    actor Rider as 外送員 (Rider App)
+    
+    Customer->>Server: 建立訂單並完成支付 (Stripe)
+    Server->>Server: 鎖定訂單並計算推薦路線
+    Server->>Matcher: 廣播訂單至半徑 3km 內外送員
+    Matcher->>Rider: 推播搶單通知 (Push Notification)
+    
+    Rider->>Matcher: 接受訂單 (搶單成功)
+    Matcher-->>Server: 更新訂單外送員指派 ID
+    
+    rect rgb(25, 35, 55)
+        note over Rider, Customer: WebSocket 即時座標追蹤
+        Rider->>Server: 抵達餐廳取餐 -> 狀態更新為 [外送中]
+        Rider->>Server: 定時回傳 GPS (Lat, Lng)
+        Server-->>Customer: WebSocket 推播外送員最新動態軌跡
+    end
+
+    Rider->>Server: 送達顧客地址並拍照上傳 [已完成]
+    Server-->>Customer: 推送送達推播與評價邀請`,
+                prompt: `【角色設定】你是一位資深的全端架構師與即時分散式系統專家。
+【任務目標】請依照以下業務需求與 Mermaid 時序圖架構，實作「外送即時配對與訂單追蹤服務」的核心代碼。
+
+【業務與架構時序圖】
+\`\`\`mermaid
+sequenceDiagram
+    autonumber
+    actor Customer as 顧客 (App)
+    participant Server as 訂單中心 (API)
+    participant Matcher as 即時配對廣播引擎
+    actor Rider as 外送員 (Rider App)
+    
+    Customer->>Server: 建立訂單並完成支付 (Stripe)
+    Server->>Matcher: 廣播訂單至半徑 3km 內外送員
+    Rider->>Matcher: 接受訂單 (搶單成功)
+    Rider->>Server: WebSocket 定時回傳 GPS
+    Server-->>Customer: 即時推播外送員最新動態軌跡
+    Rider->>Server: 送達顧客地址 [已完成]
+\`\`\`
+
+【實作約束條件】
+1. 使用 TypeScript + Node.js (Fastify/Express) 搭配 Socket.io 處理即時位置。
+2. 針對「搶單競爭條件 (Race Condition)」，必須使用 Redis Distributed Lock (紅鎖/SETNX) 確保同一筆訂單絕不會被兩名外送員同時接單。
+3. 嚴格定義訂單狀態 Enum：CREATED -> PAID -> MATCHING -> PICKING_UP -> DELIVERING -> COMPLETED。
+4. 提供簡潔的單元測試案例驗證搶單成功與失敗流程。`
+            },
+            aiagent: {
+                vibe: "我想做一個企業專屬的智慧客服 RAG Agent。使用者輸入提問時，系統先做意圖辨識（判斷是常見 FAQ、查訂單還是需要真人客服）；如果是 FAQ 則去向量資料庫 (Pinecone) 搜 Top 3 知識片段並交給 LLM 回答；若向量分數過低，則無縫轉接至真人客服工作台。",
+                uml: `flowchart TD
+    User([顧客提問輸入]) --> Guard[安全過濾與 PII 去敏感化]
+    Guard --> Intent{意圖識別分類}
+
+    Intent -->|查詢訂單資料| OrderAPI[調用內部訂單系統 GraphQL]
+    OrderAPI --> LLMCombine[LLM 整合訂單狀態回應用戶]
+
+    Intent -->|知識庫問題| VectorSearch[檢索 Pinecone 向量資料庫]
+    VectorSearch --> ScoreCheck{相似度分數 > 0.82?}
+    
+    ScoreCheck -- 是 --> RAGPrompt[組合 Context 產生 Prompt]
+    RAGPrompt --> LLMAnswer[LLM 生成專業解答]
+    
+    ScoreCheck -- 否 --> TransferLive[發送 Webhook 轉接真人客服工作台]
+    
+    LLMAnswer --> LogDB[(存入對話稽核日誌)]
+    LLMCombine --> LogDB
+    TransferLive --> End([等待真人接聽])
+    LogDB --> ReplyUser([回覆給顧客])`,
+                prompt: `【角色設定】你是一位資深的 AI 工程師與 LangChain/LlamaIndex 架構專家。
+【任務目標】請依照以下決策流程圖，以 Python (FastAPI + LangChain) 實作高強健度的 RAG 智慧路由客服管線。
+
+【流程與決策架構】
+\`\`\`mermaid
+flowchart TD
+    User([顧客提問輸入]) --> Intent{意圖識別分類}
+    Intent -->|查詢訂單| OrderAPI[調用內部訂單系統]
+    Intent -->|知識庫問題| VectorSearch[檢索向量資料庫]
+    VectorSearch --> ScoreCheck{相似度分數 > 0.82?}
+    ScoreCheck -- 是 --> LLMAnswer[LLM 依據 Context 解答]
+    ScoreCheck -- 否 --> TransferLive[轉接真人客服工作台]
+\`\`\`
+
+【實作約束條件】
+1. 包含向量相似度門檻值判斷（Threshold Fallback），分數低於 0.82 時絕對不可硬答或幻覺，必須觸發真人客服轉接事件。
+2. 嚴格遵循非同步呼叫 (async/await)，並加入重試機制與結構化 JSON 日誌。`
+            },
+            saas: {
+                vibe: "我要做一個多租戶（Multi-Tenant）的 SaaS 權限系統。有 Free、Pro、Enterprise 三種方案。Organization 底下可以有多位成員，成員有 Owner, Admin, Member 權限。系統要能防止 Free 方案超額建立專案，並支援團隊成員邀請連結與 Stripe 計費週期轉換。",
+                uml: `classDiagram
+    class Organization {
+        +String id
+        +String name
+        +PlanTier tier
+        +Int maxProjectsAllowed
+        +hasAvailableProjectSlot() Boolean
+    }
+
+    class User {
+        +String id
+        +String email
+        +String name
+    }
+
+    class Membership {
+        +String orgId
+        +String userId
+        +MemberRole role
+        +canCreateProject() Boolean
+        +canManageBilling() Boolean
+    }
+
+    class Project {
+        +String id
+        +String orgId
+        +String title
+    }
+
+    Organization "1" -- "*" Membership : 擁有成員關係
+    User "1" -- "*" Membership : 參與組織
+    Organization "1" -- "*" Project : 容納專案`,
+                prompt: `【角色設定】你是一位資深的雲端 SaaS 資料庫與資安架構師。
+【任務目標】請依照下列類別圖與多租戶約束，為 Next.js / NestJS 專案設計完整的 Prisma Schema 與 RBAC 權限中介軟體 (Middleware)。
+
+【架構類別圖】
+\`\`\`mermaid
+classDiagram
+    class Organization {
+        +String id
+        +PlanTier tier
+        +Int maxProjectsAllowed
+        +hasAvailableProjectSlot() Boolean
+    }
+    class User {
+        +String id
+        +String email
+    }
+    class Membership {
+        +MemberRole role
+        +canCreateProject() Boolean
+    }
+    class Project {
+        +String id
+        +String orgId
+    }
+    Organization "1" -- "*" Membership
+    User "1" -- "*" Membership
+    Organization "1" -- "*" Project
+\`\`\`
+
+【實作約束條件】
+1. 提供 Prisma Schema，設置外鍵串聯刪除 (Cascade) 與唯一的複合索引 (如 @@unique([orgId, userId]))。
+2. 撰寫一個可重複使用的 Permission Guard，確保只有 Owner 與 Admin 且在專案額度內時才允許呼叫 POST /projects。`
+            }
+        };
+
+        function loadVibeScenario(key) {
+            const data = SCENARIOS[key];
+            if (!data) return;
+
+            document.getElementById('user-vibe-input').value = data.vibe;
+            document.getElementById('generated-prompt-box').innerText = data.prompt;
+            document.getElementById('generated-uml-box').innerText = data.uml;
+
+            // Render mini preview
+            renderVibeMermaidPreview(data.uml);
+            showToast(`已載入「${key === 'delivery' ? '外送即時追蹤' : key === 'aiagent' ? 'AI 助理 RAG' : 'SaaS 權限架構'}」情境範例！`);
+        }
+
+        async function renderVibeMermaidPreview(code) {
+            const previewEl = document.getElementById('vibe-mermaid-preview');
+            try {
+                previewEl.removeAttribute('data-processed');
+                previewEl.innerHTML = code;
+                await mermaid.run({
+                    nodes: [previewEl]
+                });
+            } catch (e) {
+                console.error("Preview render failed", e);
+            }
+        }
+
+        function generateArchitectureFromVibe() {
+            const input = document.getElementById('user-vibe-input').value.trim();
+            if (!input) {
+                showToast("請先輸入您的口語化發想想法！", true);
+                return;
+            }
+
+            // Synthesize into smart prompt + sequence UML
+            const synthesizedUML = `sequenceDiagram
+    autonumber
+    actor User as 使用者端 (Client)
+    participant Gateway as API 閘道器
+    participant CoreService as 核心業務處理模組
+    participant StateEngine as 狀態校驗機
+    participant Storage as 資料持久層 (Database)
+
+    User->>Gateway: 發起動作請求 (附帶使用者 Session Token)
+    Gateway->>Gateway: 驗證授權與邊界 Rate Limit
+    Gateway->>CoreService: 調用核心商業邏輯: ${input.slice(0, 20)}...
+    
+    rect rgb(20, 35, 60)
+        note right of CoreService: 依循狀態防護欄校驗
+        CoreService->>StateEngine: 檢查合法前置狀態
+        StateEngine-->>CoreService: 狀態確認合格
+    end
+
+    CoreService->>Storage: 寫入異動與事務鎖定 (Transaction)
+    Storage-->>CoreService: 異動成功 (Commit)
+    CoreService-->>Gateway: 回傳處理結果 DTO
+    Gateway-->>User: 200 OK 渲染介面狀態`;
+
+            const synthesizedPrompt = `【角色設定】資深全端軟體架構工程師 (Senior Staff Engineer)。
+【使用者原始需求 (Vibe)】
+"${input}"
+
+【已收斂架構規範 (Mermaid Sequence Diagram)】
+\`\`\`mermaid
+${synthesizedUML}
+\`\`\`
+
+【代碼生成指示】
+1. 請遵循以上 UML 時序流程實作完整模組。
+2. 狀態遷移需撰寫明確的 Guard 與防禦性程式碼，不得略過錯誤捕捉 (Error Handling)。
+3. 提供符合此架構的 TypeScript 型別定義與核心服務類別 (Service Class)。`;
+
+            document.getElementById('generated-prompt-box').innerText = synthesizedPrompt;
+            document.getElementById('generated-uml-box').innerText = synthesizedUML;
+
+            renderVibeMermaidPreview(synthesizedUML);
+            showToast("成功依據您的 Vibe 生成 UML 架構與高階 Prompt！");
+        }
+
+        function switchPromptTab(tab) {
+            const viewPrompt = document.getElementById('view-prompt');
+            const viewUml = document.getElementById('view-uml');
+            const btnPrompt = document.getElementById('tab-prompt-btn');
+            const btnUml = document.getElementById('tab-uml-btn');
+
+            if (tab === 'prompt') {
+                viewPrompt.classList.remove('hidden');
+                viewUml.classList.add('hidden');
+                btnPrompt.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800";
+                btnUml.className = "px-3 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200";
+            } else {
+                viewPrompt.classList.add('hidden');
+                viewUml.classList.remove('hidden');
+                btnUml.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800";
+                btnPrompt.className = "px-3 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200";
+            }
+        }
+
+        function copyGeneratedOutput() {
+            const isPromptActive = !document.getElementById('view-prompt').classList.contains('hidden');
+            const textToCopy = isPromptActive 
+                ? document.getElementById('generated-prompt-box').innerText 
+                : document.getElementById('generated-uml-box').innerText;
+            
+            copyTextToClipboard(textToCopy);
+            showToast(isPromptActive ? "已複製完整 AI Prompt 到剪貼簿！" : "已複製 Mermaid UML 語法！");
+        }
+
+        const QUIZ_DATA = [
+            {
+                question: "情境一：你正在用 Vibe Coding 開發一個多步驟的「線上報稅與退稅系統」。表單跨越多個分頁，且某些退稅計算有嚴格的前後依賴關係。為避免 AI 搞混各步驟的狀態跳躍，最推薦在 Prompt 附上哪種圖？",
+                options: [
+                    { text: "類別圖 (Class Diagram)", correct: false },
+                    { text: "狀態圖 (State Diagram / 狀態機)", correct: true },
+                    { text: "元件部署圖 (Deployment Diagram)", correct: false },
+                    { text: "物件圖 (Object Diagram)", correct: false }
+                ],
+                explanation: "正確！狀態圖（State Diagram）專門處理「當前在哪個步驟、滿足何種條件才能遷移到下一步」的生命週期問題，能徹底避免使用者直接跳關或狀態倒流的致命 Bug。"
+            },
+            {
+                question: "情境二：你需要讓 AI 實作「前端使用者點擊 ➔ 後端 API Gateway 驗證 Token ➔ 微服務 RPC 查找商品 ➔ Redis 扣減庫存」。AI 老是把 Token 驗證放在扣庫存之後，你該提供什麼？",
+                options: [
+                    { text: "時序圖 (Sequence Diagram)", correct: true },
+                    { text: "實體關係圖 (ER Model)", correct: false },
+                    { text: "套件圖 (Package Diagram)", correct: false },
+                    { text: "心智圖 (Mind Map)", correct: false }
+                ],
+                explanation: "正確！時序圖（Sequence Diagram）以時間由上而下展開，非常明確規範各服務（Actor, Gateway, Service, Cache）之間的通訊時序，AI 閱讀時序圖後便能嚴格依順序編寫調用邏輯。"
+            },
+            {
+                question: "情境三：你將一段 800 行的雜亂後端代碼餵給 AI，希望請它先不要改動邏輯，而是梳理出資料模型之間的關聯性。你應該要求 AI 輸出哪種 Mermaid 語法？",
+                options: [
+                    { text: "Mermaid sequenceDiagram", correct: false },
+                    { text: "Mermaid gitGraph", correct: false },
+                    { text: "Mermaid classDiagram", correct: true },
+                    { text: "Mermaid pie", correct: false }
+                ],
+                explanation: "正確！classDiagram（類別圖）可列出類別成員變數、型別與方法，並標注一對一、一對多（Aggregation/Composition）關聯，是整理雜亂程式碼模型架構的最佳利器。"
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        let selectedAnswers = {};
+
+        function renderQuiz() {
+            const q = QUIZ_DATA[currentQuizIndex];
+            document.getElementById('quiz-progress').innerText = `問題 ${currentQuizIndex + 1} / ${QUIZ_DATA.length}`;
+            document.getElementById('quiz-question').innerText = q.question;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            const feedbackBox = document.getElementById('quiz-feedback');
+            feedbackBox.classList.add('hidden');
+            feedbackBox.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3.5 rounded-xl border border-slate-700 bg-slate-800/70 hover:bg-slate-750 text-slate-200 text-xs sm:text-sm font-medium transition flex items-center justify-between";
+                btn.innerHTML = `<span>${String.fromCharCode(65 + idx)}. ${opt.text}</span> <i class="fa-regular fa-circle text-slate-500"></i>`;
+                
+                // If already answered
+                if (selectedAnswers[currentQuizIndex] !== undefined) {
+                    const isSelected = selectedAnswers[currentQuizIndex] === idx;
+                    if (opt.correct) {
+                        btn.className = "w-full text-left p-3.5 rounded-xl border border-emerald-500 bg-emerald-950/40 text-emerald-300 text-xs sm:text-sm font-medium flex items-center justify-between";
+                        btn.innerHTML = `<span>${String.fromCharCode(65 + idx)}. ${opt.text}</span> <i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+                    } else if (isSelected) {
+                        btn.className = "w-full text-left p-3.5 rounded-xl border border-red-500 bg-red-950/40 text-red-300 text-xs sm:text-sm font-medium flex items-center justify-between";
+                        btn.innerHTML = `<span>${String.fromCharCode(65 + idx)}. ${opt.text}</span> <i class="fa-solid fa-circle-xmark text-red-400"></i>`;
+                    }
+                } else {
+                    btn.onclick = () => selectQuizOption(idx);
+                }
+
+                optionsContainer.appendChild(btn);
+            });
+
+            // Show feedback if answered
+            if (selectedAnswers[currentQuizIndex] !== undefined) {
+                const chosen = q.options[selectedAnswers[currentQuizIndex]];
+                feedbackBox.classList.remove('hidden');
+                if (chosen.correct) {
+                    feedbackBox.className = "mt-6 p-4 rounded-xl text-xs sm:text-sm bg-emerald-950/50 border border-emerald-800 text-emerald-300";
+                    feedbackBox.innerHTML = `<strong>🎉 答對了！</strong> ${q.explanation}`;
+                } else {
+                    feedbackBox.className = "mt-6 p-4 rounded-xl text-xs sm:text-sm bg-red-950/50 border border-red-800 text-red-300";
+                    feedbackBox.innerHTML = `<strong>💡 再想想看：</strong> 這題選「${q.options.find(o => o.correct).text}」更恰當。原因：${q.explanation}`;
+                }
+            }
+
+            // Buttons state
+            document.getElementById('quiz-prev-btn').disabled = (currentQuizIndex === 0);
+            document.getElementById('quiz-next-btn').innerText = (currentQuizIndex === QUIZ_DATA.length - 1) ? "完成挑戰" : "下一題";
+        }
+
+        function selectQuizOption(optionIdx) {
+            selectedAnswers[currentQuizIndex] = optionIdx;
+            renderQuiz();
+        }
+
+        function prevQuiz() {
+            if (currentQuizIndex > 0) {
+                currentQuizIndex--;
+                renderQuiz();
+            }
+        }
+
+        function nextQuiz() {
+            if (currentQuizIndex < QUIZ_DATA.length - 1) {
+                currentQuizIndex++;
+                renderQuiz();
+            } else {
+                showToast("恭喜完成 Vibe ✕ UML 思維挑戰測驗！");
+            }
+        }
+
+        function copyTextToClipboard(text) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            textarea.style.left = "-9999px";
+            textarea.style.top = "0";
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error("Copy command failed: ", err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function copyMermaidCode() {
+            const code = document.getElementById('mermaid-input').value;
+            copyTextToClipboard(code);
+            showToast("已成功複製 Mermaid 語法代碼！");
+        }
+
+        function copySnippet(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            copyTextToClipboard(text);
+            showToast("已複製 AI 模板指令！");
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-msg');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.innerText = message;
+            if (isError) {
+                toast.classList.remove('border-cyan-500');
+                toast.classList.add('border-red-500');
+                iconEl.className = "fa-solid fa-circle-exclamation text-red-400 text-base";
+            } else {
+                toast.classList.remove('border-red-500');
+                toast.classList.add('border-cyan-500');
+                iconEl.className = "fa-solid fa-circle-check text-cyan-400 text-base";
+            }
+
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        window.onload = function() {
+            // Set initial diagram
+            switchDiagram('sequence');
+            
+            // Load delivery default preset for generator
+            loadVibeScenario('delivery');
+
+            // Render first quiz
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>

@@ -484,8 +484,136 @@ window.INITIAL_VIBE_DATA = [
     ]
   },
   {
-    "id": "vibe-openspec",
+    "id": "vibe-uml-blueprint",
     "labNumber": "05",
+    "title": "軟體工程：Vibe Coding × UML (一)：以 UML 藍圖鎖定架構，釋放 AI 創意",
+    "shortTitle": "Vibe Coding × UML 藍圖架構",
+    "category": "軟體工程",
+    "date": "2026-10-15",
+    "summary": "擺脫「邊想邊改、越改越亂」的泥淖！結合 Vibe Coding 的天馬行空直覺與 UML (Unified Modeling Language) 藍圖的精準邊界控制。透過四步心法工作流（Vibe 狂想 ➔ AI 轉譯 ➔ 人類審查 ➔ 鎖定產碼）與四大核心藍圖（循序圖 Sequence、類別圖 Class、狀態圖 State、活動圖 Activity），在極速開發的同時築起嚴格的架構防火牆。",
+    "flowTitle": "Vibe Coding × UML 藍圖四步演化與架構約束閉環",
+    "resultTitle": "UML 藍圖鎖定架構互動專題頁面",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM4YjVjZjYiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjOGI1Y2Y2Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+VmliZSBDb2Rpbmcgw5cgVU1MIOiXjeWcluWbm+atpeaetuani+e0hOadn+W3peS9nOa1gTwvdGV4dD4KICA8dGV4dCB4PSIzOCIgeT0iNjAiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iMTEiPlZpYmUgRHVtcCAtJmd0OyBBSSB0byBVTUwgLSZndDsgVmliZSBDaGVjayAtJmd0OyBMb2NrICZhbXA7IENvZGUg5Zq05a+G6ZaJ55KwPC90ZXh0PgogIDxyZWN0IHg9IjI1IiB5PSI4MCIgd2lkdGg9IjY3MCIgaGVpZ2h0PSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDgpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIzMyIgeT0iMTEwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjMzIiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiM4YjVjZjYiLz4KICAgIDxjaXJjbGUgY3g9IjU1IiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iNTUiIHk9IjE0MCIgZmlsbD0iIzhiNWNmNiIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlVNTC0xPC90ZXh0PgogICAgPHJlY3QgeD0iMTM1IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjE1NiIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VmliZSBEdW1wPC90ZXh0PgogICAgPHRleHQgeD0iNDUiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPlZpYmUg54uC5oOzPC90ZXh0PgogICAgPHRleHQgeD0iNDUiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPuaLi+WHuuaooeeziumcgOaxguiIh+ebtOimujwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSAxODYgMTYwIEwgMTk4IDE2MCIgc3Ryb2tlPSIjOGI1Y2Y2IiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjIwMSIgeT0iMTEwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjIwMSIgeT0iMTEwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjOGI1Y2Y2Ii8+CiAgICA8Y2lyY2xlIGN4PSIyMjMiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzhiNWNmNiIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSIyMjMiIHk9IjE0MCIgZmlsbD0iIzhiNWNmNiIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlVNTC0yPC90ZXh0PgogICAgPHJlY3QgeD0iMzAzIiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjMyNCIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QUkgdG8gVU1MPC90ZXh0PgogICAgPHRleHQgeD0iMjEzIiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj5BSSDovYnora88L3RleHQ+CiAgICA8dGV4dCB4PSIyMTMiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPueUn+aIkOaomea6liBNZXJtYWlkIOiXjTwvdGV4dD4KICAgIDx0ZXh0IHg9IjIxMyIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+5ZyWPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDM1NCAxNjAgTCAzNjYgMTYwIiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzY5IiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMzY5IiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiM4YjVjZjYiLz4KICAgIDxjaXJjbGUgY3g9IjM5MSIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjOGI1Y2Y2IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjM5MSIgeT0iMTQwIiBmaWxsPSIjOGI1Y2Y2IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VU1MLTM8L3RleHQ+CiAgICA8cmVjdCB4PSI0NzEiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iNDkyIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5WaWJlIENoZWNrPC90ZXh0PgogICAgPHRleHQgeD0iMzgxIiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7nm7Toprrlr6nmn6U8L3RleHQ+CiAgICA8dGV4dCB4PSIzODEiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPuiCieecvOmAn+imveaZguW6j+iIh+S+neiztDwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA1MjIgMTYwIEwgNTM0IDE2MCIgc3Ryb2tlPSIjOGI1Y2Y2IiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjUzNyIgeT0iMTEwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjUzNyIgeT0iMTEwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjOGI1Y2Y2Ii8+CiAgICA8Y2lyY2xlIGN4PSI1NTkiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzhiNWNmNiIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSI1NTkiIHk9IjE0MCIgZmlsbD0iIzhiNWNmNiIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlVNTC00PC90ZXh0PgogICAgPHJlY3QgeD0iNjM5IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjY2MCIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TG9jayAmYW1wOyBDb2RlPC90ZXh0PgogICAgPHRleHQgeD0iNTQ5IiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7pjpblrprnlKLnorw8L3RleHQ+CiAgICA8dGV4dCB4PSI1NDkiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPuS7peaetuani+WcluWatOagvOe0hOadn+eUoueivDwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA2MTIgMjE4IEMgNjEyIDI2NSwgMTA4IDI2NSwgMTA4IDIxOCIgc3Ryb2tlPSIjOGI1Y2Y2IiBzdHJva2Utd2lkdGg9IjEuMiIgc3Ryb2tlLWRhc2hhcnJheT0iNSw0IiBmaWxsPSJub25lIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDx0ZXh0IHg9IjM2MCIgeT0iMjYwIiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNTAwIj7mnrbmp4vlnJbljbPpmLLorbfntrLvvJrlnKjlr6vkuIvnrKzkuIDooYzku6PnorzliY3vvIzlhYjku6XoppboprrljJbol43lnJbpjpblrprmqKHntYTpgornlYw8L3RleHQ+Cjwvc3ZnPg==",
+    "resultImage": "Vibe Coding/01.軟體工程/01.UML_用 Vibe Coding 釋放創意 以 UML 藍圖 鎖定架構.html",
+    "slideUrl": "Vibe Coding/01.軟體工程/01.UML_用 Vibe Coding 釋放創意 以 UML 藍圖 鎖定架構.html",
+    "objective": "1. 掌握 Vibe Coding 搭配 UML 藍圖的四步核心心法工作流（Vibe Dump -> AI to UML -> Vibe Check -> Lock & Code）。\n2. 熟練運用四大核心藍圖（循序圖、類別圖、狀態機圖、活動圖）解決工控非同步、狀態切換與邊界依賴問題。\n3. 理解「圖表即約束 (Diagram as Constraint)」概念，徹底杜絕 AI 在無架構約束下的發散幻覺。",
+    "tutorialSteps": [
+      {
+        "step": "心法 1: Vibe Dump (狂放傾倒直覺)",
+        "description": "用自然語言、語音或草稿把天馬行空的系統靈感一股腦拋給 AI，不糾結語法細節，聚焦於核心價值與業務痛點。"
+      },
+      {
+        "step": "心法 2: AI to UML (將直覺具象為藍圖)",
+        "description": "命令 AI 將自然語言意圖轉化為標準 Mermaid UML 圖表（循序圖、狀態圖、類別圖），將抽象概念視覺化。"
+      },
+      {
+        "step": "心法 3: Vibe Check (視覺化快速審查)",
+        "description": "用肉眼審查圖表邏輯：非同步時序對不對？狀態轉換有沒有死節點 (Deadlock)？職責邊界是否過度耦合？"
+      },
+      {
+        "step": "心法 4: Lock & Code (鎖定架構後精準產碼)",
+        "description": "將確認後的 UML 藍圖作為 Prompt 硬約束，命令 Agent 嚴格按圖實作，禁止擅自修改對外介面與資料流。"
+      }
+    ],
+    "promptTemplate": "你是一位精通軟體架構與工控系統的資深架構師。\n我想實作一個【Node-RED 邊緣感測器 MQTT 離線緩存與重傳系統】。\n請不要直接寫代碼，請先執行：\n1. 繪製標準 Mermaid 循序圖 (Sequence Diagram)，標明感測器、緩存隊列、MQTT Broker 與雲端的時序互動。\n2. 繪製狀態機圖 (State Diagram)，涵蓋 Online、OfflineBuffering、Flushing、Error 四大狀態轉換。\n3. 標註各節點的超時 (Timeout) 與重試邊界條件。\n待我審閱並確認架構圖後，再請你逐步產出程式碼。",
+    "codeSnippet": {
+      "language": "mermaid",
+      "code": "sequenceDiagram\n    autonumber\n    actor Sensor as 溫濕度感測器\n    participant NodeRED as Node-RED 邊緣節點\n    participant Queue as 本地 SQLite 隊列\n    participant Broker as MQTT Broker (雲端)\n\n    Sensor->>NodeRED: 上報遙測數據 payload\n    NodeRED->>Broker: 發布 MQTT 主題 telemetry\n    alt 連線正常 (ACK 成功)\n        Broker-->>NodeRED: 發布成功回執\n    else 網路斷線或超時\n        NodeRED->>Queue: 寫入本機緩存隊列\n        Note over NodeRED,Queue: 啟動退避重試計時器\n    end"
+    },
+    "references": [
+      {
+        "title": "Vibe Coding × UML (一)：以 UML 藍圖鎖定架構 (互動專題頁面)",
+        "url": "Vibe Coding/01.軟體工程/01.UML_用 Vibe Coding 釋放創意 以 UML 藍圖 鎖定架構.html"
+      },
+      {
+        "title": "Mermaid 官方圖表語法文檔",
+        "url": "https://mermaid.js.org/"
+      },
+      {
+        "title": "軟體工程演進全景圖",
+        "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-compass-drafting",
+        "scenario": "工控複雜非同步通訊與狀態機建模",
+        "description": "在設計 PLC 與邊緣節點的多步驟握手協議前，先以循序圖與狀態圖確定超時容錯機制，避免現場運行時出現死結。"
+      },
+      {
+        "icon": "fa-solid fa-shield-cat",
+        "scenario": "杜絕 AI 自由發揮導致的專案架構崩壞",
+        "description": "透過鎖定類別圖介面契約與資料流向，讓 AI Agent 僅能在給定邊界內填寫核心邏輯，確保模組具備高內聚低耦合。"
+      }
+    ]
+  },
+  {
+    "id": "vibe-uml-14-types",
+    "labNumber": "06",
+    "title": "軟體工程：Vibe Coding × UML (二)：14 種圖表全覽與規範 AI 的程式靈魂",
+    "shortTitle": "UML 14種圖表全覽與規範 AI",
+    "category": "軟體工程",
+    "date": "2026-10-15",
+    "summary": "進入 UML 2.x 完整的 14 種圖表知識庫！分為結構型圖表 (7種) 與行為型圖表 (7種)，並深入探討類別圖的 6 大核心關聯（泛化、實現、組合、聚合、關聯、依賴）及其程式碼映射。搭配內建的 Vibe Prompt Generator (提示詞生成器)，讓你能根據直覺想法一鍵生成精準的架構圖需求提示詞，將人類直覺與嚴格工程標準完美融合。",
+    "flowTitle": "UML 2.x 結構與行為雙維度 14 大圖表全景圖",
+    "resultTitle": "UML 14種圖表全覽與提示詞生成器專題頁面",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNlYzQ4OTkiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjZWM0ODk5Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+VU1MIDIueCDljYHlm5vnqK7lnJbooajlhajmma/nn6npmaM8L3RleHQ+CiAgPHRleHQgeD0iMzgiIHk9IjYwIiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjExIj43IFN0cnVjdHVyYWwgRGlhZ3JhbXMgKOe1kOani+mdnOaFiykgKyA3IEJlaGF2aW9yYWwgRGlhZ3JhbXMgKOihjOeCuuWLleaFiyk8L3RleHQ+CiAgPHJlY3QgeD0iMjUiIHk9IjgwIiB3aWR0aD0iNjcwIiBoZWlnaHQ9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wOCkiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjMzIiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMzMiIHk9IjExMCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iI2VjNDg5OSIvPgogICAgPGNpcmNsZSBjeD0iNTUiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iI2VjNDg5OSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSI1NSIgeT0iMTQwIiBmaWxsPSIjZWM0ODk5IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+U1RSPC90ZXh0PgogICAgPHJlY3QgeD0iMTM1IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjE1NiIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+U3RydWN0dXJlPC90ZXh0PgogICAgPHRleHQgeD0iNDUiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPue1kOani+mdnOaFiyAoN+eorik8L3RleHQ+CiAgICA8dGV4dCB4PSI0NSIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+Q2xhc3MsIENvbXBvbmU8L3RleHQ+CiAgICA8dGV4dCB4PSI0NSIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+bnQsIERlcGxveW1lbnQ8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMTg2IDE2MCBMIDE5OCAxNjAiIHN0cm9rZT0iI2VjNDg5OSIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIyMDEiIHk9IjExMCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIyMDEiIHk9IjExMCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iI2VjNDg5OSIvPgogICAgPGNpcmNsZSBjeD0iMjIzIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiNlYzQ4OTkiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMjIzIiB5PSIxNDAiIGZpbGw9IiNlYzQ4OTkiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5SRUw8L3RleHQ+CiAgICA8cmVjdCB4PSIzMDMiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iMzI0IiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5SZWxhdGlvbnM8L3RleHQ+CiAgICA8dGV4dCB4PSIyMTMiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuWFreWkp+mhnuWIpemXnOiBrzwvdGV4dD4KICAgIDx0ZXh0IHg9IjIxMyIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+5rOb5YyW44CB5a+m54++44CB57WE5ZCI44CB6IGa5ZCI44CB6Zec6IGvPC90ZXh0PgogICAgPHRleHQgeD0iMjEzIiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij7jgIHkvp3os7Q8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMzU0IDE2MCBMIDM2NiAxNjAiIHN0cm9rZT0iI2VjNDg5OSIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIzNjkiIHk9IjExMCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIzNjkiIHk9IjExMCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iI2VjNDg5OSIvPgogICAgPGNpcmNsZSBjeD0iMzkxIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiNlYzQ4OTkiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMzkxIiB5PSIxNDAiIGZpbGw9IiNlYzQ4OTkiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5CRUg8L3RleHQ+CiAgICA8cmVjdCB4PSI0NzEiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iNDkyIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5CZWhhdmlvcjwvdGV4dD4KICAgIDx0ZXh0IHg9IjM4MSIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+6KGM54K65YuV5oWLICg356iuKTwvdGV4dD4KICAgIDx0ZXh0IHg9IjM4MSIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+U2VxdWVuY2UsIFN0YXQ8L3RleHQ+CiAgICA8dGV4dCB4PSIzODEiIHk9IjIwMCIgZmlsbD0iIzY0NzQ4YiIgZm9udC1zaXplPSI4LjUiPmUsIEFjdGl2aXR5LCBVPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDUyMiAxNjAgTCA1MzQgMTYwIiBzdHJva2U9IiNlYzQ4OTkiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iNTM3IiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iNTM3IiB5PSIxMTAiIHdpZHRoPSIxNTAiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiNlYzQ4OTkiLz4KICAgIDxjaXJjbGUgY3g9IjU1OSIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjZWM0ODk5IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU1OSIgeT0iMTQwIiBmaWxsPSIjZWM0ODk5IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R0VOPC90ZXh0PgogICAgPHJlY3QgeD0iNjM5IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjY2MCIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UHJvbXB0IEdlbjwvdGV4dD4KICAgIDx0ZXh0IHg9IjU0OSIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+5o+Q56S66Kme55Sf5oiQ5ZmoPC90ZXh0PgogICAgPHRleHQgeD0iNTQ5IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij7nm7ToprrpgbjlnovkuIDpjbXnlKLlh7ogVU1MIOimjzwvdGV4dD4KICAgIDx0ZXh0IHg9IjU0OSIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+56+EIFByb21wdDwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA2MTIgMjE4IEMgNjEyIDI2NSwgMTA4IDI2NSwgMTA4IDIxOCIgc3Ryb2tlPSIjZWM0ODk5IiBzdHJva2Utd2lkdGg9IjEuMiIgc3Ryb2tlLWRhc2hhcnJheT0iNSw0IiBmaWxsPSJub25lIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDx0ZXh0IHg9IjM2MCIgeT0iMjYwIiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNTAwIj7pm5nntq3luqblhajpnaLmjozmjqfvvJrku6XntZDmp4vlnJblrprpnZzmhYvpgornlYzvvIzku6XooYzngrrlnJblrprli5XmhYvmmYLluo/vvIzopo/nr4QgQUkg55qE56iL5byP6Z2I6a2CPC90ZXh0Pgo8L3N2Zz4=",
+    "resultImage": "Vibe Coding/01.軟體工程/02.UML_用 Vibe 思考直覺，用 UML 規範 AI 的程式靈魂.html",
+    "slideUrl": "Vibe Coding/01.軟體工程/02.UML_用 Vibe 思考直覺，用 UML 規範 AI 的程式靈魂.html",
+    "objective": "1. 全面掌握 UML 2.x 標準體系的 14 種圖表（7 種結構靜態圖表 + 7 種行為動態圖表）的分類與適用場景。\n2. 徹底搞懂類別圖的 6 大關聯（Generalization、Realization、Composition、Aggregation、Association、Dependency）與現代語言程式碼映射。\n3. 學會使用 Vibe Prompt Generator 快速組合架構提示詞，引導 AI 代理輸出標準 Mermaid/PlantUML 設計圖。",
+    "tutorialSteps": [
+      {
+        "step": "維度 1: 結構型圖表 (Structural) 7 兄弟",
+        "description": "掌握類別圖 (Class)、元件圖 (Component)、部署圖 (Deployment)、物件圖 (Object)、套件圖 (Package)、組合結構圖 (Composite Structure) 與剖面圖 (Profile) 的靜態邊界約束。"
+      },
+      {
+        "step": "維度 2: 行為型圖表 (Behavioral) 7 姐妹",
+        "description": "掌握循序圖 (Sequence)、活動圖 (Activity)、狀態機圖 (State Machine)、使用案例圖 (Use Case)、通訊圖 (Communication)、互動概觀圖 (Interaction Overview) 與時間圖 (Timing) 的動態時序。"
+      },
+      {
+        "step": "核心解析: 類別圖 6 大核心關聯與強度梯隊",
+        "description": "深入理解依賴關係由弱到強：依賴 (Dependency -..>) ➔ 關聯 (Association -->) ➔ 聚合 (Aggregation o--) ➔ 組合 (Composition *--) ➔ 實現 (Realization ..|>) ➔ 泛化繼承 (Generalization --|>)。"
+      },
+      {
+        "step": "實戰工具: Vibe Prompt Generator 實戰",
+        "description": "利用頁面內建生成器，選定系統類型、關注維度與目標圖表，一鍵產出高精度 Prompt，要求 AI 輸出嚴謹的 Mermaid 規格。"
+      }
+    ],
+    "promptTemplate": "你是一位嚴謹的系統架構專家。請為一套【工控邊緣微服務閘道器】設計軟體架構：\n1. 請產出元件圖 (Component Diagram) 與部署圖 (Deployment Diagram)，標記 Docker 容器劃分與硬體介面 (RS485/Ethernet)。\n2. 針對核心數據處理層，產出標準類別圖 (Class Diagram)，嚴格區分「組合 (Composition - 生命週期同生共死)」與「聚合 (Aggregation - 生命週期獨立)」。\n3. 以 Mermaid 語法輸出，並在每個類別標註屬性型別、可見性符號 (+, -, #) 與依賴關係。",
+    "codeSnippet": {
+      "language": "mermaid",
+      "code": "classDiagram\n    class EdgeGateway {\n        -String gatewayId\n        -String firmwareVer\n        +startService() void\n        +stopService() void\n    }\n    class WatchdogService {\n        -int intervalSec\n        +kick() void\n    }\n    class SensorInterface {\n        <<interface>>\n        +readTelemetry() TelemetryData\n    }\n    class ModbusSensor {\n        -int slaveId\n        +readTelemetry() TelemetryData\n    }\n\n    EdgeGateway *-- WatchdogService : 組合 (生命週期同生共死)\n    EdgeGateway o-- SensorInterface : 聚合 (可動態抽換感測器)\n    SensorInterface <|.. ModbusSensor : 實現介面"
+    },
+    "references": [
+      {
+        "title": "Vibe Coding × UML (二)：14 種圖表全覽與規範 AI (互動專題頁面)",
+        "url": "Vibe Coding/01.軟體工程/02.UML_用 Vibe 思考直覺，用 UML 規範 AI 的程式靈魂.html"
+      },
+      {
+        "title": "Vibe Coding × UML (一)：以 UML 藍圖鎖定架構",
+        "url": "Vibe Coding/01.軟體工程/01.UML_用 Vibe Coding 釋放創意 以 UML 藍圖 鎖定架構.html"
+      },
+      {
+        "title": "OMG UML 2.5.1 官方規範標準",
+        "url": "https://www.omg.org/spec/UML/"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-sitemap",
+        "scenario": "複雜工控系統全域架構選型與邊界劃分",
+        "description": "根據不同的業務痛點（時序衝突選 Sequence、生命週期管理選 Class/Composition、狀態遷移選 State），精準選用最適 UML 圖表。"
+      },
+      {
+        "icon": "fa-solid fa-wand-magic-sparkles",
+        "scenario": "快速生成標準化 AI 架構提示詞 (Prompt)",
+        "description": "透過結構化的 UML 選型提示詞生成器，讓團隊初級工程師也能秒級產出媲美架構師級別的精準設計藍圖。"
+      }
+    ]
+  },
+  {
+    "id": "vibe-openspec",
+    "labNumber": "07",
     "title": "OpenSpec (opsx)：AI 規格驅動開發 (Spec-Driven Development) 指南",
     "shortTitle": "OpenSpec 規格驅動開發",
     "category": "Skills(技能)",
@@ -553,7 +681,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-opsx-lifecycle",
-    "labNumber": "06",
+    "labNumber": "08",
     "title": "OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析",
     "shortTitle": "OpenSpec 生命週期與檔案全解析",
     "category": "Skills(技能)",
@@ -621,7 +749,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-superpowers",
-    "labNumber": "07",
+    "labNumber": "09",
     "title": "Superpowers 軟體工程 Agent 工作流規範：14 大核心 Skills 與 TDD 實戰指南",
     "shortTitle": "Superpowers Agent 工作流規範",
     "category": "Skills(技能)",
@@ -689,7 +817,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-reverse-engineering-traditional",
-    "labNumber": "08",
+    "labNumber": "10",
     "title": "傳統逆向工程與核心工具解析：Detect It Easy、IDA Pro 與 Ghidra 實戰指南",
     "shortTitle": "傳統逆向工程與核心工具",
     "category": "其他",
@@ -757,7 +885,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-reverse-engineering-rea",
-    "labNumber": "09",
+    "labNumber": "11",
     "title": "REA (Reverse Engineer Anything)：AI 智能體逆向工程協議與實戰指南",
     "shortTitle": "REA AI 智能體逆向工程",
     "category": "其他",

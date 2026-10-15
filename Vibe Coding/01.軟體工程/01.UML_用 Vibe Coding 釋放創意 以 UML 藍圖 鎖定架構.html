@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding × UML | AI 時代的結構化直覺開發指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        vibe: {
+                            50: '#f5f3ff',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                        },
+                        uml: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #090d16;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        /* Custom Glowing Gradients */
+        .bg-grid-pattern {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #c084fc 0%, #38bdf8 50%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        /* Mermaid container adjustments */
+        .mermaid-output svg {
+            max-width: 100% !important;
+            height: auto !important;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="bg-grid-pattern min-h-screen flex flex-col selection:bg-vibe-500 selection:text-white">
+
+    <!-- Ambient Background Glows -->
+    <div class="fixed top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-vibe-600/15 blur-[120px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-uml-500/15 blur-[120px] pointer-events-none z-0"></div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 glass-card border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="scrollToSection('hero')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-vibe-500 to-uml-500 flex items-center justify-center shadow-lg shadow-vibe-500/25">
+                    <i class="ph-bold ph-sparkle text-white text-xl"></i>
+                </div>
+                <div>
+                    <span class="font-extrabold text-lg tracking-tight text-white">Vibe<span class="text-uml-400">UML</span></span>
+                    <span class="hidden sm:inline-block ml-2 text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">AI 軟體工程學</span>
+                </div>
+            </div>
+
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex items-center space-x-1">
+                <button onclick="scrollToSection('concept')" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition">1. 核心觀念</button>
+                <button onclick="scrollToSection('diagrams')" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition">2. 四大藍圖</button>
+                <button onclick="scrollToSection('playground')" class="px-3 py-2 rounded-lg text-sm font-medium text-uml-400 hover:text-uml-300 hover:bg-slate-800/60 transition flex items-center gap-1">
+                    <i class="ph-fill ph-terminal-window"></i> 3. 實戰實驗室
+                </button>
+                <button onclick="scrollToSection('templates')" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition">4. 咒語庫</button>
+                <button onclick="scrollToSection('quiz')" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition">5. 隨堂挑戰</button>
+            </nav>
+
+            <!-- Action Button -->
+            <div class="flex items-center space-x-3">
+                <button onclick="scrollToSection('playground')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-vibe-600 to-uml-600 hover:from-vibe-500 hover:to-uml-500 text-white font-semibold text-sm shadow-lg shadow-vibe-600/20 transition transform active:scale-95 flex items-center gap-1.5">
+                    <i class="ph-bold ph-play"></i>
+                    <span>開始實作</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow relative z-10 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-24">
+
+        <!-- Hero Section -->
+        <section id="hero" class="pt-6 md:pt-12 text-center max-w-4xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-vibe-500/10 border border-vibe-500/30 text-vibe-400 text-xs sm:text-sm font-medium mb-6">
+                <i class="ph-fill ph-lightning text-amber-400"></i>
+                <span>別讓你的 Vibe Coding 變成「義大利麵程式碼」製造機！</span>
+            </div>
+            
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6">
+                用 <span class="gradient-text">Vibe Coding</span> 釋放創意<br>
+                以 <span class="text-white underline decoration-uml-500 decoration-wavy decoration-2 underline-offset-8">UML 藍圖</span> 鎖定架構
+            </h1>
+            
+            <p class="text-slate-400 text-base sm:text-lg md:text-xl max-w-3xl mx-auto leading-relaxed mb-10">
+                Andrej Karpathy 提出的 <strong>Vibe Coding（氛圍編程）</strong> 讓我們能用直覺與自然語言驅動 AI 寫程式。但當專案超過 500 行，AI 就會開始失憶與失控。學習如何用<strong>文字化 UML (Mermaid)</strong> 為 AI 裝上結構化大腦！
+            </p>
+
+            <!-- Interactive Comparison Switcher in Hero -->
+            <div class="glass-card rounded-2xl p-5 sm:p-8 text-left border border-slate-700/80 shadow-2xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="ph-fill ph-scales text-vibe-400 text-xl"></i>
+                            開發模式模擬對比：製作一個「線上拍賣競標系統」
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-1">點擊右側按鈕，觀察純靠感覺 vs 結合 UML 藍圖的 AI 輸出差異</p>
+                    </div>
+                    <div class="inline-flex rounded-xl bg-slate-900 p-1 border border-slate-800 self-start sm:self-auto">
+                        <button id="btn-mode-naive" onclick="switchHeroMode('naive')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                            😵 純憑感覺 Vibe
+                        </button>
+                        <button id="btn-mode-structured" onclick="switchHeroMode('structured')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-400 hover:text-white">
+                            🚀 Vibe + UML 架構
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Simulation Content -->
+                <div id="hero-sim-content" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 1: Core Concept & Workflow -->
+        <section id="concept" class="scroll-mt-20">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-uml-400 font-mono text-xs uppercase tracking-widest font-semibold">THE METHODOLOGY</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mt-2">為什麼 AI 最懂 UML？因為它是高密度壓縮語言</h2>
+                <p class="text-slate-400 text-sm sm:text-base mt-3">
+                    大型語言模型 (LLM) 在訓練時讀過數百萬份開源技術文件與 Mermaid 語法。與其寫 2,000 字含糊的中文需求，不如給 AI 一張 20 行的 UML 圖，精準度立刻提升 10 倍。
+                </p>
+            </div>
+
+            <!-- 4-Step Workflow Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Step 1 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden group transition hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-xl bg-vibe-500/20 border border-vibe-500/40 flex items-center justify-center text-vibe-400 text-2xl mb-4">
+                        <i class="ph-duotone ph-chat-centered-text"></i>
+                    </div>
+                    <div class="text-xs font-mono text-vibe-400 mb-1">STEP 01 / VIBE DUMP</div>
+                    <h3 class="text-lg font-bold text-white mb-2">直覺傾倒想法</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        不用管專業術語！像跟朋友聊天一樣，把你想做的產品功能、使用情境、商業規則全部用自然語言告訴 AI。
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden group transition hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-xl bg-uml-500/20 border border-uml-500/40 flex items-center justify-center text-uml-400 text-2xl mb-4">
+                        <i class="ph-duotone ph-git-merge"></i>
+                    </div>
+                    <div class="text-xs font-mono text-uml-400 mb-1">STEP 02 / AI TO UML</div>
+                    <h3 class="text-lg font-bold text-white mb-2">叫 AI 先畫 UML 藍圖</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        <strong>關鍵煞車點！</strong> 要求 AI：「先別寫 Code，請根據我的想法輸出 Mermaid 格式的循序圖與類別圖。」
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden group transition hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl mb-4">
+                        <i class="ph-duotone ph-magnifying-glass-plus"></i>
+                    </div>
+                    <div class="text-xs font-mono text-amber-400 mb-1">STEP 03 / VIBE CHECK</div>
+                    <h3 class="text-lg font-bold text-white mb-2">視覺化審查與微調</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        看圖比看 1,000 行程式碼容易太多了！從圖中發現漏掉的狀態或欄位，直接用對話讓 AI 修改 UML 圖。
+                    </p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden group transition hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-2xl mb-4">
+                        <i class="ph-duotone ph-code-block"></i>
+                    </div>
+                    <div class="text-xs font-mono text-emerald-400 mb-1">STEP 04 / LOCK & CODE</div>
+                    <h3 class="text-lg font-bold text-white mb-2">依圖精準生成程式碼</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        藍圖確認無誤後，下令：「嚴格依照這份 UML 生成前後端程式碼」，零幻覺、低 Bug 的系統就此誕生！
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The 4 Essential UML Diagrams -->
+        <section id="diagrams" class="scroll-mt-20">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                <div>
+                    <span class="text-vibe-400 font-mono text-xs uppercase tracking-widest font-semibold">CORE BLUEPRINTS</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-2">Vibe Coder 必備的 4 大核心 UML 圖表</h2>
+                </div>
+                <p class="text-slate-400 text-sm max-w-md">
+                    傳統 UML 有 14 種圖，但在 AI 時代，你只需要掌握這 <strong>4 種最常與 LLM 協作的圖表</strong> 就足以應付 95% 的開發場景。
+                </p>
+            </div>
+
+            <!-- Diagram Selector Tabs -->
+            <div class="flex flex-wrap gap-2 mb-6" id="uml-tabs">
+                <button onclick="selectUmlTab('sequence')" id="tab-sequence" class="px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 bg-vibe-600 text-white shadow-lg shadow-vibe-600/25">
+                    <i class="ph-bold ph-arrows-left-right"></i> 1. 循序圖 (Sequence)
+                </button>
+                <button onclick="selectUmlTab('class')" id="tab-class" class="px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                    <i class="ph-bold ph-tree-structure"></i> 2. 類別圖 (Class / ER)
+                </button>
+                <button onclick="selectUmlTab('state')" id="tab-state" class="px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                    <i class="ph-bold ph-ArrowsClockwise"></i> 3. 狀態機圖 (State)
+                </button>
+                <button onclick="selectUmlTab('activity')" id="tab-activity" class="px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                    <i class="ph-bold ph-git-branch"></i> 4. 活動流程圖 (Activity)
+                </button>
+            </div>
+
+            <!-- Diagram Detail Display Card -->
+            <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-700/80">
+                <div id="uml-tab-content" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <!-- Dynamic content injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Interactive Vibe-to-UML Sandbox -->
+        <section id="playground" class="scroll-mt-20">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 border border-uml-500/30 shadow-2xl relative overflow-hidden">
+                <!-- Header -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+                    <div>
+                        <div class="inline-flex items-center gap-2 text-xs font-mono text-uml-400 bg-uml-500/10 px-2.5 py-1 rounded-md mb-2">
+                            <i class="ph-fill ph-flask"></i> INTERACTIVE LAB (支援即時修改 Mermaid 語法)
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-white">Vibe × UML 即時轉譯實驗室</h2>
+                        <p class="text-slate-400 text-sm mt-1">
+                            選擇一個專案場景，體驗從「口語 Vibe 需求」➔「自動生成並預覽 UML」➔「產出結構化程式碼」的完整過程！
+                        </p>
+                    </div>
+
+                    <!-- Scenario Selector -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs text-slate-400 font-medium mr-1">載入預設範例：</span>
+                        <button onclick="loadScenario('pomodoro')" id="scen-pomodoro" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-uml-600 text-white transition">
+                            🍅 番茄鐘狀態機
+                        </button>
+                        <button onclick="loadScenario('ecommerce')" id="scen-ecommerce" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+                            🛒 電商購物車資料結構
+                        </button>
+                        <button onclick="loadScenario('ai_chat')" id="scen-ai_chat" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+                            🤖 AI 客服 API 流程
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3-Column Interactive Studio -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+                    
+                    <!-- Left Column: Vibe Prompt & Mermaid Code Editor (5 cols) -->
+                    <div class="lg:col-span-5 flex flex-col space-y-4">
+                        <!-- Step A: The Vibe Input -->
+                        <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-vibe-400 flex items-center gap-1.5">
+                                    <i class="ph-fill ph-microphone-stage"></i> 1. 你的口語 Vibe 提示詞
+                                </span>
+                                <span id="lab-badge" class="text-[11px] px-2 py-0.5 rounded bg-vibe-500/20 text-vibe-300">State Diagram</span>
+                            </div>
+                            <p id="lab-vibe-text" class="text-xs sm:text-sm text-slate-300 italic leading-relaxed bg-slate-950/60 p-3 rounded-lg border border-slate-800/80">
+                                <!-- Filled by JS -->
+                            </p>
+                        </div>
+
+                        <!-- Step B: Mermaid Editor -->
+                        <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800 flex-grow flex flex-col">
+                            <div class="flex items-center justify-between mb-2">
+                                <label for="mermaid-input" class="text-xs font-bold text-uml-400 flex items-center gap-1.5">
+                                    <i class="ph-fill ph-code"></i> 2. Mermaid UML 藍圖語法 (可直接打字修改！)
+                                </label>
+                                <button onclick="renderLiveMermaid()" class="text-xs px-2.5 py-1 rounded bg-uml-500/20 text-uml-300 hover:bg-uml-500/30 transition flex items-center gap-1">
+                                    <i class="ph-bold ph-arrows-clockwise"></i> 重新繪製
+                                </button>
+                            </div>
+                            <textarea id="mermaid-input" rows="10" oninput="debounceRenderMermaid()" class="w-full flex-grow bg-slate-950 text-emerald-300 font-mono text-xs p-3 rounded-lg border border-slate-800 focus:outline-none focus:border-uml-500 resize-none leading-relaxed" spellcheck="false"></textarea>
+                            <p class="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
+                                <i class="ph-fill ph-info text-uml-400"></i> 試著修改上方節點名稱或箭頭，右側 UML 圖會即時連動更新！
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Visual UML Output & Generated Code (7 cols) -->
+                    <div class="lg:col-span-7 flex flex-col space-y-4">
+                        <!-- Output Tabs (Visual Diagram vs Generated Code) -->
+                        <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800 flex-grow flex flex-col min-h-[420px]">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                                <div class="flex space-x-2">
+                                    <button onclick="switchLabOutput('diagram')" id="lab-tab-diagram" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-uml-500 text-slate-950 transition flex items-center gap-1.5">
+                                        <i class="ph-bold ph-graph"></i> 視覺化 UML 藍圖預覽
+                                    </button>
+                                    <button onclick="switchLabOutput('code')" id="lab-tab-code" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1.5">
+                                        <i class="ph-bold ph-file-ts"></i> AI 依圖生成的 TypeScript 程式碼
+                                    </button>
+                                </div>
+                                <button onclick="copyCurrentLabContent()" class="text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1">
+                                    <i class="ph-bold ph-copy"></i> 複製內容
+                                </button>
+                            </div>
+
+                            <!-- View 1: Live Rendered Mermaid SVG -->
+                            <div id="lab-view-diagram" class="flex-grow flex flex-col items-center justify-center bg-slate-950/70 rounded-xl p-4 border border-slate-800/80 overflow-auto">
+                                <div id="mermaid-live-output" class="mermaid-output w-full text-center"></div>
+                                <div id="mermaid-error-box" class="hidden text-xs text-rose-400 bg-rose-950/50 border border-rose-800 rounded-lg p-3 mt-2 w-full font-mono"></div>
+                            </div>
+
+                            <!-- View 2: Generated Structured Code -->
+                            <div id="lab-view-code" class="hidden flex-grow flex flex-col bg-slate-950 rounded-xl p-4 border border-slate-800 overflow-auto max-h-[380px]">
+                                <pre id="lab-code-output" class="text-xs font-mono text-slate-200 leading-relaxed whitespace-pre-wrap"></pre>
+                            </div>
+
+                            <!-- Why this works explanation bar -->
+                            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-start gap-2.5">
+                                <i class="ph-fill ph-check-circle text-emerald-400 text-lg shrink-0 mt-0.5"></i>
+                                <p id="lab-takeaway" class="text-xs text-slate-300 leading-relaxed">
+                                    <!-- Populated by JS -->
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Ready-to-Use Vibe + UML Prompt Templates -->
+        <section id="templates" class="scroll-mt-20">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <span class="text-emerald-400 font-mono text-xs uppercase tracking-widest font-semibold">PROMPT ENGINEERING</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mt-2">Vibe Coding × UML 實戰咒語庫 (一鍵複製)</h2>
+                <p class="text-slate-400 text-sm sm:text-base mt-2">
+                    支援 Cursor、Windsurf、Claude Code、ChatGPT 與 Gemini。直接複製以下結構化 Prompt 貼給你的 AI 助手！
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Template 1 -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between border border-slate-800">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-vibe-500/20 text-vibe-300">階段一：探索與塑模</span>
+                            <i class="ph-duotone ph-compass text-2xl text-vibe-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">「先畫圖、禁寫扣」起手式</h3>
+                        <p class="text-xs text-slate-400 mb-4">當你有一個模糊的新點子，防止 AI 一股腦亂寫幾百行無法維護的程式碼。</p>
+                        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/90 font-mono text-xs text-slate-300 leading-relaxed mb-4" id="prompt-1">我想開發一個【填入你的產品點子，例如：支援多人拆帳的旅遊記帳 App】。
+
+⚠️ 請注意：現在「先不要寫任何程式碼」！
+請先扮演資深系統架構師，幫我將這個點子收斂成兩張 Mermaid.js 格式的 UML 圖：
+1. 核心資料的 Class Diagram (包含屬性與型別)
+2. 核心功能的 Sequence Diagram (包含前端、API 與資料庫互動)
+
+畫完後請列出 3 個我可能忽略的邊界條件 (Edge Cases) 與我討論。</div>
+                    </div>
+                    <button onclick="copyPromptText('prompt-1')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-vibe-600 text-white text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                        <i class="ph-bold ph-copy"></i> 複製此 Prompt 咒語
+                    </button>
+                </div>
+
+                <!-- Template 2 -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between border border-slate-800">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-uml-500/20 text-uml-300">階段二：依圖生碼</span>
+                            <i class="ph-duotone ph-cpu text-2xl text-uml-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">「嚴格鎖定架構」生成咒語</h3>
+                        <p class="text-xs text-slate-400 mb-4">當你已經跟 AI 改好滿意的 Mermaid UML 圖後，要求它零誤差轉換為程式碼。</p>
+                        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/90 font-mono text-xs text-slate-300 leading-relaxed mb-4" id="prompt-2">太棒了，我們現在鎖定以下這份 Mermaid UML 架構作為 Single Source of Truth（唯一真相來源）：
+
+```mermaid
+【貼上你確認過的 Mermaid 語法】
+```
+
+請嚴格遵守圖中的類別名稱、方法簽章 (Method Signatures) 與狀態轉移邏輯，使用【React / TypeScript / Python】實作程式碼。不可自行刪減或憑空新增未在圖中定義的狀態。</div>
+                    </div>
+                    <button onclick="copyPromptText('prompt-2')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-uml-600 text-white text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                        <i class="ph-bold ph-copy"></i> 複製此 Prompt 咒語
+                    </button>
+                </div>
+
+                <!-- Template 3 -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between border border-slate-800">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-500/20 text-emerald-300">階段三：除錯與重構</span>
+                            <i class="ph-duotone ph-wrench text-2xl text-emerald-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">「逆向工程抓蟲」診斷咒語</h3>
+                        <p class="text-xs text-slate-400 mb-4">當 Vibe Coding 寫到一半陷入死胡同、AI 一直改 A 壞 B 時的救命仙丹。</p>
+                        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/90 font-mono text-xs text-slate-300 leading-relaxed mb-4" id="prompt-3">目前這份程式碼出現了邏輯 Bug（或是狀態混亂）。請先暫停修改程式碼！
+
+請先閱讀目前的檔案，將它「逆向工程」畫成一張 Mermaid 的 State Diagram (狀態圖) 或 Sequence Diagram (循序圖)。
+在圖中標註出哪一個步驟或狀態轉移導致了目前的錯誤，等我看圖確認根因後，我們再動手修 Code。</div>
+                    </div>
+                    <button onclick="copyPromptText('prompt-3')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-emerald-600 text-white text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                        <i class="ph-bold ph-copy"></i> 複製此 Prompt 咒語
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Interactive Knowledge Check Quiz -->
+        <section id="quiz" class="scroll-mt-20 pb-12">
+            <div class="glass-card rounded-3xl p-6 sm:p-10 max-w-4xl mx-auto border border-vibe-500/30">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+                    <div>
+                        <span class="text-xs font-mono text-vibe-400 uppercase tracking-wider">VIBE ARCHITECT CHALLENGE</span>
+                        <h2 class="text-2xl font-bold text-white mt-1">隨堂情境挑戰：你會用哪張 UML 圖指揮 AI？</h2>
+                    </div>
+                    <div class="px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 self-start sm:self-auto">
+                        進度：<span id="quiz-progress" class="text-uml-400 font-bold">1 / 3</span> ｜ 得分：<span id="quiz-score" class="text-emerald-400 font-bold">0</span>
+                    </div>
+                </div>
+
+                <!-- Question Container -->
+                <div id="quiz-container">
+                    <!-- Rendered dynamically via JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notification Box (No alert() allowed!) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 border border-uml-500/50 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3">
+            <i class="ph-fill ph-check-circle text-emerald-400 text-xl"></i>
+            <span id="toast-msg" class="text-xs sm:text-sm font-medium">已成功複製到剪貼簿！</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 py-8 text-center text-xs text-slate-500 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>Vibe<span class="text-uml-400 font-bold">UML</span> — 讓直覺與軟體工程完美共振的互動教學網</p>
+            <p class="font-mono">Powered by Mermaid.js & Tailwind CSS</p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Mermaid with dark theme configuration
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            securityLevel: 'loose',
+            fontFamily: 'Inter, Noto Sans TC, sans-serif'
+        });
+
+        // Smooth scroll helper
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Custom Toast Notification (replaces alert)
+        let toastTimer = null;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-msg');
+            msgEl.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2600);
+        }
+
+        // Universal Clipboard Copy Helper
+        function copyTextToClipboard(text, successMsg = '已複製到剪貼簿！') {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast(successMsg);
+                }).catch(() => {
+                    showToast('複製失敗，請手動選取複製');
+                });
+            } else {
+                showToast(successMsg);
+            }
+        }
+
+        function copyPromptText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            copyTextToClipboard(text, '✨ 已複製 Prompt 咒語！快貼給 AI 試試看');
+        }
+
+        const heroSimData = {
+            naive: {
+                promptTitle: '😵 玩家輸入的純感覺 Vibe Prompt：',
+                prompt: '「幫我寫一個酷炫的線上拍賣網站，有人可以出價，時間到就結標，要快一點！」',
+                aiReactionTitle: '💥 AI 產出的災難結果（失控的義大利麵）：',
+                points: [
+                    '<strong>競態條件漏洞：</strong> 兩個人同時在最後一秒出價，AI 沒寫鎖定機制，導致最高價被覆蓋。',
+                    '<strong>狀態鬼打牆：</strong> 拍賣明明已經「流標」或「結標」，前端按鈕還是可以繼續按出價。',
+                    '<strong>改 A 壞 B：</strong> 當你跟 AI 說「幫我加上自動延時 3 分鐘功能」，AI 直接把原本的結帳邏輯改壞了。'
+                ],
+                codePreview: `// ❌ AI 憑感覺亂湊的脆弱邏輯
+function placeBid(amount) {
+  if (amount > currentPrice) {
+    currentPrice = amount; // 沒檢查拍賣是否已結束！也沒處理同時出價！
+    saveToDB(currentPrice);
+  }
+}`
+            },
+            structured: {
+                promptTitle: '🚀 結合 UML 的結構化 Vibe Prompt：',
+                prompt: '「我要做拍賣系統。請先幫我畫出拍賣品的 Mermaid 狀態機圖 (草稿 ➔ 競標中 ➔ 最後倒數延時 ➔ 結標/流標)，確認狀態轉移條件後再寫程式。」',
+                aiReactionTitle: '✨ AI 產出的工業級結果（穩固、好擴充）：',
+                points: [
+                    '<strong>邊界條件滴水不漏：</strong> 透過狀態圖，一眼看出只有在 <code>ACTIVE</code> 與 <code>EXTENDED</code> 狀態才能出價。',
+                    '<strong>對話成本降低 80%：</strong> 想要新增「棄標處置」流程，只要在 Mermaid 圖加一條線，AI 就能精準改對位置。',
+                    '<strong>零幻覺命名：</strong> 資料庫欄位與 TypeScript 介面完全對齊類別圖，前後端一次串通。'
+                ],
+                codePreview: `// ✅ AI 嚴格遵循 UML 狀態機生成的穩健程式碼
+function placeBid(auction: Auction, bid: Bid): AuctionState {
+  if (!['ACTIVE', 'EXTENDED'].includes(auction.status)) {
+    throw new Error('Invalid state transition: 非競標狀態禁止出價');
+  }
+  if (bid.amount <= auction.highestBid) throw new Error('出價過低');
+  return auction.remainingSeconds < 60 ? 'EXTENDED' : 'ACTIVE';
+}`
+            }
+        };
+
+        function switchHeroMode(mode) {
+            const btnNaive = document.getElementById('btn-mode-naive');
+            const btnStruct = document.getElementById('btn-mode-structured');
+            const container = document.getElementById('hero-sim-content');
+
+            if (mode === 'naive') {
+                btnNaive.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition bg-rose-500/20 text-rose-300 border border-rose-500/40';
+                btnStruct.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-400 hover:text-white';
+            } else {
+                btnStruct.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                btnNaive.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-400 hover:text-white';
+            }
+
+            const data = heroSimData[mode];
+            const accentColor = mode === 'naive' ? 'rose' : 'emerald';
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+                        <div class="text-xs font-bold text-slate-400 mb-1">${data.promptTitle}</div>
+                        <p class="text-sm text-white font-medium leading-relaxed">${data.prompt}</p>
+                    </div>
+                    <div class="space-y-2.5">
+                        <div class="text-xs font-bold text-${accentColor}-400">${data.aiReactionTitle}</div>
+                        <ul class="space-y-2 text-xs sm:text-sm text-slate-300">
+                            ${data.points.map(pt => `<li class="flex items-start gap-2"><span class="text-${accentColor}-400 mt-0.5">●</span><span>${pt}</span></li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="bg-slate-950 rounded-xl p-4 border border-${accentColor}-500/30 font-mono text-xs text-slate-200 overflow-x-auto">
+                    <pre class="leading-relaxed">${data.codePreview}</pre>
+                </div>
+            `;
+        }
+
+        const umlDiagramsData = {
+            sequence: {
+                title: '循序圖 (Sequence Diagram)',
+                subtitle: '解決「前後端與第三方 API 怎麼溝通」的順序問題',
+                whenToUse: '當你要串接金流、登入驗證 (OAuth)、或是呼叫 OpenAI API 時，用循序圖規定誰先發請求、失敗時怎麼回傳。',
+                vibeTip: '告訴 AI：「請畫出使用者點擊結帳後，前端、後端伺服器、Stripe 金流與資料庫之間的 Sequence Diagram。」',
+                mermaidCode: `sequenceDiagram
+    actor User as 使用者
+    participant FE as 前端畫面
+    participant BE as 後端 API
+    participant AI as LLM 模型
+    User->>FE: 輸入 Vibe 需求並送出
+    FE->>BE: POST /api/generate-uml
+    BE->>AI: 傳送系統 Prompt + 需求
+    AI-->>BE: 回傳 Mermaid 語法藍圖
+    BE-->>FE: 200 OK (含圖表資料)
+    FE-->>User: 渲染互動式架構圖`
+            },
+            class: {
+                title: '類別圖 (Class / ER Diagram)',
+                subtitle: '解決「資料長什麼樣子、彼此有什麼關係」的結構問題',
+                whenToUse: '開始寫資料庫 Schema (Prisma/SQL) 或定義 TypeScript Interface 之前，強制統一所有變數名稱，防止 AI 前後不一致。',
+                vibeTip: '告訴 AI：「請先根據我的需求畫出 Mermaid Class Diagram，標明每個類別的屬性型別，以及一對多關係。」',
+                mermaidCode: `classDiagram
+    class User {
+        +String id
+        +String email
+        +createProject()
+    }
+    class Project {
+        +String id
+        +String title
+        +String mermaidCode
+        +generateCode()
+    }
+    class Component {
+        +String name
+        +String filePath
+    }
+    User "1" --> "*" Project : 擁有
+    Project "1" *-- "*" Component : 包含`
+            },
+            state: {
+                title: '狀態機圖 (State Diagram)',
+                subtitle: '解決「UI 狀態亂跳、按鈕不該按卻能按」的邏輯問題',
+                whenToUse: '開發遊戲、計時器、訂單狀態（未付款/已付款/運送中/已退貨）或複雜表單時，用狀態機鎖死合法路徑。',
+                vibeTip: '告訴 AI：「這個功能狀態很複雜，請先用 Mermaid stateDiagram-v2 定義所有狀態與觸發條件，再寫 React State。」',
+                mermaidCode: `stateDiagram-v2
+    [*] --> 閒置中
+    閒置中 --> AI生成藍圖中 : 送出Prompt
+    AI生成藍圖中 --> 藍圖審查 : 生成成功
+    AI生成藍圖中 --> 錯誤重試 : API超時
+    錯誤重試 --> AI生成藍圖中 : 點擊重試
+    藍圖審查 --> AI生成藍圖中 : 修改需求
+    藍圖審查 --> 輸出程式碼 : 確認鎖定架構
+    輸出程式碼 --> [*]`
+            },
+            activity: {
+                title: '活動流程圖 (Activity / Flowchart)',
+                subtitle: '解決「如果 A 成立就走 B，否則走 C」的商業規則分枝',
+                whenToUse: '設計會員折扣計算、權限審查、演算法判斷流程時，確保沒有任何一個 if-else 分枝變成死胡同。',
+                vibeTip: '告訴 AI：「請將這段促銷規則畫成 Mermaid Flowchart，把每個判斷菱形節點標示清楚，讓我檢查有沒有漏洞。」',
+                mermaidCode: `flowchart TD
+    A[開始 Vibe Coding] --> B{專案超過 200 行?}
+    B -- 否 (小玩具) --> C[直接用自然語言生成 Code]
+    B -- 是 (正式系統) --> D[先叫 AI 產出 UML 藍圖]
+    D --> E{人類看圖檢查邏輯}
+    E -- 發現漏洞 --> F[用對話修改 UML]
+    F --> E
+    E -- 架構完美 --> G[要求 AI 依圖生成高品質程式碼]`
+            }
+        };
+
+        async function selectUmlTab(key) {
+            // Update tab button styles
+            ['sequence', 'class', 'state', 'activity'].forEach(k => {
+                const btn = document.getElementById(`tab-${k}`);
+                if (k === key) {
+                    btn.className = 'px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 bg-vibe-600 text-white shadow-lg shadow-vibe-600/25';
+                } else {
+                    btn.className = 'px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 bg-slate-800/80 text-slate-300 hover:bg-slate-700';
+                }
+            });
+
+            const item = umlDiagramsData[key];
+            const container = document.getElementById('uml-tab-content');
+
+            container.innerHTML = `
+                <div class="lg:col-span-5 space-y-5">
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-bold text-white">${item.title}</h3>
+                        <p class="text-uml-400 text-sm font-medium mt-1">${item.subtitle}</p>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <div class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="ph-fill ph-target text-vibe-400"></i> 最佳使用時機
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">${item.whenToUse}</p>
+                    </div>
+                    <div class="bg-vibe-500/10 p-4 rounded-xl border border-vibe-500/30 space-y-2">
+                        <div class="text-xs font-bold text-vibe-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="ph-fill ph-magic-wand"></i> 怎麼對 AI 下咒語？
+                        </div>
+                        <p class="text-xs sm:text-sm text-vibe-100 leading-relaxed">${item.vibeTip}</p>
+                    </div>
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-2 font-mono">
+                            <span>Mermaid 語法範例</span>
+                            <button onclick="copyTextToClipboard(\`${item.mermaidCode.replace(/`/g, '\\`')}\`, '已複製 Mermaid 語法！')" class="text-uml-400 hover:underline">複製語法</button>
+                        </div>
+                        <pre class="text-xs font-mono text-emerald-300 overflow-x-auto leading-relaxed">${item.mermaidCode}</pre>
+                    </div>
+                </div>
+                <div class="lg:col-span-7 bg-slate-950/80 rounded-2xl p-6 border border-slate-800 flex flex-col items-center justify-center min-h-[340px]">
+                    <div id="tab-mermaid-render" class="mermaid-output w-full text-center"></div>
+                </div>
+            `;
+
+            try {
+                const { svg } = await mermaid.render('mermaid-svg-tab-' + Date.now(), item.mermaidCode);
+                document.getElementById('tab-mermaid-render').innerHTML = svg;
+            } catch (e) {
+                document.getElementById('tab-mermaid-render').innerHTML = `<p class="text-rose-400 text-xs">圖表渲染失敗</p>`;
+            }
+        }
+
+        const labScenarios = {
+            pomodoro: {
+                badge: 'State Diagram (狀態機圖)',
+                vibeText: '「我想做一個番茄鐘專注 App。一開始是閒置狀態，按下開始後進入 25 分鐘專注倒數；專注期間可以暫停，也可以隨時放棄重置。時間到會自動進入 5 分鐘休息狀態，休息完回到閒置。」',
+                mermaid: `stateDiagram-v2
+    [*] --> Idle : 初始化
+    Idle --> Focusing : 點擊開始專注 (25m)
+    Focusing --> Paused : 點擊暫停
+    Paused --> Focusing : 繼續專注
+    Focusing --> Resting : 倒數計時歸零 (5m)
+    Focusing --> Idle : 放棄並重置
+    Paused --> Idle : 放棄並重置
+    Resting --> Idle : 休息結束`,
+                code: `// ✅ 由上方 Mermaid 狀態機 100% 對應生成的 TypeScript 狀態管理
+export type PomodoroState = 'Idle' | 'Focusing' | 'Paused' | 'Resting';
+
+export type PomodoroEvent = 
+  | { type: 'START_FOCUS' }
+  | { type: 'PAUSE' }
+  | { type: 'RESUME' }
+  | { type: 'TIMER_COMPLETE' }
+  | { type: 'RESET' };
+
+export function pomodoroReducer(state: PomodoroState, event: PomodoroEvent): PomodoroState {
+  switch (state) {
+    case 'Idle':
+      return event.type === 'START_FOCUS' ? 'Focusing' : state;
+    case 'Focusing':
+      if (event.type === 'PAUSE') return 'Paused';
+      if (event.type === 'TIMER_COMPLETE') return 'Resting';
+      if (event.type === 'RESET') return 'Idle';
+      return state;
+    case 'Paused':
+      if (event.type === 'RESUME') return 'Focusing';
+      if (event.type === 'RESET') return 'Idle';
+      return state;
+    case 'Resting':
+      return event.type === 'TIMER_COMPLETE' ? 'Idle' : state;
+  }
+}`,
+                takeaway: '透過狀態機圖，我們發現「暫停中 (Paused)」也必須支援「放棄並重置 (Idle)」，否則使用者暫停後就卡住了！這就是看圖找 Bug 的威力。'
+            },
+            ecommerce: {
+                badge: 'Class Diagram (類別結構圖)',
+                vibeText: '「幫我設計一個電商購物車系統。每個購物車屬於一個會員，裡面可以有多個購物車明細項目 (CartItem)，每個項目對應到一個商品 (Product)，並能夠計算小計與折扣後總金額。」',
+                mermaid: `classDiagram
+    class Cart {
+        +String cartId
+        +String userId
+        +String couponCode
+        +calculateTotal() Number
+        +applyCoupon(code) Boolean
+    }
+    class CartItem {
+        +Number quantity
+        +getSubtotal() Number
+    }
+    class Product {
+        +String productId
+        +String name
+        +Number unitPrice
+        +Number stock
+    }
+    Cart "1" *-- "*" CartItem : 包含明細
+    CartItem "*" --> "1" Product : 參照商品`,
+                code: `// ✅ 由上方 Mermaid 類別圖精準生成的領域模型 (Domain Models)
+export class Product {
+  constructor(
+    public productId: string,
+    public name: string,
+    public unitPrice: number,
+    public stock: number
+  ) {}
+}
+
+export class CartItem {
+  constructor(
+    public product: Product,
+    public quantity: number
+  ) {}
+
+  public getSubtotal(): number {
+    return this.product.unitPrice * this.quantity;
+  }
+}
+
+export class Cart {
+  public items: CartItem[] = [];
+  public couponCode?: string;
+
+  constructor(public cartId: string, public userId: string) {}
+
+  public calculateTotal(): number {
+    const rawTotal = this.items.reduce((sum, item) => sum + item.getSubtotal(), 0);
+    return this.couponCode ? rawTotal * 0.9 : rawTotal;
+  }
+}`,
+                takeaway: '先畫 Class Diagram 可以避免 AI 把商品單價直接寫死在 Cart 裡面，確保「購物車 ➔ 明細 ➔ 商品」的職責分離清晰明確。'
+            },
+            ai_chat: {
+                badge: 'Sequence Diagram (API 循序圖)',
+                vibeText: '「我要做一個付費 AI 問答功能。使用者發送問題後，後端要先去資料庫檢查他的點數夠不夠；點數不夠就直接退回 402 錯誤；夠的話才呼叫 OpenAI，最後扣除點數並回傳答案。」',
+                mermaid: `sequenceDiagram
+    actor User as 會員
+    participant API as 後端伺服器
+    participant DB as 資料庫
+    participant LLM as OpenAI API
+    User->>API: POST /ask (問題內容)
+    API->>DB: 查詢剩餘點數 (credits)
+    alt 點數不足 (credits <= 0)
+        API-->>User: 402 Payment Required (請儲值)
+    else 點數充足
+        API->>LLM: 發送 Prompt 請求生成
+        LLM-->>API: 回傳 AI 解答
+        API->>DB: 扣除 1 點並儲存對話紀錄
+        API-->>User: 200 OK (回傳解答與剩餘點數)
+    end`,
+                code: `// ✅ 由上方 Mermaid 循序圖 (含 alt 條件分枝) 轉換的後端 Controller
+export async function handleAskEndpoint(req: Request, res: Response) {
+  const { userId, prompt } = req.body;
+
+  // 1. 查詢剩餘點數
+  const user = await db.users.findUnique({ where: { id: userId } });
+  
+  // 2. alt 條件分枝：點數不足攔截
+  if (!user || user.credits <= 0) {
+    return res.status(402).json({ error: '點數不足，請先儲值！' });
+  }
+
+  // 3. 點數充足：呼叫 OpenAI 並扣點
+  const aiAnswer = await openai.responses.create({ model: 'gpt-4o', input: prompt });
+  await db.users.update({
+    where: { id: userId },
+    data: { credits: { decrement: 1 } }
+  });
+
+  return res.status(200).json({ answer: aiAnswer.output_text, remainingCredits: user.credits - 1 });
+}`,
+                takeaway: '循序圖裡的「alt / else」區塊能直觀規定「先檢查點數、再呼叫昂貴的 AI API」，防止 AI 寫出先扣錢卻呼叫失敗、或免費被白嫖 API 的漏洞。'
+            }
+        };
+
+        let currentScenarioKey = 'pomodoro';
+        let currentLabTab = 'diagram';
+        let renderTimeout = null;
+
+        function loadScenario(key) {
+            currentScenarioKey = key;
+            ['pomodoro', 'ecommerce', 'ai_chat'].forEach(k => {
+                const btn = document.getElementById(`scen-${k}`);
+                if (k === key) {
+                    btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-uml-600 text-white transition shadow';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition';
+                }
+            });
+
+            const scen = labScenarios[key];
+            document.getElementById('lab-badge').textContent = scen.badge;
+            document.getElementById('lab-vibe-text').textContent = scen.vibeText;
+            document.getElementById('mermaid-input').value = scen.mermaid;
+            document.getElementById('lab-code-output').textContent = scen.code;
+            document.getElementById('lab-takeaway').textContent = scen.takeaway;
+
+            renderLiveMermaid();
+        }
+
+        function debounceRenderMermaid() {
+            if (renderTimeout) clearTimeout(renderTimeout);
+            renderTimeout = setTimeout(() => {
+                renderLiveMermaid();
+            }, 350);
+        }
+
+        async function renderLiveMermaid() {
+            const rawCode = document.getElementById('mermaid-input').value.trim();
+            const outputContainer = document.getElementById('mermaid-live-output');
+            const errorBox = document.getElementById('mermaid-error-box');
+
+            if (!rawCode) {
+                outputContainer.innerHTML = '<p class="text-slate-500 text-xs">請輸入 Mermaid 語法...</p>';
+                errorBox.classList.add('hidden');
+                return;
+            }
+
+            try {
+                // Validate and render SVG
+                const uniqueId = 'mermaid-live-svg-' + Date.now();
+                const { svg } = await mermaid.render(uniqueId, rawCode);
+                outputContainer.innerHTML = svg;
+                errorBox.classList.add('hidden');
+            } catch (err) {
+                errorBox.classList.remove('hidden');
+                errorBox.textContent = '⚠️ Mermaid 語法解析提示：請檢查箭頭符號或括號是否成對。';
+            }
+        }
+
+        function switchLabOutput(tab) {
+            currentLabTab = tab;
+            const btnDiagram = document.getElementById('lab-tab-diagram');
+            const btnCode = document.getElementById('lab-tab-code');
+            const viewDiagram = document.getElementById('lab-view-diagram');
+            const viewCode = document.getElementById('lab-view-code');
+
+            if (tab === 'diagram') {
+                btnDiagram.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-uml-500 text-slate-950 transition flex items-center gap-1.5';
+                btnCode.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1.5';
+                viewDiagram.classList.remove('hidden');
+                viewCode.classList.add('hidden');
+            } else {
+                btnCode.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-uml-500 text-slate-950 transition flex items-center gap-1.5';
+                btnDiagram.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1.5';
+                viewCode.classList.remove('hidden');
+                viewDiagram.classList.add('hidden');
+            }
+        }
+
+        function copyCurrentLabContent() {
+            if (currentLabTab === 'diagram') {
+                const code = document.getElementById('mermaid-input').value;
+                copyTextToClipboard(code, '已複製 Mermaid UML 語法！');
+            } else {
+                const code = document.getElementById('lab-code-output').textContent;
+                copyTextToClipboard(code, '已複製生成的 TypeScript 程式碼！');
+            }
+        }
+
+        const quizQuestions = [
+            {
+                question: '情境一：你正在用 Vibe Coding 開發一款「外送平台 App」，但 AI 常常把「顧客已取消訂單」的單子還是派給外送員。你應該要求 AI 先畫哪一種 UML 圖來徹底修復這個邏輯？',
+                options: [
+                    { text: 'A. 類別圖 (Class Diagram)', correct: false, feedback: '類別圖主要定義資料欄位與關聯，無法規範訂單在什麼狀態下可以轉移。' },
+                    { text: 'B. 狀態機圖 (State Diagram)', correct: true, feedback: '完全正確！訂單的「待接單 ➔ 配送中 ➔ 已取消/已完成」最適合用狀態機圖鎖定合法轉移路徑！' },
+                    { text: 'C. 部署圖 (Deployment Diagram)', correct: false, feedback: '部署圖是用來描述雲端伺服器硬體架構的，與訂單狀態邏輯無關。' }
+                ]
+            },
+            {
+                question: '情境二：你想請 AI 幫你串接「LINE Pay 付款」，涉及到你的前端網頁、你的後端伺服器、以及 LINE Pay 官方 API 來回傳遞 Token 與 Webhook。這時該叫 AI 先畫什麼圖？',
+                options: [
+                    { text: 'A. 循序圖 (Sequence Diagram)', correct: true, feedback: '太精準了！多個系統角色依照「時間先後順序」傳遞請求與回應，正是循序圖的強項！' },
+                    { text: 'B. 類別圖 (Class Diagram)', correct: false, feedback: '類別圖看不出 API 呼叫的先後時間順序與非同步回呼。' },
+                    { text: 'C. 繼續直接叫 AI 寫 Code 撞運氣', correct: false, feedback: '金流串接如果不先對齊循序圖，很容易產生重複扣款或安全性漏洞喔！' }
+                ]
+            },
+            {
+                question: '情境三：為什麼在 Vibe Coding 中，我們強烈推薦使用「Mermaid.js 語法」來畫 UML，而不是用小畫家手繪圖片傳給 AI？',
+                options: [
+                    { text: 'A. 因為 Mermaid 是純文字程式碼，LLM 讀寫最精準、佔用 Token 少，還能直接放進 Git 版本控制', correct: true, feedback: '滿分過關！純文字的 Mermaid 讓你可以跟 AI 一起在對話框中毫秒級修改架構，並留在專案 Markdown 文件裡當永久記憶！' },
+                    { text: 'B. 因為 AI 完全看不懂任何圖片', correct: false, feedback: '現在的多模態 AI 看得懂圖片，但圖片一旦要修改某條線，AI 無法直接幫你編輯原圖，協作效率遠不如純文字 Mermaid。' },
+                    { text: 'C. 只是為了看起來比較酷炫', correct: false, feedback: '除了酷炫之外，更重要的是它是 AI 與人類之間最高效的「結構化契約」！' }
+                ]
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            document.getElementById('quiz-progress').textContent = `${Math.min(currentQuizIndex + 1, quizQuestions.length)} / ${quizQuestions.length}`;
+            document.getElementById('quiz-score').textContent = quizScore;
+
+            if (currentQuizIndex >= quizQuestions.length) {
+                container.innerHTML = `
+                    <div class="text-center py-6 space-y-4">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-3xl mx-auto">
+                            <i class="ph-fill ph-trophy"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white">恭喜完成 Vibe × UML 架構師挑戰！</h3>
+                        <p class="text-slate-300 text-sm max-w-md mx-auto">
+                            你的最終得分為 <span class="text-emerald-400 font-bold text-lg">${quizScore} / ${quizQuestions.length}</span>。
+                            現在你已經掌握了用自然語言發想、用 UML 鎖定 AI 輸出的核心秘訣！
+                        </p>
+                        <button onclick="resetQuiz()" class="px-5 py-2.5 rounded-xl bg-vibe-600 hover:bg-vibe-500 text-white text-xs sm:text-sm font-semibold transition">
+                            重新挑戰一次
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const q = quizQuestions[currentQuizIndex];
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <h3 class="text-base sm:text-lg font-bold text-white leading-relaxed">${q.question}</h3>
+                    <div class="space-y-3" id="quiz-options">
+                        ${q.options.map((opt, idx) => `
+                            <button onclick="answerQuiz(${idx})" id="quiz-opt-${idx}" class="w-full text-left p-4 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs sm:text-sm text-slate-200 font-medium transition flex items-center justify-between">
+                                <span>${opt.text}</span>
+                                <i class="ph-bold ph-caret-right text-slate-500"></i>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="quiz-feedback" class="hidden p-4 rounded-xl text-xs sm:text-sm leading-relaxed"></div>
+                </div>
+            `;
+        }
+
+        function answerQuiz(selectedIndex) {
+            const q = quizQuestions[currentQuizIndex];
+            const chosen = q.options[selectedIndex];
+            const feedbackEl = document.getElementById('quiz-feedback');
+
+            // Disable all option buttons after selection
+            q.options.forEach((opt, idx) => {
+                const btn = document.getElementById(`quiz-opt-${idx}`);
+                btn.disabled = true;
+                if (opt.correct) {
+                    btn.className = 'w-full text-left p-4 rounded-xl bg-emerald-500/20 border border-emerald-500 text-xs sm:text-sm text-emerald-200 font-bold flex items-center justify-between';
+                } else if (idx === selectedIndex && !opt.correct) {
+                    btn.className = 'w-full text-left p-4 rounded-xl bg-rose-500/20 border border-rose-500 text-xs sm:text-sm text-rose-200 font-medium flex items-center justify-between';
+                } else {
+                    btn.className = 'w-full text-left p-4 rounded-xl bg-slate-900/40 border border-slate-800 text-xs sm:text-sm text-slate-500 flex items-center justify-between opacity-60';
+                }
+            });
+
+            if (chosen.correct) {
+                quizScore++;
+                document.getElementById('quiz-score').textContent = quizScore;
+                feedbackEl.className = 'p-4 rounded-xl text-xs sm:text-sm bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+            } else {
+                feedbackEl.className = 'p-4 rounded-xl text-xs sm:text-sm bg-rose-950/60 border border-rose-500/40 text-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+            }
+
+            feedbackEl.innerHTML = `
+                <div>${chosen.feedback}</div>
+                <button onclick="nextQuizQuestion()" class="px-4 py-2 rounded-lg bg-white text-slate-900 font-bold text-xs shrink-0 hover:bg-slate-200 transition self-end sm:self-auto">
+                    ${currentQuizIndex + 1 < quizQuestions.length ? '下一題 ➔' : '查看成績 ➔'}
+                </button>
+            `;
+            feedbackEl.classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            currentQuizIndex++;
+            renderQuiz();
+        }
+
+        function resetQuiz() {
+            currentQuizIndex = 0;
+            quizScore = 0;
+            renderQuiz();
+        }
+
+        // Initialize all sections on page load
+        window.onload = function () {
+            switchHeroMode('naive');
+            selectUmlTab('sequence');
+            loadScenario('pomodoro');
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
