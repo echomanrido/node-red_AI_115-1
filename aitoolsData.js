@@ -1326,5 +1326,80 @@ window.INITIAL_AITOOLS_DATA = [
         "url": "https://deepmind.google/technologies/gemini/"
       }
     ]
+  },
+  {
+    "id": "tool-gemini-memory-service",
+    "toolNumber": "22",
+    "title": "Gemini - 記憶功能 (個人化智慧服務)、自訂指令與活動記錄管理",
+    "date": "2026-10-15",
+    "category": "Gemini 智慧協作",
+    "summary": "Google Gemini「個人化智慧服務 (Personalized Smart Services)」是具備跨對話自主學習能力的智慧中樞。透過開啟「個人化記憶 (Personalized Memory)」，Gemini 能自動記住您的技術堆疊偏好、工控通訊規格與慣用代碼風格，無須在每次新會話中重複說明上下文。整合「給 Gemini 的自訂指令 (Custom Instructions)」、「連結的應用程式 (Extensions)」以及「活動記錄 (Activity History) 與自動刪除週期」，兼具深度個人化助理體驗與企業級隱私安全管理。",
+    "webUrl": "https://gemini.google.com",
+    "flowImage": [
+      "images_src/ok/20261015_gemini_memory_settings_menu.png",
+      "images_src/ok/20261015_gemini_personal_smart_service.png",
+      "images_src/ok/20261015_gemini_activity_history_help.png",
+      "images_src/ok/20261015_gemini_activity_retention_settings.png"
+    ],
+    "objective": "1. 認識 Google Gemini「個人化智慧服務」功能定位與「個人化記憶」跨對話持續學習機制。\n2. 掌握設定介面路徑：從左下角齒輪設定進入「偏好設定 ➔ 個人化智慧服務」並正確啟用「個人化記憶」。\n3. 學習配置「給 Gemini 的指令 (Custom Instructions)」，全域鎖定回應風格（如：強制繁體中文、架構圖優先、提供 Node-RED / C# 範例代碼）。\n4. 掌握「連結的應用程式 (Google Workspace / Drive)」授權方式，讓 Gemini 自動檢索雲端專案文件提供精準洞察。\n5. 熟悉「Gemini 活動記錄」的查看方式 (myactivity.google.com/product/gemini)、自動刪除週期設定 (如 18 個月) 與隱私保護政策。",
+    "tutorialSteps": [
+      {
+        "step": "1. 開啟 Gemini 設定選單並進入「個人化智慧服務」",
+        "description": "前往 Google Gemini 官方網站 (https://gemini.google.com)，點擊左下角的「設定與說明（齒輪圖示 ⚙）」，在展開的彈出選單中點選「偏好設定」底下的「個人化智慧服務（帶有星號的人像圖示 👤✨）」，即可進入個人化設定主控制台。"
+      },
+      {
+        "step": "2. 啟用「個人化記憶 (Personalized Memory)」開關",
+        "description": "在「個人化智慧服務」面板最上方，將「個人化記憶」右側的切換開關設定為啟用（藍色勾選狀態）。啟用後，Gemini 將自動從未來的提問與對話中累積關鍵上下文（例如您正在開發的工控機台型號、習慣使用的 Modbus RTU 封包格式），成為最懂您工作流的專屬夥伴。若需要查看或清除特定記憶，可點擊下方的「管理及刪除」對話記錄。"
+      },
+      {
+        "step": "3. 設定「給 Gemini 的指令 (Custom Instructions)」",
+        "description": "點擊進入「給 Gemini 的指令」區塊。在此自訂 Gemini 的全域回覆原則，例如設定：\n• 語言與語氣：『請一律使用台灣繁體中文，專業且嚴謹。』\n• 程式碼偏好：『回答工控題目時，優先給出完整可直接匯入的 Node-RED Flow JSON 或具備 try-catch 異常處理的 C# 代碼。』\n• 排版格式：『優先條列長篇文章重點，並以 Markdown 表格整理參數對照表。』"
+      },
+      {
+        "step": "4. 授權與設定「連結的應用程式 (Extensions)」",
+        "description": "點擊「連結的應用程式」，您可以授權 Gemini 連結 Google Workspace (雲端硬碟 Google Drive、Gmail、Google 文件) 或 YouTube 等服務。例如當您詢問機台規格時，Gemini 能直接檢索您雲端硬碟內的 PLC 暫存器配置試算表與專案驗收 PDF，實現無縫的個人化知識檢索。"
+      },
+      {
+        "step": "5. 管理與設定「Gemini 系列應用程式活動記錄」",
+        "description": "若需要控管個人或企業隱私數據：\n1. 點擊「活動記錄」或前往 (https://myactivity.google.com/product/gemini)。\n2. 檢視「保留活動記錄」狀態（可選擇開啟或關閉；若關閉，對話僅保留 72 小時供安全檢驗後自動移除）。\n3. 設定自動刪除期限：點選「刪除保存超過 18 個月的活動」（可切換為 3 個月、18 個月或 36 個月）。\n4. 隱私權選項：可依專案機密需求，自由取消勾選『使用您的音訊資料和 Gemini Live 影片及螢幕分享記錄改良 Google 服務』。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "跨專案工控參數記憶免重複說明",
+        "icon": "fa-solid fa-memory",
+        "description": "在日常工業機電開發中，工程師常需要反覆切換專案。啟用 Gemini 個人化記憶後，只要曾經提及『工廠目前使用三菱 FX5U，透過 Ethernet 連線，D0~D99 存放溫度感測值』，在後續開啟新會話時，直接詢問『寫一段 Node-RED 讀取主軸溫度的流程』，Gemini 即會自動帶入先前記住的 IP 與暫存器地址，省去重複貼上下文的時間。"
+      },
+      {
+        "scenario": "全域統一專案程式碼架構與錯誤防呆規範",
+        "icon": "fa-solid fa-sliders",
+        "description": "透過「給 Gemini 的指令」，設定所有輸出的 C# 與 JavaScript 程式碼必須符合工業級安全標準（包含 Watchdog 逾時機制、Modbus 斷線自動重連邏輯與非同步 Task/Await）。不論提出何種代碼需求，Gemini 都會自動套用該規範產出穩健的工控代碼。"
+      },
+      {
+        "scenario": "企業隱私與活動紀錄合規管理 (Data Governance)",
+        "icon": "fa-solid fa-shield-halved",
+        "description": "工控研發具備高度機密性。工程師可隨時在「Gemini 活動記錄」中刪除包含敏感產線配方或客戶 IP 的提示詞，或配置 3 個月自動抹除，並關閉人工訓練審查選項，確保在享受生成式 AI 輔助的同時完全符合資安稽核要求。"
+      }
+    ],
+    "aiPrompt": "【給 Gemini 的指令 (Custom Instructions) 推薦範例】：\n你是一名資深機電自動化與工業物聯網 (IIoT) 架構師，請遵循以下規範與我協作：\n1. 語言規範：請一律使用繁體中文（台灣習慣用語）回答。\n2. 代碼規範：涉及 Node-RED 請一律輸出有效、結構完整的 JSON Flow，並包含註釋；涉及 C# 請採用 .NET 8+ 非同步語法 (async/await)，且必須具備 try-catch 異常處理與記錄日誌。\n3. 工控背景：本專案預設硬體為三菱 FX5U 系列 PLC（搭配 MC Protocol 乙太網通訊）及 Modbus TCP 感測模組。\n4. 回答風格：先以條列式說明架構核心，接著提供可直接執行的代碼或配置步驟，最後給出常見異常排除建議。",
+    "references": [
+      {
+        "title": "Google Gemini 官方網站",
+        "url": "https://gemini.google.com"
+      },
+      {
+        "title": "Google 說明中心 - 管理及刪除 Gemini 系列應用程式活動記錄",
+        "url": "https://support.google.com/gemini/answer/13278668"
+      },
+      {
+        "title": "Google 帳戶「我的活動」Gemini 專區",
+        "url": "https://myactivity.google.com/product/gemini"
+      },
+      {
+        "title": "Google 隱私權中心 - Gemini 個人化智慧服務與資料保護聲明",
+        "url": "https://policies.google.com/technologies/gemini-privacy"
+      }
+    ]
   }
 ];
+
