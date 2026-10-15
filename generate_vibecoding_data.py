@@ -1081,8 +1081,8 @@ unit_09_superpowers = {
 unit_10_reverse_engineering = {
     "id": "vibe-reverse-engineering-traditional",
     "labNumber": "10",
-    "title": "逆向工程：傳統逆向工程與核心工具解析：Detect It Easy、IDA Pro 與 Ghidra 實戰指南",
-    "shortTitle": "逆向工程：傳統工具 (DIE/IDA/Ghidra)",
+    "title": "傳統逆向工程與核心工具解析：Detect It Easy、IDA Pro 與 Ghidra 實戰指南",
+    "shortTitle": "傳統逆向工具 (DIE/IDA/Ghidra)",
     "category": "其他",
     "subCategory": "逆向工程",
     "date": "2026-10-15",
@@ -1163,8 +1163,8 @@ unit_10_reverse_engineering = {
 unit_11_rea = {
     "id": "vibe-reverse-engineering-rea",
     "labNumber": "11",
-    "title": "逆向工程：REA (Reverse Engineer Anything)：AI 智能體逆向工程協議與實戰指南",
-    "shortTitle": "逆向工程：REA 智能體",
+    "title": "REA (Reverse Engineer Anything)：AI 智能體逆向工程協議與實戰指南",
+    "shortTitle": "REA AI 智能體逆向工程",
     "category": "其他",
     "subCategory": "逆向工程",
     "date": "2026-10-15",
@@ -1237,16 +1237,16 @@ unit_11_rea = {
     ]
 }
 
-# 12：AI Coding 新時代的團隊開發
-unit_12_team_dev = {
-    "id": "vibe-ai-coding-team-dev",
+# 12：AI Coding 新時代的團隊開發：實戰教學指南
+unit_12_team_dev_guide = {
+    "id": "vibe-team-dev-guide",
     "labNumber": "12",
-    "title": "團隊開發：AI Coding 新時代的團隊開發：從個人用 AI 到 AI-Native 組織 (陳宜昌 YC 演講精粹)",
-    "shortTitle": "AI Coding 新時代的團隊開發",
+    "title": "AI Coding 新時代的團隊開發：從個人用 AI 到 AI-Native 組織 (實戰教學指南)",
+    "shortTitle": "AI Coding 團隊開發實戰教學指南",
     "category": "其他",
-    "subCategory": "團隊開發",
+    "subCategory": "AI Coding 新時代的團隊開發",
     "date": "2026-10-15",
-    "summary": "改編自陳宜昌 (YC / Nova AI 創辦人) 於 HWDC 2026 的震撼演講。全方位解構 AI Coding 三大進階層次：Level 1 個人 AI 賦能、Level 2 Agentic Workflow 協同、Level 3 AI-Native 組織重構。深入探討組織架構三大黃金法則：徹底劃分「人組成決策團隊、Agent 組成執行團隊」、原型期「三大關卡」防線，以及為什麼「Spec 是鷹架不是藍圖」！本單元亦附完整演講時間軸與逐字稿索引。",
+    "summary": "改編自陳宜昌 (YC / Nova AI 創辦人) 於 HWDC 2026 的演講精粹。深入解構 AI Coding 三大進階層次：Level 1 個人 AI 賦能、Level 2 Agentic Workflow 協同、Level 3 AI-Native 組織重構。深入探討組織三大黃金法則：徹底劃分「人組成決策團隊、Agent 組成執行團隊」、原型期「三大關卡」防線，以及為什麼「Spec 是鷹架不是藍圖」！內建互動式架構模擬器。",
     "flowTitle": "AI Coding 三大進階維度與決策/執行團隊切分流水線",
     "resultTitle": "AI Coding 團隊開發實戰教學與架構模擬器",
     "flowImage": make_svg_diagram(
@@ -1290,11 +1290,11 @@ unit_12_team_dev = {
     },
     "references": [
         {
-            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (互動專題頁面)",
+            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (專屬互動頁面)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
         },
         {
-            "title": "陳宜昌 YC 演講時間軸與完整逐字稿紀要",
+            "title": "陳宜昌 YC 演講時間軸與完整逐字稿 (單元 13)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
         },
         {
@@ -1316,6 +1316,81 @@ unit_12_team_dev = {
     ]
 }
 
+# 13：AI Coding 新時代的團隊開發：演講時間軸與完整逐字稿
+unit_13_team_dev_transcript = {
+    "id": "vibe-team-dev-transcript",
+    "labNumber": "13",
+    "title": "AI Coding 新時代的團隊開發：陳宜昌 YC 演講時間軸與完整逐字稿",
+    "shortTitle": "團隊開發演講逐字稿時間軸",
+    "category": "其他",
+    "subCategory": "AI Coding 新時代的團隊開發",
+    "date": "2026-10-15",
+    "summary": "陳宜昌 YC 於 HWDC 演講的完整逐字紀要與互動時間軸索引。提供即時關鍵字過濾搜尋、演講投影片節點對齊、各章節重點摘要，並支援點擊時間戳精確同步跳轉至 YouTube 官方演講對應秒數。適合深度研讀演講中的每個關鍵問答、技術權衡與現場精華觀點。",
+    "flowTitle": "HWDC 演講完整時間軸節點與金句知識索引流",
+    "resultTitle": "演講逐字稿檢索與時間戳聯動系統",
+    "flowImage": make_svg_diagram(
+        "HWDC 演講時間軸與逐字稿索引架構",
+        "Timeline Navigation -> Full-text Search -> Slide Mapping -> YouTube Sync",
+        [
+            {"num": "T-01", "title": "開場破題", "sub": "從個人賦能到組織重構", "tag": "00:00"},
+            {"num": "T-02", "title": "三大層次", "sub": "Level 1 ~ 3 演進路徑", "tag": "08:15"},
+            {"num": "T-03", "title": "團隊分工", "sub": "決策團隊 vs 執行團隊", "tag": "22:40"},
+            {"num": "T-04", "title": "鷹架理論", "sub": "Spec 動態演進與守衛門禁", "tag": "35:10"},
+            {"num": "T-05", "title": "問答精粹", "sub": "現場 Q&A 與實戰落地問答", "tag": "48:00"}
+        ],
+        loop_label="逐字稿與 YouTube 時間戳毫秒級聯動，支援全文搜尋與簡報節點精準對照",
+        accent="#a855f7"
+    ),
+    "resultImage": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html",
+    "slideUrl": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html",
+    "objective": "1. 透過時間軸快速定位陳宜昌 YC 演講中關於 Agentic 工作流、團隊分工與 Spec 實戰的核心片段。\n2. 利用全文檢索功能秒查演講中的關鍵術語、案例與實戰踩坑經驗。\n3. 結合實戰教學指南 (單元 12) 進行深度複習，掌握從理論到落地的完整方法論。",
+    "tutorialSteps": [
+        {
+            "step": "功能 1: 演講時間軸導航",
+            "description": "依照演講進程分為五大區塊，點擊時間標籤即可查看該階段的核心議題與關鍵論點。"
+        },
+        {
+            "step": "功能 2: 全文即時檢索與關鍵字高亮",
+            "description": "輸入「Spec」、「鷹架」、「決策」、「Agent」，即時過濾演講逐字內容並標記重點。"
+        },
+        {
+            "step": "功能 3: YouTube 時間戳聯動跳轉",
+            "description": "點擊各段落的時間戳記，自動開啟或跳轉至 YouTube 原片對應播放秒數。"
+        }
+    ],
+    "promptTemplate": "請幫我檢索陳宜昌 YC 在 HWDC 2026 演講逐字稿中：\n1. 關於「工程師為什麼會淪為 Agent 的外送員/打雜工」的詳細論述與痛點分析。\n2. 關於「原型期三大關卡」的現場觀眾提問與回答內容。\n請列出時間戳記與關鍵逐字內容摘要。",
+    "codeSnippet": {
+        "language": "json",
+        "code": "{\n  \"timeline\": [\n    { \"time\": \"00:00\", \"title\": \"開場：AI Coding 帶來的工程危機與契機\" },\n    { \"time\": \"08:15\", \"title\": \"Level 1 到 Level 3 演進路線圖\" },\n    { \"time\": \"22:40\", \"title\": \"人組成決策團隊，Agent 組成執行團隊 (Slide 31)\" },\n    { \"time\": \"35:10\", \"title\": \"Spec 是鷹架不是藍圖，原型期三大關卡 (Slide 32-34)\" },\n    { \"time\": \"48:00\", \"title\": \"現場 Q&A 互動與總結\" }\n  ]\n}"
+    },
+    "references": [
+        {
+            "title": "陳宜昌 YC 演講時間軸與完整逐字稿 (專屬互動頁面)",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
+        },
+        {
+            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 12)",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
+        },
+        {
+            "title": "HWDC 2026 YouTube 演講原片",
+            "url": "https://youtu.be/-B9WLMJAiZM"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-file-lines",
+            "scenario": "技術分享與讀書會研讀",
+            "description": "團隊內部針對 AI Coding 轉型進行專題研討，搭配逐字稿快速查證與引述演講論點。"
+        },
+        {
+            "icon": "fa-solid fa-clock-rotate-left",
+            "scenario": "關鍵決策實例查閱",
+            "description": "在團隊討論技術選型與 Spec 制定時，快速調閱演講現場針對邊界守衛與關卡設計的具體問答回答。"
+        }
+    ]
+}
+
 vibe_labs = [
     unit_01_evolution,
     unit_02_guide,
@@ -1328,7 +1403,8 @@ vibe_labs = [
     unit_09_superpowers,
     unit_10_reverse_engineering,
     unit_11_rea,
-    unit_12_team_dev
+    unit_12_team_dev_guide,
+    unit_13_team_dev_transcript
 ]
 
 # 寫入 vibecoding.json
@@ -1340,5 +1416,5 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功更新資料結構，包含新 12 AI Coding 新時代的團隊開發！共保留 {len(vibe_labs)} 個單元。")
+print(f"成功更新資料結構，包含新 12 與 13 團隊開發！共保留 {len(vibe_labs)} 個單元。")
 

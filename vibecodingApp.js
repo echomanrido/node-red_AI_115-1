@@ -213,7 +213,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    let lastSubCategory = null;
     items.forEach(lab => {
+      // 若該單元有指定子分類 (如「逆向工程」或「AI Coding 新時代的團隊開發」)，且與上一項目不同時渲染分組小標題 (類似 AI 工具的 ● 分組標題風格)
+      if (lab.subCategory && lab.subCategory !== lastSubCategory) {
+        const groupTitle = document.createElement('div');
+        groupTitle.className = 'sidebar-group-title';
+        groupTitle.textContent = lab.subCategory;
+        vibeListEl.appendChild(groupTitle);
+        lastSubCategory = lab.subCategory;
+      } else if (!lab.subCategory) {
+        lastSubCategory = null;
+      }
+
       let catClass = 'tag-category-eng';
       if (lab.category.includes('Skills') || lab.category.includes('技能')) {
         catClass = 'tag-category-skills';
