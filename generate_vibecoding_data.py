@@ -1300,6 +1300,10 @@ unit_12_team_dev_guide = {
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
         },
         {
+            "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 14)",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
+        },
+        {
             "title": "HWDC 2026 YouTube 演講原片",
             "url": "https://youtu.be/-B9WLMJAiZM"
         }
@@ -1375,6 +1379,10 @@ unit_13_team_dev_transcript = {
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
         },
         {
+            "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 14)",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
+        },
+        {
             "title": "HWDC 2026 YouTube 演講原片",
             "url": "https://youtu.be/-B9WLMJAiZM"
         }
@@ -1393,6 +1401,89 @@ unit_13_team_dev_transcript = {
     ]
 }
 
+# 14：AI Coding 新時代的團隊開發：HWDC 2026 Keynote 完整精校逐字稿與互動解析
+unit_14_team_dev_transcript_interactive = {
+    "id": "vibe-team-dev-transcript-01",
+    "labNumber": "14",
+    "title": "AI Coding 新時代的團隊開發：陳宜昌 YC 演講完整精校逐字稿與互動解析",
+    "shortTitle": "演講精校逐字稿與互動解析",
+    "category": "其他",
+    "subCategory": "AI Coding 新時代的團隊開發",
+    "date": "2026-10-16",
+    "summary": "陳宜昌 YC 於 HWDC 2026 演講的 100% 完整精校逐字稿（含 558 行時間軸與專有名詞勘誤對照）。深度整合演講三張關鍵簡報（Slide 31 決策/執行團隊切分、Slide 33 鷹架理論、Slide 34 原型期三大關卡）原圖與互動燈箱、三大層次架構圖解、海外頂尖大神論戰（Kent Beck、Martin Fowler 等）路線決策器，以及開源專案 oat-agents TUI 終端機互動模擬器。支援內嵌 YouTube 播放秒數跳轉與完整 Markdown/TXT 格式下載。",
+    "flowTitle": "演講完整精校逐字稿、關鍵簡報、決策權衡與 TUI 終端機模擬工作台",
+    "resultTitle": "演講完整精校逐字稿與多維互動解析工作台",
+    "flowImage": make_svg_diagram(
+        "AI Coding 團隊開發逐字稿與多維解析管線",
+        "Full-text Transcript -> Key Slides Lightbox -> 3-Layer Architecture -> TUI Simulator",
+        [
+            {"num": "T-01", "title": "精校逐字", "sub": "558行時間軸精校對照", "tag": "Full Text"},
+            {"num": "T-02", "title": "簡報燈箱", "sub": "Slide 31/33/34 原圖", "tag": "Key Slides"},
+            {"num": "T-03", "title": "架構圖解", "sub": "Level 1~3 進階三層次", "tag": "Hierarchy"},
+            {"num": "T-04", "title": "路線決策", "sub": "海外大神論戰矩陣", "tag": "Debates"},
+            {"num": "T-05", "title": "TUI 模擬", "sub": "oat-agents 多代理終端", "tag": "Simulator"}
+        ],
+        loop_label="完整逐字稿、關鍵簡報、決策權衡與 TUI 終端機模擬之端到端學習工作台",
+        accent="#06b6d4"
+    ),
+    "resultImage": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html",
+    "slideUrl": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html",
+    "objective": "1. 研讀陳宜昌 YC 於 HWDC 2026 的 44 分鐘完整精校演講逐字稿與 558 行原始時間軸。\n2. 深入理解 Slide 31 人類決策團隊與 AI 執行團隊切分、Slide 33 鷹架 vs 藍圖、Slide 34 原型期三大關卡。\n3. 操作 oat-agents TUI 終端機模擬器，體驗 Meta + Member 雙層多代理架構與獨立 Git Worktree 隔離開發。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 完整逐字稿工作台與 YouTube 毫秒跳轉",
+            "description": "瀏覽 558 行完整校驗逐字稿，支援即時關鍵字高亮過濾、章節跳轉，點擊時間戳即可聯動內嵌 YouTube 播放器至對應秒數。"
+        },
+        {
+            "step": "步驟 2: 演講核心簡報精華與互動燈箱 (Slides 31, 33, 34)",
+            "description": "原汁原味展示 YC 演講中最關鍵的三頁簡報：實作交給執行團隊/人組成決策團隊、Spec 是鷹架不是藍圖、原型期三大關卡，點擊可放大燈箱檢視。"
+        },
+        {
+            "step": "步驟 3: 三層次核心架構圖解與海外大神論戰決策器",
+            "description": "深入解析 Level 1 個人賦能、Level 2 代理協同、Level 3 組織重構；對照 Kent Beck、Martin Fowler 等國際先驅觀點，依團隊現況計算推薦落地方案。"
+        },
+        {
+            "step": "步驟 4: oat-agents TUI 終端機多代理模擬器實戰",
+            "description": "模擬 tmux + TUI 環境下的 Meta Agent 指揮官與 Member Agents 分工、Git Worktree 隔離、變異測試 (Mutation Testing) 及助理匯報機制。"
+        }
+    ],
+    "promptTemplate": "你是一位專精於 AI-Native 研發團隊轉型的主任架構師。\n請依據陳宜昌 YC 在 HWDC 2026 Keynote 演講精校逐字稿（單元 14）與 Slide 31/33/34 的核心理論：\n1. 針對我們既有 10 人的工控與物聯網軟體團隊，設計一套 Meta + Member 雙層代理人架構。\n2. 制定一份以「鷹架理論」為核心的 GitHub Issue Spec 範本，說明驗證通過後如何拆除鷹架。\n3. 規劃原型期的「三大關卡 (Gates)」，特別是自動化回歸測試與變異測試 (Mutation Testing) 的門禁防線。",
+    "codeSnippet": {
+        "language": "bash",
+        "code": "# oat-agents CLI Skill 與多代理環境啟動範例\n$ npx @noopher/oat-agents-cli init\n\n# 啟動 Meta Agent 與獨立 Git Worktree 隔離工作流\n$ oat session start --meta --worktree feature/mqtt-offline-buffer\n\n# 注入 DDD 統一詞彙表與架構決策紀錄\n$ /grill-with-docs context.md ADR-001.md"
+    },
+    "references": [
+        {
+            "title": "AI Coding 新時代的團隊開發：完整精校逐字稿與互動解析 (專屬互動工作台)",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
+        },
+        {
+            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 12)",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
+        },
+        {
+            "title": "陳宜昌 YC 演講時間軸與精要逐字稿 (單元 13)",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
+        },
+        {
+            "title": "HWDC 2026 YouTube 演講原片",
+            "url": "https://youtu.be/-B9WLMJAiZM"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-graduation-cap",
+            "scenario": "團隊全員 AI 轉型研習與讀書會",
+            "description": "運用 100% 精校逐字稿與原版關鍵簡報，讓團隊成員深入掌握 AI-Native 研發範式轉移的核心脈絡。"
+        },
+        {
+            "icon": "fa-solid fa-terminal",
+            "scenario": "多代理隔離開發架構評估與落地",
+            "description": "透過 oat-agents 終端模擬器理解 Meta/Member 分工與 Worktree 隔離，評估導入多代理協同開發工具。"
+        }
+    ]
+}
+
 vibe_labs = [
     unit_01_evolution,
     unit_02_guide,
@@ -1406,7 +1497,8 @@ vibe_labs = [
     unit_10_reverse_engineering,
     unit_11_rea,
     unit_12_team_dev_guide,
-    unit_13_team_dev_transcript
+    unit_13_team_dev_transcript,
+    unit_14_team_dev_transcript_interactive
 ]
 
 # 寫入 vibecoding.json
@@ -1418,5 +1510,6 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功更新資料結構，包含新 12 與 13 團隊開發！共保留 {len(vibe_labs)} 個單元。")
+print(f"成功更新資料結構，包含新 12、13 與 14 團隊開發！共保留 {len(vibe_labs)} 個單元。")
+
 

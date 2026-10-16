@@ -999,6 +999,10 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
       },
       {
+        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 14)",
+        "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
+      },
+      {
         "title": "HWDC 2026 YouTube 演講原片",
         "url": "https://youtu.be/-B9WLMJAiZM"
       }
@@ -1060,6 +1064,10 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
       },
       {
+        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 14)",
+        "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
+      },
+      {
         "title": "HWDC 2026 YouTube 演講原片",
         "url": "https://youtu.be/-B9WLMJAiZM"
       }
@@ -1074,6 +1082,75 @@ window.INITIAL_VIBE_DATA = [
         "icon": "fa-solid fa-clock-rotate-left",
         "scenario": "關鍵決策實例查閱",
         "description": "在團隊討論技術選型與 Spec 制定時，快速調閱演講現場針對邊界守衛與關卡設計的具體問答回答。"
+      }
+    ]
+  },
+  {
+    "id": "vibe-team-dev-transcript-01",
+    "labNumber": "14",
+    "title": "AI Coding 新時代的團隊開發：陳宜昌 YC 演講完整精校逐字稿與互動解析",
+    "shortTitle": "演講精校逐字稿與互動解析",
+    "category": "其他",
+    "subCategory": "AI Coding 新時代的團隊開發",
+    "date": "2026-10-16",
+    "summary": "陳宜昌 YC 於 HWDC 2026 演講的 100% 完整精校逐字稿（含 558 行時間軸與專有名詞勘誤對照）。深度整合演講三張關鍵簡報（Slide 31 決策/執行團隊切分、Slide 33 鷹架理論、Slide 34 原型期三大關卡）原圖與互動燈箱、三大層次架構圖解、海外頂尖大神論戰（Kent Beck、Martin Fowler 等）路線決策器，以及開源專案 oat-agents TUI 終端機互動模擬器。支援內嵌 YouTube 播放秒數跳轉與完整 Markdown/TXT 格式下載。",
+    "flowTitle": "演講完整精校逐字稿、關鍵簡報、決策權衡與 TUI 終端機模擬工作台",
+    "resultTitle": "演講完整精校逐字稿與多維互動解析工作台",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMwNmI2ZDQiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjMDZiNmQ0Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+QUkgQ29kaW5nIOWcmOmaiumWi+eZvOmAkOWtl+eov+iIh+Wkmue2reino+aekOeuoee3mjwvdGV4dD4KICA8dGV4dCB4PSIzOCIgeT0iNjAiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iMTEiPkZ1bGwtdGV4dCBUcmFuc2NyaXB0IC0mZ3Q7IEtleSBTbGlkZXMgTGlnaHRib3ggLSZndDsgMy1MYXllciBBcmNoaXRlY3R1cmUgLSZndDsgVFVJIFNpbXVsYXRvcjwvdGV4dD4KICA8cmVjdCB4PSIyNSIgeT0iODAiIHdpZHRoPSI2NzAiIGhlaWdodD0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA4KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzQiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIzNCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjMDZiNmQ0Ii8+CiAgICA8Y2lyY2xlIGN4PSI1NiIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjMDZiNmQ0IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU2IiB5PSIxNDAiIGZpbGw9IiMwNmI2ZDQiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ULTAxPC90ZXh0PgogICAgPHJlY3QgeD0iMTAyIiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjEyMyIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RnVsbCBUZXh0PC90ZXh0PgogICAgPHRleHQgeD0iNDYiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPueyvuagoemAkOWtlzwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ2IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij41NTjooYzmmYLplpPou7jnsr7moKHlsI3nhac8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMTUzIDE2MCBMIDE2NSAxNjAiIHN0cm9rZT0iIzA2YjZkNCIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzA2YjZkNCIvPgogICAgPGNpcmNsZSBjeD0iMTkwIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiMwNmI2ZDQiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMTkwIiB5PSIxNDAiIGZpbGw9IiMwNmI2ZDQiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ULTAyPC90ZXh0PgogICAgPHJlY3QgeD0iMjM2IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjI1NyIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+S2V5IFNsaWRlczwvdGV4dD4KICAgIDx0ZXh0IHg9IjE4MCIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+57Ch5aCx54eI566xPC90ZXh0PgogICAgPHRleHQgeD0iMTgwIiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5TbGlkZSAzMS8zMy8zNDwvdGV4dD4KICAgIDx0ZXh0IHg9IjE4MCIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+IOWOn+WcljwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSAyODcgMTYwIEwgMjk5IDE2MCIgc3Ryb2tlPSIjMDZiNmQ0IiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjMwMiIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjMwMiIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjMDZiNmQ0Ii8+CiAgICA8Y2lyY2xlIGN4PSIzMjQiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzA2YjZkNCIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSIzMjQiIHk9IjE0MCIgZmlsbD0iIzA2YjZkNCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlQtMDM8L3RleHQ+CiAgICA8cmVjdCB4PSIzNzAiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iMzkxIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5IaWVyYXJjaHk8L3RleHQ+CiAgICA8dGV4dCB4PSIzMTQiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuaetuani+WcluinozwvdGV4dD4KICAgIDx0ZXh0IHg9IjMxNCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+TGV2ZWwgMX4zIOmAsumajuS4ieWxpDwvdGV4dD4KICAgIDx0ZXh0IHg9IjMxNCIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+5qyhPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDQyMSAxNjAgTCA0MzMgMTYwIiBzdHJva2U9IiMwNmI2ZDQiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iNDM2IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iNDM2IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiMwNmI2ZDQiLz4KICAgIDxjaXJjbGUgY3g9IjQ1OCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjMDZiNmQ0IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjQ1OCIgeT0iMTQwIiBmaWxsPSIjMDZiNmQ0IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VC0wNDwvdGV4dD4KICAgIDxyZWN0IHg9IjUwNCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSI1MjUiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkRlYmF0ZXM8L3RleHQ+CiAgICA8dGV4dCB4PSI0NDgiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPui3r+e3muaxuuetljwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ0OCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+5rW35aSW5aSn56We6KuW5oiw55+p6ZmjPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDU1NSAxNjAgTCA1NjcgMTYwIiBzdHJva2U9IiMwNmI2ZDQiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iNTcwIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iNTcwIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiMwNmI2ZDQiLz4KICAgIDxjaXJjbGUgY3g9IjU5MiIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjMDZiNmQ0IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU5MiIgeT0iMTQwIiBmaWxsPSIjMDZiNmQ0IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VC0wNTwvdGV4dD4KICAgIDxyZWN0IHg9IjYzOCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSI2NTkiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlNpbXVsYXRvcjwvdGV4dD4KICAgIDx0ZXh0IHg9IjU4MiIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+VFVJIOaooeaTrDwvdGV4dD4KICAgIDx0ZXh0IHg9IjU4MiIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+b2F0LWFnZW50cyDlpJrku6PnkIY8L3RleHQ+CiAgICA8dGV4dCB4PSI1ODIiIHk9IjIwMCIgZmlsbD0iIzY0NzQ4YiIgZm9udC1zaXplPSI4LjUiPue1guerrzwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA2MjggMjE4IEMgNjI4IDI2NSwgOTIgMjY1LCA5MiAyMTgiIHN0cm9rZT0iIzA2YjZkNCIgc3Ryb2tlLXdpZHRoPSIxLjIiIHN0cm9rZS1kYXNoYXJyYXk9IjUsNCIgZmlsbD0ibm9uZSIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8dGV4dCB4PSIzNjAiIHk9IjI2MCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjUwMCI+5a6M5pW06YCQ5a2X56i/44CB6Zec6Y2157Ch5aCx44CB5rG6562W5qyK6KGh6IiHIFRVSSDntYLnq6/mqZ/mqKHmk6zkuYvnq6/liLDnq6/lrbjnv5Llt6XkvZzlj7A8L3RleHQ+Cjwvc3ZnPg==",
+    "resultImage": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html",
+    "slideUrl": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html",
+    "objective": "1. 研讀陳宜昌 YC 於 HWDC 2026 的 44 分鐘完整精校演講逐字稿與 558 行原始時間軸。\n2. 深入理解 Slide 31 人類決策團隊與 AI 執行團隊切分、Slide 33 鷹架 vs 藍圖、Slide 34 原型期三大關卡。\n3. 操作 oat-agents TUI 終端機模擬器，體驗 Meta + Member 雙層多代理架構與獨立 Git Worktree 隔離開發。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 完整逐字稿工作台與 YouTube 毫秒跳轉",
+        "description": "瀏覽 558 行完整校驗逐字稿，支援即時關鍵字高亮過濾、章節跳轉，點擊時間戳即可聯動內嵌 YouTube 播放器至對應秒數。"
+      },
+      {
+        "step": "步驟 2: 演講核心簡報精華與互動燈箱 (Slides 31, 33, 34)",
+        "description": "原汁原味展示 YC 演講中最關鍵的三頁簡報：實作交給執行團隊/人組成決策團隊、Spec 是鷹架不是藍圖、原型期三大關卡，點擊可放大燈箱檢視。"
+      },
+      {
+        "step": "步驟 3: 三層次核心架構圖解與海外大神論戰決策器",
+        "description": "深入解析 Level 1 個人賦能、Level 2 代理協同、Level 3 組織重構；對照 Kent Beck、Martin Fowler 等國際先驅觀點，依團隊現況計算推薦落地方案。"
+      },
+      {
+        "step": "步驟 4: oat-agents TUI 終端機多代理模擬器實戰",
+        "description": "模擬 tmux + TUI 環境下的 Meta Agent 指揮官與 Member Agents 分工、Git Worktree 隔離、變異測試 (Mutation Testing) 及助理匯報機制。"
+      }
+    ],
+    "promptTemplate": "你是一位專精於 AI-Native 研發團隊轉型的主任架構師。\n請依據陳宜昌 YC 在 HWDC 2026 Keynote 演講精校逐字稿（單元 14）與 Slide 31/33/34 的核心理論：\n1. 針對我們既有 10 人的工控與物聯網軟體團隊，設計一套 Meta + Member 雙層代理人架構。\n2. 制定一份以「鷹架理論」為核心的 GitHub Issue Spec 範本，說明驗證通過後如何拆除鷹架。\n3. 規劃原型期的「三大關卡 (Gates)」，特別是自動化回歸測試與變異測試 (Mutation Testing) 的門禁防線。",
+    "codeSnippet": {
+      "language": "bash",
+      "code": "# oat-agents CLI Skill 與多代理環境啟動範例\n$ npx @noopher/oat-agents-cli init\n\n# 啟動 Meta Agent 與獨立 Git Worktree 隔離工作流\n$ oat session start --meta --worktree feature/mqtt-offline-buffer\n\n# 注入 DDD 統一詞彙表與架構決策紀錄\n$ /grill-with-docs context.md ADR-001.md"
+    },
+    "references": [
+      {
+        "title": "AI Coding 新時代的團隊開發：完整精校逐字稿與互動解析 (專屬互動工作台)",
+        "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
+      },
+      {
+        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 12)",
+        "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
+      },
+      {
+        "title": "陳宜昌 YC 演講時間軸與精要逐字稿 (單元 13)",
+        "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
+      },
+      {
+        "title": "HWDC 2026 YouTube 演講原片",
+        "url": "https://youtu.be/-B9WLMJAiZM"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-graduation-cap",
+        "scenario": "團隊全員 AI 轉型研習與讀書會",
+        "description": "運用 100% 精校逐字稿與原版關鍵簡報，讓團隊成員深入掌握 AI-Native 研發範式轉移的核心脈絡。"
+      },
+      {
+        "icon": "fa-solid fa-terminal",
+        "scenario": "多代理隔離開發架構評估與落地",
+        "description": "透過 oat-agents 終端模擬器理解 Meta/Member 分工與 Worktree 隔離，評估導入多代理協同開發工具。"
       }
     ]
   }
