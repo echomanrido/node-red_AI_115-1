@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReAct 自主代理 (Autonomous Agent) 架構 | 深度解析專題</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+            mono: ['Fira Code', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col font-sans">
+  <!-- 頂部導覽列 -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400">
+          <i class="fa-solid fa-robot text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-bold text-white flex items-center gap-2">
+            ReAct 自主代理人範式與閉環
+            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/30">代理範式</span>
+          </h1>
+          <p class="text-xs text-slate-400">機電 AI 115-1期 · Rido 老師知識專案</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="../aiknowledge.html?id=ai-kn-03" class="text-xs px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1.5 border border-slate-700">
+          <i class="fa-solid fa-arrow-left"></i> 回 AI 知識專區
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主內容區 -->
+  <main class="flex-1 max-w-7xl mx-auto w-full p-4 md:p-6 space-y-6">
+    <!-- Hero 橫幅 -->
+    <div class="rounded-xl p-6 bg-gradient-to-r from-sky-950/40 via-slate-900 to-purple-950/30 border border-sky-500/20">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-semibold text-sky-400 tracking-wider uppercase mb-1 block">從聊天機器人到自主行動代理</span>
+          <h2 class="text-2xl font-bold text-white">ReAct (Reasoning + Acting) 代理人思維行動閉環</h2>
+          <p class="text-sm text-slate-300 mt-2 max-w-3xl leading-relaxed">
+            Chatbot 只能動口（產生文字），而 Agent 具備「大腦（LLM 推理）」與「手腳（工具與 MCP 協議）」。透過 Thought → Action → Observation → Reflection 循環，Agent 能夠在工控與軟體開發中完成自主排錯與任務閉環。
+          </p>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-center min-w-[150px]">
+          <div class="text-xs text-slate-400">核心能力躍遷</div>
+          <div class="text-base font-bold text-sky-400 mt-1">自主自愈 (Self-Healing)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 四階段 ReAct 閉環 -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="p-4 rounded-xl bg-slate-900/70 border border-sky-500/30 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-sky-400 uppercase tracking-wider">Step 01</span>
+            <span class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs"><i class="fa-solid fa-brain"></i></span>
+          </div>
+          <h3 class="font-bold text-base text-white">Thought (推理思考)</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            接收使用者意圖後，不急著回答。先在思維鏈中進行邏輯拆解、辨識前提假設與規劃步驟。
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-sky-300 font-mono">
+          目標：規劃出精確的行動呼叫
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/70 border border-purple-500/30 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-purple-400 uppercase tracking-wider">Step 02</span>
+            <span class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs"><i class="fa-solid fa-terminal"></i></span>
+          </div>
+          <h3 class="font-bold text-base text-white">Action (工具行動)</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            透過 MCP 協議或 Function Calling 執行具體工具：讀寫檔案、呼叫 REST API 或讀取 PLC 暫存器。
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-purple-300 font-mono">
+          能力：跨出對話框操作真實世界
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/70 border border-rose-500/30 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-rose-400 uppercase tracking-wider">Step 03</span>
+            <span class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs"><i class="fa-solid fa-eye"></i></span>
+          </div>
+          <h3 class="font-bold text-base text-white">Observation (客觀觀測)</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            收集工具執行回傳的日誌、狀態碼或報錯堆疊。依據客觀事實校正認知，杜絕主觀臆測。
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-rose-300 font-mono">
+          關鍵：取得確定性環境反饋
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/70 border border-emerald-500/30 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Step 04</span>
+            <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-arrows-rotate"></i></span>
+          </div>
+          <h3 class="font-bold text-base text-white">Reflection (反思自愈)</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            若結果未達預期或出現報錯，自主診斷根因並進行修正；若已完全滿足目標，則正式提交工件。
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-emerald-300 font-mono">
+          產出：自適應收斂至完成態
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

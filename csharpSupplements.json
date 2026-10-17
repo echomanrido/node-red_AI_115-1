@@ -1,0 +1,358 @@
+[
+  {
+    "id": "cs-sup-01",
+    "supNumber": "01",
+    "title": "Visual Studio 2026/2022 社群版安裝與 .NET 桌面開發環境配置",
+    "date": "2026-08-12",
+    "category": "環境建置",
+    "summary": "工控 PC-Based 程式開發首選工具 Visual Studio 完整安裝教學。詳解「.NET 桌面開發」工作負載挑選、C# Windows Forms 設計工具支援、常用 NuGet 套件管理員配置以及深色工控佈景主題優化。",
+    "image": "images_src/ok/node-red_csharp_02-page-1.jpg",
+    "objective": "1. 掌握 Visual Studio Community (社群版) 的官方免費授權申請與安裝流程。\n2. 正確勾選「.NET 桌面程式開發」工作負載，包含 C#、Windows Forms 與 WPF 核心模組。\n3. 學會使用 NuGet 套件管理員安裝工控常用通訊元件 (如 NModbus4, MQTTnet, InfluxDB.Client)。",
+    "tutorialSteps": [
+      {
+        "step": "1. 下載 Visual Studio 安裝程式 (Installer)",
+        "description": "至微軟官方網站下載 Visual Studio Community 繁體中文安裝檔，啟動 Visual Studio Installer。"
+      },
+      {
+        "step": "2. 勾選關鍵工作負載 (Workloads)",
+        "description": "在安裝選項中，務必勾選「.NET 桌面開發 (包含 C# 與 Visual Basic 的 Windows Forms 桌面應用程式)」以及「.NET 8.0 / 9.0 執行階段」。"
+      },
+      {
+        "step": "3. 建立第一個 WinForms 工控專案",
+        "description": "啟動 Visual Studio，點選「建立新專案」➔ 篩選 C# / Windows / 桌面 ➔ 選擇「Windows Forms 應用程式 (.NET 8.0)」➔ 設定專案名稱為 CSharpIndustrialLab。"
+      },
+      {
+        "step": "4. 配置 NuGet 套件與輸出設定",
+        "description": "在方案總管的專案名稱按右鍵 ➔「管理 NuGet 套件」➔ 搜尋並安裝 System.IO.Ports (串列埠通訊函式庫)。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "快速建立標準化工控軟體架構",
+        "description": "藉由 Visual Studio 範本建立標準化目錄結構 (Models, Services, Controls, Forms)，便於產線軟體維護與版本控管。",
+        "icon": "fa-solid fa-laptop-code"
+      }
+    ],
+    "aiPrompt": "請以 Markdown 條列式說明：在 Windows 11 環境下配置 Visual Studio 2022/2026 進行工控 C# 開發，最推薦安裝的 5 個核心 NuGet 套件與理由（例如 System.IO.Ports, MQTTnet, NModbus4 等）。",
+    "references": [
+      {
+        "title": "Microsoft Visual Studio 官方下載中心",
+        "url": "https://visualstudio.microsoft.com/zh-hant/"
+      },
+      {
+        "title": "Microsoft Learn - 建立第一個 Windows Forms 應用程式",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/desktop/winforms/get-started/create-app-visual-studio"
+      }
+    ]
+  },
+  {
+    "id": "cs-sup-02",
+    "supNumber": "02",
+    "title": "C# 串列埠 SerialPort 參數詳解與防鎖死/超時防護指南",
+    "date": "2026-08-15",
+    "category": "序列通訊",
+    "summary": "深入剖析 RS232 / RS485 實體層通訊關鍵參數（BaudRate, DataBits, Parity, StopBits），以及在 C# 中使用 SerialPort 容易遇到的 UI 卡死、執行緒鎖定與緩衝區溢位問題，提供工業級防禦性程式碼範本。",
+    "image": "images_src/ok/node-red_csharp_02-page-2.jpg",
+    "objective": "1. 徹底理解波特率 (Baud Rate)、同位檢查位元 (Parity)、資料長度與停止位元的硬體物理意義。\n2. 掌握 ReadTimeout 與 WriteTimeout 設定，防止因現場訊號線脫落導致軟體永久未響應 (Not Responding)。\n3. 學會正確呼叫 DiscardInBuffer() 與 DiscardOutBuffer() 清除歷史殘留雜訊。",
+    "tutorialSteps": [
+      {
+        "step": "1. 串列參數硬體對齊原則",
+        "description": "電腦上位機與 PLC / 感測器端之 BaudRate (9600)、Parity (None/Even)、DataBits (7/8)、StopBits (1/2) 必須完全一致，否則接收將全是亂碼 (Garbage Characters)。"
+      },
+      {
+        "step": "2. 設定防卡死超時限制 (Timeout)",
+        "description": "嚴禁將 ReadTimeout 與 WriteTimeout 設為 SerialPort.Infinite！建議設定為 500 ~ 1000 毫秒，並以 try-catch(TimeoutException) 妥善攔截處理。"
+      },
+      {
+        "step": "3. 避免在 DataReceived 事件中進行繁重運算",
+        "description": "DataReceived 是在執行緒集區 (ThreadPool) 中觸發，若在此事件中執行耗時 SQL 寫入或磁碟存取會造成串列緩衝區溢位遺失封包。應僅快速將資料推入 Queue (佇列)，由獨立 BackgroundWorker 消費處理。"
+      },
+      {
+        "step": "4. 安全關閉序列埠 (Safe Close Pattern)",
+        "description": "在關閉 SerialPort 前，務必先取消註冊 DataReceived 事件，並等待未完成讀取結束，避免 FormClosing 時發生執行緒死結 (Deadlock)。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "高雜訊工廠環境下的序列連線自癒系統",
+        "description": "當現場變頻器啟動造成 EMI 干擾產生校驗錯誤時，程式能自動重拋超時並重送請求，連續 3 次失敗才通報實體線路檢修。",
+        "icon": "fa-solid fa-shield-virus"
+      }
+    ],
+    "aiPrompt": "請幫我用 C# 編寫一個防鎖死的 SafeSerialPortHelper 封裝類別，包含：\n1. 設定合理 Timeout (1000ms)。\n2. 具備執行緒安全的 SendAndReceiveString(string cmd) 函式。\n3. 在連線中斷或關閉表單時不會發生死結 (Deadlock) 的安全關閉 (SafeClose) 模式。\n請附帶異常處理最佳實踐。",
+    "references": [
+      {
+        "title": "Microsoft Learn - System.IO.Ports.SerialPort 最佳實踐",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.io.ports.serialport"
+      }
+    ]
+  },
+  {
+    "id": "cs-sup-03",
+    "supNumber": "03",
+    "title": "三菱 FX 系列 PLC 序列通訊 ASCII 封包協定與 CheckSum 驗證演算法精解",
+    "date": "2026-08-18",
+    "category": "通訊協定",
+    "summary": "三菱 MELSEC-F 系列 (FX1N, FX2N, FX3U) 微型 PLC 程式撰寫埠 (Programming Port) 通訊協議完全解析。圖解 STX/ETX/ENQ 幀格式、資料位址轉換演算法與兩位元 CheckSum 運算推導公式。",
+    "image": "images_src/ok/node-red_csharp_02-page-2.jpg",
+    "objective": "1. 掌握三菱 FX 序列協定的 5 大核心控制字元：ENQ (0x05), ACK (0x06), NAK (0x15), STX (0x02), ETX (0x03)。\n2. 理解「指令碼 ('0' 讀取, '1' 寫入, '7' 強制 ON, '8' 強制 OFF)」與實體暫存器定址算法。\n3. 學會手算 CheckSum 累加和：(Sum of ASCII bytes) & 0xFF 轉換為雙碼十六進位。",
+    "tutorialSteps": [
+      {
+        "step": "1. 控制字元 ASCII 與 Hex 對照表",
+        "description": "• ENQ (0x05)：上位機詢問 PLC 是否連線\n• ACK (0x06)：PLC 回應確認，表示正常\n• NAK (0x15)：PLC 回應否認，表示封包語法或校驗錯誤\n• STX (0x02)：資料封包開始\n• ETX (0x03)：資料封包內容結束"
+      },
+      {
+        "step": "2. 資料暫存器 D 記憶體位址轉換演算法",
+        "description": "在 FX 協定中，D 暫存器實體基底位址為 0x1000。公式：`Addr = 0x1000 + (D_Index * 2)`。\n例如 D0 ➜ 0x1000；D1 ➜ 0x1002；D10 ➜ 0x1014 (16進位)。每個暫存器由 2 個位元組（低位在前、高位在後）組成。"
+      },
+      {
+        "step": "3. CheckSum 累加和演算法推導",
+        "description": "從 STX 之後的第一個字元開始累加，直到 ETX (包含 ETX 0x03 本身)。將總和模除 256 (即 `sum & 0xFF`)，最後轉為大寫 16 進位字串 (例如 \"4A\")。"
+      },
+      {
+        "step": "4. 實例封包演算",
+        "description": "強制 Y0 置位命令：\nSTX + '7' + \"0500\" + ETX ➜ 字元 ASCII 和：0x37 + 0x30 + 0x35 + 0x30 + 0x30 + 0x03 = 0x10F ➜ `0x10F & 0xFF = 0x0F` ➜ CheckSum = \"0F\" ➜ 完整封包 `\\x0270500\\x030F`。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "自研三菱 PLC 原生驅動程式",
+        "description": "擺脫第三方付費軟體授權，直接以純 C# 控制機電設備，毫秒級讀寫 PLC 暫存器。",
+        "icon": "fa-solid fa-microchip"
+      }
+    ],
+    "aiPrompt": "請幫我寫一個 C# 控制台程式，示範如何手動計算三菱 FX 系列 PLC 的 CheckSum：\n給定輸入字串 \"70500\\x03\"，輸出其累加和 CheckSum 雙碼十六進位字串，並附上逐步計算過程說明。",
+    "references": [
+      {
+        "title": "三菱電機 - FX 序列通訊編程手冊",
+        "url": "https://www.mitsubishielectric.tw/"
+      }
+    ]
+  },
+  {
+    "id": "cs-sup-04",
+    "supNumber": "04",
+    "title": "WinForms 多執行緒與跨執行緒 UI 更新 (Control.Invoke / async-await) 避坑指南",
+    "date": "2026-08-20",
+    "category": "多執行緒",
+    "summary": "工控介面開發最常見的「Cross-thread operation not valid」跨執行緒例外成因詳解。深入介紹 Control.InvokeRequired、BeginInvoke、BackgroundWorker 與現代 Task / async-await 的非同步架構，打造不卡頓、不閃退的 24 小時穩健工控人機軟體。",
+    "image": "images_src/ok/node-red_csharp_02-page-3.jpg",
+    "objective": "1. 理解 Windows 視窗應用程式的單執行緒單元 (STA) 與訊息迴圈 (Message Loop) 運作原理。\n2. 掌握 `this.InvokeRequired` 判定機制，學會撰寫全自動跨執行緒輔助擴充方法。\n3. 理解 Control.Invoke (同步阻塞) 與 Control.BeginInvoke (非同步排程) 的效能差異與死結成因。",
+    "tutorialSteps": [
+      {
+        "step": "1. 為什麼會發生 Cross-thread 例外？",
+        "description": "Windows Forms 的控制項是在 UI 主執行緒建立的。當背景執行緒 (例如 SerialPort.DataReceived、Timer 執行緒) 試圖直接修改 label.Text 時，會因執行緒安全衝突觸發 InvalidOperationException。"
+      },
+      {
+        "step": "2. 使用 InvokeRequired 萬用擴充方法",
+        "description": "撰寫擴充方法：若 `control.InvokeRequired` 為 true，則呼叫 `control.Invoke(action)`；否則直接執行 `action()`。"
+      },
+      {
+        "step": "3. 現代 C# async / await 最佳實踐",
+        "description": "在按鈕 Click 事件宣告為 async void，並使用 `await Task.Run(() => ReadPlcData())` 執行通訊，await 返回後自動回到 UI 執行緒，完全無需手動 Invoke。"
+      },
+      {
+        "step": "4. 避免 Invoke 造成死結 (Deadlock)",
+        "description": "千萬不要在 UI 主執行緒中呼叫 `task.Wait()` 或 `task.Result` 同時在 Task 內部呼叫 `Invoke()`，這會造成彼此等待引發程式永久凍結。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "高頻高速工控數據即時更新視窗",
+        "description": "每秒 100 次的雷射測距儀即時更新 WinForms 折線圖與數值標籤，UI 操作依然絲滑流暢無延遲。",
+        "icon": "fa-solid fa-gauge-high"
+      }
+    ],
+    "aiPrompt": "請幫我用 C# 撰寫一個 ControlExtensions 擴充類別，提供一個名為 SafeInvoke 的方法。\n讓任何 WinForms 控制項（如 Label, TextBox, Button）可以安全地從背景執行緒更新屬性，自動判定 InvokeRequired，避免跨執行緒例外，並附上使用範例。",
+    "references": [
+      {
+        "title": "Microsoft Learn - 如何對 Windows Forms 控制項進行安全執行緒呼叫",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/desktop/winforms/controls/how-to-make-thread-safe-calls"
+      }
+    ]
+  },
+  {
+    "id": "cs-sup-05",
+    "supNumber": "05",
+    "title": "工業乙太網 Modbus TCP 通訊協定與 NModbus4 函式庫快速上手",
+    "date": "2026-08-22",
+    "category": "工業網路",
+    "summary": "掌握工業 4.0 領域最廣泛採用的 Modbus TCP 開放協定。剖析 MBAP 報頭結構、四大記憶體區塊（線圈、離散輸入、輸入暫存器、保持暫存器）與常用功能代碼 (01, 02, 03, 04, 05, 06, 16)，並以開源 NModbus4 快速實作 PLC 讀寫通訊。",
+    "image": "images_src/ok/node-red_csharp_02-page-7.jpg",
+    "objective": "1. 理解 Modbus TCP 與 Modbus RTU 的核心差異（TCP 封裝 MBAP Header，移除 CRC16 改由乙太網校驗）。\n2. 掌握 4 大暫存器區塊定義：0xxxx (Coils), 1xxxx (Discrete Inputs), 3xxxx (Input Registers), 4xxxx (Holding Registers)。\n3. 學會使用 NModbus4 函式庫建立 ModbusIpMaster，讀取智慧電表與 PLC 保持暫存器。",
+    "tutorialSteps": [
+      {
+        "step": "1. Modbus TCP 報文結構詳解 (MBAP Header)",
+        "description": "前 7 位元組為 MBAP 報頭：\n- 傳輸識別碼 (Transaction ID, 2 bytes)\n- 協議識別碼 (Protocol ID, 2 bytes, 永遠為 0x0000)\n- 長度 (Length, 2 bytes)\n- 單元識別碼 (Unit ID / Slave ID, 1 byte)"
+      },
+      {
+        "step": "2. 常見功能碼 (Function Codes)",
+        "description": "• 01 (0x01)：讀取線圈 (Read Coils, 0xxxx)\n• 02 (0x02)：讀取離散輸入 (Read Discrete Inputs, 1xxxx)\n• 03 (0x03)：讀取保持暫存器 (Read Holding Registers, 4xxxx)\n• 04 (0x04)：讀取輸入暫存器 (Read Input Registers, 3xxxx)\n• 05 (0x05)：寫入單一線圈\n• 06 (0x06)：寫入單一暫存器\n• 16 (0x10)：批次寫入多個保持暫存器"
+      },
+      {
+        "step": "3. 透過 NuGet 安裝 NModbus4",
+        "description": "在 Visual Studio 封裝管理員主控台執行：`Install-Package NModbus4`。"
+      },
+      {
+        "step": "4. 撰寫 C# 連線與讀取程式碼",
+        "description": "使用 TcpClient 連線目標設備 IP:502，建立 ModbusIpMaster.CreateIp(client)，呼叫 ReadHoldingRegisters(slaveId, startAddr, numPoints) 取得 ushort[] 陣列。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "跨品牌工業設備混合監控系統",
+        "description": "中央 SCADA 透過單一 Modbus TCP 網路同時監控施耐德 PLC、台達變頻器與西門子智慧電表，實現統一數據採集。",
+        "icon": "fa-solid fa-network-wired"
+      }
+    ],
+    "aiPrompt": "請幫我用 C# 與 NModbus4 撰寫一個 ModbusTcpClientHelper 類別。\n包含：\n1. 連線目標 IP 與 Port (預設 502)。\n2. 讀取保持暫存器 ReadHoldingRegisters(byte slaveId, ushort startAddress, ushort count)。\n3. 寫入多個暫存器 WriteMultipleRegisters(byte slaveId, ushort startAddress, ushort[] values)。\n4. 包含錯誤處理與超時保護。",
+    "references": [
+      {
+        "title": "Modbus 官方組織技術標準手冊 (Modbus Application Protocol V1.1b)",
+        "url": "https://modbus.org/"
+      },
+      {
+        "title": "NModbus4 GitHub 開源庫",
+        "url": "https://github.com/NModbus4/NModbus4"
+      }
+    ]
+  },
+  {
+    "id": "cs-sup-06",
+    "supNumber": "06",
+    "title": "C# 串接 RESTful Web API 與 JSON 高效序列化 (System.Text.Json)",
+    "date": "2026-08-24",
+    "category": "Web API",
+    "summary": "掌握工業物聯網向 IT / MES 資訊系統匯流的核心能力。使用現代 C# HttpClient 發送 GET/POST 請求，搭配高性能 System.Text.Json 函式庫解析 JSON 酬載，實作氣象預報取得與廠務工單系統整合。",
+    "image": "images_src/ok/node-red_csharp_02-page-7.jpg",
+    "objective": "1. 掌握 HttpClient 生命週期管理，避免通訊埠耗盡 (Socket Exhaustion)。\n2. 學習 System.Text.Json 序列化與反序列化 (JsonSerializer.Deserialize<T>) 技巧。\n3. 實作呼叫台灣銀行匯率或氣象署開放資料 API，並將結果自動呈現在工控畫面上。",
+    "tutorialSteps": [
+      {
+        "step": "1. 正確宣告靜態 HttpClient",
+        "description": "嚴禁在每次請求中 new HttpClient()！應使用 `private static readonly HttpClient _http = new HttpClient();` 或 IHttpClientFactory。"
+      },
+      {
+        "step": "2. 定義強型別資料模型 (Model Class)",
+        "description": "依據 JSON 結構宣告對應的 C# 類別，使用 [JsonPropertyName(\"...\")] 屬性映射 API 欄位名稱。"
+      },
+      {
+        "step": "3. 非同步發送 GET 請求並反序列化",
+        "description": "使用 `await _http.GetFromJsonAsync<WorkOrderResponse>(url)` 一行代碼完成 HTTP 傳輸與資料模型自動對照轉換。"
+      },
+      {
+        "step": "4. POST 發送產線生產報工數據",
+        "description": "將工件檢驗結果物件以 `JsonSerializer.Serialize()` 轉為 StringContent，發送 POST 請求至 MES 伺服器並檢驗狀態代碼 200 OK。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "MES 生產工單自動下發與即時報工",
+        "description": "產線開工前 PC 自動向 MES API 索取今日生產規格與公差配方；作業完成後自動上傳檢驗尺寸與良品計數。",
+        "icon": "fa-solid fa-cloud-arrow-up"
+      }
+    ],
+    "aiPrompt": "請幫我用 C# (.NET 8) 撰寫一個呼叫外部 RESTful API 的範例程式。\n要求：\n1. 使用靜態 HttpClient。\n2. 呼叫一個 GET API 並使用 System.Text.Json 反序列化為自訂類別物件。\n3. 呼叫一個 POST API 發送包含設備狀態與時間戳的 JSON 數據。\n4. 包含完整 async/await 與 HttpRequestException 捕捉。",
+    "references": [
+      {
+        "title": "Microsoft Learn - 在 .NET 中使用 HttpClient 呼叫 Web API",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/fundamentals/networking/http/httpclient"
+      },
+      {
+        "title": "Microsoft Learn - System.Text.Json 概觀與效能優勢",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/standard/serialization/system-text-json/overview"
+      }
+    ]
+  },
+  {
+    "id": "cs-sup-07",
+    "supNumber": "07",
+    "title": "C# 整合 InfluxDB 2.x 時序資料庫高效寫入工控數據實務",
+    "date": "2026-08-26",
+    "category": "時序資料庫",
+    "summary": "傳統關聯式資料庫 (MySQL/MSSQL) 在面對每秒萬筆高頻感測數據時容易發生磁碟 I/O 瓶頸。本篇深入介紹專為物聯網設計的 InfluxDB 時序資料庫，剖析 Measurement、Tag (索引標籤)、Field (量測欄位) 與 Point 批次寫入架構。",
+    "image": "images_src/ok/node-red_csharp_02-page-11.jpg",
+    "objective": "1. 理解時序資料庫 (Time Series DB) 與關聯式資料庫的架構差異與壓縮優勢。\n2. 掌握 InfluxDB 2.x 核心概念：Bucket (儲存桶)、Organization (組織)、API Token、Measurement、Tags 與 Fields。\n3. 學會使用 InfluxDB.Client 在 C# 中啟用背景批次快取寫入 (Batching)，極小化網路延遲與伺服器負載。",
+    "tutorialSteps": [
+      {
+        "step": "1. 架設本地 InfluxDB 2.x 實例",
+        "description": "利用 Docker 或 Windows 執行檔啟動 InfluxDB，建立組織名稱 wugu_ai，建立 Bucket factory_telemetry，並複製 88 字元 API Token。"
+      },
+      {
+        "step": "2. 安裝官方 InfluxDB.Client NuGet 套件",
+        "description": "執行 `Install-Package InfluxDB.Client` 引用最新官方 .NET 用戶端支援函式庫。"
+      },
+      {
+        "step": "3. 建立 PointData 資料點",
+        "description": "使用流暢 API (Fluent API)：\n`PointData.Measurement(\"motor_vibration\").Tag(\"line\", \"A1\").Tag(\"motor_id\", \"M-01\").Field(\"x_rms\", 2.45).Field(\"temp\", 45.2).Timestamp(DateTime.UtcNow, WritePrecision.Ns);`"
+      },
+      {
+        "step": "4. 啟用 WriteApi 批次自動提交",
+        "description": "透過 WriteOptionsBuilder 設定 BatchSize = 1000、FlushInterval = 500ms，在不影響產線通訊下高速批量寫入時序庫。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "旋轉機械設備預測性維護 (PdM)",
+        "description": "每秒 1,000 點震動加速規高頻採集寫入 InfluxDB，Grafana 儀表板動態顯示 FFT 頻譜分析，提前預警軸承磨損。",
+        "icon": "fa-solid fa-chart-line"
+      }
+    ],
+    "aiPrompt": "請幫我用 C# (.NET 8) 寫一個 InfluxDbBatchLogger 類別。\n使用 InfluxDB.Client 函式庫：\n1. 初始化連線 URL, Token, Org, Bucket。\n2. 配置非同步批次寫入 (BatchSize=500, FlushInterval=1000ms)。\n3. 提供 LogSensorTelemetry(string machineId, double temperature, double vibration) 方法。\n4. 包含 Dispose 資源釋放邏輯。",
+    "references": [
+      {
+        "title": "InfluxDB 官方文檔 - InfluxDB 2.x 核心架構",
+        "url": "https://docs.influxdata.com/influxdb/v2/"
+      },
+      {
+        "title": "GitHub - InfluxDB .NET Client 官方開源庫",
+        "url": "https://github.com/influxdata/influxdb-client-csharp"
+      }
+    ]
+  },
+  {
+    "id": "cs-sup-08",
+    "supNumber": "08",
+    "title": "C# 本地端 AI 整合：調用 Ollama HTTP API 實現工控邊緣視覺辨識",
+    "date": "2026-08-28",
+    "category": "邊緣 AI",
+    "summary": "工控環境嚴禁機密製程影像外流至公有雲。本篇詳解如何在封閉廠區局域網中，以 C# 呼叫本地端運行之 Ollama (LLaVA / Moondream 視覺模型)，將相機拍攝之料件外觀自動轉 Base64 進行瑕疵辨識與字元 OCR 判讀。",
+    "image": "images_src/ok/node-red_csharp_02-page-8.jpg",
+    "objective": "1. 了解本地端大語言模型 (Local LLM) 與邊緣多模態視覺模型在工業現場的隱私與低延遲優勢。\n2. 掌握 Ollama `/api/generate` 接口規範與傳送 Base64 圖片陣列的資料格式。\n3. 學會透過 C# 解析邊緣 AI 回傳的結構化 JSON 結果，並連動 PLC 氣缸將不良品剔除。",
+    "tutorialSteps": [
+      {
+        "step": "1. 準備本地端 Ollama 視覺推論環境",
+        "description": "在具備 NVIDIA 顯卡之工控機執行 `ollama run llava:7b` 或輕量化 `ollama run moondream`，確認本機埠 11434 運作正常。"
+      },
+      {
+        "step": "2. 工業相機取像與記憶體圖片編碼",
+        "description": "透過相機 SDK 捕獲 Bitmap，儲存至 MemoryStream 並呼叫 `Convert.ToBase64String(ms.ToArray())`，避免反覆硬碟讀寫 I/O 損耗。"
+      },
+      {
+        "step": "3. 構造多模態 Prompt 請求封包",
+        "description": "設定 model: \"llava\", stream: false, prompt: \"請檢查這塊 PCB 電路板電容是否焊反或缺少，回傳合格 (PASS) 或不良 (FAIL)\", images: [base64Image]。"
+      },
+      {
+        "step": "4. 連動 PLC 實體分流氣缸",
+        "description": "若 AI 回傳內容包含 \"FAIL\"，C# 立即發送指令強制三菱 PLC 輸出 Y2=ON，推動氣壓缸將瑕疵品推入廢料箱。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "全自動視覺品檢與不良品分流機",
+        "description": "輸送帶相機觸發取像，0.5秒內本地 AI 判定焊點瑕疵，PLC 吹氣閥精準剔除，良率提升至 99.8%。",
+        "icon": "fa-solid fa-eye"
+      }
+    ],
+    "aiPrompt": "請幫我用 C# (.NET 8) 撰寫一個 OllamaVisionInspectionClient 類別。\n包含：\n1. 連接本機 Ollama 服務 (http://localhost:11434/api/generate)。\n2. 輸入 Bitmap 圖片物件與檢查提示詞 (Prompt)。\n3. 自動將 Bitmap 在記憶體中轉 JPEG Base64。\n4. 發送非同步 POST 請求並回傳 AI 判定字串。\n代碼乾淨且具備適當註解。",
+    "references": [
+      {
+        "title": "Ollama 官方多模態視覺模型 (Vision Models) 支援手冊",
+        "url": "https://ollama.com/library/llava"
+      },
+      {
+        "title": "Ollama REST API 官方文檔",
+        "url": "https://github.com/ollama/ollama/blob/main/docs/api.md"
+      }
+    ]
+  }
+]

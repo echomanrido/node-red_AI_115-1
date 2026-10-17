@@ -229,6 +229,8 @@ document.addEventListener('DOMContentLoaded', () => {
       let catClass = 'tag-category-eng';
       if (lab.category.includes('Skills') || lab.category.includes('技能')) {
         catClass = 'tag-category-skills';
+      } else if (lab.category.includes('AI知識') || lab.category.includes('常識')) {
+        catClass = 'tag-category-aiknowledge';
       } else if (lab.category.includes('其他')) {
         catClass = 'tag-category-other';
       }
@@ -374,6 +376,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (lab.category.includes('Skills') || lab.category.includes('技能')) {
       catClass = 'tag-category-skills';
       catIcon = 'fa-solid fa-puzzle-piece';
+    } else if (lab.category.includes('AI知識') || lab.category.includes('常識')) {
+      catClass = 'tag-category-aiknowledge';
+      catIcon = 'fa-solid fa-brain';
     } else if (lab.category.includes('其他')) {
       catClass = 'tag-category-other';
       catIcon = 'fa-solid fa-cubes-stacked';
