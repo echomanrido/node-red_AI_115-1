@@ -148,6 +148,17 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="step-card">
         <div class="step-header" style="color: #c084fc;"><i class="fa-solid fa-circle-chevron-right" style="color: #c084fc; margin-right: 8px;"></i> ${escapeHtml(step.step)}</div>
         <div class="step-desc">${escapeHtml(step.description)}</div>
+        ${step.image ? `
+        <div class="step-image-box" style="margin-top: 14px; border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 8px; overflow: hidden; background: #0b0f19; cursor: zoom-in;" onclick="window.openLightbox('${step.image}', '${escapeHtml(step.imageCaption || step.step)}')">
+          <div style="padding: 6px 12px; background: rgba(168, 85, 247, 0.12); border-bottom: 1px solid rgba(168, 85, 247, 0.2); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.8rem; color: #d8b4fe; font-weight: 600;"><i class="fa-solid fa-camera" style="margin-right: 6px;"></i>${escapeHtml(step.imageCaption || step.step)}</span>
+            <span style="font-size: 0.72rem; color: var(--text-dim);"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+          </div>
+          <div style="padding: 10px; display: flex; justify-content: center; align-items: center; background: #000;">
+            <img src="${step.image}" alt="${escapeHtml(step.imageCaption || step.step)}" style="max-width: 100%; max-height: 400px; height: auto; object-fit: contain; border-radius: 4px; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.01)'" onmouseout="this.style.transform='scale(1)'">
+          </div>
+        </div>
+        ` : ''}
       </div>
     `).join('');
 
@@ -176,8 +187,15 @@ document.addEventListener('DOMContentLoaded', () => {
       <section class="gallery-section" style="width: 100%; margin-bottom: 24px;">
         <div class="image-card">
           <div class="image-header" style="border-bottom: 1px solid rgba(168, 85, 247, 0.2); display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <span class="image-title" style="color: #c084fc; font-size: 0.85rem;"><i class="fa-solid fa-image"></i> C# 核心架構與概念圖表</span>
-            <span class="zoom-hint" style="font-size: 0.75rem;"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            <span class="image-title" style="color: #c084fc; font-size: 0.85rem;"><i class="fa-solid fa-image"></i> ${escapeHtml(sup.imageTitle || 'C# 核心架構與概念圖表')}</span>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              ${sup.imageLink ? `
+              <a href="${sup.imageLink}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; font-size: 0.78rem; text-decoration: none; display: flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25);" onclick="event.stopPropagation();">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> 開啟官方文檔
+              </a>
+              ` : ''}
+              <span class="zoom-hint" style="font-size: 0.75rem;"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
           </div>
           <div class="image-wrapper sup-img-wrapper" id="supImgWrapper" style="cursor: zoom-in; max-height: 480px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; width: 100%;">
             <img src="${sup.image}" alt="教材截圖" style="width: 100%; height: auto; object-fit: contain;" onerror="this.src='https://via.placeholder.com/800x400?text=Image+Not+Found'">
@@ -312,6 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxCaption.textContent = caption;
     lightboxModal.style.display = 'flex';
   }
+  window.openLightbox = openLightbox;
 
   if (lightboxClose) {
     lightboxClose.addEventListener('click', () => {

@@ -1,557 +1,856 @@
-// C# 課程離線備援資料庫 (支援 file:/// 協定直接開啟)
+// C# 工業控制課程離線備援資料
+// 當本機以 file:/// 協定開啟無法使用 fetch('csharp.json') 時自動載入此物件
+
 var INITIAL_CSHARP_DATA = [
   {
-    "id": "csharp-01",
+    "id": "csharp-intro-01",
     "labNumber": "01",
-    "title": "PC 與 PC 透過 RS232 串列埠雙向通訊實作",
-    "date": "2026-08-10",
-    "category": "PC-Based控制",
-    "summary": "使用 C# 的 System.IO.Ports.SerialPort 類別，在兩台電腦或虛擬串列埠 (VSP) 間建立點對點通訊連線，實作字串指令發送、非同步 DataReceived 事件監聽與跨執行緒 UI 安全更新。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-1.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "C# RS232 串列通訊架構與執行緒流程圖",
-    "resultTitle": "WinForms 雙機雙向文字傳輸與 Hex 監視畫面",
-    "objective": "1. 掌握 C# System.IO.Ports 命名空間與 SerialPort 物件生命週期管理。\n2. 理解串列通訊四項核心硬體參數：BaudRate (波特率 9600)、Parity (None)、DataBits (8)、StopBits (1)。\n3. 學會透過 DataReceived 事件處理非同步接收，並利用 Control.Invoke 避免跨執行緒例外 (Cross-thread operation)。",
+    "category": "C#簡介",
+    "title": "Visual Studio 整合開發環境與 .NET 核心架構",
+    "date": "2026-08-01",
+    "summary": "深入剖析 Visual Studio IDE、.NET Framework 與 .NET Core 跨平台架構演進，並探討敏捷式開發 (Agile) 與快速應用開發 (RAD) 在工業軟體設計中的核心理念。",
+    "flowImage": "images_src/csharp_01/image1.png",
+    "resultImage": "images_src/csharp_01/image10.png",
+    "flowTitle": ".NET Framework 與 CLR 執行環境架構圖",
+    "resultTitle": "Visual Studio 專案建置與方案架構畫面",
+    "objective": "1. 認識 Visual Studio 整合開發環境 (IDE) 與 C# 語言歷史演進。\n2. 理解 .NET Framework 與 .NET Core / .NET 8 跨平台運作機制 (CLR / CIL)。\n3. 掌握敏捷軟體開發 (Agile) 與快速應用開發 (RAD) 在現代工控軟體中的實踐要領。",
     "tutorialSteps": [
       {
-        "step": "1. 介面設計與控制項配置",
-        "description": "建立 Windows Forms 專案，加入 ComboBox (選擇 COM Port)、Button (連線/中斷)、TextBox (輸入發送內容)、RichTextBox (接收日誌視窗)。"
+        "step": "1. Visual Studio 開發環境安裝與工作負載配置",
+        "description": "至微軟官網下載 Visual Studio Community，安裝時務必勾選「.NET 桌面開發」工作負載，並確認包含 Windows Forms 與主控台開發相依套件。"
       },
       {
-        "step": "2. 初始化 SerialPort 物件",
-        "description": "設定 PortName = \"COM1\"、BaudRate = 9600、Parity = Parity.None、DataBits = 8、StopBits = StopBits.One，並註冊 DataReceived 事件委派。"
+        "step": "2. 理解 .NET 執行環境與 CLR 機制",
+        "description": "C# 原始碼經 Roslyn 編譯器轉為通用中間語言 (CIL / MSIL)，再由 Common Language Runtime (CLR) 進行即時編譯 (JIT) 執行，兼具安全性、跨平台與記憶體垃圾回收 (GC) 能力。"
       },
       {
-        "step": "3. 實作非同步接收與跨執行緒更新",
-        "description": "在 DataReceived 事件中呼叫 serialPort.ReadExisting()，並使用 this.Invoke((MethodInvoker)delegate { txtLog.AppendText(data); }) 安全將字串回填至 UI 視窗。"
-      },
-      {
-        "step": "4. 雙機或虛擬串列埠交握測試",
-        "description": "使用 com0com 或實體 USB-to-RS232 跳線 (Null Modem Cable) 對接，發送 \"PING\" 指令並驗證另一端成功回傳 \"ACK\"。"
+        "step": "3. 傳統瀑布流 vs 敏捷式開發 (Agile)",
+        "description": "工控系統從傳統厚重的瀑布模型走向敏捷循環：短週期迭代、快速驗證、持續整合客戶回饋，確保機台控制需求變更時能迅速響應。"
       }
     ],
-    "csharpCode": "using System;\nusing System.IO.Ports;\nusing System.Windows.Forms;\n\nnamespace CSharpIndustrialControl\n{\n    public partial class FormSerialBasic : Form\n    {\n        private SerialPort _serialPort;\n\n        public FormSerialBasic()\n        {\n            InitializeComponent();\n            InitSerialPort();\n        }\n\n        private void InitSerialPort()\n        {\n            _serialPort = new SerialPort\n            {\n                PortName = \"COM1\",\n                BaudRate = 9600,\n                Parity = Parity.None,\n                DataBits = 8,\n                StopBits = StopBits.One,\n                ReadTimeout = 1000,\n                WriteTimeout = 1000\n            };\n            _serialPort.DataReceived += OnDataReceived;\n        }\n\n        private void btnConnect_Click(object sender, EventArgs e)\n        {\n            try\n            {\n                if (!_serialPort.IsOpen)\n                {\n                    _serialPort.PortName = cmbPort.SelectedItem.ToString();\n                    _serialPort.Open();\n                    lblStatus.Text = \"狀態：連線成功\";\n                }\n            }\n            catch (Exception ex)\n            {\n                MessageBox.Show($\"串列埠開啟失敗：{ex.Message}\");\n            }\n        }\n\n        private void btnSend_Click(object sender, EventArgs e)\n        {\n            if (_serialPort != null && _serialPort.IsOpen)\n            {\n                string msg = txtInput.Text;\n                _serialPort.WriteLine(msg);\n                txtLog.AppendText($\"[TX] {msg}\\r\\n\");\n            }\n        }\n\n        private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)\n        {\n            string received = _serialPort.ReadExisting();\n            this.Invoke((MethodInvoker)delegate\n            {\n                txtLog.AppendText($\"[RX] {received}\\r\\n\");\n            });\n        }\n    }\n}",
-    "aiPrompt": "請幫我用 C# (.NET 8 Windows Forms) 撰寫一個 industrial RS232 串列通訊程式。需求包含：\n1. 自動掃描本機可用 COM Ports 並填入 ComboBox。\n2. 包含連線/斷線切換按鈕，正確判斷 SerialPort 是否開啟。\n3. 使用非同步 DataReceived 事件監聽，並使用 Invoke 確保無跨執行緒 UI 更新例外。\n4. 支援發送字串與十六進位 Hex 顯示。\n請提供完整包含命名空間與錯誤例外的 Form1.cs 程式碼。",
+    "csharpCode": "// 檢驗當前 .NET 執行環境版本與作業系統環境資訊\nusing System;\n\nnamespace CSharpIntroDemo\n{\n    internal class Program\n    {\n        static void Main(string[] args)\n        {\n            Console.WriteLine(\"=== C# 與 .NET 工業自動化環境檢測 ===\");\n            Console.WriteLine($\".NET 版本: {Environment.Version}\");\n            Console.WriteLine($\"作業系統: {Environment.OSVersion}\");\n            Console.WriteLine($\"64位元處理程序: {Environment.Is64BitProcess}\");\n            Console.WriteLine($\"系統處理器核心數: {Environment.ProcessorCount}\");\n            Console.WriteLine(\"\\r\\n環境檢測就緒，按任意鍵繼續...\");\n            Console.ReadKey();\n        }\n    }\n}",
+    "aiPrompt": "請扮演資深 C# 工控軟體架構師，向初學者解釋 .NET Framework 與現代 .NET (8/9) 的本質差異，並說明在工業自動化機台控制（PC-Based 控制）中，為何需要理解 CLR、垃圾回收 (GC) 與即時編譯 (JIT) 的機制？",
     "applications": [
       {
-        "scenario": "產線上位 PC 與測試機通訊",
-        "description": "品檢上位機向治具控制器發送開始測試命令，並接收測試儀器回傳之合格/不良代碼與量測電壓值。",
-        "icon": "fa-solid fa-desktop"
-      },
-      {
-        "scenario": "條碼掃描槍與磅秤數據採集",
-        "description": "倉儲進出料工作站透過 RS232 序列介面即時攔截電子磅秤重量與條碼槍字元串列，自動存入出貨資料庫。",
-        "icon": "fa-solid fa-barcode"
-      }
-    ],
-    "references": [
-      {
-        "title": "Microsoft Learn - SerialPort 類別 (System.IO.Ports)",
-        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.io.ports.serialport"
-      },
-      {
-        "title": "com0com 虛擬序列埠驅動套件 (開源工具)",
-        "url": "https://sourceforge.net/projects/com0com/"
-      }
-    ]
-  },
-  {
-    "id": "csharp-02",
-    "labNumber": "02",
-    "title": "PC 與三菱 FX 系列 PLC 序列通訊交握機制",
-    "date": "2026-08-11",
-    "category": "PLC通訊",
-    "summary": "掌握三菱 FX2N / FX3U PLC 的程式撰寫通訊協定，發送問詢碼 ENQ (0x05) 進行心跳交握，解析 PLC 回應之確認碼 ACK (0x06)，建立工業級通訊連線防線。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-2.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "三菱 PLC ENQ / ACK / NAK 序列交握時序圖",
-    "resultTitle": "PLC 連線交握狀態與響應時間量測介面",
-    "objective": "1. 掌握三菱 FX PLC 程式撰寫口 (Programming Port) 的通訊規格 (9600-7-E-1)。\n2. 了解 ASCII 控制字元 ENQ (詢問)、ACK (確認)、NAK (否認) 在交握中的標準行為。\n3. 學會編寫具備超時重試機制 (Timeout Retry) 的工業通訊交握函式。",
-    "tutorialSteps": [
-      {
-        "step": "1. 設定三菱 PLC 串列參數",
-        "description": "三菱 FX 程式撰寫通訊埠預設規格為：波特率 9600 bps、資料位元 7、同位檢查 Even (偶同位)、停止位元 1。"
-      },
-      {
-        "step": "2. 發送 ENQ 詢問信號",
-        "description": "連線建立後，向 PLC 寫入一個位元組 0x05 (ENQ)，啟動通訊協議判定。"
-      },
-      {
-        "step": "3. 判定 ACK / NAK 回應",
-        "description": "等待 PLC 回應，若在 500ms 內收到 0x06 (ACK)，代表 PLC 就緒；若收到 0x15 (NAK) 或超時，則標記通訊異常並重試。"
-      },
-      {
-        "step": "4. 建立通訊心跳守門員 (Watchdog)",
-        "description": "使用背景 Timer 定時每秒發送交握信號，確保現場 PLC 未發生斷線或死機。"
-      }
-    ],
-    "csharpCode": "public bool TestPlcConnection(SerialPort port)\n{\n    try\n    {\n        port.DiscardInBuffer();\n        port.DiscardOutBuffer();\n        \n        // 發送 ENQ (0x05)\n        byte[] enq = new byte[] { 0x05 };\n        port.Write(enq, 0, 1);\n        \n        // 設定 500ms 讀取超時\n        port.ReadTimeout = 500;\n        int response = port.ReadByte();\n        \n        if (response == 0x06) // ACK\n        {\n            return true; // 交握成功\n        }\n    }\n    catch (TimeoutException)\n    {\n        // 超時無回應\n    }\n    return false;\n}",
-    "aiPrompt": "請以 C# 撰寫三菱 FX3U PLC 的 RS422/RS232 通訊交握類別。要求包含：\n1. 通訊參數自動設定為 9600, 7, Even, 1。\n2. 提供 PingPlc() 方法發送 ENQ (0x05) 並等待 ACK (0x06)。\n3. 具備 3 次重試與自訂 Timeout 機制。\n4. 若失敗拋出具體 IndustrialCommException 例外。",
-    "applications": [
-      {
-        "scenario": "SCADA 開機自檢流程",
-        "description": "廠務圖控主程式在啟動第一時間輪詢所有實體 PLC，自動標記在線與離線機台清單。",
+        "scenario": "跨平台機台工控系統評估",
+        "description": "評估上位監控系統是否需由傳統 Windows 專用遷移至 Linux 邊緣閘道器 (如樹莓派/IPC)。",
         "icon": "fa-solid fa-server"
+      },
+      {
+        "scenario": "專案建置與版本相容性控管",
+        "description": "在 Visual Studio 中正確選擇目標框架版本，確保三菱/歐姆龍驅動 DLL 正常載入運作。",
+        "icon": "fa-solid fa-code-branch"
       }
     ],
     "references": [
       {
-        "title": "三菱電機 - MELSEC-F FX 系列微型可程式控制器編程手冊",
-        "url": "https://www.mitsubishielectric.tw/"
+        "title": "Microsoft Learn - .NET 架構指南",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/standard/get-started"
+      },
+      {
+        "title": "Visual Studio 官方下載頁面",
+        "url": "https://visualstudio.microsoft.com/zh-hant/downloads/"
       }
     ]
   },
   {
-    "id": "csharp-03",
-    "labNumber": "03",
-    "title": "PC 透過 RS232 強制控制三菱 PLC 繼電器 Y1 ON/OFF",
-    "date": "2026-08-12",
-    "category": "PLC控制",
-    "summary": "以 C# 組裝三菱 FX 專屬強制置位 (Force Set, 0x37) 與強制復位 (Force Reset, 0x38) 指令封包，計算校驗碼並發送至 PLC，驅動實體輸出繼電器 Y1 控制電磁閥或指示燈。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-5.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "強制 I/O 命令組裝與 CheckSum 演算流程",
-    "resultTitle": "WinForms 強制 Y1 開關與 PLC 實體燈亮反饋",
-    "objective": "1. 掌握三菱 FX 系列 PLC 強制線圈指令代碼：'7' (0x37, Set ON) 與 '8' (0x38, Reset OFF)。\n2. 理解暫存器實體位址轉換運算法（如 Y1 對應內部通訊記憶體位址）。\n3. 實作 C# 按鈕控制實體 PLC 繼電器輸出動作，建立 PC-Based 控制基礎。",
+    "id": "csharp-intro-02",
+    "labNumber": "02",
+    "category": "C#簡介",
+    "title": "第一個主控台應用程式與事件驅動設計",
+    "date": "2026-08-02",
+    "summary": "以 Console 程式掌握 Main() 程式進入點、WriteLine/ReadLine 標準輸入輸出，並深入解析 Windows「事件驅動程式設計 (Event-driven Programming)」的核心架構。",
+    "flowImage": "images_src/csharp_01/image13.png",
+    "resultImage": "images_src/csharp_01/image2.png",
+    "flowTitle": "程式碼進入點 Main() 與編譯輸出 bin\\Debug 流程",
+    "resultTitle": "主控台應用程式 Console 執行結果畫面",
+    "objective": "1. 建立第一個 C# 主控台應用程式，理解 namespace、class Program 與 static void Main() 的結構。\n2. 掌握 Console.WriteLine 與字串格式化技巧。\n3. 理解作業系統的訊息佇列 (Message Queue) 與事件驅動 (Event-driven) 核心觀念。",
     "tutorialSteps": [
       {
-        "step": "1. 計算 Y1 接點通訊記憶體位址",
-        "description": "在三菱 FX 協定中，Y0~Y7 的位元強制位址計算規則：Y1 對應位址為 0x0501（十六進位字串為 \"0501\"）。"
+        "step": "1. 建立主控台應用程式專案",
+        "description": "在 Visual Studio 選擇「主控台應用程式 (.NET Core / .NET Framework)」，專案名稱命名為 LAB_00-01_Main_console。"
       },
       {
-        "step": "2. 組裝強制控制封包",
-        "description": "ON 封包：STX(0x02) + '7'(0x37) + 位址(\"0501\") + ETX(0x03) + CheckSum。\nOFF 封包：STX(0x02) + '8'(0x38) + 位址(\"0501\") + ETX(0x03) + CheckSum。"
+        "step": "2. 撰寫 Main() 進入點程式碼",
+        "description": "在 Main 方法中調用 Console.WriteLine 輸出設備狀態與歡迎字樣，並透過 Console.ReadLine 取得使用者鍵盤輸入。"
       },
       {
-        "step": "3. 計算與附加 CheckSum",
-        "description": "將 STX 之後到 ETX 為止的所有字元 ASCII 碼進行累加，取其最低 8 位元並轉換為 2 位元十六進位大寫字元。"
+        "step": "3. 認識編譯產出目錄",
+        "description": "點擊建置方案後，開啟專案目錄下的 bin\\Debug 資料夾，觀察產生的 .exe 執行檔與 .pdb 偵錯符號檔。"
       },
       {
-        "step": "4. 發送指令與驗證實體輸出",
-        "description": "透過 SerialPort 發送字串指令，若 PLC 回應 ACK (0x06)，則實體 PLC 模組上 Y1 紅色 LED 燈亮起。"
+        "step": "4. 體驗事件驅動與訊息迴圈",
+        "description": "理解傳統循序執行程式與視窗事件驅動之本質區別：等待滑鼠按鍵或硬體中斷，再觸發對應的 EventHandler 回應。"
       }
     ],
-    "csharpCode": "public void ForceOutputY(SerialPort port, int yNumber, bool state)\n{\n    // 計算 Y 接點位址 (例如 Y1 -> \"0501\")\n    string address = (0x0500 + yNumber).ToString(\"X4\");\n    // 指令 '7' 為 ON, '8' 為 OFF\n    char cmd = state ? '7' : '8';\n    \n    string data = cmd + address;\n    // 計算 CheckSum\n    int sum = 0;\n    foreach (char c in data) sum += (byte)c;\n    sum += 0x03; // 加上 ETX (0x03)\n    string checkSum = (sum & 0xFF).ToString(\"X2\");\n    \n    // 完整封包: STX + CMD + ADDR + ETX + CHECKSUM\n    string packet = $\"\\x02{data}\\x03{checkSum}\";\n    port.Write(packet);\n}",
-    "aiPrompt": "請幫我寫一個 C# 函式，用於三菱 FX3U PLC 透過 RS232 控制強制輸出點 Y (例如 Y0 到 Y7)。\n要求輸入參數包含：SerialPort port, int yIndex, bool isOn。\n自動組裝 STX (0x02)、指令碼 ('7'/'8')、FX 暫存器位址偏移、ETX (0x03) 及 2 位元 CheckSum，並透過串列埠送出，確保安全防護。",
+    "csharpCode": "using System;\n\nnamespace LAB_00_01_Main_console\n{\n    internal class Program\n    {\n        static void Main(string[] args)\n        {\n            Console.Title = \"機電工控教學 - 系統命令列中樞\";\n            Console.ForegroundColor = ConsoleColor.Cyan;\n            Console.WriteLine(\"========================================\");\n            Console.WriteLine(\"五股職訓局 機電AI_115-1期 C# 實戰入門\");\n            Console.WriteLine(\"========================================\");\n            Console.ResetColor();\n\n            Console.Write(\"請輸入工號或操作者名稱: \");\n            string operatorName = Console.ReadLine();\n\n            Console.WriteLine($\"歡迎操作員 [{operatorName}] 登入產線系統！\");\n            Console.WriteLine(\"程式執行完畢，按任意鍵離開...\");\n            Console.ReadKey();\n        }\n    }\n}",
+    "aiPrompt": "請寫一個 C# 主控台程式，模擬工廠機台開機自我檢測 (POST)。包含：1. 檢查緊急停止按鈕 (EMS) 狀態；2. 模擬 RS232 序列通訊連接；3. 顯示彩色格式化文字進度條。",
     "applications": [
       {
-        "scenario": "半導體無塵室遠端排氣閥緊急切斷",
-        "description": "當 SCADA 偵測到氣體外洩濃度超標時，PC 程式毫秒級發送指令強制 PLC 輸出 Y1 閉合關斷電磁閥。",
+        "scenario": "背景後台診斷小工具",
+        "description": "開發輕量級命令列診斷工具，供現場工管人員快速測試感測器連接狀態。",
+        "icon": "fa-solid fa-terminal"
+      },
+      {
+        "scenario": "無周邊自動化排程服務",
+        "description": "將資料轉發或批次資料庫搬移腳本編譯為主控台程式，配合 Windows 工作排程器定時執行。",
+        "icon": "fa-solid fa-clock"
+      }
+    ],
+    "references": [
+      {
+        "title": "Microsoft Learn - C# 中的 Main() 與命令列引數",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/csharp/fundamentals/program-structure/main-command-line"
+      }
+    ]
+  },
+  {
+    "id": "csharp-intro-03",
+    "labNumber": "03",
+    "category": "C#簡介",
+    "title": "程式結構剖析、語法規範與命名法規",
+    "date": "2026-08-03",
+    "summary": "掌握 C# 大括弧區塊、分號結束符、縮排習慣、大小寫敏感規則，以及 CamelCase、PascalCase、底線分隔法與常數全大寫等業界工程規範。",
+    "flowImage": "images_src/csharp_01/image17.png",
+    "resultImage": "images_src/csharp_01/image11.png",
+    "flowTitle": "C# 方法結構、參數與大括弧區塊架構",
+    "resultTitle": "工控程式代碼命名法（駱駝、帕斯卡、常數大寫）對比",
+    "objective": "1. 熟練掌握 C# 的大小寫區分 (Case Sensitivity) 與敘述結束分號 (;) 規範。\n2. 養成良好縮排格式與程式可讀性維護習慣。\n3. 精通業界標準命名法：區域變數使用 camelCase、類別/方法使用 PascalCase、常數使用 ALL_CAPS。",
+    "tutorialSteps": [
+      {
+        "step": "1. 拆解事件處理函式結構",
+        "description": "以 void button1_Click(object sender, EventArgs e) 為例，解析存取修飾詞、傳回型別、函式名稱與引數列表。"
+      },
+      {
+        "step": "2. 實踐現代 C# 命名規範",
+        "description": "變數避免 a, b, temp1 命運，應明確使用 deviceStatus, currentVoltage；方法使用動詞開頭如 ReadSensorData()；常數一律使用 MAX_BUFFER_SIZE。"
+      },
+      {
+        "step": "3. 關鍵字與識別字防呆",
+        "description": "C# 預留之系統關鍵字（如 class, int, void）不得直接作為變數名；若特殊需求需加前置 @ 符號轉義。"
+      }
+    ],
+    "csharpCode": "using System;\n\nnamespace IndustrialCodingStandards\n{\n    // 類別使用 PascalCase\n    public class PlcController\n    {\n        // 常數使用全大寫 + 底線分隔\n        public const int MAX_RETRY_COUNT = 3;\n        public const int DEFAULT_BAUD_RATE = 9600;\n\n        // 私有欄位使用底線前置 camelCase\n        private string _stationName;\n        private bool _isEmergencyStopped;\n\n        // 建構子與公開屬性\n        public PlcController(string stationName)\n        {\n            _stationName = stationName;\n            _isEmergencyStopped = false;\n        }\n\n        // 公開方法使用動詞開頭的 PascalCase\n        public bool ConnectPlc(string portName)\n        {\n            // 區域變數使用 camelCase\n            int attemptCount = 0;\n            bool isSuccess = false;\n\n            while (attemptCount < MAX_RETRY_COUNT && !isSuccess)\n            {\n                attemptCount++;\n                Console.WriteLine($\"[{_stationName}] 嘗試連線至 {portName}，第 {attemptCount} 次...\");\n                isSuccess = true;\n            }\n            return isSuccess;\n        }\n    }\n}",
+    "aiPrompt": "請為 C# 工控團隊制定一份「C# 編程風格與命名規範手冊 (Coding Style Guide)」，重點說明：WinForms 控制項命名前置詞 (btn, txt, lbl)、工控暫存器變數命名、以及常見的 Anti-pattern（不良代碼習慣）。",
+    "applications": [
+      {
+        "scenario": "產線自動化軟體團隊協同開發",
+        "description": "建立一致的變數與函式命名風格，避免換班或交接時因為代碼混亂造成維護災難。",
+        "icon": "fa-solid fa-users-gear"
+      }
+    ],
+    "references": [
+      {
+        "title": "Microsoft Learn - C# 識別項命名規則與慣例",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/csharp/fundamentals/coding-style/identifier-names"
+      }
+    ]
+  },
+  {
+    "id": "csharp-intro-04",
+    "labNumber": "04",
+    "category": "C#簡介",
+    "title": "資料型別深度解析：整數、浮點數、布林與溢位防範",
+    "date": "2026-08-04",
+    "summary": "掌握 byte, short, int, long, float, double, decimal, bool 的記憶體長度、有號與無號差異、數值精確度極限，以及防止工業運算溢位 (Overflow) 的關鍵防護。",
+    "flowImage": "images_src/csharp_01/image19.png",
+    "resultImage": "images_src/csharp_01/image20.png",
+    "flowTitle": "C# 數值型別記憶體配置與數值範圍對照表",
+    "resultTitle": "工控數值溢位 (Overflow) 異常捕獲測試畫面",
+    "objective": "1. 清楚辨析 byte (8-bit), short (16-bit), int (32-bit), long (64-bit) 與 PLC 暫存器 (16/32-bit) 的映射關係。\n2. 掌握 float 與 double 浮點數精度差異，並理解工控計費/精確計數為何需使用 decimal。\n3. 學習使用 checked 關鍵字防範整數運算溢位造成機台爆走。",
+    "tutorialSteps": [
+      {
+        "step": "1. 認識 PLC 與 C# 型別對應",
+        "description": "三菱 FX 的 D 暫存器單個為 16-bit (對應 C# short 或 ushort)，雙暫存器 D+1,D 組合為 32-bit (對應 C# int 或 uint)。"
+      },
+      {
+        "step": "2. 浮點數精度損失測試",
+        "description": "實作 double a = 0.1 + 0.2 運算，觀察二進位浮點數產生的微小誤差 (0.30000000000000004)，理解在機械手臂座標計算時的防呆策略。"
+      },
+      {
+        "step": "3. 溢位防範機制 (checked / unchecked)",
+        "description": "在處理累計產量計數器時，利用 checked 語法區塊捕捉 OverflowException，避免變數超過 2,147,483,647 翻轉成負數。"
+      }
+    ],
+    "csharpCode": "using System;\n\nnamespace IndustrialDataTypes\n{\n    internal class Program\n    {\n        static void Main(string[] args)\n        {\n            // 工控 PLC 暫存器數值對應\n            ushort plcD100 = 65535; // 16-bit 無號整數\n            int plcDoubleRegister = -100000; // 32-bit 雙暫存器\n            double sensorVoltage = 4.875; // 類比電壓 0~10V\n            bool isCylinderExtended = true; // 氣壓缸伸出極限感應器\n\n            Console.WriteLine($\"PLC D100 (16-bit): {plcD100}\");\n            Console.WriteLine($\"類比輸入電壓: {sensorVoltage} V\");\n            Console.WriteLine($\"極限開關狀態: {(isCylinderExtended ? \"ON (到位)\" : \"OFF\")}\");\n\n            // 溢位檢測範例 (checked 關鍵字)\n            try\n            {\n                checked\n                {\n                    short maxProduction = 32767;\n                    Console.WriteLine($\"當前產量: {maxProduction}\");\n                    maxProduction++; // 觸發溢位\n                }\n            }\n            catch (OverflowException ex)\n            {\n                Console.ForegroundColor = ConsoleColor.Red;\n                Console.WriteLine($\"[安全警報] 檢測到數值溢位異常: {ex.Message}\");\n                Console.ResetColor();\n            }\n        }\n    }\n}",
+    "aiPrompt": "請以表格形式整理 C# 所有常用內建型別（含 sbyte, byte, short, ushort, int, uint, long, ulong, float, double, decimal, bool），列出其記憶體位元組數 (Bytes)、數值範圍，並標註在三菱 FX 系列 PLC（位元元件 X/Y/M、字元元件 D/W）中的最佳對應型別。",
+    "applications": [
+      {
+        "scenario": "類比訊號量測換算 (4-20mA 轉工程單位)",
+        "description": "將 PLC 類比輸入模組 (A/D) 讀取到的 0~4000 原始整數值，以浮點數線性換算為 0~100℃ 或 0~10 Bar 壓力。",
+        "icon": "fa-solid fa-gauge-high"
+      }
+    ],
+    "references": [
+      {
+        "title": "Microsoft Learn - C# 內建數值型別",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/csharp/language-reference/builtin-types/integral-numeric-types"
+      }
+    ]
+  },
+  {
+    "id": "csharp-intro-05",
+    "labNumber": "05",
+    "category": "C#簡介",
+    "title": "全方位運算子實作：算術、邏輯、二進位位元與移位運算",
+    "date": "2026-08-05",
+    "summary": "全面精通算術運算 (+, -, *, /, %)、關係比較 (==, !=, >, <)、邏輯運算 (&&, ||, !)，並特別強化工控 I/O 遮罩必備的「位元運算子 (&, |, ^, ~)」與「二進位移位運算子 (<<, >>)」。",
+    "flowImage": "images_src/csharp_01/image21.png",
+    "resultImage": "images_src/csharp_01/image22.png",
+    "flowTitle": "二進位 Bitwise 位元遮罩 (AND / OR) 邏輯運算解析",
+    "resultTitle": "工控 I/O 點位 16-bit 暫存器解碼與三元運算子測試",
+    "objective": "1. 掌握四則運算與模數 (%) 運算子在產線分流計數的應用。\n2. 深入理解 short-circuit 短路求值 (&&, ||) 的安全機制。\n3. 具備透過位元 AND (&) 檢查單一 I/O 點狀態、透過位元 OR (|) 批次設定點位、透過移位 (<<, >>) 拆解高低位元組的能力。",
+    "tutorialSteps": [
+      {
+        "step": "1. 算術與比較運算在工控計時的應用",
+        "description": "使用 cycleCount % batchSize == 0 判斷整批物料是否加工完畢，並以三元運算子 condition ? trueVal : falseVal 簡化狀態顯示文字。"
+      },
+      {
+        "step": "2. 位元運算 (Bitwise) 檢查 PLC 點位狀態",
+        "description": "假設 PLC 回傳暫存器數值 0x0005 (二進位 0000 0000 0000 0101)，使用 (value & (1 << 0)) 判斷 Y0 是否為 ON，使用 (value & (1 << 2)) 判斷 Y2 是否為 ON。"
+      },
+      {
+        "step": "3. 移位運算 (Shift) 組裝 32 位元資料",
+        "description": "將兩個 16 位元暫存器 D100 (低位) 與 D101 (高位) 組裝為 32 位元長整數：int result = (D101 << 16) | D100。"
+      }
+    ],
+    "csharpCode": "using System;\n\nnamespace IndustrialBitwiseOperations\n{\n    internal class Program\n    {\n        static void Main(string[] args)\n        {\n            Console.WriteLine(\"=== 工控 PLC 暫存器位元解析實戰 ===\");\n            \n            // 假設從 PLC D0 暫存器讀回狀態碼 0x0025 (二進位 0010 0101)\n            // 代表 Y0=ON, Y2=ON, Y5=ON\n            ushort plcStatusRegister = 0x0025;\n            Console.WriteLine($\"暫存器原始值: 0x{plcStatusRegister:X4} (二進位: {Convert.ToString(plcStatusRegister, 2).PadLeft(8, '0')})\");\n\n            // 檢查第 0 點 (Y0) 是否 ON\n            bool isY0_On = (plcStatusRegister & (1 << 0)) != 0;\n            // 檢查第 1 點 (Y1) 是否 ON\n            bool isY1_On = (plcStatusRegister & (1 << 1)) != 0;\n            // 檢查第 2 點 (Y2) 是否 ON\n            bool isY2_On = (plcStatusRegister & (1 << 2)) != 0;\n\n            Console.WriteLine($\"Y0 (進料汽缸): {(isY0_On ? \"[ON]\" : \"[OFF]\")}\");\n            Console.WriteLine($\"Y1 (排料汽缸): {(isY1_On ? \"[ON]\" : \"[OFF]\")}\");\n            Console.WriteLine($\"Y2 (吸盤真空): {(isY2_On ? \"[ON]\" : \"[OFF]\")}\");\n\n            // 模擬將 Y1 強制開啟 (Bitwise OR)\n            plcStatusRegister = (ushort)(plcStatusRegister | (1 << 1));\n            Console.WriteLine($\"強制設定 Y1 為 ON 後暫存器值: 0x{plcStatusRegister:X4}\");\n        }\n    }\n}",
+    "aiPrompt": "在工控 Modbus 通訊中，兩個 16-bit Registers 需要組裝成一個 32-bit Float (IEEE 754) 數值。請用 C# 寫出轉換函式，並詳細說明 Byte Swap (CDAB vs ABCD) 的處理邏輯與位元移位寫法。",
+    "applications": [
+      {
+        "scenario": "PLC 警報字元 (Alarm Word) 狀態解構",
+        "description": "將 SCADA 讀取到的警報暫存器 (16 bits) 分解為 16 個個別獨立的感測器異常警報訊號。",
         "icon": "fa-solid fa-triangle-exclamation"
       }
     ],
     "references": [
       {
-        "title": "FX 通訊協議專題：電腦連線與命令格式解析",
-        "url": "https://www.mitsubishielectric.com/"
+        "title": "Microsoft Learn - C# 位元與移位運算子",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/csharp/language-reference/operators/bitwise-and-shift-operators"
       }
     ]
   },
   {
-    "id": "csharp-04",
-    "labNumber": "04",
-    "title": "C# WinForms 工控人機介面 (HMI) 基礎控制項配置",
-    "date": "2026-08-13",
-    "category": "人機介面",
-    "summary": "運用 Visual Studio 視覺化設計工具，配置 Label (數值顯示)、PictureBox (機台示意圖)、Button (操作開關)、TextBox (配方輸入) 等核心控制項，打造符合工控人因工程的高質感 HMI 視窗。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-3.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "WinForms 控制項層次結構與佈局錨點設定",
-    "resultTitle": "工控機台主控制台 HMI 操作畫面",
-    "objective": "1. 熟練掌握 WinForms 核心控制項 (Label, PictureBox, Button, TextBox) 的屬性配置。\n2. 理解 Anchor (錨點) 與 Dock (停靠) 屬性在工控工業觸控螢幕自適應解析度的應用。\n3. 學會為各控制項設定直觀的工控暗黑配色與標準狀態反饋。",
-    "tutorialSteps": [
-      {
-        "step": "1. 新建 WinForms 應用程式",
-        "description": "設定表單 FormBorderStyle = FixedSingle，StartPosition = CenterScreen，背景顏色設為工控深色 #1E293B。"
-      },
-      {
-        "step": "2. 加入設備監控示意圖與標籤",
-        "description": "拉取 PictureBox 載入輸送帶或機械手臂圖形 (SizeMode = Zoom)，上方放置 Label 顯示機台名稱與稼動率。"
-      },
-      {
-        "step": "3. 配置操作按鈕群組",
-        "description": "拉取 TableLayoutPanel 配置「系統啟動 (綠)」、「系統停止 (紅)」、「故障復歸 (黃)」、「手動點動 (藍)」四顆按鈕。"
-      },
-      {
-        "step": "4. 撰寫按鈕 Hover 與 Click 狀態切換",
-        "description": "透過按鈕 Click 事件修改設備運行旗標，並即時更新畫面上運行狀態指示 Label 的文字與色彩。"
-      }
-    ],
-    "csharpCode": "private void btnStart_Click(object sender, EventArgs e)\n{\n    // 啟動生產線\n    _isMachineRunning = true;\n    lblMachineStatus.Text = \"狀態：運轉中 (RUN)\";\n    lblMachineStatus.ForeColor = Color.LimeGreen;\n    btnStart.Enabled = false;\n    btnStop.Enabled = true;\n}\n\nprivate void btnStop_Click(object sender, EventArgs e)\n{\n    // 停止生產線\n    _isMachineRunning = false;\n    lblMachineStatus.Text = \"狀態：已停止 (STOP)\";\n    lblMachineStatus.ForeColor = Color.OrangeRed;\n    btnStart.Enabled = true;\n    btnStop.Enabled = false;\n}",
-    "aiPrompt": "請幫我設計一個 C# WinForms 工控機台操作面板介面代碼。包含：\n1. 頂部狀態列顯示目前連線 COM Port 與時間。\n2. 中間包含機台運轉示意圖與即時溫度、壓力數值 Label。\n3. 底部包含啟動、停止、急停三個大按鈕，具備防重複點擊與顏色動態切換邏輯。\n代碼請採用現代簡潔的寫法。",
-    "applications": [
-      {
-        "scenario": "包裝機操作觸控螢幕面板",
-        "description": "現場作業員透過 WinForms 觸控介面切換包裝速度、手動點動封口刀模，並檢視目前已完成之封裝包數。",
-        "icon": "fa-solid fa-box"
-      }
-    ],
-    "references": [
-      {
-        "title": "Microsoft Learn - Windows Forms 控制項設計規範",
-        "url": "https://learn.microsoft.com/zh-tw/dotnet/desktop/winforms/controls/"
-      }
-    ]
-  },
-  {
-    "id": "csharp-05",
-    "labNumber": "05",
-    "title": "燈號狀態動態變更與工控指示燈屬性綁定",
-    "date": "2026-08-14",
-    "category": "人機介面",
-    "summary": "透過自訂 Panel 或圓形按鈕類別，實作具備 3D 質感與呼吸燈效果的工控指示燈控制項。藉由屬性封裝動態切換綠燈 (正常)、紅燈 (警報) 與黃燈 (待機)，並綁定閃爍 Timer。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-3.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "機台三色警示燈狀態機 (FSM) 狀態轉換圖",
-    "resultTitle": "工控機台塔燈即時視覺化動態指示面板",
-    "objective": "1. 掌握 WinForms 自訂控制項 (Custom Control) 基礎與 GDI+ 重繪 (OnPaint)。\n2. 理解機台三色燈 (Tower Lamp: Red, Yellow, Green) 的工業標準定義與狀態機。\n3. 學會透過 Timer 控制燈號以 500ms 頻率閃爍模擬現場故障急迫警報。",
-    "tutorialSteps": [
-      {
-        "step": "1. 建立自訂指示燈類別",
-        "description": "建立繼承自 Control 的 LampIndicator 元件，公開 IsOn、LampColor 等屬性，並在 OnPaint 中使用 Graphics 繪製發光漸層圓形。"
-      },
-      {
-        "step": "2. 定義機台狀態列舉 (MachineState)",
-        "description": "建立列舉 enum MachineState { Idle, Running, Alarm, Maintenance }，便於集中管理機台生命週期。"
-      },
-      {
-        "step": "3. 撰寫閃爍定時器邏輯",
-        "description": "加入 Timer (Interval = 500ms)，當機台處於 Alarm 狀態時，每次觸發反轉燈號 Visible 屬性達成閃爍警示。"
-      },
-      {
-        "step": "4. 整合現場蜂鳴器與警報文字",
-        "description": "紅燈閃爍時同步於警報清單寫入警報發生時間與原因，提供作業員第一時間應變。"
-      }
-    ],
-    "csharpCode": "public enum TowerLampState { Off, Green, Yellow, Red, RedBlink }\n\npublic class TowerLampController\n{\n    private Panel pnlRed, pnlYellow, pnlGreen;\n    private Timer blinkTimer;\n    private bool blinkToggle = false;\n\n    public void SetState(TowerLampState state)\n    {\n        blinkTimer.Stop();\n        pnlRed.BackColor = Color.DarkRed;\n        pnlYellow.BackColor = Color.DarkGoldenrod;\n        pnlGreen.BackColor = Color.DarkGreen;\n\n        switch (state)\n        {\n            case TowerLampState.Green:\n                pnlGreen.BackColor = Color.Lime;\n                break;\n            case TowerLampState.Yellow:\n                pnlYellow.BackColor = Color.Yellow;\n                break;\n            case TowerLampState.Red:\n                pnlRed.BackColor = Color.Red;\n                break;\n            case TowerLampState.RedBlink:\n                blinkTimer.Start();\n                break;\n        }\n    }\n}",
-    "aiPrompt": "請幫我用 C# 撰寫一個機台三色警示燈 (Tower Lamp) 控制類別。包含紅、黃、綠三盞燈。\n提供 SetLampState(string state) 方法，支援 Normal (綠燈常亮)、Warning (黃燈常亮)、Critical (紅燈以 500ms 頻率閃爍)。\n請附帶 Form 範例代碼展示如何呼叫。",
-    "applications": [
-      {
-        "scenario": "SMT 表面貼焊機警示燈連動",
-        "description": "當料捲缺料或吸嘴堵塞時，C# 監控程式立即將機台塔燈切換為紅色閃爍並啟動警報蜂鳴器。",
-        "icon": "fa-solid fa-lightbulb"
-      }
-    ],
-    "references": [
-      {
-        "title": "工業安全規範 - 機台警示燈與聲音訊號規範 (IEC 60073)",
-        "url": "https://www.iec.ch/"
-      }
-    ]
-  },
-  {
-    "id": "csharp-06",
+    "id": "csharp-intro-06",
     "labNumber": "06",
-    "title": "C# 程式基礎：數值運算、資料型態精準度與單位換算計算機",
-    "date": "2026-08-15",
-    "category": "程式基礎",
-    "summary": "深入探討 C# 工控程式中 integer、float、double 與 decimal 的精準度與溢位風險。實作生產累加器、壓力單位 (bar / psi / kPa) 換算與 OEE 生產良率即時計算機。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-6.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "工控數值型態精確度與單位轉換運算架構",
-    "resultTitle": "工控多功能單位換算與 OEE 良率計算機",
-    "objective": "1. 徹底理解 float/double 浮點數精度損失在工控計費與精密量測中的風險，並學會使用 decimal。\n2. 掌握 C# 數值溢位防護 (checked / unchecked 關鍵字)。\n3. 實作工控常用的氣壓、溫度、重量單位換算與總生產稼動率 (OEE) 公式計算。",
+    "category": "C#簡介",
+    "title": "條件判斷控制：if-else、巢狀判斷與機電丙級流程控制",
+    "date": "2026-08-06",
+    "summary": "學習 if、if-else、else if 與巢狀 if 判斷結構，並以「機電整合丙級第一題（圓料/方料識別）」及「氣壓缸伸出到 a1 端點、夾爪動作」為實例，解析工控自動化邏輯流程。",
+    "flowImage": "images_src/csharp_01/image10.png",
+    "resultImage": "images_src/csharp_01/image14.png",
+    "flowTitle": "機電丙級工件識別與端點極限到達判斷流程圖",
+    "resultTitle": "工控工作模式判斷 (自動/手動/急停) 軟體測試介面",
+    "objective": "1. 掌握 if、else if、else 之條件分支控制結構。\n2. 學習如何在巢狀 if 判斷中避免邏輯死鎖。\n3. 以機電丙級工件選別機為例，將感測器輸入信號（光電/近接/極限開關）轉換為程式決策鏈。",
     "tutorialSteps": [
       {
-        "step": "1. 浮點數精度比對實例",
-        "description": "示範 double (0.1 + 0.2) 產生 0.30000000000000004 之現象，對比 decimal (0.1m + 0.2m = 0.3m) 的精準特性。"
+        "step": "1. 氣壓缸伸出與到達端點判定",
+        "description": "投影片案例：偵測到進料物品時驅動氣壓缸伸出；持續判定是否到達端點極限開關 a1，到位後執行夾爪夾緊，否則持續等待或報警超時。"
       },
       {
-        "step": "2. 實作壓力單位轉換函式",
-        "description": "撰寫 ConvertPressure(double value, Unit from, Unit to)，支援 bar, psi, kPa, kg/cm² 間的雙向精確轉換。"
+        "step": "2. 機電丙級第一題：工件選別邏輯",
+        "description": "光電開關 (X0) 檢測是否有料；電感開關 (X1) 檢測金屬/非金屬；高度感測器 (X2) 判定方料或圓料，以 if-else 做出正確推料分流決策。"
       },
       {
-        "step": "3. 建立生產累積加總與溢位防護",
-        "description": "使用 long 儲存高速累加產量，並使用 checked 區塊防範 integer 溢位導致計數變為負數的工控災難。"
-      },
-      {
-        "step": "4. 串接 UI 計算機介面",
-        "description": "設計輸入面板，作業員輸入生產總數與不良品數，即時以百分比 (Format: P2) 呈現良率與直通率。"
+        "step": "3. 系統安全互鎖 (Interlock)",
+        "description": "最高優先權判定：if (isEmergencyStop) { StopAllMotors(); } else { // 正常動作 }，確保任何運作都受急停保護。"
       }
     ],
-    "csharpCode": "public static class UnitConverter\n{\n    // 壓力換算：bar 轉 psi (1 bar ≈ 14.5038 psi)\n    public static double BarToPsi(double bar) => bar * 14.50377377;\n    public static double PsiToBar(double psi) => psi / 14.50377377;\n\n    // 溫度換算：攝氏轉華氏\n    public static double CelsiusToFahrenheit(double c) => (c * 9.0 / 5.0) + 32.0;\n\n    // OEE 良率計算 (使用 decimal 保證精準度)\n    public static decimal CalculateYield(int totalCount, int defectCount)\n    {\n        if (totalCount <= 0) return 0m;\n        decimal goodCount = (decimal)(totalCount - defectCount);\n        return Math.Round((goodCount / totalCount) * 100m, 2);\n    }\n}",
-    "aiPrompt": "請幫我用 C# 撰寫一個工控計算模組，包含：\n1. 氣壓單位雙向轉換 (bar, psi, kPa, kg/cm²)。\n2. 溫度單位雙向轉換 (攝氏、華氏、熱力學絕對溫標 Kelvin)。\n3. 工廠設備總合效率 OEE (稼動率、產能效率、良率) 計算函式，全部採用 decimal 避免浮點數誤差。\n附上完整的單元測試範例。",
+    "csharpCode": "using System;\n\nnamespace IndustrialProcessControl\n{\n    internal class Program\n    {\n        static void Main(string[] args)\n        {\n            Console.WriteLine(\"=== 機電丙級第一題：工件選別與氣壓缸動作模擬 ===\");\n\n            bool hasWorkpiece = true;      // X0: 入料檢測感應器\n            bool isMetal = false;          // X1: 近接開關 (檢測金屬)\n            bool isSquareHeight = true;    // X2: 高度檢測 (方料高度較高)\n            bool isEmsPressed = false;     // EMS: 緊急停止按鈕 (B接點)\n\n            // 安全優先守則\n            if (isEmsPressed)\n            {\n                Console.ForegroundColor = ConsoleColor.Red;\n                Console.WriteLine(\"[急停觸發] 系統全面切斷輸出，氣壓缸洩壓！\");\n                Console.ResetColor();\n                return;\n            }\n\n            // 正常流程選別判斷\n            if (hasWorkpiece)\n            {\n                Console.WriteLine(\"1. 偵測到原料到位，氣壓缸伸出向前推進...\");\n                \n                // 判斷工件材質與幾何外觀\n                if (isMetal)\n                {\n                    Console.WriteLine(\"2. 判斷結果：[金屬工件] -> 驅動至 A 滑道存儲。\");\n                }\n                else\n                {\n                    if (isSquareHeight)\n                    {\n                        Console.WriteLine(\"2. 判斷結果：[非金屬-方料] -> 驅動第 1 號氣壓缸推入 B 滑道。\");\n                    }\n                    else\n                    {\n                        Console.WriteLine(\"2. 判斷結果：[非金屬-圓料] -> 驅動第 2 號氣壓缸推入 C 滑道。\");\n                    }\n                }\n            }\n            else\n            {\n                Console.WriteLine(\"料倉無工件，送料伺服馬達待命停止中。\");\n            }\n        }\n    }\n}",
+    "aiPrompt": "請為機電整合丙級術科考試設計一個 C# 狀態機 (State Machine) 演算法。定義狀態：Idle(待機), Feeding(送料), Inspecting(檢測), Sorting(分選), Alarm(警報)，並展示如何使用 if-else 與安全超時中斷進行狀態躍遷。",
     "applications": [
       {
-        "scenario": "氣壓傳感器數值標準化轉換",
-        "description": "將現場不同歐規 (bar) 與美規 (psi) 空壓機壓力感測器數值統一標準化後寫入中控 SCADA 資料庫。",
-        "icon": "fa-solid fa-gauge"
+        "scenario": "產線自動分選機構 (Sorter)",
+        "description": "以光電、顏色與重量傳感器訊號即時判定良品、次級品與廢品，驅動氣壓推桿分流。",
+        "icon": "fa-solid fa-arrows-split-up-and-left"
       }
     ],
     "references": [
       {
-        "title": "Microsoft Learn - C# 內建數值型別與浮點精確度",
-        "url": "https://learn.microsoft.com/zh-tw/dotnet/csharp/language-reference/builtin-types/floating-point-numeric-types"
+        "title": "Microsoft Learn - C# if-else 條件陳述式",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/csharp/language-reference/statements/selection-statements#the-if-statement"
       }
     ]
   },
   {
-    "id": "csharp-07",
+    "id": "csharp-intro-07",
     "labNumber": "07",
-    "title": "程式邏輯控制：for/while 迴圈、星號直角三角形與九九乘法表",
-    "date": "2026-08-16",
-    "category": "程式進階",
-    "summary": "透過 for、foreach、while 迴圈與巢狀迴圈建構自動化演算法思維。練習正直角三角形、倒直角三角形、等腰菱形與格式化九九乘法表輸出，奠定步進馬達循軌點位巡檢基礎。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-4.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "巢狀迴圈索引走訪與空間維度映射概念",
-    "resultTitle": "字串圖形運算與多維陣列九九乘法展示視窗",
-    "objective": "1. 熟練使用單迴圈與雙層巢狀迴圈 (Nested Loops)。\n2. 掌握 StringBuilder 類別在大量字串拼接時的記憶體效能優勢。\n3. 理解多維度矩陣走訪與步進馬達點位逐點移動 (Raster Scan) 的演算法關聯。",
+    "category": "C#簡介",
+    "title": "多條件分支與狀態選單：switch-case 陳述式與模式比對",
+    "date": "2026-08-07",
+    "summary": "掌握 switch-case 多路分支結構、break、default 語句，並對比 if-else 效能優勢；應用於機台工作模式選單（手動、自動、寸動、原點復歸）與警報代碼解析。",
+    "flowImage": "images_src/csharp_01/image15.png",
+    "resultImage": "images_src/csharp_01/image12.png",
+    "flowTitle": "機台運轉模式 Switch 分支與安全護欄流程圖",
+    "resultTitle": "工控多功能選單 ComboBox + Switch-Case 測試介面",
+    "objective": "1. 掌握 switch-case 語法的標準撰寫格式與 default 兜底防呆。\n2. 理解在多重條件選擇下，switch 語法比巢狀 if-else 更清晰且效能更高的原因。\n3. 實作機台運轉模式選擇器（手動 Manual / 自動 Auto / 步進 Step / 原點復歸 Home）。",
     "tutorialSteps": [
       {
-        "step": "1. 直角正三角形輸出演算法",
-        "description": "外層迴圈控制列數 (i 從 1 到 N)，內層迴圈控制星號數量 (j 從 1 到 i)，逐列生成遞增字串。"
+        "step": "1. 認識 switch-case 的運作邏輯",
+        "description": "根據單一運算式或變數（整數、字串或列舉），比對匹配的 case 分支並執行特定動作，每段分支結尾必須以 break 跳出。"
       },
       {
-        "step": "2. 倒直角三角形與空白對齊",
-        "description": "計算空白填充數量與星號數量的互補關係，實現靠右對齊之幾何圖案。"
+        "step": "2. 實作機台工作模式切換",
+        "description": "定義整數模式碼：1:手動(Manual)、2:半自動(Semi-Auto)、3:全自動(Auto)、4:復歸(Homing)，並在 default 中處理未知非法代碼。"
       },
       {
-        "step": "3. 格式化九九乘法表輸出",
-        "description": "使用 string.Format(\"{0}x{1}={2,2} \") 對齊欄位，以 9 欄 9 列陣列結構輸出至文字框或主控台。"
-      },
-      {
-        "step": "4. 映射至二維步進掃描路徑",
-        "description": "將雙層迴圈索引 (row, col) 轉換為實體伺服馬達 X-Y 平台之絕對座標 (X = col * step, Y = row * step)。"
+        "step": "3. 結合現代 C# 模式比對 (Pattern Matching)",
+        "description": "介紹 switch expression (switch 表達式) 語法糖，讓代碼更精簡優雅。"
       }
     ],
-    "csharpCode": "using System.Text;\n\npublic static class PatternGenerator\n{\n    // 產生直角正三角形\n    public static string GenerateRightTriangle(int rows)\n    {\n        var sb = new StringBuilder();\n        for (int i = 1; i <= rows; i++)\n        {\n            sb.AppendLine(new string('*', i));\n        }\n        return sb.ToString();\n    }\n\n    // 產生格式化九九乘法表\n    public static string GenerateMultiplicationTable()\n    {\n        var sb = new StringBuilder();\n        for (int i = 1; i <= 9; i++)\n        {\n            for (int j = 1; j <= 9; j++)\n            {\n                sb.Append($\"{j} x {i} = {i * j,2}   \");\n            }\n            sb.AppendLine();\n        }\n        return sb.ToString();\n    }\n}",
-    "aiPrompt": "請幫我用 C# 寫一個圖形邏輯產生工具類別，包含以下靜態方法：\n1. GenerateRightTriangle(int rows)：正直角三角形。\n2. GenerateInvertedTriangle(int rows)：倒直角三角形。\n3. GenerateDiamond(int size)：等腰菱形。\n4. GenerateMultiplicationTable()：對齊美觀的九九乘法表。\n所有方法均使用 StringBuilder 最佳化，並附上調用展示。",
+    "csharpCode": "using System;\n\nnamespace MachineModeController\n{\n    public enum MachineMode\n    {\n        Manual = 1,     // 手動點動\n        Auto = 2,       // 自動連續運轉\n        Step = 3,       // 單步測試\n        Homing = 4,     // 原點復歸\n        Emergency = 99  // 緊急狀態\n    }\n\n    internal class Program\n    {\n        static void Main(string[] args)\n        {\n            Console.WriteLine(\"請選擇機台運轉模式 (1:手動, 2:自動, 3:單步, 4:復歸): \");\n            string input = Console.ReadLine();\n\n            if (int.TryParse(input, out int modeNum))\n            {\n                ExecuteMode((MachineMode)modeNum);\n            }\n            else\n            {\n                Console.WriteLine(\"輸入無效，請輸入數字代碼！\");\n            }\n        }\n\n        static void ExecuteMode(MachineMode mode)\n        {\n            switch (mode)\n            {\n                case MachineMode.Manual:\n                    Console.WriteLine(\"[模式就緒] 進入手動模式：可由按鈕點動驅動各氣壓缸與馬達。\");\n                    break;\n                case MachineMode.Auto:\n                    Console.WriteLine(\"[模式就緒] 進入全自動模式：啟動連續輸送帶與視覺良率檢測。\");\n                    break;\n                case MachineMode.Step:\n                    Console.WriteLine(\"[模式就緒] 進入單步測試：按下一次啟動按鈕僅執行一工步。\");\n                    break;\n                case MachineMode.Homing:\n                    Console.WriteLine(\"[模式就緒] 執行原點復歸：伺服馬達尋找極限點位與 Z 相訊號...\");\n                    break;\n                default:\n                    Console.ForegroundColor = ConsoleColor.Yellow;\n                    Console.WriteLine(\"[未知模式] 輸入之模式未定義，系統維持安全怠速！\");\n                    Console.ResetColor();\n                    break;\n            }\n        }\n    }\n}",
+    "aiPrompt": "請示範 C# 8+ 中的 Switch 表達式 (Switch Expression) 與 Tuple 模式比對，模擬產線依照 (機台運轉狀態, 光通訊訊號) 雙條件做出相應警報燈號（紅、黃、綠、蜂鳴器）判定的簡明代碼。",
     "applications": [
       {
-        "scenario": "晶圓瑕疵逐點光學檢測 (AOI) 走訪",
-        "description": "透過雙層迴圈控制檢測鏡頭沿著晶圓晶粒 (Die) 座標逐列逐行掃描取像，進行瑕疵特徵比對。",
-        "icon": "fa-solid fa-microchip"
+        "scenario": "PLC 錯誤代碼 (Error Code) 語義解析",
+        "description": "將三菱 PLC 回傳的 16 進位警報碼 (如 0x4100, 0x4101) 透過 switch 轉換為繁體中文維修提示。",
+        "icon": "fa-solid fa-list-ol"
       }
     ],
     "references": [
       {
-        "title": "Microsoft Learn - C# 反覆運算陳述式 (for, foreach, while)",
+        "title": "Microsoft Learn - C# switch 陳述式",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/csharp/language-reference/statements/selection-statements#the-switch-statement"
+      }
+    ]
+  },
+  {
+    "id": "csharp-intro-08",
+    "labNumber": "08",
+    "category": "C#簡介",
+    "title": "迴圈控制結構：for 計數迴圈、while 條件迴圈與工控等待機制",
+    "date": "2026-08-08",
+    "summary": "掌握 for 計數迴圈、while 條件迴圈與 do-while 結構；剖析工控通訊「一直等到垂直氣壓缸下降碰到 a1 極限為止」的硬體輪詢機制與逾時防止卡死 (Watchdog Timeout) 技巧。",
+    "flowImage": "images_src/csharp_01/image16.png",
+    "resultImage": "images_src/csharp_01/image17.png",
+    "flowTitle": "for 計數迴圈 vs while 條件式輪詢迴圈流程圖",
+    "resultTitle": "工控硬體等待與看門狗逾時 (Watchdog) 測試畫面",
+    "objective": "1. 掌握 for(初值; 條件; 增值) 的運作規律，應用於已知次數的批次排程。\n2. 熟練 while(條件) 迴圈，應用於硬體狀態輪詢等待（如等待汽缸到位、等待水槽注水達標）。\n3. 學會在工控 while 迴圈中加入超時看門狗 (Watchdog Timeout) 機制，杜絕現場線路鬆脫導致程式無窮死鎖。",
+    "tutorialSteps": [
+      {
+        "step": "1. 計數迴圈 (for loop) 實作",
+        "description": "實作物料包裝迴圈：設定每箱 24 顆，以 for 迴圈模擬機械手臂連續吸放 24 次後換箱。"
+      },
+      {
+        "step": "2. 條件迴圈 (while loop) 與氣壓缸到位等待",
+        "description": "投影片案例：執行「垂直汽缸下降」指令後，進入 while(!isSensorA1Reached) 迴圈持續輪詢讀取 PLC 點位。"
+      },
+      {
+        "step": "3. 關鍵防護：加入軟體看門狗計時",
+        "description": "若氣壓不足或感應器損壞，while 迴圈將永遠無法跳出！必須加入 stopwatch.ElapsedMilliseconds > 5000 判定，逾時立即拋出警報並停止氣缸。"
+      }
+    ],
+    "csharpCode": "using System;\nusing System.Diagnostics;\nusing System.Threading;\n\nnamespace IndustrialLoopMechanisms\n{\n    internal class Program\n    {\n        static void Main(string[] args)\n        {\n            Console.WriteLine(\"=== 實戰示範：工控等待與看門狗逾時機制 ===\");\n\n            // 1. for 計數迴圈：自動送料 5 批\n            for (int batch = 1; batch <= 5; batch++)\n            {\n                Console.WriteLine($\"正在包裝第 {batch} 箱成品...\");\n            }\n\n            Console.WriteLine(\"\\r\\n2. while 條件迴圈：模擬等待垂直汽缸下降到達 a1 極限端點...\");\n            bool cylinderDownSuccess = WaitForSensorWithTimeout(sensorTimeoutMs: 3000);\n\n            if (cylinderDownSuccess)\n            {\n                Console.ForegroundColor = ConsoleColor.Green;\n                Console.WriteLine(\"[動作完成] 汽缸順利到達下極限 a1，夾爪開始閉合！\");\n                Console.ResetColor();\n            }\n            else\n            {\n                Console.ForegroundColor = ConsoleColor.Red;\n                Console.WriteLine(\"[硬體警報] 汽缸動作超時逾期 (未在時限內抵達 a1)，啟動急停保護！\");\n                Console.ResetColor();\n            }\n        }\n\n        // 帶有看門狗超時保護的感測器等待函式\n        static bool WaitForSensorWithTimeout(int sensorTimeoutMs)\n        {\n            Stopwatch sw = Stopwatch.StartNew();\n            bool isSensorA1Reached = false;\n            int mockTime = 0;\n\n            while (!isSensorA1Reached)\n            {\n                // 檢測是否逾時\n                if (sw.ElapsedMilliseconds > sensorTimeoutMs)\n                {\n                    return false; // 超時失敗\n                }\n\n                // 模擬讀取硬體訊號 (此處模擬在 1.5 秒時信號到位)\n                Thread.Sleep(200);\n                mockTime += 200;\n                if (mockTime >= 1500)\n                {\n                    isSensorA1Reached = true;\n                }\n                Console.WriteLine($\"等待信號中... 已經耗時 {sw.ElapsedMilliseconds} ms\");\n            }\n            return true;\n        }\n    }\n}",
+    "aiPrompt": "在工控程式設計中，為什麼嚴禁在 WinForms 的 UI 主執行緒直接撰寫 while(true) 等待 PLC 信號？請以 C# async/await 與 Task.Delay 示範現代非同步等待模式，兼顧 UI 流暢度與超時取消 (CancellationTokenSource)。",
+    "applications": [
+      {
+        "scenario": "自動化氣壓缸行程檢測",
+        "description": "電磁閥出氣後，監控極限開關 (Reed Switch) 是否在指定公差時間 (如 800ms) 內閉合。",
+        "icon": "fa-solid fa-arrows-down-to-line"
+      }
+    ],
+    "references": [
+      {
+        "title": "Microsoft Learn - C# 反覆運算陳述式 (for, while, do)",
         "url": "https://learn.microsoft.com/zh-tw/dotnet/csharp/language-reference/statements/iteration-statements"
       }
     ]
   },
   {
-    "id": "csharp-08",
-    "labNumber": "08",
-    "title": "流程控制與物件導向：if-else 條件判斷、Switch case 與類別繼承",
-    "date": "2026-08-17",
-    "category": "物件導向",
-    "summary": "掌握 if-else 分支、C# 現代 switch pattern matching (模式比對) 與物件導向 (OOP: 封裝、繼承、多型)。設計工控設備基礎類別 (BaseDevice) 與 PLC/手臂衍生類別，提高系統可擴充性。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-4.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "工業自動化設備階層架構 (UML 類別圖)",
-    "resultTitle": "工控物件多型調度與狀態分流測試視窗",
-    "objective": "1. 熟練掌握 if-else-if 多條件判斷與 C# switch 模式匹配語法。\n2. 深入理解物件導向三大特性：封裝 (Encapsulation)、繼承 (Inheritance)、多型 (Polymorphism)。\n3. 學會將真實世界的 PLC、機械手臂、感測器抽象為 C# 物件架構。",
+    "id": "csharp-intro-09",
+    "labNumber": "09",
+    "category": "C#簡介",
+    "title": "陣列、字串百種處理技法與物件導向基礎",
+    "date": "2026-08-09",
+    "summary": "掌握一維與二維陣列、字串組合 (+ / 內插 $)、切割 Split()、包含 Contains()、擷取 Substring()，並邁向類別 (Class) 與物件 (Object) 實體化藍圖實作。",
+    "flowImage": "images_src/csharp_01/image18.png",
+    "resultImage": "images_src/csharp_01/image19.png",
+    "flowTitle": "字串解析與物件導向 Class 藍圖實體化流程",
+    "resultTitle": "工控 ASCII 通訊封包 Split 與 Substring 剖析結果",
+    "objective": "1. 掌握一維與二維陣列宣告、記憶體連續配置與索引走訪。\n2. 精通工控串列通訊最核心的字串處理：Split 切割欄位、Substring 抓取校驗碼、Contains 識別指令。\n3. 理解物件導向 (OOP) 核心：Class 是藍圖、Object 是具體機台實體，透過 new 關鍵字完成初始化。",
     "tutorialSteps": [
       {
-        "step": "1. 定義抽象基礎設備類別",
-        "description": "建立 abstract class BaseDevice，定義 DeviceId, Name, IsConnected 屬性，以及 Connect(), Disconnect() 虛擬方法。"
+        "step": "1. 陣列走訪與多站台數據管理",
+        "description": "宣告 double[] temperatureSensors = new double[8] 管理 8 個溫控通道數據，利用 for 迴圈走訪計算平均溫度。"
       },
       {
-        "step": "2. 實作三菱 PLC 與機械手臂衍生類別",
-        "description": "建立 MitsubishiPlcDevice 與 RobotArmDevice 繼承 BaseDevice，分別實作各自的通訊協定細節。"
+        "step": "2. 字串百種技法處理工控封包",
+        "description": "通訊回傳字串如 \"ACK,STATION01,TEMP=45.2,PRES=1.8\\r\\n\"，利用 Split(',') 迅速取得各數據欄位，以 Substring 擷取數值。"
       },
       {
-        "step": "3. 運用 Switch 進行料件尺寸分級",
-        "description": "使用 switch 模式比對 (pattern matching)，依據感測器厚度數值迅速將工件分為「合格品」、「過厚重工」、「過薄報廢」。"
-      },
-      {
-        "step": "4. 多型設備批次連線管理",
-        "description": "建立 List<BaseDevice> 設備清單，使用單一 foreach 迴圈一鍵連線所有現場設備。"
+        "step": "3. 建立第一個機台類別 (PlcStation)",
+        "description": "設計包含 StationId, IsOnline 屬性與 Connect(), ReadRegister() 方法的 Class，體會由程序導向進化為物件導向的威力。"
       }
     ],
-    "csharpCode": "public abstract class BaseDevice\n{\n    public string DeviceId { get; set; }\\n    public string Name { get; set; }\n    public bool IsConnected { get; protected set; }\n\n    public abstract bool Connect();\n    public abstract void Disconnect();\n}\n\npublic class MitsubishiPlc : BaseDevice\n{\n    public string ComPort { get; set; }\n    public override bool Connect()\n    {\n        // 實作 FX 通訊連線\n        IsConnected = true;\n        return true;\n    }\n    public override void Disconnect() => IsConnected = false;\n}\n\npublic class QualityClassifier\n{\n    public string ClassifyPart(double thickness) => thickness switch\n    {\n        < 4.8 => \"過薄 - 報廢 (Reject)\",\n        >= 4.8 and <= 5.2 => \"標準品 - 合格 (Pass)\",\n        _ => \"過厚 - 需二次銑削 (Rework)\"\n    };\n}",
-    "aiPrompt": "請幫我用 C# 物件導向設計一個工業自動化設備管理器。要求：\n1. 抽象父類別 IndustrialDevice (含連線狀態、報警狀態、Connect, Disconnect 抽象方法)。\n2. 衍生類別 MitsubishiPlcDevice, ModbusGatewayDevice, RobotDevice。\n3. 使用 C# 模式匹配 (switch pattern matching) 處理設備報警代碼對應文字。\n4. 提供 DeviceManager 支援多型集合迴圈批次啟動。",
+    "csharpCode": "using System;\n\nnamespace IndustrialStringAndOop\n{\n    // 建立機台站點物件導向藍圖\n    public class ProductionStation\n    {\n        public int StationId { get; set; }\n        public string StationName { get; set; }\n        public double[] ToolWearValues { get; set; }\n\n        public ProductionStation(int id, string name, int toolCount)\n        {\n            StationId = id;\n            StationName = name;\n            ToolWearValues = new double[toolCount];\n        }\n\n        // 解析通訊傳入的字串封包\n        public void ParseTelemetry(string rawPacket)\n        {\n            // 例如封包格式: \"#ST1:TOOL0=12.5;TOOL1=14.8;TOOL2=8.3*\"\n            if (rawPacket.StartsWith(\"#\") && rawPacket.Contains(\"*\"))\n            {\n                int start = rawPacket.IndexOf(\":\") + 1;\n                int end = rawPacket.IndexOf(\"*\");\n                string payload = rawPacket.Substring(start, end - start);\n\n                string[] toolPairs = payload.Split(';');\n                for (int i = 0; i < toolPairs.Length && i < ToolWearValues.Length; i++)\n                {\n                    string[] kv = toolPairs[i].Split('=');\n                    if (kv.Length == 2 && double.TryParse(kv[1], out double val))\n                    {\n                        ToolWearValues[i] = val;\n                        Console.WriteLine($\"[{StationName}] 刀具 #{i} 磨損量更新: {val} um\");\n                    }\n                }\n            }\n        }\n    }\n\n    internal class Program\n    {\n        static void Main(string[] args)\n        {\n            Console.WriteLine(\"=== 工控字串處理與物件導向實務 ===\");\n            ProductionStation stationA = new ProductionStation(1, \"研磨機台 A\", 3);\n            \n            // 模擬接收串口回傳之封包\n            string receivedSerial = \"#ST1:TOOL0=12.5;TOOL1=14.8;TOOL2=8.3*\";\n            Console.WriteLine($\"收到底層通訊封包: {receivedSerial}\");\n            stationA.ParseTelemetry(receivedSerial);\n        }\n    }\n}",
+    "aiPrompt": "請示範 C# 處理條碼槍 (Barcode Scanner) 傳入字串的常見封包解析技巧：過濾 STX/ETX (0x02, 0x03)、處理包含換行符號 (CRLF)、使用 Regex 驗證符合特定工單編號格式 (例如 WO-2026-XXXX)。",
     "applications": [
       {
-        "scenario": "全自動裝配線彈性站點調度",
-        "description": "上位圖控以統一的 BaseDevice 介面管理壓合站、螺絲機與雷射雕刻站，擴充新站點無需改動核心流程。",
-        "icon": "fa-solid fa-sitemap"
+        "scenario": "條碼槍掃描與工單追溯",
+        "description": "將產線上條碼掃描器讀入的 ASCII 碼串列，過濾頭尾標頭並提取工單編號與產品批號。",
+        "icon": "fa-solid fa-barcode"
       }
     ],
     "references": [
       {
-        "title": "Microsoft Learn - C# 物件導向程式設計指南",
-        "url": "https://learn.microsoft.com/zh-tw/dotnet/csharp/fundamentals/tutorials/oop"
+        "title": "Microsoft Learn - C# 中的字串與字串常值",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/csharp/programming-guide/strings/"
       }
     ]
   },
   {
-    "id": "csharp-09",
-    "labNumber": "09",
-    "title": "視窗互動事件：鍵盤 KeyPress/KeyDown 與滑鼠點擊控制",
-    "date": "2026-08-18",
-    "category": "人機互動",
-    "summary": "掌握 Windows Forms 的輸入事件管線。攔截表單 KeyDown 事件實現「空白鍵緊急煞車 (E-Stop)」、「方向鍵控制馬達點動 (JOG)」，並利用 MouseDown / MouseUp 事件實作現場真實按鈕的手感體驗。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-5.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "Windows 訊息迴圈與鍵盤滑鼠工控事件派送架構",
-    "resultTitle": "工控虛擬教導盒 (Teach Pendant) 鍵盤滑鼠互動畫面",
-    "objective": "1. 掌握 Form.KeyPreview 屬性讓表單優先攔截全域鍵盤熱鍵。\n2. 理解 KeyDown (按下)、KeyUp (放開)、KeyPress (字元輸入) 的觸發順序差異。\n3. 實作按下滑鼠發送 JOG ON、放開滑鼠發送 JOG OFF 的實體示教盒操作邏輯。",
+    "id": "csharp-hmi-01",
+    "labNumber": "10",
+    "category": "以C#建立人機界面",
+    "title": "WinForms 視窗人機介面控制項與版面屬性設計",
+    "date": "2026-08-10",
+    "summary": "掌握 Windows Forms 核心控制項：標籤 (Label)、圖片 (PictureBox)、按鈕 (Button)、文字方塊 (TextBox) 的配置，以及字型、色彩 (FromArgb) 與文字對齊屬性動態變更。",
+    "flowImage": "images_src/csharp_02/image1.png",
+    "resultImage": "images_src/csharp_02/image100.png",
+    "flowTitle": "WinForms 控制項層次架構與屬性視窗設定",
+    "resultTitle": "工控人機儀表板 HMI 介面成果展示",
+    "objective": "1. 掌握 Form、Label、PictureBox、Button、TextBox 等核心視覺控制項在工控介面的設計佈局。\n2. 學會透過程式碼動態調整 Font、ForeColor、BackColor (Color.FromArgb)。\n3. 實作工業級指示燈顏色切換（紅/黃/綠狀態變更）與置中對齊 (TextAlign)。",
     "tutorialSteps": [
       {
-        "step": "1. 開啟 Form KeyPreview 屬性",
-        "description": "將 this.KeyPreview 設為 true，確保即使子控制項具有焦點，表單仍能攔截快速鍵。"
+        "step": "1. 介面控制項佈局與工控命名",
+        "description": "將按鈕命名為 btnStart, btnStop；標籤命名為 lblStatus, lblPlcFeedback；文字方塊設定 TextAlign = HorizontalAlignment.Center。"
       },
       {
-        "step": "2. 撰寫緊急停止快捷鍵 (Space / Esc)",
-        "description": "在 Form_KeyDown 事件中判斷 e.KeyCode == Keys.Space，立刻觸發 EmergencyStop() 邏輯並發送硬體急停。"
+        "step": "2. 程式碼動態變更字型與顏色",
+        "description": "利用 Color.FromArgb(0, 255, 0) 動態設定指示燈為高亮綠色，並使用 new Font(\"微軟正黑體\", 14, FontStyle.Bold) 即時放大數值標籤。"
       },
       {
-        "step": "3. 實作點動 (JOG) 按鈕 MouseDown/Up",
-        "description": "為「正轉 JOG+」按鈕註冊 MouseDown 發送 PLC Y0=ON；註冊 MouseUp 發送 PLC Y0=OFF，避免連點造成機構衝撞。"
-      },
-      {
-        "step": "4. 加入方向鍵寸動控制 (Jog by Arrow Keys)",
-        "description": "按下鍵盤 Left/Right 控制軸線水平位移，Up/Down 控制軸線垂直升降。"
+        "step": "3. 圖片顯示 (PictureBox) 與尺寸模式",
+        "description": "載入機台示意圖，設定 SizeMode = PictureBoxSizeMode.Zoom 確保在不同解析度螢幕下維持正確外觀比例。"
       }
     ],
-    "csharpCode": "protected override void OnKeyDown(KeyEventArgs e)\n{\n    base.OnKeyDown(e);\n    if (e.KeyCode == Keys.Space || e.KeyCode == Keys.Escape)\n    {\n        // 緊急停止\n        TriggerEmergencyStop();\n        e.Handled = true;\n    }\n    else if (e.KeyCode == Keys.Right)\n    {\n        // X 軸向右點動\n        SendJogCommand(\"X\", 1);\n    }\n}\n\nprivate void btnJogForward_MouseDown(object sender, MouseEventArgs e)\n{\n    // 按下滑鼠發送啟動訊號\n    _plc.SetRelay(\"M100\", true);\n}\n\nprivate void btnJogForward_MouseUp(object sender, MouseEventArgs e)\n{\n    // 放開滑鼠立即切斷\n    _plc.SetRelay(\"M100\", false);\n}",
-    "aiPrompt": "請幫我用 C# WinForms 撰寫一個機械手臂手動示教 (Jogging) 面板。\n需求：\n1. 表單支援 KeyPreview，按下空白鍵立刻執行緊急停止 (E-Stop)。\n2. 面板上有「X+」與「X-」按鈕，使用 MouseDown 與 MouseUp 實作「按著走、放開停」的安全點動邏輯。\n3. 按下方向鍵也可以進行同等點動。\n4. 加入代碼防止滑鼠拖曳離開按鈕時未觸發 MouseUp 的安全性問題。",
+    "csharpCode": "using System;\nusing System.Drawing;\nusing System.Windows.Forms;\n\nnamespace LAB_01_HMI_Controls\n{\n    public partial class FormHmiBasic : Form\n    {\n        private Label lblPlcLight;\n        private Button btnToggleLight;\n        private bool _isOutputOn = false;\n\n        public FormHmiBasic()\n        {\n            InitializeComponent();\n            SetupIndustrialUi();\n        }\n\n        private void SetupIndustrialUi()\n        {\n            this.Text = \"五股職訓局 - 工控人機介面 HMI 基礎控制項\";\n            this.Size = new Size(500, 350);\n            this.BackColor = Color.FromArgb(20, 24, 33);\n\n            // 狀態指示燈標籤\n            lblPlcLight = new Label\n            {\n                Text = \"Y0 狀態：待命 OFF\",\n                Font = new Font(\"Noto Sans TC\", 14, FontStyle.Bold),\n                ForeColor = Color.White,\n                BackColor = Color.FromArgb(60, 64, 75),\n                TextAlign = ContentAlignment.MiddleCenter,\n                Location = new Point(100, 50),\n                Size = new Size(280, 60)\n            };\n            this.Controls.Add(lblPlcLight);\n\n            // 切換按鈕\n            btnToggleLight = new Button\n            {\n                Text = \"切換 Y0 點位\",\n                Font = new Font(\"微軟正黑體\", 12, FontStyle.Bold),\n                ForeColor = Color.White,\n                BackColor = Color.FromArgb(14, 165, 233),\n                FlatStyle = FlatStyle.Flat,\n                Location = new Point(160, 150),\n                Size = new Size(160, 50)\n            };\n            btnToggleLight.Click += BtnToggleLight_Click;\n            this.Controls.Add(btnToggleLight);\n        }\n\n        private void BtnToggleLight_Click(object sender, EventArgs e)\n        {\n            _isOutputOn = !_isOutputOn;\n            if (_isOutputOn)\n            {\n                lblPlcLight.Text = \"Y0 狀態：運轉中 ON\";\n                lblPlcLight.BackColor = Color.FromArgb(34, 197, 94); // 高亮綠\n            }\n            else\n            {\n                lblPlcLight.Text = \"Y0 狀態：待命 OFF\";\n                lblPlcLight.BackColor = Color.FromArgb(239, 68, 68); // 警示紅\n            }\n        }\n    }\n}",
+    "aiPrompt": "請扮演工控 HMI 設計師，為 C# WinForms 撰寫一套具備深色現代工控風格 (Dark Industrial Theme) 的自訂控制項輔助方法，能將一般 Button 改造為帶圓角與呼吸發光邊框的工控啟動/停止按鈕。",
     "applications": [
       {
-        "scenario": "CNC 工具機手輪與虛擬示教盒",
-        "description": "作業員使用工業鍵盤或平板螢幕長按點動按鈕調整銑刀對刀點，放開即刻煞車確保安全。",
+        "scenario": "產線機台控制面板 (HMI 面板)",
+        "description": "觸控螢幕上位機軟體的主操作首頁，提供醒目的馬達啟動按鈕、電壓電流讀數與警報閃爍燈號。",
         "icon": "fa-solid fa-gamepad"
       }
     ],
     "references": [
       {
-        "title": "Microsoft Learn - Windows Forms 中的鍵盤與滑鼠事件處理",
-        "url": "https://learn.microsoft.com/zh-tw/dotnet/desktop/winforms/input-keyboard"
+        "title": "Microsoft Learn - Windows Forms 控制項總覽",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/desktop/winforms/controls/?view=netdesktop-8.0"
       }
     ]
   },
   {
-    "id": "csharp-10",
-    "labNumber": "10",
-    "title": "三菱 FX PLC ASCII 通訊協定封包格式與 CheckSum 驗證演算法",
-    "date": "2026-08-19",
-    "category": "通訊協定",
-    "summary": "徹底解析三菱 FX 序列協定 (Computer Link Format 1 / Programming Protocol)。手寫 ASCII 編碼、位址定址轉換、累加校驗碼 (CheckSum) 與封包解碼器，實作 100% 穩健工控驅動核心。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-2.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "三菱 FX 序列封包結構：STX + CMD + ADDR + BYTES + ETX + SUM",
-    "resultTitle": "CheckSum 算檢碼驗證器與封包收發日誌診斷視窗",
-    "objective": "1. 深入理解三菱 FX 系列封包結構 (STX, Command, Address, Length, ETX, CheckSum)。\n2. 掌握 CheckSum 累加和演算法（加總取最低兩位十六進位字元）。\n3. 學會編寫具備封包完整度校驗 (Integrity Validation) 的底層序列封包解析器。",
-    "tutorialSteps": [
-      {
-        "step": "1. 認識封包控制字元 (Control Characters)",
-        "description": "STX = 0x02 (封包起始), ETX = 0x03 (資料結束), ENQ = 0x05, ACK = 0x06, NAK = 0x15。"
-      },
-      {
-        "step": "2. 解析暫存器地址計算規則",
-        "description": "三菱 FX 資料暫存器 D0 的實體位址為 0x1000 (每個 D 暫存器佔 2 位元組，故 D1 為 0x1002，D100 為 0x10C8)。"
-      },
-      {
-        "step": "3. 實作 CheckSum 演算法函式",
-        "description": "將從 Command 到 ETX 間所有字元的 ASCII 數值加總，將結果與 0xFF 做 AND 運算，最後以 \"X2\" 格式化為兩碼十六進位。"
-      },
-      {
-        "step": "4. 封包接收解碼與校驗比對",
-        "description": "接收 PLC 回傳封包，重新計算校驗碼並比對末尾 2 碼，若相符則提取有效資料，不符則要求重傳。"
-      }
-    ],
-    "csharpCode": "public static class MitsubishiPacketHelper\n{\n    // 計算 CheckSum 累加和\n    public static string CalculateCheckSum(string contentWithEtx)\n    {\n        int sum = 0;\n        foreach (char c in contentWithEtx)\n        {\n            sum += (byte)c;\n        }\n        // 取最低 8 位元並轉為 2 碼 16 進位大寫\n        return (sum & 0xFF).ToString(\"X2\");\n    }\n\n    // 建立讀取 D 暫存器之完整指令 (例如讀取 D0 1個字元)\n    public static string BuildReadRegisterPacket(int dRegisterIndex, int count)\n    {\n        // D 暫存器基礎位址 0x1000，每個字佔 2 bytes\n        int addr = 0x1000 + (dRegisterIndex * 2);\n        string cmd = $\"0{addr:X4}{(count * 2):X2}\"; // '0' 讀取命令\n        string contentWithEtx = $\"{cmd}\\x03\";\n        string sum = CalculateCheckSum(contentWithEtx);\n        return $\"\\x02{contentWithEtx}{sum}\";\n    }\n}",
-    "aiPrompt": "請幫我用 C# 編寫一個三菱 FX3U PLC 通訊封包工具類別 MitsubishiFxProtocol。\n包含以下功能：\n1. CalculateCheckSum(string rawData) 演算法。\n2. BuildForceBitPacket(string relayType, int index, bool state) 強制線圈封包 (如 Y1, M10)。\n3. BuildReadDRegisterPacket(int startD, int wordCount) 讀取資料暫存器封包。\n4. ParseResponse(string responsePacket) 解碼並驗證回傳封包 CheckSum 是否正確。",
-    "applications": [
-      {
-        "scenario": "自研工業物聯網邊緣閘道器 (Edge Gateway)",
-        "description": "無須購買昂貴第三方 OPC Server，直接以自研 C# 驅動高頻讀取現場 50 台三菱 FX PLC 產能與能耗數據。",
-        "icon": "fa-solid fa-network-wired"
-      }
-    ],
-    "references": [
-      {
-        "title": "三菱電機 - MELSEC 序列通訊模組手冊 (Computer Link 規格)",
-        "url": "https://www.mitsubishielectric.com/fa/"
-      }
-    ]
-  },
-  {
-    "id": "csharp-11",
+    "id": "csharp-hmi-02",
     "labNumber": "11",
-    "title": "讀取 PLC 狀態：X/Y 接點監控、M 輔助繼電器與 Timer 計時器輪詢",
-    "date": "2026-08-20",
-    "category": "狀態監控",
-    "summary": "建立高效的定時輪詢 (Polling Engine) 架構，定時每 100 毫秒向 PLC 發送狀態讀取指令，批次取得輸入接點 X0~X7、輸出接點 Y0~Y7 與內部標誌 M0~M15，並在 WinForms 儀表板上點亮即時狀態 LED。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-4.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "非同步輪詢計時器與 I/O 狀態映射快取模型",
-    "resultTitle": "PLC 實體 I/O 全接點動態虛擬監視儀表板",
-    "objective": "1. 掌握三菱 FX 系列「批次讀取位元狀態」命令格式。\n2. 理解工控輪詢頻率 (Polling Rate) 與串列傳輸延遲的平衡設計。\n3. 學會將接收之 Hex 十六進位字元解析為獨立的位元二進位陣列 (BitArray)。",
+    "category": "以C#建立人機界面",
+    "title": "運算、變數範圍與單位換算計算機",
+    "date": "2026-08-11",
+    "summary": "實作計算機四則運算、累積加總、變數宣告初值與型別轉換 (Convert.ToInt32, Convert.ToDouble)，並解析全域變數 (Global) 與區域變數 (Local) 生命週期及工控單位換算。",
+    "flowImage": "images_src/csharp_02/image10.png",
+    "resultImage": "images_src/csharp_02/image101.png",
+    "flowTitle": "變數有效範圍 (Scope) 與記憶體存活生命週期 (Lifetime)",
+    "resultTitle": "工控長度/溫度/壓力單位即時換算軟體介面",
+    "objective": "1. 掌握 UI 文字輸入轉換為數值之 Convert.ToInt32() 與 Convert.ToDouble() 技巧。\n2. 理解全域變數 (表單層級欄位) 與區域變數在按鈕連續點擊狀態下的累積差異。\n3. 掌握 Math.Round() 四捨五入與工控工程單位（如 mm/inch, ℃/℉, kg/lb）即時換算。",
     "tutorialSteps": [
       {
-        "step": "1. 設定輪詢定時器 (System.Windows.Forms.Timer)",
-        "description": "設定 Timer Interval = 200ms，在 Tick 事件中觸發非同步讀取請求，防止介面卡頓。"
+        "step": "1. 介面建立與資料轉換",
+        "description": "設計兩個輸入 TextBox 與加減乘除按鈕，點擊後取得字串並以 double.TryParse() 安全轉為數值。"
       },
       {
-        "step": "2. 發送讀取接點命令",
-        "description": "組裝讀取 X0 起始位元之封包，PLC 回傳例如 \"01\" (代表 X0=1, 其餘為 0)。"
+        "step": "2. 全域變數 vs 區域變數實戰驗證",
+        "description": "投影片 LAB_02-03：在 Form 宣告 private int a = 0，每次點擊加一；若在方法內宣告 int a = 1000 則每次執行皆重新初始化，無法記錄累加狀態。"
       },
       {
-        "step": "3. 十六進位轉換為布林狀態陣列",
-        "description": "將回傳字元以 Convert.ToByte(hex, 16) 轉為 byte，並使用位元遮罩 ((b & (1 << i)) != 0) 萃取 X0~X7 狀態。"
-      },
-      {
-        "step": "4. 動態更新 UI 燈號控制項",
-        "description": "遍歷虛擬 LED 燈陣列，為 ON 的接點標記亮綠色，為 OFF 的接點標記深灰色。"
+        "step": "3. 單位轉換演算法與精度控制",
+        "description": "實作壓力換算：1 Bar = 14.5038 PSI，使用 Math.Round(result, 2) 控制小數點位數並回填 UI。"
       }
     ],
-    "csharpCode": "private void pollTimer_Tick(object sender, EventArgs e)\n{\n    if (!_serialPort.IsOpen) return;\n    \n    // 讀取 X0~X7 輸入接點 (假設封包讀取成功獲得 response)\n    string rawHex = ReadPlcBitRegisters(0x0080, 1); // 取得 1 byte (8 bits)\n    if (!string.IsNullOrEmpty(rawHex))\n    {\n        byte val = Convert.ToByte(rawHex, 16);\n        for (int i = 0; i < 8; i++)\n        {\n            bool isBitOn = (val & (1 << i)) != 0;\n            UpdateLedUI(i, isBitOn);\n        }\n    }\n}\n\nprivate void UpdateLedUI(int index, bool isOn)\n{\n    Panel led = this.Controls.Find($\"ledX{index}\", true).FirstOrDefault() as Panel;\n    if (led != null)\n    {\n        led.BackColor = isOn ? Color.LimeGreen : Color.DarkSlateGray;\n    }\n}",
-    "aiPrompt": "請幫我用 C# WinForms 撰寫一個 PLC 實體 I/O 監控器。\n包含：\n1. 一個 BackgroundWorker 或 Task 每 100ms 輪詢一次 PLC 的 X0~X7 與 Y0~Y7 狀態。\n2. 將 PLC 回傳的十六進位 ASCII 數據轉換為 8 個 boolean 狀態。\n3. 在 UI 上透過 16 個 Panel 動態呈現綠色 (ON) 或暗色 (OFF)。\n4. 包含掉線自動重連機制。",
+    "csharpCode": "using System;\nusing System.Windows.Forms;\n\nnamespace LAB_02_Calculator\n{\n    public partial class FormUnitConverter : Form\n    {\n        // 全域變數：累積計算次數與累加生產總數\n        private int _totalOperationCount = 0;\n        private double _accumulatedProduction = 0.0;\n\n        public FormUnitConverter()\n        {\n            InitializeComponent();\n        }\n\n        // 單位換算按鈕 (毫米 mm 轉 英吋 inch)\n        private void btnConvert_Click(object sender, EventArgs e)\n        {\n            // 區域變數：僅在當前按鈕點擊事件中有效\n            if (double.TryParse(txtInputMm.Text, out double mmValue))\n            {\n                double inchResult = mmValue / 25.4;\n                txtResultInch.Text = Math.Round(inchResult, 3).ToString();\n\n                // 更新全域變數\n                _totalOperationCount++;\n                _accumulatedProduction += mmValue;\n                lblSummary.Text = $\"累計操作: {_totalOperationCount} 次 | 累計加工總長: {Math.Round(_accumulatedProduction, 1)} mm\";\n            }\n            else\n            {\n                MessageBox.Show(\"請輸入合法的數值！\", \"輸入錯誤\", MessageBoxButtons.OK, MessageBoxIcon.Warning);\n            }\n        }\n    }\n}",
+    "aiPrompt": "請為 C# WinForms 撰寫一個工控物理量換算函式庫 (IndustrialUnitConverter)，支援：1. 溫度 (攝氏/華氏/克氏)；2. 壓力 (Bar / PSI / KPa)；3. 流量 (L/min / GPM)。需包含防呆與單元測試代碼。",
     "applications": [
       {
-        "scenario": "沖壓自動化安全光閘即時監控",
-        "description": "高速輪詢 PLC 之 X0 (安全光閘信號) 與 X1 (防護門磁簧)，一旦遮光立刻於 SCADA 螢幕彈出最高等級黃光閃爍警報。",
-        "icon": "fa-solid fa-shield-halved"
+        "scenario": "跨國產線配方標準轉換",
+        "description": "支援美規 (Imperial) 與公制 (Metric) 雙系統即時切換，避免現場作業員設定參數混淆。",
+        "icon": "fa-solid fa-calculator"
       }
     ],
     "references": [
       {
-        "title": "Microsoft Learn - 使用 Timer 控制項排程工控任務",
-        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.windows.forms.timer"
+        "title": "Microsoft Learn - Math.Round 方法",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.math.round"
       }
     ]
   },
   {
-    "id": "csharp-12",
+    "id": "csharp-hmi-03",
     "labNumber": "12",
-    "title": "工控資料視覺化：Form 轉圖片、圓餅圖與 DataGridView 資料庫表格",
-    "date": "2026-08-21",
-    "category": "數據視覺化",
-    "summary": "將工控生產歷史數據寫入 DataGridView 資料庫表格，並利用 WinForms 自帶 Chart 元件繪製即時良率圓餅圖 (Pie Chart) 與趨勢曲線。更實作一鍵截取 Form 畫面 (DrawToBitmap) 輸出報表圖檔功能。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-6.jpg",
-    "resultImage": "images_src/ok/03-01_csharp.jpg",
-    "flowTitle": "工控歷史數據流水線：PLC -> DataTable -> DataGridView -> Chart",
-    "resultTitle": "生產批次產量統計、良率圓餅圖與報表匯出介面",
-    "objective": "1. 掌握 DataGridView 與 DataTable 的雙向資料繫結 (Data Binding)。\n2. 學會使用 System.Windows.Forms.DataVisualization.Charting 繪製圓餅圖與折線圖。\n3. 實作以 GDI+ Graphics.CopyFromScreen 或 Control.DrawToBitmap 一鍵匯出高解析度生產報表截圖。",
+    "category": "以C#建立人機界面",
+    "title": "迴圈繪圖演算法、九九乘法表與物件導向封裝",
+    "date": "2026-08-12",
+    "summary": "掌握 for 雙層巢狀迴圈演算法（矩形、直角三角形、等腰菱形星號輸出）、九九乘法字串格式化，並實作物件導向 (OOP) 計算機類別封裝與方法呼叫。",
+    "flowImage": "images_src/csharp_02/image102.png",
+    "resultImage": "images_src/csharp_02/image103.png",
+    "flowTitle": "雙層 for 迴圈星號矩陣演算法與幾何排列邏輯",
+    "resultTitle": "工控九九乘法矩陣與 OOP 計算機測試成果",
+    "objective": "1. 掌握雙層 for 巢狀迴圈的 i (外層行) 與 j (內層列) 遞迴邏輯。\n2. 實作等腰三角形、菱形星號演算法，強化邏輯演算與記憶體陣列存取能力。\n3. 理解物件導向類別封裝：建立 Calc 類別將四則運算自 UI 事件中抽離，落實高內聚低耦合。",
     "tutorialSteps": [
       {
-        "step": "1. 建立記憶體資料表 DataTable",
-        "description": "建立包含「時間戳記」、「工件編號」、「檢驗尺寸」、「良品判定」四個欄位的 DataTable，並繫結至 DataGridView。"
+        "step": "1. 巢狀迴圈幾何排列",
+        "description": "外層控制行數，內層依據 2*i-1 計算每行星號數量與空白偏移量，產生等腰三角形與菱形。"
       },
       {
-        "step": "2. 配置圓餅圖 Series 與 Legends",
-        "description": "拉取 Chart 控制項，設定 SeriesChartType.Pie，加入「合格良品」與「不良廢品」兩個資料點與對應色彩。"
+        "step": "2. 字串內插輸出九九乘法表",
+        "description": "使用雙層迴圈搭配 string.Format(\"{0:D2}*{1:D2}={2:D2} \", i, j, i*j) 將結果填入多行 TextBox。"
       },
       {
-        "step": "3. 即時數據動態灌入",
-        "description": "每次檢驗完成，向 DataTable 插入一列 (NewRow)，Chart 即時重繪百分比標籤。"
-      },
-      {
-        "step": "4. 實作表單一鍵截圖匯出",
-        "description": "呼叫 this.DrawToBitmap() 將整個 WinForms 畫面儲存為 PNG 圖片，自動附加時間戳記歸檔於 D:\\Reports 資料夾。"
+        "step": "3. 抽象化獨立計算類別 (Calc Class)",
+        "description": "在專案建立 internal class Calc { public int Add(int a, int b) => a+b; }，表單按鈕建立實體 myCalc = new Calc() 進行調用。"
       }
     ],
-    "csharpCode": "private void ExportFormToImage()\n{\n    // 建立與表單相同大小的 Bitmap\n    using (Bitmap bmp = new Bitmap(this.Width, this.Height))\n    {\n        // 將表單繪製至點陣圖中\n        this.DrawToBitmap(bmp, new Rectangle(0, 0, this.Width, this.Height));\n        \n        string filename = $\"Report_{DateTime.Now:yyyyMMdd_HHmmss}.png\";\n        bmp.Save(filename, System.Drawing.Imaging.ImageFormat.Png);\n        MessageBox.Show($\"生產報表截圖已成功儲存至：{filename}\");\n    }\n}\n\nprivate void UpdatePieChart(int passCount, int failCount)\n{\n    chartOee.Series[\"Yield\"].Points.Clear();\n    var passPoint = chartOee.Series[\"Yield\"].Points.Add(passCount);\n    passPoint.LegendText = $\"良品 ({passCount})\";\n    passPoint.Color = Color.SeaGreen;\n    \n    var failPoint = chartOee.Series[\"Yield\"].Points.Add(failCount);\n    failPoint.LegendText = $\"不良 ({failCount})\";\n    failPoint.Color = Color.Crimson;\n}",
-    "aiPrompt": "請幫我用 C# WinForms 撰寫一個品質檢驗報表視覺化畫面。需求包含：\n1. 一個 DataGridView 呈現檢驗記錄 (時間、批號、數值、結果)。\n2. 一個 Chart 元件呈現良品與不良品比例的圓餅圖。\n3. 一個按鈕「匯出檢驗報表圖片」，呼叫 DrawToBitmap 將當前視窗存為 PNG 圖檔。\n4. 介面美觀，具備現代暗色工控主題風格。",
+    "csharpCode": "using System;\nusing System.Text;\nusing System.Windows.Forms;\n\nnamespace LAB_03_LoopsAndOop\n{\n    // 物件導向封裝：獨立工控算術核心\n    public class IndustrialMathEngine\n    {\n        public int Add(int a, int b) => a + b;\n        public int Subtract(int a, int b) => a - b;\n        public int Multiply(int a, int b) => a * b;\n        public double Divide(int a, int b) => b != 0 ? (double)a / b : double.NaN;\n    }\n\n    public partial class FormLoopDemo : Form\n    {\n        private IndustrialMathEngine _mathEngine = new IndustrialMathEngine();\n\n        public FormLoopDemo()\n        {\n            InitializeComponent();\n        }\n\n        // 產生等腰三角形星號圖形\n        private void btnGeneratePyramid_Click(object sender, EventArgs e)\n        {\n            int size = 5;\n            StringBuilder sb = new StringBuilder();\n\n            for (int i = 1; i <= size; i++)\n            {\n                // 輸出空白\n                for (int space = 0; space < size - i; space++)\n                    sb.Append(\" \");\n                // 輸出星號 (2*i - 1)\n                for (int star = 0; star < (2 * i - 1); star++)\n                    sb.Append(\"*\");\n                sb.AppendLine();\n            }\n            txtDisplay.Text = sb.ToString();\n        }\n    }\n}",
+    "aiPrompt": "請以 C# 物件導向 (OOP) 概念，為產線自動化螺絲鎖附機撰寫一個 ScrewFeederController 類別。包含屬性：總螺絲數、已鎖附數、扭力極限值；方法：FeedScrew()、CheckTorque()，並示範於 WinForms 中調用。",
     "applications": [
       {
-        "scenario": "交接班品質履歷報表自動歸檔",
-        "description": "每日三班輪替時，系統自動將當班生產圓餅圖與檢驗明細截圖存檔，並自動上傳至廠務 NAS 檔案伺服器。",
+        "scenario": "半導體晶圓陣列 (Wafer Map) 走訪",
+        "description": "利用二維巢狀迴圈依序掃描檢測晶圓上每一顆晶粒 (Die) 的電氣測試結果與坐標點標記。",
+        "icon": "fa-solid fa-microchip"
+      }
+    ],
+    "references": [
+      {
+        "title": "Microsoft Learn - C# 中的類別與物件",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/csharp/fundamentals/types/classes"
+      }
+    ]
+  },
+  {
+    "id": "csharp-hmi-04",
+    "labNumber": "13",
+    "category": "以C#建立人機界面",
+    "title": "條件式人機互動：ComboBox 下拉選單與年齡/身分購票判斷",
+    "date": "2026-08-13",
+    "summary": "掌握 ComboBox 下拉選單 SelectedIndexChanged 變更事件、複合邏輯運算子 (&& / ||) 條件判斷，並以年齡層與電影票種判別為實例，強化 UI 防呆與業務邏輯設計。",
+    "flowImage": "images_src/csharp_02/image104.png",
+    "resultImage": "images_src/csharp_02/image105.png",
+    "flowTitle": "ComboBox 選項事件觸發與複合邏輯判斷流程圖",
+    "resultTitle": "工控權限分級 (操作員/工程師/管理員) 密碼驗證介面",
+    "objective": "1. 掌握 ComboBox 控制項資料填入與 SelectedItem / SelectedIndex 取值。\n2. 靈活運用複合條件邏輯 (if (age >= 18 && hasPermission)) 進行多重防護篩選。\n3. 實作工控上位機的權限登入驗證（依選取身分動態開關受保護的機台參數修改按鈕）。",
+    "tutorialSteps": [
+      {
+        "step": "1. 配置 ComboBox 下拉選單項目",
+        "description": "在表單載入時使用 cmbUserRole.Items.AddRange(new string[] { \"操作員\", \"維修工程師\", \"廠長/管理員\" })。"
+      },
+      {
+        "step": "2. 監聽 SelectedIndexChanged 事件",
+        "description": "當使用者切換選項時即時觸發事件，判斷所屬身分並要求輸入對應權限密碼。"
+      },
+      {
+        "step": "3. 權限動態鎖定與介面防呆",
+        "description": "非工程師身分時，強制將 btnPlcForceOutput.Enabled = false，防止未授權人員誤觸硬體強制輸出。"
+      }
+    ],
+    "csharpCode": "using System;\nusing System.Windows.Forms;\n\nnamespace LAB_04_Interaction\n{\n    public partial class FormUserRoleControl : Form\n    {\n        public FormUserRoleControl()\n        {\n            InitializeComponent();\n            cmbRole.Items.AddRange(new string[] { \"一般操作員\", \"產線巡檢員\", \"設備工程師\", \"系統管理員\" });\n            cmbRole.SelectedIndex = 0;\n        }\n\n        private void cmbRole_SelectedIndexChanged(object sender, EventArgs e)\n        {\n            string selectedRole = cmbRole.SelectedItem.ToString();\n\n            // 複合邏輯判定權限\n            if (selectedRole == \"設備工程師\" || selectedRole == \"系統管理員\")\n            {\n                btnCalibrateSensors.Enabled = true;\n                btnForcePlcIo.Enabled = true;\n                lblPermissionHint.Text = $\"目前身分 [{selectedRole}]：具備進階硬體除錯與強制 I/O 權限。\";\n            }\n            else\n            {\n                btnCalibrateSensors.Enabled = false;\n                btnForcePlcIo.Enabled = false;\n                lblPermissionHint.Text = $\"目前身分 [{selectedRole}]：僅具備基礎運轉監控與報表檢視權限。\";\n            }\n        }\n    }\n}",
+    "aiPrompt": "請撰寫一個 C# WinForms 權限管理系統 (AuthManager)，具備 RBAC (基於角色的存取控制)，能根據使用者權限動態遍歷 Form 內的所有按鈕並設定 Enabled 或 Visible 屬性。",
+    "applications": [
+      {
+        "scenario": "半導體無塵室機台操作等級分級 (Level 1~4)",
+        "description": "依刷卡工號等級開放特定操作權限，只有工程師等級才能進去內部校正畫面。",
+        "icon": "fa-solid fa-user-shield"
+      }
+    ],
+    "references": [
+      {
+        "title": "Microsoft Learn - ComboBox 類別",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.windows.forms.combobox"
+      }
+    ]
+  },
+  {
+    "id": "csharp-hmi-05",
+    "labNumber": "14",
+    "category": "以C#建立人機界面",
+    "title": "鍵盤與滑鼠互動事件：KeyPress、KeyDown 與點動控制",
+    "date": "2026-08-14",
+    "summary": "掌握 KeyPress、KeyDown、KeyUp 與滑鼠 MouseDown/MouseUp 事件，開啟 Form.KeyPreview 進行全域快捷鍵攔截，實作機械手臂與馬達點動 (JOG) 安全控制。",
+    "flowImage": "images_src/csharp_02/image106.png",
+    "resultImage": "images_src/csharp_02/image107.png",
+    "flowTitle": "鍵盤 KeyDown/KeyUp 與滑鼠按下/釋放事件生命週期",
+    "resultTitle": "工控馬達寸動 (JOG) 按住前進/放開停止測試介面",
+    "objective": "1. 掌握 KeyPress 與 KeyDown 事件差別（字元字碼 vs 實體鍵盤代碼 Keys）。\n2. 啟用 Form.KeyPreview = true 實現上位機無死角全域鍵盤監聽（如按下空格鍵或 ESC 緊急停止）。\n3. 透過 MouseDown (按下啟動) 與 MouseUp (釋放停止) 實現馬達寸動 (JOG) 點動安全模式。",
+    "tutorialSteps": [
+      {
+        "step": "1. 啟用表單按鍵預覽 (KeyPreview)",
+        "description": "設定 this.KeyPreview = true，讓表單在子控制項接收前優先攔截所有鍵盤事件。"
+      },
+      {
+        "step": "2. KeyDown 監聽方向鍵控制機構移動",
+        "description": "比對 e.KeyCode == Keys.Up 或 Keys.Space，按下時發送馬達正轉指令，並設定 e.Handled = true 防止系統發出蜂鳴聲。"
+      },
+      {
+        "step": "3. MouseDown 與 MouseUp 寸動安全機制",
+        "description": "工控核心原則：按鈕按下期間馬達運轉 (MouseDown)；一旦滑鼠釋放立即切斷輸出 (MouseUp)，防止手指離開後機台失控衝出限位。"
+      }
+    ],
+    "csharpCode": "using System;\nusing System.Windows.Forms;\n\nnamespace LAB_05_KeyboardAndMouse\n{\n    public partial class FormJogControl : Form\n    {\n        public FormJogControl()\n        {\n            InitializeComponent();\n            this.KeyPreview = true; // 關鍵：開啟全域鍵盤預覽\n            this.KeyDown += FormJogControl_KeyDown;\n            this.KeyUp += FormJogControl_KeyUp;\n\n            // 綁定寸動按鈕滑鼠按下與放開\n            btnJogForward.MouseDown += BtnJogForward_MouseDown;\n            btnJogForward.MouseUp += BtnJogForward_MouseUp;\n        }\n\n        // 全域緊急停止快捷鍵 (ESC 或 空格鍵)\n        private void FormJogControl_KeyDown(object sender, KeyEventArgs e)\n        {\n            if (e.KeyCode == Keys.Escape || e.KeyCode == Keys.Space)\n            {\n                TriggerEmergencyStop();\n                e.Handled = true;\n            }\n        }\n\n        private void FormJogControl_KeyUp(object sender, KeyEventArgs e)\n        {\n            // 按鍵放開時確保切斷前進\n            if (e.KeyCode == Keys.Right)\n            {\n                StopMotor();\n            }\n        }\n\n        // 滑鼠按住：馬達持續正轉\n        private void BtnJogForward_MouseDown(object sender, MouseEventArgs e)\n        {\n            lblMotorStatus.Text = \"馬達狀態：【寸動正轉中 >>>】\";\n            SendPlcCommand(\"START_JOG_CW\");\n        }\n\n        // 滑鼠放開：馬達立即剎車停止\n        private void BtnJogForward_MouseUp(object sender, MouseEventArgs e)\n        {\n            StopMotor();\n        }\n\n        private void StopMotor()\n        {\n            lblMotorStatus.Text = \"馬達狀態：【停止待命中】\";\n            SendPlcCommand(\"STOP_MOTOR\");\n        }\n\n        private void TriggerEmergencyStop()\n        {\n            lblMotorStatus.Text = \"馬達狀態：【！！！緊急停止生效！！！】\";\n            SendPlcCommand(\"FORCE_EMS\");\n        }\n\n        private void SendPlcCommand(string cmd)\n        {\n            // 實際串接 SerialPort / Modbus 傳送命令\n            Console.WriteLine($\"[Hardware Command] {cmd}\");\n        }\n    }\n}",
+    "aiPrompt": "請用 C# WinForms 示範一個具有防衝撞保護的滑鼠寸動控制器。當作業員按住 JOG+ 按鈕時以 100ms 週期連續發送步進脈衝，當偵測到前極限感應器 (Limit Switch) 為 ON 時，即便按鈕未放開也必須立刻硬體斷電煞車。",
+    "applications": [
+      {
+        "scenario": "三軸滑台 (XYZ Table) 手動教導對位",
+        "description": "現場工程師藉由鍵盤方向鍵或軟體 JOG 按鈕將雷射頭移動至產品基準點 (Mark 點)。",
+        "icon": "fa-solid fa-arrows-up-down-left-right"
+      }
+    ],
+    "references": [
+      {
+        "title": "Microsoft Learn - Form.KeyPreview 屬性",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.windows.forms.form.keypreview"
+      }
+    ]
+  },
+  {
+    "id": "csharp-hmi-06",
+    "labNumber": "15",
+    "category": "以C#建立人機界面",
+    "title": "ASCII 編碼與 CheckSum 偵錯校驗碼計算實作",
+    "date": "2026-08-15",
+    "summary": "深入剖析 ASCII Code 字元編碼對應、Byte 轉 String 轉換 (Encoding.ASCII/UTF8/Default)，並實作三菱與工控通訊最核心的 ASCII CheckSum 累加和演算法。",
+    "flowImage": "images_src/csharp_02/image108.png",
+    "resultImage": "images_src/csharp_02/image109.png",
+    "flowTitle": "ASCII 碼表對照與 CheckSum 累加和低位兩位元截取流程",
+    "resultTitle": "工控 ASCII 與 CheckSum 校驗演算法測試視窗",
+    "objective": "1. 掌握 ASCII 碼與 16 進位 Hex 的相互轉換機制。\n2. 理解 byte[] 與 string 在跨語系與底層通訊時的字元編碼差異。\n3. 精通三菱 FX Computer Link 通訊協定中的 CheckSum 演算法：將指令字元加總取最後兩位 16 進位字元 (HEX)。",
+    "tutorialSteps": [
+      {
+        "step": "1. 理解 ASCII 通訊字元表",
+        "description": "重點掌握通訊控制字元：STX (開頭 0x02)、ETX (結束 0x03)、ACK (確認 0x06)、NAK (否認 0x15)。"
+      },
+      {
+        "step": "2. 拆解 CheckSum 累加演算法",
+        "description": "投影片 LAB_06-02：將命令字元與位址字元逐一累加為整數總和，計算 sum & 0xFF，最後格式化為兩碼大寫十六進位字串 ToString(\"X2\")。"
+      },
+      {
+        "step": "3. 驗證三菱標準通訊封包校驗",
+        "description": "以指令 \"000A002\" 搭配 STX/ETX 計算總和，驗證計算結果是否等於 16 進位 \"66\"。"
+      }
+    ],
+    "csharpCode": "using System;\nusing System.Text;\n\nnamespace LAB_06_AsciiAndCheckSum\n{\n    public static class MitsubishiCheckSumHelper\n    {\n        // 計算三菱 FX 系列專用 ASCII CheckSum\n        // 規則：從 CMD 開始至 ETX 為止的所有字元之 ASCII 數值加總，取最低 2 位十六進位碼\n        public static string CalculateCheckSum(string commandPayloadWithEtx)\n        {\n            int sum = 0;\n            byte[] asciiBytes = Encoding.ASCII.GetBytes(commandPayloadWithEtx);\n            \n            foreach (byte b in asciiBytes)\n            {\n                sum += b;\n            }\n\n            // 取最後一個 byte (0~255) 並轉為兩位大寫十六進位字串\n            string checkSumHex = (sum & 0xFF).ToString(\"X2\");\n            return checkSumHex;\n        }\n\n        // 組裝完整封包：STX + Payload + ETX + CheckSum\n        public static string BuildFullPacket(string payload)\n        {\n            char stx = (char)0x02; // 開頭\n            char etx = (char)0x03; // 結束\n            \n            string contentToCalculate = payload + etx;\n            string sum = CalculateCheckSum(contentToCalculate);\n            \n            return $\"{stx}{contentToCalculate}{sum}\";\n        }\n    }\n\n    internal class Program\n    {\n        static void Main(string[] args)\n        {\n            Console.WriteLine(\"=== 三菱 PLC 通訊 CheckSum 演算法驗證 ===\");\n            \n            // 讀取 Y0~Y17 範例 (投影片 Slide 185)\n            // 命令 '0' + 元件群 '00A0' + 位元組數 '02'\n            string payload = \"000A002\";\n            string fullPacket = MitsubishiCheckSumHelper.BuildFullPacket(payload);\n            \n            Console.WriteLine($\"原始有效指令負載: {payload}\");\n            Console.WriteLine($\"組裝完成之完整通訊封包: {fullPacket.Replace(\"\\x02\", \"<STX>\").Replace(\"\\x03\", \"<ETX>\")}\");\n        }\n    }\n}",
+    "aiPrompt": "請用 C# 撰寫兩個工控校驗碼演算法：1. 三菱 FX ASCII CheckSum；2. 標準 Modbus RTU CRC-16 演算法。附帶詳細的單元測試與邊界條件驗證。",
+    "applications": [
+      {
+        "scenario": "序列通訊抗雜訊防護",
+        "description": "當廠房變頻器高頻突波干擾 RS232 訊號線產生錯碼時，透過校驗和即時剔除損毀封包並要求重傳。",
+        "icon": "fa-solid fa-shield-virus"
+      }
+    ],
+    "references": [
+      {
+        "title": "Microsoft Learn - Encoding.ASCII 屬性",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.text.encoding.ascii"
+      }
+    ]
+  },
+  {
+    "id": "csharp-hmi-07",
+    "labNumber": "16",
+    "category": "以C#建立人機界面",
+    "title": "三菱 FX 系列 PLC 強制 I/O 點位開關控制 (Force Y & M)",
+    "date": "2026-08-16",
+    "summary": "實作 PC 透過 RS232/USB-SC09 串列通訊對三菱 FX PLC 進行強制輸出開關（指令 7: Force ON, 指令 8: Force OFF），掌握 Y 輸出點位與 M 內部輔助繼電器元件位址計算。",
+    "flowImage": "images_src/csharp_02/image110.png",
+    "resultImage": "images_src/csharp_02/image111.png",
+    "flowTitle": "三菱 FX 序列通訊強制 I/O 點位 (Force Y/M) 封包結構圖",
+    "resultTitle": "PC 遠端強制觸發三菱 PLC Y0~Y17 實體燈號點亮畫面",
+    "objective": "1. 掌握三菱 FX 系列專用電腦連線協議 (Computer Link Protocol) 之指令 7 (Force ON) 與 8 (Force OFF)。\n2. 理解元件實體位址運算規則：FX 系列 Y 點位位址基底計算方式（如 Y1: 0x0501）。\n3. 具備透過 C# SerialPort 類別直接遙控實體機台繼電器動作之實作技能。",
+    "tutorialSteps": [
+      {
+        "step": "1. 認識三菱 FX 強制 I/O 封包格式",
+        "description": "封包格式：STX (0x02) + CMD ('7'為ON, '8'為OFF) + 4碼16進位位址 (低字元在前) + ETX (0x03) + 2碼CheckSum。"
+      },
+      {
+        "step": "2. 元件位址 (Device Address) 對應查表",
+        "description": "投影片 Slide 173：Y1 點位位址為 0x0501（位址碼為 01 05 -> 傳送順序 0105）；Y2 為 0205；M0 輔助繼電器為 0008。"
+      },
+      {
+        "step": "3. 序列埠發送與接收確認 (ACK / NAK)",
+        "description": "發送字串至 PLC，PLC 正常執行後會回傳 0x06 (ACK)，若格式錯誤則回傳 0x15 (NAK)。"
+      }
+    ],
+    "csharpCode": "using System;\nusing System.IO.Ports;\nusing System.Windows.Forms;\n\nnamespace LAB_07_MitsubishiForceIO\n{\n    public partial class FormPlcForceController : Form\n    {\n        private SerialPort _plcPort;\n\n        public FormPlcForceController()\n        {\n            InitializeComponent();\n            InitSerialPort();\n        }\n\n        private void InitSerialPort()\n        {\n            _plcPort = new SerialPort\n            {\n                PortName = \"COM3\",\n                BaudRate = 9600,\n                Parity = Parity.Even, // 三菱標準：偶同位\n                DataBits = 7,         // 三菱標準：7 資料位\n                StopBits = StopBits.One,\n                ReadTimeout = 500,\n                WriteTimeout = 500\n            };\n        }\n\n        // 強制開啟 Y1 實體輸出 (例如驅動輸送帶電磁接觸器)\n        private void btnForceY1_On_Click(object sender, EventArgs e)\n        {\n            // 投影片 Slide 173 範例: 強制 Y1 ON 封包\n            // STX + '7' + '0105' + ETX + '00'\n            char stx = (char)0x02;\n            char etx = (char)0x03;\n            string cmd = $\"{stx}70105{etx}00\";\n            SendToPlc(cmd, \"強制 Y1 ON\");\n        }\n\n        // 強制關閉 Y1 實體輸出\n        private void btnForceY1_Off_Click(object sender, EventArgs e)\n        {\n            // 投影片 Slide 173 範例: 強制 Y1 OFF 封包\n            // STX + '8' + '0105' + ETX + '01'\n            char stx = (char)0x02;\n            char etx = (char)0x03;\n            string cmd = $\"{stx}80105{etx}01\";\n            SendToPlc(cmd, \"強制 Y1 OFF\");\n        }\n\n        private void SendToPlc(string packet, string logDesc)\n        {\n            try\n            {\n                if (!_plcPort.IsOpen) _plcPort.Open();\n                _plcPort.Write(packet);\n                txtLog.AppendText($\"[TX] {logDesc} 封包已送出\\r\\n\");\n            }\n            catch (Exception ex)\n            {\n                MessageBox.Show($\"通訊錯誤: {ex.Message}\");\n            }\n        }\n    }\n}",
+    "aiPrompt": "請根據三菱 FX 系列 PLC 的 Computer Link Protocol 通訊手冊，整理出 Y0~Y17 以及 M0~M15 的實體元件位址計算公式，並用 C# 寫一個通用方法 ForcePlcBit(string deviceName, bool state)，可傳入 \"Y0\" 或 \"M10\" 自動生成完整通訊封包。",
+    "applications": [
+      {
+        "scenario": "產線設備單動調機畫面 (Manual Mode)",
+        "description": "維修技師於 HMI 介面直接手動點擊點位開關，測試送料氣閥、蜂鳴器與切削冷卻水泵是否通暢。",
+        "icon": "fa-solid fa-power-off"
+      }
+    ],
+    "references": [
+      {
+        "title": "三菱電機 - MELSEC-F 系列 通訊手冊",
+        "url": "https://www.mitsubishielectric.tw/"
+      }
+    ]
+  },
+  {
+    "id": "csharp-hmi-08",
+    "labNumber": "17",
+    "category": "以C#建立人機界面",
+    "title": "Timer 計時器即時監控：PLC 批次讀取 X 與 Y 點位狀態",
+    "date": "2026-08-17",
+    "summary": "掌握 Windows Forms Timer.Tick 事件高頻輪詢機制、三菱指令 0 批次讀取多點群組暫存器 (讀取 Y0~Y17 與 X0~X17)，並利用數位邏輯將回傳 ASCII 位元組解碼為即時人機指示燈號。",
+    "flowImage": "images_src/csharp_02/image112.png",
+    "resultImage": "images_src/csharp_02/image113.png",
+    "flowTitle": "Timer.Tick 非同步輪詢 PLC 輸入 X 與輸出 Y 狀態時序圖",
+    "resultTitle": "工控人機儀表板即時動態點位閃爍監控畫面",
+    "objective": "1. 掌握 System.Windows.Forms.Timer 的 Interval 週期設定與 Tick 事件觸發。\n2. 實作三菱指令 0 (Batch Read) 批次讀取 16-bit 點位狀態封包 (讀 Y: 000A002 / 讀 X: 0008002)。\n3. 掌握底層回傳 ASCII 位元組之 Decoding 解析，將位元資料即時反映到人機畫面 LED 指示燈。",
+    "tutorialSteps": [
+      {
+        "step": "1. 配置輪詢計時器",
+        "description": "在表單加入 Timer 控制項，設定 Interval = 200 ms (每秒輪詢 5 次)，於 Tick 事件中呼叫讀取函式。"
+      },
+      {
+        "step": "2. 發送批次讀取指令",
+        "description": "投影片 Slide 181：發送 CmdStr = (Char)2 + \"0\" + \"00A0\" + \"02\" + (Char)3 + \"66\" 讀取輸出狀態；接著發送讀取輸入 X 點位指令。"
+      },
+      {
+        "step": "3. 解碼回傳封包並更新 UI",
+        "description": "PLC 回傳 STX + 數據字元 + ETX + SUM，解析接收到的位元組數值，若第 n 位為 1 則指示燈亮綠燈，否則顯示暗灰色。"
+      }
+    ],
+    "csharpCode": "using System;\nusing System.Drawing;\nusing System.IO.Ports;\nusing System.Windows.Forms;\n\nnamespace LAB_08_PlcMonitor\n{\n    public partial class FormPlcMonitor : Form\n    {\n        private Timer _pollTimer;\n        private SerialPort _serialPort;\n        private Button[] _yIndicators;\n\n        public FormPlcMonitor()\n        {\n            InitializeComponent();\n            InitHardware();\n        }\n\n        private void InitHardware()\n        {\n            _serialPort = new SerialPort(\"COM3\", 9600, Parity.Even, 7, StopBits.One);\n            \n            // 建立 8 個燈號指示按鈕 (Y0~Y7)\n            _yIndicators = new Button[8];\n            for (int i = 0; i < 8; i++)\n            {\n                _yIndicators[i] = new Button\n                {\n                    Text = $\"Y{i}\",\n                    Size = new Size(50, 50),\n                    Location = new Point(30 + i * 55, 60),\n                    BackColor = Color.Gray\n                };\n                this.Controls.Add(_yIndicators[i]);\n            }\n\n            // 設定每 200ms 輪詢一次\n            _pollTimer = new Timer { Interval = 200 };\n            _pollTimer.Tick += PollTimer_Tick;\n            _pollTimer.Start();\n        }\n\n        private void PollTimer_Tick(object sender, EventArgs e)\n        {\n            // 暫停計時器避免重疊重入\n            _pollTimer.Stop();\n            try\n            {\n                if (!_serialPort.IsOpen) _serialPort.Open();\n                \n                // 投影片 Slide 181: 讀取 Y0~Y17 指令\n                string cmdReadY = (char)0x02 + \"000A002\" + (char)0x03 + \"66\";\n                _serialPort.Write(cmdReadY);\n\n                // 讀取回傳\n                System.Threading.Thread.Sleep(30); // 等待硬體回傳\n                int bytes = _serialPort.BytesToRead;\n                byte[] buff = new byte[bytes];\n                _serialPort.Read(buff, 0, bytes);\n\n                // 簡易解析點位 (以假資料模擬呈現)\n                if (buff.Length >= 4)\n                {\n                    // 假設解析得 Y0=ON, Y2=ON\n                    _yIndicators[0].BackColor = Color.LimeGreen;\n                    _yIndicators[1].BackColor = Color.Gray;\n                    _yIndicators[2].BackColor = Color.LimeGreen;\n                }\n            }\n            catch (Exception ex)\n            {\n                Console.WriteLine($\"輪詢異常: {ex.Message}\");\n            }\n            finally\n            {\n                _pollTimer.Start();\n            }\n        }\n    }\n}",
+    "aiPrompt": "在工控 SCADA 系統中，高頻 SerialPort 輪詢容易造成 UI 畫面頓挫甚至崩潰。請示範如何使用 C# System.Threading.PeriodicTimer 搭配 BackgroundWorker 或 async/await，在背景執行緒平穩輪詢 PLC，並安全更新 WinForms 畫面。",
+    "applications": [
+      {
+        "scenario": "自動化產線中央 SCADA 監控戰情室",
+        "description": "即時呈現各機台數百個 I/O 點位、極限開關與氣閥動態，以視覺化動畫反映產線實際作動。",
+        "icon": "fa-solid fa-desktop"
+      }
+    ],
+    "references": [
+      {
+        "title": "Microsoft Learn - Timer.Tick 事件",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.windows.forms.timer.tick"
+      }
+    ]
+  },
+  {
+    "id": "csharp-hmi-09",
+    "labNumber": "18",
+    "category": "以C#建立人機界面",
+    "title": "畫面截圖儲存 (FormToPicture) 與報表自動化匯出",
+    "date": "2026-08-18",
+    "summary": "掌握 WinForms 畫面像素截取技術 (DrawToBitmap)、自訂範圍繪製與點陣圖 (Bitmap) 儲存 (ImageFormat.Png/Jpeg)，實作機台警報當下畫面自動拍照存證與生產報表匯出功能。",
+    "flowImage": "images_src/csharp_02/image114.png",
+    "resultImage": "images_src/csharp_02/image115.png",
+    "flowTitle": "GDI+ DrawToBitmap 記憶體點陣圖繪製與匯出流程",
+    "resultTitle": "工控警報觸發瞬間自動截圖並存入硬碟畫面",
+    "objective": "1. 掌握 GDI+ 繪圖命名空間 System.Drawing 與 System.Drawing.Imaging。\n2. 掌握 this.DrawToBitmap() 技巧將整個視窗或指定 Panel 轉為 Bitmap 點陣圖物件。\n3. 實作機台故障跳脫時，上位機自動在毫秒內拍攝全螢幕 HMI 畫面留存至 logs 資料夾。",
+    "tutorialSteps": [
+      {
+        "step": "1. 宣告點陣圖與邊界矩形",
+        "description": "投影片 LAB_09-01：取得表單邊界 Rectangle rect = this.Bounds; rect.Offset(-rect.X, -rect.Y); 建立對應寬高之 new Bitmap(Width, Height)。"
+      },
+      {
+        "step": "2. 調用 DrawToBitmap 繪製畫面",
+        "description": "執行 this.DrawToBitmap(bm, rect)，系統會將所有可視控制項包含圖表即時繪製到記憶體點陣圖中。"
+      },
+      {
+        "step": "3. 依時間戳記儲存為 PNG/JPEG",
+        "description": "使用 bm.Save($@\"alarms\\Alarm_{DateTime.Now:yyyyMMdd_HHmmss}.png\", ImageFormat.Png) 達成無痕記錄存證。"
+      }
+    ],
+    "csharpCode": "using System;\nusing System.Drawing;\nusing System.Drawing.Imaging;\nusing System.IO;\nusing System.Windows.Forms;\n\nnamespace LAB_09_01_FormToPicture\n{\n    public partial class FormScreenCapture : Form\n    {\n        public FormScreenCapture()\n        {\n            InitializeComponent();\n        }\n\n        // 截取當前 HMI 畫面並存檔\n        private void SaveFormToPicture()\n        {\n            try\n            {\n                string dir = Path.Combine(Application.StartupPath, \"Snapshots\");\n                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);\n\n                Rectangle rect = this.Bounds;\n                rect.Offset(-rect.X, -rect.Y);\n\n                using (Bitmap bm = new Bitmap(this.Width, this.Height))\n                {\n                    this.DrawToBitmap(bm, rect);\n                    string filename = Path.Combine(dir, $\"HMI_{DateTime.Now:yyyyMMdd_HHmmss}.png\");\n                    bm.Save(filename, ImageFormat.Png);\n                    MessageBox.Show($\"畫面截圖成功存檔至:\\r\\n{filename}\", \"截圖成功\", MessageBoxButtons.OK, MessageBoxIcon.Information);\n                }\n            }\n            catch (Exception ex)\n            {\n                MessageBox.Show($\"截圖失敗: {ex.Message}\");\n            }\n        }\n\n        private void btnSnapshot_Click(object sender, EventArgs e)\n        {\n            SaveFormToPicture();\n        }\n    }\n}",
+    "aiPrompt": "請為 C# 工控專案寫一個產線異常黑盒子記錄器 (CrashBlackboxRecorder)。當系統捕獲未處理異常 (UnhandledException) 或 PLC 嚴重警報時，自動截取所有螢幕畫面、記錄當前變數狀態與記憶體使用量，並壓縮為 zip 檔案寄送告警信。",
+    "applications": [
+      {
+        "scenario": "品質檢驗判定存查與產能日報表",
+        "description": "換班或日班結算時，上位機自動截圖當前生產進度統計儀表板，作為換班報告附件存查。",
+        "icon": "fa-solid fa-camera"
+      }
+    ],
+    "references": [
+      {
+        "title": "Microsoft Learn - Control.DrawToBitmap 方法",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.windows.forms.control.drawtobitmap"
+      }
+    ]
+  },
+  {
+    "id": "csharp-hmi-10",
+    "labNumber": "19",
+    "category": "以C#建立人機界面",
+    "title": "工業圓餅圖與資料統計視覺化 (PieChart DataVisualization)",
+    "date": "2026-08-19",
+    "summary": "掌握 Windows Forms DataVisualization.Charting 圖表庫，配置 Series、SeriesChartType.Pie 圓餅圖，綁定良品與次品統計數據 (DataBindXY)，建立即時良率稼動看板。",
+    "flowImage": "images_src/csharp_02/image116.png",
+    "resultImage": "images_src/csharp_02/image100.png",
+    "flowTitle": "Chart 控制項、Series 數列與資料點 (DataPoints) 架構",
+    "resultTitle": "工廠生產良率 (Pass/Fail) 圓餅圖與數值標籤展示",
+    "objective": "1. 引用 System.Windows.Forms.DataVisualization.Charting 命名空間。\n2. 掌握 Chart 控制項之 ChartAreas, Series, Legends 三大核心層次。\n3. 實作圓餅圖 (Pie Chart) 之 DataBindXY 陣列數據動態綁定，並開啟 IsValueShownAsLabel 顯示百分比。",
+    "tutorialSteps": [
+      {
+        "step": "1. 初始化 Chart 控制項",
+        "description": "投影片 LAB_09-02：在 WinForms 加入 Chart 控制項，設定 SeriesChartType = SeriesChartType.Pie。"
+      },
+      {
+        "step": "2. 準備分類項目與數值陣列",
+        "description": "定義字串陣列 string[] categories = { \"良品 (Pass)\", \"外觀刮痕\", \"尺寸超差\", \"組裝不良\" } 與數量陣列 int[] counts = { 850, 45, 20, 15 }。"
+      },
+      {
+        "step": "3. 動態數據綁定與外觀美化",
+        "description": "調用 series.Points.DataBindXY(categories, counts)，並啟用 series.IsValueShownAsLabel = true 讓圓餅各扇區直接顯示數量。"
+      }
+    ],
+    "csharpCode": "using System;\nusing System.Drawing;\nusing System.Windows.Forms;\nusing System.Windows.Forms.DataVisualization.Charting;\n\nnamespace LAB_09_02_PieChartDemo\n{\n    public partial class FormProductionPieChart : Form\n    {\n        private Chart _chartYield;\n\n        public FormProductionPieChart()\n        {\n            InitializeComponent();\n            InitPieChart();\n        }\n\n        private void InitPieChart()\n        {\n            this.Text = \"五股職訓局 - 產線良率品質統計圓餅圖\";\n            this.Size = new Size(600, 450);\n            this.BackColor = Color.FromArgb(15, 23, 42);\n\n            _chartYield = new Chart\n            {\n                Dock = DockStyle.Fill,\n                BackColor = Color.Transparent\n            };\n\n            ChartArea area = new ChartArea(\"MainArea\")\n            {\n                BackColor = Color.Transparent\n            };\n            _chartYield.ChartAreas.Add(area);\n\n            Legend legend = new Legend(\"MainLegend\")\n            {\n                ForeColor = Color.White,\n                BackColor = Color.Transparent,\n                Font = new Font(\"微軟正黑體\", 10)\n            };\n            _chartYield.Legends.Add(legend);\n\n            Series series = new Series(\"DefectDistribution\")\n            {\n                ChartType = SeriesChartType.Pie,\n                IsValueShownAsLabel = true,\n                Font = new Font(\"Arial\", 11, FontStyle.Bold)\n            };\n            _chartYield.Series.Add(series);\n            this.Controls.Add(_chartYield);\n\n            // 綁定生產即時數據\n            UpdateChartData(goodCount: 920, scratchDefect: 35, dimensionDefect: 25, assembleDefect: 20);\n        }\n\n        public void UpdateChartData(int goodCount, int scratchDefect, int dimensionDefect, int assembleDefect)\n        {\n            string[] labels = { \"良品合格 (Pass)\", \"外觀刮傷不良\", \"尺寸公差超標\", \"裝配不良\" };\n            int[] values = { goodCount, scratchDefect, dimensionDefect, assembleDefect };\n\n            Series s = _chartYield.Series[\"DefectDistribution\"];\n            s.Points.DataBindXY(labels, values);\n\n            // 設定個別顏色美化\n            s.Points[0].Color = Color.FromArgb(34, 197, 94);  // 綠色\n            s.Points[1].Color = Color.FromArgb(239, 68, 68);  // 紅色\n            s.Points[2].Color = Color.FromArgb(245, 158, 11); // 琥珀橙\n            s.Points[3].Color = Color.FromArgb(168, 85, 247); // 紫色\n        }\n    }\n}",
+    "aiPrompt": "請為 C# WinForms 撰寫一個綜合統計看板控制器，同時包含：1. 今日良率圓餅圖 (Pie Chart)；2. 24小時產能柱狀圖 (Bar Chart)；3. 輸送帶震動趨勢折線圖 (Line Chart)。提供流暢的數據定時刷新機制。",
+    "applications": [
+      {
+        "scenario": "ESG 能源消耗分項統計",
+        "description": "以圓餅圖呈現空壓機、照明、冰水主機與伺服馬達之用電佔比，輔助工廠進行節能減碳決策。",
         "icon": "fa-solid fa-chart-pie"
+      }
+    ],
+    "references": [
+      {
+        "title": "Microsoft Learn - Series 類別 (System.Windows.Forms.DataVisualization.Charting)",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.windows.forms.datavisualization.charting.series"
+      }
+    ]
+  },
+  {
+    "id": "csharp-hmi-11",
+    "labNumber": "20",
+    "category": "以C#建立人機界面",
+    "title": "DataGridView 工業生產資料表與即時數據紀錄",
+    "date": "2026-08-20",
+    "summary": "掌握 DataGridView 資料表格控制項的行欄配置、DataTable 動態資料繫結、產線感測器即時插行紀錄，並實作 CSV 格式生產履歷批次匯出。",
+    "flowImage": "images_src/csharp_02/image10.png",
+    "resultImage": "images_src/csharp_02/image100.png",
+    "flowTitle": "DataTable 記憶體表格結構與 DataGridView 雙向資料繫結",
+    "resultTitle": "工廠生產數據即時捲動表格與 CSV 匯出成果",
+    "objective": "1. 掌握 DataGridView 核心屬性（欄位設定、唯讀保護、整列選取模式 FullRowSelect）。\n2. 學會建立 DataTable 記憶體資料結構，並以 DataSource 動態繫結。\n3. 實作生產履歷與測試數據一鍵批次匯出為標準 CSV / Excel 試算表檔案。",
+    "tutorialSteps": [
+      {
+        "step": "1. 初始化 DataGridView 樣式與結構",
+        "description": "投影片 LAB_09-03：設定 AutoSizeColumnsMode = Fill，調整深色系表格背景與交錯行顏色 (AlternatingRowsDefaultCellStyle)。"
+      },
+      {
+        "step": "2. 建立記憶體 DataTable 與即時插入紀錄",
+        "description": "定義欄位：時間戳記、工件序號、檢測電壓、判定結果。每當 PLC 檢測完畢，調用 table.Rows.InsertAt(newRow, 0) 將最新數據置頂顯示。"
+      },
+      {
+        "step": "3. 匯出標準 CSV 檔案",
+        "description": "走訪 DataTable 內容，以逗點分隔拼接為 UTF-8 帶 BOM 編碼的 .csv 檔案，方便現場管理人員以 Excel 直接開啟分析。"
+      }
+    ],
+    "csharpCode": "using System;\nusing System.Data;\nusing System.IO;\nusing System.Text;\nusing System.Windows.Forms;\n\nnamespace LAB_09_03_DataGridViewDemo\n{\n    public partial class FormProductionLog : Form\n    {\n        private DataTable _productionTable;\n\n        public FormProductionLog()\n        {\n            InitializeComponent();\n            InitDataTable();\n        }\n\n        private void InitDataTable()\n        {\n            _productionTable = new DataTable(\"ProductionRecords\");\n            _productionTable.Columns.Add(\"記錄時間\", typeof(string));\n            _productionTable.Columns.Add(\"工件序號\", typeof(string));\n            _productionTable.Columns.Add(\"檢測電壓 (V)\", typeof(double));\n            _productionTable.Columns.Add(\"外觀尺寸 (mm)\", typeof(double));\n            _productionTable.Columns.Add(\"品質判定\", typeof(string));\n\n            dgvLog.DataSource = _productionTable;\n            dgvLog.SelectionMode = DataGridViewSelectionMode.FullRowSelect;\n            dgvLog.ReadOnly = true;\n        }\n\n        // 模擬接收機台完成訊號並新增一筆紀錄\n        private void AddRecord(string sn, double voltage, double dimension, bool isPass)\n        {\n            DataRow row = _productionTable.NewRow();\n            row[\"記錄時間\"] = DateTime.Now.ToString(\"yyyy-MM-dd HH:mm:ss\");\n            row[\"工件序號\"] = sn;\n            row[\"檢測電壓 (V)\"] = voltage;\n            row[\"外觀尺寸 (mm)\"] = dimension;\n            row[\"品質判定\"] = isPass ? \"PASS (合格)\" : \"FAIL (不良)\";\n            \n            _productionTable.Rows.InsertAt(row, 0); // 最新置頂\n        }\n\n        // 匯出為 CSV 報表\n        private void btnExportCsv_Click(object sender, EventArgs e)\n        {\n            SaveFileDialog sfd = new SaveFileDialog { Filter = \"CSV 檔案 (*.csv)|*.csv\" };\n            if (sfd.ShowDialog() == DialogResult.OK)\n            {\n                StringBuilder sb = new StringBuilder();\n                // 標題行\n                sb.AppendLine(\"記錄時間,工件序號,檢測電壓(V),外觀尺寸(mm),品質判定\");\n                foreach (DataRow r in _productionTable.Rows)\n                {\n                    sb.AppendLine($\"{r[0]},{r[1]},{r[2]},{r[3]},{r[4]}\");\n                }\n                File.WriteAllText(sfd.FileName, sb.ToString(), Encoding.UTF8);\n                MessageBox.Show(\"生產報表匯出完成！\");\n            }\n        }\n    }\n}",
+    "aiPrompt": "請為 C# DataGridView 實作高頻數據虛擬模式 (VirtualMode) 範例，當產線每秒產生 100 筆測試數據時，如何避免記憶體溢位 (OOM) 並維持 UI 捲動無延遲？",
+    "applications": [
+      {
+        "scenario": "生產履歷追溯系統 (MES 採集端)",
+        "description": "將各生產站點加工完成數據記錄於表格，並自動連線轉發至工廠資料庫伺服器。",
+        "icon": "fa-solid fa-table-list"
       }
     ],
     "references": [
@@ -562,153 +861,53 @@ var INITIAL_CSHARP_DATA = [
     ]
   },
   {
-    "id": "csharp-13",
-    "labNumber": "13",
-    "title": "多協議物聯網整合：C# MQTT 遙測發布與 Modbus TCP 設備通訊",
-    "date": "2026-08-22",
-    "category": "物聯網通訊",
-    "summary": "打破單一通訊限制，整合開源 MQTTnet 函式庫發布工控遙測資料至 Mosquitto / EMQX 雲端 Broker，並透過 NModbus4 函式庫以 Modbus TCP 協議直連智慧電表與變頻器，打造全功能物聯網閘道器。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-7.jpg",
-    "resultImage": "images_src/ok/03-02_csharp_web.jpg",
-    "flowTitle": "C# 物聯網中繼閘道器：Modbus TCP 採集 -> MQTT JSON 發布",
-    "resultTitle": "MQTT 主題監聽與 Modbus TCP 暫存器讀寫對照面板",
-    "objective": "1. 掌握 NuGet 安裝與使用 MQTTnet (MQTT 用戶端) 及 NModbus4 函式庫。\n2. 理解 Modbus TCP 封包結構 (MBAP Header + PDU) 與保持暫存器 (Holding Register 4xxxx) 定址。\n3. 學會將現場設備二進位數據序列化為結構化 JSON 封包並發布至雲端主題。",
+    "id": "csharp-hmi-12",
+    "labNumber": "21",
+    "category": "以C#建立人機界面",
+    "title": "內嵌式 Web Server 伺服器、Base64 影像串流與工業物聯網 IIoT 整合",
+    "date": "2026-08-21",
+    "summary": "掌握底層 Socket (TCP 80 Port) 監聽、HTTP Request/Response 通訊協議、Data URI 與 Base64 圖片編碼，實作由 C# 上位機發布網頁讓手機/平板免裝 App 即可遠端監看機台畫面與數據。",
+    "flowImage": "images_src/csharp_02/image1.png",
+    "resultImage": "images_src/csharp_02/image100.png",
+    "flowTitle": "C# 內嵌式 Web Server Socket 監聽與 HTTP 響應架構圖",
+    "resultTitle": "手機瀏覽器遠端開啟 C# 本地網頁與即時 Base64 畫面成果",
+    "objective": "1. 理解 TCP Socket、Bind、Listen、Accept、Send 底層網路通訊原理。\n2. 掌握 HTTP 1.1 協議格式：請求標頭 (Header) 與回應內容 (Response Body)。\n3. 實作將產線截圖即時轉為 Base64 字串，內嵌於 HTML (Data URI) 實現行動裝置零安裝跨平台監控。",
     "tutorialSteps": [
       {
-        "step": "1. 安裝 NuGet 依賴套件",
-        "description": "透過 NuGet 安裝 MQTTnet (4.x 版本) 與 NModbus4 (支援 Modbus TCP 主站/從站)。"
+        "step": "1. 建立 TCP Socket 伺服端監聽",
+        "description": "投影片 LAB_09-04：建立 Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)，綁定 IP 與 80 Port 並開始監聽。"
       },
       {
-        "step": "2. 建立 Modbus TCP 連線並讀取電表",
-        "description": "使用 TcpClient 連線電表 IP (例如 192.168.1.50:502)，呼叫 master.ReadHoldingRegisters(1, 0, 4) 讀取三相電壓與電流。"
+        "step": "2. 將畫面圖片轉換為 Base64 字串",
+        "description": "將記憶體點陣圖轉為 byte[]，調用 Convert.ToBase64String(bytes)，拼接成 data:image/png;base64,... 格式。"
       },
       {
-        "step": "3. 封裝 JSON 遙測酬載",
-        "description": "將電壓、電流、產量以 System.Text.Json.JsonSerializer 序列化為 {\"voltage\": 220.5, \"current\": 12.3}。"
-      },
-      {
-        "step": "4. 透過 MQTT 發布至主題",
-        "description": "向 MQTT Broker 發布主題 factory/line1/power，供 Node-RED、手機 App 或雲端戰情室即時訂閱。"
+        "step": "3. 構造 HTTP 封包回傳給用戶端瀏覽器",
+        "description": "構造 HTTP/1.1 200 OK \\r\\n Content-Type: text/html; charset=utf-8 \\r\\n\\r\\n 封包並寫入 HTML，手機能直接連線瀏覽即時畫面。"
       }
     ],
-    "csharpCode": "using MQTTnet;\nusing MQTTnet.Client;\nusing Modbus.Device;\nusing System.Net.Sockets;\n\npublic async Task PublishEnergyTelemetryAsync(string brokerIp, string modbusMeterIp)\n{\n    // 1. Modbus TCP 讀取智慧電表\n    using (TcpClient client = new TcpClient(modbusMeterIp, 502))\n    {\n        ModbusIpMaster master = ModbusIpMaster.CreateIp(client);\n        ushort[] registers = master.ReadHoldingRegisters(slaveId: 1, startAddress: 0, numberOfPoints: 2);\n        double voltage = registers[0] / 10.0; // 假設縮放比為 0.1\n        double current = registers[1] / 100.0;\n\n        // 2. MQTT 發布\n        var factory = new MqttFactory();\n        using (var mqttClient = factory.CreateMqttClient())\n        {\n            var options = new MqttClientOptionsBuilder().WithTcpServer(brokerIp, 1883).Build();\n            await mqttClient.ConnectAsync(options);\n            \n            string payload = $\"{{\\\"voltage\\\": {voltage}, \\\"current\\\": {current}, \\\"timestamp\\\": \\\"{DateTime.UtcNow:o}\\\"}}\";\n            var message = new MqttApplicationMessageBuilder()\n                .WithTopic(\"factory/line1/energy\")\n                .WithPayload(payload)\n                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)\n                .Build();\n                \n            await mqttClient.PublishAsync(message);\n            await mqttClient.DisconnectAsync();\n        }\n    }\n}",
-    "aiPrompt": "請幫我用 C# (.NET 8) 寫一個工業物聯網邊緣閘道器類別。\n功能要求：\n1. 使用 NModbus4 透過 Modbus TCP 讀取現場設備暫存器 (IP: 192.168.1.100, Port: 502)。\n2. 使用 MQTTnet 將讀取到的數值封裝成 JSON 封包。\n3. 發布至 MQTT Broker (IP: 192.168.1.10) 的工廠主題中。\n4. 包含完整 async/await 非同步操作與斷線重連機制。",
+    "csharpCode": "using System;\nusing System.Drawing;\nusing System.Drawing.Imaging;\nusing System.IO;\nusing System.Net;\nusing System.Net.Sockets;\nusing System.Text;\nusing System.Threading;\nusing System.Windows.Forms;\n\nnamespace LAB_09_04_WebServerDemo\n{\n    public partial class FormEmbeddedWebServer : Form\n    {\n        private TcpListener _httpListener;\n        private Thread _serverThread;\n        private bool _isRunning = false;\n\n        public FormEmbeddedWebServer()\n        {\n            InitializeComponent();\n            StartEmbeddedServer();\n        }\n\n        private void StartEmbeddedServer()\n        {\n            _isRunning = true;\n            _httpListener = new TcpListener(IPAddress.Any, 8080);\n            _httpListener.Start();\n            _serverThread = new Thread(ListenForClients) { IsBackground = true };\n            _serverThread.Start();\n            lblServerStatus.Text = \"內嵌 Web 伺服器運作中：http://localhost:8080/\";\n        }\n\n        private void ListenForClients()\n        {\n            while (_isRunning)\n            {\n                try\n                {\n                    TcpClient client = _httpListener.AcceptTcpClient();\n                    ThreadPool.QueueUserWorkItem(HandleClientRequest, client);\n                }\n                catch { break; }\n            }\n        }\n\n        private void HandleClientRequest(object state)\n        {\n            TcpClient client = (TcpClient)state;\n            using (NetworkStream stream = client.GetStream())\n            {\n                // 讀取 HTTP 請求標頭\n                byte[] buffer = new byte[1024];\n                stream.Read(buffer, 0, buffer.Length);\n\n                // 產生即時產線 HTML 畫面 (帶有時間與即時機台狀態)\n                string htmlResponse = $\"<!DOCTYPE html><html><head><meta charset='utf-8'><title>遠端機台監控</title></head>\" +\n                                       \"<body style='background:#0f172a;color:#fff;font-family:sans-serif;text-align:center;'>\" +\n                                       $\"<h1>五股職訓局 - 機電AI_115-1期 遠端 HMI</h1>\" +\n                                       $\"<h3>更新時間: {DateTime.Now:yyyy-MM-dd HH:mm:ss}</h3>\" +\n                                       \"<p style='color:#22c55e;font-size:20px;'>● 產線運轉正常 (Continuous Running)</p>\" +\n                                       \"<p>此網頁由上位機 C# 透過底層 Socket 自動驅動輸出</p>\" +\n                                       \"</body></html>\";\n\n                byte[] bodyBytes = Encoding.UTF8.GetBytes(htmlResponse);\n                string header = \"HTTP/1.1 200 OK\\r\\n\" +\n                                \"Content-Type: text/html; charset=utf-8\\r\\n\" +\n                                $\"Content-Length: {bodyBytes.Length}\\r\\n\" +\n                                \"Connection: close\\r\\n\\r\\n\";\n                byte[] headerBytes = Encoding.ASCII.GetBytes(header);\n\n                stream.Write(headerBytes, 0, headerBytes.Length);\n                stream.Write(bodyBytes, 0, bodyBytes.Length);\n            }\n            client.Close();\n        }\n    }\n}",
+    "aiPrompt": "請用 C# 的 HttpListener 類別撰寫一個輕量級 RESTful Web API，提供 GET /api/status 取得機台即時狀態 JSON，以及 POST /api/control 接收遠端重置命令，並支援 CORS 跨域請求。",
     "applications": [
       {
-        "scenario": "全廠 ESG 碳盤查電力即時監控",
-        "description": "各廠區配電盤智慧電表透過 Modbus TCP 被 C# 閘道器輪詢，每秒發布至 MQTT，連動碳排即時換算。",
-        "icon": "fa-solid fa-leaf"
+        "scenario": "工業 4.0 跨平台行動戰情看板",
+        "description": "廠務主管利用手機掃描機台 QR Code，直接在手機瀏覽器檢視由 C# 上位機廣播的即時稼動率畫面。",
+        "icon": "fa-solid fa-mobile-screen"
       }
     ],
     "references": [
       {
-        "title": "MQTTnet GitHub 官方開源專案與範例庫",
-        "url": "https://github.com/dotnet/MQTTnet"
-      },
-      {
-        "title": "NModbus4 工業通訊開源函式庫",
-        "url": "https://github.com/NModbus4/NModbus4"
-      }
-    ]
-  },
-  {
-    "id": "csharp-14",
-    "labNumber": "14",
-    "title": "生成式 AI 語音與邊緣視覺：C# 串接 Gemini 雲端語音與 Ollama 邊緣車牌辨識",
-    "date": "2026-08-23",
-    "category": "AI整合應用",
-    "summary": "將前瞻 AI 能力注入傳統工控！在 C# 中呼叫 Google Gemini API 進行工控自然語言意圖理解與設備故障診斷，並透過本地端 HTTP API 串接 Ollama 視覺模型 (LLaVA) 實現不連外網的安全車牌與工件瑕疵邊緣檢測。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-8.jpg",
-    "resultImage": "images_src/ok/03-02_csharp_web.jpg",
-    "flowTitle": "雲端 GenAI (Gemini) 與地端邊緣視覺 (Ollama) 雙引擎架構",
-    "resultTitle": "AI 自然語言語音控機與邊緣視覺車牌檢驗介面",
-    "objective": "1. 掌握 C# HttpClient 呼叫雲端 Google Gemini REST API 並處理 JSON 結構。\n2. 學習在無網際網路的封閉廠區環境下，使用 C# 串接本地端 Ollama 邊緣推論伺服器。\n3. 實作將相機捕獲之圖片轉 Base64 編碼，由 AI 辨識字元並自動驅動 PLC 閘門放行。",
-    "tutorialSteps": [
-      {
-        "step": "1. 設定 Gemini API 金鑰與連線客戶端",
-        "description": "向 Google AI Studio 申請 API Key，使用 HttpClient 發送 Prompt 要求分析 PLC 報警代碼並回傳修復建議。"
-      },
-      {
-        "step": "2. 本地端 Ollama 視覺模型配置",
-        "description": "在工廠邊緣伺服器運行 `ollama run llava`，開啟本機連接埠 11434。"
-      },
-      {
-        "step": "3. 圖片編碼與 AI 視覺辨識",
-        "description": "將車道相機拍攝之車牌 JPG 圖檔轉換為 Base64 字串，向 http://localhost:11434/api/generate 發送推論請求。"
-      },
-      {
-        "step": "4. 串接三菱 PLC 開閘放行",
-        "description": "比對回傳字元與授權名單，若驗證通過則 C# 自動發送指令強制 PLC 輸出 Y0=ON 抬起道閘欄杆。"
-      }
-    ],
-    "csharpCode": "using System.Net.Http;\nusing System.Text;\nusing System.Text.Json;\n\npublic class LocalOllamaVisionService\n{\n    private static readonly HttpClient _httpClient = new HttpClient();\n\n    public async Task<string> RecognizeLicensePlateAsync(string imagePath)\n    {\n        // 讀取圖片轉為 Base64\n        byte[] imageBytes = File.ReadAllBytes(imagePath);\n        string base64Image = Convert.ToBase64String(imageBytes);\n\n        var requestBody = new\n        {\n            model = \"llava\",\n            prompt = \"請辨識圖片中的車牌號碼，只需直接回傳車牌英文與數字，不要任何多餘說明。\",\n            stream = false,\n            images = new string[] { base64Image }\n        };\n\n        string json = JsonSerializer.Serialize(requestBody);\n        var content = new StringContent(json, Encoding.UTF8, \"application/json\");\n\n        var response = await _httpClient.PostAsync(\"http://localhost:11434/api/generate\", content);\n        string responseJson = await response.Content.ReadAsStringAsync();\n        \n        using var doc = JsonDocument.Parse(responseJson);\n        return doc.RootElement.GetProperty(\"response\").GetString().Trim();\n    }\n}",
-    "aiPrompt": "請幫我用 C# (.NET 8) 撰寫一個 AI 視覺檢驗輔助類別。\n包含：\n1. 讀取本機影像檔並壓縮至合適解析度轉 Base64。\n2. 呼叫本地端 Ollama (http://localhost:11434/api/generate) 的 llava 視覺模型。\n3. Prompt: \"檢查該工件表面是否有刮痕或破損，以 JSON 格式回傳 {hasDefect: bool, confidence: float, defectType: string}\"。\n4. 解析 JSON 並在介面上彈出判定指示。",
-    "applications": [
-      {
-        "scenario": "物流園區智慧車牌辨識與自動過磅",
-        "description": "貨車駛上地磅時相機取像，地端 AI 0.8秒內識別車牌，C# 比對提貨單號後自動啟動 PLC 抬桿放行。",
-        "icon": "fa-solid fa-truck"
-      }
-    ],
-    "references": [
-      {
-        "title": "Google AI Studio 官方開發文檔與 API 說明",
-        "url": "https://aistudio.google.com/"
-      },
-      {
-        "title": "Ollama 官方本地端模型庫與 API 文檔",
-        "url": "https://ollama.com/"
-      }
-    ]
-  },
-  {
-    "id": "csharp-15",
-    "labNumber": "15",
-    "title": "工業 4.0 整合實戰：Epson 機械手臂 API 控制、時序資料庫與 Android 行動監控",
-    "date": "2026-08-25",
-    "category": "工業4.0",
-    "summary": "全端工控整合大成！串接 Epson 4軸機械手臂控制器 API 實現自走點位路徑規劃，將每秒高頻感測數據寫入 InfluxDB 時序資料庫以 Grafana 呈現，並支援 Android 手機遠端連線監控，打造零死角的現代智慧工廠中控台。",
-    "flowImage": "images_src/ok/node-red_csharp_02-page-10.jpg",
-    "resultImage": "images_src/ok/03-02_csharp_web.jpg",
-    "flowTitle": "工業 4.0 全系統數據流：Epson 手臂 + InfluxDB + Grafana + 手機端",
-    "resultTitle": "工控中央戰情監控台與 Epson 手臂動作監視畫面",
-    "objective": "1. 掌握 Epson RC+ 機器人控制器通訊介面 (SpelNetLib / Ethernet 通訊協定)。\n2. 學習將百萬筆高頻工控遙測資料高效批次寫入 InfluxDB 2.x 時序資料庫。\n3. 理解行動端 (Android App / Web HMI) 與 PC 主控台間的 Socket 授權通訊機制。",
-    "tutorialSteps": [
-      {
-        "step": "1. 引用 Epson 機械手臂控制器通訊函式庫",
-        "description": "引用 SpelNetLib 類別庫，初始化 Spel 物件，建立與 Epson RC700/RC90 控制器的 TCP/IP 連線。"
-      },
-      {
-        "step": "2. 撰寫手臂點位取放 (Pick & Place) 任務",
-        "description": "發送馬達勵磁 (MotorsOn)、歸零 (Home)、直線插補運動 (Go P1, Jump P2) 與真空吸嘴 I/O 開關控制。"
-      },
-      {
-        "step": "3. 整合 InfluxDB 時序資料庫寫入",
-        "description": "使用 InfluxDB.Client 函式庫，將手臂各軸扭力 (Torque) 與馬達溫度非同步寫入時序資料庫，供 Grafana 繪製預測性維護圖表。"
-      },
-      {
-        "step": "4. 建立手機端遠端監控伺服器",
-        "description": "在 C# 中啟動非同步 WebSocket 伺服器，將現場手臂即時 X-Y-Z 座標推播至廠長手機 Android App 儀表板。"
-      }
-    ],
-    "csharpCode": "using InfluxDB.Client;\nusing InfluxDB.Client.Api.Domain;\nusing InfluxDB.Client.Writes;\n\npublic class IndustrialHistorianService\n{\n    private readonly InfluxDBClient _influxClient;\n    private const string Bucket = \"factory_metrics\";\n    private const string Org = \"wugu_ai\";\n\n    public IndustrialHistorianService(string serverUrl, string token)\n    {\n        _influxClient = new InfluxDBClient(serverUrl, token);\n    }\n\n    public async Task WriteRobotTorqueAsync(string robotId, double j1Torque, double j2Torque, double temp)\n    {\n        var point = PointData.Measurement(\"robot_telemetry\")\n            .Tag(\"robot_id\", robotId)\n            .Field(\"j1_torque\", j1Torque)\n            .Field(\"j2_torque\", j2Torque)\n            .Field(\"motor_temp\", temp)\n            .Timestamp(DateTime.UtcNow, WritePrecision.Ns);\n\n        using (var writeApi = _influxClient.GetWriteApi())\n        {\n            writeApi.WritePoint(point, Bucket, Org);\n        }\n    }\n}",
-    "aiPrompt": "請幫我用 C# (.NET 8) 寫一個工業 4.0 整合調度服務類別。\n包含：\n1. 連接 Epson 機械手臂發送運動指令方法 (模擬通訊協定封包)。\n2. 使用 InfluxDB.Client 非同步寫入各軸即時溫度與扭力點位數據。\n3. 提供一個輕量級 HttpListener 或 WebSocket 廣播當前機台狀態供手機端 Android App 輪詢。\n4. 結構嚴謹，符合現代軟體工程 SOLID 原則。",
-    "applications": [
-      {
-        "scenario": "高科技晶圓封測無人化關燈工廠",
-        "description": "Epson 機械手臂自主取放載盤，巨量運轉數據全自動串流寫入 InfluxDB，遠端工程師透過手機隨時掌握稼動。",
-        "icon": "fa-solid fa-robot"
-      }
-    ],
-    "references": [
-      {
-        "title": "Epson Robots 官方開發者技術支援手冊",
-        "url": "https://epson.com/industrial-robots"
-      },
-      {
-        "title": "InfluxDB 官方 .NET Client 開發指南",
-        "url": "https://github.com/influxdata/influxdb-client-csharp"
+        "title": "Microsoft Learn - Socket 類別 (System.Net.Sockets)",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.net.sockets.socket"
       }
     ]
   }
 ];
+
+if (typeof window !== 'undefined') {
+  window.INITIAL_CSHARP_DATA = INITIAL_CSHARP_DATA;
+  window.csharpData = INITIAL_CSHARP_DATA;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = INITIAL_CSHARP_DATA;
+}

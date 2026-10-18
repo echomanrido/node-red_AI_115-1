@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 渲染側邊欄選單
+  // 渲染側邊欄選單 (依分類自動分組)
   function renderSidebar(labs) {
     labListEl.innerHTML = '';
     if (labs.length === 0) {
@@ -93,28 +93,49 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // 依 category 分組
+    const groups = {};
     labs.forEach(lab => {
-      const item = document.createElement('a');
-      item.className = `lab-item ${lab.id === currentLabId ? 'active' : ''}`;
-      item.dataset.id = lab.id;
-      item.href = `#${lab.id}`;
-      item.innerHTML = `
-        <div class="lab-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.35);">${lab.labNumber}</div>
-        <div class="lab-info">
-          <div class="lab-title-text">${escapeHtml(lab.title)}</div>
-          <div class="lab-meta-text">${escapeHtml(lab.category)} • ${escapeHtml(lab.date)}</div>
-        </div>
+      const cat = lab.category || '未分類';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(lab);
+    });
+
+    Object.keys(groups).forEach(catName => {
+      // 分組標題
+      const groupHeader = document.createElement('div');
+      groupHeader.className = 'csharp-group-header';
+      const icon = catName.includes('簡介') ? 'fa-solid fa-book' : 'fa-solid fa-display';
+      groupHeader.innerHTML = `
+        <span><i class="${icon}" style="margin-right: 6px;"></i>${escapeHtml(catName)}</span>
+        <span class="group-badge">${groups[catName].length} 單元</span>
       `;
+      labListEl.appendChild(groupHeader);
 
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        selectLab(lab.id);
-        if (window.innerWidth <= 900) {
-          sidebar.classList.remove('open');
-        }
+      // 分組單元項目
+      groups[catName].forEach(lab => {
+        const item = document.createElement('a');
+        item.className = `lab-item ${lab.id === currentLabId ? 'active' : ''}`;
+        item.dataset.id = lab.id;
+        item.href = `#${lab.id}`;
+        item.innerHTML = `
+          <div class="lab-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.35);">${lab.labNumber}</div>
+          <div class="lab-info">
+            <div class="lab-title-text">${escapeHtml(lab.title)}</div>
+            <div class="lab-meta-text">${escapeHtml(lab.category)} • ${escapeHtml(lab.date)}</div>
+          </div>
+        `;
+
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          selectLab(lab.id);
+          if (window.innerWidth <= 900) {
+            sidebar.classList.remove('open');
+          }
+        });
+
+        labListEl.appendChild(item);
       });
-
-      labListEl.appendChild(item);
     });
   }
 

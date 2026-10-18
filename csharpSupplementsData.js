@@ -1,30 +1,46 @@
-// C# 補充教材離線備援資料庫 (支援 file:/// 協定直接開啟)
+// C# 學習補充教材離線備援資料
+// 當本機以 file:/// 協定開啟無法使用 fetch('csharpSupplements.json') 時自動載入此物件
+
 var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
   {
     "id": "cs-sup-01",
     "supNumber": "01",
-    "title": "Visual Studio 2026/2022 社群版安裝與 .NET 桌面開發環境配置",
+    "title": "Visual Studio 2026社群版安裝與 .NET 桌面開發環境配置",
     "date": "2026-08-12",
     "category": "環境建置",
-    "summary": "工控 PC-Based 程式開發首選工具 Visual Studio 完整安裝教學。詳解「.NET 桌面開發」工作負載挑選、C# Windows Forms 設計工具支援、常用 NuGet 套件管理員配置以及深色工控佈景主題優化。",
-    "image": "images_src/ok/node-red_csharp_02-page-1.jpg",
-    "objective": "1. 掌握 Visual Studio Community (社群版) 的官方免費授權申請與安裝流程。\n2. 正確勾選「.NET 桌面程式開發」工作負載，包含 C#、Windows Forms 與 WPF 核心模組。\n3. 學會使用 NuGet 套件管理員安裝工控常用通訊元件 (如 NModbus4, MQTTnet, InfluxDB.Client)。",
+    "summary": "工控 PC-Based 程式開發首選工具 Visual Studio 2026 完整安裝與實戰配置指南。收錄官方 Community 免費下載路徑、工作負載「必選項目」（.NET 桌面開發與 GitHub Copilot）、Epson 工控人機五大版面配置，以及 GitHub Copilot Agent 模式最新實戰技巧。",
+    "image": "images_src/csharp_supplements/vs_copilot_chat_guide.png",
+    "objective": "1. 掌握 Visual Studio 2026 Community (社群版) 官方免費下載與安裝流程。\n2. 熟記安裝精靈中的工作負載「必選項目」：.NET 桌面開發、GitHub Copilot、GitHub Copilot 應用程式現代化，以及 C++ 桌面擴充。\n3. 精通工控人機介面開發標準五大版面配置：工具箱、設計畫布、方案總管、屬性面板與輸出偵錯視窗。\n4. 掌握 GitHub Copilot Agent 模式、多模型切換 (如 Claude Haiku 4.5) 與自動化提示詞協作技巧。",
     "tutorialSteps": [
       {
-        "step": "1. 下載 Visual Studio 安裝程式 (Installer)",
-        "description": "至微軟官方網站下載 Visual Studio Community 繁體中文安裝檔，啟動 Visual Studio Installer。"
+        "step": "1. Visual Studio 2026 下載與社群版 (Community) 選擇",
+        "description": "前往微軟官方 Visual Studio 下載專區 (https://visualstudio.microsoft.com/zh-hant/downloads/)。在「Visual Studio 2026」產品分類下，選擇「Community (社群版)」點擊「免費下載」。該版本功能強大完整，免費提供給學生、開放原始碼參與者及個人開發者使用。",
+        "image": "images_src/csharp_supplements/vs2026_download_community.png",
+        "imageCaption": "圖 1：Visual Studio 2026 官方下載頁面，選擇 Community 社群版免費下載"
       },
       {
-        "step": "2. 勾選關鍵工作負載 (Workloads)",
-        "description": "在安裝選項中，務必勾選「.NET 桌面開發 (包含 C# 與 Visual Basic 的 Windows Forms 桌面應用程式)」以及「.NET 8.0 / 9.0 執行階段」。"
+        "step": "2. GitHub Copilot 現代化 AI 開發功能啟用",
+        "description": "Visual Studio 2026 深度整合免費的 GitHub Copilot (https://visualstudio.microsoft.com/zh-hant/github-copilot/)。引入全新的「Agent 模式」，能在背景協調編程步驟、即時因應問題、自動套用跨檔案變更並逐一排查代碼錯誤，大幅提升工控軟體開發效能。",
+        "image": "images_src/csharp_supplements/vs2026_copilot_free.png",
+        "imageCaption": "圖 2：Visual Studio 中免費的 Copilot 功能介紹與 Agent 模式增強"
       },
       {
-        "step": "3. 建立第一個 WinForms 工控專案",
-        "description": "啟動 Visual Studio，點選「建立新專案」➔ 篩選 C# / Windows / 桌面 ➔ 選擇「Windows Forms 應用程式 (.NET 8.0)」➔ 設定專案名稱為 CSharpIndustrialLab。"
+        "step": "3. 安裝精靈工作負載「必選項目」完整勾選",
+        "description": "啟動 Visual Studio Installer 後，請務必依序確認並勾選以下核心元件：\n• 【必選工作負載】：勾選「.NET 桌面開發」（支援 C#、Visual Basic、WPF、Windows Forms 與主控台應用程式）。\n• 【右側安裝詳細資料】：在「選擇性」清單中，務必勾選「GitHub Copilot」與「GitHub Copilot 應用程式現代化」。\n• 【傳統與原生支援】：建議勾選「使用 C++ 的桌面開發」，便於日後引用或編譯機械手臂、視覺相機與 PLC 原生動態鏈結庫 (DLL)。",
+        "image": "images_src/csharp_supplements/vs2026_installer_workloads.png",
+        "imageCaption": "圖 3：Visual Studio Installer 必選工作負載與 GitHub Copilot 詳細安裝項目"
       },
       {
-        "step": "4. 配置 NuGet 套件與輸出設定",
-        "description": "在方案總管的專案名稱按右鍵 ➔「管理 NuGet 套件」➔ 搜尋並安裝 System.IO.Ports (串列埠通訊函式庫)。"
+        "step": "4. 工控 HMI 系統五大標準版面配置 (IDE Layout)",
+        "description": "進入 Visual Studio 後，建議依照工控人機（如 EpsonRobotRC7 專案）配置最順手的五大區塊：\n1. 【左側 - 工具箱 (Toolbox)】：釘選 Windows Forms 控制項（Button, Label, TextBox, CheckBox, ComboBox, DataGridView 等）。\n2. 【中間 - 設計畫布與代碼視窗】：上層切換 FormMain.cs [設計]* 視覺化排版與 FormMain.cs 邏輯代碼。\n3. 【右側 - 方案總管 (Solution Explorer)】：檢視專案結構 (Forms, Models, Services, Program.cs)，並整合「GitHub Copilot 聊天」分頁。\n4. 【右下 - 屬性視窗 (Properties)】：調整所選元件的屬性（如 btnMotorOn 的 Text, TextAlign, BackColor, Font 等）。\n5. 【底部 - 輸出與診斷視窗】：檢視編譯 Output、錯誤清單 (Error List) 與 Copilot 終端機。",
+        "image": "images_src/csharp_supplements/vs2026_ide_layout.png",
+        "imageCaption": "圖 4：Visual Studio 工控人機 (Epson Robot RC+ 7.0) 標準五大版面配置"
+      },
+      {
+        "step": "5. GitHub Copilot 深度配置與 Agent 模式實戰",
+        "description": "點開右側或底部的「GitHub Copilot 聊天」視窗：\n• 【功能選單】：點擊右上角選單可確認「啟用 Copilot 自動補全」、「啟用下一個編輯建議」皆已打勾啟用。\n• 【模式與模型切換】：在輸入框左下角可選擇「Agent 模式」與「互動式」，並可彈性選用最新模型（如 Claude Haiku 4.5、GPT-4o）。\n• 【快速捷徑】：支援一鍵點擊「建立新專案」、「改善 #method 的實作」、「為 #file 中的所有方法撰寫單元測試」，實現人機協同 Vibe Coding。",
+        "image": "images_src/csharp_supplements/vs2026_copilot_agent.png",
+        "imageCaption": "圖 5：GitHub Copilot Agent 模式設定、自動補全與模型選擇視窗"
       }
     ],
     "applications": [
@@ -37,14 +53,24 @@ var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
     "aiPrompt": "請以 Markdown 條列式說明：在 Windows 11 環境下配置 Visual Studio 2022/2026 進行工控 C# 開發，最推薦安裝的 5 個核心 NuGet 套件與理由（例如 System.IO.Ports, MQTTnet, NModbus4 等）。",
     "references": [
       {
-        "title": "Microsoft Visual Studio 官方下載中心",
-        "url": "https://visualstudio.microsoft.com/zh-hant/"
+        "title": "什麼是 Visual Studio 的 GitHub Copilot 對話功能？(官方文檔)",
+        "url": "https://learn.microsoft.com/zh-tw/visualstudio/ide/visual-studio-github-copilot-chat?view=vs-2022#ask-questions-in-the-inline-chat-view"
       },
       {
-        "title": "Microsoft Learn - 建立第一個 Windows Forms 應用程式",
+        "title": "Visual Studio 2026 官方下載中心",
+        "url": "https://visualstudio.microsoft.com/zh-hant/downloads/"
+      },
+      {
+        "title": "Visual Studio 中的 GitHub Copilot 功能介紹",
+        "url": "https://visualstudio.microsoft.com/zh-hant/github-copilot/"
+      },
+      {
+        "title": "Microsoft Learn - .NET 桌面開發與 Windows Forms 建立導覽",
         "url": "https://learn.microsoft.com/zh-tw/dotnet/desktop/winforms/get-started/create-app-visual-studio"
       }
-    ]
+    ],
+    "imageTitle": "Visual Studio GitHub Copilot 對話功能指南",
+    "imageLink": "https://learn.microsoft.com/zh-tw/visualstudio/ide/visual-studio-github-copilot-chat?view=vs-2022#ask-questions-in-the-inline-chat-view"
   },
   {
     "id": "cs-sup-02",
