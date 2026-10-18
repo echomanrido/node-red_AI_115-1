@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>五股職訓局-機電AI_115-1期 | 實務專題 - PC-Based控制 三菱PLC FX3U</title>
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* 專題專屬擴充樣式 */
+    .project-tabs-nav {
+      display: flex;
+      gap: 12px;
+      margin: 25px 0 35px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 8px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      max-width: 780px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .project-tab-link {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.92rem;
+      transition: all 0.25s ease;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+    }
+    .project-tab-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .project-tab-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.22) 0%, rgba(56, 189, 248, 0.18) 100%);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.35);
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.15);
+    }
+    .project-tab-badge {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .project-tab-link.active .project-tab-badge {
+      background: rgba(56, 189, 248, 0.25);
+      color: #38bdf8;
+    }
+
+    /* 互動工具箱卡片 */
+    .interactive-tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+      margin: 28px 0;
+    }
+    .tool-box-card {
+      background: #0f172a;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+    }
+    .tool-box-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .tool-box-header i {
+      font-size: 1.4rem;
+      color: #38bdf8;
+    }
+    .tool-box-header h4 {
+      font-size: 1.15rem;
+      color: #f1f5f9;
+      margin: 0;
+    }
+    .tool-input-group {
+      margin-bottom: 14px;
+    }
+    .tool-input-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .tool-input {
+      width: 100%;
+      background: #030712;
+      border: 1px solid #334155;
+      color: #38bdf8;
+      font-family: 'Fira Code', monospace;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .tool-input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+    .tool-btn-calc {
+      background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+      color: #030712;
+      font-weight: 700;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .tool-btn-calc:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    .tool-result-panel {
+      margin-top: 16px;
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 14px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88rem;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+    }
+    .result-row:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .result-label {
+      color: #94a3b8;
+    }
+    .result-val {
+      font-weight: 700;
+      color: #f59e0b;
+    }
+    .result-val.highlight {
+      color: #10b981;
+    }
+
+    /* 協定封包拆解高亮樣式 */
+    .packet-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 12px 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+    }
+    .packet-chip {
+      padding: 6px 10px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 48px;
+    }
+    .chip-hex {
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+    .chip-name {
+      font-size: 0.65rem;
+      opacity: 0.8;
+      margin-top: 2px;
+      text-transform: uppercase;
+    }
+    .chip-stx { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .chip-cmd { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .chip-addr { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .chip-len { background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
+    .chip-data { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .chip-etx { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .chip-sum { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+
+    /* 表格現代化樣式 */
+    .fx-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.9rem;
+      background: #0f172a;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .fx-table th {
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 1px solid #334155;
+    }
+    .fx-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #cbd5e1;
+    }
+    .fx-table tr:hover {
+      background: rgba(56, 189, 248, 0.04);
+    }
+    .fx-table code {
+      background: rgba(0,0,0,0.4);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #f59e0b;
+    }
+
+    /* 外部連結按鈕組 */
+    .resource-links-bar {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .resource-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .resource-link-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: #38bdf8;
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+    }
+
+    /* 三階段卡片 */
+    .stages-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin: 24px 0;
+    }
+    @media (max-width: 900px) {
+      .stages-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .stage-card {
+      background: #0f172a;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .stage-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(56, 189, 248, 0.4);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    .stage-card-num {
+      position: absolute;
+      right: 16px;
+      top: 12px;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: rgba(255,255,255,0.05);
+      font-family: 'Outfit', sans-serif;
+    }
+    .stage-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .tag-s1 { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .tag-s2 { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .tag-s3 { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+  </style>
+</head>
+<body class="project-body-theme">
+  <div class="project-page-container">
+    
+    <!-- 頂部導覽列 -->
+    <header class="home-navbar" style="border-bottom: 1px solid var(--border-color); background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;">
+      <div class="brand-logo">
+        <i class="fa-solid fa-microchip logo-icon"></i>
+        <div class="brand-titles">
+          <h1 class="main-title">五股職訓局</h1>
+          <span class="sub-title">機電AI_115-1期（作者：Rido老師）</span>
+        </div>
+      </div>
+      <div class="nav-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="index.html" class="nav-cta-btn secondary-btn" style="background: rgba(255,255,255,0.05); border-color: var(--border-color); color: var(--text-main);">
+          <i class="fa-solid fa-house"></i> 首頁
+        </a>
+        <a href="csharp.html" class="nav-cta-btn secondary-btn" style="background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.35); color: #c084fc;">
+          <i class="fa-brands fa-microsoft"></i> C# 課程
+        </a>
+        <a href="labs.html" class="nav-cta-btn secondary-btn" style="background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.3); color: var(--primary);">
+          <i class="fa-brands fa-node-js"></i> Node-RED
+        </a>
+        <a href="vibecoding.html" class="nav-cta-btn secondary-btn" style="background: rgba(14, 165, 233, 0.08); border-color: rgba(56, 189, 248, 0.25); color: #38bdf8;">
+          <i class="fa-solid fa-bolt"></i> Vibe Coding
+        </a>
+        <a href="aiknowledge.html" class="nav-cta-btn secondary-btn" style="background: rgba(244, 63, 94, 0.08); border-color: rgba(244, 63, 94, 0.25); color: #fb7185;">
+          <i class="fa-solid fa-brain"></i> AI 知識
+        </a>
+        <a href="project.html" class="nav-cta-btn secondary-btn" style="background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5); color: #e9d5ff;">
+          <i class="fa-solid fa-diagram-project"></i> 實務專題
+        </a>
+      </div>
+    </header>
+
+    <!-- 麵包屑 -->
+    <div class="project-breadcrumb">
+      <a href="index.html"><i class="fa-solid fa-house"></i> 首頁</a> / 
+      <a href="project.html">實務專題</a> / 
+      <span class="active-item">專題：PC-Based控制_三菱PLC_FX3U</span>
+    </div>
+
+    <!-- 專題切換頁籤導覽列 (兩大旗艦專題快速切換) -->
+    <div class="project-tabs-nav">
+      <a href="project.html" class="project-tab-link">
+        <i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+        <span>範例期末專題：ESG 綠色智慧工廠 (機電丙級第二題)</span>
+        <span class="project-tab-badge">AI 視覺+碳管理</span>
+      </a>
+      <a href="project_plc_fx3u.html" class="project-tab-link active">
+        <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+        <span>專題：PC-Based控制_三菱PLC_FX3U</span>
+        <span class="project-tab-badge">RS232+協定解析</span>
+      </a>
+    </div>
+
+    <!-- 主區塊：專題名稱與簡介 -->
+    <section class="project-hero-section">
+      <span class="project-tag"><i class="fa-solid fa-microchip"></i> 工業控制核心專題</span>
+      <h2 class="project-title">PC-Based 控制三菱 PLC FX3U<br><span class="gradient-text">序列通訊協定全解構・人機介面 HMI 開發與三階段自動化系統</span></h2>
+      <p class="project-desc">以 C# 程式語言設計專業工業級人機介面（HMI），透過 RS-232 序列介面深度駕馭三菱 FX 系列 PLC 編程口協議（FX Series Serial Programming Port Protocol）。從序列電氣特性、ASCII/Hex 雙向轉換、CheckSum 累加偵誤校驗、記憶體暫存器位址映射，到全面解構「I/O 監控 ➔ 虛擬接點控制 ➔ PC 集中演算法運算」之三階段架構，並串接半導體設備通信標準（SECS/GEM）思維！</p>
+      
+      <!-- 外部實務資源按鈕 -->
+      <div class="resource-links-bar" style="justify-content: center;">
+        <a href="https://echomanrido.github.io/html_FX3u_Monitor/1.html" target="_blank" rel="noopener noreferrer" class="resource-link-btn">
+          <i class="fa-solid fa-desktop"></i> <span>Rido老師 FX3U 網頁版即時監控模擬器</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+        </a>
+        <a href="https://serial.keysking.com/#/" target="_blank" rel="noopener noreferrer" class="resource-link-btn">
+          <i class="fa-solid fa-plug"></i> <span>Web Serial 網頁版串口助手 (免安裝)</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+        </a>
+        <a href="csharp.html" class="resource-link-btn" style="border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
+          <i class="fa-brands fa-microsoft"></i> <span>搭配學習：C# PC-Based 15 大單元</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 實時數據流動與硬體控制動畫看板 (SVG Animation) -->
+    <section class="project-animation-card">
+      <div class="animation-header">
+        <div class="animation-title">
+          <i class="fa-solid fa-circle-nodes pulse-dot-static"></i>
+          <span>PC-Based 與三菱 FX3U 序列通訊拓撲與雙向封包流向（實時動畫）</span>
+        </div>
+        <span class="animation-status-badge"><i class="fa-solid fa-play fa-fade"></i> 9600 bps / 7, E, 1 運作中</span>
+      </div>
+      <div class="animation-viewport">
+        <!-- SVG 動畫畫布 -->
+        <svg viewBox="0 0 1000 450" class="dataflow-svg">
+          <defs>
+            <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="5" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="glow-purple" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="5" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="glow-amber" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="5" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            
+            <linearGradient id="grad-fx-path" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25" />
+              <stop offset="100%" stop-color="#a855f7" stop-opacity="0.25" />
+            </linearGradient>
+          </defs>
+
+          <!-- ================= 連線軌跡路徑 ================= -->
+          <!-- 1. PC ➔ RS232 傳送命令 (TXD) -->
+          <path id="path-pc-rs232" d="M 230,120 L 380,120" stroke="url(#grad-fx-path)" stroke-width="3" fill="none" stroke-dasharray="8 6" />
+          <!-- 2. RS232 ➔ PLC 接收 (Pin 3 TXD -> Pin 2 RXD) -->
+          <path id="path-rs232-plc" d="M 520,120 L 670,120" stroke="url(#grad-fx-path)" stroke-width="3" fill="none" stroke-dasharray="8 6" />
+          <!-- 3. PLC ➔ RS232 反饋數據 (RXD) -->
+          <path id="path-plc-rs232-ack" d="M 670,150 L 520,150" stroke="url(#grad-fx-path)" stroke-width="3" fill="none" stroke-dasharray="8 6" />
+          <!-- 4. RS232 ➔ PC 接收解析 -->
+          <path id="path-rs232-pc-ack" d="M 380,150 L 230,150" stroke="url(#grad-fx-path)" stroke-width="3" fill="none" stroke-dasharray="8 6" />
+          
+          <!-- 5. PLC 內部匯流排 ➔ Y 輸出接點 -->
+          <path id="path-plc-y" d="M 770,170 L 770,270 L 850,270" stroke="url(#grad-fx-path)" stroke-width="2.5" fill="none" stroke-dasharray="6 4" />
+          <!-- 6. X 輸入感測器 ➔ PLC 輸入接點 -->
+          <path id="path-x-plc" d="M 850,370 L 720,370 L 720,170" stroke="url(#grad-fx-path)" stroke-width="2.5" fill="none" stroke-dasharray="6 4" />
+          <!-- 7. PC ➔ D 暫存器讀寫路徑 -->
+          <path id="path-d-reg" d="M 150,170 L 150,320 L 450,320 L 670,160" stroke="url(#grad-fx-path)" stroke-width="2" fill="none" stroke-dasharray="6 4" />
+
+          <!-- ================= 運動動畫粒子 ================= -->
+          <!-- 藍色粒子：PC 下發指令 (STX + CMD + Addr + CheckSum) -->
+          <circle r="6" fill="#38bdf8" filter="url(#glow-cyan)">
+            <animateMotion dur="2.2s" repeatCount="indefinite" path="M 230,120 L 380,120 L 520,120 L 670,120" />
+          </circle>
+          <!-- 綠色粒子：PLC 回應 ACK 與 資料封包 (ACK 06H / 02H Data ETX SUM) -->
+          <circle r="6" fill="#34d399" filter="url(#glow-cyan)">
+            <animateMotion dur="2.2s" repeatCount="indefinite" path="M 670,150 L 520,150 L 380,150 L 230,150" />
+          </circle>
+          <!-- 紫色粒子：強制 Y1 ON 觸發繼電器輸出 -->
+          <circle r="5" fill="#c084fc" filter="url(#glow-purple)">
+            <animateMotion dur="1.8s" repeatCount="indefinite" path="M 770,170 L 770,270 L 850,270" />
+          </circle>
+          <!-- 黃色粒子：X 感測器回饋訊號進入 PLC -->
+          <circle r="5" fill="#fbbf24" filter="url(#glow-amber)">
+            <animateMotion dur="2s" repeatCount="indefinite" path="M 850,370 L 720,370 L 720,170" />
+          </circle>
+
+          <!-- ================= 拓撲節點框 ================= -->
+          <!-- Node 1: PC 端 (C# HMI Master) -->
+          <rect x="50" y="70" width="180" height="110" rx="8" fill="#111827" stroke="#38bdf8" stroke-width="2" class="csharp-glow-node" />
+          <text x="140" y="98" fill="#f3f4f6" font-size="14" font-weight="700" text-anchor="middle">PC 端 (Master)</text>
+          <text x="140" y="118" fill="#9ca3af" font-size="10" text-anchor="middle">C# WinForms / HMI</text>
+          <text x="140" y="138" fill="#38bdf8" font-size="11" font-weight="600" text-anchor="middle">SerialPort (ASCII)</text>
+          <text x="140" y="156" fill="#64748b" font-size="9" text-anchor="middle">CheckSum 演算與解析</text>
+          <circle cx="68" cy="88" r="5" fill="#38bdf8" />
+
+          <!-- Node 2: RS-232 序列介面轉換 -->
+          <rect x="380" y="80" width="140" height="90" rx="8" fill="#111827" stroke="#475569" stroke-width="2" />
+          <text x="450" y="105" fill="#f3f4f6" font-size="12" font-weight="700" text-anchor="middle">RS-232 串列通訊</text>
+          <text x="450" y="125" fill="#38bdf8" font-size="10" font-weight="600" text-anchor="middle">9600, 7, E, 1</text>
+          <text x="450" y="145" fill="#94a3b8" font-size="9" text-anchor="middle">Pin 2:RXD | Pin 3:TXD</text>
+          <text x="450" y="158" fill="#64748b" font-size="8" text-anchor="middle">Pin 5:GND (偶同位)</text>
+
+          <!-- Node 3: 三菱 FX3U PLC 主機 (Slave) -->
+          <rect x="670" y="70" width="190" height="110" rx="8" fill="#111827" stroke="#a855f7" stroke-width="2" class="nodered-glow-node" />
+          <text x="765" y="98" fill="#f3f4f6" font-size="14" font-weight="700" text-anchor="middle">三菱 FX3U PLC</text>
+          <text x="765" y="118" fill="#c084fc" font-size="10" text-anchor="middle">編程口 (Slave)</text>
+          <text x="765" y="138" fill="#9ca3af" font-size="10" text-anchor="middle">FX-232AW / CPU Protocol</text>
+          <text x="765" y="156" fill="#10b981" font-size="9" font-weight="600" text-anchor="middle">D8001 = 0x5EFE (型號)</text>
+          <circle cx="688" cy="88" r="5" fill="#a855f7" />
+
+          <!-- Node 4: 輸出元件 (Y 接點) -->
+          <rect x="850" y="240" width="130" height="65" rx="6" fill="#111827" stroke="#10b981" stroke-width="2" />
+          <text x="915" y="264" fill="#f3f4f6" font-size="11" font-weight="700" text-anchor="middle">Y 輸出元件群</text>
+          <text x="915" y="282" fill="#34d399" font-size="9" text-anchor="middle">Y0~Y17 (電磁閥/馬達)</text>
+          <text x="915" y="295" fill="#64748b" font-size="8" text-anchor="middle">群組位址: 0x00A0</text>
+
+          <!-- Node 5: 輸入感測器 (X 接點) -->
+          <rect x="850" y="340" width="130" height="65" rx="6" fill="#111827" stroke="#fbbf24" stroke-width="2" />
+          <text x="915" y="364" fill="#f3f4f6" font-size="11" font-weight="700" text-anchor="middle">X 輸入元件群</text>
+          <text x="915" y="382" fill="#fbbf24" font-size="9" text-anchor="middle">X0~X17 (按鈕/光電)</text>
+          <text x="915" y="395" fill="#64748b" font-size="8" text-anchor="middle">群組位址: 0x0080</text>
+
+          <!-- Node 6: 資料暫存器 D (Data Register) -->
+          <rect x="230" y="310" width="220" height="85" rx="8" fill="#111827" stroke="#f59e0b" stroke-width="2" />
+          <text x="340" y="335" fill="#f3f4f6" font-size="12" font-weight="700" text-anchor="middle">資料暫存器 (D Register)</text>
+          <text x="340" y="353" fill="#f59e0b" font-size="10" text-anchor="middle">D0, D4 (產量/設定值)</text>
+          <text x="340" y="370" fill="#9ca3af" font-size="9" text-anchor="middle">位址公式: 0x1000 + (D_Index * 2)</text>
+          <text x="340" y="384" fill="#64748b" font-size="8" text-anchor="middle">D8005 (電池電壓) = 0x0E0A</text>
+        </svg>
+      </div>
+      <!-- 圖例說明 -->
+      <div class="animation-footer-desc">
+        <div class="desc-item"><span class="bullet blue-b"></span><span>藍色：PC 端命令封包（STX ➔ CMD ➔ Address ➔ Bytes/Data ➔ ETX ➔ CheckSum）</span></div>
+        <div class="desc-item"><span class="bullet green-b"></span><span>綠色：PLC 回應封包（ACK 06H 或 STX ➔ Data ➔ ETX ➔ CheckSum）</span></div>
+        <div class="desc-item"><span class="bullet purple-b"></span><span>紫色：強制 ON/OFF 接點驅動實體機構（Y0~Y17 電磁閥、輸送帶）</span></div>
+        <div class="desc-item"><span class="bullet yellow-b"></span><span>黃色：外部實體感測器（極限開關、光電、按鈕）狀態即時讀取</span></div>
+      </div>
+    </section>
+
+    <!-- 專題背景介紹與三階段架構 -->
+    <section class="section-container" style="margin-top: 40px;">
+      <h3 class="home-section-title"><i class="fa-solid fa-layer-group"></i> 專題核心：三階段自動化進階架構</h3>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">傳統工控系統往往受限於 PLC 封閉式硬體與梯形圖（Ladder Diagram）的計算瓶頸。本專題採用 PC-Based 架構，將 C# 的物件導向與大數據運算優勢，與 PLC 高可靠性的底層 I/O 執行力完美融合，依序推進三階段能力：</p>
+      
+      <div class="stages-grid">
+        <!-- 階段一 -->
+        <div class="stage-card">
+          <span class="stage-card-num">01</span>
+          <span class="stage-tag tag-s1">第一階段</span>
+          <h4 style="color: #38bdf8; margin-bottom: 10px; font-size: 1.15rem;">I/O 監控 (純監視)</h4>
+          <ul style="padding-left: 18px; color: #cbd5e1; font-size: 0.9rem; line-height: 1.7;">
+            <li><strong>實體操作</strong>：由現場實體按鈕啟動與停止。</li>
+            <li><strong>程式邏輯</strong>：完整控制梯形圖儲存並執行於 PLC。</li>
+            <li><strong>PC 職責</strong>：PC 透過 RS-232 以 100ms 頻率定時輪詢讀取 X、Y、M 接點狀態，於人機介面（HMI）模擬實體指示燈閃爍與數據呈現。</li>
+          </ul>
+        </div>
+
+        <!-- 階段二 -->
+        <div class="stage-card">
+          <span class="stage-card-num">02</span>
+          <span class="stage-tag tag-s2">第二階段</span>
+          <h4 style="color: #c084fc; margin-bottom: 10px; font-size: 1.15rem;">虛擬按鈕與輸出控制</h4>
+          <ul style="padding-left: 18px; color: #cbd5e1; font-size: 0.9rem; line-height: 1.7;">
+            <li><strong>軟體操作</strong>：HMI 畫面建立虛擬按鈕與觸控開關。</li>
+            <li><strong>雙向通訊</strong>：C# 發送三菱強制 ON/OFF 命令（CMD '7' / '8'）直接改變 Y 接點或 M 內部繼電器。</li>
+            <li><strong>程式分工</strong>：PLC 負責底層硬體互鎖與安全極限保護，PC 實現遠端操作與排程自動啟停。</li>
+          </ul>
+        </div>
+
+        <!-- 階段三 -->
+        <div class="stage-card">
+          <span class="stage-card-num">03</span>
+          <span class="stage-tag tag-s3">第三階段</span>
+          <h4 style="color: #34d399; margin-bottom: 10px; font-size: 1.15rem;">PC-Based 集中演算法</h4>
+          <ul style="padding-left: 18px; color: #cbd5e1; font-size: 0.9rem; line-height: 1.7;">
+            <li><strong>大腦轉移</strong>：核心生產邏輯與決策演算法完全在 PC (C#) 上執行。</li>
+            <li><strong>高階整合</strong>：結合資料庫、影像辨識、配方管理與雲端 IoT 串接。</li>
+            <li><strong>PLC 角色</strong>：PLC 降為純粹的「高穩定度分散式 I/O 執行端（Slave）」，以高速序列協定即時執行 PC 指令。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 互動式工控工具箱 (Interactive Workbench) -->
+    <section class="section-container" style="margin-top: 40px;">
+      <h3 class="home-section-title"><i class="fa-solid fa-toolbox"></i> 互動式工控工具箱：CheckSum 計算器與指令產生器</h3>
+      <p style="color: var(--text-muted);">工控通訊中最容易卡關的是十六進制運算與 CheckSum 偵誤碼錯誤。利用下方互動工具，學員可即時驗證封包與計算結果：</p>
+      
+      <div class="interactive-tool-grid">
+        <!-- 工具 1：CheckSum 計算器 -->
+        <div class="tool-box-card">
+          <div class="tool-box-header">
+            <i class="fa-solid fa-calculator"></i>
+            <div>
+              <h4>三菱 FX 編程口 CheckSum 偵誤碼計算器</h4>
+              <span style="font-size: 0.75rem; color: #64748b;">演算法：累加 CMD 至 ETX 的所有 Byte，取 (Sum & 0xFF) 轉 ASCII</span>
+            </div>
+          </div>
+          
+          <div class="tool-input-group">
+            <label for="hexInput">輸入十六進制 Byte 串列（包含 CMD 到 ETX 03）：</label>
+            <input type="text" id="hexInput" class="tool-input" value="30 30 45 30 32 30 32 03" placeholder="例如：30 30 45 30 32 30 32 03">
+          </div>
+          
+          <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <button type="button" class="tool-btn-calc" onclick="calculateCheckSum()">
+              <i class="fa-solid fa-bolt"></i> 計算 CheckSum
+            </button>
+            <button type="button" class="tool-btn-calc" style="background: #334155; color: #fff;" onclick="loadPresetExample('d8001')">
+              載入讀D8001
+            </button>
+            <button type="button" class="tool-btn-calc" style="background: #334155; color: #fff;" onclick="loadPresetExample('y1on')">
+              載入強制Y1 ON
+            </button>
+          </div>
+
+          <div class="tool-result-panel" id="checksumResult">
+            <div class="result-row">
+              <span class="result-label">Byte 數目：</span>
+              <span class="result-val" id="resByteCount">8 Bytes</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">數值累加總和 (Sum)：</span>
+              <span class="result-val" id="resSumDec">364 (0x16C)</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">取低 8 位 (Sum & 0xFF)：</span>
+              <span class="result-val highlight" id="resLowHex">0x6C ('6', 'C')</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">CheckSum ASCII Hex 碼：</span>
+              <span class="result-val highlight" id="resAsciiHex">36 43</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">完整傳送封包 (含 STX 02)：</span>
+              <span class="result-val highlight" id="resFullPacket" style="word-break: break-all;">02 30 30 45 30 32 30 32 03 36 43</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 工具 2：FX3U 常用命令產生器 -->
+        <div class="tool-box-card">
+          <div class="tool-box-header">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <div>
+              <h4>常用指令一鍵生成與封包欄位拆解</h4>
+              <span style="font-size: 0.75rem; color: #64748b;">自動組裝 STX + CMD + Address + Data + ETX + SUM</span>
+            </div>
+          </div>
+
+          <div class="tool-input-group">
+            <label for="cmdSelect">選擇欲產生的 PLC 操作命令：</label>
+            <select id="cmdSelect" class="tool-input" onchange="generatePLCCommand()">
+              <option value="read_d8001">讀取 PLC 型號與韌體版本 (讀 D8001, 2 Bytes)</option>
+              <option value="read_d8005">讀取 PLC 電池電壓 (讀 D8005, 2 Bytes)</option>
+              <option value="read_y0_y17">讀取 Y0~Y17 輸出狀態 (讀 2 Bytes)</option>
+              <option value="read_x0_x17">讀取 X0~X17 輸入狀態 (讀 2 Bytes)</option>
+              <option value="read_m0_m31">讀取 M0~M31 輔助繼電器 (讀 4 Bytes)</option>
+              <option value="force_y1_on">強制 Y1 接點 ON (CMD '7', Addr 0x0501)</option>
+              <option value="force_y1_off">強制 Y1 接點 OFF (CMD '8', Addr 0x0501)</option>
+              <option value="force_m15_on">強制 M15 接點 ON (CMD '7', Addr 0x080F)</option>
+              <option value="write_d0_256">寫入數值 256 (0x0100) 到暫存器 D0</option>
+            </select>
+          </div>
+
+          <div style="margin: 12px 0;">
+            <span style="font-size: 0.85rem; color: #94a3b8;">封包結構即時拆解：</span>
+            <div class="packet-strip" id="packetBreakdown">
+              <!-- JS 自動渲染晶片 -->
+            </div>
+          </div>
+
+          <div class="tool-result-panel">
+            <div class="result-row">
+              <span class="result-label">ASCII 命令字串：</span>
+              <span class="result-val highlight" id="cmdAsciiStr">STX 0 0E02 02 ETX 6C</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">16進位 Hex 序列：</span>
+              <span class="result-val highlight" id="cmdHexStr" style="word-break: break-all;">02 30 30 45 30 32 30 32 03 36 43</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">預期 PLC 回傳格式：</span>
+              <span class="result-val" id="cmdExpectedReturn" style="font-size: 0.8rem; color: #cbd5e1;">02 [Data] 03 [SUM]</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 三大實作 LAB 詳細攻略 -->
+    <section class="section-container" style="margin-top: 50px;">
+      <h3 class="home-section-title"><i class="fa-solid fa-flask-vial"></i> 三大專題實作 LAB 全面剖析</h3>
+      
+      <div class="project-steps-timeline">
+        
+        <!-- LAB 1 -->
+        <div class="timeline-step-card">
+          <div class="step-badge-num">LAB 1</div>
+          <div class="step-content-detail">
+            <h4>PC 與 PC 序列通訊實作（RS-232 電氣與 ASCII/Hex 雙向轉換）</h4>
+            <p class="step-summary-sub">掌握 RS-232 硬體接線（Null Modem）、通訊參數設定以及字元 (char) 與十六進制 (Hex) 的互轉機制。</p>
+            <div class="step-sub-box">
+              <h5><i class="fa-solid fa-list-check"></i> 實作要點與實驗步驟：</h5>
+              <ol>
+                <li><strong>硬體迴路跳線（交叉跳接）</strong>：
+                  <ul>
+                    <li>電腦 A 端的 <strong>Pin 3 (TXD 傳送)</strong> 連接到電腦 B 端的 <strong>Pin 2 (RXD 接收)</strong>。</li>
+                    <li>電腦 A 端的 <strong>Pin 2 (RXD 接收)</strong> 連接到電腦 B 端的 <strong>Pin 3 (TXD 傳送)</strong>。</li>
+                    <li>兩端 <strong>Pin 5 (GND 地線)</strong> 必須牢固共地，以消除電位差引發的通訊亂碼。</li>
+                  </ul>
+                </li>
+                <li><strong>序列通訊四重交叉測試</strong>：
+                  <table class="fx-table" style="margin: 10px 0;">
+                    <tr><th>實驗組別</th><th>傳送端格式</th><th>接收端格式</th><th>實測範例內容</th></tr>
+                    <tr><td>組別 1</td><td>字元 (char)</td><td>字元 (char)</td><td><code>Hello, How are you</code></td></tr>
+                    <tr><td>組別 2</td><td>十六進位 (Hex)</td><td>十六進位 (Hex)</td><td><code>48 65 6C 6C 6F 2C 20 48 6F 77...</code></td></tr>
+                    <tr><td>組別 3</td><td>十六進位 (Hex)</td><td>字元 (char)</td><td>傳送 <code>49 20 61 6D 20 52 69 64 6F</code> ➔ 接收 <code>I am Rido</code></td></tr>
+                    <tr><td>組別 4</td><td>字元 (char)</td><td>十六進位 (Hex)</td><td>傳送 <code>I am Rido</code> ➔ 接收 <code>49 20 61 6D 20 52 69 64 6F</code></td></tr>
+                  </table>
+                </li>
+                <li><strong>演算法解析：C# / JS 文字與 Hex 互轉核心演算法</strong>：
+                  <pre class="code-block-dark"><code>// 字串轉十六進制 Hex
+public static string StringToHex(string input) {
+    byte[] bytes = Encoding.ASCII.GetBytes(input);
+    return BitConverter.ToString(bytes).Replace("-", " ");
+}
+
+// 十六進制 Hex 轉回字串
+public static string HexToString(string hexInput) {
+    string[] hexValues = hexInput.Split(' ');
+    byte[] bytes = new byte[hexValues.Length];
+    for (int i = 0; i < hexValues.Length; i++) {
+        bytes[i] = Convert.ToByte(hexValues[i], 16);
+    }
+    return Encoding.ASCII.GetString(bytes);
+}</code></pre>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- LAB 2 -->
+        <div class="timeline-step-card">
+          <div class="step-badge-num">LAB 2</div>
+          <div class="step-content-detail">
+            <h4>PC 與三菱 PLC 連線通訊與暫存器讀寫（編程口協定解碼）</h4>
+            <p class="step-summary-sub">解密三菱 FX 系列編程口協定（Computer Link Protocol），完成與實體 FX3U PLC 的雙向通訊。</p>
+            <div class="step-sub-box">
+              <h5><i class="fa-solid fa-list-check"></i> 實作要點與封包詳解：</h5>
+              <ol>
+                <li><strong>通訊協商與握手機制</strong>：
+                  <ul>
+                    <li>PC 發送詢問信號 <code>ENQ (0x05)</code> ➔ PLC 確認就緒回傳 <code>ACK (0x06)</code>。</li>
+                    <li>若通訊格式錯誤或同位校驗失敗，PLC 回應 <code>NAK (0x15)</code>。</li>
+                  </ul>
+                </li>
+                <li><strong>實機驗證 1：讀取 PLC 型號與韌體版本（讀 D8001）</strong>：
+                  <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 6px; margin: 8px 0; font-family: 'Fira Code', monospace; font-size: 0.85rem;">
+                    <div style="color: #38bdf8;">» PC 傳送：02 30 30 45 30 32 30 32 03 36 43</div>
+                    <div style="color: #34d399; margin-top: 4px;">« PLC 回傳：02 46 45 35 45 03 30 38</div>
+                  </div>
+                  <p style="font-size: 0.85rem; color: #94a3b8;">
+                    <strong>解碼分析</strong>：回傳資料為 <code>46 45 35 45</code>（ASCII 字元 <code>F E 5 E</code>）。高低位組反轉（Little-Endian）重組為 <code>0x5EFE</code>（十進位 24,318），對照三菱硬體手冊判定為 <strong>FX3U 系列 PLC</strong>！
+                  </p>
+                </li>
+                <li><strong>實機驗證 2：讀取 PLC 鋰電池電壓（讀 D8005）</strong>：
+                  <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 6px; margin: 8px 0; font-family: 'Fira Code', monospace; font-size: 0.85rem;">
+                    <div style="color: #38bdf8;">» PC 傳送：02 30 30 45 30 41 30 32 03 37 42 （位址 0x0E0A）</div>
+                    <div style="color: #34d399; margin-top: 4px;">« PLC 回傳：02 32 30 30 30 03 43 35 （數值 0x0020 = 32 即 3.2V，正常無欠壓）</div>
+                  </div>
+                </li>
+                <li><strong>實機驗證 3：讀取 Y0~Y17 輸出狀態</strong>：
+                  <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 6px; margin: 8px 0; font-family: 'Fira Code', monospace; font-size: 0.85rem;">
+                    <div style="color: #38bdf8;">» PC 傳送：02 30 30 30 41 30 30 32 03 36 36 （位址 0x00A0 讀 2 Bytes）</div>
+                    <div style="color: #34d399; margin-top: 4px;">« PLC 回傳：02 30 31 30 30 03 43 34 （資料 0x0100 ➔ 代表 Y0 = ON）</div>
+                  </div>
+                </li>
+                <li><strong>實機驗證 4：寫入數值至暫存器 D0 與 D1</strong>：
+                  <ul>
+                    <li><strong>寫入 D0 = 0x0100 (256)</strong>：PC 發送 <code>02 31 31 30 30 30 30 32 30 30 30 31 03 31 38</code> ➔ PLC 回應 <code>06 (ACK)</code>。</li>
+                    <li><strong>連續寫入 D0=0x1234, D1=0x5678</strong>：PC 發送 <code>02 31 31 30 30 30 30 34 33 34 31 32 37 38 35 36 03 36 44</code> ➔ PLC 回應 <code>06 (ACK)</code>。</li>
+                  </ul>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- LAB 3 -->
+        <div class="timeline-step-card">
+          <div class="step-badge-num">LAB 3</div>
+          <div class="step-content-detail">
+            <h4>強制接點控制與實體機構驅動（CMD '7' ON / '8' OFF 實時控制）</h4>
+            <p class="step-summary-sub">利用位元強制指令，由 C# 人機介面直接切換 PLC 外部輸出繼電器與電磁閥。</p>
+            <div class="step-sub-box">
+              <h5><i class="fa-solid fa-list-check"></i> 實作要點與強制指令矩陣：</h5>
+              <ol>
+                <li><strong>位元強制命令格式</strong>：
+                  <div style="margin: 8px 0; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #cbd5e1;">
+                    <code>[STX:02] + [CMD: '7' 或 '8'] + [位址低位: 2 Byte] + [位址高位: 2 Byte] + [ETX:03] + [CheckSum: 2 Byte]</code>
+                  </div>
+                </li>
+                <li><strong>強制 Y1 ON / OFF 實機操作</strong>：
+                  <ul>
+                    <li>Y1 元件位址為 <code>0x0501</code>，拆解為低位組 <code>01</code>（ASCII: <code>30 31</code>）與高位組 <code>05</code>（ASCII: <code>30 35</code>）。</li>
+                    <li><strong>強制 Y1 ON</strong>：
+                      <code>» 02 37 30 31 30 35 03 30 30</code> ➔ PLC 回應 <code>« 06</code>（實體 Y1 繼電器吸合，紅燈亮起！）。
+                    </li>
+                    <li><strong>強制 Y1 OFF</strong>：
+                      <code>» 02 38 30 31 30 35 03 30 31</code> ➔ PLC 回應 <code>« 06</code>（實體 Y1 繼電器斷開，紅燈熄滅！）。
+                    </li>
+                  </ul>
+                </li>
+                <li><strong>強制 M15 內部輔助繼電器 ON / OFF</strong>：
+                  <ul>
+                    <li>M15 元件位址為 <code>0x080F</code>，倒置傳送 <code>0F 08</code>（ASCII: <code>30 46 30 38</code>）。</li>
+                    <li><strong>強制 M15 ON</strong>：<code>» 02 37 30 46 30 38 03 31 38</code> ➔ PLC 回應 <code>« 06</code>。</li>
+                    <li><strong>強制 M15 OFF</strong>：<code>» 02 38 30 46 30 38 03 31 39</code> ➔ PLC 回應 <code>« 06</code>。</li>
+                  </ul>
+                </li>
+                <li><strong>Y0 ~ Y7 強制指令對照矩陣速查表</strong>：
+                  <table class="fx-table">
+                    <tr><th>輸出接點</th><th>動作</th><th>發送完整十六進制命令封包 (HEX)</th><th>PLC 回應</th></tr>
+                    <tr><td rowspan="2"><strong>Y0</strong></td><td><span style="color: #34d399; font-weight: 700;">ON</span></td><td><code>02 37 30 30 30 35 03 46 46</code></td><td><code>06 (ACK)</code></td></tr>
+                    <tr><td><span style="color: #ef4444; font-weight: 700;">OFF</span></td><td><code>02 38 30 30 30 35 03 30 30</code></td><td><code>06 (ACK)</code></td></tr>
+                    <tr><td rowspan="2"><strong>Y1</strong></td><td><span style="color: #34d399; font-weight: 700;">ON</span></td><td><code>02 37 30 31 30 35 03 30 30</code></td><td><code>06 (ACK)</code></td></tr>
+                    <tr><td><span style="color: #ef4444; font-weight: 700;">OFF</span></td><td><code>02 38 30 31 30 35 03 30 31</code></td><td><code>06 (ACK)</code></td></tr>
+                    <tr><td rowspan="2"><strong>Y2</strong></td><td><span style="color: #34d399; font-weight: 700;">ON</span></td><td><code>02 37 30 32 30 35 03 30 31</code></td><td><code>06 (ACK)</code></td></tr>
+                    <tr><td><span style="color: #ef4444; font-weight: 700;">OFF</span></td><td><code>02 38 30 32 30 35 03 30 32</code></td><td><code>06 (ACK)</code></td></tr>
+                    <tr><td rowspan="2"><strong>Y3</strong></td><td><span style="color: #34d399; font-weight: 700;">ON</span></td><td><code>02 37 30 33 30 35 03 30 32</code></td><td><code>06 (ACK)</code></td></tr>
+                    <tr><td><span style="color: #ef4444; font-weight: 700;">OFF</span></td><td><code>02 38 30 33 30 35 03 30 33</code></td><td><code>06 (ACK)</code></td></tr>
+                  </table>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 核心知識庫：序列介面規格與位址映射全表 -->
+    <section class="section-container" style="margin-top: 40px;">
+      <h3 class="home-section-title"><i class="fa-solid fa-book-atlas"></i> 核心知識庫：通訊規格與元件位址速查手冊</h3>
+      
+      <div class="project-grid-two">
+        <!-- 左卡片：RS232 vs RS422 vs RS485 對照 -->
+        <div class="text-card-glow">
+          <h4><i class="fa-solid fa-microchip"></i> 工業序列通訊介面對比</h4>
+          <table class="fx-table" style="font-size: 0.84rem;">
+            <tr><th>介面</th><th>傳輸模式</th><th>抗干擾機制</th><th>最大距離</th><th>節點數</th></tr>
+            <tr>
+              <td><strong>RS-232</strong></td>
+              <td>單端 (Single-ended)</td>
+              <td>±12V 高電壓</td>
+              <td>約 15 公尺</td>
+              <td>1 對 1 (點對點)</td>
+            </tr>
+            <tr>
+              <td><strong>RS-422</strong></td>
+              <td>差動 (Differential)</td>
+              <td>雙絞線差動平衡</td>
+              <td>約 1200 公尺</td>
+              <td>1 主 10 從 (全雙工)</td>
+            </tr>
+            <tr>
+              <td><strong>RS-485</strong></td>
+              <td>差動 (Differential)</td>
+              <td>抑制共模干擾</td>
+              <td>約 1200 公尺</td>
+              <td>多點匯流排 (半雙工)</td>
+            </tr>
+          </table>
+          <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 10px;">
+            <i class="fa-solid fa-circle-info" style="color: #38bdf8;"></i> <strong>雙絞線（Twisted Pair）原理</strong>：透過兩條絕緣銅線順時針纏繞螺旋，使外部電磁干擾在兩條導線上感應出同相位的共模雜訊，經接收端差動放大器相減消除，達成強悍的工業抗噪能力。
+          </p>
+        </div>
+
+        <!-- 右卡片：三菱 FX 系列元件位址換算公式 -->
+        <div class="text-card-glow">
+          <h4><i class="fa-solid fa-map-location-dot"></i> 三菱 FX 記憶體位址映射公式表</h4>
+          <table class="fx-table" style="font-size: 0.84rem;">
+            <tr><th>元件群類別</th><th>位址計算公式 (Hex)</th><th>實例換算說明</th></tr>
+            <tr>
+              <td><strong>D 暫存器</strong></td>
+              <td><code>0x1000 + (D_Index * 2)</code></td>
+              <td>D0 = <code>0x1000</code>, D4 = <code>0x1008</code></td>
+            </tr>
+            <tr>
+              <td><strong>T 計時器</strong></td>
+              <td><code>0x00C0 + T_Index</code></td>
+              <td>T0 = <code>0x00C0</code>, T10 = <code>0x00CA</code></td>
+            </tr>
+            <tr>
+              <td><strong>C 計數器</strong></td>
+              <td><code>0x01C0 + (C_Index * 2)</code></td>
+              <td>C0 = <code>0x01C0</code>, C1 = <code>0x01C2</code></td>
+            </tr>
+            <tr>
+              <td><strong>X 輸入群組</strong></td>
+              <td>基準 <code>0x0080</code> 起</td>
+              <td>X0~X17 讀取位址 = <code>0x0080</code></td>
+            </tr>
+            <tr>
+              <td><strong>Y 輸出群組</strong></td>
+              <td>基準 <code>0x00A0</code> 起</td>
+              <td>Y0~Y17 讀取位址 = <code>0x00A0</code></td>
+            </tr>
+            <tr>
+              <td><strong>M 輔助繼電器</strong></td>
+              <td>基準 <code>0x0100</code> 起</td>
+              <td>M0~M31 讀取位址 = <code>0x0100</code></td>
+            </tr>
+          </table>
+          <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 10px;">
+            <i class="fa-solid fa-triangle-exclamation" style="color: #fbbf24;"></i> <strong>注意位元組順序（Endianness）</strong>：在通訊封包中，16 位元數值皆採「低位元組在前、高位元組在後」傳送，務必注意 Byte 翻轉處理！
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 延伸技術：編碼演進與半導體 SECS/GEM 通信標準 -->
+    <section class="section-container" style="margin-top: 40px;">
+      <h3 class="home-section-title"><i class="fa-solid fa-arrow-trend-up"></i> 工業技術延伸：從 PC-Based 邁向半導體設備通訊 (SECS/GEM)</h3>
+      <div class="project-grid-two">
+        <div class="text-card-glow">
+          <h4><i class="fa-solid fa-font"></i> 電腦編碼體系演進史</h4>
+          <ul style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.8;">
+            <li><strong>ASCII（7-bit，0x00~0x7F）</strong>：定義 128 個字元，涵蓋英數字與基本控制碼（CR、LF、STX、ETX）。</li>
+            <li><strong>ANSI / Big5（繁體中文大五碼）</strong>：利用 1 至 2 個位元組擴充收錄 13,060 個正體中文字，但在跨國跨平台系統極易產生亂碼。</li>
+            <li><strong>Unicode（萬國碼）</strong>：統一全球所有語言字符的唯一標籤碼點（0x0000 ~ 0x10FFFF）。</li>
+            <li><strong>UTF-8</strong>：變長式編碼（1 至 4 位元組），向下相容 ASCII 且節省儲存空間，為現代工業軟體與 Web 之標準。</li>
+          </ul>
+        </div>
+        
+        <div class="text-card-glow">
+          <h4><i class="fa-solid fa-industry"></i> 半導體設備通信協定標準 (SECS/GEM)</h4>
+          <ul style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.8;">
+            <li><strong>SECS-I (E4) / HSMS (E37)</strong>：半導體機台與中央主機間之序列與 TCP/IP 傳輸層協定。</li>
+            <li><strong>SECS-II (E5)</strong>：定義訊息封包之階層結構與語義標準（Stream 與 Function）。</li>
+            <li><strong>GEM (E30) / GEM300 (E39, E40, E87, E90, E94)</strong>：12 吋晶圓廠天車與自動化物料搬運（OHT / FOUP）標準。學員掌握 PC-Based 協定封包拆解概念，即可無縫銜接高薪半導體設備軟體開發！</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 學習成效與產線指標 -->
+    <section class="section-container" style="margin-bottom: 60px; margin-top: 40px;">
+      <h3 class="home-section-title"><i class="fa-solid fa-award"></i> 專題學習成果與工業效益指標</h3>
+      <div class="syllabus-columns">
+        <div class="syllabus-col-card" style="border-top-color: #38bdf8;">
+          <div class="col-header" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; padding: 15px 20px;">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <div>
+              <h4 style="color: var(--text-main);">學員技能養成</h4>
+              <span style="color: var(--text-muted);">完成本專題後的就業實戰硬核能力</span>
+            </div>
+          </div>
+          <div class="col-body" style="padding: 20px;">
+            <ul>
+              <li><strong>協定逆向解碼力</strong>：具備獨立查閱工控通訊手冊、自行組裝封包與計算 CheckSum/CRC 的核心能力。</li>
+              <li><strong>C# PC-Based 實戰力</strong>：熟練運用 .NET <code>SerialPort</code> 類別開發非同步、事件驅動的高性能通訊中控軟體。</li>
+              <li><strong>除錯與架構思維</strong>：能利用串口調試助手、虛擬 COM Port 與邏輯分析儀快速定位現場通訊故障。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="syllabus-col-card" style="border-top-color: #10b981;">
+          <div class="col-header" style="background: rgba(16, 185, 129, 0.08); color: var(--accent-green); padding: 15px 20px;">
+            <i class="fa-solid fa-chart-line"></i>
+            <div>
+              <h4 style="color: var(--text-main);">產線數位轉型效益</h4>
+              <span style="color: var(--text-muted);">工廠導入 PC-Based 架構之指標提升</span>
+            </div>
+          </div>
+          <div class="col-body" style="padding: 20px;">
+            <ul>
+              <li><strong>硬體成本節省 40%</strong>：以工業電腦 (IPC) 取代昂貴專用觸控螢幕，並具備無限制擴充性。</li>
+              <li><strong>資料可追溯性達 100%</strong>：生產履歷、設備電壓、故障碼直接寫入 PC 端 SQL 資料庫。</li>
+              <li><strong>設備停機時間降低 60%</strong>：即時監測 PLC 暫存器警報，異常發生 0.1 秒內通報中控室。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="home-footer" style="border-top: 1px solid var(--border-color); padding: 30px 0; margin-top: 40px;">
+      <p>&copy; 2026 五股職訓局（作者：Rido老師） - 機電AI_115-1期 | PC-Based 控制三菱 PLC FX3U 專題手冊</p>
+      <p style="font-size: 0.8rem; color: #64748b; margin-top: 8px;">注意：本專題投影片及實作規範僅供本地實習教學使用，請勿上傳雲端。</p>
+    </footer>
+  </div>
+
+  <!-- JavaScript 互動腳本：CheckSum 計算與封包生成 -->
+  <script>
+    // 1. CheckSum 計算邏輯
+    function calculateCheckSum() {
+      const inputStr = document.getElementById("hexInput").value.trim();
+      if (!inputStr) return;
+
+      const hexParts = inputStr.split(/[\s,]+/).filter(h => h.length > 0);
+      let totalSum = 0;
+      
+      try {
+        hexParts.forEach(hex => {
+          totalSum += parseInt(hex, 16);
+        });
+
+        const byteCount = hexParts.length;
+        const sumHex = totalSum.toString(16).toUpperCase();
+        
+        // 取最後兩位十六進制 (Modulo 256)
+        const lowByte = (totalSum & 0xFF).toString(16).toUpperCase().padStart(2, '0');
+        
+        // 轉為 ASCII 的十六進位值
+        const asciiChar1 = lowByte.charCodeAt(0).toString(16).toUpperCase();
+        const asciiChar2 = lowByte.charCodeAt(1).toString(16).toUpperCase();
+        const asciiHexStr = `${asciiChar1} ${asciiChar2}`;
+
+        // 完整封包 (前置 STX 02)
+        let fullPacket = "02 " + hexParts.join(" ") + " " + asciiHexStr;
+
+        document.getElementById("resByteCount").innerText = `${byteCount} Bytes`;
+        document.getElementById("resSumDec").innerText = `${totalSum} (0x${sumHex})`;
+        document.getElementById("resLowHex").innerText = `0x${lowByte} ('${lowByte[0]}', '${lowByte[1]}')`;
+        document.getElementById("resAsciiHex").innerText = asciiHexStr;
+        document.getElementById("resFullPacket").innerText = fullPacket;
+      } catch (e) {
+        alert("十六進制輸入格式錯誤，請輸入以空格分隔的 Hex 字串（如 30 0E 02 03）");
+      }
+    }
+
+    // 載入預設範例
+    function loadPresetExample(type) {
+      if (type === 'd8001') {
+        document.getElementById("hexInput").value = "30 30 45 30 32 30 32 03";
+      } else if (type === 'y1on') {
+        document.getElementById("hexInput").value = "37 30 31 30 35 03";
+      }
+      calculateCheckSum();
+    }
+
+    // 2. 指令產生器與封包拆解
+    const cmdDatabase = {
+      read_d8001: {
+        title: "讀取 D8001 (PLC 型號)",
+        cmd: "30",
+        addr: ["30", "45", "30", "32"], // 0E02
+        bytes: ["30", "32"],
+        data: [],
+        expected: "02 46 45 35 45 03 30 38 (0x5EFE = FX3U)"
+      },
+      read_d8005: {
+        title: "讀取 D8005 (電池電壓)",
+        cmd: "30",
+        addr: ["30", "45", "30", "41"], // 0E0A
+        bytes: ["30", "32"],
+        data: [],
+        expected: "02 32 30 30 30 03 43 35 (0x0020 = 3.2V)"
+      },
+      read_y0_y17: {
+        title: "讀取 Y0~Y17 狀態",
+        cmd: "30",
+        addr: ["30", "30", "41", "30"], // 00A0
+        bytes: ["30", "32"],
+        data: [],
+        expected: "02 30 31 30 30 03 43 34 (若 Y0 ON)"
+      },
+      read_x0_x17: {
+        title: "讀取 X0~X17 狀態",
+        cmd: "30",
+        addr: ["30", "30", "38", "30"], // 0080
+        bytes: ["30", "32"],
+        data: [],
+        expected: "02 30 30 30 30 03 43 33 (所有 X 斷開)"
+      },
+      read_m0_m31: {
+        title: "讀取 M0~M31 輔助繼電器",
+        cmd: "30",
+        addr: ["30", "31", "30", "30"], // 0100
+        bytes: ["30", "34"],
+        data: [],
+        expected: "02 38 30 46 43 30 33 30 30 03 42 37"
+      },
+      force_y1_on: {
+        title: "強制 Y1 接點 ON",
+        cmd: "37",
+        addr: ["30", "31", "30", "35"], // 0501 倒置
+        bytes: [],
+        data: [],
+        expected: "06 (ACK 確認回應)"
+      },
+      force_y1_off: {
+        title: "強制 Y1 接點 OFF",
+        cmd: "38",
+        addr: ["30", "31", "30", "35"], // 0501 倒置
+        bytes: [],
+        data: [],
+        expected: "06 (ACK 確認回應)"
+      },
+      force_m15_on: {
+        title: "強制 M15 接點 ON",
+        cmd: "37",
+        addr: ["30", "46", "30", "38"], // 080F 倒置
+        bytes: [],
+        data: [],
+        expected: "06 (ACK 確認回應)"
+      },
+      write_d0_256: {
+        title: "寫入 D0 = 256 (0x0100)",
+        cmd: "31",
+        addr: ["31", "30", "30", "30"], // 1000
+        bytes: ["30", "32"],
+        data: ["30", "30", "30", "31"], // 0100 倒置
+        expected: "06 (ACK 確認回應)"
+      }
+    };
+
+    function generatePLCCommand() {
+      const selectVal = document.getElementById("cmdSelect").value;
+      const item = cmdDatabase[selectVal];
+      if (!item) return;
+
+      const container = document.getElementById("packetBreakdown");
+      container.innerHTML = "";
+
+      // 建立封包陣列
+      // STX: 02
+      let packetElements = [
+        { hex: "02", name: "STX", type: "chip-stx" }
+      ];
+
+      // CMD
+      packetElements.push({ hex: item.cmd, name: "CMD", type: "chip-cmd" });
+
+      // Addr
+      item.addr.forEach((a, i) => {
+        packetElements.push({ hex: a, name: `AD${i+1}`, type: "chip-addr" });
+      });
+
+      // Bytes
+      item.bytes.forEach((b, i) => {
+        packetElements.push({ hex: b, name: `LEN${i+1}`, type: "chip-len" });
+      });
+
+      // Data
+      item.data.forEach((d, i) => {
+        packetElements.push({ hex: d, name: `DT${i+1}`, type: "chip-data" });
+      });
+
+      // ETX
+      packetElements.push({ hex: "03", name: "ETX", type: "chip-etx" });
+
+      // 計算 CheckSum (從 CMD 到 ETX)
+      let sum = 0;
+      for (let i = 1; i < packetElements.length; i++) {
+        sum += parseInt(packetElements[i].hex, 16);
+      }
+      const lowByte = (sum & 0xFF).toString(16).toUpperCase().padStart(2, '0');
+      const sum1 = lowByte.charCodeAt(0).toString(16).toUpperCase();
+      const sum2 = lowByte.charCodeAt(1).toString(16).toUpperCase();
+
+      packetElements.push({ hex: sum1, name: "SUM1", type: "chip-sum" });
+      packetElements.push({ hex: sum2, name: "SUM2", type: "chip-sum" });
+
+      // 渲染晶片
+      packetElements.forEach(el => {
+        const chip = document.createElement("div");
+        chip.className = `packet-chip ${el.type}`;
+        chip.innerHTML = `<span class="chip-hex">${el.hex}</span><span class="chip-name">${el.name}</span>`;
+        container.appendChild(chip);
+      });
+
+      // 組合結果字串
+      const hexList = packetElements.map(e => e.hex).join(" ");
+      document.getElementById("cmdHexStr").innerText = hexList;
+      
+      // ASCII 解讀
+      let asciiChars = packetElements.map(e => {
+        if (e.hex === "02") return "[STX]";
+        if (e.hex === "03") return "[ETX]";
+        return String.fromCharCode(parseInt(e.hex, 16));
+      }).join(" ");
+      document.getElementById("cmdAsciiStr").innerText = asciiChars;
+      document.getElementById("cmdExpectedReturn").innerText = item.expected;
+    }
+
+    // 初始化執行一次
+    window.addEventListener("DOMContentLoaded", () => {
+      calculateCheckSum();
+      generatePLCCommand();
+    });
+  </script>
+</body>
+</html>
