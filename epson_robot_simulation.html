@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G-Code 轉 Epson C4 6軸手臂工作台與 3D 模擬器</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Three.js CDN for 3D Robot Arm Simulation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+  
+  <style>
+    body {
+      background-color: #090d16;
+      color: #f1f5f9;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .grid-bg {
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .code-font {
+      font-family: 'Fira Code', 'Courier New', Courier, monospace;
+    }
+    canvas {
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col pb-12 select-none">
+
+  <!-- 頂部導覽列快捷按鈕 -->
+  <div style="position: sticky; top: 0; z-index: 9999; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <a href="project_epson_robot.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; background: rgba(6, 182, 212, 0.2); border: 1px solid rgba(6, 182, 212, 0.45); color: #06b6d4; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: all 0.2s;">
+        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        回 Epson 手臂專題主頁
+      </a>
+      <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; text-decoration: none; font-size: 0.85rem; transition: all 0.2s;">
+        首頁
+      </a>
+      <span style="color: #06b6d4; font-size: 0.82rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        Epson C4 3D 模擬器 & G-Code / SPEL+ 軌跡工作台
+      </span>
+    </div>
+    <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 500;">
+      五股職訓局 機電 AI 115-1 期 實務專題
+    </span>
+  </div>
+
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="bg-gradient-to-tr from-indigo-600 to-cyan-500 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/20">
+        <i data-lucide="bot" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+          G-Code / SPEL+ 軌跡工作台與 Epson C4 6軸手臂 3D 模擬器
+        </h1>
+        <p class="text-xs text-slate-400">工業手臂塗膠軌跡轉換、SPEL+ 語法解析與 Epson C4 運動學模擬</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-xs">
+      <span class="px-3 py-1 bg-indigo-950/80 border border-indigo-800/60 rounded-full text-indigo-300 font-medium flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Epson C4 Digital Twin Active
+      </span>
+    </div>
+  </header>
+
+  <main class="max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-8">
+
+    <section class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl">
+            <i data-lucide="pencil-ruler" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              2D 軌跡繪製與 G-Code / SPEL+ 程式碼產生器
+            </h2>
+            <p class="text-xs text-slate-400">在網格畫布自由繪圖或點選三點圓弧，自動生成工業切削與塗膠代碼</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- 左側：2D 畫布區 (7 Cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 shadow-md">
+            <div class="flex items-center gap-2">
+              <button id="btn-mode-freehand" onclick="setDrawMode('freehand')" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition bg-indigo-600 text-white shadow">
+                <i data-lucide="pencil" class="w-3.5 h-3.5"></i> 自由畫線 (Line)
+              </button>
+              <button id="btn-mode-arc" onclick="setDrawMode('arc')" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 hover:bg-slate-700 text-slate-300">
+                <i data-lucide="orbit" class="w-3.5 h-3.5"></i> 三點圓弧 (Arc)
+              </button>
+              <button onclick="loadSamplePattern()" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 hover:bg-slate-700 text-slate-300">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> 預設軌跡
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="startTcpSimulation()" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white transition shadow">
+                <i data-lucide="play" class="w-3.5 h-3.5"></i> 2D 走刀模擬
+              </button>
+              <button onclick="clearCanvas()" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 transition">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 清除畫布
+              </button>
+            </div>
+          </div>
+
+          <!-- 2D Canvas -->
+          <div class="relative bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="absolute top-3 left-3 z-10 bg-slate-900/90 backdrop-blur border border-slate-700/60 px-3 py-1.5 rounded-lg text-xs font-mono text-slate-300 flex items-center gap-3">
+              <span id="canvas-status-badge" class="text-cyan-400 font-semibold">模式: 自由畫線 (按住拖曳)</span>
+              <span class="text-slate-700">|</span>
+              <span id="canvas-cursor-coord">X: 0.0, Y: 0.0 mm</span>
+            </div>
+
+            <div class="absolute bottom-3 left-3 z-10 pointer-events-none text-[10px] font-mono text-slate-500 flex flex-col">
+              <span>+Y (工件座標系)</span>
+              <span class="mt-1">└─ +X</span>
+            </div>
+
+            <canvas id="drawingCanvas" width="600" height="340" class="grid-bg cursor-crosshair w-full block"></canvas>
+          </div>
+
+          <!-- 加工參數設定面板 -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div>
+              <label class="text-slate-400 block mb-1">進給速度 (Feedrate)</label>
+              <div class="flex items-center gap-1">
+                <input type="number" id="param-feed" value="3000" step="100" onchange="updateCode()" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-200">
+                <span class="text-slate-500">mm/m</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">安全高度 (Z Safe)</label>
+              <div class="flex items-center gap-1">
+                <input type="number" id="param-zsafe" value="15.0" step="1" onchange="updateCode()" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-200">
+                <span class="text-slate-500">mm</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">工作深度 (Z Work)</label>
+              <div class="flex items-center gap-1">
+                <input type="number" id="param-zwork" value="0.0" step="0.5" onchange="updateCode()" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-200">
+                <span class="text-slate-500">mm</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">簡化閥值 (Tolerance)</label>
+              <div class="flex items-center gap-1">
+                <input type="number" id="param-tol" value="2.0" step="0.5" onchange="updateCode()" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-200">
+                <span class="text-slate-500">px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側：代碼產生器與編輯器 (5 Cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <div class="bg-slate-900 border border-slate-800 rounded-xl flex flex-col h-full shadow-lg overflow-hidden">
+            
+            <div class="border-b border-slate-800 bg-slate-950/80 p-2 flex items-center justify-between">
+              <div class="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
+                <button id="tab-btn-gcode" onclick="switchCodeTab('gcode')" class="px-3 py-1 rounded-md text-xs font-semibold transition bg-cyan-600 text-white">
+                  G-Code (CNC)
+                </button>
+                <button id="tab-btn-spel" onclick="switchCodeTab('spel')" class="px-3 py-1 rounded-md text-xs font-semibold transition text-slate-400 hover:text-slate-200">
+                  Epson SPEL+
+                </button>
+              </div>
+              <button onclick="copyCurrentCode()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center gap-1.5 border border-slate-700 transition">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span id="copy-btn-text">複製代碼</span>
+              </button>
+            </div>
+
+            <div class="p-3 flex-1 bg-slate-950 overflow-hidden flex flex-col">
+              <textarea id="code-output-display" oninput="onSpelTextEdited()" class="w-full h-[360px] bg-slate-950 text-xs code-font text-cyan-300 leading-relaxed resize-none focus:outline-none p-2 border border-slate-900 rounded" spellcheck="false">; 請在左側畫布繪製線段或三點圓弧...</textarea>
+            </div>
+
+            <div class="p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between">
+              <span class="text-[11px] text-slate-400">對應 SpeedS: <span id="lbl-speeds-val" class="text-cyan-400 font-bold">50</span> mm/s</span>
+              <button onclick="run3DSimulationFromSpel()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-emerald-600/20">
+                <i data-lucide="play-circle" class="w-4 h-4"></i> 傳送至 3D 模擬器
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl">
+            <i data-lucide="box" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              Epson C4 6-Axis Vertical Articulated Robot 3D 模擬器
+            </h2>
+            <p class="text-xs text-slate-400">專為 C4 系列 (550mm 臂長) 打造之 6 軸運動學機構與姿態解算器</p>
+          </div>
+        </div>
+
+        <!-- 3D 控制面板模式切換 -->
+        <div class="flex items-center gap-3">
+          <div class="bg-slate-950 p-1 rounded-lg border border-slate-800 flex items-center gap-1">
+            <button id="btn-view-3d-sim" onclick="switch3dTab('sim')" class="px-3 py-1.5 bg-indigo-600 text-white font-semibold rounded text-xs transition">
+              3D 軌跡播放
+            </button>
+            <button id="btn-view-3d-jog" onclick="switch3dTab('jog')" class="px-3 py-1.5 text-slate-400 hover:text-slate-200 font-semibold rounded text-xs transition flex items-center gap-1">
+              <i data-lucide="gamepad-2" class="w-3.5 h-3.5"></i> Epson RC+ 步進微調
+            </button>
+          </div>
+          <button onclick="toggle3DPlayPause()" id="btn-3d-play" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 transition shadow">
+            <i data-lucide="play" class="w-4 h-4"></i> 播放 3D 動作
+          </button>
+          <button onclick="reset3DRobot()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center gap-1.5 transition border border-slate-700">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i> 重置手臂
+          </button>
+        </div>
+      </div>
+
+      <!-- 3D 畫布與關節/Jog面板 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- 3D Viewport (7 Cols) -->
+        <div class="lg:col-span-7 relative bg-slate-950 border border-slate-800 rounded-xl overflow-hidden h-[480px] shadow-inner">
+          <div id="robot3d-container" class="w-full h-[480px] cursor-grab"></div>
+          
+          <!-- 左上角 HUD 狀態 -->
+          <div class="absolute top-3 left-3 bg-slate-900/90 backdrop-blur border border-slate-800 p-3 rounded-lg text-xs font-mono space-y-1 z-10">
+            <p class="text-cyan-400 font-bold flex items-center gap-1">
+              <span id="sim-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+              C4 手臂狀態: <span id="sim-status-text">Ready</span>
+            </p>
+            <p class="text-slate-300">TCP 位置: <span id="sim-tcp-pos" class="text-emerald-400">X:150.0 Y:90.0 Z:15.0</span></p>
+            <p class="text-slate-300">TCP 姿態: <span id="sim-tcp-ori" class="text-amber-400">U:0.0° V:-90.0° W:0.0°</span></p>
+            <p class="text-slate-300">出膠狀態 (DO Bit 0): <span id="sim-io-status" class="text-rose-400 font-bold">OFF</span></p>
+          </div>
+
+          <!-- 3D 操作提示 -->
+          <div class="absolute bottom-3 right-3 bg-slate-900/90 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-lg text-[11px] text-slate-400 z-10">
+            <span>🖱️ 滑鼠拖曳：旋轉視角 | 滾輪：縮放</span>
+          </div>
+        </div>
+
+        <!-- 右側：Epson RC+ 微調點動/步進面板 (5 Cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          
+          <!-- 模擬面板模式 A: 關節視圖與 SPEL+ 行 -->
+          <div id="panel-3d-sim-view" class="space-y-4">
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+              <h3 class="text-xs font-bold text-slate-300 flex items-center justify-between">
+                <span>C4 關節角度 (Joint Angles J1~J6)</span>
+                <span class="text-[10px] text-indigo-400 font-mono">Epson C4-A501</span>
+              </h3>
+
+              <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                <div class="p-2 bg-slate-900 rounded border border-slate-800">
+                  <span class="text-slate-500 block text-[10px]">J1 (Base Yaw)</span>
+                  <span id="j1-angle" class="text-indigo-300">0.0°</span>
+                </div>
+                <div class="p-2 bg-slate-900 rounded border border-slate-800">
+                  <span class="text-slate-500 block text-[10px]">J2 (Shoulder Pitch)</span>
+                  <span id="j2-angle" class="text-indigo-300">0.0°</span>
+                </div>
+                <div class="p-2 bg-slate-900 rounded border border-slate-800">
+                  <span class="text-slate-500 block text-[10px]">J3 (Elbow Pitch)</span>
+                  <span id="j3-angle" class="text-indigo-300">0.0°</span>
+                </div>
+                <div class="p-2 bg-slate-900 rounded border border-slate-800">
+                  <span class="text-slate-500 block text-[10px]">J4 (Wrist Roll)</span>
+                  <span id="j4-angle" class="text-indigo-300">0.0°</span>
+                </div>
+                <div class="p-2 bg-slate-900 rounded border border-slate-800">
+                  <span class="text-slate-500 block text-[10px]">J5 (Wrist Pitch)</span>
+                  <span id="j5-angle" class="text-indigo-300">-90.0°</span>
+                </div>
+                <div class="p-2 bg-slate-900 rounded border border-slate-800">
+                  <span class="text-slate-500 block text-[10px]">J6 (Flange Twist)</span>
+                  <span id="j6-angle" class="text-indigo-300">0.0°</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
+              <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="terminal" class="w-3.5 h-3.5 text-cyan-400"></i> 當前執行 SPEL+ 行
+              </h3>
+              <div class="p-3 bg-slate-900 rounded border border-slate-800 text-xs font-mono text-cyan-300 min-h-[60px] flex items-center justify-center text-center" id="sim-active-line">
+                Ready for simulation...
+              </div>
+            </div>
+          </div>
+
+          <!-- 模擬面板模式 B: Epson RC+ 步進微調 Control Pendant -->
+          <div id="panel-3d-jog-view" class="hidden bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                <i data-lucide="sliders" class="w-4 h-4"></i> Epson RC+ 步進 / 點動面板 (Jog)
+              </span>
+              <div class="flex items-center gap-2 text-[11px]">
+                <label class="text-slate-400">模式:</label>
+                <select id="jog-mode-select" onchange="onJogConfigChange()" class="bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-slate-200">
+                  <option value="world">世界 (World)</option>
+                  <option value="joint">關節 (Joint)</option>
+                </select>
+                <label class="text-slate-400 ml-1">速度:</label>
+                <select id="jog-speed-select" class="bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-slate-200">
+                  <option value="low">低 (Low)</option>
+                  <option value="med" selected>中 (Med)</option>
+                  <option value="high">高 (High)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Jog 點動按鈕區域 -->
+            <div class="grid grid-cols-12 gap-2 text-xs font-mono">
+              <div class="col-span-8 bg-slate-900/90 p-2.5 rounded-lg border border-slate-800 space-y-2">
+                <span class="text-[10px] text-slate-400 font-sans block mb-1" id="lbl-jog-direction-title">平移 / 旋轉微調方向 (X,Y,Z / U,V,W)</span>
+                
+                <div class="grid grid-cols-3 gap-1.5 text-center">
+                  <div></div>
+                  <button onclick="jogStep('Y', -1)" class="p-2 bg-slate-800 hover:bg-amber-600/80 hover:text-white rounded text-amber-300 font-bold border border-slate-700 active:scale-95 transition" id="btn-jog-up">
+                    ↑ -Y
+                  </button>
+                  <button onclick="jogStep('Z', 1)" class="p-2 bg-slate-800 hover:bg-amber-600/80 hover:text-white rounded text-indigo-300 font-bold border border-slate-700 active:scale-95 transition" id="btn-jog-zup">
+                    ↑ +Z
+                  </button>
+
+                  <button onclick="jogStep('X', -1)" class="p-2 bg-slate-800 hover:bg-amber-600/80 hover:text-white rounded text-amber-300 font-bold border border-slate-700 active:scale-95 transition" id="btn-jog-left">
+                    ← -X
+                  </button>
+                  <button onclick="jogStep('Y', 1)" class="p-2 bg-slate-800 hover:bg-amber-600/80 hover:text-white rounded text-amber-300 font-bold border border-slate-700 active:scale-95 transition" id="btn-jog-down">
+                    ↓ +Y
+                  </button>
+                  <button onclick="jogStep('X', 1)" class="p-2 bg-slate-800 hover:bg-amber-600/80 hover:text-white rounded text-amber-300 font-bold border border-slate-700 active:scale-95 transition" id="btn-jog-right">
+                    +X →
+                  </button>
+
+                  <div></div>
+                  <div></div>
+                  <button onclick="jogStep('Z', -1)" class="p-2 bg-slate-800 hover:bg-amber-600/80 hover:text-white rounded text-indigo-300 font-bold border border-slate-700 active:scale-95 transition" id="btn-jog-zdown">
+                    ↓ -Z
+                  </button>
+                </div>
+
+                <!-- U, V, W 旋轉按鈕 (支援 U Roll, V Pitch, W Flange Twist) -->
+                <div class="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-800 text-center" id="row-uvw-buttons">
+                  <button onclick="jogStep('U', -1)" class="p-1.5 bg-slate-800 hover:bg-cyan-600 text-cyan-300 hover:text-white rounded border border-slate-700 active:scale-95 transition text-[11px]" id="btn-jog-u-neg">
+                    ↷ -U
+                  </button>
+                  <button onclick="jogStep('V', -1)" class="p-1.5 bg-slate-800 hover:bg-cyan-600 text-cyan-300 hover:text-white rounded border border-slate-700 active:scale-95 transition text-[11px]" id="btn-jog-v-neg">
+                    ↷ -V
+                  </button>
+                  <button onclick="jogStep('W', -1)" class="p-1.5 bg-slate-800 hover:bg-cyan-600 text-cyan-300 hover:text-white rounded border border-slate-700 active:scale-95 transition text-[11px]" id="btn-jog-w-neg">
+                    ↷ -W
+                  </button>
+
+                  <button onclick="jogStep('U', 1)" class="p-1.5 bg-slate-800 hover:bg-cyan-600 text-cyan-300 hover:text-white rounded border border-slate-700 active:scale-95 transition text-[11px]" id="btn-jog-u-pos">
+                    ↶ +U
+                  </button>
+                  <button onclick="jogStep('V', 1)" class="p-1.5 bg-slate-800 hover:bg-cyan-600 text-cyan-300 hover:text-white rounded border border-slate-700 active:scale-95 transition text-[11px]" id="btn-jog-v-pos">
+                    ↶ +V
+                  </button>
+                  <button onclick="jogStep('W', 1)" class="p-1.5 bg-slate-800 hover:bg-cyan-600 text-cyan-300 hover:text-white rounded border border-slate-700 active:scale-95 transition text-[11px]" id="btn-jog-w-pos">
+                    ↶ +W
+                  </button>
+                </div>
+              </div>
+
+              <!-- 右側步進距離設定 (Step Distance) -->
+              <div class="col-span-4 bg-slate-900/90 p-2.5 rounded-lg border border-slate-800 flex flex-col justify-between text-[11px] font-sans">
+                <span class="text-[10px] text-slate-400 block font-bold mb-1">步進距離</span>
+                
+                <div class="space-y-1.5">
+                  <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer">
+                    <input type="radio" name="jog-dist-type" value="10" checked onchange="onJogConfigChange()" class="accent-indigo-500">
+                    <span>長距離 (10mm/10°)</span>
+                  </label>
+                  <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer">
+                    <input type="radio" name="jog-dist-type" value="1" onchange="onJogConfigChange()" class="accent-indigo-500">
+                    <span>中距離 (1mm/1°)</span>
+                  </label>
+                  <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer">
+                    <input type="radio" name="jog-dist-type" value="0.1" onchange="onJogConfigChange()" class="accent-indigo-500">
+                    <span>短距離 (0.1mm/0.1°)</span>
+                  </label>
+                </div>
+
+                <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400">
+                  單次步距: <span id="jog-step-val" class="text-amber-400 font-mono font-bold">10.0</span> <span id="jog-step-unit">mm</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 點動面板內建 J1~J6 關節角度即時顯示 -->
+            <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 space-y-2 text-xs font-mono">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="text-amber-400 font-bold">即時關節角度 (J1 ~ J6):</span>
+                <span class="text-emerald-400 font-bold" id="jog-hand-config-str">Righty / Above / NoFlip</span>
+              </div>
+              <div class="grid grid-cols-6 gap-1 text-center text-[10px]">
+                <div class="p-1 bg-slate-950 rounded border border-slate-800">
+                  <span class="text-slate-500 block">J1</span>
+                  <span id="jog-j1-val" class="text-cyan-300 font-bold">0.0°</span>
+                </div>
+                <div class="p-1 bg-slate-950 rounded border border-slate-800">
+                  <span class="text-slate-500 block">J2</span>
+                  <span id="jog-j2-val" class="text-cyan-300 font-bold">0.0°</span>
+                </div>
+                <div class="p-1 bg-slate-950 rounded border border-slate-800">
+                  <span class="text-slate-500 block">J3</span>
+                  <span id="jog-j3-val" class="text-cyan-300 font-bold">0.0°</span>
+                </div>
+                <div class="p-1 bg-slate-950 rounded border border-slate-800">
+                  <span class="text-slate-500 block">J4</span>
+                  <span id="jog-j4-val" class="text-cyan-300 font-bold">0.0°</span>
+                </div>
+                <div class="p-1 bg-slate-950 rounded border border-slate-800">
+                  <span class="text-slate-500 block">J5</span>
+                  <span id="jog-j5-val" class="text-cyan-300 font-bold">-90.0°</span>
+                </div>
+                <div class="p-1 bg-slate-950 rounded border border-slate-800">
+                  <span class="text-slate-500 block">J6</span>
+                  <span id="jog-j6-val" class="text-cyan-300 font-bold">0.0°</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 教導示教點按鈕 (Teach Point) -->
+            <button onclick="teachCurrentPointToSpel()" class="w-full py-2 bg-gradient-to-r from-amber-600 to-indigo-600 hover:from-amber-500 hover:to-indigo-500 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 transition shadow">
+              <i data-lucide="bookmark-plus" class="w-4 h-4"></i> 教導當前點位至 SPEL+ 與畫布
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+      <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+        <div class="p-2 bg-cyan-500/10 text-cyan-400 rounded-lg">
+          <i data-lucide="workflow" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-white">轉換流程與「三點畫弧」數學解析</h2>
+          <p class="text-xs text-slate-400">從 2D 畫布幾何，轉換為 G-code / SPEL+ 並於 3D 機械手臂重現的完整學理</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-6 bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col items-center">
+          <div class="w-full flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-slate-300">三點求外心與中繼點 (Pass Point) 幾何圖解</span>
+            <span class="text-[11px] text-cyan-400 font-mono">🖱️ 可直接拖曳 P1 / P2 / P3 測試</span>
+          </div>
+          
+          <canvas id="arcGeoCanvas" width="500" height="280" class="grid-bg rounded-lg border border-slate-800/80 w-full block cursor-pointer"></canvas>
+
+          <div class="w-full grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-center text-xs">
+            <div class="p-2 bg-slate-900 rounded-lg border border-slate-800">
+              <span class="text-slate-500 block text-[10px]">起點 P1 (Green)</span>
+              <span id="geo-hud-p1" class="font-mono text-emerald-400">X:60 Y:200</span>
+            </div>
+            <div class="p-2 bg-slate-900 rounded-lg border border-slate-800">
+              <span class="text-slate-500 block text-[10px]">中繼點 P2 (Amber)</span>
+              <span id="geo-hud-p2" class="font-mono text-amber-400">X:250 Y:60</span>
+            </div>
+            <div class="p-2 bg-slate-900 rounded-lg border border-slate-800">
+              <span class="text-slate-500 block text-[10px]">終點 P3 (Rose)</span>
+              <span id="geo-hud-p3" class="font-mono text-rose-400">X:440 Y:190</span>
+            </div>
+            <div class="p-2 bg-slate-900 rounded-lg border border-slate-800">
+              <span class="text-slate-500 block text-[10px]">外心 C (Purple) & R</span>
+              <span id="geo-hud-center" class="font-mono text-purple-400">C:(250, 202) R:191</span>
+            </div>
+          </div>
+
+          <div class="w-full mt-2 p-2.5 bg-slate-900/90 rounded-lg border border-slate-800 text-[11px] font-mono text-cyan-300">
+            <span class="text-slate-500">對應 SPEL+ Arc 指令:</span><br>
+            <span id="geo-hud-spel-cmd" class="text-emerald-300 font-bold">Arc XY(250.0, 60.0, 0.0), XY(440.0, 190.0, 0.0)</span>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 space-y-3 text-xs text-slate-300 leading-relaxed">
+          <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+            <h3 class="font-bold text-white text-sm">1. 幾何核心：三點決定唯一圓弧</h3>
+            <p class="text-slate-400">
+              不在同一條直線上的任意三點 $P_1(x_1, y_1)$、$P_2(x_2, y_2)$、$P_3(x_3, y_3)$，其連線 $P_1P_2$ 與 $P_2P_3$ 的垂直平分線交點即為圓心 $C(C_x, C_y)$。
+            </p>
+            <div class="p-2.5 bg-slate-900 rounded border border-slate-800/80 font-mono text-[11px] text-indigo-300">
+              $$C_x = \frac{(x_1^2+y_1^2)(y_2-y_3) + (x_2^2+y_2^2)(y_3-y_1) + (x_3^2+y_3^2)(y_1-y_2)}{2[x_1(y_2-y_3) + x_2(y_3-y_1) + x_3(y_1-y_2)]}$$
+            </div>
+          </div>
+
+          <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+            <h3 class="font-bold text-white text-sm">2. Epson SPEL+ 的 Arc 語法特點</h3>
+            <p class="text-slate-400">
+              G-code 圓弧（`G02/G03`）常用相對圓心向量 `I, J` 表示；而 Epson SPEL+ 採用 <span class="text-cyan-300 font-mono">Arc PassPoint, EndPoint</span> 指令。手臂控制器會自動通過「當前位置(起點) $\to$ PassPoint(中繼點) $\to$ EndPoint(終點)」描繪出流暢圓弧。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    try { lucide.createIcons(); } catch(e) { console.warn("Lucide icons deferred", e); }
+
+    // -------------------------------------------------------------
+    // 1. 2D 畫布與 UI 切換變數
+    // -------------------------------------------------------------
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    const statusBadge = document.getElementById('canvas-status-badge');
+    const cursorCoord = document.getElementById('canvas-cursor-coord');
+    const codeDisplay = document.getElementById('code-output-display');
+
+    let currentDrawMode = 'freehand'; 
+    let currentCodeTab = 'gcode';     
+    let isMouseDown = false;
+    let strokePaths = [];             
+    let arcPointBuffer = [];          
+    let compiledGcode = "";
+    let compiledSpel = "";
+
+    const SCALE = 0.5; // 1px = 0.5mm
+
+    if (canvas) {
+      canvas.addEventListener('pointerdown', handlePointerDown);
+      canvas.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointerup', handlePointerUp);
+      window.addEventListener('pointercancel', handlePointerUp);
+    }
+
+    function getCanvasCoords(e) {
+      if (!canvas) return { px: 0, py: 0, mmX: 0, mmY: 0 };
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const px = (e.clientX - rect.left) * scaleX;
+      const py = (e.clientY - rect.top) * scaleY;
+      
+      const mmX = px * SCALE;
+      const mmY = (canvas.height - py) * SCALE;
+      return { px, py, mmX, mmY };
+    }
+
+    let active3dTab = 'sim'; // 'sim' | 'jog'
+    let currentJogStep = 10.0;
+    let activeOrientation = { u: 0.0, v: -90.0, w: 0.0 }; // TCP orientation angles (degrees)
+    let currentJointAngles = { j1: 0.0, j2: 0.0, j3: 0.0, j4: 0.0, j5: -90.0, j6: 0.0 };
+
+    function switch3dTab(tab) {
+      active3dTab = tab;
+      const btnSim = document.getElementById('btn-view-3d-sim');
+      const btnJog = document.getElementById('btn-view-3d-jog');
+      const panelSim = document.getElementById('panel-3d-sim-view');
+      const panelJog = document.getElementById('panel-3d-jog-view');
+
+      if (tab === 'sim') {
+        btnSim.className = "px-3 py-1.5 bg-indigo-600 text-white font-semibold rounded text-xs transition";
+        btnJog.className = "px-3 py-1.5 text-slate-400 hover:text-slate-200 font-semibold rounded text-xs transition flex items-center gap-1";
+        panelSim.classList.remove('hidden');
+        panelJog.classList.add('hidden');
+      } else {
+        btnJog.className = "px-3 py-1.5 bg-indigo-600 text-white font-semibold rounded text-xs transition flex items-center gap-1";
+        btnSim.className = "px-3 py-1.5 text-slate-400 hover:text-slate-200 font-semibold rounded text-xs transition";
+        panelJog.classList.remove('hidden');
+        panelSim.classList.add('hidden');
+        onJogConfigChange();
+      }
+    }
+
+    function onJogConfigChange() {
+      const distRadios = document.getElementsByName('jog-dist-type');
+      for (const r of distRadios) {
+        if (r.checked) {
+          currentJogStep = parseFloat(r.value);
+          break;
+        }
+      }
+      const label = document.getElementById('jog-step-val');
+      const unitLabel = document.getElementById('jog-step-unit');
+      const mode = document.getElementById('jog-mode-select').value;
+
+      if (label) label.innerText = currentJogStep.toFixed(1);
+
+      const btnUp = document.getElementById('btn-jog-up');
+      const btnDown = document.getElementById('btn-jog-down');
+      const btnLeft = document.getElementById('btn-jog-left');
+      const btnRight = document.getElementById('btn-jog-right');
+      const btnZUp = document.getElementById('btn-jog-zup');
+      const btnZDown = document.getElementById('btn-jog-zdown');
+
+      const btnUNeg = document.getElementById('btn-jog-u-neg');
+      const btnUPos = document.getElementById('btn-jog-u-pos');
+      const btnVNeg = document.getElementById('btn-jog-v-neg');
+      const btnVPos = document.getElementById('btn-jog-v-pos');
+      const btnWNeg = document.getElementById('btn-jog-w-neg');
+      const btnWPos = document.getElementById('btn-jog-w-pos');
+      const title = document.getElementById('lbl-jog-direction-title');
+
+      if (mode === 'world') {
+        if (unitLabel) unitLabel.innerText = "mm / °";
+        if (title) title.innerText = "平移 / 旋轉微調 (X, Y, Z / U, V, W)";
+        if (btnUp) btnUp.innerText = "↑ -Y";
+        if (btnDown) btnDown.innerText = "↓ +Y";
+        if (btnLeft) btnLeft.innerText = "← -X";
+        if (btnRight) btnRight.innerText = "+X →";
+        if (btnZUp) btnZUp.innerText = "↑ +Z";
+        if (btnZDown) btnZDown.innerText = "↓ -Z";
+
+        if (btnUNeg) btnUNeg.innerText = "↷ -U";
+        if (btnUPos) btnUPos.innerText = "↶ +U";
+        if (btnVNeg) btnVNeg.innerText = "↷ -V";
+        if (btnVPos) btnVPos.innerText = "↶ +V";
+        if (btnWNeg) btnWNeg.innerText = "↷ -W";
+        if (btnWPos) btnWPos.innerText = "↶ +W";
+      } else {
+        if (unitLabel) unitLabel.innerText = "度 (°)";
+        if (title) title.innerText = "關節直接點動 (J1 ~ J6 Angles)";
+        if (btnUp) btnUp.innerText = "-J2";
+        if (btnDown) btnDown.innerText = "+J2";
+        if (btnLeft) btnLeft.innerText = "-J1";
+        if (btnRight) btnRight.innerText = "+J1";
+        if (btnZUp) btnZUp.innerText = "+J3";
+        if (btnZDown) btnZDown.innerText = "-J3";
+
+        if (btnUNeg) btnUNeg.innerText = "-J4";
+        if (btnUPos) btnUPos.innerText = "+J4";
+        if (btnVNeg) btnVNeg.innerText = "-J5";
+        if (btnVPos) btnVPos.innerText = "+J5";
+        if (btnWNeg) btnWNeg.innerText = "-J6";
+        if (btnWPos) btnWPos.innerText = "+J6";
+      }
+    }
+
+    function jogStep(axis, dir) {
+      const step = currentJogStep * dir;
+      const mode = document.getElementById('jog-mode-select').value;
+
+      if (mode === 'world') {
+        if (axis === 'X') activePos.x += step;
+        else if (axis === 'Y') activePos.y += step;
+        else if (axis === 'Z') activePos.z += step;
+        else if (axis === 'U') activeOrientation.u += step;
+        else if (axis === 'V') activeOrientation.v += step;
+        else if (axis === 'W') activeOrientation.w += step;
+
+        solveEpsonC4IK(activePos.x, activePos.y, activePos.z, activeOrientation.u, activeOrientation.v, activeOrientation.w);
+      } else {
+        // Joint Jogging (J1 ~ J6)
+        if (axis === 'X') currentJointAngles.j1 += step;        // J1 Left/Right
+        else if (axis === 'Y') currentJointAngles.j2 += step;   // J2 Up/Down
+        else if (axis === 'Z') currentJointAngles.j3 += step;   // J3 ZUp/ZDown
+        else if (axis === 'U') currentJointAngles.j4 += step;   // J4 Roll
+        else if (axis === 'V') currentJointAngles.j5 += step;   // J5 Pitch
+        else if (axis === 'W') currentJointAngles.j6 += step;   // J6 Twist
+
+        applyJointAnglesToRobot(currentJointAngles);
+      }
+
+      document.getElementById('sim-status-text').innerText = `Jogging ${axis}${dir > 0 ? '+' : '-'}`;
+      document.getElementById('sim-status-dot').className = "w-2 h-2 rounded-full bg-amber-400";
+    }
+
+    function teachCurrentPointToSpel() {
+      const px = activePos.x / SCALE;
+      const py = canvas.height - (activePos.y / SCALE);
+
+      strokePaths.push([{ px, py, mmX: activePos.x, mmY: activePos.y }]);
+      redrawCanvas();
+      updateCode();
+
+      const textBtn = document.getElementById('sim-status-text');
+      if (textBtn) textBtn.innerText = "Point Teached!";
+      setTimeout(() => textBtn.innerText = "Ready", 1500);
+    }
+
+    function setDrawMode(mode) {
+      currentDrawMode = mode;
+      arcPointBuffer = [];
+      document.getElementById('btn-mode-freehand').className = mode === 'freehand'
+        ? "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition bg-indigo-600 text-white shadow"
+        : "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 hover:bg-slate-700 text-slate-300";
+      
+      document.getElementById('btn-mode-arc').className = mode === 'arc'
+        ? "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition bg-indigo-600 text-white shadow"
+        : "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 hover:bg-slate-700 text-slate-300";
+
+      statusBadge.innerText = mode === 'freehand' ? "模式: 自由畫線 (按住拖曳)" : "模式: 依序點擊 3 點 (起點 ➔ 中繼點 ➔ 終點)";
+      redrawCanvas();
+    }
+
+    function handlePointerDown(e) {
+      canvas.setPointerCapture(e.pointerId);
+      const pos = getCanvasCoords(e);
+
+      if (currentDrawMode === 'freehand') {
+        isMouseDown = true;
+        strokePaths.push([{ px: pos.px, py: pos.py, mmX: pos.mmX, mmY: pos.mmY }]);
+        redrawCanvas();
+        updateCode();
+      } else if (currentDrawMode === 'arc') {
+        arcPointBuffer.push(pos);
+        if (arcPointBuffer.length === 3) {
+          generateArcFrom3Points(arcPointBuffer[0], arcPointBuffer[1], arcPointBuffer[2]);
+          arcPointBuffer = [];
+        }
+        redrawCanvas();
+      }
+    }
+
+    function handlePointerMove(e) {
+      const pos = getCanvasCoords(e);
+      cursorCoord.innerText = `X: ${pos.mmX.toFixed(1)}, Y: ${pos.mmY.toFixed(1)} mm`;
+
+      if (isMouseDown && currentDrawMode === 'freehand') {
+        const currentStroke = strokePaths[strokePaths.length - 1];
+        if (!currentStroke) return;
+        const lastPt = currentStroke[currentStroke.length - 1];
+        const tol = parseFloat(document.getElementById('param-tol').value) || 2.0;
+
+        const dist = Math.hypot(pos.px - lastPt.px, pos.py - lastPt.py);
+        if (dist >= tol) {
+          currentStroke.push({ px: pos.px, py: pos.py, mmX: pos.mmX, mmY: pos.mmY });
+          redrawCanvas();
+          updateCode();
+        }
+      }
+    }
+
+    function handlePointerUp(e) {
+      if (isMouseDown) {
+        isMouseDown = false;
+        updateCode();
+      }
+    }
+
+    function generateArcFrom3Points(p1, p2, p3) {
+      const d = 2 * (p1.mmX * (p2.mmY - p3.mmY) + p2.mmX * (p3.mmY - p1.mmY) + p3.mmX * (p1.mmY - p2.mmY));
+      if (Math.abs(d) < 1e-4) {
+        strokePaths.push([p1, p2, p3]);
+        updateCode();
+        return;
+      }
+
+      const cx = ((p1.mmX**2 + p1.mmY**2)*(p2.mmY - p3.mmY) + (p2.mmX**2 + p2.mmY**2)*(p3.mmY - p1.mmY) + (p3.mmX**2 + p3.mmY**2)*(p1.mmY - p2.mmY)) / d;
+      const cy = ((p1.mmX**2 + p1.mmY**2)*(p3.mmX - p2.mmX) + (p2.mmX**2 + p2.mmY**2)*(p1.mmX - p3.mmX) + (p3.mmX**2 + p3.mmY**2)*(p2.mmX - p1.mmX)) / d;
+      const radius = Math.hypot(p1.mmX - cx, p1.mmY - cy);
+
+      let t1 = Math.atan2(p1.mmY - cy, p1.mmX - cx);
+      let t2 = Math.atan2(p2.mmY - cy, p2.mmX - cx);
+      let t3 = Math.atan2(p3.mmY - cy, p3.mmX - cx);
+
+      const cross = (p2.mmX - p1.mmX)*(p3.mmY - p2.mmY) - (p2.mmY - p1.mmY)*(p3.mmX - p2.mmX);
+      const isCW = cross < 0;
+
+      if (isCW) {
+        if (t2 > t1) t2 -= 2 * Math.PI;
+        if (t3 > t2) t3 -= 2 * Math.PI;
+      } else {
+        if (t2 < t1) t2 += 2 * Math.PI;
+        if (t3 < t2) t3 += 2 * Math.PI;
+      }
+
+      const points = [];
+      const steps = 30;
+      for (let i = 0; i <= steps; i++) {
+        const t = t1 + (t3 - t1) * (i / steps);
+        const mmX = cx + radius * Math.cos(t);
+        const mmY = cy + radius * Math.sin(t);
+        const px = mmX / SCALE;
+        const py = canvas.height - (mmY / SCALE);
+        points.push({ px, py, mmX, mmY });
+      }
+      strokePaths.push(points);
+      updateCode();
+    }
+
+    function redrawCanvas() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      strokePaths.forEach((stroke, idx) => {
+        if (stroke.length === 0) return;
+
+        if (stroke.length === 1) {
+          drawMarker(stroke[0].px, stroke[0].py, '#38bdf8', `P${idx+1}`);
+          return;
+        }
+
+        ctx.beginPath();
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.moveTo(stroke[0].px, stroke[0].py);
+        for (let i = 1; i < stroke.length; i++) {
+          ctx.lineTo(stroke[i].px, stroke[i].py);
+        }
+        ctx.stroke();
+
+        drawMarker(stroke[0].px, stroke[0].py, '#10b981', 'S');
+        drawMarker(stroke[stroke.length - 1].px, stroke[stroke.length - 1].py, '#f43f5e', 'E');
+      });
+
+      arcPointBuffer.forEach((pt, idx) => {
+        drawMarker(pt.px, pt.py, '#f59e0b', `P${idx+1}`);
+      });
+    }
+
+    function drawMarker(x, y, color, label) {
+      if (!ctx) return;
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      if (label) {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '10px monospace';
+        ctx.fillText(label, x + 8, y - 4);
+      }
+    }
+
+    function updateCode() {
+      const feed = parseFloat(document.getElementById('param-feed').value) || 3000;
+      const zSafe = parseFloat(document.getElementById('param-zsafe').value) || 15.0;
+      const zWork = parseFloat(document.getElementById('param-zwork').value) || 0.0;
+      const speedS = Math.max(1, Math.round(feed / 60));
+      const lblSpeed = document.getElementById('lbl-speeds-val');
+      if (lblSpeed) lblSpeed.innerText = speedS;
+
+      let gc = [];
+      gc.push("; ==========================================");
+      gc.push("; CNC G-Code Trajectory File");
+      gc.push("; ==========================================");
+      gc.push("G21 ; mm");
+      gc.push("G90 ; Absolute Mode");
+      gc.push(`G00 Z${zSafe.toFixed(2)}`);
+      gc.push(`F${feed.toFixed(0)}`);
+      gc.push("");
+
+      strokePaths.forEach((stroke, idx) => {
+        if (stroke.length === 0) return;
+        const start = stroke[0];
+        gc.push(`; --- Segment ${idx + 1} ---`);
+        gc.push(`G00 X${start.mmX.toFixed(3)} Y${start.mmY.toFixed(3)}`);
+        gc.push(`G01 Z${zWork.toFixed(2)}`);
+        gc.push("M03 ; Valve ON");
+
+        for (let i = 1; i < stroke.length; i++) {
+          const pt = stroke[i];
+          gc.push(`G01 X${pt.mmX.toFixed(3)} Y${pt.mmY.toFixed(3)}`);
+        }
+
+        gc.push("M05 ; Valve OFF");
+        gc.push(`G00 Z${zSafe.toFixed(2)}`);
+        gc.push("");
+      });
+      gc.push("M30");
+      compiledGcode = gc.join("\n");
+
+      let sp = [];
+      sp.push("' ==========================================");
+      sp.push("' Epson SPEL+ Program for Epson C4 6-Axis Robot");
+      sp.push("' Controller: RC700 / RC90");
+      sp.push("' ==========================================");
+      sp.push("Function Main");
+      sp.push("  Motor On");
+      sp.push("  Power High");
+      sp.push("  AccelS 1000, 1000");
+      sp.push(`  SpeedS ${speedS}`);
+      sp.push("  CP On");
+      sp.push("  Base Local(1)");
+      sp.push("");
+
+      strokePaths.forEach((stroke, idx) => {
+        if (stroke.length === 0) return;
+        const start = stroke[0];
+        sp.push(`  ' Segment ${idx + 1}`);
+        sp.push(`  Go XY(${start.mmX.toFixed(3)}, ${start.mmY.toFixed(3)}, ${zSafe.toFixed(2)}, 0, 0, 0)`);
+        sp.push(`  Move XY(${start.mmX.toFixed(3)}, ${start.mmY.toFixed(3)}, ${zWork.toFixed(2)}, 0, 0, 0)`);
+        sp.push("  On 0");
+
+        for (let i = 1; i < stroke.length; i++) {
+          const pt = stroke[i];
+          sp.push(`  Move XY(${pt.mmX.toFixed(3)}, ${pt.mmY.toFixed(3)}, ${zWork.toFixed(2)}, 0, 0, 0)`);
+        }
+
+        sp.push("  Off 0");
+        sp.push(`  Move XY(${stroke[stroke.length-1].mmX.toFixed(3)}, ${stroke[stroke.length-1].mmY.toFixed(3)}, ${zSafe.toFixed(2)}, 0, 0, 0)`);
+        sp.push("");
+      });
+
+      sp.push("  CP Off");
+      sp.push("Fend");
+      compiledSpel = sp.join("\n");
+
+      if (codeDisplay) codeDisplay.value = currentCodeTab === 'gcode' ? compiledGcode : compiledSpel;
+    }
+
+    function switchCodeTab(tab) {
+      currentCodeTab = tab;
+      document.getElementById('tab-btn-gcode').className = tab === 'gcode'
+        ? "px-3 py-1 rounded-md text-xs font-semibold transition bg-cyan-600 text-white"
+        : "px-3 py-1 rounded-md text-xs font-semibold transition text-slate-400 hover:text-slate-200";
+
+      document.getElementById('tab-btn-spel').className = tab === 'spel'
+        ? "px-3 py-1 rounded-md text-xs font-semibold transition bg-cyan-600 text-white"
+        : "px-3 py-1 rounded-md text-xs font-semibold transition text-slate-400 hover:text-slate-200";
+
+      if (codeDisplay) codeDisplay.value = tab === 'gcode' ? compiledGcode : compiledSpel;
+    }
+
+    function clearCanvas() {
+      strokePaths = [];
+      arcPointBuffer = [];
+      redrawCanvas();
+      updateCode();
+      if (codeDisplay) codeDisplay.value = "; 畫布已清空...";
+    }
+
+    function copyCurrentCode() {
+      if (!codeDisplay) return;
+      navigator.clipboard.writeText(codeDisplay.value).then(() => {
+        const textBtn = document.getElementById('copy-btn-text');
+        textBtn.innerText = "已複製！";
+        setTimeout(() => textBtn.innerText = "複製代碼", 2000);
+      });
+    }
+
+    function loadSamplePattern() {
+      strokePaths = [];
+      const cx = 300, cy = 180, r = 70;
+      const arcPoints = [];
+      for (let i = 0; i <= 20; i++) {
+        const t = Math.PI * 0.2 + (i / 20) * Math.PI * 1.2;
+        const px = cx + r * Math.cos(t);
+        const py = cy + r * Math.sin(t);
+        arcPoints.push({ px, py, mmX: px * SCALE, mmY: (canvas.height - py) * SCALE });
+      }
+
+      const linePoints = [
+        { px: 80, py: 300, mmX: 80 * SCALE, mmY: (canvas.height - 300) * SCALE },
+        { px: 180, py: 300, mmX: 180 * SCALE, mmY: (canvas.height - 300) * SCALE },
+        { px: 180, py: 100, mmX: 180 * SCALE, mmY: (canvas.height - 100) * SCALE },
+        { px: 80, py: 100, mmX: 80 * SCALE, mmY: (canvas.height - 100) * SCALE }
+      ];
+
+      strokePaths.push(arcPoints, linePoints);
+      redrawCanvas();
+      updateCode();
+    }
+
+    function onSpelTextEdited() {
+      if (currentCodeTab === 'spel' && codeDisplay) {
+        compiledSpel = codeDisplay.value;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 2. Three.js Epson C4 6 軸機械手臂 3D 模型與解算器
+    // -------------------------------------------------------------
+    let scene, camera, renderer;
+    let robotBase, linkJ1, linkJ2, linkJ3, linkJ4, linkJ5, linkJ6, dispenserTip, tcpAxesGizmo;
+    let gluePointsGroup;
+    let is3DPlaying = false;
+    let simCommands = [];
+    let currentCmdIndex = 0;
+    let simProgress = 0;
+    let activePos = { x: 150, y: 90, z: 15 };
+    let targetPos = { x: 150, y: 90, z: 15 };
+    let startPos = { x: 150, y: 90, z: 15 };
+    let isValveOn = false;
+
+    const C4_LINK = {
+      baseH: 70,    
+      l1: 180,      
+      l2: 170,      
+      wristL: 45    
+    };
+
+    function init3DRobotSimulator() {
+      try {
+        const container = document.getElementById('robot3d-container');
+        if (!container) return;
+
+        const width = container.clientWidth || 600;
+        const height = container.clientHeight || 460;
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x090d16);
+
+        camera = new THREE.PerspectiveCamera(45, width / height, 1, 3000);
+        camera.position.set(220, 280, 380);
+        camera.lookAt(0, 80, 180);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio || 1);
+        renderer.setSize(width, height);
+        renderer.shadowMap.enabled = true;
+        
+        container.innerHTML = '';
+        container.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x334155, 0.6);
+        hemiLight.position.set(0, 300, 0);
+        scene.add(hemiLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        dirLight.position.set(200, 400, 200);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        buildWorkTable();
+        buildEpsonC4Model();
+
+        gluePointsGroup = new THREE.Group();
+        scene.add(gluePointsGroup);
+
+        initCameraControls(container);
+        window.addEventListener('resize', onWindowResize);
+
+        solveEpsonC4IK(150, 90, 15, 0, -90, 0);
+        animate3D();
+      } catch (err) {
+        console.error("3D Simulator Init Error:", err);
+      }
+    }
+
+    function buildWorkTable() {
+      const gridHelper = new THREE.GridHelper(800, 40, 0x334155, 0x1e293b);
+      gridHelper.position.set(0, 0, 150);
+      scene.add(gridHelper);
+
+      const tableGeo = new THREE.BoxGeometry(300, 4, 180);
+      const tableMat = new THREE.MeshPhongMaterial({ color: 0x1e293b, shininess: 30 });
+      const tableMesh = new THREE.Mesh(tableGeo, tableMat);
+      tableMesh.position.set(0, -2, 180);
+      tableMesh.receiveShadow = true;
+      scene.add(tableMesh);
+
+      const edgeGeo = new THREE.EdgesGeometry(tableGeo);
+      const edgeMat = new THREE.LineBasicMaterial({ color: 0x38bdf8 });
+      const edges = new THREE.LineSegments(edgeGeo, edgeMat);
+      edges.position.set(0, -2, 180);
+      scene.add(edges);
+    }
+
+    function buildEpsonC4Model() {
+      const matBase = new THREE.MeshPhongMaterial({ color: 0x0f172a, shininess: 40 });
+      const matWhite = new THREE.MeshPhongMaterial({ color: 0xf8fafc, shininess: 90 }); 
+      const matBlue = new THREE.MeshPhongMaterial({ color: 0x0284c7, shininess: 70 }); 
+      const matGold = new THREE.MeshPhongMaterial({ color: 0xeab308, shininess: 90 });
+      const matDark = new THREE.MeshPhongMaterial({ color: 0x334155, shininess: 60 });
+
+      robotBase = new THREE.Group();
+      robotBase.position.set(0, 0, 0);
+      const baseBody = new THREE.Mesh(new THREE.CylinderGeometry(40, 45, 20, 32), matBase);
+      baseBody.position.y = 10;
+      robotBase.add(baseBody);
+      scene.add(robotBase);
+
+      linkJ1 = new THREE.Group();
+      linkJ1.position.y = 20;
+      const j1Body = new THREE.Mesh(new THREE.CylinderGeometry(30, 35, C4_LINK.baseH - 20, 32), matBlue);
+      j1Body.position.y = (C4_LINK.baseH - 20) / 2;
+      linkJ1.add(j1Body);
+      robotBase.add(linkJ1);
+
+      linkJ2 = new THREE.Group();
+      linkJ2.position.y = C4_LINK.baseH - 20;
+
+      const j2Joint = new THREE.Mesh(new THREE.CylinderGeometry(22, 22, 36, 24), matBlue);
+      j2Joint.rotation.z = Math.PI / 2;
+      linkJ2.add(j2Joint);
+
+      const j2Arm = new THREE.Mesh(new THREE.BoxGeometry(22, C4_LINK.l1, 28), matWhite);
+      j2Arm.position.y = C4_LINK.l1 / 2;
+      linkJ2.add(j2Arm);
+      linkJ1.add(linkJ2);
+
+      linkJ3 = new THREE.Group();
+      linkJ3.position.y = C4_LINK.l1;
+
+      const j3Joint = new THREE.Mesh(new THREE.CylinderGeometry(18, 18, 30, 24), matBlue);
+      j3Joint.rotation.z = Math.PI / 2;
+      linkJ3.add(j3Joint);
+
+      const j3Arm = new THREE.Mesh(new THREE.BoxGeometry(18, C4_LINK.l2, 20), matWhite);
+      j3Arm.position.y = C4_LINK.l2 / 2;
+      linkJ3.add(j3Arm);
+      linkJ2.add(linkJ3);
+
+      linkJ4 = new THREE.Group();
+      linkJ4.position.y = C4_LINK.l2;
+      const j4Housing = new THREE.Mesh(new THREE.CylinderGeometry(14, 15, 25, 20), matBlue);
+      j4Housing.position.y = 12.5;
+      linkJ4.add(j4Housing);
+      linkJ3.add(linkJ4);
+
+      linkJ5 = new THREE.Group();
+      linkJ5.position.y = 25;
+      const j5Body = new THREE.Mesh(new THREE.BoxGeometry(16, 22, 16), matWhite);
+      j5Body.position.y = 11;
+      linkJ5.add(j5Body);
+      linkJ4.add(linkJ5);
+
+      linkJ6 = new THREE.Group();
+      linkJ6.position.y = 22;
+      
+      const flange = new THREE.Mesh(new THREE.CylinderGeometry(12, 12, 6, 20), matBase);
+      flange.position.y = 3;
+      linkJ6.add(flange);
+
+      // Asymmetric L-shape dispenser tool nozzle & syringe barrel for 100% visible U, V, W rotations
+      const toolBracket = new THREE.Mesh(new THREE.BoxGeometry(20, 8, 12), matDark);
+      toolBracket.position.set(6, 7, 0);
+      linkJ6.add(toolBracket);
+
+      const syringeBarrel = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 25, 16), matBlue);
+      syringeBarrel.position.set(14, 18, 0);
+      linkJ6.add(syringeBarrel);
+
+      dispenserTip = new THREE.Mesh(new THREE.ConeGeometry(4, C4_LINK.wristL - 10, 16), matGold);
+      dispenserTip.rotation.x = Math.PI;
+      dispenserTip.position.set(14, C4_LINK.wristL + 12, 0);
+      linkJ6.add(dispenserTip);
+
+      // TCP Coordinate Gizmo Helper (Red=X, Green=Y, Blue=Z)
+      tcpAxesGizmo = new THREE.AxesHelper(25);
+      tcpAxesGizmo.position.set(14, C4_LINK.wristL + 20, 0);
+      linkJ6.add(tcpAxesGizmo);
+
+      linkJ5.add(linkJ6);
+    }
+
+    function solveEpsonC4IK(mmX, mmY, mmZ, degU = 0, degV = -90, degW = 0) {
+      activePos = { x: mmX, y: mmY, z: mmZ };
+      activeOrientation = { u: degU, v: degV, w: degW };
+
+      // Workpiece coordinate system to Robot Base coordinates
+      const x = mmX - 150;
+      const z = mmY + 90;
+      const toolLength = C4_LINK.wristL + 20; // Effective nozzle tool length
+      const y = mmZ; // TCP Z height
+
+      // J1: Base Yaw Rotation
+      const theta1 = Math.atan2(x, z);
+
+      // Target position of Wrist Center J5 (Wrist J5 is above TCP by tool length)
+      const r_target = Math.hypot(x, z);
+      const y_target = y + toolLength;
+
+      // Delta vector from J2 Shoulder (height C4_LINK.baseH = 70) to J5 Wrist Center
+      const deltaR = r_target;
+      const deltaY = y_target - C4_LINK.baseH;
+      const d = Math.hypot(deltaR, deltaY);
+
+      const l1 = C4_LINK.l1; // Upper Arm length = 180
+      const l2 = C4_LINK.l2; // Forearm length = 170
+
+      let theta2 = 0, theta3 = 0, theta5 = 0;
+      
+      if (d <= (l1 + l2) && d >= Math.abs(l1 - l2)) {
+        // Angle of line J2->J5 relative to horizontal
+        const phi = Math.atan2(deltaY, deltaR);
+
+        // Law of Cosines for Shoulder J2 offset angle
+        const cos_alpha = (l1*l1 + d*d - l2*l2) / (2 * l1 * d);
+        const alpha = Math.acos(Math.max(-1, Math.min(1, cos_alpha)));
+        
+        // Shoulder angle from horizontal (Upright "Elbow-Above" posture)
+        const theta_shoulder = phi + alpha;
+        
+        // J2 forward tilt from vertical UP
+        theta2 = (Math.PI / 2) - theta_shoulder;
+
+        // Law of Cosines for Elbow J3 angle
+        const cos_gamma = (l1*l1 + l2*l2 - d*d) / (2 * l1 * l2);
+        const gamma = Math.acos(Math.max(-1, Math.min(1, cos_gamma)));
+        
+        // J3 bend angle (forearm bending forward/downward)
+        theta3 = Math.PI - gamma;
+
+        // J5 pitch angle: keeps dispenser nozzle pointing straight down at workpiece
+        const current_pitch = theta2 + theta3;
+        theta5 = Math.PI - current_pitch + ((degV + 90) * Math.PI / 180);
+      } else {
+        // Safe fallback for out-of-reach bounds
+        theta2 = 0.4;
+        theta3 = 1.1;
+        theta5 = 0.5;
+      }
+
+      const theta4 = degU * Math.PI / 180;
+      const theta6 = degW * Math.PI / 180;
+
+      if (linkJ1) linkJ1.rotation.y = theta1;
+      if (linkJ2) linkJ2.rotation.x = theta2;
+      if (linkJ3) linkJ3.rotation.x = theta3;
+      if (linkJ4) linkJ4.rotation.y = theta4;
+      if (linkJ5) linkJ5.rotation.x = theta5;
+      if (linkJ6) linkJ6.rotation.y = theta6;
+
+      currentJointAngles = {
+        j1: theta1 * 180 / Math.PI,
+        j2: theta2 * 180 / Math.PI,
+        j3: theta3 * 180 / Math.PI,
+        j4: degU,
+        j5: theta5 * 180 / Math.PI,
+        j6: degW
+      };
+
+      updateAllJointAndTcpReadouts();
+    }
+
+    function applyJointAnglesToRobot(angles) {
+      currentJointAngles = { ...angles };
+
+      if (linkJ1) linkJ1.rotation.y = angles.j1 * Math.PI / 180;
+      if (linkJ2) linkJ2.rotation.x = angles.j2 * Math.PI / 180;
+      if (linkJ3) linkJ3.rotation.x = angles.j3 * Math.PI / 180;
+      if (linkJ4) linkJ4.rotation.y = angles.j4 * Math.PI / 180;
+      if (linkJ5) linkJ5.rotation.x = angles.j5 * Math.PI / 180;
+      if (linkJ6) linkJ6.rotation.y = angles.j6 * Math.PI / 180;
+
+      updateAllJointAndTcpReadouts();
+    }
+
+    function updateAllJointAndTcpReadouts() {
+      const setTxt = (id, txt) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = txt;
+      };
+
+      const j1Str = currentJointAngles.j1.toFixed(1) + "°";
+      const j2Str = currentJointAngles.j2.toFixed(1) + "°";
+      const j3Str = currentJointAngles.j3.toFixed(1) + "°";
+      const j4Str = currentJointAngles.j4.toFixed(1) + "°";
+      const j5Str = currentJointAngles.j5.toFixed(1) + "°";
+      const j6Str = currentJointAngles.j6.toFixed(1) + "°";
+
+      // Simulation View Readouts
+      setTxt('j1-angle', j1Str);
+      setTxt('j2-angle', j2Str);
+      setTxt('j3-angle', j3Str);
+      setTxt('j4-angle', j4Str);
+      setTxt('j5-angle', j5Str);
+      setTxt('j6-angle', j6Str);
+
+      // Jog Pendant View Readouts
+      setTxt('jog-j1-val', j1Str);
+      setTxt('jog-j2-val', j2Str);
+      setTxt('jog-j3-val', j3Str);
+      setTxt('jog-j4-val', j4Str);
+      setTxt('jog-j5-val', j5Str);
+      setTxt('jog-j6-val', j6Str);
+
+      // Hand Configuration Flags
+      const handStr = (currentJointAngles.j1 >= 0 ? "Righty" : "Lefty") + " / " + (currentJointAngles.j2 >= 0 ? "Above" : "Below") + " / " + (Math.abs(currentJointAngles.j5) <= 90 ? "NoFlip" : "Flip");
+      setTxt('jog-hand-config-str', handStr);
+
+      // HUD Readouts
+      setTxt('sim-tcp-pos', `X:${activePos.x.toFixed(1)} Y:${activePos.y.toFixed(1)} Z:${activePos.z.toFixed(1)}`);
+      setTxt('sim-tcp-ori', `U:${activeOrientation.u.toFixed(1)}° V:${activeOrientation.v.toFixed(1)}° W:${activeOrientation.w.toFixed(1)}°`);
+    }
+
+    function initCameraControls(dom) {
+      let isDragging = false;
+      let prevPos = { x: 0, y: 0 };
+
+      dom.addEventListener('mousedown', (e) => { 
+        isDragging = true; 
+        prevPos = { x: e.clientX, y: e.clientY };
+      });
+
+      dom.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          const dx = e.clientX - prevPos.x;
+          const quatY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.008);
+          camera.position.applyQuaternion(quatY);
+          camera.lookAt(0, 80, 180);
+        }
+        prevPos = { x: e.clientX, y: e.clientY };
+      });
+
+      window.addEventListener('mouseup', () => { isDragging = false; });
+      dom.addEventListener('wheel', (e) => {
+        camera.position.multiplyScalar(e.deltaY > 0 ? 1.05 : 0.95);
+        camera.lookAt(0, 80, 180);
+      });
+    }
+
+    function onWindowResize() {
+      const container = document.getElementById('robot3d-container');
+      if (!container || !renderer) return;
+      const w = container.clientWidth || 600;
+      const h = container.clientHeight || 460;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    function parseSpelProgram(spelText) {
+      const lines = spelText.split('\n');
+      const cmds = [];
+
+      lines.forEach(rawLine => {
+        const line = rawLine.trim();
+        if (!line || line.startsWith("'")) return;
+
+        const goMatch = line.match(/Go\s+XY\(([-+]?\d*\.?\d+),\s*([-+]?\d*\.?\d+),\s*([-+]?\d*\.?\d+)/i);
+        if (goMatch) {
+          cmds.push({ type: 'GO', x: parseFloat(goMatch[1]), y: parseFloat(goMatch[2]), z: parseFloat(goMatch[3]), raw: line });
+          return;
+        }
+
+        const moveMatch = line.match(/Move\s+XY\(([-+]?\d*\.?\d+),\s*([-+]?\d*\.?\d+),\s*([-+]?\d*\.?\d+)/i);
+        if (moveMatch) {
+          cmds.push({ type: 'MOVE', x: parseFloat(moveMatch[1]), y: parseFloat(moveMatch[2]), z: parseFloat(moveMatch[3]), raw: line });
+          return;
+        }
+
+        if (line.match(/^On\s+\d+/i)) {
+          cmds.push({ type: 'ON', raw: line });
+        } else if (line.match(/^Off\s+\d+/i)) {
+          cmds.push({ type: 'OFF', raw: line });
+        }
+      });
+
+      return cmds;
+    }
+
+    function run3DSimulationFromSpel() {
+      const code = compiledSpel || codeDisplay.value;
+      simCommands = parseSpelProgram(code);
+
+      if (simCommands.length === 0) {
+        alert("未解析到有效的 SPEL+ 指令 (Go/Move/On/Off)！");
+        return;
+      }
+
+      currentCmdIndex = 0;
+      simProgress = 0;
+      activePos = { x: 150, y: 90, z: 15 };
+      is3DPlaying = true;
+      isValveOn = false;
+
+      while(gluePointsGroup.children.length > 0){ 
+        gluePointsGroup.remove(gluePointsGroup.children[0]); 
+      }
+
+      document.getElementById('sim-status-dot').className = "w-2 h-2 rounded-full bg-emerald-400 animate-ping";
+      document.getElementById('sim-status-text').innerText = "Running Simulation";
+      document.getElementById('btn-3d-play').innerHTML = `<i data-lucide="pause" class="w-4 h-4"></i> 暫停 C4 動作`;
+      try { lucide.createIcons(); } catch(e) {}
+
+      prepareNextCommand();
+    }
+
+    function prepareNextCommand() {
+      if (currentCmdIndex >= simCommands.length) {
+        is3DPlaying = false;
+        document.getElementById('sim-status-dot').className = "w-2 h-2 rounded-full bg-emerald-400";
+        document.getElementById('sim-status-text').innerText = "Finished";
+        document.getElementById('sim-active-line').innerText = "C4 Program Execution Finished.";
+        document.getElementById('btn-3d-play').innerHTML = `<i data-lucide="play" class="w-4 h-4"></i> 播放 C4 動作`;
+        try { lucide.createIcons(); } catch(e) {}
+        return;
+      }
+
+      const cmd = simCommands[currentCmdIndex];
+      document.getElementById('sim-active-line').innerText = cmd.raw;
+
+      if (cmd.type === 'ON') {
+        isValveOn = true;
+        document.getElementById('sim-io-status').innerText = "ON (Gluing)";
+        document.getElementById('sim-io-status').className = "text-emerald-400 font-bold";
+        currentCmdIndex++;
+        prepareNextCommand();
+      } else if (cmd.type === 'OFF') {
+        isValveOn = false;
+        document.getElementById('sim-io-status').innerText = "OFF";
+        document.getElementById('sim-io-status').className = "text-rose-400 font-bold";
+        currentCmdIndex++;
+        prepareNextCommand();
+      } else {
+        startPos = { ...activePos };
+        targetPos = { x: cmd.x, y: cmd.y, z: cmd.z };
+        simProgress = 0;
+      }
+    }
+
+    function toggle3DPlayPause() {
+      if (simCommands.length === 0) {
+        run3DSimulationFromSpel();
+        return;
+      }
+      is3DPlaying = !is3DPlaying;
+      document.getElementById('btn-3d-play').innerHTML = is3DPlaying 
+        ? `<i data-lucide="pause" class="w-4 h-4"></i> 暫停 C4 動作` 
+        : `<i data-lucide="play" class="w-4 h-4"></i> 繼續 C4 動作`;
+      try { lucide.createIcons(); } catch(e) {}
+    }
+
+    function reset3DRobot() {
+      is3DPlaying = false;
+      currentCmdIndex = 0;
+      activePos = { x: 150, y: 90, z: 15 };
+      activeOrientation = { u: 0.0, v: -90.0, w: 0.0 };
+      solveEpsonC4IK(150, 90, 15, 0, -90, 0);
+      while(gluePointsGroup.children.length > 0){ 
+        gluePointsGroup.remove(gluePointsGroup.children[0]); 
+      }
+      document.getElementById('sim-status-dot').className = "w-2 h-2 rounded-full bg-slate-500";
+      document.getElementById('sim-status-text').innerText = "Ready";
+      document.getElementById('sim-active-line').innerText = "C4 Reset Done.";
+    }
+
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+
+      if (is3DPlaying && simCommands.length > 0) {
+        const cmd = simCommands[currentCmdIndex];
+
+        if (cmd && (cmd.type === 'GO' || cmd.type === 'MOVE')) {
+          simProgress += 0.05;
+          if (simProgress >= 1.0) {
+            simProgress = 1.0;
+            activePos = { ...targetPos };
+            currentCmdIndex++;
+            prepareNextCommand();
+          } else {
+            activePos.x = startPos.x + (targetPos.x - startPos.x) * simProgress;
+            activePos.y = startPos.y + (targetPos.y - startPos.y) * simProgress;
+            activePos.z = startPos.z + (targetPos.z - startPos.z) * simProgress;
+          }
+
+          if (isValveOn) {
+            const glueDot = new THREE.Mesh(
+              new THREE.SphereGeometry(1.8, 8, 8),
+              new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+            );
+            glueDot.position.set(activePos.x - 150, activePos.z, activePos.y + 90);
+            gluePointsGroup.add(glueDot);
+          }
+
+          solveEpsonC4IK(activePos.x, activePos.y, activePos.z, activeOrientation.u, activeOrientation.v, activeOrientation.w);
+        }
+      }
+
+      if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 3. 三點畫弧動態圖解畫布 (Arc Geometry Interactive Canvas)
+    // -------------------------------------------------------------
+    let arcGeoP1 = { x: 80, y: 200 };
+    let arcGeoP2 = { x: 250, y: 60 };
+    let arcGeoP3 = { x: 440, y: 190 };
+    let draggingGeoPoint = null;
+
+    function initArcGeoCanvas() {
+      const gCanvas = document.getElementById('arcGeoCanvas');
+      if (!gCanvas) return;
+
+      gCanvas.addEventListener('pointerdown', (e) => {
+        const rect = gCanvas.getBoundingClientRect();
+        const scaleX = gCanvas.width / rect.width;
+        const scaleY = gCanvas.height / rect.height;
+        const px = (e.clientX - rect.left) * scaleX;
+        const py = (e.clientY - rect.top) * scaleY;
+
+        if (Math.hypot(px - arcGeoP1.x, py - arcGeoP1.y) < 18) { draggingGeoPoint = 'P1'; }
+        else if (Math.hypot(px - arcGeoP2.x, py - arcGeoP2.y) < 18) { draggingGeoPoint = 'P2'; }
+        else if (Math.hypot(px - arcGeoP3.x, py - arcGeoP3.y) < 18) { draggingGeoPoint = 'P3'; }
+
+        if (draggingGeoPoint) {
+          gCanvas.setPointerCapture(e.pointerId);
+        }
+      });
+
+      gCanvas.addEventListener('pointermove', (e) => {
+        if (!draggingGeoPoint) return;
+        const rect = gCanvas.getBoundingClientRect();
+        const scaleX = gCanvas.width / rect.width;
+        const scaleY = gCanvas.height / rect.height;
+        const px = Math.max(15, Math.min(gCanvas.width - 15, (e.clientX - rect.left) * scaleX));
+        const py = Math.max(15, Math.min(gCanvas.height - 15, (e.clientY - rect.top) * scaleY));
+
+        if (draggingGeoPoint === 'P1') arcGeoP1 = { x: px, y: py };
+        else if (draggingGeoPoint === 'P2') arcGeoP2 = { x: px, y: py };
+        else if (draggingGeoPoint === 'P3') arcGeoP3 = { x: px, y: py };
+
+        drawArcGeoCanvas();
+      });
+
+      const handleGeoPointerUp = () => { draggingGeoPoint = null; };
+      gCanvas.addEventListener('pointerup', handleGeoPointerUp);
+      gCanvas.addEventListener('pointercancel', handleGeoPointerUp);
+
+      drawArcGeoCanvas();
+    }
+
+    function drawArcGeoCanvas() {
+      const gCanvas = document.getElementById('arcGeoCanvas');
+      if (!gCanvas) return;
+      const gCtx = gCanvas.getContext('2d');
+
+      const p1 = arcGeoP1;
+      const p2 = arcGeoP2;
+      const p3 = arcGeoP3;
+
+      gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
+
+      const d = 2 * (p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
+      let cx = 0, cy = 0, radius = 0, isCollinear = false;
+
+      if (Math.abs(d) < 1e-4) {
+        isCollinear = true;
+      } else {
+        cx = ((p1.x**2 + p1.y**2)*(p2.y - p3.y) + (p2.x**2 + p2.y**2)*(p3.y - p1.y) + (p3.x**2 + p3.y**2)*(p1.y - p2.y)) / d;
+        cy = ((p1.x**2 + p1.y**2)*(p3.x - p2.x) + (p2.x**2 + p2.y**2)*(p1.x - p3.x) + (p3.x**2 + p3.y**2)*(p2.x - p1.x)) / d;
+        radius = Math.hypot(p1.x - cx, p1.y - cy);
+      }
+
+      gCtx.beginPath();
+      gCtx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
+      gCtx.setLineDash([4, 4]);
+      gCtx.moveTo(p1.x, p1.y); gCtx.lineTo(p2.x, p2.y); gCtx.lineTo(p3.x, p3.y);
+      gCtx.stroke();
+
+      if (!isCollinear) {
+        gCtx.beginPath();
+        gCtx.strokeStyle = 'rgba(168, 85, 247, 0.4)';
+        gCtx.moveTo(cx, cy); gCtx.lineTo(p1.x, p1.y);
+        gCtx.moveTo(cx, cy); gCtx.lineTo(p2.x, p2.y);
+        gCtx.moveTo(cx, cy); gCtx.lineTo(p3.x, p3.y);
+        gCtx.stroke();
+        gCtx.setLineDash([]);
+
+        let t1 = Math.atan2(p1.y - cy, p1.x - cx);
+        let t2 = Math.atan2(p2.y - cy, p2.x - cx);
+        let t3 = Math.atan2(p3.y - cy, p3.x - cx);
+
+        const cross = (p2.x - p1.x)*(p3.y - p2.y) - (p2.y - p1.y)*(p3.x - p2.x);
+        const isCW = cross < 0;
+
+        if (isCW) {
+          if (t2 > t1) t2 -= 2 * Math.PI;
+          if (t3 > t2) t3 -= 2 * Math.PI;
+        } else {
+          if (t2 < t1) t2 += 2 * Math.PI;
+          if (t3 < t2) t3 += 2 * Math.PI;
+        }
+
+        gCtx.beginPath();
+        gCtx.strokeStyle = '#38bdf8';
+        gCtx.lineWidth = 3.5;
+        gCtx.arc(cx, cy, radius, t1, t3, isCW);
+        gCtx.stroke();
+
+        gCtx.beginPath();
+        gCtx.arc(cx, cy, 6, 0, Math.PI * 2);
+        gCtx.fillStyle = '#a855f7';
+        gCtx.fill();
+        gCtx.strokeStyle = '#ffffff';
+        gCtx.lineWidth = 1.5;
+        gCtx.stroke();
+
+        gCtx.fillStyle = '#c084fc';
+        gCtx.font = '11px monospace';
+        gCtx.fillText(`C(${Math.round(cx)}, ${Math.round(cy)})`, cx + 8, cy - 8);
+      } else {
+        gCtx.beginPath();
+        gCtx.strokeStyle = '#f43f5e';
+        gCtx.lineWidth = 3;
+        gCtx.setLineDash([]);
+        gCtx.moveTo(p1.x, p1.y); gCtx.lineTo(p3.x, p3.y);
+        gCtx.stroke();
+      }
+
+      const drawHandle = (pt, color, label) => {
+        gCtx.beginPath();
+        gCtx.arc(pt.x, pt.y, 8, 0, Math.PI * 2);
+        gCtx.fillStyle = color;
+        gCtx.fill();
+        gCtx.strokeStyle = '#ffffff';
+        gCtx.lineWidth = 2;
+        gCtx.stroke();
+
+        gCtx.fillStyle = '#ffffff';
+        gCtx.font = 'bold 11px monospace';
+        gCtx.fillText(label, pt.x + 10, pt.y - 8);
+      };
+
+      drawHandle(p1, '#10b981', 'P1 (Start)');
+      drawHandle(p2, '#f59e0b', 'P2 (Pass Point)');
+      drawHandle(p3, '#f43f5e', 'P3 (End)');
+
+      const setHudText = (id, txt) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = txt;
+      };
+
+      setHudText('geo-hud-p1', `X:${Math.round(p1.x)} Y:${Math.round(gCanvas.height - p1.y)}`);
+      setHudText('geo-hud-p2', `X:${Math.round(p2.x)} Y:${Math.round(gCanvas.height - p2.y)}`);
+      setHudText('geo-hud-p3', `X:${Math.round(p3.x)} Y:${Math.round(gCanvas.height - p3.y)}`);
+      
+      if (!isCollinear) {
+        setHudText('geo-hud-center', `C:(${Math.round(cx)}, ${Math.round(gCanvas.height - cy)}) R:${Math.round(radius)}`);
+        setHudText('geo-hud-spel-cmd', `Arc XY(${p2.x.toFixed(1)}, ${(gCanvas.height - p2.y).toFixed(1)}, 0.0), XY(${p3.x.toFixed(1)}, ${(gCanvas.height - p3.y).toFixed(1)}, 0.0)`);
+      } else {
+        setHudText('geo-hud-center', `三點共線 (Collinear)`);
+        setHudText('geo-hud-spel-cmd', `Move XY(${p3.x.toFixed(1)}, ${(gCanvas.height - p3.y).toFixed(1)}, 0.0)`);
+      }
+    }
+
+    function initApp() {
+      loadSamplePattern();
+      setTimeout(init3DRobotSimulator, 50);
+      setTimeout(initArcGeoCanvas, 100);
+    }
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(initApp, 10);
+    } else {
+      document.addEventListener('DOMContentLoaded', initApp);
+      window.addEventListener('load', initApp);
+    }
+  </script>
+</body>
+</html>
