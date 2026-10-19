@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>五股職訓局-機電AI_115-1期 | 網頁版監控PLC VSCode 網頁Debug技巧全攻略</title>
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* 專題頁籤導覽列 */
+    .project-tabs-nav {
+      display: flex;
+      gap: 12px;
+      margin: 25px 0 35px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 8px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      max-width: 920px;
+      margin-left: auto;
+      margin-right: auto;
+      flex-wrap: wrap;
+    }
+    .project-tab-link {
+      flex: 1;
+      min-width: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.92rem;
+      transition: all 0.25s ease;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+    }
+    .project-tab-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .project-tab-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.22) 0%, rgba(56, 189, 248, 0.18) 100%);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.35);
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.15);
+    }
+
+    /* 卡片與圖片效果 */
+    .debug-step-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      border-radius: var(--radius-md);
+      padding: 26px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+    .debug-step-card:hover {
+      border-color: rgba(56, 189, 248, 0.45);
+      transform: translateY(-2px);
+    }
+
+    .debug-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .debug-item {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .debug-item img {
+      width: 100%;
+      max-height: 280px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: #030712;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: zoom-in;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .debug-item img:hover {
+      transform: scale(1.02);
+      filter: brightness(1.08);
+    }
+
+    .code-pill {
+      background: #030712;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: #38bdf8;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88rem;
+    }
+
+    .callout-box {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 4px solid #f59e0b;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      color: #fde68a;
+      font-size: 0.92rem;
+      margin: 16px 0;
+      line-height: 1.6;
+    }
+
+    .success-box {
+      background: rgba(16, 185, 129, 0.1);
+      border-left: 4px solid #10b981;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      color: #a7f3d0;
+      font-size: 0.92rem;
+      margin: 16px 0;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body class="project-body-theme">
+  <div class="project-page-container">
+    
+    <!-- 頂部導覽列 -->
+    <header class="home-navbar" style="border-bottom: 1px solid var(--border-color); background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;">
+      <div class="brand-logo">
+        <i class="fa-solid fa-microchip logo-icon"></i>
+        <div class="brand-titles">
+          <h1 class="main-title">五股職訓局</h1>
+          <span class="sub-title">機電AI_115-1期（作者：Rido老師）</span>
+        </div>
+      </div>
+      <div class="nav-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="index.html" class="nav-cta-btn secondary-btn" style="background: rgba(255,255,255,0.05); border-color: var(--border-color); color: var(--text-main);">
+          <i class="fa-solid fa-house"></i> 首頁
+        </a>
+        <a href="csharp.html" class="nav-cta-btn secondary-btn" style="background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.35); color: #c084fc;">
+          <i class="fa-brands fa-microsoft"></i> C# 課程
+        </a>
+        <a href="project_plc_fx3u.html" class="nav-cta-btn secondary-btn" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
+          <i class="fa-solid fa-network-wired"></i> 回三菱 PLC 專題
+        </a>
+        <a href="https://echomanrido.github.io/html_FX3u_Monitor/1.html" target="_blank" rel="noopener noreferrer" class="nav-cta-btn" style="background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%); color: #030712; font-weight: 700;">
+          <i class="fa-solid fa-desktop"></i> 線上監控系統 ➔
+        </a>
+      </div>
+    </header>
+
+    <!-- 麵包屑 -->
+    <div class="project-breadcrumb">
+      <a href="index.html"><i class="fa-solid fa-house"></i> 首頁</a> / 
+      <a href="project.html">實務專題</a> / 
+      <a href="project_plc_fx3u.html">專題：PC-Based控制_三菱FX3U</a> / 
+      <span class="active-item">VS Code 網頁 Debug 技巧與 Web Serial 排錯指南</span>
+    </div>
+
+    <!-- 專題切換頁籤導覽列 -->
+    <div class="project-tabs-nav">
+      <a href="project_plc_fx3u.html" class="project-tab-link">
+        <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+        <span>專題主頁：三菱 FX3U 控制</span>
+      </a>
+      <a href="debug_html_fx3u.html" class="project-tab-link active">
+        <i class="fa-solid fa-bug" style="color: #f59e0b;"></i>
+        <span>實務技巧：VS Code 網頁 Debug 與排錯</span>
+      </a>
+      <a href="https://echomanrido.github.io/html_FX3u_Monitor/1.html" target="_blank" class="project-tab-link">
+        <i class="fa-solid fa-arrow-up-right-from-square" style="color: #34d399;"></i>
+        <span>立即前往線上監控系統 ➔</span>
+      </a>
+    </div>
+
+    <!-- 主標題橫幅區塊 -->
+    <div style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%); border: 2px solid rgba(245, 158, 11, 0.4); border-radius: var(--radius-md); padding: 30px; margin-bottom: 35px; box-shadow: 0 15px 35px rgba(245, 158, 11, 0.15); position: relative; overflow: hidden;">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 320px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+            <span style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.78rem; font-weight: 800; padding: 4px 12px; border-radius: 999px;">
+              <i class="fa-solid fa-wrench"></i> 工控前端工程師必備調試技巧
+            </span>
+            <span style="color: #94a3b8; font-size: 0.82rem; font-family: monospace;">Chrome DevTools &middot; Web Serial API &middot; VS Code Breakpoints</span>
+          </div>
+          <h2 style="font-size: 1.85rem; font-weight: 900; color: #f8fafc; margin: 0 0 14px 0;">
+            網頁版監控 PLC (html_FX3u_Monitor) VS Code 網頁 Debug 全解析
+          </h2>
+          <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.7; margin: 0;">
+            當我們在瀏覽器上開發透過 <strong>Web Serial API</strong> 直連三菱 FX3U PLC 的 HMI 圖控介面時，常遇到<strong>斷點設不進去、Live Server 快取無法更新、狀態難以視覺化觀測、甚至本機 HTTP 伺服器因非安全來源遭瀏覽器阻擋</strong>等疑難雜症。本指南依據原廠實戰教學投影片，完整萃取 25 頁精華與 33 張圖表，帶您一步步打通前端調試任督二脈！
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 技巧 1：Console 表格化觀測 state 物件 -->
+    <section class="debug-step-card">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+        <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(56, 189, 248, 0.2); border: 1px solid #38bdf8; display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 1.2rem;">
+          <i class="fa-solid fa-table-cells"></i>
+        </div>
+        <div>
+          <span style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">核心技巧一 (Slide 07~08)</span>
+          <h3 style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin: 2px 0 0 0;">Console state 物件即時檢視與 console.table 表格化輸出</h3>
+        </div>
+      </div>
+
+      <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.7;">
+        在除錯 X 輸入與 Y 輸出接點狀態時，逐一查看陣列或打 log 非常耗時。在 Chrome DevTools 的 <span class="code-pill">Console</span> 面板中，可以直接輸入全域 <span class="code-pill">state</span> 物件檢視當前記憶體，並使用 <span class="code-pill">console.table()</span> 格式化為易讀的排版表格：
+      </p>
+
+      <div style="background: #030712; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 14px; margin: 12px 0; font-family: 'Fira Code', monospace; font-size: 0.9rem;">
+        <div style="color: #94a3b8;">// 1. 檢視全域 state 物件</div>
+        <div style="color: #38bdf8;">state</div>
+        <div style="color: #94a3b8; margin-top: 8px;">// 2. 表格化輸出 Y0~Y17 輸出狀態</div>
+        <div style="color: #34d399;">console.table(state.channelStatus);</div>
+        <div style="color: #94a3b8; margin-top: 8px;">// 3. 表格化輸出 X0~X17 輸入狀態</div>
+        <div style="color: #f59e0b;">console.table(state.inputStatus);</div>
+      </div>
+
+      <div class="callout-box">
+        <i class="fa-solid fa-circle-exclamation"></i> <strong>投影片重要提點 (Slide 08)</strong>：在 Console 測試時，部分瀏覽器環境安全性限制可能<strong>無法直接複製貼上</strong>，建議親自動手打字輸入測試！
+      </div>
+
+      <div class="debug-grid">
+        <div class="debug-item">
+          <span style="font-size: 0.85rem; color: #38bdf8; font-weight: 700;">投影片 Slide 07：Console 輸出 X/Y 狀態變數</span>
+          <img src="images_src/vscode_debug/slide_007_1.png" alt="Slide 07 - Debug X/Y 狀態與 console.table" title="點選圖片放大檢視">
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">透過 Chrome DevTools 尋找持有 X/Y 狀態之全域變數，定位關鍵通訊陣列。</p>
+        </div>
+        <div class="debug-item">
+          <span style="font-size: 0.85rem; color: #38bdf8; font-weight: 700;">投影片 Slide 08：state 與 channelStatus 記憶體表格</span>
+          <img src="images_src/vscode_debug/slide_008_1.png" alt="Slide 08 - state 檢視目前接點記憶體物件" title="點選圖片放大檢視">
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">直接在 Console 印出 state 物件，利用 console.table 直觀比對 16 個接點的布林值。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技巧 2：瀏覽器序列埠日誌與硬體權限 -->
+    <section class="debug-step-card">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+        <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(168, 85, 247, 0.2); border: 1px solid #c084fc; display: flex; align-items: center; justify-content: center; color: #c084fc; font-size: 1.2rem;">
+          <i class="fa-brands fa-chrome"></i>
+        </div>
+        <div>
+          <span style="font-size: 0.75rem; color: #c084fc; font-weight: 700; text-transform: uppercase;">核心技巧二 (Slide 05~06)</span>
+          <h3 style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin: 2px 0 0 0;">Chrome 內建底層序列埠日誌與裝置授權管理</h3>
+        </div>
+      </div>
+
+      <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.7;">
+        當點擊網頁「連線」卻找不到 COM Port 或一直斷線時，可善用 Chrome 專屬的內部協定網址查看底層連線日誌與解除序列埠佔用：
+      </p>
+
+      <ul style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.8; padding-left: 20px;">
+        <li><span class="code-pill">chrome://device-log/</span>：查看 Chrome 底層 USB / 序列埠裝置拔插、驅動加載與錯誤 Event Log。</li>
+        <li><span class="code-pill">chrome://settings/content/serialPorts</span>：檢視目前已授權存取 Web Serial 的網站清單，若連線異常可手動重設或清除權限。</li>
+      </ul>
+
+      <div class="debug-grid">
+        <div class="debug-item">
+          <span style="font-size: 0.85rem; color: #c084fc; font-weight: 700;">投影片 Slide 05：chrome://device-log/ 底層日誌</span>
+          <img src="images_src/vscode_debug/slide_005_1.png" alt="Slide 05 - chrome://device-log/" title="點選圖片放大檢視">
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">即時查看 USB-SC09 / CH340 / PL2303 晶片在 Chrome 核心中的識別狀態與通訊事件。</p>
+        </div>
+        <div class="debug-item">
+          <span style="font-size: 0.85rem; color: #c084fc; font-weight: 700;">投影片 Slide 06：chrome://settings/content/serialPorts</span>
+          <img src="images_src/vscode_debug/slide_006_1.png" alt="Slide 06 - 序列埠權限管理" title="點選圖片放大檢視">
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">管理已允許存取序列裝置的 URL，防止被舊 Session 鎖定佔用。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技巧 3：快取問題解決與 Sources 斷點設定困境 -->
+    <section class="debug-step-card">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+        <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(244, 63, 94, 0.2); border: 1px solid #fb7185; display: flex; align-items: center; justify-content: center; color: #fb7185; font-size: 1.2rem;">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </div>
+        <div>
+          <span style="font-size: 0.75rem; color: #fb7185; font-weight: 700; text-transform: uppercase;">核心技巧三 (Slide 09~13)</span>
+          <h3 style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin: 2px 0 0 0;">解決 Resource was not cached、強制刷新與 Sources 斷點設定</h3>
+        </div>
+      </div>
+
+      <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.7;">
+        在 Sources 面板中除錯常遇到兩大痛點：
+      </p>
+
+      <ol style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.8; padding-left: 20px;">
+        <li><strong>Content unavailable. Resource was not cached</strong>：瀏覽器快取導致原始碼不同步。解決方案：在 Network 面板勾選 <strong>Disable cache</strong>，並按下 <span class="code-pill">Ctrl + F5</span> 強制清除快取重新載入。</li>
+        <li><strong>斷點設在何處才能攔截 XY 狀態</strong>：需在通訊回呼函式（如接收封包並解析完 CRC / CheckSum 之後的賦值行）設定斷點，才能在變數更新瞬間停住執行緒。</li>
+      </ol>
+
+      <div class="debug-grid">
+        <div class="debug-item">
+          <span style="font-size: 0.85rem; color: #fb7185; font-weight: 700;">投影片 Slide 09：強制刷新 Ctrl + F5</span>
+          <img src="images_src/vscode_debug/slide_009_3.png" alt="Slide 09 - Content unavailable 與 Ctrl+F5" title="點選圖片放大檢視">
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">解決資源未快取與程式碼更新未反映問題，確保偵錯最新版代碼。</p>
+        </div>
+        <div class="debug-item">
+          <span style="font-size: 0.85rem; color: #fb7185; font-weight: 700;">投影片 Slide 13：Sources 斷點設定位置</span>
+          <img src="images_src/vscode_debug/slide_013_1.png" alt="Slide 13 - Source 介面設斷點看 XY 狀態" title="點選圖片放大檢視">
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">在通訊解碼迴圈中設斷點，逐行單步除錯 X/Y 暫存器計算結果。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技巧 4：VS Code 內建 Debug 與 Live Server 衝突解方 -->
+    <section class="debug-step-card">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+        <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(56, 189, 248, 0.2); border: 1px solid #38bdf8; display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 1.2rem;">
+          <i class="fa-solid fa-code"></i>
+        </div>
+        <div>
+          <span style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">核心技巧四 (Slide 14~21)</span>
+          <h3 style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin: 2px 0 0 0;">VS Code Start Debugging 與 Live Server 斷點無法停止痛點排除</h3>
+        </div>
+      </div>
+
+      <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.7;">
+        許多同學習慣使用 VS Code 的 <strong>Live Server 擴充套件</strong>，但直接用 Live Server 執行時，常發現<strong>在 VS Code 編輯器行號旁下的紅點（斷點）完全不會停下來</strong>！
+      </p>
+
+      <div class="callout-box">
+        <strong>為什麼 Live Server 設斷點無法停止？(Slide 16)</strong><br>
+        因為 Live Server 只是單純的靜態 HTTP 伺服器，並沒有連接 VS Code 的 <strong>Debug Session (偵錯階段)</strong>！若要在 VS Code 原生環境中直接斷點偵錯，必須透過 <strong>Run and Debug (F5) ➔ 啟動 Chrome Debugger</strong> 並綁定通訊埠。
+      </div>
+
+      <div class="debug-grid">
+        <div class="debug-item">
+          <span style="font-size: 0.85rem; color: #38bdf8; font-weight: 700;">投影片 Slide 14：VS Code Start Debugging (F5)</span>
+          <img src="images_src/vscode_debug/slide_014_1.png" alt="Slide 14 - VS Code Start Debugging" title="點選圖片放大檢視">
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">利用 VS Code 內建 Debugger 附加到 Chrome 瀏覽器處理程序。</p>
+        </div>
+        <div class="debug-item">
+          <span style="font-size: 0.85rem; color: #38bdf8; font-weight: 700;">投影片 Slide 16：Live Server 斷點失效現象分析</span>
+          <img src="images_src/vscode_debug/slide_016_1.png" alt="Slide 16 - Live Server 設斷點無法停止" title="點選圖片放大檢視">
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">清楚辨別一般預覽與真正 Attach Debugger 的本質差異。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技巧 5：Web Serial 安全限制與 XAMPP / HTTP 解決方案 -->
+    <section class="debug-step-card">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+        <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 1.2rem;">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <span style="font-size: 0.75rem; color: #10b981; font-weight: 700; text-transform: uppercase;">核心技巧五 (Slide 22~25)</span>
+          <h3 style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; margin: 2px 0 0 0;">Web Serial 安全來源限制 (HTTPS / Localhost) 與 Chrome Flag 解除限制</h3>
+        </div>
+      </div>
+
+      <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.7;">
+        在工廠區域網路架設 XAMPP 或本機 IP 伺服器 (如 <span class="code-pill">http://192.168.1.100</span>) 進行多台電腦連線測試時，常遇到<strong>「瀏覽器不支援 Web Serial (navigator.serial 為 undefined)」</strong>的致命問題！
+      </p>
+
+      <div class="callout-box">
+        <strong>安全限制原理：</strong> W3C 規範要求 Web Serial API 只能在 <strong>安全來源 (Secure Context)</strong> 下運作，即：
+        <ol style="margin: 6px 0 0 0; padding-left: 20px;">
+          <li><span class="code-pill">https://</span>（具備有效 SSL 憑證）</li>
+          <li><span class="code-pill">http://localhost</span> 或 <span class="code-pill">http://127.0.0.1</span>（本地回環不受限）</li>
+          <li><strong>非本機的 HTTP IP 位址（如 XAMPP 區網測試）預設會被 Chrome 完全封鎖 Web Serial！</strong></li>
+        </ol>
+      </div>
+
+      <div class="success-box">
+        <strong>【原廠工程解方】在 Chrome 開啟不安全來源白名單 (Slide 25)：</strong><br>
+        1. 在 Chrome 網址列輸入：<span class="code-pill">chrome://flags/#unsafely-treat-insecure-origin-as-secure</span><br>
+        2. 將欲測試的本機 IP (例如 <span class="code-pill">http://192.168.x.x:8080</span>) 填入白名單輸入框中。<br>
+        3. 將右側狀態切換為 <strong>Enabled</strong>。<br>
+        4. 點選右下角 <strong>Relaunch (重新開啟 Chrome)</strong>，即可在區網 HTTP 環境順利調用 Web Serial API！
+      </div>
+
+      <div class="debug-grid">
+        <div class="debug-item">
+          <span style="font-size: 0.85rem; color: #10b981; font-weight: 700;">投影片 Slide 22：瀏覽器不支援 Web Serial 警告</span>
+          <img src="images_src/vscode_debug/slide_022_1.png" alt="Slide 22 - 瀏覽器不支援 Web Serial" title="點選圖片放大檢視">
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">當非 HTTPS / 非 localhost 載入時，navigator.serial 自動失效。</p>
+        </div>
+        <div class="debug-item">
+          <span style="font-size: 0.85rem; color: #10b981; font-weight: 700;">投影片 Slide 25：Chrome Flags 安全白名單設置</span>
+          <img src="images_src/vscode_debug/slide_025_1.png" alt="Slide 25 - chrome://flags unsafely treat insecure origin as secure" title="點選圖片放大檢視">
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">將開發用 IP 設為例外，免裝 SSL 憑證也能在局域網直接進行串口通訊測試！</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 底部回到專題主頁按鈕列 -->
+    <div style="text-align: center; margin: 50px 0 30px;">
+      <a href="project_plc_fx3u.html" class="nav-cta-btn" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%); color: #030712; font-weight: 800; font-size: 1rem; padding: 12px 28px; border-radius: 8px; text-decoration: none; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);">
+        <i class="fa-solid fa-arrow-left"></i> 回到專題主頁：PC-Based 控制三菱 FX3U
+      </a>
+      <a href="https://echomanrido.github.io/html_FX3u_Monitor/1.html" target="_blank" class="nav-cta-btn secondary-btn" style="display: inline-flex; align-items: center; gap: 8px; margin-left: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none;">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> 線上即時監控系統
+      </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="home-footer" style="border-top: 1px solid var(--border-color); padding: 30px 0; margin-top: 40px; text-align: center;">
+      <p>&copy; 2026 五股職訓局（作者：Rido老師） - 機電AI_115-1期 | PC-Based 控制三菱 PLC FX3U 網頁 Debug 調試指引</p>
+    </footer>
+  </div>
+
+  <!-- Lightbox 圖片放大檢視 Modal -->
+  <div id="imageLightboxModal" style="display:none; position:fixed; z-index:99999; top:0; left:0; width:100vw; height:100vh; background:rgba(3, 7, 18, 0.92); backdrop-filter:blur(8px); justify-content:center; align-items:center; flex-direction:column; padding:20px; box-sizing:border-box;">
+    <div style="position:relative; max-width:92vw; max-height:88vh; display:flex; flex-direction:column; align-items:center;">
+      <button id="imageLightboxClose" aria-label="關閉" style="position:absolute; top:-40px; right:0; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; font-size:1.5rem; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;">&times;</button>
+      <img id="imageLightboxImg" src="" alt="放大圖片" style="max-width:92vw; max-height:80vh; object-fit:contain; border-radius:8px; box-shadow:0 20px 50px rgba(0,0,0,0.85); border:1px solid rgba(245, 158, 11, 0.4); background:#0b0f19;">
+      <div id="imageLightboxCaption" style="margin-top:14px; color:#e2e8f0; font-size:0.95rem; font-weight:500; text-align:center; max-width:85vw; background:rgba(15,23,42,0.85); padding:6px 18px; border-radius:20px; border:1px solid rgba(245, 158, 11, 0.3);"></div>
+    </div>
+  </div>
+
+  <script>
+    // 圖片點擊放大 (Lightbox)
+    function initImageLightbox() {
+      const lbModal = document.getElementById('imageLightboxModal');
+      const lbImg = document.getElementById('imageLightboxImg');
+      const lbCaption = document.getElementById('imageLightboxCaption');
+      const lbClose = document.getElementById('imageLightboxClose');
+
+      if (!lbModal || !lbImg || !lbClose) return;
+
+      function openLightbox(src, alt) {
+        lbImg.src = src;
+        lbCaption.textContent = alt || '圖片放大檢視';
+        lbModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeLightbox() {
+        lbModal.style.display = 'none';
+        lbImg.src = '';
+        document.body.style.overflow = '';
+      }
+
+      document.querySelectorAll('.project-page-container img').forEach(img => {
+        img.title = img.title || '點選圖片放大檢視細節';
+        img.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openLightbox(img.src, img.alt);
+        });
+      });
+
+      lbClose.addEventListener('click', closeLightbox);
+      lbModal.addEventListener('click', (e) => {
+        if (e.target === lbModal || e.target === lbClose) {
+          closeLightbox();
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lbModal.style.display === 'flex') {
+          closeLightbox();
+        }
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      initImageLightbox();
+    });
+  </script>
+</body>
+</html>
