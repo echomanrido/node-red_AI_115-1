@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ollama + Page Assist 地端大模型部署與聯網 RAG 完全指南 | 五股職訓局</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      line-height: 1.7;
+    }
+    .detail-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 20px 80px;
+    }
+    .top-glass-nav {
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .hero-header {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.08) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 16px;
+      padding: 36px 30px;
+      margin: 20px 0 35px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #10b981, #06b6d4);
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      margin-bottom: 12px;
+    }
+    .hero-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0 0 12px;
+    }
+    .chapter-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 28px;
+      transition: all 0.25s ease;
+    }
+    .chapter-card:hover {
+      border-color: rgba(16, 185, 129, 0.35);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+    .chapter-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .chap-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-weight: 800;
+      background: #10b981;
+      color: #030712;
+      font-size: 0.95rem;
+    }
+    .chap-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+    }
+    .code-box {
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      overflow-x: auto;
+    }
+    .code-box code {
+      font-family: 'Fira Code', monospace;
+      color: #34d399;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      white-space: pre;
+    }
+    .alert-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 4px solid #10b981;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 0.92rem;
+    }
+    .alert-box.tip {
+      background: rgba(6, 182, 212, 0.08);
+      border-left-color: #06b6d4;
+    }
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .param-table th {
+      background: #1e293b;
+      color: #34d399;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    .param-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列快捷按鈕 -->
+  <div class="top-glass-nav">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <a href="project_local_llm.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.45); color: #34d399; text-decoration: none; font-size: 0.85rem; font-weight: 700;">
+        <i class="fa-solid fa-arrow-left"></i> 回地端 LLM 專題主頁
+      </a>
+      <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; text-decoration: none; font-size: 0.85rem;">
+        首頁
+      </a>
+      <span style="color: #34d399; font-size: 0.82rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        主題 1：Ollama + Page Assist
+      </span>
+    </div>
+    <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 500;">
+      五股職訓局 機電 AI 115-1 期 實務專題系列
+    </span>
+  </div>
+
+  <div class="detail-container">
+    
+    <!-- 英雄橫幅 -->
+    <header class="hero-header">
+      <span class="hero-tag"><i class="fa-solid fa-terminal"></i> 本地推論核心・從零安裝到實戰</span>
+      <h1 class="hero-title">Ollama + Page Assist<br>地端大模型部署與聯網 RAG 完全指南</h1>
+      <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0;">
+        全面掌握工業自動化現場最廣泛使用的輕量級推論引擎 <strong>Ollama</strong>！從 Windows 環境下載安裝、GPU 顯卡硬體加速驗證、Llama 3.2 Vision 與 Gemma 2 模型拉取、自定義 Modelfile 與上下文長度調校，到搭配 Chrome 擴充外掛 <strong>Page Assist</strong> 實現圖形化 Web UI、SearXNG / Google 即時聯網搜尋與本地文件向量檢索 (RAG)！
+      </p>
+    </header>
+
+    <!-- 第一章：環境安裝與系統驗證 -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">1</span>
+        <h2 class="chap-title">Ollama 安裝配置與系統常駐設定</h2>
+      </div>
+      
+      <p><strong>1.1 下載與安裝</strong></p>
+      <p>前往官方網站 <a href="https://ollama.com/download/windows" target="_blank" style="color: #38bdf8;">ollama.com/download/windows</a> 下載 <code>OllamaSetup.exe</code>，執行安裝後系統列右下角會出現羊駝圖示，表示背景服務已啟動並監聽 <code>127.0.0.1:11434</code>。</p>
+      
+      <p style="margin-top: 14px;"><strong>1.2 系統環境變數優化（重要！）</strong></p>
+      <p>預設情況下，Ollama 會將巨大模型存放在 C 槽（<code>C:\Users\&lt;使用者&gt;\.ollama\models</code>），極易塞滿系統槽。可於「系統環境變數」中新增：</p>
+      <ul style="padding-left: 20px; margin: 8px 0;">
+        <li><code>OLLAMA_MODELS</code>：設定至大容量磁區，例如 <code>D:\ollama_models</code>。</li>
+        <li><code>OLLAMA_HOST</code>：若欲允許局域網其他電腦（如同一廠區的工控機）訪問，可設為 <code>0.0.0.0:11434</code>。</li>
+        <li><code>OLLAMA_ORIGINS</code>：設為 <code>*</code> 以允許跨來源（CORS）資源共享，供網頁前端或 Node-RED 調用。</li>
+      </ul>
+
+      <p style="margin-top: 14px;"><strong>1.3 終端命令驗證</strong></p>
+      <div class="code-box">
+        <code># 檢查 Ollama 版本
+ollama --version
+
+# 查看目前系統正在運行的模型與顯存佔用
+ollama ps
+
+# 查看本地已下載的所有模型庫
+ollama list</code>
+      </div>
+    </section>
+
+    <!-- 第二章：模型拉取與推論實務 -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">2</span>
+        <h2 class="chap-title">模型拉取、視覺多模態與 Modelfile 定制</h2>
+      </div>
+
+      <p><strong>2.1 推薦工業常用模型選型表</strong></p>
+      <table class="param-table">
+        <thead>
+          <tr><th>模型名稱</th><th>參數量</th><th>記憶體 / VRAM 需求</th><th>典型應用場景</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>llama3.2-vision</code></td>
+            <td>11B</td>
+            <td>約 8 GB ~ 12 GB</td>
+            <td>工廠儀表拍照讀數、瑕疵外觀視覺辨識、圖文多模態分析</td>
+          </tr>
+          <tr>
+            <td><code>gemma2:9b</code></td>
+            <td>9B</td>
+            <td>約 6 GB ~ 8 GB</td>
+            <td>Google 高性能輕量大模型、邏輯推理與常識問答極佳</td>
+          </tr>
+          <tr>
+            <td><code>qwen2.5-coder:7b</code></td>
+            <td>7B</td>
+            <td>約 5 GB ~ 7 GB</td>
+            <td>工業程式設計、C# / Python / Structured Text (ST) 程式碼生成</td>
+          </tr>
+          <tr>
+            <td><code>nomic-embed-text</code></td>
+            <td>137M</td>
+            <td>約 500 MB</td>
+            <td>專用文字向量嵌入 (Embedding)，供本地 RAG 文件比對檢索</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: 14px;"><strong>2.2 命令行運行實戰</strong></p>
+      <div class="code-box">
+        <code># 下載並直接進入互動對話
+ollama run gemma2:9b
+
+# 下載視覺多模態模型
+ollama pull llama3.2-vision
+
+# 圖片傳入測試 (在提問中加入圖片路徑)
+# "請分析這張儀表照片指針讀數是幾 bar: C:\data\meter.jpg"</code>
+      </div>
+
+      <p style="margin-top: 14px;"><strong>2.3 撰寫 Modelfile 打造專屬工業 AI</strong></p>
+      <p>建立文字檔 <code>Modelfile</code>，調整記憶體長度與系統人設，避免長文本截斷：</p>
+      <div class="code-box">
+        <code>FROM gemma2:9b
+
+# 提高上下文長度至 8192 tokens (預設通常為 2048)
+PARAMETER num_ctx 8192
+
+# 設定隨機度 (0.0~1.0)，工控嚴謹排查建議調低
+PARAMETER temperature 0.3
+
+# 注入系統級角色提示詞 (System Prompt)
+SYSTEM """
+你是一位擁有 20 年現場實務經驗的機電整合與智慧工廠顧問。
+面對使用者的問題：
+1. 一律使用繁體中文專業回答。
+2. 針對設備故障，先列出安全防護注意事項（如斷電掛牌 LOTO），再依優先權提供排查步驟。
+"""</code>
+      </div>
+      <div class="code-box">
+        <code># 根據 Modelfile 建構自定義模型並啟動
+ollama create my-factory-ai -f ./Modelfile
+ollama run my-factory-ai</code>
+      </div>
+    </section>
+
+    <!-- 第三章：Page Assist 瀏覽器 Web UI 與聯網搜尋 -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">3</span>
+        <h2 class="chap-title">Page Assist 瀏覽器擴充功能與 Web Search 聯網外掛</h2>
+      </div>
+
+      <p><strong>3.1 安裝與介面連線</strong></p>
+      <p>
+        在 Chrome 或 Edge 線上應用程式商店搜尋 <strong>Page Assist - A Web UI for Local AI Models</strong> 並點擊安裝。點開外掛後，確認連線網址為 <code>http://localhost:11434</code>，下方會自動同步列出本機剛才 pull 下來的所有 Ollama 模型。
+      </p>
+
+      <p style="margin-top: 14px;"><strong>3.2 啟用 Web Search (即時聯網能力)</strong></p>
+      <p>
+        本地 LLM 的訓練知識庫截止日固定，若欲查詢最新零件料號或突發新聞，可在 Page Assist 設定頁中啟用 <strong>Web Search</strong>：
+      </p>
+      <ul style="padding-left: 20px; margin: 8px 0;">
+        <li><strong>搜尋引擎選擇</strong>：支援 <strong>SearXNG</strong>（推薦開源免 API Key 伺服器，如 <code>https://searx.space/</code>）、Google Custom Search API 或 DuckDuckGo。</li>
+        <li><strong>執行原理</strong>：當使用者輸入問題時，外掛先在背景呼叫搜尋引擎抓取前 3~5 篇網路摘要，再以 Prompt 注入地端模型（Prompt Injection），由地端模型進行繁體中文統整並附上網路來源連結。</li>
+      </ul>
+
+      <div class="alert-box tip">
+        <i class="fa-solid fa-circle-info"></i> <strong>RAG vs Web Search 差異：</strong><br>
+        Web Search 適合「即時動態資訊」；而企業內部的機台維護手冊、配線圖與產線機密，絕不能上網搜尋，這時就需要依靠<strong>本地 Embedding 向量模型</strong>與本地文件知識庫（RAG）！
+      </div>
+    </section>
+
+    <!-- 第四章：REST API 與工控整合 -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">4</span>
+        <h2 class="chap-title">Ollama 原生 REST API 與 Node-RED 串接呼叫</h2>
+      </div>
+
+      <p>Ollama 在背景內建高效能 HTTP API 伺服器，不需透過任何額外 SDK，即可用純 HTTP POST 達成遠端自動化調用：</p>
+      
+      <div class="code-box">
+        <code># 終端機 cURL 測試呼叫 API
+curl http://localhost:11434/api/generate -d '{
+  "model": "gemma2:9b",
+  "prompt": "請用繁體中文說明三相感應馬達過載跳脫的排查步驟？",
+  "stream": false
+}'</code>
+      </div>
+
+      <p style="margin-top: 14px;"><strong>Node-RED 實作流範例：</strong></p>
+      <p>當產線感測器偵測到異常震動時，Node-RED 觸發 Function 節點組織資料並發送請求：</p>
+      <div class="code-box">
+        <code>// Node-RED Function 節點代碼
+msg.headers = { 'Content-Type': 'application/json' };
+msg.payload = {
+  model: "gemma2:9b",
+  prompt: `[現場設備警報]\n馬達編號: Pump-A\n異常狀態: 振動頻率超標 25%，電流升至 14A\n請給出可能的機械軸承或電氣故障判定與建議。`,
+  stream: false
+};
+return msg;
+
+// 後接 [http request] 節點：
+// Method: POST
+// URL: http://localhost:11434/api/generate</code>
+      </div>
+    </section>
+
+  </div>
+
+  <footer style="text-align: center; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.08); color: #64748b; font-size: 0.88rem;">
+    五股職訓局 機電 AI 115-1 期 實務專題系列教材・版權所有 © 2026
+  </footer>
+
+</body>
+</html>

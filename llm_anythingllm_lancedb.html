@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AnythingLLM + LanceDB 企業私有知識庫與 RAG 實戰指南 | 五股職訓局</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      line-height: 1.7;
+    }
+    .detail-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 20px 80px;
+    }
+    .top-glass-nav {
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .hero-header {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      border-radius: 16px;
+      padding: 36px 30px;
+      margin: 20px 0 35px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(6, 182, 212, 0.2);
+      color: #22d3ee;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      margin-bottom: 12px;
+    }
+    .hero-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0 0 12px;
+    }
+    .chapter-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 28px;
+      transition: all 0.25s ease;
+    }
+    .chapter-card:hover {
+      border-color: rgba(6, 182, 212, 0.35);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+    .chapter-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .chap-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-weight: 800;
+      background: #06b6d4;
+      color: #030712;
+      font-size: 0.95rem;
+    }
+    .chap-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+    }
+    .code-box {
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      overflow-x: auto;
+    }
+    .code-box code {
+      font-family: 'Fira Code', monospace;
+      color: #38bdf8;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      white-space: pre;
+    }
+    .alert-box {
+      background: rgba(6, 182, 212, 0.08);
+      border-left: 4px solid #06b6d4;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 0.92rem;
+    }
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .param-table th {
+      background: #1e293b;
+      color: #06b6d4;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    .param-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列快捷按鈕 -->
+  <div class="top-glass-nav">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <a href="project_local_llm.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; background: rgba(6, 182, 212, 0.2); border: 1px solid rgba(6, 182, 212, 0.45); color: #22d3ee; text-decoration: none; font-size: 0.85rem; font-weight: 700;">
+        <i class="fa-solid fa-arrow-left"></i> 回地端 LLM 專題主頁
+      </a>
+      <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; text-decoration: none; font-size: 0.85rem;">
+        首頁
+      </a>
+      <span style="color: #22d3ee; font-size: 0.82rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        主題 2：AnythingLLM + LanceDB
+      </span>
+    </div>
+    <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 500;">
+      五股職訓局 機電 AI 115-1 期 實務專題系列
+    </span>
+  </div>
+
+  <div class="detail-container">
+    
+    <!-- 英雄橫幅 -->
+    <header class="hero-header">
+      <span class="hero-tag"><i class="fa-solid fa-book-bookmark"></i> 企業私有知識庫・100% 離線 RAG</span>
+      <h1 class="hero-title">AnythingLLM + LanceDB<br>企業私有知識庫與向量檢索實戰指南</h1>
+      <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0;">
+        為工業企業打造徹底離線、安全無虞的私有 AI 助手！從 <strong>AnythingLLM</strong> 桌面版安裝、工作區 (Workspace) 權限劃分、多格式文件解析 (PDF/Word/TXT/網頁爬蟲)、內建高效 <strong>LanceDB</strong> 向量資料庫儲存與比對、<strong>@agent</strong> 智慧代理人調用技能，到透過 <strong>REST API</strong> 實現程式自動化問答串接！
+      </p>
+    </header>
+
+    <!-- 第一章：軟體安裝與架構選型 -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">1</span>
+        <h2 class="chap-title">AnythingLLM 安裝與核心服務選型</h2>
+      </div>
+
+      <p><strong>1.1 下載與安裝</strong></p>
+      <p>至官方網站 <a href="https://anythingllm.com/" target="_blank" style="color: #38bdf8;">anythingllm.com</a> 下載 Windows 桌面版安裝檔，安裝後開箱即可運行，免去繁瑣的 Python 虛擬環境配置。</p>
+
+      <p style="margin-top: 14px;"><strong>1.2 初始引導精靈配置（三大關鍵提供者）</strong></p>
+      <ul style="padding-left: 20px; margin: 8px 0;">
+        <li>
+          <strong>LLM Provider (語言大模型)</strong>：選擇本地 <strong>Ollama</strong>（預設網址 <code>http://127.0.0.1:11434</code>），模型選擇拉取好的 <code>gemma2:9b</code> 或 <code>llama3.2</code>。
+        </li>
+        <li>
+          <strong>Embedding Engine (向量嵌入引擎)</strong>：向量模型負責將文章切片轉換成高維數學向量。推薦選用 <strong>Ollama (nomic-embed-text)</strong> 或 <strong>AnythingLLM Native Embedder</strong>，運算極快且完全在本地執行。
+        </li>
+        <li>
+          <strong>Vector Database (向量資料庫)</strong>：強烈推薦選擇 <strong>LanceDB</strong>。
+        </li>
+      </ul>
+
+      <div class="alert-box">
+        <i class="fa-solid fa-database"></i> <strong>為什麼首選 LanceDB？</strong><br>
+        傳統向量庫（如 Milvus、Qdrant）需要架設伺服器或 Docker 容器；而 <strong>LanceDB</strong> 是以檔案為基礎的無伺服器 (Serverless) 嵌入式向量資料庫，直接存放於本機目錄，支援萬筆向量毫秒級餘弦相似度 (Cosine Similarity) 檢索，零維護負擔！
+      </div>
+    </section>
+
+    <!-- 第二章：知識庫建立與文件向量化 -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">2</span>
+        <h2 class="chap-title">工作區 (Workspace) 建立、文件解析與切分</h2>
+      </div>
+
+      <p><strong>2.1 建立工控專屬工作區</strong></p>
+      <p>在左側點選「+ New Workspace」，命名為 <code>factory-sop</code>（設備故障排查專區）。每個工作區擁有獨立的上下文提示詞、檢索閾值與專屬向量文件庫。</p>
+
+      <p style="margin-top: 14px;"><strong>2.2 文件上傳與 Chunking 切分參數</strong></p>
+      <p>點擊工作區上方的上傳圖示，將 <code>機台故障-常見處理流程.txt</code> 或 <code>PLC操作手冊.pdf</code> 拖入視窗：</p>
+      <ul style="padding-left: 20px; margin: 8px 0;">
+        <li><strong>Text Splitter (切分器)</strong>：系統自動將長文依段落切成小區塊 (Chunks)。</li>
+        <li><strong>Chunk Size</strong>：建議設為 <code>500 ~ 1000 tokens</code>，確保每個區塊具備完整語意。</li>
+        <li><strong>Chunk Overlap (重疊率)</strong>：設為 <code>10% ~ 15%</code>，防止關鍵句子剛好被邊界刀切斷。</li>
+      </ul>
+      <p>上傳完畢後，勾選文件並點擊 <strong>「Move to Workspace」➔「Save and Embed」</strong>，系統即啟動向量模型將切片轉換為高維座標寫入 LanceDB！</p>
+    </section>
+
+    <!-- 第三章：RAG 檢索與 @agent 智慧代理人 -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">3</span>
+        <h2 class="chap-title">RAG 精準問答、來源引用與 @agent 智慧代理人</h2>
+      </div>
+
+      <p><strong>3.1 零幻覺問答驗證（檢索模式切換）</strong></p>
+      <p>AnythingLLM 提供兩種對話模式：</p>
+      <table class="param-table">
+        <thead>
+          <tr><th>對話模式</th><th>執行邏輯</th><th>適合情境</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Query Mode (純查詢模式)</strong></td>
+            <td>嚴格只依據向量庫檢索出來的文件回答，若手冊沒寫直接回答不知道。</td>
+            <td>工廠安全法規、標準作業程序 (SOP) 排查、嚴禁模型猜測</td>
+          </tr>
+          <tr>
+            <td><strong>Chat Mode (混合模式)</strong></td>
+            <td>結合文件知識與大模型自身背景常識進行聯想。</td>
+            <td>創意發想、架構規劃、技術建議</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: 14px;"><strong>3.2 點擊即看原文引用 (Citations)</strong></p>
+      <p>每次模型回答完畢，下方會列出 <code>Sources (1) (2)</code>，點開即可直接查驗引用自手冊的第幾頁或哪一段文字，徹底杜絕 AI 幻覺！</p>
+
+      <p style="margin-top: 14px;"><strong>3.3 @agent 智慧代理人模式</strong></p>
+      <p>在輸入框輸入 <code>@agent</code>，AI 將化身為具備 Tool Use (工具調用) 能力的智能體，支援：</p>
+      <ul style="padding-left: 20px; margin: 8px 0;">
+        <li><strong>Web Browsing</strong>：自動根據問題連網爬取目標網頁解析。</li>
+        <li><strong>SQL / LanceDB 精準搜尋</strong>：跨多份文件比對零件庫存或設備料號。</li>
+        <li><strong>Speech-to-Text</strong>：按住麥克風直接講國語，內建語音辨識直接轉成文字提問。</li>
+      </ul>
+    </section>
+
+    <!-- 第四章：AnythingLLM REST API 程式化調用 -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">4</span>
+        <h2 class="chap-title">AnythingLLM REST API 程式自動化串接</h2>
+      </div>
+
+      <p>AnythingLLM 支援完整開發者 API，可讓 C#、Python 或 Node-RED 程式直接調用企業知識庫：</p>
+
+      <p><strong>4.1 取得 API Key</strong></p>
+      <p>進入 AnythingLLM 左下角 <strong>Settings ➔ Tools ➔ Developer API</strong>，點擊「Generate API Key」取得金鑰字串。</p>
+
+      <p style="margin-top: 14px;"><strong>4.2 cURL 測試查詢工作區對話</strong></p>
+      <div class="code-box">
+        <code># 查詢工廠工作區 (Slug: factory-sop)
+curl -X POST "http://localhost:3001/api/v1/workspace/factory-sop/chat" \
+  -H "Authorization: Bearer YOUR_API_KEY_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "根據常見故障處理流程，設備運轉時溫度過高應該如何處理？",
+    "mode": "query"
+  }'</code>
+      </div>
+
+      <p style="margin-top: 14px;"><strong>4.3 Node-RED 實作流範例：</strong></p>
+      <div class="code-box">
+        <code>// Node-RED Function 節點程式碼
+msg.headers = {
+  'Authorization': 'Bearer 7B8F9A-4C2D-8812-YOURKEY',
+  'Content-Type': 'application/json'
+};
+msg.payload = {
+  message: `機台異常警報: 輸送帶馬達伺服過載，請列出標準 SOP 檢查清單。`,
+  mode: "query"
+};
+return msg;
+
+// 後接 [http request] 節點：
+// 方法: POST
+// URL: http://localhost:3001/api/v1/workspace/factory-sop/chat</code>
+      </div>
+    </section>
+
+  </div>
+
+  <footer style="text-align: center; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.08); color: #64748b; font-size: 0.88rem;">
+    五股職訓局 機電 AI 115-1 期 實務專題系列教材・版權所有 © 2026
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LM Studio (Local Server) 地端模型工作站與 API 伺服器指南 | 五股職訓局</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      line-height: 1.7;
+    }
+    .detail-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 20px 80px;
+    }
+    .top-glass-nav {
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .hero-header {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(236, 72, 153, 0.08) 100%);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      border-radius: 16px;
+      padding: 36px 30px;
+      margin: 20px 0 35px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #a855f7, #ec4899);
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(168, 85, 247, 0.2);
+      color: #c084fc;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      margin-bottom: 12px;
+    }
+    .hero-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0 0 12px;
+    }
+    .chapter-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 28px;
+      transition: all 0.25s ease;
+    }
+    .chapter-card:hover {
+      border-color: rgba(168, 85, 247, 0.35);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+    .chapter-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .chap-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-weight: 800;
+      background: #a855f7;
+      color: #ffffff;
+      font-size: 0.95rem;
+    }
+    .chap-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+    }
+    .code-box {
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      overflow-x: auto;
+    }
+    .code-box code {
+      font-family: 'Fira Code', monospace;
+      color: #c084fc;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      white-space: pre;
+    }
+    .alert-box {
+      background: rgba(168, 85, 247, 0.08);
+      border-left: 4px solid #a855f7;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 0.92rem;
+    }
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .param-table th {
+      background: #1e293b;
+      color: #c084fc;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    .param-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列快捷按鈕 -->
+  <div class="top-glass-nav">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <a href="project_local_llm.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.45); color: #c084fc; text-decoration: none; font-size: 0.85rem; font-weight: 700;">
+        <i class="fa-solid fa-arrow-left"></i> 回地端 LLM 專題主頁
+      </a>
+      <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; text-decoration: none; font-size: 0.85rem;">
+        首頁
+      </a>
+      <span style="color: #c084fc; font-size: 0.82rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+        主題 3：LM Studio (Local Server)
+      </span>
+    </div>
+    <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 500;">
+      五股職訓局 機電 AI 115-1 期 實務專題系列
+    </span>
+  </div>
+
+  <div class="detail-container">
+    
+    <!-- 英雄橫幅 -->
+    <header class="hero-header">
+      <span class="hero-tag"><i class="fa-solid fa-sliders"></i> 本機 OpenAI 相容 API 伺服器</span>
+      <h1 class="hero-title">LM Studio (Local Server)<br>地端模型工作站與 API 伺服器架設指南</h1>
+      <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0;">
+        探索目前全球開發者公認最友善的圖形化本地大模型工作站 <strong>LM Studio</strong>！從軟體安裝、Hugging Face GGUF 各級量化版本下載、顯卡 GPU 層數卸載 (GPU Offload) 極速調校，到一鍵啟動 <strong>100% 相容 OpenAI REST API 規格</strong> 的本地推論伺服器 (Port 1234)，讓 C#、Python 與 Node-RED 零成本切換地端推論！
+      </p>
+    </header>
+
+    <!-- 第一章：軟體安裝與 Hugging Face 整合 -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">1</span>
+        <h2 class="chap-title">LM Studio 安裝與 GGUF 量化模型下載</h2>
+      </div>
+
+      <p><strong>1.1 下載與跨平台安裝</strong></p>
+      <p>至官方網站 <a href="https://lmstudio.ai/" target="_blank" style="color: #38bdf8;">lmstudio.ai</a> 下載 Windows 安裝檔。LM Studio 內建 llama.cpp 高效推論核心，原生支援 NVIDIA CUDA、AMD ROCm 以及 Apple Metal 硬體加速。</p>
+
+      <p style="margin-top: 14px;"><strong>1.2 搜尋與 GGUF 量化等級選型心法</strong></p>
+      <p>點擊左側「搜尋放大鏡」圖示，即可直接檢索 Hugging Face 上的開源模型（如 <code>Qwen2.5-Coder-7B-Instruct-GGUF</code>、<code>Meta-Llama-3.1-8B-Instruct-GGUF</code>）。</p>
+      
+      <table class="param-table">
+        <thead>
+          <tr><th>量化等級 (Quantization)</th><th>模型大小壓縮比</th><th>推論品質損失</th><th>適用硬體推薦</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Q4_K_M (強烈推薦)</strong></td>
+            <td>約原模型 1/4 大小 (~4.5 GB)</td>
+            <td>極微小 (Perplexity 幾乎無差)</td>
+            <td>8GB 顯卡 (RTX 3060 / 4060) 最佳性價比首選</td>
+          </tr>
+          <tr>
+            <td><strong>Q5_K_M</strong></td>
+            <td>約原模型 1/3 大小 (~5.5 GB)</td>
+            <td>更低損失、邏輯推理更紮實</td>
+            <td>適合 12GB 顯存主機</td>
+          </tr>
+          <tr>
+            <td><strong>Q8_0</strong></td>
+            <td>約原模型 1/2 大小 (~8.5 GB)</td>
+            <td>接近無損 16-bit 表現</td>
+            <td>適合 16GB ~ 24GB (RTX 4090) 追求極致精準度</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 第二章：推論參數深度調校與 GPU Offload -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">2</span>
+        <h2 class="chap-title">硬體加速 GPU Offload 與推論參數深度調優</h2>
+      </div>
+
+      <p><strong>2.1 GPU 層數卸載 (GPU Acceleration / Offload)</strong></p>
+      <p>在模型載入設定面板（右側），找到 <strong>GPU Settings</strong>：</p>
+      <ul style="padding-left: 20px; margin: 8px 0;">
+        <li>勾選 <strong>GPU Offload</strong>。</li>
+        <li>將拉桿推到最大（例如 <code>33 / 33 Layers</code>），將神經網絡所有計算層全數載入獨立顯卡的 VRAM 中。</li>
+        <li><strong>推論速度成效</strong>：純 CPU 計算約 5~8 tokens/sec，全進 GPU 後可瞬間飆升至 <strong>45~75 tokens/sec</strong>，達到即問即答的極致流暢度！</li>
+      </ul>
+
+      <p style="margin-top: 14px;"><strong>2.2 核心生成參數詳解</strong></p>
+      <ul style="padding-left: 20px; margin: 8px 0;">
+        <li><strong>Context Length (上下文長度)</strong>：預設為 2048 或 4096，可調高至 8192 或 16384 以分析長篇配線圖與代碼。</li>
+        <li><strong>Temperature (隨機度)</strong>：工控設備排查或編寫 PLC 代碼時，建議設定為 <code>0.1 ~ 0.3</code>，確保回答嚴謹一致，避免隨機猜測。</li>
+        <li><strong>Repeat Penalty (重複懲罰)</strong>：設為 <code>1.1</code>，有效防止小模型陷入迴圈重複講同一句話的窘境。</li>
+      </ul>
+    </section>
+
+    <!-- 第三章：一鍵架設本機 API 伺服器 (Port 1234) -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">3</span>
+        <h2 class="chap-title">一鍵啟動 OpenAI 相容 Local Server (Port 1234)</h2>
+      </div>
+
+      <p>LM Studio 最強大的功能即為內建<strong>100% 相容 OpenAI REST API 規格</strong>的本地 HTTP 伺服器：</p>
+      <p>點擊左側雙箭頭圖示（Local Server 分頁），在頂部選定剛才下載的模型，點擊綠色 <strong>「Start Server」</strong>！伺服器將在 <code>http://localhost:1234</code> 啟動。</p>
+
+      <p style="margin-top: 14px;"><strong>3.1 cURL 測試模型列表端點</strong></p>
+      <div class="code-box">
+        <code># 取得當前伺服器運行的模型
+curl http://localhost:1234/v1/models</code>
+      </div>
+
+      <p style="margin-top: 14px;"><strong>3.2 cURL 測試 Chat Completion 端點</strong></p>
+      <div class="code-box">
+        <code>curl http://localhost:1234/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      {"role": "system", "content": "你是一位機電與 PLC 自動化專家，用繁體中文回答。"},
+      {"role": "user", "content": "Modbus TCP 的 MBAP Header 包含哪四個欄位？"}
+    ],
+    "temperature": 0.2,
+    "max_tokens": 500
+  }'</code>
+      </div>
+    </section>
+
+    <!-- 第四章：工控中控與 Node-RED / C# 無痛切換實戰 -->
+    <section class="chapter-card">
+      <div class="chapter-header">
+        <span class="chap-badge">4</span>
+        <h2 class="chap-title">程式無痛切換：Node-RED & C# 串接地端 LM Studio</h2>
+      </div>
+
+      <p><strong>4.1 原本寫 OpenAI 雲端 API 的程式碼，如何 1 秒改為地端？</strong></p>
+      <p>
+        只要將 API Base URL 由 <code>https://api.openai.com/v1</code> 改為 <code>http://localhost:1234/v1</code>，API Key 填入任意非空字串（如 <code>not-needed</code>），所有現有程式碼完全不需要改寫！
+      </p>
+
+      <p style="margin-top: 14px;"><strong>4.2 Node-RED 實作流範例：</strong></p>
+      <div class="code-box">
+        <code>// Node-RED Function 節點程式碼
+msg.headers = { 'Content-Type': 'application/json' };
+msg.payload = {
+  messages: [
+    { role: "system", content: "你是一位智慧工廠機電維護助理，請簡短用繁體中文條列排查步驟。" },
+    { role: "user", content: `產線警報: 機台編號 M-05，伺服驅動器顯示警報代碼 AL-03，可能原因與處置？` }
+  ],
+  temperature: 0.2
+};
+return msg;
+
+// 後接 [http request] 節點：
+// 方法: POST
+// URL: http://localhost:1234/v1/chat/completions</code>
+      </div>
+
+      <p style="margin-top: 14px;"><strong>4.3 效能即時監控面板</strong></p>
+      <p>
+        在 LM Studio 的 Local Server 介面下方，有即時的 <strong>Tokens/sec</strong> 儀表與 <strong>GPU VRAM 佔用率</strong>。若發現推論速度驟降，可隨時降低 Context Length 或改載入更輕量的量化版本。
+      </p>
+    </section>
+
+  </div>
+
+  <footer style="text-align: center; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.08); color: #64748b; font-size: 0.88rem;">
+    五股職訓局 機電 AI 115-1 期 實務專題系列教材・版權所有 © 2026
+  </footer>
+
+</body>
+</html>
