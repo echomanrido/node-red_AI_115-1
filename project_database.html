@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>專題：工業與雲端資料庫全解 - 四大主題 Step by Step 實作教學</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --db-purple: #a855f7;
+      --db-purple-glow: rgba(168, 85, 247, 0.25);
+      --db-cyan: #06b6d4;
+      --db-orange: #f97316;
+      --db-blue: #3b82f6;
+      --db-red: #ef4444;
+      --db-green: #10b981;
+    }
+    
+    .db-badge-mysql { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); }
+    .db-badge-mssql { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); }
+    .db-badge-influx { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); }
+    .db-badge-firebase { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+
+    /* 四大主題切換導覽卡片 (Four Big Topic Switchers) */
+    .topic-switch-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 30px 0 35px;
+    }
+    @media (max-width: 900px) {
+      .topic-switch-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 550px) {
+      .topic-switch-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .topic-switch-btn {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 16px 14px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .topic-switch-btn:hover {
+      transform: translateY(-3px);
+      border-color: rgba(168, 85, 247, 0.4);
+      background: #1e293b;
+    }
+    .topic-switch-btn.active {
+      border-color: var(--db-purple);
+      background: linear-gradient(145deg, rgba(168, 85, 247, 0.18) 0%, rgba(15, 23, 42, 0.9) 100%);
+      box-shadow: 0 8px 25px rgba(168, 85, 247, 0.25);
+    }
+    .topic-switch-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 15%;
+      right: 15%;
+      height: 3px;
+      background: linear-gradient(90deg, #38bdf8, #a855f7);
+      border-radius: 3px 3px 0 0;
+    }
+    .topic-switch-icon {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    .topic-switch-title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+    .topic-switch-desc {
+      font-size: 0.76rem;
+      color: #94a3b8;
+    }
+
+    /* 主題內容切換面板 */
+    .topic-content-pane {
+      display: none;
+      animation: fadeInPane 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .topic-content-pane.active {
+      display: block;
+    }
+    @keyframes fadeInPane {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Step-by-Step 步驟卡片 */
+    .step-flow-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+    .step-flow-card:hover {
+      border-color: rgba(168, 85, 247, 0.35);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      background: #a855f7;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+      flex-shrink: 0;
+    }
+    .step-title-text {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+    }
+    .step-tag-pill {
+      margin-left: auto;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* 互動工具卡片 */
+    .tool-box-card {
+      background: #0f172a;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      margin: 24px 0;
+    }
+    .tool-box-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .tool-box-header i {
+      font-size: 1.4rem;
+      color: #c084fc;
+    }
+    .tool-box-header h4 {
+      font-size: 1.15rem;
+      color: #f1f5f9;
+      margin: 0;
+    }
+    .tool-input-group {
+      margin-bottom: 14px;
+    }
+    .tool-input-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .tool-input {
+      width: 100%;
+      background: #030712;
+      border: 1px solid #334155;
+      color: #c084fc;
+      font-family: 'Fira Code', monospace;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .tool-input:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+    }
+    .tool-btn-calc {
+      background: linear-gradient(135deg, #7e22ce 0%, #a855f7 100%);
+      color: #ffffff;
+      font-weight: 700;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .tool-btn-calc:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    .tool-result-panel {
+      margin-top: 16px;
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 16px;
+      position: relative;
+    }
+    .tool-result-panel pre {
+      margin: 0;
+      color: #38bdf8;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .btn-copy-code {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-copy-code:hover {
+      background: #a855f7;
+      color: #fff;
+    }
+
+    .guideline-alert-box {
+      background: rgba(168, 85, 247, 0.08);
+      border-left: 4px solid #a855f7;
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+    }
+    .guideline-alert-box.caution {
+      background: rgba(239, 68, 68, 0.08);
+      border-left-color: #ef4444;
+    }
+  </style>
+</head>
+<body class="project-body-theme">
+  <div class="project-page-container">
+    
+    <!-- 頂部導覽列 -->
+    <header class="home-navbar" style="border-bottom: 1px solid var(--border-color); background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;">
+      <div class="brand-logo">
+        <i class="fa-solid fa-microchip logo-icon"></i>
+        <div class="brand-titles">
+          <h1 class="main-title">五股職訓局</h1>
+          <span class="sub-title">機電AI_115-1期（作者：Rido老師）</span>
+        </div>
+      </div>
+      <div class="nav-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="index.html" class="nav-cta-btn secondary-btn" style="background: rgba(255,255,255,0.05); border-color: var(--border-color); color: var(--text-main);">
+          <i class="fa-solid fa-house"></i> 首頁
+        </a>
+        <a href="csharp.html" class="nav-cta-btn secondary-btn" style="background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.35); color: #c084fc;">
+          <i class="fa-brands fa-microsoft"></i> C# 課程
+        </a>
+        <a href="labs.html" class="nav-cta-btn secondary-btn" style="background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.3); color: var(--primary);">
+          <i class="fa-brands fa-node-js"></i> Node-RED
+        </a>
+        <a href="vibecoding.html" class="nav-cta-btn secondary-btn" style="background: rgba(14, 165, 233, 0.08); border-color: rgba(56, 189, 248, 0.25); color: #38bdf8;">
+          <i class="fa-solid fa-bolt"></i> Vibe Coding
+        </a>
+        <a href="aiknowledge.html" class="nav-cta-btn secondary-btn" style="background: rgba(244, 63, 94, 0.08); border-color: rgba(244, 63, 94, 0.25); color: #fb7185;">
+          <i class="fa-solid fa-brain"></i> AI 知識
+        </a>
+        
+        <!-- 實務專題下拉選單 -->
+        <div class="nav-dropdown-wrapper">
+          <a href="project.html" class="nav-dropdown-btn" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
+            <i class="fa-solid fa-diagram-project"></i> 實務專題 <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+          </a>
+          <div class="nav-dropdown-menu">
+            <a href="project.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #34d399;">範例期末專題：ESG 智慧工廠</span>
+                <span class="item-sub">機電丙級第二題・AI 視覺瑕疵・動態碳足跡閉環</span>
+              </div>
+            </a>
+            <a href="project_plc_fx3u.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #38bdf8;">專題：PC-Based 控制三菱 FX3U</span>
+                <span class="item-sub">RS232 序列通訊・三菱編程口協定・三階段自動化</span>
+              </div>
+            </a>
+            <a href="project_modbus.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-satellite-dish" style="color: #fbbf24;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #fbbf24;">專題：Modbus 通訊協定 (TCP / RTU)</span>
+                <span class="item-sub">工業物聯網標準語彙・MBAP Header・CRC-16 檢校</span>
+              </div>
+            </a>
+            <a href="project_linebot.html" class="nav-dropdown-item">
+              <i class="fa-brands fa-line" style="color: #06c755;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #06c755;">專題：LINE Bot 開發者指南詳解</span>
+                <span class="item-sub">發送 API 注意事項・n8n 工作流・GAS 免費雲端部署</span>
+              </div>
+            </a>
+            <a href="project_database.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-database" style="color: #c084fc;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #c084fc;">專題：工業與雲端資料庫全解</span>
+                <span class="item-sub">MySQL・MSSQL C#・InfluxDB 時序・Firebase</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 麵包屑 -->
+    <div class="project-breadcrumb">
+      <a href="index.html"><i class="fa-solid fa-house"></i> 首頁</a> / 
+      <a href="project.html">實務專題</a> / 
+      <span class="active-item">專題：工業與雲端資料庫 (四大主題 Step by Step)</span>
+    </div>
+
+    <!-- 專題切換頁籤導覽列 (五大專題切換) -->
+    <div class="project-tabs-nav">
+      <a href="project.html" class="project-tab-link">
+        <i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+        <span>範例期末專題：ESG 智慧工廠</span>
+        <span class="project-tab-badge">機電丙級第二題</span>
+      </a>
+      <a href="project_plc_fx3u.html" class="project-tab-link">
+        <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+        <span>專題：PC-Based控制_三菱FX3U</span>
+        <span class="project-tab-badge">RS232+編程口</span>
+      </a>
+      <a href="project_modbus.html" class="project-tab-link">
+        <i class="fa-solid fa-satellite-dish" style="color: #fbbf24;"></i>
+        <span>專題：Modbus 通訊協定</span>
+        <span class="project-tab-badge">TCP 502 + RTU</span>
+      </a>
+      <a href="project_linebot.html" class="project-tab-link">
+        <i class="fa-brands fa-line" style="color: #06c755;"></i>
+        <span>專題：LINE Bot 開發者指南</span>
+        <span class="project-tab-badge">API 注意事項+自動化</span>
+      </a>
+      <a href="project_database.html" class="project-tab-link active">
+        <i class="fa-solid fa-database" style="color: #c084fc;"></i>
+        <span>專題：工業與雲端資料庫</span>
+        <span class="project-tab-badge">四大主流全景</span>
+      </a>
+    </div>
+
+    <!-- 主區塊：專題名稱與簡介 -->
+    <section class="project-hero-section">
+      <span class="project-tag" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.35);">
+        <i class="fa-solid fa-database"></i> 工業 4.0 核心數據底座
+      </span>
+      <h2 class="project-title">工業與雲端資料庫四大主題詳解<br>
+        <span class="gradient-text" style="background: linear-gradient(135deg, #c084fc 0%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          Step-by-Step 實作攻略・技術選型・代碼範例・避坑指南
+        </span>
+      </h2>
+      <p class="project-desc">
+        依據實際生產線需求，拆解四大資料庫架構：<strong>主題一：MySQL / MariaDB</strong> 開源關聯式遠端權限與資料表設計；<strong>主題二：SQL Server + C#</strong> 視窗程式 ADO.NET CRUD 與 Grafana 時區解決方案；<strong>主題三：InfluxDB</strong> 工業物聯網時序引擎、Line Protocol 語法與 TSM 儲存機制；<strong>主題四：Google Firebase / Firestore</strong> 雲端 NoSQL 即時同步與安全規則！
+      </p>
+    </section>
+
+    <!-- 四大主題切換大按鈕群 (Topic Tabs) -->
+    <div class="topic-switch-container">
+      <button class="topic-switch-btn active" onclick="switchTopic('topic-mysql')">
+        <i class="fa-solid fa-server topic-switch-icon" style="color: #60a5fa;"></i>
+        <span class="topic-switch-title">主題一：MySQL</span>
+        <span class="topic-switch-desc">關聯式基礎・root 遠端權限・工單表設計</span>
+      </button>
+
+      <button class="topic-switch-btn" onclick="switchTopic('topic-mssql')">
+        <i class="fa-brands fa-microsoft topic-switch-icon" style="color: #f87171;"></i>
+        <span class="topic-switch-title">主題二：SQL Server + C#</span>
+        <span class="topic-switch-desc">ADO.NET CRUD・DataGridView・Grafana時區</span>
+      </button>
+
+      <button class="topic-switch-btn" onclick="switchTopic('topic-influxdb')">
+        <i class="fa-solid fa-bolt topic-switch-icon" style="color: #c084fc;"></i>
+        <span class="topic-switch-title">主題三：InfluxDB 時序</span>
+        <span class="topic-switch-desc">Line Protocol・TSM/WAL引擎・Gorilla壓縮</span>
+      </button>
+
+      <button class="topic-switch-btn" onclick="switchTopic('topic-firebase')">
+        <i class="fa-solid fa-fire topic-switch-icon" style="color: #fbbf24;"></i>
+        <span class="topic-switch-title">主題四：Firebase Firestore</span>
+        <span class="topic-switch-desc">雲端 NoSQL・onSnapshot即時同步・安全規則</span>
+      </button>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- 主題一：MySQL 關聯式資料庫實作 (Step by Step) -->
+    <!-- ============================================================== -->
+    <div id="topic-mysql" class="topic-content-pane active">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-server" style="color: #60a5fa;"></i>
+        <h3>主題一：MySQL / MariaDB 關聯式資料庫實作指南 (Step by Step)</h3>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        MySQL 是世界上最流行的開源關聯式資料庫（RDBMS），廣泛應用於工廠 MES 系統的工單管理、人員權限配置與產品履歷追溯。以下為從無到有的標準架設與設定步驟：
+      </p>
+
+      <!-- Step 1 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #3b82f6;">1</span>
+          <h4 class="step-title-text">安裝 MySQL 伺服器與設定監聽 IP</h4>
+          <span class="step-tag-pill db-badge-mysql">環境建置</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          在 Windows 或 Linux 工業電腦安裝 MySQL Community Server（預設通訊埠為 <code>3306</code>）。若要允許機台或 Node-RED 跨電腦連線，必須修改組態檔 <code>my.ini</code> (Windows) 或 <code>mysqld.cnf</code> (Linux)：
+        </p>
+        <pre class="code-block-dark"><code># 預設為 bind-address = 127.0.0.1 (只允許本機)
+# 修改為 0.0.0.0 允許局域網內所有工業機台連線
+[mysqld]
+port = 3306
+bind-address = 0.0.0.0</code></pre>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #3b82f6;">2</span>
+          <h4 class="step-title-text">設定 root 帳號允許外部遠端連線 (投影片 Slide 04-01 核心)</h4>
+          <span class="step-tag-pill db-badge-mysql">安全權限</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          剛安裝完 MySQL 時，<code>root</code> 預設只允許本機（localhost）登入。若從遠端 C# 程式或 Node-RED 連線會發生存取遭拒的錯誤。使用以下 SQL 指令進行遠端授權：
+        </p>
+        <pre class="code-block-dark"><code>-- 登入 MySQL 資料庫管理終端：
+USE mysql;
+
+-- 方案 A：直接修改 root 允許任意主機連線 (%)
+UPDATE user SET host = '%' WHERE user = 'root';
+FLUSH PRIVILEGES;
+
+-- 方案 B (工控現場標準做法)：建立專用操作員帳號
+CREATE USER 'factory_operator'@'%' IDENTIFIED BY 'FactoryPass123!';
+GRANT ALL PRIVILEGES ON FactoryDB.* TO 'factory_operator'@'%';
+FLUSH PRIVILEGES;</code></pre>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #3b82f6;">3</span>
+          <h4 class="step-title-text">建立工廠生產資料庫與結構化資料表</h4>
+          <span class="step-tag-pill db-badge-mysql">DDL 實作</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          設計符合工業生產履歷追溯的結構化資料表，包含自動累加主鍵、機台編號、工單號、良品數、不良品數與記錄時間：
+        </p>
+        <pre class="code-block-dark"><code>CREATE DATABASE IF NOT EXISTS FactoryDB CHARACTER SET utf8mb4;
+USE FactoryDB;
+
+CREATE TABLE production_records (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    work_order VARCHAR(50) NOT NULL COMMENT '工單編號',
+    machine_id VARCHAR(30) NOT NULL COMMENT '機台代號 (如 CNC_01, FX3U_02)',
+    feed_qty INT DEFAULT 0 COMMENT '進料數量',
+    discharge_qty INT DEFAULT 0 COMMENT '出料數量',
+    defect_qty INT DEFAULT 0 COMMENT '不良數量',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '紀錄時間',
+    INDEX idx_machine (machine_id),
+    INDEX idx_created (created_at)
+) ENGINE=InnoDB;</code></pre>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #3b82f6;">4</span>
+          <h4 class="step-title-text">Node-RED 與 MySQL 串接實例</h4>
+          <span class="step-tag-pill db-badge-mysql">IoT 串接</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          在 Node-RED 節點管理中安裝 <code>node-red-node-mysql</code>，利用 Function 節點組裝 SQL 寫入語法：
+        </p>
+        <pre class="code-block-dark"><code>// Node-RED Function 節點程式碼
+let order = msg.payload.workOrder || 'WO-20261019-01';
+let machine = msg.payload.machineId || 'PLC_FX3U';
+let feed = msg.payload.feed || 10;
+let discharge = msg.payload.discharge || 9;
+let defect = msg.payload.defect || 1;
+
+msg.topic = `INSERT INTO production_records (work_order, machine_id, feed_qty, discharge_qty, defect_qty) 
+             VALUES ('${order}', '${machine}', ${feed}, ${discharge}, ${defect});`;
+return msg;</code></pre>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- 主題二：SQL Server + C# 視窗程式整合 (Step by Step) -->
+    <!-- ============================================================== -->
+    <div id="topic-mssql" class="topic-content-pane">
+      <div class="section-title-wrap">
+        <i class="fa-brands fa-microsoft" style="color: #f87171;"></i>
+        <h3>主題二：Microsoft SQL Server 與 C# 視窗程式整合實作 (Step by Step)</h3>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        SQL Server 是微軟生態系中最穩定的企業級資料庫。搭配 C# WinForms / WPF 視窗與 DataGridView，可打造工業機台控制台上最流暢的即時查詢與資料錄入系統。
+      </p>
+
+      <!-- Step 1 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #ef4444;">1</span>
+          <h4 class="step-title-text">SSMS 新增資料表與規劃欄位型別</h4>
+          <span class="step-tag-pill db-badge-mssql">SSMS 操作</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          開啟 <strong>SQL Server Management Studio (SSMS)</strong>，連線至本機伺服器 <code>localhost</code>：
+        </p>
+        <ul style="font-size: 0.88rem; color: #94a3b8; padding-left: 18px; line-height: 1.8;">
+          <li>右鍵點選「資料庫」➔「新增資料庫」➔ 命名為 <code>FactoryDB</code>。</li>
+          <li>展開 <code>FactoryDB</code> ➔ 右鍵「資料表」➔「新增」➔「資料表」。</li>
+          <li>欄位規劃：<code>LogID (int, 主鍵, 識別規格=是)</code>、<code>MachineName (nvarchar(50))</code>、<code>FeedCount (int)</code>、<code>DischargeCount (int)</code>、<code>RecordTime (datetime2, 預設 GETDATE())</code>。</li>
+          <li>儲存資料表並命名為 <code>MachineLogs</code>。</li>
+        </ul>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #ef4444;">2</span>
+          <h4 class="step-title-text">新增使用者並指定授予特定資料庫權限</h4>
+          <span class="step-tag-pill db-badge-mssql">安全與授權</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          在企業產線中，絕不能直接將 <code>sa</code> 最高管理員密碼寫死在 C# 程式碼中：
+        </p>
+        <ol style="font-size: 0.88rem; color: #94a3b8; padding-left: 18px; line-height: 1.8;">
+          <li>在 SSMS 展開伺服器層級「安全性」➔ 右鍵「登入身分」➔「新增登入身分」。</li>
+          <li>選擇「SQL Server 驗證」，輸入登入名稱（如 <code>app_user</code>）與密碼。</li>
+          <li>點選左側「使用者對應」➔ 勾選 <code>FactoryDB</code>。</li>
+          <li>在下方資料庫角色成員資格中，勾選 <strong><code>db_datareader</code></strong> (讀取權限) 與 <strong><code>db_datawriter</code></strong> (寫入權限) 即可。</li>
+        </ol>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #ef4444;">3</span>
+          <h4 class="step-title-text">C# 撰寫查詢代碼並繫結至 DataGridView</h4>
+          <span class="step-tag-pill db-badge-mssql">C# ADO.NET</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          在 Visual Studio 建立 Windows Forms 專案，拖曳放置一個 <code>DataGridView</code>（名稱為 <code>dgvLogs</code>）與「查詢」按鈕：
+        </p>
+        <pre class="code-block-dark"><code>using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+public void LoadMachineLogs()
+{
+    string connStr = "Server=localhost;Database=FactoryDB;User Id=app_user;Password=YourPass123;";
+    string sql = "SELECT TOP 100 LogID, MachineName, FeedCount, DischargeCount, RecordTime FROM MachineLogs ORDER BY RecordTime DESC";
+
+    try
+    {
+        using (SqlConnection conn = new SqlConnection(connStr))
+        {
+            conn.Open();
+            using (SqlDataAdapter adapter = new SqlDataAdapter(sql, conn))
+            {
+                DataTable dt = new DataTable();
+                adapter.Fill(dt);
+                dgvLogs.DataSource = dt; // 一行代碼完成表格數據綁定
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show("查詢資料庫失敗: " + ex.Message, "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+    }
+}</code></pre>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #ef4444;">4</span>
+          <h4 class="step-title-text">C# 參數化安全寫入資料 (防止 SQL Injection)</h4>
+          <span class="step-tag-pill db-badge-mssql">C# 寫入</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          工控介面上由作業員輸入或 PLC 觸發寫入時，務必採用 <code>SqlCommand.Parameters</code> 傳參：
+        </p>
+        <pre class="code-block-dark"><code>public bool InsertLog(string machineName, int feed, int discharge)
+{
+    string connStr = "Server=localhost;Database=FactoryDB;User Id=app_user;Password=YourPass123;";
+    string sql = @"INSERT INTO MachineLogs (MachineName, FeedCount, DischargeCount, RecordTime) 
+                   VALUES (@machine, @feed, @discharge, GETDATE())";
+
+    using (SqlConnection conn = new SqlConnection(connStr))
+    {
+        using (SqlCommand cmd = new SqlCommand(sql, conn))
+        {
+            cmd.Parameters.AddWithValue("@machine", machineName);
+            cmd.Parameters.AddWithValue("@feed", feed);
+            cmd.Parameters.AddWithValue("@discharge", discharge);
+            conn.Open();
+            int rows = cmd.ExecuteNonQuery();
+            return rows > 0;
+        }
+    }
+}</code></pre>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #ef4444;">5</span>
+          <h4 class="step-title-text">Grafana 儀表板整合與「時間多 8 小時」除錯攻略</h4>
+          <span class="step-tag-pill db-badge-mssql">痛點排解</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          在 Grafana（<code>http://localhost:3000</code>，預設帳密 admin/admin）中新增 Microsoft SQL Server 資料來源。製作時序曲線圖時，開發者常遇到<strong>「數據曲線跑到 8 小時後」</strong>的現象：
+        </p>
+        <div class="guideline-alert-box caution">
+          <i class="fa-solid fa-triangle-exclamation"></i> <strong>問題核心原因</strong>：
+          Grafana 預期資料庫回傳的 <code>time</code> 欄位是 <strong>UTC 零時區</strong>。若 SQL Server 欄位儲存的是台灣本地時間 (GMT+8)，Grafana 在前端渲染時會依照瀏覽器時區再次 +8 小時，導致時間總共多了 8 小時！
+        </div>
+        <p style="font-size: 0.88rem; color: #cbd5e1;"><strong>雙重最佳解法</strong>：</p>
+        <pre class="code-block-dark"><code>-- 解法 1 (SQL 查詢扣除 8 小時轉為標準 UTC)：
+SELECT 
+  DATEADD(hour, -8, RecordTime) as time,
+  FeedCount as value,
+  MachineName as metric
+FROM MachineLogs
+WHERE $__timeFilter(DATEADD(hour, -8, RecordTime))
+ORDER BY time ASC;
+
+-- 解法 2 (Grafana Dashboard 設定)：
+-- 進入 Dashboard Settings ➔ Time Options ➔ 將 Timezone 從 "Default (browser)" 改為 "UTC"。</code></pre>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- 主題三：InfluxDB 時序資料庫實作 (Step by Step) -->
+    <!-- ============================================================== -->
+    <div id="topic-influxdb" class="topic-content-pane">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-bolt" style="color: #c084fc;"></i>
+        <h3>主題三：InfluxDB 2.x 時序資料庫架構與實作指南 (Step by Step)</h3>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        InfluxDB 專為處理帶有時間戳記的海量高頻數據而生（如振動分析、每秒萬次採樣）。具備 <strong>TSM 樹</strong>、<strong>列式儲存</strong> 與 <strong>Gorilla 差值壓縮</strong>，是邊緣運算與工業物聯網（IIoT）的不二之選。
+      </p>
+
+      <!-- Step 1 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #a855f7;">1</span>
+          <h4 class="step-title-text">Docker 一鍵啟動 InfluxDB 2.x 伺服器</h4>
+          <span class="step-tag-pill db-badge-influx">Docker 容器</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          使用官方 Docker 映像檔，並預先配置組織（Org）、儲存桶（Bucket）與認證 Token：
+        </p>
+        <pre class="code-block-dark"><code>docker run -d -p 8086:8086 --name influxdb \
+  -e DOCKER_INFLUXDB_INIT_MODE=setup \
+  -e DOCKER_INFLUXDB_INIT_USERNAME=my-admin-user \
+  -e DOCKER_INFLUXDB_INIT_PASSWORD=my-secret-password123 \
+  -e DOCKER_INFLUXDB_INIT_ORG=my-org \
+  -e DOCKER_INFLUXDB_INIT_BUCKET=production_data \
+  -e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token-123 \
+  influxdb:2.7.5</code></pre>
+        <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 8px;">
+          啟動後開啟瀏覽器訪問 <code>http://localhost:8086</code>，即可使用上述設定之帳號密碼登入管理後台。
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #a855f7;">2</span>
+          <h4 class="step-title-text">精通 Line Protocol 格式規範與整數 'i' 規則</h4>
+          <span class="step-tag-pill db-badge-influx">協定語法</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          Line Protocol 是純文字單行協定。空格與逗號有著嚴格定義：
+        </p>
+        <div style="background: #030712; border: 1px solid #334155; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 0.88rem; color: #38bdf8; margin: 10px 0;">
+          &lt;measurement&gt;,&lt;tag_key&gt;=&lt;tag_value&gt; &lt;field_key&gt;=&lt;field_value&gt; &lt;timestamp&gt;
+        </div>
+        <ul style="font-size: 0.88rem; color: #cbd5e1; padding-left: 18px; line-height: 1.8;">
+          <li><strong>Measurement 與 Tag 之間用逗號分隔</strong>：例如 <code>production_stats,machine_name=PLC_01</code>。</li>
+          <li><strong>Tag 與 Field 之間必須用「空格」分隔</strong>。</li>
+          <li><strong>整數型別必須加 <code>i</code></strong>：例如 <code>feed=10i</code>。若不加 <code>i</code>（如 <code>feed=10</code>），InfluxDB 會自動解析為 <strong>Float 浮點數</strong>，後續無法在同一 Series 內寫入整數！</li>
+          <li><strong>Timestamp</strong>：可帶 19 位納秒戳記，亦可省略由伺服器自動補充。</li>
+        </ul>
+      </div>
+
+      <!-- InfluxDB 產生器 -->
+      <div class="tool-box-card">
+        <div class="tool-box-header">
+          <i class="fa-solid fa-sliders"></i>
+          <h4>實作小工具：InfluxDB Line Protocol 即時組裝器</h4>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+          <div class="tool-input-group">
+            <label>Measurement (測量名):</label>
+            <input type="text" id="lp-meas" class="tool-input" value="production_stats">
+          </div>
+          <div class="tool-input-group">
+            <label>Tag: 機台名稱 (machine_name):</label>
+            <input type="text" id="lp-tag" class="tool-input" value="PLC_FX3U_01">
+          </div>
+          <div class="tool-input-group">
+            <label>Field: 進料次數 (feed_count):</label>
+            <input type="number" id="lp-feed" class="tool-input" value="120">
+          </div>
+          <div class="tool-input-group">
+            <label>Field: 出料次數 (discharge_count):</label>
+            <input type="number" id="lp-discharge" class="tool-input" value="118">
+          </div>
+          <div class="tool-input-group">
+            <label>Field: 瑕疵品數 (defect_count):</label>
+            <input type="number" id="lp-defect" class="tool-input" value="2">
+          </div>
+        </div>
+        <div style="margin-top: 10px;">
+          <button class="tool-btn-calc" onclick="generateLineProtocol()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 立即組裝 Line Protocol 語法
+          </button>
+        </div>
+        <div class="tool-result-panel">
+          <button class="btn-copy-code" onclick="copyResult('lp-output')"><i class="fa-solid fa-copy"></i> 複製語法</button>
+          <pre id="lp-output">點擊上方按鈕立即產生 Line Protocol 寫入格式...</pre>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #a855f7;">3</span>
+          <h4 class="step-title-text">深入底層架構：TSM 引擎、WAL 預寫日誌與 Gorilla 演算法</h4>
+          <span class="step-tag-pill db-badge-influx">架構原理解析</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          傳統關聯式資料庫每秒寫入千筆硬碟就滿載，而 InfluxDB 單機每秒可扛 10~50 萬筆寫入，其背後的儲存心臟關鍵設計：
+        </p>
+        <div class="project-grid-two" style="margin-top: 14px;">
+          <div style="background: #030712; padding: 16px; border-radius: 8px; border: 1px solid #1e293b;">
+            <h5 style="color: #c084fc; font-size: 0.95rem; margin-bottom: 8px;"><i class="fa-solid fa-pen-nib"></i> WAL + MemTable 高速寫入</h5>
+            <p style="font-size: 0.84rem; color: #94a3b8; line-height: 1.6;">
+              資料先以 Append-only 追加寫入 WAL 檔案防斷電，同時放入記憶體 MemTable。當 MemTable 達時間或大小閾值後，<strong>Flush 刷盤</strong>為唯讀的 <code>.tsm</code> 列式儲存檔，後台背景再執行 <strong>Compaction 壓縮合併</strong>。
+            </p>
+          </div>
+          <div style="background: #030712; padding: 16px; border-radius: 8px; border: 1px solid #1e293b;">
+            <h5 style="color: #38bdf8; font-size: 0.95rem; margin-bottom: 8px;"><i class="fa-solid fa-compress"></i> Gorilla 差值時間壓縮</h5>
+            <p style="font-size: 0.84rem; color: #94a3b8; line-height: 1.6;">
+              由於時間戳記通常是固定週期（如每 100ms 一次），Gorilla 演算法透過計算前後時間的差值（Delta）以及差值的差值（Delta-of-Delta），將原本 64 位元的納秒整數壓縮至僅需 1~2 個 bit，<strong>壓縮率達 90% 以上</strong>！
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #a855f7;">4</span>
+          <h4 class="step-title-text">Flux 查詢實戰：時序過濾與 Pivot 橫向展開</h4>
+          <span class="step-tag-pill db-badge-influx">Flux 查詢</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          InfluxDB 2.x 使用類似管線傳遞（Pipeline <code>|&gt;</code>）的 Flux 語言。以下範例查詢近 90 天生產數據，並利用 <code>pivot()</code> 將縱向 Field 展開為平整的機台日報表：
+        </p>
+        <pre class="code-block-dark"><code>from(bucket: "production_data")
+  |> range(start: -90d)
+  |> filter(fn: (r) => r._measurement == "production_stats")
+  |> pivot(rowKey: ["_time", "machine_name"], columnKey: ["_field"], valueColumn: "_value")
+  |> sort(columns: ["_time"], desc: true)
+  |> limit(n: 200)</code></pre>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- 主題四：Google Firebase / Cloud Firestore (Step by Step) -->
+    <!-- ============================================================== -->
+    <div id="topic-firebase" class="topic-content-pane">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-fire" style="color: #fbbf24;"></i>
+        <h3>主題四：Google Firebase / Cloud Firestore 雲端即時資料庫 (Step by Step)</h3>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        Google Firebase 的 Cloud Firestore 具備零伺服器維護、即時資料監聽（WebSocket 即時推送）、離線快取支援等特性，是跨廠區戰情看板、行動巡檢 App 與 LINE Bot 遠端告警的最佳利器。
+      </p>
+
+      <!-- Step 1 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #f59e0b;">1</span>
+          <h4 class="step-title-text">Firebase Console 建立專案與新增 Web 應用程式</h4>
+          <span class="step-tag-pill db-badge-firebase">雲端主控台</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          造訪 <a href="https://console.firebase.google.com/" target="_blank" style="color: #fbbf24; text-decoration: underline;">Firebase Console</a>：
+        </p>
+        <ul style="font-size: 0.88rem; color: #94a3b8; padding-left: 18px; line-height: 1.8;">
+          <li>點擊「新增專案」➔ 輸入專案名稱（如 <code>wugu-factory-ai</code>）。</li>
+          <li>進入專案首頁，點選 <code>&lt;/&gt;</code> 註冊網頁應用程式 (Web App)。</li>
+          <li>複製系統生成的 <strong><code>firebaseConfig</code> 金鑰設定物件</strong>（包含 apiKey, projectId 等）。</li>
+        </ul>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #f59e0b;">2</span>
+          <h4 class="step-title-text">建立 Cloud Firestore 資料庫與位置選擇</h4>
+          <span class="step-tag-pill db-badge-firebase">資料庫初始化</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          在左側功能清單點選「Firestore Database」➔「建立資料庫」：
+        </p>
+        <ol style="font-size: 0.88rem; color: #94a3b8; padding-left: 18px; line-height: 1.8;">
+          <li><strong>安全模式</strong>：初期可先選「測試模式」(Test Mode)，30 天後需收緊為生產模式。</li>
+          <li><strong>位置選擇 (Location)</strong>：建議選擇 <code>asia-east1</code> (台灣彰濱)，可享有最低的連線延遲（5~15ms）。</li>
+        </ol>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #f59e0b;">3</span>
+          <h4 class="step-title-text">Firestore 集合 (Collections) 與文件 (Documents) 架構規劃</h4>
+          <span class="step-tag-pill db-badge-firebase">NoSQL 架構</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          Firestore 捨棄了傳統資料表 (Tables) 與欄位結構，改採層級式的 NoSQL 模式：
+        </p>
+        <div style="background: #030712; border: 1px solid #334155; padding: 14px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; color: #fbbf24; margin: 10px 0;">
+          /factories (集合) <br>
+          &nbsp;&nbsp;└── plant_wugu_01 (文件) <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── name: "五股第一智慧廠區"<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── /telemetry (子集合)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── fx3u_line_a (文件: 包含 status, feed, defect, updatedAt)
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #f59e0b;">4</span>
+          <h4 class="step-title-text">JavaScript SDK 即時監聽 (onSnapshot) 實作代碼</h4>
+          <span class="step-tag-pill db-badge-firebase">即時串接</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          利用 Firestore 內建的 WebSocket 即時推送功能，機台數據一旦在工廠端變更，全球主管的手機戰情看板<strong>完全無需重新整理 (No Refresh)</strong>，毫秒級自動更新：
+        </p>
+        <pre class="code-block-dark"><code>import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  projectId: "wugu-factory-ai"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// 即時監聽五股廠 FX3U 機台狀態文件
+const docRef = doc(db, "factories", "plant_wugu_01", "telemetry", "fx3u_line_a");
+onSnapshot(docRef, (docSnap) => {
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    console.log("機台即時狀態更新:", data);
+    document.getElementById("feedDisplay").innerText = data.feed_qty;
+    document.getElementById("statusDot").className = data.is_running ? "green" : "red";
+  }
+});</code></pre>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <span class="step-badge" style="background: #f59e0b;">5</span>
+          <h4 class="step-title-text">設定 Firestore 安全規則 (Security Rules)</h4>
+          <span class="step-tag-pill db-badge-firebase">資安規範</span>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          在生產環境中，切勿使用全開權限。透過規則驗證使用者身份與角色：
+        </p>
+        <pre class="code-block-dark"><code>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 機台遙測數據：所有登入工程師可讀，僅授權邊緣網關可寫入
+    match /factories/{factoryId}/telemetry/{machineId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth.token.role == "gateway" 
+                   && request.resource.data.feed_qty is int;
+    }
+  }
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- 頁尾 -->
+    <footer class="project-footer" style="text-align: center; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 60px;">
+      <p style="color: #64748b; font-size: 0.88rem;">五股職訓局 機電 AI 115-1 期 實務專題系列教材・版權所有 © 2026</p>
+      <div style="margin-top: 12px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+        <a href="index.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-house"></i> 首頁</a>
+        <a href="project.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-leaf"></i> 期末專題</a>
+        <a href="project_plc_fx3u.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-network-wired"></i> 三菱 FX3U</a>
+        <a href="project_modbus.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-satellite-dish"></i> Modbus</a>
+        <a href="project_linebot.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-brands fa-line"></i> LINE Bot</a>
+        <a href="project_database.html" style="color: #c084fc; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-database"></i> 工業資料庫</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // 主題 Tab 切換控制
+    function switchTopic(topicId) {
+      const buttons = document.querySelectorAll('.topic-switch-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      const panes = document.querySelectorAll('.topic-content-pane');
+      panes.forEach(pane => pane.classList.remove('active'));
+      const targetPane = document.getElementById(topicId);
+      if (targetPane) {
+        targetPane.classList.add('active');
+        targetPane.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    // 產生 InfluxDB Line Protocol
+    function generateLineProtocol() {
+      const meas = document.getElementById('lp-meas').value.trim() || 'production_stats';
+      const tagVal = document.getElementById('lp-tag').value.trim().replace(/ /g, '\\ ') || 'PLC_01';
+      const feed = document.getElementById('lp-feed').value || '0';
+      const discharge = document.getElementById('lp-discharge').value || '0';
+      const defect = document.getElementById('lp-defect').value || '0';
+      
+      const nowNs = Date.now() + "000000";
+      const lp = `${meas},machine_name=${tagVal} feed_count=${feed}i,discharge_count=${discharge}i,defect_count=${defect}i ${nowNs}`;
+      document.getElementById('lp-output').textContent = lp;
+    }
+
+    // 複製代碼工具
+    function copyResult(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("已成功複製到剪貼簿！");
+      }).catch(err => {
+        console.error("複製失敗:", err);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      generateLineProtocol();
+    });
+  </script>
+</body>
+</html>
