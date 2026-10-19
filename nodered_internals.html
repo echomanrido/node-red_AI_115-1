@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node-RED 底層運作邏輯・核心架構剖析 | 五股職訓局 機電AI_115-1期</title>
+  
+  <!-- 字型與 FontAwesome 圖標 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- 全站統一樣式表 -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    /* 專屬主題色變數與自定義樣式 */
+    :root {
+      --internals-cyan: #06b6d4;
+      --internals-blue: #3b82f6;
+      --internals-purple: #8b5cf6;
+      --internals-glow: rgba(6, 182, 212, 0.25);
+    }
+    
+    .internals-hero {
+      position: relative;
+      padding: 50px 24px 40px;
+      text-align: center;
+      background: radial-gradient(circle at 50% 20%, rgba(6, 182, 212, 0.12) 0%, rgba(15, 23, 42, 0) 70%),
+                  radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+    
+    .internals-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      color: #67e8f9;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      letter-spacing: 0.5px;
+    }
+    
+    .internals-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 14px;
+      letter-spacing: -0.5px;
+    }
+    
+    .internals-title .gradient-text-cyan {
+      background: linear-gradient(135deg, #38bdf8, #06b6d4, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .internals-subtitle {
+      max-width: 860px;
+      margin: 0 auto 28px;
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+    
+    .internals-nav-pills {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    
+    .pill-anchor-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.92rem;
+      transition: all 0.25s ease;
+    }
+    
+    .pill-anchor-btn:hover {
+      background: rgba(6, 182, 212, 0.18);
+      border-color: #06b6d4;
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+    }
+    
+    .pill-anchor-btn.active-pill {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(139, 92, 246, 0.25));
+      border-color: #38bdf8;
+      color: #ffffff;
+    }
+    
+    /* 容器架構 */
+    .internals-main-container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    
+    .section-block {
+      margin-bottom: 64px;
+      scroll-margin-top: 90px;
+    }
+    
+    .section-header-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    
+    .section-icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    
+    .badge-cyan {
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      color: #06b6d4;
+    }
+    
+    .badge-purple {
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      color: #a78bfa;
+    }
+    
+    .badge-amber {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+    }
+    
+    .section-heading {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+    }
+    
+    .section-subheading {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 4px 0 0;
+    }
+    
+    /* 區塊 1: 兩個圖片網格 */
+    .images-dual-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+    }
+    
+    @media (max-width: 992px) {
+      .images-dual-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .image-card-box {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s ease;
+    }
+    
+    .image-card-box:hover {
+      border-color: rgba(6, 182, 212, 0.45);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px rgba(6, 182, 212, 0.15);
+    }
+    
+    .image-preview-frame {
+      position: relative;
+      background: #090d16;
+      overflow: hidden;
+      cursor: zoom-in;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .image-preview-frame img {
+      width: 100%;
+      height: auto;
+      max-height: 400px;
+      object-fit: contain;
+      display: block;
+      transition: transform 0.35s ease;
+    }
+    
+    .image-preview-frame:hover img {
+      transform: scale(1.02);
+    }
+    
+    .zoom-hint-tag {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      padding: 6px 12px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+    }
+    
+    .image-detail-content {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    
+    .image-badge-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      width: fit-content;
+    }
+    
+    .tag-async {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+    }
+    
+    .tag-flow {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    
+    .image-card-title {
+      font-size: 1.28rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0 0 14px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .image-summary-text {
+      color: #94a3b8;
+      font-size: 0.94rem;
+      line-height: 1.65;
+      margin-bottom: 18px;
+    }
+    
+    .key-points-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .key-points-list li {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.55;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .key-points-list li i {
+      color: #06b6d4;
+      font-size: 0.85rem;
+      margin-top: 3px;
+    }
+    
+    .btn-zoom-action {
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: #67e8f9;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    
+    .btn-zoom-action:hover {
+      background: rgba(6, 182, 212, 0.25);
+      border-color: #06b6d4;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.25);
+    }
+    
+    /* 區塊 2: 投影播放器 (PDF) */
+    .projection-theater-container {
+      background: #0b1120;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+    }
+    
+    .theater-toolbar {
+      padding: 14px 20px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    
+    .pdf-tabs-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .pdf-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .pdf-tab-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+    
+    .pdf-tab-btn.active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(59, 130, 246, 0.25));
+      border-color: #38bdf8;
+      color: #38bdf8;
+      box-shadow: 0 2px 10px rgba(6, 182, 212, 0.25);
+    }
+    
+    .theater-controls-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .btn-theater-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-fullscreen-toggle {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #ffffff;
+      box-shadow: 0 2px 12px rgba(6, 182, 212, 0.3);
+    }
+    
+    .btn-fullscreen-toggle:hover {
+      box-shadow: 0 4px 18px rgba(6, 182, 212, 0.5);
+      transform: translateY(-1px);
+    }
+    
+    .btn-open-tab {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+    }
+    
+    .btn-open-tab:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+    
+    .pdf-viewer-canvas-wrap {
+      width: 100%;
+      height: 750px;
+      background: #1e293b;
+      position: relative;
+    }
+    
+    .pdf-viewer-canvas-wrap embed,
+    .pdf-viewer-canvas-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    
+    /* 劇院模式全螢幕特化 */
+    .projection-theater-container:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      border: none;
+    }
+    
+    .projection-theater-container:fullscreen .pdf-viewer-canvas-wrap {
+      height: calc(100vh - 60px);
+    }
+    
+    .pdf-specs-infobar {
+      padding: 16px 20px;
+      background: rgba(15, 23, 42, 0.8);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    
+    .pdf-specs-infobar .spec-title {
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+    
+    /* 區塊 3: 兩個 HTML 互動系統 (新增分頁開啟) */
+    .html-links-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+    }
+    
+    @media (max-width: 992px) {
+      .html-links-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .interactive-html-card {
+      background: radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.08) 0%, rgba(15, 23, 42, 0.8) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .interactive-html-card:hover {
+      border-color: rgba(139, 92, 246, 0.5);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(139, 92, 246, 0.2);
+    }
+    
+    .interactive-html-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, #38bdf8, #8b5cf6, #ec4899);
+      opacity: 0.8;
+    }
+    
+    .card-top-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    
+    .tech-pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      color: #c4b5fd;
+    }
+    
+    .blank-tab-hint {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .html-card-title {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0 0 14px;
+      line-height: 1.4;
+    }
+    
+    .html-card-desc {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      line-height: 1.65;
+      margin-bottom: 22px;
+      flex: 1;
+    }
+    
+    .feature-highlights-box {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .feature-highlights-box h6 {
+      font-size: 0.82rem;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .highlights-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .h-tag {
+      font-size: 0.78rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .btn-launch-html {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 13px 20px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #7c3aed, #6366f1);
+      border: 1px solid rgba(167, 139, 250, 0.4);
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.96rem;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+      transition: all 0.25s ease;
+    }
+    
+    .btn-launch-html:hover {
+      background: linear-gradient(135deg, #6d28d9, #4f46e5);
+      box-shadow: 0 6px 22px rgba(124, 58, 237, 0.5);
+      transform: translateY(-2px);
+      color: #ffffff;
+    }
+    
+    /* 燈箱 Modal */
+    .internals-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(10, 15, 30, 0.94);
+      backdrop-filter: blur(10px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+    
+    .internals-modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal-content-wrap {
+      max-width: 95vw;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    
+    .modal-content-wrap img {
+      max-width: 100%;
+      max-height: 82vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    
+    .modal-caption {
+      margin-top: 14px;
+      color: #f1f5f9;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .btn-close-modal {
+      position: absolute;
+      top: -45px;
+      right: 0;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+    }
+    
+    .btn-close-modal:hover {
+      background: #ef4444;
+      border-color: #ef4444;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 全站統一大氣導覽列 Header -->
+  <header class="home-header">
+    <div class="header-logo-area">
+      <a href="index.html" class="logo-link">
+        <i class="fa-solid fa-microchip"></i>
+        <span>五股職訓局 - 機電AI_115-1期</span>
+      </a>
+      <span class="header-author-badge">作者：Rido老師</span>
+    </div>
+
+    <div class="header-nav-actions">
+      <a href="index.html" class="nav-cta-btn secondary-btn" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0;">
+        <i class="fa-solid fa-house"></i> 首頁
+      </a>
+
+      <!-- C# 模組下拉選單 -->
+      <div class="nav-dropdown-wrapper">
+        <a href="csharp.html" class="nav-dropdown-btn" style="background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
+          <i class="fa-brands fa-microsoft"></i> C# 專區 <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+        </a>
+        <div class="nav-dropdown-menu">
+          <a href="csharp.html" class="nav-dropdown-item">
+            <i class="fa-solid fa-code" style="color: #c084fc;"></i>
+            <div class="item-text">
+              <span style="font-weight: 700; color: #c084fc;">C#課程</span>
+              <span class="item-sub">PC-Based 控制、PLC 串列通訊實作</span>
+            </div>
+          </a>
+          <a href="csharp_supplements.html" class="nav-dropdown-item">
+            <i class="fa-solid fa-book-bookmark" style="color: #38bdf8;"></i>
+            <div class="item-text">
+              <span style="font-weight: 700; color: #38bdf8;">C#學習補充教材</span>
+              <span class="item-sub">語法手冊、工業通訊 API</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Node-RED 模組下拉選單 -->
+      <div class="nav-dropdown-wrapper">
+        <a href="labs.html" class="nav-dropdown-btn" style="background: rgba(6, 182, 212, 0.15); border-color: #06b6d4; color: #67e8f9;">
+          <i class="fa-brands fa-node-js"></i> Node-RED 模組 <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+        </a>
+        <div class="nav-dropdown-menu">
+          <a href="labs.html" class="nav-dropdown-item">
+            <i class="fa-solid fa-flask" style="color: var(--primary);"></i>
+            <div class="item-text">
+              <span style="font-weight: 700; color: var(--primary);">node-red課程</span>
+              <span class="item-sub">物聯網、PLC 整合、Dashboard 與感測實作</span>
+            </div>
+          </a>
+          <a href="supplements.html" class="nav-dropdown-item">
+            <i class="fa-solid fa-book" style="color: #38bdf8;"></i>
+            <div class="item-text">
+              <span style="font-weight: 700; color: #38bdf8;">node-red學習補充教材</span>
+              <span class="item-sub">基礎語法、核心節點指南、JSON 與 JS</span>
+            </div>
+          </a>
+          <a href="nodered_projects.html" class="nav-dropdown-item">
+            <i class="fa-solid fa-diagram-project" style="color: #ef4444;"></i>
+            <div class="item-text">
+              <span style="font-weight: 700; color: #fca5a5;">node-red專題 (21 大實務專題)</span>
+              <span class="item-sub">完整 PPT 投影片拆解・詳細步驟・SCADA 整合</span>
+            </div>
+          </a>
+          <a href="nodered_internals.html" class="nav-dropdown-item active-nav-item" style="background: rgba(6, 182, 212, 0.12); border-left: 3px solid #06b6d4;">
+            <i class="fa-solid fa-microchip" style="color: #06b6d4;"></i>
+            <div class="item-text">
+              <span style="font-weight: 700; color: #67e8f9;">node-red_底層運作邏輯</span>
+              <span class="item-sub">V8 引擎・libuv 異步機制・訊息管線・全景簡報</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- AI 專區下拉選單 -->
+      <div class="nav-dropdown-wrapper">
+        <a href="aitools.html" class="nav-dropdown-btn" style="background: rgba(236, 72, 153, 0.12); border-color: rgba(236, 72, 153, 0.4); color: #ec4899;">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> AI 專區 <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+        </a>
+        <div class="nav-dropdown-menu">
+          <a href="aitools.html" class="nav-dropdown-item">
+            <i class="fa-solid fa-robot" style="color: #ec4899;"></i>
+            <div class="item-text">
+              <span style="font-weight: 700; color: #ec4899;">AI工具箱</span>
+              <span class="item-sub">23+ 工控必備 AI 智慧助理工具</span>
+            </div>
+          </a>
+          <a href="aiknowledge.html" class="nav-dropdown-item">
+            <i class="fa-solid fa-brain" style="color: #fb7185;"></i>
+            <div class="item-text">
+              <span style="font-weight: 700; color: #fb7185;">AI知識</span>
+              <span class="item-sub">文字接龍 vs 世界模型・Rido 話術觀點</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Vibe Coding 專區 -->
+      <a href="vibecoding.html" class="nav-cta-btn secondary-btn" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399;">
+        <i class="fa-solid fa-bolt"></i> Vibe Coding
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero 英雄展演區 -->
+  <section class="internals-hero">
+    <div class="internals-badge">
+      <i class="fa-solid fa-microchip"></i> Node-RED 核心架構剖析
+    </div>
+    <h1 class="internals-title">
+      Node-RED <span class="gradient-text-cyan">底層運作邏輯</span>
+    </h1>
+    <p class="internals-subtitle">
+      深入揭密 Node.js V8 引擎、libuv 非阻塞 I/O 事件迴圈 (Event Loop) 與 Node-RED 畫布訊息流 (EventEmitter & Backpressure) 的全鏈路底層運作機制。掌握工控毫秒級響應與高並發資料流的核心秘密！
+    </p>
+
+    <!-- 快捷跳轉錨點藥丸 -->
+    <div class="internals-nav-pills">
+      <a href="#images-section" class="pill-anchor-btn">
+        <i class="fa-solid fa-image" style="color: #06b6d4;"></i> 1. 底層核心架構圖解 (2 張圖)
+      </a>
+      <a href="#pdf-section" class="pill-anchor-btn">
+        <i class="fa-solid fa-film" style="color: #38bdf8;"></i> 2. 深度教材 (2 份 PDF 投影放映)
+      </a>
+      <a href="#html-section" class="pill-anchor-btn">
+        <i class="fa-solid fa-window-maximize" style="color: #a855f7;"></i> 3. 互動式全景與簡報 (2 個 HTML)
+      </a>
+    </div>
+  </section>
+
+  <!-- 主內容區域 -->
+  <main class="internals-main-container">
+
+    <!-- ========================================== -->
+    <!-- 1. 兩個圖片：內嵌，並且簡介 -->
+    <!-- ========================================== -->
+    <section id="images-section" class="section-block">
+      <div class="section-header-box">
+        <div class="section-title-wrap">
+          <div class="section-icon-badge badge-cyan">
+            <i class="fa-solid fa-network-wired"></i>
+          </div>
+          <div>
+            <h2 class="section-heading">底層核心架構圖解</h2>
+            <p class="section-subheading">內嵌高解析度架構圖，拆解異步事件調度與視覺化訊息傳遞管線（支援點擊放大燈箱）</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="images-dual-grid">
+
+        <!-- 圖片 1: 異步程式執行機制解析 -->
+        <div class="image-card-box">
+          <div class="image-preview-frame" onclick="openLightbox('node-red_底層運作邏輯/異步程式執行機制解析.png', '異步程式執行機制解析 - Node.js & libuv Event Loop')">
+            <img src="node-red_底層運作邏輯/異步程式執行機制解析.png" alt="異步程式執行機制解析" loading="lazy">
+            <div class="zoom-hint-tag">
+              <i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大檢視
+            </div>
+          </div>
+          <div class="image-detail-content">
+            <span class="image-badge-tag tag-async">
+              <i class="fa-solid fa-bolt"></i> 核心機制 01 ・ 非阻塞 I/O
+            </span>
+            <h3 class="image-card-title">
+              異步程式執行機制解析
+            </h3>
+            <p class="image-summary-text">
+              解構 Node-RED 能夠在單一執行緒（Single Thread）下輕鬆吞吐數萬個 PLC 通訊封包與 MQTT 數據的底層核心——Node.js V8 引擎與 <code>libuv</code> 非同步事件迴圈協同架構。
+            </p>
+            <ul class="key-points-list">
+              <li>
+                <i class="fa-solid fa-circle-check"></i>
+                <span><strong>Call Stack (呼叫棧)</strong>：同步 JavaScript 程式碼依序推入棧頂執行，執行完畢即刻彈出釋放。</span>
+              </li>
+              <li>
+                <i class="fa-solid fa-circle-check"></i>
+                <span><strong>C++ Bridge & Worker Pool</strong>：耗時的檔案 I/O、PLC 序列通訊或網路請求，立即指派至背景 <code>libuv</code> 4 執行緒池處理，不卡死主執行緒。</span>
+              </li>
+              <li>
+                <i class="fa-solid fa-circle-check"></i>
+                <span><strong>Microtask 插隊機制</strong>：<code>process.nextTick()</code> 與 Promise 在各階段切換前擁有最高優先級，能即刻插隊保證關鍵數據即時性。</span>
+              </li>
+              <li>
+                <i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i>
+                <span><strong>工控黃金準則</strong>：Function 節點內絕不可寫死循環或同步耗時等待（如同步 sleep），否則將凍結整個工廠的 SCADA 監控迴圈！</span>
+              </li>
+            </ul>
+            <button class="btn-zoom-action" onclick="openLightbox('node-red_底層運作邏輯/異步程式執行機制解析.png', '異步程式執行機制解析 - Node.js & libuv Event Loop')">
+              <i class="fa-solid fa-expand"></i> 放大全圖深度研讀
+            </button>
+          </div>
+        </div>
+
+        <!-- 圖片 2: 視覺化工具訊息傳遞路徑 -->
+        <div class="image-card-box">
+          <div class="image-preview-frame" onclick="openLightbox('node-red_底層運作邏輯/視覺化工具訊息傳遞路徑.png', '視覺化工具訊息傳遞路徑 - EventEmitter 與 Wire 管線傳遞')">
+            <img src="node-red_底層運作邏輯/視覺化工具訊息傳遞路徑.png" alt="視覺化工具訊息傳遞路徑" loading="lazy">
+            <div class="zoom-hint-tag">
+              <i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大檢視
+            </div>
+          </div>
+          <div class="image-detail-content">
+            <span class="image-badge-tag tag-flow">
+              <i class="fa-solid fa-diagram-project"></i> 核心機制 02 ・ 視覺化流管線
+            </span>
+            <h3 class="image-card-title">
+              視覺化工具訊息傳遞路徑
+            </h3>
+            <p class="image-summary-text">
+              揭開 Node-RED 畫布連線 (Wire) 的底層實體！畫布上的每條線並非魔法，而是 Node.js 執行期註冊的 <code>EventEmitter</code> 事件管線與記憶體指針傳遞過程。
+            </p>
+            <ul class="key-points-list">
+              <li>
+                <i class="fa-solid fa-circle-check"></i>
+                <span><strong>事件驅動模型</strong>：上游節點觸發 <code>node.send(msg)</code>，透過連線配置觸發下游節點的 <code>node.on('input')</code> 監聽回調。</span>
+              </li>
+              <li>
+                <i class="fa-solid fa-circle-check"></i>
+                <span><strong>記憶體引用傳遞 (By Reference)</strong>：若一條線分支分流至多個節點，傳入的是同一個記憶體位址；底層透過 <code>RED.util.cloneMessage()</code> 深拷貝避免分支間互相竄改。</span>
+              </li>
+              <li>
+                <i class="fa-solid fa-circle-check"></i>
+                <span><strong>Context 儲存分層架構</strong>：Node-RED 提供 Node、Flow、Global 三層記憶體狀態管理，可對接記憶體、本地檔案或 Redis 工業快取。</span>
+              </li>
+              <li>
+                <i class="fa-solid fa-circle-check"></i>
+                <span><strong>Backpressure (背壓機制)</strong>：非同步 <code>send(msg)</code> 與 <code>done()</code> 模式，避免高頻感測器塞爆緩衝佇列導致記憶體溢出 (OOM)。</span>
+              </li>
+            </ul>
+            <button class="btn-zoom-action" onclick="openLightbox('node-red_底層運作邏輯/視覺化工具訊息傳遞路徑.png', '視覺化工具訊息傳遞路徑 - EventEmitter 與 Wire 管線傳遞')">
+              <i class="fa-solid fa-expand"></i> 放大全圖深度研讀
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 2. 兩個 PDF：內嵌，投影播放方式 -->
+    <!-- ========================================== -->
+    <section id="pdf-section" class="section-block">
+      <div class="section-header-box">
+        <div class="section-title-wrap">
+          <div class="section-icon-badge badge-purple">
+            <i class="fa-solid fa-film"></i>
+          </div>
+          <div>
+            <h2 class="section-heading">深度教材投影片 (PDF 沉浸式投影放映)</h2>
+            <p class="section-subheading">支援切換兩種權威教材，可直接進入劇院全螢幕放映或獨立投影分頁播放</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 劇院投影播放器 -->
+      <div id="projectionTheater" class="projection-theater-container">
+        
+        <!-- 工具列 -->
+        <div class="theater-toolbar">
+          <div class="pdf-tabs-group">
+            <button class="pdf-tab-btn active" id="tabPdf1" onclick="switchPdf('node-red_底層運作邏輯/Decoding_Node.js_Internals.pdf', 'tabPdf1', 'Decoding Node.js Internals (解密 Node.js 核心底層架構)', '14.5 MB')">
+              <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>
+              <span>1. Decoding Node.js Internals</span>
+            </button>
+            <button class="pdf-tab-btn" id="tabPdf2" onclick="switchPdf('node-red_底層運作邏輯/Node-RED_Deep_Dive.pdf', 'tabPdf2', 'Node-RED Deep Dive (Node-RED 原始碼與運行期深度剖析)', '22.1 MB')">
+              <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>
+              <span>2. Node-RED Deep Dive</span>
+            </button>
+          </div>
+
+          <div class="theater-controls-group">
+            <button class="btn-theater-action btn-fullscreen-toggle" onclick="toggleTheaterFullscreen()">
+              <i class="fa-solid fa-expand"></i> <span>全螢幕投影放映</span>
+            </button>
+            <a id="btnExternalPdf" href="node-red_底層運作邏輯/Decoding_Node.js_Internals.pdf" target="_blank" rel="noopener noreferrer" class="btn-theater-action btn-open-tab">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> <span>獨立投影分頁</span>
+            </a>
+            <a id="btnDownloadPdf" href="node-red_底層運作邏輯/Decoding_Node.js_Internals.pdf" download class="btn-theater-action btn-open-tab">
+              <i class="fa-solid fa-download"></i> <span>下載 PDF</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- PDF 內嵌放映視窗 -->
+        <div class="pdf-viewer-canvas-wrap">
+          <iframe id="pdfFrame" src="node-red_底層運作邏輯/Decoding_Node.js_Internals.pdf#toolbar=1&navpanes=0&scrollbar=1&view=FitH" title="PDF 投影播放器"></iframe>
+        </div>
+
+        <!-- 規格資訊列 -->
+        <div class="pdf-specs-infobar">
+          <div>
+            <i class="fa-solid fa-circle-info" style="color: #38bdf8; margin-right: 6px;"></i>
+            目前載入：<span class="spec-title" id="pdfCurrentTitle">Decoding Node.js Internals (解密 Node.js 核心底層架構)</span>
+          </div>
+          <div>
+            檔案大小：<span id="pdfCurrentSize" style="color: #67e8f9; font-weight: 600;">14.5 MB</span>
+            <span style="margin: 0 10px; color: rgba(255,255,255,0.2);">|</span>
+            提示：支援滑鼠滾輪縮放、方向鍵翻頁，或點擊右上角「全螢幕投影放映」享受無邊框簡報體驗。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 3. 兩個 HTML：連結，新增分頁 -->
+    <!-- ========================================== -->
+    <section id="html-section" class="section-block">
+      <div class="section-header-box">
+        <div class="section-title-wrap">
+          <div class="section-icon-badge badge-amber">
+            <i class="fa-solid fa-window-maximize"></i>
+          </div>
+          <div>
+            <h2 class="section-heading">互動式全景與動態簡報 (獨立分頁系統)</h2>
+            <p class="section-subheading">點擊下方卡片即可在新分頁開啟互動式 Mermaid 巨觀全景圖與可切換章節的 Presentation 系統</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="html-links-grid">
+
+        <!-- HTML 1: panorama.html -->
+        <div class="interactive-html-card">
+          <div class="card-top-status">
+            <span class="tech-pill-badge">
+              <i class="fa-solid fa-map-location-dot"></i> MERMAID 架構全景
+            </span>
+            <span class="blank-tab-hint">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> 新分頁開啟 (Target Blank)
+            </span>
+          </div>
+
+          <h3 class="html-card-title">
+            Node-RED & libuv 全鏈路運行全景圖 (巨觀大圖)
+          </h3>
+          <p class="html-card-desc">
+            由前端編輯器 UI 點擊 Inject 節點出發，沿著 HTTP Admin API、<code>node.receive</code> 佇列、<code>node.send</code> 傳線、C++ Unwrap 橋接、libuv Worker Pool 非同步執行、Poll 階段休眠喚醒到 WebSocket Debug 輸出的完整 12 步跨層次全景流程圖。
+          </p>
+
+          <div class="feature-highlights-box">
+            <h6><i class="fa-solid fa-star"></i> 核心亮點</h6>
+            <div class="highlights-tags">
+              <span class="h-tag">Mermaid 向量流程圖</span>
+              <span class="h-tag">跨層級連線顏色區分</span>
+              <span class="h-tag">12 個關鍵生命週期步驟</span>
+              <span class="h-tag">微任務 (Microtask) 插隊節點</span>
+            </div>
+          </div>
+
+          <a href="node-red_底層運作邏輯/panorama.html" target="_blank" rel="noopener noreferrer" class="btn-launch-html">
+            <i class="fa-solid fa-map"></i> 開啟全景圖 (panorama.html) <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        </div>
+
+        <!-- HTML 2: presentation.html -->
+        <div class="interactive-html-card">
+          <div class="card-top-status">
+            <span class="tech-pill-badge" style="background: rgba(236, 72, 153, 0.15); border-color: rgba(236, 72, 153, 0.35); color: #f472b6;">
+              <i class="fa-solid fa-presentation-screen"></i> 互動簡報投影片
+            </span>
+            <span class="blank-tab-hint">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> 新分頁開啟 (Target Blank)
+            </span>
+          </div>
+
+          <h3 class="html-card-title">
+            Node-RED 到 libuv：解密 Node.js 事件驅動的核心旅程
+          </h3>
+          <p class="html-card-desc">
+            專業級現代互動簡報系統！包含章節指示器、鍵盤左右鍵切換投影片、Prism 語法高亮程式碼實作對照、深淺色切換。引領學員從表層拖拉節點直達底層 C++ 與 OS 核心排程的世界。
+          </p>
+
+          <div class="feature-highlights-box">
+            <h6><i class="fa-solid fa-star"></i> 核心亮點</h6>
+            <div class="highlights-tags">
+              <span class="h-tag">鍵盤左右鍵無縫切換</span>
+              <span class="h-tag">高質感明亮/暗色主題</span>
+              <span class="h-tag">Prism.js 程式碼實作</span>
+              <span class="h-tag">工控併發效能實務剖析</span>
+            </div>
+          </div>
+
+          <a href="node-red_底層運作邏輯/presentation.html" target="_blank" rel="noopener noreferrer" class="btn-launch-html" style="background: linear-gradient(135deg, #db2777, #7c3aed); border-color: rgba(244, 114, 182, 0.4);">
+            <i class="fa-solid fa-play"></i> 開啟動態簡報 (presentation.html) <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 燈箱 Modal 彈窗 (檢視大圖) -->
+  <div id="imageLightboxModal" class="internals-modal-overlay" onclick="closeLightbox(event)">
+    <div class="modal-content-wrap">
+      <button class="btn-close-modal" onclick="closeLightboxDirectly()" title="關閉">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <img id="lightboxImage" src="" alt="放大預覽">
+      <div id="lightboxCaption" class="modal-caption"></div>
+    </div>
+  </div>
+
+  <!-- 全站頁尾 Footer -->
+  <footer class="home-footer" style="margin-top: 60px; padding: 40px 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+    <p>勞動部勞動力發展署北基宜花金馬分署 - 五股職業訓練場</p>
+    <p style="margin-top: 8px;">機電AI整合實務_115-1期 (指導老師：Rido老師) ｜ Node-RED & C# 工業物聯網教學系統</p>
+  </footer>
+
+  <!-- 互動腳本 -->
+  <script>
+    // 切換 PDF 投影播放
+    function switchPdf(pdfUrl, activeTabId, title, size) {
+      const frame = document.getElementById('pdfFrame');
+      const extBtn = document.getElementById('btnExternalPdf');
+      const dlBtn = document.getElementById('btnDownloadPdf');
+      const titleEl = document.getElementById('pdfCurrentTitle');
+      const sizeEl = document.getElementById('pdfCurrentSize');
+      
+      // 更新 iframe src
+      frame.src = pdfUrl + '#toolbar=1&navpanes=0&scrollbar=1&view=FitH';
+      extBtn.href = pdfUrl;
+      dlBtn.href = pdfUrl;
+      titleEl.textContent = title;
+      sizeEl.textContent = size;
+      
+      // 更新 Tab 狀態
+      document.querySelectorAll('.pdf-tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(activeTabId).classList.add('active');
+    }
+
+    // 全螢幕劇院模式切換
+    function toggleTheaterFullscreen() {
+      const theater = document.getElementById('projectionTheater');
+      if (!document.fullscreenElement) {
+        if (theater.requestFullscreen) {
+          theater.requestFullscreen();
+        } else if (theater.webkitRequestFullscreen) {
+          theater.webkitRequestFullscreen();
+        } else if (theater.msRequestFullscreen) {
+          theater.msRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // 圖片燈箱控制
+    function openLightbox(imgSrc, captionText) {
+      const modal = document.getElementById('imageLightboxModal');
+      const img = document.getElementById('lightboxImage');
+      const caption = document.getElementById('lightboxCaption');
+      
+      img.src = imgSrc;
+      caption.textContent = captionText;
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox(e) {
+      if (e.target.id === 'imageLightboxModal') {
+        closeLightboxDirectly();
+      }
+    }
+
+    function closeLightboxDirectly() {
+      const modal = document.getElementById('imageLightboxModal');
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // 鍵盤 ESC 退出燈箱
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeLightboxDirectly();
+      }
+    });
+  </script>
+
+</body>
+</html>

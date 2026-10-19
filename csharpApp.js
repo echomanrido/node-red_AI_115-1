@@ -262,12 +262,22 @@ document.addEventListener('DOMContentLoaded', () => {
       ` : ''}
 
       <!-- (7) SCADA 實務應用情境 -->
+      ${lab.applications && lab.applications.length > 0 ? `
       <section class="section-card">
         <h3 class="section-title" style="border-bottom: 2px solid rgba(168, 85, 247, 0.3);"><i class="fa-solid fa-industry" style="color: #c084fc;"></i> SCADA 工業 4.0 實務應用情境</h3>
         <div class="app-scenario-grid">
-          ${appsHtml}
+          ${lab.applications.map(app => `
+            <div class="app-scenario-card" style="background: rgba(168, 85, 247, 0.05); border-color: rgba(168, 85, 247, 0.2);">
+              <div class="app-scenario-header">
+                <i class="${escapeHtml(app.icon || 'fa-solid fa-cubes')}" style="color: #c084fc;"></i>
+                <span>${escapeHtml(app.scenario)}</span>
+              </div>
+              <div class="app-scenario-desc">${escapeHtml(app.description)}</div>
+            </div>
+          `).join('')}
         </div>
       </section>
+      ` : ''}
 
       <!-- (8) 參考資源 -->
       <section class="section-card" style="margin-bottom: 40px;">
