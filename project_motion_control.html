@@ -1065,6 +1065,247 @@ MCCL.MCC_SetBacklash(
       </div>
     </section>
 
+    <!-- 專題深度章節 1：半閉迴路 vs 全閉迴路系統、光學尺虛擬編碼器解析度計算與編碼器原理 -->
+    <section class="section-container" style="margin-top: 40px;">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-ruler-combined" style="color: #f59e0b;"></i>
+        <h3>閉迴路系統深論：半閉迴路 vs 全閉迴路 (光學尺)、虛擬編碼器解析度與絕對型編碼器 (Gray Code)</h3>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        <!-- 卡片 1: 半閉迴路 vs 全閉迴路架構 -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+          <h4 style="color: #fbbf24; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-arrows-split-up-and-left"></i> 半閉迴路 vs 全閉迴路 (光學尺直接迴授)
+          </h4>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 10px; margin-bottom: 12px; text-align: center;">
+            <img src="images_src/motion_control/semi_closed_loop.jpg" alt="半閉迴路 vs 全閉迴路定位系統" style="max-width: 100%; height: 130px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 6px;">半閉迴路 (馬達尾端編碼器) vs 全閉迴路 (滑台安裝光學尺直接回授)</span>
+          </div>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 8px;">
+            <strong>半閉迴路 (Semi-Closed Loop)</strong>：回授元件安裝在伺服馬達軸心或尾端。優點是成本低、響應快；缺點是<strong>無法感測滾珠螺桿熱膨脹伸長、聯軸器彈性扭轉變形與傳動背隙</strong>。
+          </p>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+            <strong>全閉迴路 (Full-Closed Loop)</strong>：在工作滑台上直接安裝<strong>光學尺 (Linear Scale)</strong> 作為直接迴授。光學尺真實反映工作台在空間中的絕對位移，徹底消除機構傳動鏈的一切累積熱變形與機械間隙！
+          </p>
+          <div style="margin-top: 10px; background: rgba(245, 158, 11, 0.1); border-left: 3px solid #f59e0b; padding: 8px 12px; border-radius: 4px; font-size: 0.82rem; color: #fbbf24;">
+            <strong>重要參數鐵律：</strong>使用光學尺作為全閉迴路回授時，軸卡與驅動器參數中的<strong>電子齒輪比必須設為 1 : 1</strong>，若設為其他齒比將破壞光學尺真實脈波與位移的對應關係而失去效用！
+          </div>
+        </div>
+
+        <!-- 卡片 2: 光學尺虛擬編碼器解析度計算 -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+          <h4 style="color: #38bdf8; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-calculator"></i> 光學尺虛擬編碼器解析度公式
+          </h4>
+          <div style="background: #030712; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; padding: 14px; margin-bottom: 12px; font-family: monospace; font-size: 0.86rem; color: #38bdf8; line-height: 1.6;">
+            <strong>【虛擬編碼器解析度計算公式】</strong><br>
+            當光學尺規格產生 1 個脈衝當成移動 1 個單位位移量（如 5 &mu;m 或 1 &mu;m）：<br>
+            <span style="color: #fbbf24; font-size: 0.95rem; font-weight: bold;">
+              軸向編碼器解析度設定值 = 螺桿導程 (Pitch, &mu;m) / 光學尺解析度 (&mu;m) / 4
+            </span>
+          </div>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 8px;">
+            <strong>投影片經典範例計算：</strong>
+          </p>
+          <ul style="padding-left: 20px; font-size: 0.85rem; color: #cbd5e1; line-height: 1.7; margin: 0 0 10px 0;">
+            <li>滾珠螺桿導程 (Pitch)：<code>5 mm = 5000 &mu;m</code></li>
+            <li>光學尺解析度 (Scale Resolution)：<code>1 &mu;m</code> (每 1 &mu;m 產生 1 pulse)</li>
+            <li>內部 4 倍頻硬體解碼計算：<br>
+              <code style="color: #38bdf8; font-size: 0.9rem;">5000 &mu;m / 1 &mu;m / 4 = 1250</code>
+            </li>
+            <li>因此在運動軸卡之軸向參數中，<strong>編碼器解析度設定值 (Encoder Resolution) 必須精確設為 1250</strong>！</li>
+          </ul>
+          <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5; margin: 0;">
+            若光學尺規格為 5 &mu;m，則設定值為 <code>5000 / 5 / 4 = 250</code>。軸卡依此換算滑台之實際物理位移座標。
+          </p>
+        </div>
+
+        <!-- 卡片 3: 增量型 vs 絕對型編碼器 (Gray Code) -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+          <h4 style="color: #34d399; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-compact-disc"></i> 增量型 vs 絕對型編碼器 (格雷碼 Gray Code)
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/motion_control/incremental_vs_absolute.png" alt="增量型與絕對型構造" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">增量型 vs 絕對型光柵</span>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/motion_control/absolute_encoder_disc.png" alt="絕對型編碼盤與二進位碼" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">格雷碼多軌同心圓刻度</span>
+            </div>
+          </div>
+          <ul style="padding-left: 20px; font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+            <li><strong>增量型 (Incremental)</strong>：僅有 A、B 相與零位 Z 相信號。<strong>斷電後內部位置數值立即消失</strong>，重新送電後必須執行原點復歸 (Homing)，否則控制器不知道機台實際位置。</li>
+            <li><strong>絕對型 (Absolute)</strong>：碼盤上刻有由內至外多道同心圓<strong>格雷碼 (Gray Code)</strong> 軌道。每個角度均有唯一的數位編碼輸出，<strong>斷電後位置由內部電池或多圈機械齒輪永久保持</strong>！開機立即可開始生產，完全省去 Homing 時間並預防停電復電後的撞機風險。</li>
+            <li><strong>格雷碼優勢</strong>：相鄰兩個位置之間<strong>僅有 1 個位元發生狀態翻轉</strong>，杜絕標準二進碼在多位元同時翻轉時產生的短暫讀取毛邊與誤判！</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 專題深度章節 2：工具機與運動控制補償實務：刀具長度補償 (G43/G44)、半徑補償 (G41/G42) 與磨耗補正 -->
+    <section class="section-container" style="margin-top: 40px;">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-screwdriver-wrench" style="color: #f59e0b;"></i>
+        <h3>CNC 刀具補償實務：長度補償 (G43/G44)、半徑補償 (G41/G42) 與刀具磨耗補正</h3>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        <!-- 卡片 1: 刀具補償表與長度補償 -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+          <h4 style="color: #fbbf24; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-arrows-up-down"></i> 刀具長度補償 (Tool Length Offset - H碼)
+          </h4>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 8px; margin-bottom: 12px; text-align: center;">
+            <img src="images_src/motion_control/tool_compensation_table.png" alt="CNC 刀具補償表 (長度補償與半徑補償)" style="max-width: 100%; height: 130px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 6px;">CNC 刀具補償表實體：長度補償、半徑補償、刀長磨耗與刀徑磨耗</span>
+          </div>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 8px;">
+            <strong>長度補償定義：</strong>刀具長度修正值，即該刀具實體伸出長度與「標準長度基準刀（對刀棒）」之高度比較差值。依長短<strong>可為正值或負值</strong>。
+          </p>
+          <div style="background: #030712; border-left: 3px solid #fbbf24; padding: 10px; font-family: monospace; font-size: 0.84rem; color: #f8fafc; margin-bottom: 10px;">
+            長度補償 = 目前機械位置 - 基準高之機械位置值<br>
+            實際刀長補正值 = 長度補償 + 刀長磨耗
+          </div>
+          <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5; margin: 0;">
+            在 G 碼程式中以 <code>G43 H01 Z50.0;</code> 啟動刀長正補正（或 <code>G44</code> 負補正），控制器自動將 Z 軸目標位置疊加 H 碼補正量，<code>G49</code> 為取消長度補償。
+          </p>
+        </div>
+
+        <!-- 卡片 2: 半徑補償與磨耗 -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+          <h4 style="color: #38bdf8; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-circle-dot"></i> 刀具半徑補償 (Tool Radius Offset - D碼)
+          </h4>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 8px;">
+            <strong>半徑補償定義：</strong>銑刀具備實體半徑 $R$，切削時刀具中心路徑必須與工件圖紙輪廓平行偏移一個刀具半徑，否則工件尺寸會被過切！<strong>刀徑補償數值只能是正值</strong>。
+          </p>
+          <div style="background: #030712; border-left: 3px solid #38bdf8; padding: 10px; font-family: monospace; font-size: 0.84rem; color: #f8fafc; margin-bottom: 10px;">
+            實際刀徑補正值 = 刀徑半徑補償 + 刀徑磨耗<br>
+            G41：沿刀具前進方向「偏左補償」<br>
+            G42：沿刀具前進方向「偏右補償」<br>
+            G40：取消刀具半徑補償
+          </div>
+          <ul style="padding-left: 20px; font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+            <li>在程式中以 <code>D_</code> 碼（例如 <code>G41 D01 X100.0 Y50.0;</code>）選用補償表中對應的刀徑值。</li>
+            <li><strong>刀具磨耗補正 (Wear Offset)</strong>：刀具切削久了刃口鈍化產生磨耗（例如刀長變短 0.03 mm、刀徑磨損 0.015 mm）。操作員毋須重新測量整支刀具，直接在補償表填入磨耗值即可無縫修正工件公差！</li>
+          </ul>
+        </div>
+
+        <!-- 卡片 3: 多軸五軸切削同動與 RTCP 刀尖點跟隨 -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+          <h4 style="color: #34d399; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-cube"></i> 五軸同動與 RTCP 刀尖點控制
+          </h4>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 8px; margin-bottom: 12px; text-align: center;">
+            <img src="images_src/motion_control/five_axis_cnc_cutting.png" alt="五軸同動切削葉片與幾何輪廓" style="max-width: 100%; height: 130px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 6px;">五軸加工中心同動切削渦輪葉片：平滑消除刀痕與接刀公差</span>
+          </div>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+            在五軸加工機或多關節機械手臂中，當擺動旋轉軸 (A/B/C 軸) 傾斜時，刀尖點空間位置會產生劇烈偏移。運動軸卡必須具備 <strong>RTCP (Rotation Tool Center Point，刀尖點即時控制)</strong> 功能，於插補週期內即時換算刀長向量與旋轉偏置，確保刀尖點恆定貼附工件曲面，消除接刀痕！
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 專題深度章節 3：高階同動與機構應用：六軸手臂直線姿態插補、高速口罩機伺服電子凸輪與旋切同步 -->
+    <section class="section-container" style="margin-top: 40px;">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-robot" style="color: #f59e0b;"></i>
+        <h3>高階同動與機構實例：六軸手臂姿態插補、高速口罩機伺服電子凸輪 (E-CAM) 與旋切機構</h3>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        <!-- 卡片 1: 六軸手臂直線補間伴隨姿態控制 -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+          <h4 style="color: #fbbf24; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-code-branch"></i> 六軸機械手臂直線補間伴隨姿態控制
+          </h4>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 8px; margin-bottom: 12px; text-align: center;">
+            <img src="images_src/motion_control/six_axis_interpolation.png" alt="六軸機械手臂直線補間姿態控制" style="max-width: 100%; height: 130px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 6px;">TCP 空間直線位移同動 + 末端法向量歐拉角姿態平滑漸變</span>
+          </div>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 8px;">
+            在雷射焊接、高階噴塗與曲面拋光中，不僅要求工具中心點 (TCP) 沿著三維空間直線移動，<strong>工具末端之姿態角度（Roll, Pitch, Yaw 或四元數 Quaternion）也必須以等角速度平滑旋轉過渡</strong>。
+          </p>
+          <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5; margin: 0;">
+            高階運動庫 (如 NexMotion / MCCL) 於每個插補微小時間段內同時求解逆向運動學方程 (IK)，分配給六個關節伺服馬達，達成姿態無頓挫的空間連續切線平滑。
+          </p>
+        </div>
+
+        <!-- 卡片 2: 高速口罩機伺服多軸同動 -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+          <h4 style="color: #38bdf8; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-mask"></i> 高速口罩機 (Butterfly Mask Machine) 伺服電子凸輪
+          </h4>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 8px; margin-bottom: 12px; text-align: center;">
+            <img src="images_src/motion_control/mask_machine_servo.png" alt="高速口罩機伺服機構" style="max-width: 100%; height: 130px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 6px;">蝴蝶型高速自動口罩機：伺服馬達帶動電子凸輪與滾輪傳動機構</span>
+          </div>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 8px;">
+            投影片實例：<strong>Butterfly High Speed Automatic Mask Making Machine</strong> 採用伺服馬達 (如 SV-X2MH075A) 作為主驅動源。
+          </p>
+          <ul style="padding-left: 20px; font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+            <li>傳統機台依賴純機械凸輪與連桿，容易磨損且難以調整規格；</li>
+            <li>現代化 PC-Based 機台採用<strong>電子凸輪 (Electronic Cam, E-CAM)</strong>：上位機預先規劃凸輪曲線，主軸帶動料帶，從軸伺服精確跟隨，實現無紡布送料、鼻樑條切入、超音波封邊與耳帶熔接的毫秒級完全同步！</li>
+          </ul>
+        </div>
+
+        <!-- 卡片 3: 連續旋切機構 (Rotary Knife) 速度同步 -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+          <h4 style="color: #34d399; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-rotate"></i> 連續旋切機構 (Rotary Knife) 線速度匹配
+          </h4>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 8px; margin-bottom: 12px; text-align: center;">
+            <img src="images_src/motion_control/rotary_cutting_mechanism.png" alt="旋切機構圓周運動與切入速度同步" style="max-width: 100%; height: 130px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 6px;">旋切刀滾筒：切入瞬間刀刃線速度必須 100% 匹合輸送帶進料速度</span>
+          </div>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+            包裝機與貼標機常見的<strong>旋切機構 (Rotary Knife)</strong>。切刀在圓周運動中，當刀刃接觸材料的瞬間（切削區），刀尖的切線線速度 $v_{\text{cutter}}$ 必須與材料前進速度 $v_{\text{material}}$ 嚴格相等！若速度不一致會造成材料撕裂或堆料皺摺；在非切削區則由伺服快速加速或減速等待下一周期，達成不停機連續切斷。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 專題深度章節 4：綠色智慧製造：運動控制系統節能減碳 (IEA 規範與馬達效率提升) -->
+    <section class="section-container" style="margin-top: 40px; background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(6, 78, 59, 0.25) 100%); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 28px;">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-leaf" style="color: #10b981;"></i>
+        <h3 style="color: #34d399;">綠色智慧製造：運動控制系統節能減碳 (IEA 規範與馬達效率提升)</h3>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 16px;">
+        <div style="background: rgba(3, 7, 18, 0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 18px;">
+          <h4 style="color: #fbbf24; font-size: 1.05rem; margin-top: 0;">
+            <i class="fa-solid fa-chart-pie"></i> IEA 國際能源總署權威數據
+          </h4>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+            根據國際能源總署 (IEA) 調查，<strong>全球終端用電有 46% 用於馬達設備</strong>！經濟部能源局統計更顯示：工業部門用電佔全台灣用電一半以上，其中<strong>馬達用電高達工業用電的 70%</strong>！因此工廠落實 ESG 節能減碳，必須從運動控制與伺服馬達驅動效率著手。
+          </p>
+        </div>
+
+        <div style="background: rgba(3, 7, 18, 0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 18px;">
+          <h4 style="color: #38bdf8; font-size: 1.05rem; margin-top: 0;">
+            <i class="fa-solid fa-plug-circle-bolt"></i> 伺服回生能量回收 (Regenerative)
+          </h4>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+            多軸機台頻繁進行高速急減速時，馬達反轉產生大量<strong>反電動勢 (回生能量)</strong>。傳統機台由煞車電阻轉化為廢熱發散；現代綠色架構採用<strong>共用直流母線 (Common DC Bus)</strong> 或<strong>回生轉換器 (Regenerative Unit)</strong>，將煞車電能反饋至電網或供相鄰加速軸使用，節電率達 15%~30%！
+          </p>
+        </div>
+
+        <div style="background: rgba(3, 7, 18, 0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 18px;">
+          <h4 style="color: #34d399; font-size: 1.05rem; margin-top: 0;">
+            <i class="fa-solid fa-wave-square"></i> 演算法優化：S-Curve 平滑加減速
+          </h4>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+            梯形加減速 (T-Curve) 在拐點加速度突變，造成衝擊抖動 (Jerk) 與極大的瞬間電流尖峰。MCCL 採用 <strong>S-Curve (Jerk-Limited) 七段加減速演算法</strong>，有效削平馬達啟動與停機電流尖峰，降低鐵損與銅損溫升，延長機械滾珠螺桿壽命！
+          </p>
+        </div>
+      </div>
+    </section>
+
     <!-- 互動式實用工具箱 (Interactive Toolboxes) -->
     <section class="section-container" style="margin-top: 40px;">
       <div class="section-title-wrap">
@@ -1127,6 +1368,34 @@ MCCL.MCC_SetBacklash(
           <div class="tool-result-panel">
             <button class="btn-copy-code" onclick="copyToolText('pulse-freq-res')">複製結果</button>
             <pre id="pulse-freq-res">// 脈波頻率評估結果將即時呈現在此...</pre>
+          </div>
+        </div>
+
+        <!-- 工具 3: 光學尺全閉迴路虛擬編碼器解析度計算機 -->
+        <div class="tool-box-card">
+          <div class="tool-box-header">
+            <i class="fa-solid fa-ruler"></i>
+            <h4>全閉迴路光學尺虛擬編碼器解析度計算機</h4>
+          </div>
+
+          <div class="tool-input-group">
+            <label>滾珠螺桿導程 (Screw Pitch, mm)：</label>
+            <input type="number" id="scale-pitch-mm" class="tool-input" value="5.0" step="1.0" oninput="calculateLinearScaleRes()">
+          </div>
+
+          <div class="tool-input-group">
+            <label>光學尺規格解析度 (Linear Scale Resolution, &mu;m)：</label>
+            <input type="number" id="scale-res-um" class="tool-input" value="1.0" step="0.5" oninput="calculateLinearScaleRes()">
+          </div>
+
+          <div class="tool-input-group">
+            <label>軸卡硬體解碼倍頻：</label>
+            <input type="text" class="tool-input" value="4 倍頻 (4X Quadrature Decoding)" disabled style="opacity: 0.7;">
+          </div>
+
+          <div class="tool-result-panel">
+            <button class="btn-copy-code" onclick="copyToolText('scale-res-result')">複製結果</button>
+            <pre id="scale-res-result">// 光學尺虛擬編碼器解析度計算結果將即時呈現在此...</pre>
           </div>
         </div>
 
@@ -1208,6 +1477,32 @@ ${statusMsg}`;
       document.getElementById('pulse-freq-res').innerText = output;
     }
 
+    // 計算光學尺虛擬編碼器解析度
+    function calculateLinearScaleRes() {
+      const pitchMm = parseFloat(document.getElementById('scale-pitch-mm').value) || 5.0;
+      const scaleUm = parseFloat(document.getElementById('scale-res-um').value) || 1.0;
+      const pitchUm = pitchMm * 1000.0;
+
+      // 公式: 導程 (μm) / 光學尺解析度 (μm) / 4
+      const encResSetting = Math.round(pitchUm / scaleUm / 4.0);
+      const pulsesPerMm = (1000.0 / scaleUm) * 4.0;
+
+      const output = `/* 全閉迴路光學尺虛擬編碼器解析度計算 */
+螺桿導程 (Pitch): ${pitchMm} mm (${pitchUm} μm)
+光學尺解析度: ${scaleUm} μm / pulse
+內部 4 倍頻硬體計數: 4X
+
+計算過程: ${pitchUm} μm / ${scaleUm} μm / 4 = ${encResSetting}
+➤ 運動軸卡參數「軸向編碼器解析度」設定值: ${encResSetting}
+➤ 機台物理空間解析度: 1 mm = ${pulsesPerMm.toLocaleString()} pulses (0.25 μm/pulse)
+
+[全閉迴路參數設定鐵律]:
+1. 使用光學尺時，軸卡與驅動器內部電子齒輪比必須設為 1 : 1！
+2. 若設定為其他齒比，將導致上位機讀取的空間位移與真實行程產生嚴重偏差！`;
+
+      document.getElementById('scale-res-result').innerText = output;
+    }
+
     // 複製文字至剪貼簿
     function copyToolText(elementId) {
       const text = document.getElementById(elementId).innerText;
@@ -1222,6 +1517,7 @@ ${statusMsg}`;
     window.addEventListener('DOMContentLoaded', () => {
       calculateGearRatio();
       calculatePulseFreq();
+      calculateLinearScaleRes();
     });
   </script>
 </body>
