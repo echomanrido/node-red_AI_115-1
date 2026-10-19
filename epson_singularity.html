@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>六軸機器手臂奇異點：成因與數學原理解析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        });
+    </script>
+    <style>
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased leading-relaxed">
+
+    <!-- 頂部導覽列快捷按鈕 -->
+    <div style="position: sticky; top: 0; z-index: 9999; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <a href="project_epson_robot.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; background: rgba(6, 182, 212, 0.2); border: 1px solid rgba(6, 182, 212, 0.45); color: #06b6d4; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: all 0.2s;">
+                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                回 Epson 手臂專題主頁
+            </a>
+            <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; text-decoration: none; font-size: 0.85rem; transition: all 0.2s;">
+                首頁
+            </a>
+            <span style="color: #ef4444; font-size: 0.82rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                機械手臂奇點 (Singularity) 成因與避障
+            </span>
+        </div>
+        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 500;">
+            五股職訓局 機電 AI 115-1 期 實務專題
+        </span>
+    </div>
+
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-xl py-12 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <span class="bg-blue-500 text-xs font-semibold uppercase px-3 py-1 rounded-full tracking-wider inline-block mb-4">自動化與機器人學</span>
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">六軸機器手臂的奇異點</h1>
+            <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto">深入解析其物理成因、數學原理，以及從笛卡爾座標與軸角度的對應關係。</p>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-4xl mx-auto px-4 py-10 space-y-12">
+
+        <!-- Section 1: Introduction -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                <span class="bg-blue-600 text-white w-8 h-8 rounded-lg inline-flex items-center justify-center text-sm mr-3">1</span>
+                什麼是奇異點？
+            </h2>
+            <p class="text-slate-600 mb-4">
+                六軸機器手臂在現代自動化工業中扮演著不可或缺的角色，其高度的靈活性使其能夠在三維空間中達到任意位置和姿態。然而，在特定的組態下，機器手臂會遭遇<strong>「奇異點」（Singularity）</strong>，導致其運動受限、甚至完全卡死。
+            </p>
+            <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg text-slate-700">
+                <p><strong>核心定義：</strong>奇異點是指機器手臂在工作空間中的特定位置或姿態，在這些點上，機器手臂會失去一個或多個自由度。末端執行器雖然在理論上可朝某方向移動，但關節無法對應運動，甚至會因控制器試圖以極高速度驅動而產生劇烈震動或觸發安全停機。</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Physical Intuition -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                <span class="bg-blue-600 text-white w-8 h-8 rounded-lg inline-flex items-center justify-center text-sm mr-3">2</span>
+                奇異點的成因：物理上的直觀理解
+            </h2>
+            <p class="text-slate-600 mb-4">
+                從物理結構上來說，奇異點的發生通常與機器手臂的兩個或多個關節軸線的排列方式有關。當不同的關節軸線變得共線（在同一直線上）或共面（在同一個平面上）時，它們的運動會產生相互依賴或抵銷的效果。
+            </p>
+            <p class="text-slate-600">
+                這會導致末端執行器在某個方向上的運動能力喪失。在這種情況下，一個方向的微小運動可能需要兩個或多個關節以<strong>無限大的速度</strong>來補償，這在物理上是不可能實現的。
+            </p>
+        </section>
+
+        <!-- Section 3: Mathematical Principle -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                <span class="bg-blue-600 text-white w-8 h-8 rounded-lg inline-flex items-center justify-center text-sm mr-3">3</span>
+                數學原理：雅可比矩陣的角色
+            </h2>
+            <p class="text-slate-600 mb-4">
+                要深入理解奇異點，就必須引入<strong>雅可比矩陣（Jacobian Matrix）</strong>。它是連接關節速度與末端執行器速度的關鍵數學工具：
+            </p>
+            
+            <div class="bg-slate-900 text-white p-6 rounded-xl text-center my-6 shadow-inner font-mono overflow-x-auto">
+                $$V = J(q) \cdot \dot{q}$$
+            </div>
+
+            <ul class="list-disc list-inside space-y-2 text-slate-600 mb-6">
+                <li>$V$：末端執行器的速度向量（包含線速度和角速度）。</li>
+                <li>$J(q)$：雅可比矩陣，為當前關節角度 $q$ 的函數。</li>
+                <li>$\dot{q}$：各個關節的速度向量。</li>
+            </ul>
+
+            <p class="text-slate-600 mb-4">
+                在控制中，我們通常已知期望速度 $V$，需要利用逆運算求解關節速度：
+            </p>
+            <div class="bg-slate-900 text-white p-6 rounded-xl text-center my-6 shadow-inner font-mono overflow-x-auto">
+                $$\dot{q} = J(q)^{-1} \cdot V$$
+            </div>
+
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg text-slate-700">
+                <p><strong>行列式為零的意涵：</strong>當機器手臂處於奇異點時，雅可比矩陣的行列式為零（$|J(q)| = 0$），意味著矩陣是奇異的且<strong>不存在逆矩陣</strong>。這相當於數學上的「除以零」，使得計算出的關節速度趨近於無限大，導致機器卡死或報錯。</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Two Spaces: Joint vs Cartesian -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                <span class="bg-blue-600 text-white w-8 h-8 rounded-lg inline-flex items-center justify-center text-sm mr-3">4</span>
+                空間對話：關節空間 vs. 笛卡爾空間
+            </h2>
+            <p class="text-slate-600 mb-6">
+                奇異點的發生，本質上是特定的<strong>「原因」</strong>（一組特定的關節角度組合）導致了無法產生預期的<strong>「結果」</strong>（在笛卡爾空間中沿特定方向移動或旋轉）。
+            </p>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <h3 class="font-bold text-lg text-blue-900 mb-2">關節空間 (Joint Space)</h3>
+                    <p class="text-slate-600 text-sm">機器的「內部視角」。直接指令各關節移動至指定角度。路徑為弧形，<strong>不會發生奇異點問題</strong>，因為不要求末端遵循特定空間直線。</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <h3 class="font-bold text-lg text-blue-900 mb-2">笛卡爾空間 (Cartesian Space)</h3>
+                    <p class="text-slate-600 text-sm">「外部世界」視角。指令末端工具移動至 $(X, Y, Z)$ 座標與指定姿態。需要透過<strong>逆向運動學</strong>即時計算關節速度，奇異點便在此計算過程中爆發。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Three Types of Singularities -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center">
+                <span class="bg-blue-600 text-white w-8 h-8 rounded-lg inline-flex items-center justify-center text-sm mr-3">5</span>
+                六軸機器手臂常見的三種奇異點類型
+            </h2>
+
+            <div class="space-y-6">
+                <!-- Type 1 -->
+                <div class="border border-slate-200 rounded-xl p-6 bg-slate-50">
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">1. 腕部奇異點 (Wrist Singularity)</h3>
+                    <p class="text-sm text-blue-700 font-semibold mb-2">軸角度原因：第五軸角度趨近於零，第四軸與第六軸軸線重合或平行。</p>
+                    <p class="text-slate-600 mb-3"><strong>笛卡爾結果：</strong>失去繞第五軸原軸線方向進行獨立旋轉的自由度。為了作微小姿態調整，J4與J6可能需以極高速度反向旋轉180度。</p>
+                </div>
+
+                <!-- Type 2 -->
+                <div class="border border-slate-200 rounded-xl p-6 bg-slate-50">
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">2. 肩部奇異點 (Shoulder Singularity)</h3>
+                    <p class="text-sm text-blue-700 font-semibold mb-2">軸角度原因：腕關節中心點正好落在第一軸的旋轉軸線上。</p>
+                    <p class="text-slate-600 mb-3"><strong>笛卡爾結果：</strong>第一軸與第四軸運動產生衝突。通過此「死亡地帶」時，姿態需瞬間翻轉，導致關節速度趨近無限大。</p>
+                </div>
+
+                <!-- Type 3 -->
+                <div class="border border-slate-200 rounded-xl p-6 bg-slate-50">
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">3. 肘部奇異點 (Elbow Singularity)</h3>
+                    <p class="text-sm text-blue-700 font-semibold mb-2">軸角度原因：手臂完全伸展，第二、三軸中心與腕部中心三點共線。</p>
+                    <p class="text-slate-600 mb-3"><strong>笛卡爾結果：</strong>手臂達到工作範圍極限，失去沿著手臂伸展方向進一步移動的能力。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Table -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 overflow-hidden">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6">總結對照表</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                            <th class="py-3 px-4 font-semibold">奇異點類型</th>
+                            <th class="py-3 px-4 font-semibold">軸角度的「因」</th>
+                            <th class="py-3 px-4 font-semibold">笛卡爾空間的「果」 (失去的自由度)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 text-slate-600 text-sm">
+                        <tr>
+                            <td class="py-3 px-4 font-medium text-slate-900">腕部奇異點</td>
+                            <td class="py-3 px-4">第五軸角度為零，第四、六軸軸線重合。</td>
+                            <td class="py-3 px-4">失去繞第五軸軸線方向的角速度能力。</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 font-medium text-slate-900">肘部奇異點</td>
+                            <td class="py-3 px-4">手臂完全伸直，第二、三軸及腕部中心共線。</td>
+                            <td class="py-3 px-4">失去沿手臂伸展方向的線速度能力。</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 font-medium text-slate-900">肩部奇異點</td>
+                            <td class="py-3 px-4">腕部中心與第一軸軸線重合。</td>
+                            <td class="py-3 px-4">失去在特定平面內橫向移動的線速度能力。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 text-slate-500 text-sm">
+        <p>&copy; 2026 六軸機器手臂奇異點教學網頁. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

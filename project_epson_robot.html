@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>專題：Epson 機械手臂自動化整合實戰 - SCARA / SPEL+ / 運動學 / C# 控制</title>
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    :root {
+      --robot-cyan: #06b6d4;
+      --robot-cyan-glow: rgba(6, 182, 212, 0.25);
+      --robot-purple: #a855f7;
+      --robot-blue: #3b82f6;
+      --robot-amber: #f59e0b;
+      --robot-red: #ef4444;
+      --robot-emerald: #10b981;
+    }
+
+    /* 專題切換頁籤導覽列 (六大專題切換) */
+    .project-tabs-nav {
+      display: flex;
+      gap: 10px;
+      margin: 25px auto 35px;
+      background: rgba(15, 23, 42, 0.75);
+      padding: 8px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      max-width: 1200px;
+      flex-wrap: wrap;
+    }
+    .project-tab-link {
+      flex: 1;
+      min-width: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.86rem;
+      transition: all 0.25s ease;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+    }
+    .project-tab-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .project-tab-link.active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.22) 0%, rgba(59, 130, 246, 0.18) 100%);
+      color: #06b6d4;
+      border-color: rgba(6, 182, 212, 0.4);
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.15);
+    }
+    .project-tab-badge {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .project-tab-link.active .project-tab-badge {
+      background: rgba(6, 182, 212, 0.25);
+      color: #06b6d4;
+    }
+
+    /* 章節標題容器 */
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .section-title-wrap i {
+      font-size: 1.5rem;
+    }
+    .section-title-wrap h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+    }
+
+    /* 深色程式碼區塊 */
+    .code-block-dark {
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 14px 18px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .code-block-dark code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      line-height: 1.6;
+      white-space: pre;
+    }
+
+    /* 步驟流程卡片 */
+    .step-flow-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+    .step-flow-card:hover {
+      border-color: rgba(6, 182, 212, 0.35);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      background: #06b6d4;
+      color: #030712;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+      flex-shrink: 0;
+    }
+    .step-title-text {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+    }
+    .step-tag-pill {
+      margin-left: auto;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* 互動工具卡片 */
+    .tool-box-card {
+      background: #0f172a;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      margin: 24px 0;
+    }
+    .tool-box-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .tool-box-header i {
+      font-size: 1.4rem;
+      color: #06b6d4;
+    }
+    .tool-box-header h4 {
+      font-size: 1.15rem;
+      color: #f1f5f9;
+      margin: 0;
+    }
+    .tool-input-group {
+      margin-bottom: 14px;
+    }
+    .tool-input-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .tool-input {
+      width: 100%;
+      background: #030712;
+      border: 1px solid #334155;
+      color: #06b6d4;
+      font-family: 'Fira Code', monospace;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .tool-input:focus {
+      border-color: #06b6d4;
+      box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+    }
+    .tool-btn-calc {
+      background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+      color: #030712;
+      font-weight: 700;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .tool-btn-calc:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    .tool-result-panel {
+      margin-top: 16px;
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 16px;
+      position: relative;
+    }
+    .tool-result-panel pre {
+      margin: 0;
+      color: #38bdf8;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .btn-copy-code {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-copy-code:hover {
+      background: #06b6d4;
+      color: #030712;
+    }
+
+    .guideline-alert-box {
+      background: rgba(6, 182, 212, 0.08);
+      border-left: 4px solid #06b6d4;
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+    }
+    .guideline-alert-box.caution {
+      background: rgba(239, 68, 68, 0.08);
+      border-left-color: #ef4444;
+    }
+
+    /* 表格樣式 */
+    .fx-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+      background: #0f172a;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .fx-table th {
+      background: #1e293b;
+      color: #06b6d4;
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 1px solid #334155;
+    }
+    .fx-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #cbd5e1;
+    }
+    .fx-table tr:hover {
+      background: rgba(6, 182, 212, 0.04);
+    }
+  </style>
+</head>
+<body class="project-body-theme">
+  <div class="project-page-container">
+    
+    <!-- 頂部導覽列 -->
+    <header class="home-navbar" style="border-bottom: 1px solid var(--border-color); background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;">
+      <div class="brand-logo">
+        <i class="fa-solid fa-microchip logo-icon"></i>
+        <div class="brand-titles">
+          <h1 class="main-title">五股職訓局</h1>
+          <span class="sub-title">機電AI_115-1期（作者：Rido老師）</span>
+        </div>
+      </div>
+      <div class="nav-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="index.html" class="nav-cta-btn secondary-btn" style="background: rgba(255,255,255,0.05); border-color: var(--border-color); color: var(--text-main);">
+          <i class="fa-solid fa-house"></i> 首頁
+        </a>
+        <a href="csharp.html" class="nav-cta-btn secondary-btn" style="background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.35); color: #c084fc;">
+          <i class="fa-brands fa-microsoft"></i> C# 課程
+        </a>
+        <a href="labs.html" class="nav-cta-btn secondary-btn" style="background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.3); color: var(--primary);">
+          <i class="fa-brands fa-node-js"></i> Node-RED
+        </a>
+        <a href="vibecoding.html" class="nav-cta-btn secondary-btn" style="background: rgba(14, 165, 233, 0.08); border-color: rgba(56, 189, 248, 0.25); color: #38bdf8;">
+          <i class="fa-solid fa-bolt"></i> Vibe Coding
+        </a>
+        <a href="aiknowledge.html" class="nav-cta-btn secondary-btn" style="background: rgba(244, 63, 94, 0.08); border-color: rgba(244, 63, 94, 0.25); color: #fb7185;">
+          <i class="fa-solid fa-brain"></i> AI 知識
+        </a>
+        
+        <!-- 實務專題下拉選單 -->
+        <div class="nav-dropdown-wrapper">
+          <a href="project.html" class="nav-dropdown-btn" style="background: rgba(6, 182, 212, 0.15); border-color: rgba(6, 182, 212, 0.4); color: #06b6d4;">
+            <i class="fa-solid fa-diagram-project"></i> 實務專題 <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+          </a>
+          <div class="nav-dropdown-menu">
+            <a href="project.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #34d399;">範例期末專題：ESG 智慧工廠</span>
+                <span class="item-sub">機電丙級第二題・AI 視覺瑕疵・動態碳足跡閉環</span>
+              </div>
+            </a>
+            <a href="project_plc_fx3u.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #38bdf8;">專題：PC-Based 控制三菱 FX3U</span>
+                <span class="item-sub">RS232 序列通訊・三菱編程口協定・三階段自動化</span>
+              </div>
+            </a>
+            <a href="project_modbus.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-satellite-dish" style="color: #fbbf24;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #fbbf24;">專題：Modbus 通訊協定 (TCP / RTU)</span>
+                <span class="item-sub">工業物聯網標準語彙・MBAP Header・CRC-16 檢校</span>
+              </div>
+            </a>
+            <a href="project_linebot.html" class="nav-dropdown-item">
+              <i class="fa-brands fa-line" style="color: #06c755;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #06c755;">專題：LINE Bot 開發者指南詳解</span>
+                <span class="item-sub">發送 API 注意事項・n8n 工作流・GAS 免費雲端部署</span>
+              </div>
+            </a>
+            <a href="project_database.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-database" style="color: #c084fc;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #c084fc;">專題：工業與雲端資料庫全解</span>
+                <span class="item-sub">MySQL・MSSQL C#・InfluxDB 時序・Firebase</span>
+              </div>
+            </a>
+            <a href="project_epson_robot.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-robot" style="color: #06b6d4;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #06b6d4;">專題：Epson 機械手臂整合</span>
+                <span class="item-sub">SCARA LS3・SPEL+ 語言・正逆運動學・奇點・C#</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 麵包屑 -->
+    <div class="project-breadcrumb">
+      <a href="index.html"><i class="fa-solid fa-house"></i> 首頁</a> / 
+      <a href="project.html">實務專題</a> / 
+      <span class="active-item">專題：Epson 機械手臂自動化整合實戰</span>
+    </div>
+
+    <!-- 專題切換頁籤導覽列 (六大專題切換) -->
+    <div class="project-tabs-nav">
+      <a href="project.html" class="project-tab-link">
+        <i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+        <span>範例期末專題：ESG 智慧工廠</span>
+        <span class="project-tab-badge">機電丙級第二題</span>
+      </a>
+      <a href="project_plc_fx3u.html" class="project-tab-link">
+        <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+        <span>專題：PC-Based控制_三菱FX3U</span>
+        <span class="project-tab-badge">RS232+編程口</span>
+      </a>
+      <a href="project_modbus.html" class="project-tab-link">
+        <i class="fa-solid fa-satellite-dish" style="color: #fbbf24;"></i>
+        <span>專題：Modbus 通訊協定</span>
+        <span class="project-tab-badge">TCP 502 + RTU</span>
+      </a>
+      <a href="project_linebot.html" class="project-tab-link">
+        <i class="fa-brands fa-line" style="color: #06c755;"></i>
+        <span>專題：LINE Bot 開發者指南</span>
+        <span class="project-tab-badge">API 注意事項+自動化</span>
+      </a>
+      <a href="project_database.html" class="project-tab-link">
+        <i class="fa-solid fa-database" style="color: #c084fc;"></i>
+        <span>專題：工業與雲端資料庫</span>
+        <span class="project-tab-badge">四大主流全景</span>
+      </a>
+      <a href="project_epson_robot.html" class="project-tab-link active">
+        <i class="fa-solid fa-robot" style="color: #06b6d4;"></i>
+        <span>專題：Epson 機械手臂</span>
+        <span class="project-tab-badge">SCARA+SPEL+運動學</span>
+      </a>
+    </div>
+
+    <!-- 主區塊：專題名稱與簡介 -->
+    <section class="project-hero-section">
+      <span class="project-tag" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4; border-color: rgba(6, 182, 212, 0.35);">
+        <i class="fa-solid fa-robot"></i> 智慧製造與工業機器人核心
+      </span>
+      <h2 class="project-title">Epson 機械手臂自動化整合實戰<br>
+        <span class="gradient-text" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          SCARA LS3 實務・SPEL+ 程式語言・順逆運動學解算・奇點避障・C# 視覺取放
+        </span>
+      </h2>
+      <p class="project-desc">
+        全面涵蓋全球工業界市佔極高的 <strong>Epson SCARA / 6 軸機械手臂</strong>！深入探討 Epson RC+ 軟體開發環境、<strong>SPEL+</strong> 核心運動語法（Jump、Go、Move、Arc）、點位教導與速度加減速規劃；由淺入深解析機器人學核心——<strong>順向運動學 (Forward Kinematics)</strong> 與 <strong>逆向運動學 (Inverse Kinematics)</strong> 幾何與矩陣解算；剖析機械手臂<strong>「奇點 (Singularity)」</strong>的數學本質與避障策略；並結合 <strong>C# PC-Based 視覺取放整合</strong>，掌握現代智慧工廠高精度取放作業！
+      </p>
+
+      <!-- 專題實作擴充教材：五大獨立互動系統 -->
+      <div class="interactive-manuals-container" style="margin-top: 35px; width: 100%; max-width: 1100px; margin-left: auto; margin-right: auto; text-align: left;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 24px;">
+          <span style="height: 1px; flex: 1; background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.4));"></span>
+          <span style="font-size: 0.95rem; font-weight: 700; color: #06b6d4; text-transform: uppercase; letter-spacing: 1.5px; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-book-open-reader"></i> Epson 手臂專題・五大主題獨立互動手冊
+          </span>
+          <span style="height: 1px; flex: 1; background: linear-gradient(90deg, rgba(6, 182, 212, 0.4), transparent);"></span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+          <!-- 手冊 1: 基礎與 SPEL+ -->
+          <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 18px; box-shadow: 0 10px 25px rgba(6, 182, 212, 0.1); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="background: rgba(6, 182, 212, 0.15); color: #06b6d4; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; border: 1px solid rgba(6, 182, 212, 0.3);">
+                  基礎 & 語言
+                </span>
+                <span style="color: #64748b; font-size: 0.7rem; font-family: monospace;">epson_robot_intro.html</span>
+              </div>
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">
+                <i class="fa-solid fa-code" style="color: #06b6d4;"></i> Epson 手臂與 SPEL+
+              </h4>
+              <p style="color: #94a3b8; font-size: 0.8rem; line-height: 1.5; margin-bottom: 12px;">
+                RC+ 軟體架構、SPEL+ 核心語法、I/O 控制與伺服馬達安全互鎖機制。
+              </p>
+            </div>
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="color: #06b6d4; font-size: 0.75rem; font-weight: 600;"><i class="fa-solid fa-check"></i> 語法教學</span>
+              <a href="epson_robot_intro.html" class="nav-cta-btn" style="background: #06b6d4; color: #030712; font-weight: 700; padding: 5px 12px; border-radius: 5px; text-decoration: none; font-size: 0.78rem;">
+                開啟手冊 ➔
+              </a>
+            </div>
+          </div>
+
+          <!-- 手冊 2: C# 控制 -->
+          <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 12px; padding: 18px; box-shadow: 0 10px 25px rgba(168, 85, 247, 0.1); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="background: rgba(168, 85, 247, 0.15); color: #c084fc; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; border: 1px solid rgba(168, 85, 247, 0.3);">
+                  高階 C#
+                </span>
+                <span style="color: #64748b; font-size: 0.7rem; font-family: monospace;">epson_csharp_control.html</span>
+              </div>
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">
+                <i class="fa-brands fa-windows" style="color: #c084fc;"></i> C# 整合專案開發
+              </h4>
+              <p style="color: #94a3b8; font-size: 0.8rem; line-height: 1.5; margin-bottom: 12px;">
+                PC-Based 集中控制、TCP/IP Ethernet 封包通訊、相機視覺辨識取放。
+              </p>
+            </div>
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="color: #c084fc; font-size: 0.75rem; font-weight: 600;"><i class="fa-solid fa-check"></i> C# 通訊代碼</span>
+              <a href="epson_csharp_control.html" class="nav-cta-btn" style="background: #a855f7; color: #fff; font-weight: 700; padding: 5px 12px; border-radius: 5px; text-decoration: none; font-size: 0.78rem;">
+                開啟手冊 ➔
+              </a>
+            </div>
+          </div>
+
+          <!-- 手冊 3: LS3 SCARA 實務 -->
+          <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 12px; padding: 18px; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                  SCARA 實務
+                </span>
+                <span style="color: #64748b; font-size: 0.7rem; font-family: monospace;">epson_ls3_scara.html</span>
+              </div>
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">
+                <i class="fa-solid fa-hand-holding-hand" style="color: #60a5fa;"></i> Epson LS3 手臂實務
+              </h4>
+              <p style="color: #94a3b8; font-size: 0.8rem; line-height: 1.5; margin-bottom: 12px;">
+                LS3 規格參數、點位教導、Jump 門型動作、加減速設定與輸送帶追隨。
+              </p>
+            </div>
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="color: #60a5fa; font-size: 0.75rem; font-weight: 600;"><i class="fa-solid fa-check"></i> 實作手冊</span>
+              <a href="epson_ls3_scara.html" class="nav-cta-btn" style="background: #3b82f6; color: #fff; font-weight: 700; padding: 5px 12px; border-radius: 5px; text-decoration: none; font-size: 0.78rem;">
+                開啟手冊 ➔
+              </a>
+            </div>
+          </div>
+
+          <!-- 手冊 4: 運動學解析 -->
+          <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 18px; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.1); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                  運動學數學
+                </span>
+                <span style="color: #64748b; font-size: 0.7rem; font-family: monospace;">epson_kinematics.html</span>
+              </div>
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">
+                <i class="fa-solid fa-square-root-variable" style="color: #fbbf24;"></i> 順逆運動學解析
+              </h4>
+              <p style="color: #94a3b8; font-size: 0.8rem; line-height: 1.5; margin-bottom: 12px;">
+                順向運動學 (FK) 關節角轉座標、逆向運動學 (IK) 座標反求多解幾何解算。
+              </p>
+            </div>
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="color: #fbbf24; font-size: 0.75rem; font-weight: 600;"><i class="fa-solid fa-check"></i> 數學推導</span>
+              <a href="epson_kinematics.html" class="nav-cta-btn" style="background: #f59e0b; color: #0f172a; font-weight: 700; padding: 5px 12px; border-radius: 5px; text-decoration: none; font-size: 0.78rem;">
+                開啟手冊 ➔
+              </a>
+            </div>
+          </div>
+
+          <!-- 手冊 5: 奇點解析 -->
+          <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 18px; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.1); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                  奇點避障
+                </span>
+                <span style="color: #64748b; font-size: 0.7rem; font-family: monospace;">epson_singularity.html</span>
+              </div>
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">
+                <i class="fa-solid fa-triangle-exclamation" style="color: #f87171;"></i> 手臂奇點成因與避障
+              </h4>
+              <p style="color: #94a3b8; font-size: 0.8rem; line-height: 1.5; margin-bottom: 12px;">
+                雅可比矩陣 Det(J)=0、腕部/肩部/邊界奇點分析、關節超速警報防護策略。
+              </p>
+            </div>
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="color: #f87171; font-size: 0.75rem; font-weight: 600;"><i class="fa-solid fa-check"></i> 避障演算法</span>
+              <a href="epson_singularity.html" class="nav-cta-btn" style="background: #ef4444; color: #fff; font-weight: 700; padding: 5px 12px; border-radius: 5px; text-decoration: none; font-size: 0.78rem;">
+                開啟手冊 ➔
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 視覺化架構圖解 (SCARA vs 6-Axis) -->
+    <section class="project-animation-card">
+      <div class="animation-header">
+        <div class="animation-title">
+          <i class="fa-solid fa-circle-nodes pulse-dot-static" style="color: #06b6d4;"></i>
+          <span>Epson 工業機器人控制架構：RC+ 核心 ➔ SPEL+ 運動規劃 ➔ 運動學逆解 ➔ 伺服驅動輸出</span>
+        </div>
+        <span class="animation-status-badge" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4; border-color: rgba(6, 182, 212, 0.35);">
+          <i class="fa-solid fa-check"></i> 高速循環 1ms 即時插補
+        </span>
+      </div>
+      <div class="animation-viewport" style="padding: 24px;">
+        <svg viewBox="0 0 960 320" style="width: 100%; height: auto; display: block;">
+          <defs>
+            <linearGradient id="grad-rc" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#0e7490"/>
+              <stop offset="100%" stop-color="#0891b2"/>
+            </linearGradient>
+            <linearGradient id="grad-csharp" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#581c87"/>
+              <stop offset="100%" stop-color="#7e22ce"/>
+            </linearGradient>
+            <linearGradient id="grad-scara" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1e3a8a"/>
+              <stop offset="100%" stop-color="#2563eb"/>
+            </linearGradient>
+          </defs>
+
+          <!-- 1. PC 視覺大腦 (C#) -->
+          <rect x="30" y="80" width="220" height="160" rx="10" fill="url(#grad-csharp)" stroke="#a855f7" stroke-width="2"/>
+          <text x="140" y="115" fill="#f3e8ff" font-size="15" font-weight="bold" text-anchor="middle">上位機大腦 (PC C#)</text>
+          <text x="140" y="145" fill="#e9d5ff" font-size="12" text-anchor="middle">OpenCV 影像瑕疵檢測</text>
+          <text x="140" y="170" fill="#d8b4fe" font-size="12" text-anchor="middle">工件目標座標 (X, Y, Theta)</text>
+          <text x="140" y="200" fill="#cbd5e1" font-size="11" text-anchor="middle">TCP/IP Socket 通訊下發</text>
+
+          <!-- 箭頭 1: C# -> RC+ -->
+          <path d="M 250 160 L 370 160" stroke="#c084fc" stroke-width="3" fill="none"/>
+          <polygon points="370,160 360,154 360,166" fill="#c084fc"/>
+          <text x="310" y="148" fill="#c084fc" font-size="11" font-weight="bold" text-anchor="middle">Ethernet 封包</text>
+
+          <!-- 2. Epson RC+ 控制器 -->
+          <rect x="370" y="50" width="260" height="220" rx="10" fill="url(#grad-rc)" stroke="#06b6d4" stroke-width="2"/>
+          <text x="500" y="85" fill="#cffafe" font-size="16" font-weight="bold" text-anchor="middle">Epson RC+ 運動控制器</text>
+          <text x="500" y="115" fill="#a5f3fc" font-size="12" text-anchor="middle">SPEL+ 腳本語言核心</text>
+          <text x="500" y="145" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">逆向運動學 (IK) 即時解析</text>
+          <text x="500" y="175" fill="#a5f3fc" font-size="11" text-anchor="middle">S 曲線加減速 (Accel/Speed)</text>
+          <text x="500" y="205" fill="#fed7aa" font-size="11" text-anchor="middle">奇點偵測與雅可比避障</text>
+          <text x="500" y="235" fill="#67e8f9" font-size="11" text-anchor="middle">I/O 氣壓夾爪真空吸盤聯鎖</text>
+
+          <!-- 箭頭 2: RC+ -> 本體 -->
+          <path d="M 630 160 L 730 160" stroke="#06b6d4" stroke-width="3" fill="none"/>
+          <polygon points="730,160 720,154 720,166" fill="#06b6d4"/>
+          <text x="680" y="148" fill="#06b6d4" font-size="11" font-weight="bold" text-anchor="middle">伺服脈波驅動</text>
+
+          <!-- 3. 機械手臂本體 (SCARA LS3) -->
+          <rect x="730" y="80" width="200" height="160" rx="10" fill="url(#grad-scara)" stroke="#3b82f6" stroke-width="2"/>
+          <text x="830" y="115" fill="#dbeafe" font-size="15" font-weight="bold" text-anchor="middle">Epson SCARA 本體</text>
+          <text x="830" y="145" fill="#bfdbfe" font-size="12" text-anchor="middle">J1 / J2 水平關節 (角度)</text>
+          <text x="830" y="170" fill="#93c5fd" font-size="12" text-anchor="middle">J3 垂直 Z 軸 + J4 旋轉 U 軸</text>
+          <text x="830" y="200" fill="#60a5fa" font-size="11" text-anchor="middle">重複定位精度 ±0.015mm</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 區塊一：SCARA 順向運動學 (FK) 互動試算器 -->
+    <section class="project-content-block">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-calculator" style="color: #06b6d4;"></i>
+        <h3>實作小工具：SCARA 雙關節順向運動學 (FK) 即時幾何試算器</h3>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        SCARA 手臂的大臂長度為 \(L_1\)，小臂長度為 \(L_2\)。輸入當前 J1 (\(\theta_1\)) 與 J2 (\(\theta_2\)) 關節角度，利用三角幾何立即計算出末端工具在水平面上的精準 \((X, Y)\) 座標與工作半徑：
+      </p>
+
+      <div class="tool-box-card">
+        <div class="tool-box-header">
+          <i class="fa-solid fa-compass-drafting"></i>
+          <h4>SCARA 順向運動學即時座標試算 (L1, L2, &theta;1, &theta;2)</h4>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+          <div class="tool-input-group">
+            <label>大臂長度 L1 (mm):</label>
+            <input type="number" id="fk-l1" class="tool-input" value="225">
+          </div>
+          <div class="tool-input-group">
+            <label>小臂長度 L2 (mm):</label>
+            <input type="number" id="fk-l2" class="tool-input" value="175">
+          </div>
+          <div class="tool-input-group">
+            <label>J1 關節角度 &theta;1 (&deg;):</label>
+            <input type="number" id="fk-th1" class="tool-input" value="30">
+          </div>
+          <div class="tool-input-group">
+            <label>J2 關節角度 &theta;2 (&deg;):</label>
+            <input type="number" id="fk-th2" class="tool-input" value="45">
+          </div>
+        </div>
+        <div style="margin-top: 10px;">
+          <button class="tool-btn-calc" onclick="calculateFK()">
+            <i class="fa-solid fa-bolt"></i> 立即計算末端座標 (X, Y)
+          </button>
+        </div>
+        <div class="tool-result-panel">
+          <button class="btn-copy-code" onclick="copyResult('fk-output')"><i class="fa-solid fa-copy"></i> 複製座標結果</button>
+          <pre id="fk-output">點擊上方按鈕計算 SCARA 末端座標...</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊二：SPEL+ 常用運動命令產生器 -->
+    <section class="project-content-block">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-terminal" style="color: #06b6d4;"></i>
+        <h3>SPEL+ 常用運動語法產生器 (Jump / Go / Move / Arc)</h3>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        在 Epson RC+ 開發環境中，<strong>Jump (門型跳躍)</strong> 是 SCARA 最省時、最具代表性的取放動作；<strong>Move (直線插補)</strong> 則常用於塗膠與精密插入。選擇所需工件點位與動作，即時組裝合規的 SPEL+ 代碼：
+      </p>
+
+      <div class="tool-box-card">
+        <div class="tool-box-header">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <h4>SPEL+ 運動程式碼即時組裝</h4>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+          <div class="tool-input-group">
+            <label>運動動作類型:</label>
+            <select id="spel-action" class="tool-input" onchange="generateSPEL()">
+              <option value="jump">Jump 門型跳躍 (高速取放首選)</option>
+              <option value="go">Go 關節 PTP 運動 (各軸同時到位)</option>
+              <option value="move">Move 直線插補 (軌跡為一條直線)</option>
+              <option value="pick_place">完整取放副程式 (Pick & Place)</option>
+            </select>
+          </div>
+          <div class="tool-input-group">
+            <label>目標點位 (Point):</label>
+            <input type="text" id="spel-point" class="tool-input" value="P1" oninput="generateSPEL()">
+          </div>
+          <div class="tool-input-group">
+            <label>速度百分比 Speed (%):</label>
+            <input type="number" id="spel-speed" class="tool-input" value="80" oninput="generateSPEL()">
+          </div>
+          <div class="tool-input-group">
+            <label>門型抬升高度 LimZ (mm):</label>
+            <input type="number" id="spel-limz" class="tool-input" value="-50" oninput="generateSPEL()">
+          </div>
+        </div>
+        <div class="tool-result-panel">
+          <button class="btn-copy-code" onclick="copyResult('spel-output')"><i class="fa-solid fa-copy"></i> 複製語法</button>
+          <pre id="spel-output">SPEL+ 代碼即時預覽...</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊三：運動學核心 (FK vs IK) 與奇點解析 -->
+    <section class="project-content-block">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i>
+        <h3>運動學核心：順逆運動學 (FK/IK) 與奇點 (Singularity) 避障</h3>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        機械手臂不是只要馬達會轉就好，理解其背後的數學原理是進階工程師的關鍵門檻：
+      </p>
+
+      <div class="project-grid-two">
+        <div class="text-card-glow">
+          <h4><i class="fa-solid fa-arrows-split-up-and-left"></i> 1. 順向運動學 (FK) vs 逆向運動學 (IK)</h4>
+          <table class="fx-table" style="font-size: 0.82rem; margin: 10px 0;">
+            <tr><th>比較項目</th><th>順向運動學 (FK)</th><th>逆向運動學 (IK)</th></tr>
+            <tr>
+              <td><strong>已知條件</strong></td>
+              <td>各關節轉角 \((\theta_1, \theta_2, ...)\)</td>
+              <td>末端夾爪目標座標 \((X, Y, Z, U)\)</td>
+            </tr>
+            <tr>
+              <td><strong>求解目標</strong></td>
+              <td>末端在空間中的座標 \((X, Y, Z)\)</td>
+              <td>各馬達應轉動的角度 \((\theta_1, \theta_2)\)</td>
+            </tr>
+            <tr>
+              <td><strong>數學解性</strong></td>
+              <td><strong>唯一解</strong>（角度確定，位置必唯一）</td>
+              <td><strong>多解性或無解</strong>（左手系/右手系兩組解）</td>
+            </tr>
+            <tr>
+              <td><strong>實務應用</strong></td>
+              <td>模擬器繪製手臂即時姿態</td>
+              <td>視覺相機給座標，手臂自動算轉角</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="text-card-glow">
+          <h4><i class="fa-solid fa-skull-crossbones" style="color: #f87171;"></i> 2. 機械手臂奇點 (Singularity) 的致命威脅</h4>
+          <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.7;">
+            當手臂伸直到最極限（臂展全平），或腕部兩軸重疊共線時，雅可比矩陣的行列式等於零 \(\det(J) = 0\)。此時會產生<strong>奇點</strong>：
+          </p>
+          <div class="guideline-alert-box caution" style="margin: 10px 0; padding: 12px 14px;">
+            <i class="fa-solid fa-triangle-exclamation"></i> <strong>奇點後果</strong>：手臂在該方向失去自由度；逆向運動學解出馬達需要「無限大的角速度」才能維持直線軌跡，造成伺服過載跳脫或手臂劇烈震顫！
+          </div>
+          <p style="font-size: 0.84rem; color: #94a3b8;">
+            <strong>工控避障策略</strong>：在教導點位時，嚴禁設定在大臂小臂夾角接近 0&deg; 或 180&deg; 的邊界，並在軟體中開啟奇點平滑過渡（Singularity Avoidance）。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 頁尾 -->
+    <footer class="project-footer" style="text-align: center; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 60px;">
+      <p style="color: #64748b; font-size: 0.88rem;">五股職訓局 機電 AI 115-1 期 實務專題系列教材・版權所有 © 2026</p>
+      <div style="margin-top: 12px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+        <a href="index.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-house"></i> 首頁</a>
+        <a href="project.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-leaf"></i> 期末專題</a>
+        <a href="project_plc_fx3u.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-network-wired"></i> 三菱 FX3U</a>
+        <a href="project_modbus.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-satellite-dish"></i> Modbus</a>
+        <a href="project_linebot.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-brands fa-line"></i> LINE Bot</a>
+        <a href="project_database.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-database"></i> 工業資料庫</a>
+        <a href="project_epson_robot.html" style="color: #06b6d4; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-robot"></i> Epson 手臂</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // 順向運動學 (FK) 計算器
+    function calculateFK() {
+      const l1 = parseFloat(document.getElementById('fk-l1').value) || 225;
+      const l2 = parseFloat(document.getElementById('fk-l2').value) || 175;
+      const th1Deg = parseFloat(document.getElementById('fk-th1').value) || 0;
+      const th2Deg = parseFloat(document.getElementById('fk-th2').value) || 0;
+
+      const rad1 = th1Deg * Math.PI / 180;
+      const rad12 = (th1Deg + th2Deg) * Math.PI / 180;
+
+      // 順向運動學公式
+      const x = l1 * Math.cos(rad1) + l2 * Math.cos(rad12);
+      const y = l1 * Math.sin(rad1) + l2 * Math.sin(rad12);
+      const radius = Math.sqrt(x*x + y*y);
+
+      const result = `[SCARA 順向運動學計算結果]
+大臂 L1: ${l1} mm, 角度 θ1: ${th1Deg}°
+小臂 L2: ${l2} mm, 角度 θ2: ${th2Deg}°
+末端工具 X 座標: ${x.toFixed(3)} mm
+末端工具 Y 座標: ${y.toFixed(3)} mm
+距原點工作半徑 R: ${radius.toFixed(3)} mm
+姿態方向角 (θ1+θ2): ${(th1Deg + th2Deg).toFixed(1)}°`;
+
+      document.getElementById('fk-output').textContent = result;
+    }
+
+    // SPEL+ 程式語法產生器
+    function generateSPEL() {
+      const action = document.getElementById('spel-action').value;
+      const p = document.getElementById('spel-point').value.trim() || 'P1';
+      const spd = document.getElementById('spel-speed').value || '80';
+      const limz = document.getElementById('spel-limz').value || '-50';
+
+      let code = '';
+      if (action === 'jump') {
+        code = `' Epson SCARA 門型高速跳躍\nSpeed ${spd}\nLimZ ${limz}\nJump ${p}`;
+      } else if (action === 'go') {
+        code = `' 關節 PTP 運動 (各軸同時起跑)\nSpeed ${spd}\nGo ${p}`;
+      } else if (action === 'move') {
+        code = `' 直線插補 (末端嚴格走直線)\nSpeed ${spd}\nMove ${p}`;
+      } else if (action === 'pick_place') {
+        code = `' 完整自動取放副程式 (Pick & Place 實戰範例)
+Function PickAndPlace
+  Motor On
+  Power High
+  Speed ${spd}
+  Accel 80, 80
+  LimZ ${limz}
+  
+  ' 1. 移動至工件上方並夾取
+  Jump ${p}
+  On 1            ' 開啟氣壓夾爪
+  Wait .2         ' 延遲 200ms 確認夾緊
+  
+  ' 2. 搬移至放料點
+  Jump P2
+  Off 1           ' 釋放夾爪
+  Wait .1
+  
+  ' 3. 返回安全待命點
+  Home
+Fend`;
+      }
+      document.getElementById('spel-output').textContent = code;
+    }
+
+    // 複製結果工具
+    function copyResult(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("已成功複製到剪貼簿！");
+      }).catch(err => {
+        console.error("複製失敗:", err);
+      });
+    }
+
+    // 網頁載入時預設算一次
+    window.addEventListener('DOMContentLoaded', () => {
+      calculateFK();
+      generateSPEL();
+    });
+  </script>
+</body>
+</html>
