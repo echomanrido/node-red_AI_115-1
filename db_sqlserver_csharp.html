@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Server via C# & Grafana 實戰教學 | 張世學</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        ssms: {
+                            bg: '#1e1e1e',
+                            tree: '#252526',
+                            menu: '#f2f2f2',
+                            highlight: '#fdf4bf',
+                            border: '#cccccc'
+                        },
+                        grafana: {
+                            bg: '#111217',
+                            panel: '#181b1f',
+                            border: '#2c3235',
+                            orange: '#ff780a',
+                            blue: '#3871dc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .code-scroll::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .code-scroll::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        .code-scroll::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        .code-scroll::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .ssms-shadow {
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.35);
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        .highlight-step {
+            animation: pulse-ring 2s infinite;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- 頂部導覽列快捷按鈕 -->
+    <div style="position: sticky; top: 0; z-index: 9999; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <a href="project_database.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.45); color: #c084fc; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: all 0.2s;">
+                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                回資料庫專題主頁
+            </a>
+            <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; text-decoration: none; font-size: 0.85rem; transition: all 0.2s;">
+                首頁
+            </a>
+            <span style="color: #ef4444; font-size: 0.82rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                SQL Server via C# & Grafana 時區實務
+            </span>
+        </div>
+        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 500;">
+            五股職訓局 機電 AI 115-1 期 實務專題
+        </span>
+    </div>
+
+
+    <!-- Top Navigation -->
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-600 to-orange-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i class="fa-solid fa-database text-white text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg tracking-tight text-white">SQL Server & C# 實戰教學</span>
+                    <span class="hidden sm:inline-block ml-2 text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">講師：張世學</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center space-x-1">
+                <a href="#module-csharp" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-2">
+                    <i class="fa-solid fa-code text-indigo-400"></i> 1. C# 資料庫連接
+                </a>
+                <a href="#module-ssms" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-2">
+                    <i class="fa-solid fa-server text-sky-400"></i> 2. SQL Server 管理
+                </a>
+                <a href="#module-grafana" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-orange-400"></i> 3. Grafana 視覺化與時區修正
+                </a>
+            </nav>
+
+            <!-- Quick Simulator Jump -->
+            <a href="#Interactive-Lab" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
+                <i class="fa-solid fa-flask"></i> 互動模擬實驗室
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden py-12 sm:py-16 border-b border-slate-800 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-xs font-medium text-slate-300 mb-4">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>單元 04-02 工業物聯網與資料庫整合實務</span>
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                    從 <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-sky-400">SQL Server + C#</span> 到 <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">Grafana</span> 即時監控看板
+                </h1>
+                <p class="mt-4 text-base sm:text-lg text-slate-400 leading-relaxed">
+                    本教材完整收錄張世學老師投影片核心內容：學習在 SSMS 中建立資料庫與權限管理、透過 C# <code class="text-indigo-300 font-mono">DataTable</code> 與 <code class="text-indigo-300 font-mono">DataGridView</code> 進行資料讀寫，最後串接 Grafana 打造自動更新看板並解決常見的「時間多 8 小時」時區偏移問題。
+                </p>
+            </div>
+
+            <!-- 3 Course Pillars Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+                <!-- Pillar 1 -->
+                <a href="#module-csharp" class="group p-6 rounded-2xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/70 hover:border-indigo-500/50 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-table-list text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white group-hover:text-indigo-300 transition">Part 1. SQL Server via C#</h3>
+                        <ul class="mt-3 space-y-1.5 text-sm text-slate-400">
+                            <li><i class="fa-solid fa-check text-indigo-400 mr-2 text-xs"></i>使用 C# 連接 SQL Server</li>
+                            <li><i class="fa-solid fa-check text-indigo-400 mr-2 text-xs"></i>DataGridView 查詢與插入資料</li>
+                            <li><i class="fa-solid fa-check text-indigo-400 mr-2 text-xs"></i>DataTable、DataView 與 DataGrid 比較</li>
+                        </ul>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/50 flex items-center justify-between text-xs text-indigo-400 font-medium">
+                        <span>包含程式碼範例與比較表</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                    </div>
+                </a>
+
+                <!-- Pillar 2 -->
+                <a href="#module-ssms" class="group p-6 rounded-2xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/70 hover:border-sky-500/50 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 mb-4 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-user-shield text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white group-hover:text-sky-300 transition">Part 2. SQL Server 實務操作</h3>
+                        <ul class="mt-3 space-y-1.5 text-sm text-slate-400">
+                            <li><i class="fa-solid fa-check text-sky-400 mr-2 text-xs"></i>新增資料庫、重新命名與新增資料表</li>
+                            <li><i class="fa-solid fa-check text-sky-400 mr-2 text-xs"></i>設計資料表欄位 (Machine / monitor)</li>
+                            <li><i class="fa-solid fa-check text-sky-400 mr-2 text-xs"></i>新增使用者 (lucky) 與授予 db_owner 權限</li>
+                        </ul>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/50 flex items-center justify-between text-xs text-sky-400 font-medium">
+                        <span>互動式 SSMS 圖解導覽</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                    </div>
+                </a>
+
+                <!-- Pillar 3 -->
+                <a href="#module-grafana" class="group p-6 rounded-2xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/70 hover:border-orange-500/50 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 mb-4 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-clock-rotate-left text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white group-hover:text-orange-300 transition">Part 3. Grafana 監控與時區問題</h3>
+                        <ul class="mt-3 space-y-1.5 text-sm text-slate-400">
+                            <li><i class="fa-solid fa-check text-orange-400 mr-2 text-xs"></i>登入與建立 New Dashboard / Panel</li>
+                            <li><i class="fa-solid fa-check text-orange-400 mr-2 text-xs"></i>設定每 5 秒 (5s) 自動刷新資料</li>
+                            <li><i class="fa-solid fa-check text-orange-400 mr-2 text-xs"></i>解決「時間多 8 小時」問題 (改為 UTC)</li>
+                        </ul>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/50 flex items-center justify-between text-xs text-orange-400 font-medium">
+                        <span>內建時區修正模擬器</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+
+        <!-- ==========================================
+             MODULE 1: SQL SERVER VIA C#
+             ========================================== -->
+        <section id="module-csharp" class="scroll-mt-20">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-slate-800">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">單元一 • 投影片 P.1 - P.2</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1 flex items-center gap-3">
+                        <i class="fa-solid fa-laptop-code text-indigo-400"></i>
+                        SQL Server via C# 核心觀念與實作
+                    </h2>
+                </div>
+                <a href="https://www.twblogs.net/a/5ef1e0894b16c91a2849735f" target="_blank" rel="noopener noreferrer" class="mt-3 md:mt-0 inline-flex items-center gap-2 text-xs sm:text-sm text-indigo-400 hover:text-indigo-300 bg-indigo-950/50 border border-indigo-800/60 px-3.5 py-2 rounded-xl transition">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    投影片參考連結：DataTable, DataView和DataGrid比較
+                </a>
+            </div>
+
+            <!-- Comparison Cards: DataTable vs DataView vs DataGridView -->
+            <div class="mb-10">
+                <h3 class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-xs flex items-center justify-center font-bold">1</span>
+                    DataTable、DataView 與 DataGrid (DataGridView) 架構比較
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- DataTable -->
+                    <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono text-sm font-bold">DataTable</span>
+                            <span class="text-xs text-slate-400">記憶體資料容器</span>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                            代表記憶體內的一個關聯式資料表（包含 <code class="text-emerald-300">DataRow</code> 列與 <code class="text-emerald-300">DataColumn</code> 欄）。它獨立於資料庫連線之外，負責在 C# 程式中暫存從 SQL Server 撈取出來的資料，或準備批次寫入的資料。
+                        </p>
+                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-xs text-slate-400 space-y-1">
+                            <div><strong class="text-slate-200">角色比喻：</strong>倉庫裡的「原始貨物清單」</div>
+                            <div><strong class="text-slate-200">主要操作：</strong>新增列 <code class="text-indigo-300">Rows.Add()</code>、定義欄位結構</div>
+                        </div>
+                    </div>
+
+                    <!-- DataView -->
+                    <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono text-sm font-bold">DataView</span>
+                            <span class="text-xs text-slate-400">動態檢視與篩選器</span>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                            建立在 <code class="text-amber-300">DataTable</code> 之上的自訂檢視。不複製資料本身，而是提供動態排序 (<code class="text-amber-300">Sort</code>)、條件過濾 (<code class="text-amber-300">RowFilter</code>) 與搜尋功能，常作為 UI 綁定的中介層。
+                        </p>
+                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-xs text-slate-400 space-y-1">
+                            <div><strong class="text-slate-200">角色比喻：</strong>套用了「排序與篩選條件」的放大鏡</div>
+                            <div><strong class="text-slate-200">主要操作：</strong><code class="text-indigo-300">dv.RowFilter = "Price > 25"</code></div>
+                        </div>
+                    </div>
+
+                    <!-- DataGrid / DataGridView -->
+                    <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono text-sm font-bold">DataGridView</span>
+                            <span class="text-xs text-slate-400">WinForms 視覺化控制項</span>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                            Windows Forms 畫面上的表格 UI 元件（早期稱為 DataGrid）。透過設定 <code class="text-indigo-300">DataSource</code> 屬性綁定 <code class="text-indigo-300">DataTable</code> 或 <code class="text-indigo-300">DataView</code>，將資料呈現給使用者查詢或直接編輯。
+                        </p>
+                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-xs text-slate-400 space-y-1">
+                            <div><strong class="text-slate-200">角色比喻：</strong>展示給客戶看的「數位櫥窗表格」</div>
+                            <div><strong class="text-slate-200">主要操作：</strong><code class="text-indigo-300">dataGridView1.DataSource = dt;</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- C# Code Tabs corresponding to Slide 2 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                <div class="px-6 py-4 bg-slate-950 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-xs flex items-center justify-center font-bold">2</span>
+                        <h3 class="font-semibold text-white">C# 實作程式碼範例（對應投影片主題與 Machine 資料表）</h3>
+                    </div>
+                    <!-- Tab Buttons -->
+                    <div class="flex flex-wrap gap-2" id="csharp-tabs">
+                        <button onclick="switchCSharpTab('connect')" id="tab-btn-connect" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition">
+                            1. 連接 SQL Server 與查詢 (DataGridView)
+                        </button>
+                        <button onclick="switchCSharpTab('insert')" id="tab-btn-insert" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+                            2. 插入資料 (INSERT & DataGridView)
+                        </button>
+                        <button onclick="switchCSharpTab('datatable')" id="tab-btn-datatable" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+                            3. DataTable 與 DataView 篩選實作
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Code Content Panels -->
+                <div class="p-6">
+                    <!-- Tab 1: Connect & Query -->
+                    <div id="tab-content-connect" class="space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-indigo-950/30 border border-indigo-500/20 rounded-xl p-3.5 text-xs text-indigo-200">
+                            <div>
+                                <i class="fa-solid fa-circle-info mr-1.5 text-indigo-400"></i>
+                                <strong>連線說明：</strong>對應投影片中建立的伺服器 <code class="font-mono text-white">localhost\SQLEXPRESS</code>、資料庫 <code class="font-mono text-white">lucky20230805</code> 與帳號 <code class="font-mono text-white">lucky</code>。
+                            </div>
+                            <button onclick="copyCode('code-connect')" class="self-start sm:self-auto shrink-0 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+                                <i class="fa-regular fa-copy"></i> 複製程式碼
+                            </button>
+                        </div>
+                        <pre id="code-connect" class="code-scroll overflow-x-auto p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed"><code>using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace SqlServerCSharpDemo
+{
+    public partial class Form1 : Form
+    {
+        // 設定連接字串：對應投影片中的 SQLEXPRESS、資料庫 lucky20230805 與使用者 lucky
+        private string connectionString = @"Server=localhost\SQLEXPRESS;Database=lucky20230805;User Id=lucky;Password=your_password;";
+
+        // 【功能 1】使用 C# 連接 SQL Server 並透過 DataGridView 查詢資料
+        private void btnQuery_Click(object sender, EventArgs e)
+        {
+            string query = "SELECT ID, No, DateTime, Coin, Stuf, Price FROM dbo.Machine ORDER BY ID ASC";
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    // 使用 SqlDataAdapter 將查詢結果填入 DataTable
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(query, conn))
+                    {
+                        DataTable dt = new DataTable("Machine");
+                        adapter.Fill(dt);
+
+                        // 將 DataTable 綁定至畫面上的 DataGridView 控制項
+                        dataGridView1.DataSource = dt;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("資料庫查詢失敗：" + ex.Message);
+            }
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <!-- Tab 2: Insert Data -->
+                    <div id="tab-content-insert" class="hidden space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-emerald-950/30 border border-emerald-500/20 rounded-xl p-3.5 text-xs text-emerald-200">
+                            <div>
+                                <i class="fa-solid fa-circle-info mr-1.5 text-emerald-400"></i>
+                                <strong>安全插入資料：</strong>使用參數化查詢 (<code class="font-mono text-white">SqlCommand.Parameters</code>) 將機台資料寫入 <code class="font-mono text-white">dbo.Machine</code> 並刷新 <code class="font-mono text-white">DataGridView</code>。
+                            </div>
+                            <button onclick="copyCode('code-insert')" class="self-start sm:self-auto shrink-0 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+                                <i class="fa-regular fa-copy"></i> 複製程式碼
+                            </button>
+                        </div>
+                        <pre id="code-insert" class="code-scroll overflow-x-auto p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed"><code>// 【功能 2】插入資料至 SQL Server 並同步更新 DataGridView
+private void btnInsert_Click(object sender, EventArgs e)
+{
+    string insertSql = @"INSERT INTO dbo.Machine (ID, No, DateTime, Coin, Stuf, Price) 
+                         VALUES (@ID, @No, @DateTime, @Coin, @Stuf, @Price)";
+
+    try
+    {
+        using (SqlConnection conn = new SqlConnection(connectionString))
+        {
+            conn.Open();
+            using (SqlCommand cmd = new SqlCommand(insertSql, conn))
+            {
+                // 使用參數化避免 SQL Injection，對應 Machine 資料表欄位型別
+                cmd.Parameters.AddWithValue("@ID", int.Parse(txtID.Text));
+                cmd.Parameters.AddWithValue("@No", int.Parse(txtNo.Text));
+                cmd.Parameters.AddWithValue("@DateTime", DateTime.Now);
+                cmd.Parameters.AddWithValue("@Coin", int.Parse(txtCoin.Text));
+                cmd.Parameters.AddWithValue("@Stuf", int.Parse(txtStuf.Text));
+                cmd.Parameters.AddWithValue("@Price", decimal.Parse(txtPrice.Text));
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                {
+                    // 插入成功後重新執行查詢，讓 DataGridView 顯示最新資料
+                    btnQuery_Click(null, null);
+                }
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show("插入資料失敗：" + ex.Message);
+    }
+}</code></pre>
+                    </div>
+
+                    <!-- Tab 3: DataTable & DataView -->
+                    <div id="tab-content-datatable" class="hidden space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-amber-950/30 border border-amber-500/20 rounded-xl p-3.5 text-xs text-amber-200">
+                            <div>
+                                <i class="fa-solid fa-circle-info mr-1.5 text-amber-400"></i>
+                                <strong>記憶體資料操作：</strong>建立 <code class="font-mono text-white">DataTable</code> 並透過 <code class="font-mono text-white">DataView</code> 進行即時排序與篩選，無須重複查詢資料庫。
+                            </div>
+                            <button onclick="copyCode('code-datatable')" class="self-start sm:self-auto shrink-0 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+                                <i class="fa-regular fa-copy"></i> 複製程式碼
+                            </button>
+                        </div>
+                        <pre id="code-datatable" class="code-scroll overflow-x-auto p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed"><code>// 【功能 3】DataTable 建立與 DataView 排序篩選應用
+private void FilterWithDataView(DataTable machineTable)
+{
+    // 1. 直接從現有的 DataTable 建立 DataView
+    DataView dv = new DataView(machineTable);
+
+    // 2. 設定篩選條件 (例如：只顯示投幣數 Coin > 100 的機台紀錄)
+    dv.RowFilter = "Coin > 100";
+
+    // 3. 設定排序方式 (依 ID 遞減排序)
+    dv.Sort = "ID DESC";
+
+    // 4. 將篩選後的 DataView 綁定給 DataGridView 顯示
+    dataGridView1.DataSource = dv;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             MODULE 2: SQL SERVER (SSMS) OPERATIONS
+             ========================================== -->
+        <section id="module-ssms" class="scroll-mt-20">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-slate-800">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-sky-400">單元二 • 投影片 P.3 - P.8</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1 flex items-center gap-3">
+                        <i class="fa-solid fa-database text-sky-400"></i>
+                        SQL Server (SSMS) 資料表設計與使用者權限設定
+                    </h2>
+                </div>
+                <a href="https://dotblogs.com.tw/Lin/2022/10/06/192958" target="_blank" rel="noopener noreferrer" class="mt-3 md:mt-0 inline-flex items-center gap-2 text-xs sm:text-sm text-sky-400 hover:text-sky-300 bg-sky-950/50 border border-sky-800/60 px-3.5 py-2 rounded-xl transition">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    投影片參考連結：新增使用者並指定授予特定資料庫權限
+                </a>
+            </div>
+
+            <!-- Interactive SSMS Walkthrough Container -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Left Step Selector (5 Steps from Slides 4-8) -->
+                <div class="lg:col-span-4 space-y-2.5" id="ssms-step-buttons">
+                    <button onclick="selectSsmsStep(1)" id="ssms-btn-1" class="w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 bg-sky-500/15 border-sky-500 text-white shadow-lg shadow-sky-500/10">
+                        <span class="w-7 h-7 rounded-lg bg-sky-500 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">P.4</span>
+                        <div>
+                            <div class="font-bold text-sm">步驟 1：新增資料庫與新增資料表</div>
+                            <div class="text-xs text-slate-300 mt-1">於資料庫 (KOU) 右鍵「新增資料庫 / 重新命名」，並在「資料表」右鍵選擇「新增(N) → 資料表(T)...」</div>
+                        </div>
+                    </button>
+
+                    <button onclick="selectSsmsStep(2)" id="ssms-btn-2" class="w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800/70">
+                        <span class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">P.5</span>
+                        <div>
+                            <div class="font-bold text-sm">步驟 2：資料表設計與插入資料行</div>
+                            <div class="text-xs text-slate-400 mt-1">於 <code class="font-mono">dbo.Machine</code> 按右鍵選「設計(G)」，設定主索引鍵 ID，並右鍵「插入資料行(M)」新增 Date 等欄位</div>
+                        </div>
+                    </button>
+
+                    <button onclick="selectSsmsStep(3)" id="ssms-btn-3" class="w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800/70">
+                        <span class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">P.6</span>
+                        <div>
+                            <div class="font-bold text-sm">步驟 3：編輯前 200 個資料列</div>
+                            <div class="text-xs text-slate-400 mt-1">在資料表 (<code class="font-mono">dbo.monitor</code>) 右鍵點選「編輯前 200 個資料列(P)」，即可直接在表格輸入測試數值 (如 voltage = 199)</div>
+                        </div>
+                    </button>
+
+                    <button onclick="selectSsmsStep(4)" id="ssms-btn-4" class="w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800/70">
+                        <span class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">P.7</span>
+                        <div>
+                            <div class="font-bold text-sm">步驟 4：新增使用者登入 (1/2)</div>
+                            <div class="text-xs text-slate-400 mt-1">展開「安全性 → 登入」右鍵「新增登入(N)...」，輸入名稱 <code class="font-mono">lucky</code>，選擇「SQL Server 驗證」並取消勾選強制密碼原則</div>
+                        </div>
+                    </button>
+
+                    <button onclick="selectSsmsStep(5)" id="ssms-btn-5" class="w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800/70">
+                        <span class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">P.8</span>
+                        <div>
+                            <div class="font-bold text-sm">步驟 5：授予特定資料庫權限 (2/2)</div>
+                            <div class="text-xs text-slate-400 mt-1">在登入帳號 <code class="font-mono">lucky</code> 屬性切換至「使用者對應」，勾選資料庫 <code class="font-mono">lucky20230805</code> 並勾選下方 <code class="font-mono">db_owner</code> 角色</div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Right Interactive SSMS Visual Replica (Faithfully reproducing Slides 4-8) -->
+                <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                    <!-- Top Window Title Bar -->
+                    <div class="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                            <span id="ssms-window-title" class="ml-2 text-xs font-mono text-slate-300">SQL Server Management Studio (SSMS) - 投影片 P.4 實機畫面還原</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="prevSsmsStep()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition"><i class="fa-solid fa-chevron-left mr-1"></i>上一步</button>
+                            <button onclick="nextSsmsStep()" class="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs text-white font-medium transition">下一步<i class="fa-solid fa-chevron-right ml-1"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Step Content Container -->
+                    <div class="p-5 sm:p-6 bg-[#f5f5f5] text-slate-900 min-h-[430px] flex flex-col justify-between">
+                        
+                        <!-- STEP 1 VIEW (Slide 4: 新增資料表 & 資料庫右鍵選單) -->
+                        <div id="ssms-view-1" class="space-y-4">
+                            <div class="bg-sky-50 border-l-4 border-sky-600 p-3 rounded-r-xl text-xs sm:text-sm text-slate-700">
+                                <strong>投影片 P.4 重點：</strong>在「物件總管」中，可對資料庫（如 <code class="font-mono font-bold text-sky-800">KOU</code>）按右鍵執行<strong>新增資料庫(N)...</strong>或<strong>重新命名(M)</strong>；展開資料庫後，在「<strong>資料表</strong>」資料夾按右鍵選擇「<strong>新增(N) → 資料表(T)...</strong>」。
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Left Mock: Database Context Menu -->
+                                <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm relative text-xs font-sans">
+                                    <div class="text-[11px] font-bold text-slate-500 mb-2 border-b pb-1">畫面 A：資料庫右鍵選單</div>
+                                    <div class="space-y-1 text-slate-800">
+                                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-database text-slate-600"></i> <span class="bg-[#0078d7] text-white px-1.5 py-0.5">KOU</span></div>
+                                        <div class="pl-5 flex items-center gap-1.5 text-slate-500"><i class="fa-solid fa-folder text-amber-400"></i> 資料庫圖表</div>
+                                        <div class="pl-5 flex items-center gap-1.5 text-slate-500"><i class="fa-solid fa-folder text-amber-400"></i> 資料表</div>
+                                    </div>
+                                    <!-- Context Menu Popup -->
+                                    <div class="mt-2 ml-8 bg-[#f2f2f2] border border-slate-400 ssms-shadow py-1 w-48 text-slate-900">
+                                        <div class="px-3 py-1 hover:bg-[#fdf4bf]">新增資料庫(N)...</div>
+                                        <div class="px-3 py-1 hover:bg-[#fdf4bf]">新增查詢(Q)</div>
+                                        <div class="border-t border-slate-300 my-1"></div>
+                                        <div class="px-3 py-1 bg-[#fdf4bf] border border-[#e5c365] font-semibold flex justify-between items-center highlight-step">
+                                            <span>重新命名(M)</span>
+                                            <i class="fa-solid fa-arrow-pointer text-slate-700"></i>
+                                        </div>
+                                        <div class="px-3 py-1 text-slate-600">刪除(D)</div>
+                                        <div class="px-3 py-1 text-slate-600">重新整理(F)</div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Mock: New Table Context Menu -->
+                                <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm relative text-xs font-sans">
+                                    <div class="text-[11px] font-bold text-slate-500 mb-2 border-b pb-1">畫面 B：新增資料表選單</div>
+                                    <div class="space-y-1 text-slate-800">
+                                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-database text-slate-600"></i> KOU</div>
+                                        <div class="pl-5 flex items-center gap-1.5"><i class="fa-solid fa-folder text-amber-400"></i> <span class="bg-[#0078d7] text-white px-1.5 py-0.5">資料表</span></div>
+                                    </div>
+                                    <!-- Cascading Menu -->
+                                    <div class="mt-2 ml-6 flex items-start">
+                                        <div class="bg-[#f2f2f2] border border-slate-400 ssms-shadow py-1 w-36 text-slate-900">
+                                            <div class="px-3 py-1 bg-[#fdf4bf] border border-[#e5c365] font-semibold flex justify-between items-center">
+                                                <span>新增(N)</span>
+                                                <i class="fa-solid fa-caret-right"></i>
+                                            </div>
+                                            <div class="px-3 py-1 text-slate-600">篩選(T)</div>
+                                            <div class="px-3 py-1 text-slate-600">重新整理(F)</div>
+                                        </div>
+                                        <div class="bg-[#f2f2f2] border border-slate-400 ssms-shadow py-1 w-40 -ml-1 mt-0 text-slate-900">
+                                            <div class="px-3 py-1 bg-[#fdf4bf] border border-[#e5c365] font-semibold flex justify-between items-center highlight-step">
+                                                <span>資料表(T)...</span>
+                                                <i class="fa-solid fa-arrow-pointer text-slate-700"></i>
+                                            </div>
+                                            <div class="px-3 py-1 text-slate-600">記憶體最佳化資料表...</div>
+                                            <div class="px-3 py-1 text-slate-600">時態表(T)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2 VIEW (Slide 5: 資料表->新增欄位) -->
+                        <div id="ssms-view-2" class="hidden space-y-4">
+                            <div class="bg-sky-50 border-l-4 border-sky-600 p-3 rounded-r-xl text-xs sm:text-sm text-slate-700">
+                                <strong>投影片 P.5 重點：</strong>在資料庫 <code class="font-mono font-bold text-sky-800">lucky20230805</code> 下的 <code class="font-mono font-bold text-sky-800">dbo.Machine</code> 資料表按右鍵選「<strong>設計(G)</strong>」。可設定主索引鍵（小鑰匙圖示 <i class="fa-solid fa-key text-amber-500"></i>），或於列首按右鍵選擇「<strong>插入資料行(M)</strong>」新增欄位。
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 text-xs">
+                                <!-- Object Explorer Left -->
+                                <div class="md:col-span-5 bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                                    <div class="font-bold text-slate-600 mb-2 border-b pb-1">物件總管 - lucky20230805</div>
+                                    <div class="space-y-1">
+                                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-database text-slate-600"></i> lucky20230805</div>
+                                        <div class="pl-4 flex items-center gap-1.5"><i class="fa-solid fa-folder-open text-amber-400"></i> 資料表</div>
+                                        <div class="pl-8 flex items-center gap-1.5"><i class="fa-solid fa-table text-sky-700"></i> <span class="bg-[#0078d7] text-white px-1.5 py-0.5">dbo.Machine</span></div>
+                                    </div>
+                                    <div class="mt-2 ml-8 bg-[#f2f2f2] border border-slate-400 ssms-shadow py-1 w-44">
+                                        <div class="px-3 py-1 text-slate-600">資料表(T)...</div>
+                                        <div class="px-3 py-1 bg-[#fdf4bf] border border-[#e5c365] font-bold flex justify-between items-center highlight-step">
+                                            <span>設計(G)</span>
+                                            <i class="fa-solid fa-arrow-pointer"></i>
+                                        </div>
+                                        <div class="px-3 py-1 text-slate-600">選取前 1000 個資料列(W)</div>
+                                        <div class="px-3 py-1 text-slate-600">編輯前 200 個資料列(P)</div>
+                                    </div>
+                                </div>
+
+                                <!-- Table Designer Right -->
+                                <div class="md:col-span-7 bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                                    <div class="font-mono text-[11px] bg-[#fff29d] text-slate-900 px-2 py-1 font-bold border-b border-slate-300 mb-2">
+                                        DESKTOP-6C7L6LE...5 - dbo.Machine*
+                                    </div>
+                                    <table class="w-full border-collapse border border-slate-300 text-xs">
+                                        <thead class="bg-slate-100">
+                                            <tr>
+                                                <th class="border border-slate-300 w-8"></th>
+                                                <th class="border border-slate-300 px-2 py-1 text-left">資料行名稱</th>
+                                                <th class="border border-slate-300 px-2 py-1 text-left">資料類型</th>
+                                                <th class="border border-slate-300 px-2 py-1 text-center">允許 Null</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="font-mono">
+                                            <tr>
+                                                <td class="border border-slate-300 text-center"><i class="fa-solid fa-key text-amber-500"></i></td>
+                                                <td class="border border-slate-300 px-2 py-1">ID</td>
+                                                <td class="border border-slate-300 px-2 py-1">int</td>
+                                                <td class="border border-slate-300 text-center"><input type="checkbox" disabled></td>
+                                            </tr>
+                                            <tr class="bg-sky-100">
+                                                <td class="border border-slate-300 text-center"><i class="fa-solid fa-caret-right text-slate-800"></i></td>
+                                                <td class="border border-slate-300 px-2 py-1 font-sans text-slate-600" colspan="3">
+                                                    <span class="inline-block bg-[#fdf4bf] border border-[#e5c365] px-2 py-0.5 font-bold text-slate-900 highlight-step">
+                                                        右鍵選單：插入資料行(M) / 設定主索引鍵(Y)
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border border-slate-300"></td>
+                                                <td class="border border-slate-300 px-2 py-1">Date / DateTime</td>
+                                                <td class="border border-slate-300 px-2 py-1">date / datetime</td>
+                                                <td class="border border-slate-300 text-center"><input type="checkbox" checked disabled></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border border-slate-300"></td>
+                                                <td class="border border-slate-300 px-2 py-1">Coin</td>
+                                                <td class="border border-slate-300 px-2 py-1">int</td>
+                                                <td class="border border-slate-300 text-center"><input type="checkbox" checked disabled></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border border-slate-300"></td>
+                                                <td class="border border-slate-300 px-2 py-1">Stuf</td>
+                                                <td class="border border-slate-300 px-2 py-1">int</td>
+                                                <td class="border border-slate-300 text-center"><input type="checkbox" checked disabled></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border border-slate-300"></td>
+                                                <td class="border border-slate-300 px-2 py-1">Price</td>
+                                                <td class="border border-slate-300 px-2 py-1">money</td>
+                                                <td class="border border-slate-300 text-center"><input type="checkbox" checked disabled></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 3 VIEW (Slide 6: 編輯新增資料) -->
+                        <div id="ssms-view-3" class="hidden space-y-4">
+                            <div class="bg-sky-50 border-l-4 border-sky-600 p-3 rounded-r-xl text-xs sm:text-sm text-slate-700">
+                                <strong>投影片 P.6 重點：</strong>想要手動新增或修改資料表內容時，在資料表（如 <code class="font-mono font-bold text-sky-800">dbo.monitor</code>）上按右鍵，點選「<strong>編輯前 200 個資料列(P)</strong>」，即可直接在儲存格輸入數值（例如 <code class="font-mono">voltage = 199</code>）。
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                                <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                                    <div class="font-bold text-slate-600 mb-2 border-b pb-1">1. 對資料表按右鍵</div>
+                                    <div class="pl-2 flex items-center gap-1.5 mb-2"><i class="fa-solid fa-table text-sky-700"></i> <span class="bg-[#0078d7] text-white px-1.5 py-0.5">dbo.monitor</span></div>
+                                    <div class="ml-4 bg-[#f2f2f2] border border-slate-400 ssms-shadow py-1 w-52">
+                                        <div class="px-3 py-1 text-slate-600">資料表(T)...</div>
+                                        <div class="px-3 py-1 text-slate-600">設計(G)</div>
+                                        <div class="px-3 py-1 text-slate-600">選取前 1000 個資料列(W)</div>
+                                        <div class="px-3 py-1 bg-[#fdf4bf] border border-[#e5c365] font-bold flex justify-between items-center highlight-step">
+                                            <span>編輯前 200 個資料列(P)</span>
+                                            <i class="fa-solid fa-arrow-pointer"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white border border-slate-300 rounded-lg p-3 shadow-sm">
+                                    <div class="font-mono text-[11px] bg-[#fff29d] text-slate-900 px-2 py-1 font-bold border-b border-slate-300 mb-3">
+                                        DESKTOP-6C7L6LE...U - dbo.monitor
+                                    </div>
+                                    <table class="w-48 border-collapse border border-slate-300 font-mono text-xs">
+                                        <thead class="bg-slate-100">
+                                            <tr>
+                                                <th class="border border-slate-300 w-8"></th>
+                                                <th class="border border-slate-300 px-3 py-1 text-left">voltage</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="border border-slate-300"></td>
+                                                <td class="border border-slate-300 px-3 py-1">199</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border border-slate-300 text-center text-[10px]"><i class="fa-solid fa-play"></i>*</td>
+                                                <td class="border border-slate-300 px-3 py-1"><span class="bg-[#0078d7] text-white italic px-1">NULL</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <p class="mt-3 text-slate-500 text-[11px]">提示：輸入完畢後按下 Enter 或移動游標至下一列，SSMS 即會自動將該筆資料寫入資料庫。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4 VIEW (Slide 7: 新增使用者 1/2) -->
+                        <div id="ssms-view-4" class="hidden space-y-4">
+                            <div class="bg-sky-50 border-l-4 border-sky-600 p-3 rounded-r-xl text-xs sm:text-sm text-slate-700">
+                                <strong>投影片 P.7 重點：</strong>在伺服器層級的「<strong>安全性 → 登入</strong>」按右鍵選擇「<strong>新增登入(N)...</strong>」。在「一般」頁面設定登入名稱 <code class="font-mono font-bold text-sky-800">lucky</code>，改選「<strong>SQL Server 驗證(S)</strong>」並設定密碼，同時<strong>取消勾選「強制執行密碼原則(F)」</strong>。
+                            </div>
+
+                            <div class="bg-white border border-slate-400 rounded-lg p-4 shadow-md text-xs">
+                                <div class="flex items-center justify-between border-b border-slate-300 pb-2 mb-3">
+                                    <span class="font-bold text-slate-800"><i class="fa-solid fa-user-plus text-sky-700 mr-1.5"></i>登入 - 新增 (頁數：一般)</span>
+                                    <span class="text-[11px] text-slate-500">伺服器: DESKTOP-6C7L6LE\SQLEXPRESS</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                    <div class="md:col-span-3 border-r border-slate-200 pr-2 space-y-1">
+                                        <div class="text-[11px] text-slate-400 font-bold">選取頁面</div>
+                                        <div class="bg-sky-100 text-sky-900 font-bold px-2 py-1 rounded">一般</div>
+                                        <div class="px-2 py-1 text-slate-600">伺服器角色</div>
+                                        <div class="px-2 py-1 text-slate-600">使用者對應</div>
+                                        <div class="px-2 py-1 text-slate-600">安全性實體</div>
+                                        <div class="px-2 py-1 text-slate-600">狀態</div>
+                                    </div>
+                                    <div class="md:col-span-9 space-y-2.5">
+                                        <div class="flex items-center gap-3">
+                                            <label class="w-28 text-slate-700">登入名稱(N):</label>
+                                            <input type="text" value="lucky" readonly class="border border-slate-400 px-2 py-1 w-48 font-mono bg-slate-50">
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <input type="radio" disabled> <span class="text-slate-600">Windows 驗證(W)</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 font-bold text-sky-900">
+                                            <input type="radio" checked readonly> <span>SQL Server 驗證(S)</span>
+                                        </div>
+                                        <div class="pl-6 space-y-2">
+                                            <div class="flex items-center gap-3">
+                                                <label class="w-24 text-slate-700">密碼(P):</label>
+                                                <input type="password" value="12345678" readonly class="border border-slate-400 px-2 py-0.5 w-44 bg-slate-50">
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <label class="w-24 text-slate-700">確認密碼(C):</label>
+                                                <input type="password" value="12345678" readonly class="border border-sky-500 px-2 py-0.5 w-44 bg-slate-50">
+                                            </div>
+                                            <div class="flex items-center gap-2 pt-1">
+                                                <input type="checkbox" disabled class="rounded">
+                                                <span class="bg-[#fdf4bf] border border-[#e5c365] px-1.5 py-0.5 font-semibold highlight-step">強制執行密碼原則(F) （建議取消勾選以便設定簡易實驗密碼）</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 5 VIEW (Slide 8: 新增使用者 2/2) -->
+                        <div id="ssms-view-5" class="hidden space-y-4">
+                            <div class="bg-sky-50 border-l-4 border-sky-600 p-3 rounded-r-xl text-xs sm:text-sm text-slate-700">
+                                <strong>投影片 P.8 重點：</strong>在登入屬性左側切換至「<strong>使用者對應</strong>」，於上方清單勾選目標資料庫 <code class="font-mono font-bold text-sky-800">lucky20230805</code>，並在下方「資料庫角色成員資格」勾選 <code class="font-mono font-bold text-sky-800">db_owner</code>，最後按確定完成授權！
+                            </div>
+
+                            <div class="bg-white border border-slate-400 rounded-lg p-4 shadow-md text-xs">
+                                <div class="flex items-center justify-between border-b border-slate-300 pb-2 mb-3">
+                                    <span class="font-bold text-slate-800"><i class="fa-solid fa-user-check text-sky-700 mr-1.5"></i>登入屬性 - lucky (頁數：使用者對應)</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                    <div class="md:col-span-3 border-r border-slate-200 pr-2 space-y-1">
+                                        <div class="text-[11px] text-slate-400 font-bold">選取頁面</div>
+                                        <div class="px-2 py-1 text-slate-600">一般</div>
+                                        <div class="px-2 py-1 text-slate-600">伺服器角色</div>
+                                        <div class="bg-sky-100 text-sky-900 font-bold px-2 py-1 rounded highlight-step">使用者對應</div>
+                                        <div class="px-2 py-1 text-slate-600">安全性實體</div>
+                                        <div class="px-2 py-1 text-slate-600">狀態</div>
+                                    </div>
+                                    <div class="md:col-span-9 space-y-3">
+                                        <div class="font-semibold text-slate-700">已對應到此登入的使用者(D):</div>
+                                        <table class="w-full border-collapse border border-slate-300 font-mono text-xs">
+                                            <thead class="bg-slate-100 font-sans">
+                                                <tr>
+                                                    <th class="border border-slate-300 px-2 py-1 w-12">對應</th>
+                                                    <th class="border border-slate-300 px-2 py-1 text-left">資料庫</th>
+                                                    <th class="border border-slate-300 px-2 py-1 text-left">使用者</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="bg-sky-50 font-bold text-sky-900">
+                                                    <td class="border border-slate-300 text-center"><input type="checkbox" checked readonly></td>
+                                                    <td class="border border-slate-300 px-2 py-1">lucky20230805</td>
+                                                    <td class="border border-slate-300 px-2 py-1">lucky</td>
+                                                </tr>
+                                                <tr class="text-slate-500">
+                                                    <td class="border border-slate-300 text-center"><input type="checkbox" disabled></td>
+                                                    <td class="border border-slate-300 px-2 py-1">master</td>
+                                                    <td class="border border-slate-300 px-2 py-1"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        <div class="font-semibold text-slate-700 pt-1">資料庫角色成員資格對象: lucky20230805(R)</div>
+                                        <div class="border border-slate-300 p-2 rounded bg-slate-50 space-y-1 font-mono">
+                                            <div class="flex items-center gap-2 text-slate-600"><input type="checkbox" disabled> db_datareader</div>
+                                            <div class="flex items-center gap-2 text-slate-600"><input type="checkbox" disabled> db_datawriter</div>
+                                            <div class="flex items-center gap-2 bg-[#0078d7] text-white px-2 py-0.5 font-bold highlight-step">
+                                                <input type="checkbox" checked readonly> db_owner (擁有該資料庫完整讀寫與管理權限)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step Footer Indicator -->
+                        <div class="mt-4 pt-3 border-t border-slate-300 flex items-center justify-between text-xs text-slate-600">
+                            <span id="ssms-step-counter" class="font-semibold">目前顯示：步驟 1 / 5 (投影片 P.4)</span>
+                            <span>點擊左側步驟按鈕可自由切換畫面</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             MODULE 3: GRAFANA & +8 HOURS TIMEZONE LAB
+             ========================================== -->
+        <section id="module-grafana" class="scroll-mt-20">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-slate-800">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-orange-400">單元三 • 投影片 P.9 - P.14</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1 flex items-center gap-3">
+                        <i class="fa-solid fa-Fire-flame-curved text-orange-500"></i>
+                        Grafana 視覺化看板與「時間多 8 小時」問題解析
+                    </h2>
+                </div>
+                <a href="https://blog.csdn.net/qq_26462567/article/details/123842203" target="_blank" rel="noopener noreferrer" class="mt-3 md:mt-0 inline-flex items-center gap-2 text-xs sm:text-sm text-orange-400 hover:text-orange-300 bg-orange-950/50 border border-orange-800/60 px-3.5 py-2 rounded-xl transition">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    投影片參考連結：Grafana 時間多 8 小時問題解決方案
+                </a>
+            </div>
+
+            <!-- Grafana Setup Cards (Slides 9, 10, 11) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <!-- Slide 9: Login Info -->
+                <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-orange-500/10 text-orange-400 border border-orange-500/20">投影片 P.9</span>
+                        <i class="fa-solid fa-right-to-bracket text-slate-500"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-base mb-2">1. 連線至本機 Grafana 伺服器</h3>
+                    <p class="text-xs text-slate-400 mb-3">於瀏覽器開啟本機埠號 3000 並使用預設管理員帳密登入：</p>
+                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs space-y-1.5">
+                        <div class="flex justify-between"><span class="text-slate-500">URL:</span> <span class="text-orange-300">http://localhost:3000/?orgId=1</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">帳號 / 密碼:</span> <span class="text-emerald-300">admin / xxx123</span></div>
+                    </div>
+                </div>
+
+                <!-- Slide 10: New Dashboard -->
+                <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-orange-500/10 text-orange-400 border border-orange-500/20">投影片 P.10</span>
+                        <i class="fa-solid fa-plus-square text-slate-500"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-base mb-2">2. 新增一個 Dashboards</h3>
+                    <p class="text-xs text-slate-400 mb-3">進入 Dashboards 頁面建立監控面板：</p>
+                    <ol class="text-xs text-slate-300 space-y-1.5 list-decimal list-inside">
+                        <li>點擊右側藍色按鈕 <span class="px-1.5 py-0.5 rounded bg-blue-600 text-white font-semibold">New ▾</span> 選擇 <strong>New Dashboard</strong></li>
+                        <li>點選 <strong>Add a new panel</strong> 新增圖表或表格</li>
+                        <li>將資料來源指向 SQL Server (<code class="text-orange-300">dbo.Machine</code>)</li>
+                    </ol>
+                </div>
+
+                <!-- Slide 11: Auto Refresh -->
+                <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-orange-500/10 text-orange-400 border border-orange-500/20">投影片 P.11</span>
+                        <i class="fa-solid fa-arrows-rotate text-slate-500"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-base mb-2">3. 設定每隔幾秒更新一次</h3>
+                    <p class="text-xs text-slate-400 mb-3">為了即時監控 C# 寫入 SQL Server 的機台數據：</p>
+                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-1">
+                        <div>點擊右上角重新整理按鈕旁的下拉選單 <span class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-orange-300">5s ▾</span></div>
+                        <div class="text-slate-400">可選擇 <code class="text-slate-200">5s, 10s, 30s, 1m, 5m...</code> 自動輪詢更新。</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deep Dive Explanation of the +8 Hours Bug (Slides 12-14) -->
+            <div class="p-6 rounded-2xl bg-gradient-to-r from-orange-950/40 via-slate-900 to-slate-900 border border-orange-500/30 mb-10">
+                <div class="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+                    <div class="space-y-2 max-w-3xl">
+                        <div class="inline-flex items-center gap-2 text-orange-400 font-bold text-sm">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            為什麼會發生「時間多 8 小時」問題？（投影片 P.12 - P.14 重點解析）
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            當我們在 SQL Server 儲存 <code class="font-mono text-amber-300">2023-08-05 00:00:00.000</code>（型別為 <code class="font-mono">datetime</code>，不含時區資訊）時，Grafana 預設會將資料庫撈出來的時間視為 <strong>UTC 標準時間</strong>，接著又根據瀏覽器預設時區（<strong>Taiwan, CST UTC+08:00</strong>）自動幫它<strong>加上 8 小時</strong>，導致看板上變成 <code class="font-mono text-rose-400">2023-08-05 08:00:00</code>（或是 <code class="font-mono">22:00</code> 變成隔天 <code class="font-mono text-rose-400">06:00</code>）！
+                        </p>
+                        <div class="pt-2 flex flex-wrap gap-3 text-xs">
+                            <span class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-300">
+                                <strong class="text-orange-400">解決步驟 1 (P.14)：</strong> 點擊看板右上角齒輪圖示 <i class="fa-solid fa-gear"></i> <strong>Dashboard settings</strong>
+                            </span>
+                            <span class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-300">
+                                <strong class="text-orange-400">解決步驟 2 (P.13)：</strong> 於 General ➔ Time options 將 <strong>Time zone</strong> 改為 <strong>Coordinated Universal Time (UTC)</strong>
+                            </span>
+                        </div>
+                    </div>
+                    <a href="#Interactive-Lab" class="shrink-0 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-orange-600/20 transition">
+                        立即在下方模擬器體驗修正 <i class="fa-solid fa-arrow-down ml-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 INTERACTIVE LAB: C# INSERT + SQL SERVER + GRAFANA TIMEZONE SIMULATOR
+                 ========================================== -->
+            <div id="Interactive-Lab" class="scroll-mt-20 bg-grafana-bg border-2 border-slate-700 rounded-2xl overflow-hidden shadow-2xl">
+                <!-- Lab Header Banner -->
+                <div class="bg-slate-900 px-6 py-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <span class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold">
+                            <i class="fa-solid fa-bolt mr-1"></i>互動實作實驗室
+                        </span>
+                        <h3 class="font-bold text-white text-base sm:text-lg">
+                            C# 資料寫入 ➔ SQL Server (<code class="font-mono text-sky-400">dbo.Machine</code>) ➔ Grafana 時區與自動刷新模擬器
+                        </h3>
+                    </div>
+                    <div class="text-xs text-slate-400">
+                        完整還原投影片 P.11 ~ P.14 數據與操作介面
+                    </div>
+                </div>
+
+                <!-- Top Control Bar: Simulate C# Insert & Compare SQL vs Grafana -->
+                <div class="p-5 bg-slate-950/90 border-b border-slate-800 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <!-- Left: C# Insert Form -->
+                    <div class="lg:col-span-7 space-y-3">
+                        <div class="text-xs font-bold text-indigo-400 flex items-center gap-2">
+                            <i class="fa-solid fa-terminal"></i>
+                            模擬 C# 程式插入一筆新資料至 SQL Server (<code class="font-mono">dbo.Machine</code>)
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 text-xs">
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">ID (主鍵)</label>
+                                <input id="sim-id" type="number" value="14" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">No (機號)</label>
+                                <input id="sim-no" type="number" value="2" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[11px] text-slate-400 mb-1">DateTime (SQL 寫入時間)</label>
+                                <input id="sim-datetime" type="text" value="2023-08-07 10:00:00" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">Coin (投幣)</label>
+                                <input id="sim-coin" type="number" value="850" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">Stuf / Price</label>
+                                <div class="flex gap-1">
+                                    <input id="sim-stuf" type="number" value="420" title="Stuf" class="w-1/2 px-1.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono">
+                                    <input id="sim-price" type="number" value="30" title="Price" class="w-1/2 px-1.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3 pt-1">
+                            <button onclick="insertSimulatedRow()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-2 shadow-md">
+                                <i class="fa-solid fa-plus"></i> 執行 C# INSERT 寫入資料庫
+                            </button>
+                            <button onclick="resetSimulatedData()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition">
+                                重置為投影片 P.12 原始 6 筆資料
+                            </button>
+                            <span id="sim-status-msg" class="text-xs text-emerald-400 font-medium hidden"></span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Current Timezone Diagnostic Status Box -->
+                    <div id="tz-diagnostic-box" class="lg:col-span-5 p-4 rounded-xl border bg-rose-950/30 border-rose-500/40 transition-all">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <span id="tz-badge" class="inline-block px-2 py-0.5 rounded text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 mb-1">
+                                    ⚠️ 目前狀態：時間多 8 小時 (投影片 P.11-12 問題重現)
+                                </span>
+                                <h4 id="tz-title" class="text-sm font-bold text-white">Grafana 時區目前為：Taiwan, CST (UTC+08:00)</h4>
+                            </div>
+                        </div>
+                        <p id="tz-desc" class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            請看下方對照：SQL Server 第 1 筆時間為 <code class="text-sky-300 font-mono">00:00:00</code>，但右側 Grafana 卻顯示 <code class="text-rose-300 font-mono">08:00:00</code>！請點擊下方 Grafana 導覽列的 <strong>齒輪 (Dashboard settings)</strong> 或直接切換時區來修正。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Simulated Grafana Top Bar (Replicating Slide 11 & Slide 14) -->
+                <div class="bg-[#181b1f] px-4 py-2.5 border-b border-[#2c3235] flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center space-x-2 text-sm">
+                        <i class="fa-solid fa-fire text-orange-500 text-lg mr-1"></i>
+                        <span class="text-slate-400">General /</span>
+                        <span class="font-bold text-white">Lucky</span>
+                        <i class="fa-regular fa-star text-slate-500 text-xs ml-1"></i>
+                        <i class="fa-solid fa-share-nodes text-slate-500 text-xs ml-1"></i>
+                    </div>
+
+                    <!-- Right Controls: Settings Gear, Timezone indicator, Auto-refresh dropdown -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <!-- Dashboard Settings Gear Button (Slide 14 highlight) -->
+                        <button onclick="toggleGrafanaSettingsModal()" id="grafana-gear-btn" class="px-3 py-1.5 rounded bg-[#22252b] hover:bg-[#2c3235] border border-orange-500/60 text-slate-200 text-xs flex items-center gap-2 transition highlight-step" title="Dashboard settings (投影片 P.14)">
+                            <i class="fa-solid fa-gear text-orange-400"></i>
+                            <span>Dashboard settings (點此修正 +8hr)</span>
+                        </button>
+
+                        <!-- Time Range Display -->
+                        <div class="px-3 py-1.5 rounded bg-[#22252b] border border-[#2c3235] text-xs text-slate-200 flex items-center gap-2">
+                            <i class="fa-regular fa-clock text-slate-400"></i>
+                            <span>Last 6 hours</span>
+                            <span id="grafana-tz-pill" class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono text-[11px] font-bold">UTC+8</span>
+                        </div>
+
+                        <!-- Refresh Now Button -->
+                        <button onclick="triggerGrafanaRefresh()" class="px-2.5 py-1.5 rounded bg-[#22252b] hover:bg-[#2c3235] border border-[#2c3235] text-slate-300 text-xs transition" title="立即刷新">
+                            <i id="refresh-spin-icon" class="fa-solid fa-rotate-right"></i>
+                        </button>
+
+                        <!-- Auto Refresh Interval Dropdown (Slide 11) -->
+                        <div class="flex items-center bg-[#22252b] border border-[#2c3235] rounded text-xs">
+                            <span class="px-2 text-slate-400 hidden sm:inline">自動更新:</span>
+                            <select id="grafana-refresh-select" onchange="changeRefreshInterval(this.value)" class="bg-transparent text-orange-400 font-mono font-bold px-2 py-1.5 focus:outline-none cursor-pointer">
+                                <option value="5" selected class="bg-[#181b1f] text-white">5s</option>
+                                <option value="10" class="bg-[#181b1f] text-white">10s</option>
+                                <option value="30" class="bg-[#181b1f] text-white">30s</option>
+                                <option value="0" class="bg-[#181b1f] text-white">Off</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Drawer / Modal inside Lab (Replicating Slide 13: Home / Settings -> Time zone) -->
+                <div id="grafana-settings-drawer" class="hidden bg-[#141619] border-b-2 border-orange-500/50 p-5 transition-all">
+                    <div class="max-w-3xl mx-auto">
+                        <div class="flex items-center justify-between pb-3 mb-4 border-b border-[#2c3235]">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-sliders text-orange-400"></i>
+                                <span class="font-bold text-white text-sm">Grafana Dashboard Settings ➔ General ➔ Time options（還原投影片 P.13）</span>
+                            </div>
+                            <button onclick="toggleGrafanaSettingsModal()" class="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800">
+                                關閉設定 ✕
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Time zone (時區設定)</label>
+                                <p class="text-xs text-slate-400">
+                                    選擇 <code class="text-emerald-300">Coordinated Universal Time (UTC)</code> 可避免 Grafana 對 SQL Server 的本地時間重複加上 +08:00。
+                                </p>
+                            </div>
+                            <div class="space-y-2">
+                                <button onclick="setGrafanaTimezone('UTC+8')" id="tz-opt-utc8" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs flex items-center justify-between transition bg-slate-800 border-orange-500 text-white">
+                                    <div>
+                                        <div class="font-bold">Browser Time (Taiwan, CST)</div>
+                                        <div class="text-[11px] text-slate-400">預設值 — 會導致顯示時間多 8 小時 (P.11-12)</div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded bg-slate-900 font-mono text-[11px] text-rose-300">UTC+08:00</span>
+                                </button>
+
+                                <button onclick="setGrafanaTimezone('UTC')" id="tz-opt-utc" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs flex items-center justify-between transition bg-slate-900 border-slate-700 text-slate-300 hover:border-emerald-500">
+                                    <div>
+                                        <div class="font-bold text-emerald-300">Coordinated Universal Time (UTC, GMT)</div>
+                                        <div class="text-[11px] text-slate-400">投影片 P.13 正確解答 — 與 SQL Server 時間完全一致！</div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded bg-emerald-950 font-mono text-[11px] text-emerald-300 border border-emerald-500/30">UTC</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side-by-Side Comparison: SQL Server Raw Table (P.12) vs Grafana Table Panel (P.11/P.14) -->
+                <div class="p-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Left: SQL Server SSMS Raw Data (Slide 12) -->
+                    <div class="lg:col-span-5 bg-white text-slate-900 rounded-xl overflow-hidden border border-slate-400 shadow-lg flex flex-col">
+                        <div class="bg-[#fff29d] px-3 py-2 border-b border-slate-300 flex items-center justify-between">
+                            <span class="font-mono text-xs font-bold text-slate-900">
+                                <i class="fa-solid fa-database text-sky-700 mr-1"></i>SSMS: DESKTOP-6C7L6LE...5 - dbo.Machine (P.12)
+                            </span>
+                            <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-white font-sans">SQL 實際儲存時間</span>
+                        </div>
+                        <div class="p-3 overflow-x-auto flex-1">
+                            <table class="w-full border-collapse border border-slate-300 font-mono text-xs">
+                                <thead class="bg-slate-100 text-slate-700">
+                                    <tr>
+                                        <th class="border border-slate-300 px-2 py-1 text-left">ID</th>
+                                        <th class="border border-slate-300 px-2 py-1 text-left">No</th>
+                                        <th class="border border-slate-300 px-2 py-1 text-left">DateTime</th>
+                                        <th class="border border-slate-300 px-2 py-1 text-right">Coin</th>
+                                        <th class="border border-slate-300 px-2 py-1 text-right">Stuf</th>
+                                        <th class="border border-slate-300 px-2 py-1 text-right">Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ssms-table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right: Grafana Table Panel (Slide 11, 12, 14) -->
+                    <div class="lg:col-span-7 bg-[#181b1f] border border-[#2c3235] rounded-xl overflow-hidden shadow-lg flex flex-col">
+                        <div class="px-4 py-2.5 border-b border-[#2c3235] flex items-center justify-between">
+                            <span class="text-xs font-semibold text-slate-200 tracking-wide">Machine (Grafana 看板顯示結果)</span>
+                            <div class="flex items-center gap-3">
+                                <button onclick="toggleGrafanaSort()" class="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1">
+                                    <i class="fa-solid fa-sort"></i> 點擊切換排序 (<span id="sort-dir-label">ID ↑ 遞增</span>)
+                                </button>
+                                <span id="countdown-badge" class="text-[11px] font-mono text-slate-400">下次刷新: 5s</span>
+                            </div>
+                        </div>
+                        <div class="p-3 overflow-x-auto flex-1">
+                            <table class="w-full border-collapse font-mono text-xs">
+                                <thead>
+                                    <tr class="border-b border-[#2c3235] text-[#5794f2] bg-[#1e2228]">
+                                        <th class="px-3 py-2 text-right cursor-pointer hover:bg-[#262b33]" onclick="toggleGrafanaSort()">
+                                            ID <span id="th-sort-arrow">↑</span>
+                                        </th>
+                                        <th class="px-3 py-2 text-right">No</th>
+                                        <th class="px-3 py-2 text-left">DateTime</th>
+                                        <th class="px-3 py-2 text-right">Coin</th>
+                                        <th class="px-3 py-2 text-right">Stuf</th>
+                                        <th class="px-3 py-2 text-right">Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="grafana-table-body" class="divide-y divide-[#2c3235] text-slate-200">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             QUICK REVIEW QUIZ
+             ========================================== -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">課後重點檢核</span>
+                    <h2 class="text-xl sm:text-2xl font-bold text-white mt-1">隨堂觀念小測驗（3 題）</h2>
+                </div>
+                <button onclick="resetQuiz()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+                    重新作答
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Q1 -->
+                <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-indigo-400 mb-2">Q1. C# 資料結構比較</div>
+                        <p class="text-sm text-slate-200 font-medium mb-4">在 Windows Forms 中，若要將記憶體內的 <code class="font-mono text-indigo-300">DataTable</code> 呈現於畫面表格供使用者檢視，應綁定至哪一個控制項？</p>
+                    </div>
+                    <div class="space-y-2 text-xs" id="q1-options">
+                        <button onclick="answerQuiz(1, false, this)" class="w-full text-left px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition">A. SqlDataReader</button>
+                        <button onclick="answerQuiz(1, true, this)" class="w-full text-left px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition">B. DataGridView (DataGrid)</button>
+                        <button onclick="answerQuiz(1, false, this)" class="w-full text-left px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition">C. SqlConnection</button>
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-sky-400 mb-2">Q2. SQL Server 權限設定</div>
+                        <p class="text-sm text-slate-200 font-medium mb-4">在投影片 P.8 中，新增登入使用者 <code class="font-mono text-sky-300">lucky</code> 後，若要賦予他對 <code class="font-mono text-sky-300">lucky20230805</code> 資料庫的完整管理權限，應於「使用者對應」勾選哪個角色？</p>
+                    </div>
+                    <div class="space-y-2 text-xs" id="q2-options">
+                        <button onclick="answerQuiz(2, false, this)" class="w-full text-left px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition">A. db_denydatareader</button>
+                        <button onclick="answerQuiz(2, false, this)" class="w-full text-left px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition">B. db_backupoperator</button>
+                        <button onclick="answerQuiz(2, true, this)" class="w-full text-left px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition">C. db_owner</button>
+                    </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-orange-400 mb-2">Q3. Grafana 時間多 8 小時問題</div>
+                        <p class="text-sm text-slate-200 font-medium mb-4">當 Grafana 讀取 SQL Server 的 <code class="font-mono text-orange-300">DateTime</code> 欄位時若發生時間多出 8 小時的情況，應將 Dashboard settings 的 Time zone 改為下列何者？</p>
+                    </div>
+                    <div class="space-y-2 text-xs" id="q3-options">
+                        <button onclick="answerQuiz(3, true, this)" class="w-full text-left px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition">A. Coordinated Universal Time (UTC)</button>
+                        <button onclick="answerQuiz(3, false, this)" class="w-full text-left px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition">B. Browser Time (Taiwan, CST UTC+08:00)</button>
+                        <button onclick="answerQuiz(3, false, this)" class="w-full text-left px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition">C. 將自動更新頻率改為 5s</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-8 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>根據張世學老師《04-02.資料庫_SQLServer_C#.pptx》投影片內容製作之互動教學網站</div>
+            <div class="flex items-center gap-4">
+                <a href="#module-csharp" class="hover:text-slate-300">SQL Server via C#</a>
+                <span>•</span>
+                <a href="#module-ssms" class="hover:text-slate-300">SSMS 操作圖解</a>
+                <span>•</span>
+                <a href="#module-grafana" class="hover:text-slate-300">Grafana 時區修正</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification for Copy / Actions -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-xl flex items-center gap-2">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-msg">已複製到剪貼簿！</span>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. C# CODE TABS SWITCHER
+        // ==========================================
+        function switchCSharpTab(tabName) {
+            const tabs = ['connect', 'insert', 'datatable'];
+            tabs.forEach(t => {
+                const content = document.getElementById(`tab-content-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tabName) {
+                    content.classList.remove('hidden');
+                    btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition';
+                } else {
+                    content.classList.add('hidden');
+                    btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition';
+                }
+            });
+        }
+
+        function copyCode(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('C# 程式碼已複製到剪貼簿！');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2600);
+        }
+
+        // ==========================================
+        // 2. SSMS STEP-BY-STEP WALKTHROUGH (SLIDES 4-8)
+        // ==========================================
+        let currentSsmsStep = 1;
+        const ssmsSlideMap = {
+            1: 'P.4 新增資料庫與資料表',
+            2: 'P.5 資料表設計與新增欄位 (dbo.Machine)',
+            3: 'P.6 編輯前 200 個資料列 (dbo.monitor)',
+            4: 'P.7 新增使用者登入 (1/2) - lucky',
+            5: 'P.8 指定授予特定資料庫權限 (2/2) - db_owner'
+        };
+
+        function selectSsmsStep(step) {
+            currentSsmsStep = step;
+            for (let i = 1; i <= 5; i++) {
+                const view = document.getElementById(`ssms-view-${i}`);
+                const btn = document.getElementById(`ssms-btn-${i}`);
+                const badge = btn.querySelector('span');
+                if (i === step) {
+                    view.classList.remove('hidden');
+                    btn.className = 'w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 bg-sky-500/15 border-sky-500 text-white shadow-lg shadow-sky-500/10';
+                    badge.className = 'w-7 h-7 rounded-lg bg-sky-500 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5';
+                } else {
+                    view.classList.add('hidden');
+                    btn.className = 'w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800/70';
+                    badge.className = 'w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5';
+                }
+            }
+            document.getElementById('ssms-window-title').innerText = `SQL Server Management Studio (SSMS) - 投影片 ${ssmsSlideMap[step]}`;
+            document.getElementById('ssms-step-counter').innerText = `目前顯示：步驟 ${step} / 5 (${ssmsSlideMap[step]})`;
+        }
+
+        function prevSsmsStep() {
+            const next = currentSsmsStep > 1 ? currentSsmsStep - 1 : 5;
+            selectSsmsStep(next);
+        }
+
+        function nextSsmsStep() {
+            const next = currentSsmsStep < 5 ? currentSsmsStep + 1 : 1;
+            selectSsmsStep(next);
+        }
+
+        // ==========================================
+        // 3. GRAFANA & SQL SERVER SIMULATOR (SLIDES 11-14)
+        // ==========================================
+        // Exact 6 rows from Slide 12 (SSMS dbo.Machine screenshot)
+        const initialMachineRows = [
+            { id: 1,  no: 1, dt: '2023-08-05 00:00:00', coin: 1202, stuf: 999, price: 20 },
+            { id: 2,  no: 2, dt: '2023-08-05 22:00:00', coin: 96,   stuf: 69,  price: 32 },
+            { id: 3,  no: 3, dt: '2023-08-05 22:00:00', coin: 60,   stuf: 45,  price: 25 },
+            { id: 11, no: 1, dt: '2023-08-05 22:00:00', coin: 2222, stuf: 160, price: 20 },
+            { id: 12, no: 1, dt: '2023-08-06 18:00:00', coin: 500,  stuf: 300, price: 200 },
+            { id: 13, no: 1, dt: '2023-08-06 22:00:00', coin: 1000, stuf: 600, price: 20 }
+        ];
+
+        let machineData = JSON.parse(JSON.stringify(initialMachineRows));
+        let grafanaTimezone = 'UTC+8'; // Default bug state shown on Slide 11 & 12
+        let sortAscending = true;
+        let refreshSeconds = 5;
+        let currentCountdown = 5;
+        let countdownTimer = null;
+
+        // Helper to add hours to 'YYYY-MM-DD HH:mm:ss' string
+        function formatShiftedDateTime(dtStr, offsetHours) {
+            const clean = dtStr.trim().replace(' ', 'T') + 'Z';
+            const d = new Date(clean);
+            if (isNaN(d.getTime())) return dtStr;
+            d.setUTCHours(d.getUTCHours() + offsetHours);
+            const yyyy = d.getUTCFullYear();
+            const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+            const dd = String(d.getUTCDate()).padStart(2, '0');
+            const hh = String(d.getUTCHours()).padStart(2, '0');
+            const min = String(d.getUTCMinutes()).padStart(2, '0');
+            const ss = String(d.getUTCSeconds()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+        }
+
+        function renderTables() {
+            // 1. Render SSMS Raw Table (Slide 12)
+            const ssmsBody = document.getElementById('ssms-table-body');
+            ssmsBody.innerHTML = '';
+            machineData.forEach((row, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = idx === 1 ? 'bg-sky-50' : '';
+                tr.innerHTML = `
+                    <td class="border border-slate-300 px-2 py-1">${row.id}</td>
+                    <td class="border border-slate-300 px-2 py-1">${row.no}</td>
+                    <td class="border border-slate-300 px-2 py-1 ${idx === 1 ? 'bg-[#0078d7] text-white' : ''}">${row.dt}.000</td>
+                    <td class="border border-slate-300 px-2 py-1 text-right">${row.coin}</td>
+                    <td class="border border-slate-300 px-2 py-1 text-right">${row.stuf}</td>
+                    <td class="border border-slate-300 px-2 py-1 text-right">${Number(row.price).toFixed(4)}</td>
+                `;
+                ssmsBody.appendChild(tr);
+            });
+
+            // Append NULL row like SSMS
+            const nullTr = document.createElement('tr');
+            nullTr.className = 'text-slate-400 italic';
+            nullTr.innerHTML = `
+                <td class="border border-slate-300 px-2 py-1">* NULL</td>
+                <td class="border border-slate-300 px-2 py-1">NULL</td>
+                <td class="border border-slate-300 px-2 py-1">NULL</td>
+                <td class="border border-slate-300 px-2 py-1 text-right">NULL</td>
+                <td class="border border-slate-300 px-2 py-1 text-right">NULL</td>
+                <td class="border border-slate-300 px-2 py-1 text-right">NULL</td>
+            `;
+            ssmsBody.appendChild(nullTr);
+
+            // 2. Render Grafana Table (Slide 11, 12, 14)
+            const grafanaBody = document.getElementById('grafana-table-body');
+            grafanaBody.innerHTML = '';
+
+            const sorted = [...machineData].sort((a, b) => sortAscending ? a.id - b.id : b.id - a.id);
+            const offset = grafanaTimezone === 'UTC+8' ? 8 : 0;
+
+            sorted.forEach(row => {
+                const displayedDt = formatShiftedDateTime(row.dt, offset);
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-[#22252b] transition';
+                tr.innerHTML = `
+                    <td class="px-3 py-2 text-right">${row.id}</td>
+                    <td class="px-3 py-2 text-right">${row.no}</td>
+                    <td class="px-3 py-2 text-left font-semibold ${offset === 8 ? 'text-rose-400' : 'text-emerald-400'}">
+                        ${displayedDt}
+                        ${offset === 8 ? '<span class="ml-1 text-[10px] px-1 rounded bg-rose-500/20 text-rose-300">+8hr</span>' : '<span class="ml-1 text-[10px] px-1 rounded bg-emerald-500/20 text-emerald-300">正確</span>'}
+                    </td>
+                    <td class="px-3 py-2 text-right">${row.coin}</td>
+                    <td class="px-3 py-2 text-right">${row.stuf}</td>
+                    <td class="px-3 py-2 text-right">${row.price}</td>
+                `;
+                grafanaBody.appendChild(tr);
+            });
+        }
+
+        function toggleGrafanaSettingsModal() {
+            const drawer = document.getElementById('grafana-settings-drawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        function setGrafanaTimezone(tz) {
+            grafanaTimezone = tz;
+            const diagBox = document.getElementById('tz-diagnostic-box');
+            const badge = document.getElementById('tz-badge');
+            const title = document.getElementById('tz-title');
+            const desc = document.getElementById('tz-desc');
+            const pill = document.getElementById('grafana-tz-pill');
+            const optUtc8 = document.getElementById('tz-opt-utc8');
+            const optUtc = document.getElementById('tz-opt-utc');
+            const gearBtn = document.getElementById('grafana-gear-btn');
+
+            if (tz === 'UTC') {
+                diagBox.className = 'lg:col-span-5 p-4 rounded-xl border bg-emerald-950/30 border-emerald-500/40 transition-all';
+                badge.className = 'inline-block px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-1';
+                badge.innerText = '✅ 已解決：時間與 SQL Server 完全同步 (投影片 P.13-14)';
+                title.innerText = 'Grafana 時區目前為：Coordinated Universal Time (UTC)';
+                desc.innerHTML = '太棒了！將時區改為 <code class="text-emerald-300 font-mono">UTC</code> 後，Grafana 不再重複加上 8 小時，所有 <code class="text-emerald-300 font-mono">DateTime</code> 欄位皆與左側 SSMS 完全一致！';
+                pill.className = 'px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 font-mono text-[11px] font-bold';
+                pill.innerText = 'UTC';
+                optUtc.className = 'w-full text-left px-3.5 py-2.5 rounded-xl border text-xs flex items-center justify-between transition bg-emerald-950/40 border-emerald-500 text-white';
+                optUtc8.className = 'w-full text-left px-3.5 py-2.5 rounded-xl border text-xs flex items-center justify-between transition bg-slate-900 border-slate-700 text-slate-300';
+                gearBtn.classList.remove('highlight-step');
+                showToast('已將 Grafana 時區設為 UTC，解決 +8 小時偏移問題！');
+            } else {
+                diagBox.className = 'lg:col-span-5 p-4 rounded-xl border bg-rose-950/30 border-rose-500/40 transition-all';
+                badge.className = 'inline-block px-2 py-0.5 rounded text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 mb-1';
+                badge.innerText = '⚠️ 目前狀態：時間多 8 小時 (投影片 P.11-12 問題重現)';
+                title.innerText = 'Grafana 時區目前為：Taiwan, CST (UTC+08:00)';
+                desc.innerHTML = '請看下方對照：SQL Server 第 1 筆時間為 <code class="text-sky-300 font-mono">00:00:00</code>，但右側 Grafana 卻顯示 <code class="text-rose-300 font-mono">08:00:00</code>！請點擊 <strong>Dashboard settings</strong> 切換為 UTC。';
+                pill.className = 'px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono text-[11px] font-bold';
+                pill.innerText = 'UTC+8';
+                optUtc8.className = 'w-full text-left px-3.5 py-2.5 rounded-xl border text-xs flex items-center justify-between transition bg-slate-800 border-orange-500 text-white';
+                optUtc.className = 'w-full text-left px-3.5 py-2.5 rounded-xl border text-xs flex items-center justify-between transition bg-slate-900 border-slate-700 text-slate-300 hover:border-emerald-500';
+                gearBtn.classList.add('highlight-step');
+            }
+            renderTables();
+        }
+
+        function toggleGrafanaSort() {
+            sortAscending = !sortAscending;
+            document.getElementById('th-sort-arrow').innerText = sortAscending ? '↑' : '↓';
+            document.getElementById('sort-dir-label').innerText = sortAscending ? 'ID ↑ 遞增' : 'ID ↓ 遞減 (P.14)';
+            renderTables();
+        }
+
+        function insertSimulatedRow() {
+            const idVal = parseInt(document.getElementById('sim-id').value) || 14;
+            const noVal = parseInt(document.getElementById('sim-no').value) || 1;
+            const dtVal = document.getElementById('sim-datetime').value || '2023-08-07 10:00:00';
+            const coinVal = parseInt(document.getElementById('sim-coin').value) || 500;
+            const stufVal = parseInt(document.getElementById('sim-stuf').value) || 200;
+            const priceVal = parseFloat(document.getElementById('sim-price').value) || 20;
+
+            machineData.push({
+                id: idVal,
+                no: noVal,
+                dt: dtVal,
+                coin: coinVal,
+                stuf: stufVal,
+                price: priceVal
+            });
+
+            // Increment next default ID
+            document.getElementById('sim-id').value = idVal + 1;
+            renderTables();
+            showToast(`已模擬 C# 寫入 ID=${idVal} 至 dbo.Machine！`);
+        }
+
+        function resetSimulatedData() {
+            machineData = JSON.parse(JSON.stringify(initialMachineRows));
+            document.getElementById('sim-id').value = 14;
+            renderTables();
+            showToast('已重置為投影片 P.12 的 6 筆原始資料！');
+        }
+
+        function triggerGrafanaRefresh() {
+            const icon = document.getElementById('refresh-spin-icon');
+            icon.classList.add('fa-spin');
+            setTimeout(() => icon.classList.remove('fa-spin'), 500);
+            currentCountdown = refreshSeconds;
+            renderTables();
+        }
+
+        function changeRefreshInterval(val) {
+            refreshSeconds = parseInt(val);
+            currentCountdown = refreshSeconds;
+            if (refreshSeconds === 0) {
+                document.getElementById('countdown-badge').innerText = '自動刷新: Off';
+            } else {
+                document.getElementById('countdown-badge').innerText = `下次刷新: ${currentCountdown}s`;
+            }
+        }
+
+        function startAutoRefreshTimer() {
+            if (countdownTimer) clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                if (refreshSeconds <= 0) return;
+                currentCountdown--;
+                if (currentCountdown <= 0) {
+                    triggerGrafanaRefresh();
+                    currentCountdown = refreshSeconds;
+                }
+                document.getElementById('countdown-badge').innerText = `下次刷新: ${currentCountdown}s`;
+            }, 1000);
+        }
+
+        // ==========================================
+        // 4. QUIZ LOGIC
+        // ==========================================
+        function answerQuiz(qNum, isCorrect, btnEl) {
+            const container = document.getElementById(`q${qNum}-options`);
+            const buttons = container.querySelectorAll('button');
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('hover:bg-slate-800');
+            });
+
+            if (isCorrect) {
+                btnEl.className = 'w-full text-left px-3 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500 text-emerald-300 font-bold transition';
+                btnEl.innerHTML += ' <i class="fa-solid fa-check float-right mt-0.5"></i>';
+            } else {
+                btnEl.className = 'w-full text-left px-3 py-2 rounded-lg bg-rose-500/20 border border-rose-500 text-rose-300 transition';
+                btnEl.innerHTML += ' <i class="fa-solid fa-xmark float-right mt-0.5"></i>';
+            }
+        }
+
+        function resetQuiz() {
+            location.reload();
+        }
+
+        // Initialize on load
+        window.onload = function () {
+            renderTables();
+            startAutoRefreshTimer();
+        };
+    </script>
+</body>
+</html>

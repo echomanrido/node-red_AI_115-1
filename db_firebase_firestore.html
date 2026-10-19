@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Firebase & Cloud Firestore 完整教學</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body { font-family: 'Noto Sans TC', 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen">
+
+    <!-- 頂部導覽列快捷按鈕 -->
+    <div style="position: sticky; top: 0; z-index: 9999; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <a href="project_database.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.45); color: #c084fc; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: all 0.2s;">
+                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                回資料庫專題主頁
+            </a>
+            <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; text-decoration: none; font-size: 0.85rem; transition: all 0.2s;">
+                首頁
+            </a>
+            <span style="color: #f59e0b; font-size: 0.82rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                Google Firebase & Cloud Firestore 雲端教學
+            </span>
+        </div>
+        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 500;">
+            五股職訓局 機電 AI 115-1 期 實務專題
+        </span>
+    </div>
+
+
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
+                    <i class="fa-solid fa-fire text-lg"></i>
+                </div>
+                <span class="font-bold text-lg text-slate-900 tracking-tight">Firebase & Firestore 教學指南</span>
+            </div>
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-600">
+                <a href="#step1" class="hover:text-orange-600 transition-colors">1. 建立專案</a>
+                <a href="#step2" class="hover:text-orange-600 transition-colors">2. 連結應用程式</a>
+                <a href="#step3" class="hover:text-orange-600 transition-colors">3. 建立資料庫</a>
+                <a href="#step4" class="hover:text-orange-600 transition-colors">4. 安全規則與結構</a>
+                <a href="#simulator" class="text-orange-600 font-semibold bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-200 hover:bg-orange-100 transition-all">
+                    <i class="fa-solid fa-laptop-code mr-1"></i> 互動模擬器
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950 text-white py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 mb-6">
+                <i class="fa-solid fa-database mr-1.5"></i> Google Cloud Platform
+            </span>
+            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-6 leading-tight">
+                打造你的第一個 <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Firebase Firestore</span> 雲端資料庫
+            </h1>
+            <p class="text-slate-300 text-base sm:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+                結合即時推送更新、強大查詢與自動調整資源配置。跟著本教學步驟，輕鬆從專案建立、SDK 連結到資料庫結構設定！
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#step1" class="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-medium px-6 py-3 rounded-xl shadow-lg shadow-orange-600/30 hover:opacity-95 transition-all flex items-center">
+                    開始學習 <i class="fa-solid fa-arrow-down ml-2"></i>
+                </a>
+                <a href="#simulator" class="bg-white/10 hover:bg-white/20 text-white border border-white/20 font-medium px-6 py-3 rounded-xl backdrop-blur-sm transition-all flex items-center">
+                    體驗互動模擬器 <i class="fa-solid fa-code ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <main class="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 w-full">
+
+        <!-- Step 1 -->
+        <section id="step1" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+            <div class="flex items-center space-x-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 font-bold text-xl flex items-center justify-center shadow-inner">
+                    01
+                </div>
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900">建立 Google Firebase 專案</h2>
+                    <p class="text-sm text-slate-500">前往 Firebase 控制台建立並設定新專案環境</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-slate-600 text-sm">
+                <div class="space-y-3 bg-slate-50 p-5 rounded-xl border border-slate-100">
+                    <h3 class="font-bold text-slate-800 flex items-center"><i class="fa-solid fa-circle-check text-orange-500 mr-2"></i>操作步驟</h3>
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li>前往 <a href="https://firebase.google.com/" target="_blank" class="text-orange-600 underline font-medium">Firebase 官網</a> 並點擊「Go to console」。</li>
+                        <li>點擊「建立新的 Firebase 專案」，輸入專案名稱（如 <code class="bg-slate-200 px-1 py-0.5 rounded text-xs font-mono">calendar</code>）。</li>
+                        <li>啟用建議的 **Gemini in Firebase** AI 輔助功能。</li>
+                        <li>啟用 **Google Analytics** 數據分析功能，位置選擇「台灣」，勾選條款並建立專案。</li>
+                    </ul>
+                </div>
+                <div class="bg-orange-50/50 p-5 rounded-xl border border-orange-100 flex flex-col justify-center">
+                    <h3 class="font-bold text-orange-900 mb-2 flex items-center"><i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>提示</h3>
+                    <p class="text-xs sm:text-sm text-orange-800 leading-relaxed">
+                        建立完成後，系統會自動分配專案 ID（例如 <code class="bg-orange-100 px-1 py-0.5 rounded font-mono">calendar-1a655</code>）。數據分析功能將提供免費報表與 A/B 測試支援。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2 -->
+        <section id="step2" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+            <div class="flex items-center space-x-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 font-bold text-xl flex items-center justify-center shadow-inner">
+                    02
+                </div>
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900">連結網頁應用程式 (Web App)</h2>
+                    <p class="text-sm text-slate-500">將專案與您的前端網頁進行串接與初始化</p>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-100 text-sm space-y-2">
+                        <span class="font-semibold text-slate-800">1. 註冊應用程式</span>
+                        <p class="text-slate-600">於專案設定中的一般設定頁面，點擊網頁圖示 <code class="bg-slate-200 px-1 py-0.5 rounded text-xs">&lt;/&gt;</code>，輸入應用程式暱稱（如「行事曆」）並註冊。</p>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-100 text-sm space-y-2">
+                        <span class="font-semibold text-slate-800">2. 安裝與初始化 SDK</span>
+                        <p class="text-slate-600">使用 npm 安裝：<code class="bg-slate-200 px-1.5 py-0.5 rounded text-xs font-mono">npm install firebase</code>，並複製初始化設定物件。</p>
+                    </div>
+                </div>
+                
+                <!-- Code snippet box -->
+                <div class="bg-slate-900 rounded-xl p-4 text-xs font-mono text-slate-200 overflow-x-auto shadow-inner relative">
+                    <div class="absolute top-3 right-3 text-slate-400 text-[10px] uppercase tracking-wider bg-slate-800 px-2 py-1 rounded">JavaScript SDK</div>
+                    <pre class="text-orange-300">import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBaQbex2Eh3qX_iWLAiyRjOmM4WOTIwV4",
+  authDomain: "calendar-1a655.firebaseapp.com",
+  projectId: "calendar-1a655",
+  storageBucket: "calendar-1a655.appspot.com",
+  messagingSenderId: "101213087705",
+  appId: "1:101213087705:web:44b7f7d6f9a5f9cde91bc8",
+  measurementId: "G-E6M5W170FM"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3 -->
+        <section id="step3" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+            <div class="flex items-center space-x-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 font-bold text-xl flex items-center justify-center shadow-inner">
+                    03
+                </div>
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900">建立 Cloud Firestore 資料庫</h2>
+                    <p class="text-sm text-slate-500">設定 NoSQL 雲端資料庫版本與儲存位置</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div class="font-bold text-slate-800 mb-1">1. 選取版本</div>
+                    <p class="text-slate-600 text-xs">選擇 **Standard 版**（簡易查詢引擎，支援自動建立索引與核心作業）。</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div class="font-bold text-slate-800 mb-1">2. 選擇位置</div>
+                    <p class="text-slate-600 text-xs">資料庫 ID 保持預設 <code class="bg-slate-200 px-1 py-0.5 rounded font-mono">(default)</code>，位置選擇 <code class="bg-slate-200 px-1 py-0.5 rounded font-mono">nam5</code>。注意：位置一經設定無法變更！</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div class="font-bold text-slate-800 mb-1">3. 安全性模式</div>
+                    <p class="text-slate-600 text-xs">可先選擇**正式版模式**（預設拒絕所有未授權讀寫），後續再調整規則。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4 -->
+        <section id="step4" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+            <div class="flex items-center space-x-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 font-bold text-xl flex items-center justify-center shadow-inner">
+                    04
+                </div>
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900">安全規則設定與資料結構</h2>
+                    <p class="text-sm text-slate-500">發布規則並理解 Collection 與 Document 階層</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                    <h3 class="font-semibold text-slate-800 text-sm">安全性規則調整 (Rules)</h3>
+                    <p class="text-xs text-slate-600">在開發階段若需要完全開放讀寫，可將規則修改為：</p>
+                    <div class="bg-slate-900 rounded-xl p-3 text-xs font-mono text-emerald-400">
+<pre>rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <h3 class="font-semibold text-slate-800 text-sm">資料結構階層 (Firestore 結構)</h3>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-xs space-y-2 text-slate-700 font-mono">
+                        <div class="text-orange-600 font-bold">📁 集合 (Collection): events</div>
+                        <div class="pl-4 text-indigo-600 font-bold">📄 文件 (Document): event-17892270...</div>
+                        <div class="pl-8 text-slate-500 space-y-1">
+                            <div>date: "2026-09-12"</div>
+                            <div>startTime: "10:00"</div>
+                            <div>endTime: "11:00"</div>
+                            <div>title: "Test"</div>
+                            <div>userId: "rido"</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Simulator Section -->
+        <section id="simulator" class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 sm:p-8 border border-orange-200/60 shadow-md">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-orange-200 mb-6 gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-orange-600 bg-orange-100 px-2.5 py-1 rounded-md">互動練習</span>
+                    <h2 class="text-2xl font-bold text-slate-900 mt-2">Firestore 模擬文件新增器</h2>
+                    <p class="text-sm text-slate-600">在下方輸入事件資料，體驗模擬寫入 Firestore <code class="font-mono text-xs">events</code> 集合的過程！</p>
+                </div>
+                <div id="status-badge" class="hidden items-center px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">
+                    <i class="fa-solid fa-check mr-1.5"></i> 資料已成功寫入模擬資料庫
+                </div>
+            </div>
+
+            <form id="sim-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">事件標題 (title)</label>
+                    <input type="text" id="sim-title" required placeholder="例如：專案討論會" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">使用者代號 (userId)</label>
+                    <input type="text" id="sim-userid" required placeholder="例如：rido" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">日期 (date)</label>
+                    <input type="date" id="sim-date" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">開始時間</label>
+                        <input type="time" id="sim-start" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">結束時間</label>
+                        <input type="time" id="sim-end" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white">
+                    </div>
+                </div>
+                <div class="sm:col-span-2 pt-2">
+                    <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:opacity-95 text-white font-semibold py-3 rounded-xl shadow-md transition-all flex items-center justify-center">
+                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> 模擬新增至 Firestore (events 集合)
+                    </button>
+                </div>
+            </form>
+
+            <!-- Simulation Output Area -->
+            <div class="mt-8">
+                <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-database text-orange-600 mr-2"></i>即時資料庫內容預覽</h3>
+                <div id="sim-db-view" class="bg-slate-900 rounded-xl p-4 text-xs font-mono text-emerald-400 min-h-[120px] max-h-[250px] overflow-y-auto">
+                    <span class="text-slate-500">// 尚未寫入任何自訂資料，目前為空集合</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-center py-8 text-sm border-t border-slate-800 mt-16">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 Google Firebase & Cloud Firestore 教學網頁. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const simForm = document.getElementById('sim-form');
+        const simDbView = document.getElementById('sim-db-view');
+        const statusBadge = document.getElementById('status-badge');
+
+        let documentsList = [];
+
+        simForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('sim-title').value;
+            const userId = document.getElementById('sim-userid').value;
+            const date = document.getElementById('sim-date').value;
+            const startTime = document.getElementById('sim-start').value;
+            const endTime = document.getElementById('sim-end').value;
+
+            const docId = 'event-' + Date.now();
+            const newDoc = {
+                id: docId,
+                title: title,
+                userId: userId,
+                date: date,
+                startTime: startTime,
+                endTime: endTime
+            };
+
+            documentsList.unshift(newDoc);
+
+            // Show success badge
+            statusBadge.classList.remove('hidden');
+            statusBadge.classList.add('inline-flex');
+            setTimeout(() => {
+                statusBadge.classList.remove('inline-flex');
+                statusBadge.classList.add('hidden');
+            }, 3000);
+
+            renderDatabase();
+            simForm.reset();
+        });
+
+        function renderDatabase() {
+            if (documentsList.length === 0) {
+                simDbView.innerHTML = '<span class="text-slate-500">// 尚未寫入任何自訂資料，目前為空集合</span>';
+                return;
+            }
+
+            let output = '<span class="text-orange-400">database (default)</span>\n └── <span class="text-amber-300">collection: events</span>\n';
+            documentsList.forEach((doc, idx) => {
+                output += `     ├── <span class="text-indigo-300">document: ${doc.id}</span>\n`;
+                output += `     │    ├── title: "${doc.title}"\n`;
+                output += `     │    ├── userId: "${doc.userId}"\n`;
+                output += `     │    ├── date: "${doc.date}"\n`;
+                output += `     │    ├── startTime: "${doc.startTime}"\n`;
+                output += `     │    └── endTime: "${doc.endTime}"\n`;
+            });
+
+            simDbView.innerHTML = output;
+        }
+    </script>
+</body>
+</html>

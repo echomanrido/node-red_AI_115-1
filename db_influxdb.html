@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InfluxDB 時序資料庫實戰與底層原理 | 互動式教學指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        influx: {
+                            dark: '#0B0C10',
+                            card: '#13151D',
+                            border: '#222634',
+                            purple: '#9333EA',
+                            cyan: '#06B6D4',
+                            blue: '#3B82F6',
+                            pink: '#EC4899',
+                            emerald: '#10B981'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #090A0F;
+            color: #E2E8F0;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0F111A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2D3348;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4B5563;
+        }
+        .glass-card {
+            background: rgba(19, 21, 29, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .neon-border:hover {
+            border-color: rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+        }
+        @keyframes pulse-flow {
+            0%, 100% { opacity: 0.4; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+        .animate-flow {
+            animation: pulse-flow 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan-500 selection:text-white min-h-screen flex flex-col">
+
+    <!-- 頂部導覽列快捷按鈕 -->
+    <div style="position: sticky; top: 0; z-index: 9999; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <a href="project_database.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.45); color: #c084fc; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: all 0.2s;">
+                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                回資料庫專題主頁
+            </a>
+            <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; text-decoration: none; font-size: 0.85rem; transition: all 0.2s;">
+                首頁
+            </a>
+            <span style="color: #a855f7; font-size: 0.82rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                InfluxDB 時序資料庫實務與原理
+            </span>
+        </div>
+        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 500;">
+            五股職訓局 機電 AI 115-1 期 實務專題
+        </span>
+    </div>
+
+
+    <!-- Copy Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 font-medium">
+        <i class="fa-solid fa-circle-check text-xl"></i>
+        <span id="toast-msg">已成功複製到剪貼簿！</span>
+    </div>
+
+    <!-- Top Navbar -->
+    <header class="sticky top-0 z-40 glass-card border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-cube text-white text-xl"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg tracking-tight text-white">InfluxDB</span>
+                    <span class="text-xs ml-2 px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono">04-03 資料庫實戰教材</span>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-1 text-sm font-medium text-slate-300">
+                <a href="#docker-setup" class="px-3 py-2 rounded-lg hover:bg-slate-800/60 hover:text-cyan-400 transition">1. Docker 部署與登入</a>
+                <a href="#ui-guide" class="px-3 py-2 rounded-lg hover:bg-slate-800/60 hover:text-cyan-400 transition">2. UI 操作與寫入</a>
+                <a href="#line-protocol" class="px-3 py-2 rounded-lg hover:bg-slate-800/60 hover:text-cyan-400 transition">3. Line Protocol 實驗室</a>
+                <a href="#flux-query" class="px-3 py-2 rounded-lg hover:bg-slate-800/60 hover:text-cyan-400 transition">4. Flux 查詢與 Pivot</a>
+                <a href="#architecture" class="px-3 py-2 rounded-lg hover:bg-slate-800/60 hover:text-cyan-400 transition">5. TSM 與列式儲存原理</a>
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <a href="https://github.com/influxdata/influxdb" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition" title="GitHub Repository">
+                    <i class="fa-brands fa-github text-lg"></i>
+                </a>
+                <a href="https://hub.docker.com/_/influxdb" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-400 hover:text-blue-300 transition" title="Docker Hub Official Image">
+                    <i class="fa-brands fa-docker text-lg"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden py-12 lg:py-16 border-b border-slate-800/80 bg-gradient-to-b from-[#0F1322] to-[#090A0F]">
+        <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(#3B82F6 1px, transparent 1px); background-size: 32px 32px;"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7 space-y-5">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-purple-400 animate-ping"></span>
+                        Time Series Database (TSDB) 工業物聯網與即時分析首選
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                        InfluxDB 時序資料庫<br>
+                        <span class="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">從容器化安裝到底層 TSM 引擎</span>
+                    </h1>
+                    <p class="text-slate-400 text-base sm:text-lg leading-relaxed">
+                        本互動式教學完整涵蓋投影片《04-03.資料庫_influxdb》所有重點：從 Docker 快速建立環境、Web UI 資料載入、Line Protocol 語法拆解、Flux <code class="text-cyan-400 font-mono">pivot()</code> 查詢轉換，一路深入剖析 TSM 儲存引擎與列式壓縮原理。
+                    </p>
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <a href="#docker-setup" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold shadow-lg shadow-cyan-500/20 transition flex items-center gap-2">
+                            <i class="fa-solid fa-rocket"></i> 開始實作流程
+                        </a>
+                        <a href="#line-protocol" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700 transition flex items-center gap-2">
+                            <i class="fa-solid fa-code"></i> Line Protocol 拆解器
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Environment Info Box from Slides -->
+                <div class="lg:col-span-5">
+                    <div class="glass-card rounded-2xl p-6 border border-slate-700/70 shadow-2xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-key text-amber-400"></i>
+                                <h3 class="font-bold text-white">課程預設登入與環境變數速查</h3>
+                            </div>
+                            <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-mono">Port: 8086</span>
+                        </div>
+
+                        <div class="space-y-2.5 text-sm">
+                            <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+                                <span class="text-slate-400">Web 登入網址 <span class="text-xs text-slate-500">(預設 8086)</span></span>
+                                <div class="flex items-center gap-2">
+                                    <code class="text-cyan-400 font-mono">http://localhost:8086/</code>
+                                    <button onclick="copyText('http://localhost:8086/')" class="text-slate-400 hover:text-white p-1" title="複製網址"><i class="fa-regular fa-copy"></i></button>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+                                <span class="text-slate-400">管理員帳號 <span class="text-xs text-slate-500">(USERNAME)</span></span>
+                                <div class="flex items-center gap-2">
+                                    <code class="text-emerald-400 font-mono">my-admin-user</code>
+                                    <button onclick="copyText('my-admin-user')" class="text-slate-400 hover:text-white p-1" title="複製帳號"><i class="fa-regular fa-copy"></i></button>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+                                <span class="text-slate-400">管理員密碼 <span class="text-xs text-slate-500">(PASSWORD)</span></span>
+                                <div class="flex items-center gap-2">
+                                    <code class="text-amber-300 font-mono">my-secret-password123</code>
+                                    <button onclick="copyText('my-secret-password123')" class="text-slate-400 hover:text-white p-1" title="複製密碼"><i class="fa-regular fa-copy"></i></button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex justify-between items-center">
+                                    <span class="text-xs text-slate-400">初始組織 (ORG):</span>
+                                    <code class="text-purple-400 font-mono text-xs">my-org</code>
+                                </div>
+                                <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex justify-between items-center">
+                                    <span class="text-xs text-slate-400">初始儲存桶:</span>
+                                    <code class="text-purple-400 font-mono text-xs">my-bucket</code>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+                                <span class="text-slate-400">Admin Token</span>
+                                <div class="flex items-center gap-2">
+                                    <code class="text-pink-400 font-mono text-xs">my-super-secret-auth-token-123</code>
+                                    <button onclick="copyText('my-super-secret-auth-token-123')" class="text-slate-400 hover:text-white p-1" title="複製 Token"><i class="fa-regular fa-copy"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-info text-blue-400"></i>
+                            註：投影片首頁簡寫為 <code class="text-slate-400">http://localhost:808/</code>，實務與容器對應埠號為 <code class="text-slate-300">8086</code>。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+
+        <!-- SECTION 1: Docker Setup -->
+        <section id="docker-setup" class="scroll-mt-24 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <span class="text-cyan-400 font-mono text-sm uppercase tracking-wider font-semibold">STEP 01 // ENVIRONMENT SETUP</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">開源資源與 Docker 容器化部署</h2>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <a href="https://github.com/influxdata/influxdb" target="_blank" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-1.5 border border-slate-700">
+                        <i class="fa-brands fa-github"></i> github.com/influxdata/influxdb
+                    </a>
+                    <a href="https://hub.docker.com/_/influxdb" target="_blank" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-400 flex items-center gap-1.5 border border-slate-700">
+                        <i class="fa-brands fa-docker"></i> hub.docker.com/_/influxdb
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left: Docker Desktop & Image Overview -->
+                <div class="lg:col-span-5 glass-card rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                            <i class="fa-brands fa-docker text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-white">搜尋與下載官方映像檔</h3>
+                            <p class="text-xs text-slate-400">Docker Official Image • 下載量 1B+ • Star 2.0K+</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        您可以在 <strong>Docker Hub</strong> 或開啟 <strong>Docker Desktop</strong> 頂端搜尋欄輸入 <code class="text-cyan-400 font-mono">influxdb</code>，選擇帶有官方認證徽章的映像檔，點擊 <span class="px-2 py-0.5 rounded bg-blue-600 text-white text-xs font-mono">Pull</span> 或直接透過下方終端機指令啟動。
+                    </p>
+                    <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800 space-y-2 text-xs">
+                        <div class="text-slate-400 font-semibold mb-1">指令參數重點解析：</div>
+                        <div class="grid grid-cols-1 gap-1.5 font-mono">
+                            <div><span class="text-cyan-400">-d -p 8086:8086</span> <span class="text-slate-400 font-sans">：背景執行並映射本機 8086 埠</span></div>
+                            <div><span class="text-purple-400">DOCKER_INFLUXDB_INIT_MODE=setup</span> <span class="text-slate-400 font-sans">：啟用自動初始化設定</span></div>
+                            <div><span class="text-emerald-400">DOCKER_INFLUXDB_INIT_ORG=my-org</span> <span class="text-slate-400 font-sans">：建立預設組織名稱</span></div>
+                            <div><span class="text-amber-400">DOCKER_INFLUXDB_INIT_BUCKET=my-bucket</span> <span class="text-slate-400 font-sans">：建立預設資料儲存桶</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Command Line & Terminal Output -->
+                <div class="lg:col-span-7 glass-card rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-semibold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-terminal text-emerald-400"></i> Docker 啟動指令 (一鍵自動完成初始化設定)
+                        </span>
+                        <button onclick="copyDockerCommand()" class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/30 text-xs font-medium transition flex items-center gap-1.5">
+                            <i class="fa-regular fa-copy"></i> 複製完整指令
+                        </button>
+                    </div>
+
+                    <pre id="docker-cmd" class="bg-[#07080C] p-4 rounded-xl border border-slate-800 font-mono text-xs sm:text-sm text-emerald-300 overflow-x-auto leading-relaxed">docker run -d -p 8086:8086 --name influxdb \
+  -e DOCKER_INFLUXDB_INIT_MODE=setup \
+  -e DOCKER_INFLUXDB_INIT_USERNAME=my-admin-user \
+  -e DOCKER_INFLUXDB_INIT_PASSWORD=my-secret-password123 \
+  -e DOCKER_INFLUXDB_INIT_ORG=my-org \
+  -e DOCKER_INFLUXDB_INIT_BUCKET=my-bucket \
+  -e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token-123 \
+  influxdb:2.9.1</pre>
+
+                    <div class="bg-[#0B0D13] rounded-xl p-3.5 border border-slate-800/80 font-mono text-xs text-slate-400 space-y-1">
+                        <div class="text-slate-500">// 執行後自動拉取映像檔並啟動容器：</div>
+                        <div>Unable to find image 'influxdb:2.9.1' locally</div>
+                        <div>2.9.1: Pulling from library/influxdb ... Pull complete</div>
+                        <div class="text-emerald-400">Status: Downloaded newer image for influxdb:2.9.1</div>
+                        <div class="text-cyan-400 truncate">9b0d9eb75b7a1bb9b337f05ae737153375d40554780e9995a4710ebb2eee770b</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Interactive Web UI Walkthrough -->
+        <section id="ui-guide" class="scroll-mt-24 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <span class="text-purple-400 font-mono text-sm uppercase tracking-wider font-semibold">STEP 02 // WEB UI WORKFLOW</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">InfluxDB Web 介面操作導覽（投影片畫面實機模擬）</h2>
+                </div>
+                <p class="text-sm text-slate-400">點擊下方分頁切換投影片中的 5 個核心操作步驟</p>
+            </div>
+
+            <!-- Step Tabs -->
+            <div class="flex flex-wrap gap-2" id="ui-tabs">
+                <button onclick="switchUiTab(0)" class="ui-tab-btn active px-4 py-2.5 rounded-xl text-sm font-semibold transition bg-purple-600 text-white shadow-lg shadow-purple-600/25">
+                    1. 登入後首頁 (Get Started)
+                </button>
+                <button onclick="switchUiTab(1)" class="ui-tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                    2. 選擇 Bucket 載入資料
+                </button>
+                <button onclick="switchUiTab(2)" class="ui-tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                    3. 手動寫入 Line Protocol
+                </button>
+                <button onclick="switchUiTab(3)" class="ui-tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                    4. Data Explorer 視覺化與腳本查詢
+                </button>
+                <button onclick="switchUiTab(4)" class="ui-tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                    5. 切換組織 (Switch Organizations)
+                </button>
+            </div>
+
+            <!-- Simulated InfluxDB 2.x UI Window -->
+            <div class="glass-card rounded-2xl border border-slate-700/80 overflow-hidden shadow-2xl">
+                <!-- Mock Browser Bar -->
+                <div class="bg-[#161925] px-4 py-2.5 border-b border-slate-800 flex items-center gap-3">
+                    <div class="flex gap-1.5">
+                        <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+                    </div>
+                    <div class="bg-[#0B0D14] text-slate-400 text-xs font-mono px-3 py-1 rounded-md flex-1 max-w-md flex items-center gap-2 border border-slate-800">
+                        <i class="fa-solid fa-lock text-emerald-400 text-[10px]"></i>
+                        <span id="mock-url">http://localhost:8086/orgs/23fe91588c3a53c3</span>
+                    </div>
+                    <span class="text-xs text-slate-400 hidden sm:inline" id="ui-step-badge">步驟 1 / 5：登入成功首頁</span>
+                </div>
+
+                <!-- Mock InfluxDB App Body -->
+                <div class="grid grid-cols-12 min-h-[420px] bg-[#0B0C12]">
+                    <!-- Left Sidebar Mock -->
+                    <div class="col-span-2 sm:col-span-1 bg-[#10121A] border-r border-slate-800/80 flex flex-col items-center py-4 gap-5 text-slate-400">
+                        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-dice-d20"></i>
+                        </div>
+                        <div onclick="switchUiTab(4)" class="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold flex items-center justify-center cursor-pointer shadow-md" title="點擊查看切換組織">
+                            m
+                        </div>
+                        <button onclick="switchUiTab(1)" class="p-2 rounded-lg hover:bg-slate-800 hover:text-white transition" title="Load Data (Up Arrow)"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+                        <button onclick="switchUiTab(3)" class="p-2 rounded-lg hover:bg-slate-800 hover:text-white transition" title="Data Explorer"><i class="fa-solid fa-chart-line"></i></button>
+                        <button class="p-2 rounded-lg hover:bg-slate-800 hover:text-white transition" title="Notebooks"><i class="fa-solid fa-book"></i></button>
+                        <button class="p-2 rounded-lg hover:bg-slate-800 hover:text-white transition" title="Dashboards"><i class="fa-solid fa-table-cells-large"></i></button>
+                    </div>
+
+                    <!-- Right Content Area for Tabs -->
+                    <div class="col-span-10 sm:col-span-11 p-6 sm:p-8">
+                        
+                        <!-- Tab 0: Get Started -->
+                        <div id="ui-panel-0" class="ui-panel space-y-6">
+                            <div>
+                                <h3 class="text-2xl font-bold text-white">Get Started</h3>
+                                <p class="text-sm text-slate-400 mt-1">Write and query data using the programming language of your choice</p>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div class="bg-[#161824] border border-slate-800 rounded-xl p-5 flex flex-col items-center justify-center gap-3 hover:border-cyan-500/50 transition">
+                                    <span class="text-sm font-semibold text-slate-200 self-start">Python</span>
+                                    <i class="fa-brands fa-python text-5xl text-amber-400"></i>
+                                </div>
+                                <div class="bg-[#161824] border border-slate-800 rounded-xl p-5 flex flex-col items-center justify-center gap-3 hover:border-cyan-500/50 transition">
+                                    <span class="text-sm font-semibold text-slate-200 self-start">Node.js</span>
+                                    <i class="fa-brands fa-node-js text-5xl text-emerald-400"></i>
+                                </div>
+                                <div class="bg-[#161824] border border-slate-800 rounded-xl p-5 flex flex-col items-center justify-center gap-3 hover:border-cyan-500/50 transition">
+                                    <span class="text-sm font-semibold text-slate-200 self-start">Go</span>
+                                    <i class="fa-brands fa-golang text-5xl text-cyan-400"></i>
+                                </div>
+                                <div class="bg-[#161824] border border-slate-800 rounded-xl p-5 flex flex-col items-center justify-center gap-3 hover:border-cyan-500/50 transition">
+                                    <span class="text-sm font-semibold text-slate-200 self-start">Arduino</span>
+                                    <i class="fa-solid fa-microchip text-5xl text-teal-400"></i>
+                                </div>
+                            </div>
+                            <div class="space-y-3 pt-2">
+                                <div class="bg-[#161824] border border-slate-800 rounded-xl p-4 flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-cyan-400 font-mono">&gt;_</div>
+                                    <div>
+                                        <div class="font-bold text-white text-sm">InfluxDB CLI</div>
+                                        <div class="text-xs text-slate-400">Write and query data using the InfluxDB Command Line Interface. Supports CSV and Line Protocol.</div>
+                                    </div>
+                                </div>
+                                <div class="bg-[#161824] border border-slate-800 rounded-xl p-4 flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-rose-400"><i class="fa-solid fa-server"></i></div>
+                                    <div>
+                                        <div class="font-bold text-white text-sm">Server Agent (Telegraf)</div>
+                                        <div class="text-xs text-slate-400">Easily collect and write data using custom stand-alone agent plugins</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 1: Load Data -> Buckets -> Line Protocol -->
+                        <div id="ui-panel-1" class="ui-panel hidden space-y-6">
+                            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-3">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-white">Load Data <span class="text-sm font-normal text-cyan-400 ml-2">/ BUCKETS</span></h3>
+                                    <p class="text-xs text-slate-400 mt-1">點選左側導覽列的「上傳圖示 (Load Data)」→ 切換至「BUCKETS」→ 點擊「+ ADD DATA」選擇「Line Protocol」</p>
+                                </div>
+                                <span class="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold">+ CREATE BUCKET</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                                <div class="md:col-span-7 space-y-3">
+                                    <!-- Bucket 1 -->
+                                    <div class="bg-[#161824] border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+                                        <div>
+                                            <div class="font-bold text-white">my-bucket</div>
+                                            <div class="text-xs text-slate-400 mt-1">Retention: Forever &nbsp;|&nbsp; ID: 695db75021aef997</div>
+                                        </div>
+                                        <button onclick="switchUiTab(2)" class="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold">+ ADD DATA</button>
+                                    </div>
+                                    <!-- Bucket 2 -->
+                                    <div class="bg-[#161824] border-2 border-cyan-500/60 rounded-xl p-4 flex items-center justify-between shadow-lg shadow-cyan-500/10">
+                                        <div>
+                                            <div class="font-bold text-cyan-300 flex items-center gap-2">
+                                                production_data
+                                                <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">實作目標 Bucket</span>
+                                            </div>
+                                            <div class="text-xs text-slate-400 mt-1">Retention: Forever &nbsp;|&nbsp; ID: 9ce38aad8143d5d1</div>
+                                        </div>
+                                        <button onclick="switchUiTab(2)" class="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold">+ ADD DATA</button>
+                                    </div>
+                                </div>
+
+                                <!-- Popover Menu Simulation -->
+                                <div class="md:col-span-5 bg-[#1C2030] border border-slate-700 rounded-xl p-3 space-y-2 shadow-2xl">
+                                    <div class="text-xs text-slate-400 px-2 py-1">點擊 <code class="text-white">+ ADD DATA</code> 彈出選單：</div>
+                                    <div class="p-2.5 rounded-lg bg-slate-800/60 text-slate-400 text-xs">
+                                        <div class="font-semibold text-slate-200">Configure Telegraf Agent</div>
+                                        <div>Configure a Telegraf agent to push data into your bucket.</div>
+                                    </div>
+                                    <div onclick="switchUiTab(2)" class="p-2.5 rounded-lg bg-cyan-500/20 border border-cyan-400 text-white text-xs cursor-pointer flex items-center justify-between">
+                                        <div>
+                                            <div class="font-bold text-cyan-300">Line Protocol (點此進入下一步)</div>
+                                            <div class="text-slate-300">Quickly load an existing line protocol file.</div>
+                                        </div>
+                                        <i class="fa-solid fa-hand-pointer text-cyan-300 text-base animate-bounce"></i>
+                                    </div>
+                                    <div class="p-2.5 rounded-lg bg-slate-800/60 text-slate-400 text-xs">
+                                        <div class="font-semibold text-slate-200">CSV Upload</div>
+                                        <div>Quickly load an existing csv file.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: Write Line Protocol -->
+                        <div id="ui-panel-2" class="ui-panel hidden space-y-5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-white">Line Protocol 寫入面板</h3>
+                                    <p class="text-xs text-slate-400 mt-1">目標 Bucket：<code class="text-purple-400 font-bold">production_data</code> ｜ 選擇「ENTER MANUALLY」並設定精準度「Precision: Nanoseconds」</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <span class="px-3 py-1 rounded bg-slate-800 text-slate-400 text-xs font-semibold">UPLOAD FILE</span>
+                                    <span class="px-3 py-1 rounded bg-sky-500 text-white text-xs font-semibold">ENTER MANUALLY</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-purple-700 to-blue-600 px-4 py-2.5 rounded-lg text-white font-semibold text-sm flex justify-between items-center">
+                                <span>BUCKET: production_data</span>
+                                <span class="text-xs bg-black/30 px-2.5 py-1 rounded font-mono">Precision: Nanoseconds</span>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-xs text-slate-400">
+                                    <span>投影片範例 1：CNC 機台狀態寫入語法</span>
+                                    <button onclick="copyText('machine_status,id=id_001,machine_name=CNC_A01 feed_count=100i,discharge_count=98i,defect_count=2i,drill_count=50i,stamp_count=40i 1781276400000000000')" class="text-cyan-400 hover:underline flex items-center gap-1">
+                                        <i class="fa-regular fa-copy"></i> 複製此行語法
+                                    </button>
+                                </div>
+                                <div class="bg-[#08090E] border-2 border-sky-500/80 rounded-xl p-4 font-mono text-xs sm:text-sm text-slate-100 overflow-x-auto">
+                                    machine_status,id=id_001,machine_name=CNC_A01 feed_count=100i,discharge_count=98i,defect_count=2i,drill_count=50i,stamp_count=40i 1781276400000000000
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-2">
+                                <button onclick="switchUiTab(3)" class="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs tracking-wide transition shadow-lg">
+                                    WRITE DATA (寫入並前往 Data Explorer 查詢) →
+                                </button>
+                                <span class="text-xs text-slate-400">提示：整數欄位後方加上 <code class="text-amber-300 font-mono">i</code> 代表 64-bit Integer</span>
+                            </div>
+                        </div>
+
+                        <!-- Tab 3: Data Explorer -->
+                        <div id="ui-panel-3" class="ui-panel hidden space-y-5">
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Data Explorer 查詢結果與腳本模式</h3>
+                                <p class="text-xs text-slate-400 mt-1">可透過下方視覺化篩選器 (Query Builder) 勾選，或切換至 Script Editor 執行 Flux 語法</p>
+                            </div>
+
+                            <!-- Simulated Result Table -->
+                            <div class="bg-[#12141E] border border-slate-800 rounded-xl overflow-x-auto">
+                                <table class="w-full text-left border-collapse font-mono text-xs">
+                                    <thead>
+                                        <tr class="border-b border-slate-800 bg-[#181B28] text-slate-300">
+                                            <th class="p-2.5">_start</th>
+                                            <th class="p-2.5">_stop</th>
+                                            <th class="p-2.5">_time</th>
+                                            <th class="p-2.5 text-cyan-400">_value</th>
+                                            <th class="p-2.5 text-amber-300">_field</th>
+                                            <th class="p-2.5 text-purple-300">_measurement</th>
+                                            <th class="p-2.5 text-emerald-300">id</th>
+                                            <th class="p-2.5 text-emerald-300">machine_name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                                        <tr>
+                                            <td class="p-2.5 text-slate-500">2026-03-14 11:39:43</td>
+                                            <td class="p-2.5 text-slate-500">2026-06-12 11:39:43</td>
+                                            <td class="p-2.5">2026-06-12 11:00:00 GMT</td>
+                                            <td class="p-2.5 font-bold text-cyan-400">2</td>
+                                            <td class="p-2.5 text-amber-300">defect_count</td>
+                                            <td class="p-2.5 text-purple-300">machine_status</td>
+                                            <td class="p-2.5 text-emerald-300">id_001</td>
+                                            <td class="p-2.5 text-emerald-300">CNC_A01</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Query Builder & Flux Preview -->
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                <div class="md:col-span-6 bg-[#141722] border border-slate-800 rounded-xl p-3.5 space-y-2 text-xs">
+                                    <div class="font-bold text-slate-300">Query Builder 篩選順序：</div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="px-2.5 py-1 rounded bg-sky-500/20 text-sky-300 border border-sky-500/40">FROM: production_data</span>
+                                        <span class="px-2.5 py-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">_measurement: machine_status</span>
+                                        <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">_field: defect_count</span>
+                                    </div>
+                                </div>
+                                <div class="md:col-span-6 bg-[#08090E] border border-slate-800 rounded-xl p-3.5 font-mono text-xs relative">
+                                    <button onclick="copyText('from(bucket: &quot;production_data&quot;)\n  |> range(start: -90d)\n  |> limit(n: 10)')" class="absolute top-2.5 right-2.5 text-slate-400 hover:text-white text-xs bg-slate-800 px-2 py-1 rounded">
+                                        <i class="fa-regular fa-copy"></i> 複製
+                                    </button>
+                                    <div class="text-pink-400">from<span class="text-slate-200">(bucket: </span><span class="text-amber-300">"production_data"</span><span class="text-slate-200">)</span></div>
+                                    <div class="pl-4 text-cyan-400">|&gt; <span class="text-pink-400">range</span><span class="text-slate-200">(start: -90d)</span></div>
+                                    <div class="pl-4 text-cyan-400">|&gt; <span class="text-pink-400">limit</span><span class="text-slate-200">(n: 10)</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 4: Switch Organizations -->
+                        <div id="ui-panel-4" class="ui-panel hidden space-y-5">
+                            <div>
+                                <h3 class="text-2xl font-bold text-white">切換組織 (Switch Organizations)</h3>
+                                <p class="text-xs text-slate-400 mt-1">點擊左上方紫色帳號縮寫圖示 <span class="px-1.5 py-0.5 rounded bg-purple-600 text-white font-bold">m</span>，即可在選單中切換或建立不同組織（如 <code class="text-cyan-400">my-org</code> 與 <code class="text-cyan-400">production_data</code>）</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                                <div class="bg-[#181B26] border border-slate-700 rounded-xl p-4 space-y-2 max-w-xs">
+                                    <div class="text-xs text-slate-400 pb-1 border-b border-slate-800">左上方選單項目：</div>
+                                    <div class="px-3 py-1.5 text-sm text-slate-300">Members</div>
+                                    <div class="px-3 py-1.5 text-sm text-slate-300">About</div>
+                                    <div class="px-3 py-2 text-sm font-bold text-white bg-slate-700/70 rounded-lg flex items-center justify-between">
+                                        <span>Switch Organizations</span>
+                                        <i class="fa-solid fa-hand-pointer text-cyan-400"></i>
+                                    </div>
+                                    <div class="px-3 py-1.5 text-sm text-slate-300">Create Organization</div>
+                                    <div class="px-3 py-1 text-xs text-slate-500 pt-2">my-admin-user</div>
+                                    <div class="px-3 py-1.5 text-sm text-rose-400">Logout</div>
+                                </div>
+
+                                <div class="bg-[#11131B] border border-slate-700 rounded-2xl p-6 space-y-4 shadow-xl">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="font-bold text-white text-lg">Switch Organizations</h4>
+                                        <span class="text-slate-500">✕</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400 text-center">Choose an organization</p>
+                                    <div class="space-y-2">
+                                        <div class="p-3 rounded-xl bg-[#252838] border border-emerald-500/40 flex items-center gap-3">
+                                            <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></span>
+                                            <span class="font-bold text-white">my-org</span>
+                                            <span class="text-xs text-slate-400">Current</span>
+                                        </div>
+                                        <div class="p-3 rounded-xl bg-[#181A24] hover:bg-[#202330] transition flex items-center gap-3 pl-12">
+                                            <span class="font-bold text-slate-300">production_data</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Line Protocol Anatomy & Interactive Parser -->
+        <section id="line-protocol" class="scroll-mt-24 space-y-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <span class="text-emerald-400 font-mono text-sm uppercase tracking-wider font-semibold">STEP 03 // LINE PROTOCOL & SERIES KEY</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">寫入時序數據：Line Protocol 語法結構與互動拆解</h2>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="loadPresetLP(0)" id="preset-btn-0" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-semibold transition">
+                        範例 A：PLC 1號機 (含空白跳脫字元)
+                    </button>
+                    <button onclick="loadPresetLP(1)" id="preset-btn-1" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-xs font-semibold transition">
+                        範例 B：CNC_A01 機台狀態
+                    </button>
+                </div>
+            </div>
+
+            <!-- Syntax Formula Banner -->
+            <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-4">
+                <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Line Protocol 標準語法公式（注意「逗號」與「空白鍵」的分隔位置）：</div>
+                <div class="bg-[#07080D] p-4 rounded-xl border border-slate-800 font-mono text-sm sm:text-base overflow-x-auto flex flex-wrap items-center gap-y-2">
+                    <span class="px-2.5 py-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">&lt;measurement&gt;</span>
+                    <span class="text-slate-500 font-bold mx-0.5">,</span>
+                    <span class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">&lt;tag_key&gt;=&lt;tag_value&gt;</span>
+                    <span class="mx-2 px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-xs border border-rose-500/40">␣ 空白分隔</span>
+                    <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">&lt;field_key&gt;=&lt;field_value&gt;</span>
+                    <span class="mx-2 px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-xs border border-rose-500/40">␣ 空白分隔</span>
+                    <span class="px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">&lt;timestamp&gt;</span>
+                </div>
+
+                <!-- Live Code Display with Copy -->
+                <div class="space-y-2 pt-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-slate-400" id="lp-current-title">目前檢視：投影片第 9 頁「生產統計表 PLC #1」範例（注意 <code class="text-emerald-300">PLC\ #1</code> 使用反斜線跳脫空白）</span>
+                        <button onclick="copyCurrentLP()" class="text-xs px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 flex items-center gap-1.5">
+                            <i class="fa-regular fa-copy"></i> 複製此行 Line Protocol
+                        </button>
+                    </div>
+                    <div id="lp-raw-box" class="bg-[#0B0D14] p-4 rounded-xl border border-slate-700 font-mono text-xs sm:text-sm text-white overflow-x-auto leading-relaxed">
+                        production_stats,machine_name=PLC\ #1 feed=10i,discharge=8i,defect=2i,drill=5i,stamp=5i 1781258400000000000
+                    </div>
+                </div>
+
+                <!-- Complete Breakdown Table from Slide 9 -->
+                <div class="pt-2">
+                    <div class="text-xs text-slate-400 mb-2 font-semibold">欄位結構逐項對照表（點擊上方範例按鈕可切換解析內容）：</div>
+                    <div class="overflow-x-auto rounded-xl border border-slate-800">
+                        <table class="w-full text-left border-collapse text-xs" id="lp-breakdown-table">
+                            <!-- Populated dynamically via JS -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two Core Dimensions in TSM when writing Line Protocol (Slide 11) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Dimension 1: Series Key -->
+                <div class="glass-card rounded-2xl p-6 border-l-4 border-l-emerald-500 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-mono font-semibold">核心維度 1 // 有建立索引 (Indexed)</span>
+                        <i class="fa-solid fa-key text-emerald-400 text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">1. Series Key（序列鍵）＝ 核心索引</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        當寫入一行 Line Protocol 時，InfluxDB 會把 <code class="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono">Measurement</code> + <code class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">Tags</code> 的所有組合，在記憶體中封裝成一個個 <strong>Series Key</strong>。
+                    </p>
+                    <div class="bg-[#090B10] p-3.5 rounded-xl border border-slate-800 font-mono text-xs text-emerald-300" id="series-key-demo">
+                        machine_status + id=id_001 + machine_name=CNC_A01
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        <strong class="text-slate-200">底層原理：</strong>時序資料庫認為，同一個設備在不同時間點產生的數據，本質上只是同一個「序列 (Series)」在時間軸上的延伸。因此 Tags 適合放機台編號、感測器 ID 等用於分類篩選的文本。
+                    </p>
+                </div>
+
+                <!-- Dimension 2: Fields -->
+                <div class="glass-card rounded-2xl p-6 border-l-4 border-l-amber-500 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-mono font-semibold">核心維度 2 // 無建立索引 (Unindexed)</span>
+                        <i class="fa-solid fa-chart-column text-amber-400 text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">2. Fields（數據欄位）＝ 附屬的數值</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        如 <code class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono">feed_count=100i</code>、<code class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono">defect_count=2i</code> 這些 Field 數值，在底層是<strong>完全不建索引的</strong>。
+                    </p>
+                    <div class="bg-[#090B10] p-3.5 rounded-xl border border-slate-800 font-mono text-xs text-amber-300">
+                        [Timestamp 陣列] ⟷ [feed_count 數值陣列] / [defect_count 數值陣列]
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        <strong class="text-slate-200">底層原理：</strong>Fields 只是緊跟著 Timestamp（時間戳記主鍵）綁定在一起的陣列。這大幅省去了每次寫入時重建 B-Tree 索引的龐大開銷，讓每秒數萬筆的高速寫入成為可能。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: Flux Query & Interactive Pivot Simulator -->
+        <section id="flux-query" class="scroll-mt-24 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <span class="text-pink-400 font-mono text-sm uppercase tracking-wider font-semibold">STEP 04 // FLUX QUERY & PIVOT TRANSFORMATION</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">查詢並合併欄位：Flux 語法與 <code class="font-mono text-pink-400">pivot()</code> 轉置實戰</h2>
+                </div>
+                <button onclick="copyFluxQuery()" class="px-4 py-2 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 text-xs font-semibold transition flex items-center gap-2 self-start md:self-auto">
+                    <i class="fa-regular fa-copy"></i> 複製完整 Flux 查詢語法
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Left: Flux Code Line-by-Line Explanation -->
+                <div class="lg:col-span-6 glass-card rounded-2xl p-6 space-y-4">
+                    <h3 class="font-bold text-white text-base flex items-center gap-2">
+                        <i class="fa-solid fa-code-branch text-pink-400"></i>
+                        查詢近 90 天時序紀錄並展開欄位（管線運算子 <code class="text-cyan-400">|&gt;</code>）
+                    </h3>
+
+                    <pre id="flux-code-block" class="bg-[#07080D] p-4 rounded-xl border border-slate-800 font-mono text-xs sm:text-sm text-slate-200 overflow-x-auto leading-relaxed"><span class="text-pink-400">from</span>(bucket: <span class="text-amber-300">"production_data"</span>)
+  <span class="text-cyan-400">|&gt;</span> <span class="text-pink-400">range</span>(start: <span class="text-emerald-300">-90d</span>)
+  <span class="text-cyan-400">|&gt;</span> <span class="text-pink-400">filter</span>(fn: (r) =&gt; r._measurement == <span class="text-amber-300">"production_stats"</span>)
+  <span class="text-cyan-400">|&gt;</span> <span class="text-pink-400">pivot</span>(rowKey: [<span class="text-amber-300">"_time"</span>, <span class="text-amber-300">"machine_name"</span>], columnKey: [<span class="text-amber-300">"_field"</span>], valueColumn: <span class="text-amber-300">"_value"</span>)
+  <span class="text-cyan-400">|&gt;</span> <span class="text-pink-400">sort</span>(columns: [<span class="text-amber-300">"_time"</span>], desc: <span class="text-purple-400">true</span>)
+  <span class="text-cyan-400">|&gt;</span> <span class="text-pink-400">limit</span>(n: <span class="text-emerald-300">200</span>)</pre>
+
+                    <div class="space-y-2 text-xs text-slate-300">
+                        <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
+                            <code class="text-pink-400 font-mono font-bold">from() &amp; range(start: -90d)</code>：指定從 <code class="text-amber-300">production_data</code> 儲存桶撈取過去 90 天內的資料（時序查詢必備時間範圍）。
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
+                            <code class="text-pink-400 font-mono font-bold">filter(...)</code>：篩選資料表 <code class="text-amber-300">_measurement == "production_stats"</code>。
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-pink-500/10 border border-pink-500/30">
+                            <code class="text-pink-300 font-mono font-bold">pivot(...)</code>：<strong>關鍵轉置函數！</strong>InfluxDB 預設會將每個 Field 拆成獨立小表顯示；透過 <code class="text-white">pivot</code> 可將相同 <code class="text-amber-300">_time</code> 與 <code class="text-amber-300">machine_name</code> 的多個 <code class="text-amber-300">_field</code> 橫向展開合併成同一列。
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
+                            <code class="text-pink-400 font-mono font-bold">sort() &amp; limit(n: 200)</code>：依時間由新到舊（<code class="text-purple-300">desc: true</code>）排序，並限制最多回傳 200 筆。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Interactive Before/After Pivot Visualizer -->
+                <div class="lg:col-span-6 glass-card rounded-2xl p-6 space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <h3 class="font-bold text-white text-base">互動模擬：<code class="text-pink-400 font-mono">pivot()</code> 前後資料表結構差異</h3>
+                        <div class="inline-flex rounded-xl bg-slate-900 p-1 border border-slate-800">
+                            <button onclick="togglePivotView(false)" id="btn-pivot-before" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-slate-800 text-slate-300">
+                                未執行 pivot (原始多列)
+                            </button>
+                            <button onclick="togglePivotView(true)" id="btn-pivot-after" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-pink-600 text-white shadow">
+                                執行 pivot 後 (橫向展開合併)
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-slate-400" id="pivot-desc">
+                        已啟用 <code class="text-pink-400">pivot()</code>：同一個時間點與機台的所有感測器數值（進料、出料、不良、鑽孔、蓋印）完美合併成單一列寬表，方便報表呈現或匯出 CSV！
+                    </p>
+
+                    <!-- Before Pivot Table (Hidden by default) -->
+                    <div id="table-pivot-before" class="hidden overflow-x-auto rounded-xl border border-slate-800 bg-[#0B0D14]">
+                        <table class="w-full text-left border-collapse font-mono text-xs">
+                            <thead>
+                                <tr class="bg-[#161926] text-slate-300 border-b border-slate-800">
+                                    <th class="p-2.5">_time</th>
+                                    <th class="p-2.5 text-emerald-300">machine_name</th>
+                                    <th class="p-2.5 text-amber-300">_field</th>
+                                    <th class="p-2.5 text-cyan-400">_value</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/70 text-slate-300">
+                                <tr><td class="p-2.5">2026-06-12 06:00:00Z</td><td class="p-2.5 text-emerald-300">PLC #1</td><td class="p-2.5 text-amber-300">feed</td><td class="p-2.5 text-cyan-400 font-bold">10</td></tr>
+                                <tr><td class="p-2.5">2026-06-12 06:00:00Z</td><td class="p-2.5 text-emerald-300">PLC #1</td><td class="p-2.5 text-amber-300">discharge</td><td class="p-2.5 text-cyan-400 font-bold">8</td></tr>
+                                <tr><td class="p-2.5">2026-06-12 06:00:00Z</td><td class="p-2.5 text-emerald-300">PLC #1</td><td class="p-2.5 text-amber-300">defect</td><td class="p-2.5 text-cyan-400 font-bold">2</td></tr>
+                                <tr><td class="p-2.5">2026-06-12 06:00:00Z</td><td class="p-2.5 text-emerald-300">PLC #1</td><td class="p-2.5 text-amber-300">drill</td><td class="p-2.5 text-cyan-400 font-bold">5</td></tr>
+                                <tr><td class="p-2.5">2026-06-12 06:00:00Z</td><td class="p-2.5 text-emerald-300">PLC #1</td><td class="p-2.5 text-amber-300">stamp</td><td class="p-2.5 text-cyan-400 font-bold">5</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- After Pivot Table (Shown by default) -->
+                    <div id="table-pivot-after" class="overflow-x-auto rounded-xl border border-pink-500/40 bg-[#0B0D14] shadow-lg shadow-pink-500/5">
+                        <table class="w-full text-left border-collapse font-mono text-xs">
+                            <thead>
+                                <tr class="bg-pink-950/30 text-slate-200 border-b border-pink-500/30">
+                                    <th class="p-2.5">_time (rowKey)</th>
+                                    <th class="p-2.5 text-emerald-300">machine_name</th>
+                                    <th class="p-2.5 text-amber-300">feed</th>
+                                    <th class="p-2.5 text-amber-300">discharge</th>
+                                    <th class="p-2.5 text-rose-400">defect</th>
+                                    <th class="p-2.5 text-amber-300">drill</th>
+                                    <th class="p-2.5 text-amber-300">stamp</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-200">
+                                <tr class="bg-pink-500/5">
+                                    <td class="p-3">2026-06-12 06:00:00Z</td>
+                                    <td class="p-3 text-emerald-300 font-bold">PLC #1</td>
+                                    <td class="p-3 text-cyan-400 font-bold">10</td>
+                                    <td class="p-3 text-cyan-400 font-bold">8</td>
+                                    <td class="p-3 text-rose-400 font-bold">2</td>
+                                    <td class="p-3 text-cyan-400 font-bold">5</td>
+                                    <td class="p-3 text-cyan-400 font-bold">5</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: TSM Storage Engine, WAL, Columnar Storage & Philosophy -->
+        <section id="architecture" class="scroll-mt-24 space-y-12">
+            <div class="border-b border-slate-800 pb-4">
+                <span class="text-amber-400 font-mono text-sm uppercase tracking-wider font-semibold">STEP 05 // INTERNAL ARCHITECTURE & STORAGE ENGINE</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">底層核心原理：TSM 儲存引擎、列式壓縮與三大設計思維</h2>
+            </div>
+
+            <!-- Part A: TSM & WAL Interactive Pipeline (Slide 12) -->
+            <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-microchip text-cyan-400"></i>
+                            儲存引擎：TSM 樹 (Time Structured Merge-tree) 與 WAL 機制
+                        </h3>
+                        <p class="text-sm text-slate-400 mt-1">
+                            為了應付工廠機台或感測器每秒幾萬筆的高併發寫入（High Write Throughput），InfluxDB 採用改良自 LSM-tree 的 TSM 引擎。點擊下方各階段查看底層流向：
+                        </p>
+                    </div>
+                    <button onclick="simulateWriteFlow()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold shadow-lg transition flex items-center gap-2 self-start">
+                        <i class="fa-solid fa-play"></i> 模擬一筆時序資料寫入流向
+                    </button>
+                </div>
+
+                <!-- 4-Stage Pipeline Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="tsm-pipeline">
+                    <!-- Stage 1: WAL -->
+                    <div onclick="selectTsmStage(0)" id="tsm-card-0" class="tsm-card cursor-pointer rounded-xl p-4 bg-[#141824] border-2 border-cyan-500 transition space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono font-bold text-cyan-400">STAGE 01 // 預寫日誌</span>
+                            <i class="fa-solid fa-file-shield text-cyan-400"></i>
+                        </div>
+                        <div class="font-bold text-white text-base">1. WAL (Write Ahead Log)</div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            資料一進來，先以「追加 (Append)」方式快速寫入硬碟 WAL 檔，確保<strong>突然斷電資料絕不遺失</strong>。
+                        </p>
+                    </div>
+
+                    <!-- Stage 2: MemTable -->
+                    <div onclick="selectTsmStage(1)" id="tsm-card-1" class="tsm-card cursor-pointer rounded-xl p-4 bg-[#141824] border border-slate-800 hover:border-slate-600 transition space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono font-bold text-purple-400">STAGE 02 // 記憶體表</span>
+                            <i class="fa-solid fa-bolt text-purple-400"></i>
+                        </div>
+                        <div class="font-bold text-white text-base">2. MemTable (記憶體)</div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            寫入 WAL 的同時，資料同步寫入記憶體中的 MemTable。<strong>當資料還在記憶體時，即可立刻被查詢到！</strong>
+                        </p>
+                    </div>
+
+                    <!-- Stage 3: TSM Flush -->
+                    <div onclick="selectTsmStage(2)" id="tsm-card-2" class="tsm-card cursor-pointer rounded-xl p-4 bg-[#141824] border border-slate-800 hover:border-slate-600 transition space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono font-bold text-amber-400">STAGE 03 // 刷盤 Flush</span>
+                            <i class="fa-solid fa-hard-drive text-amber-400"></i>
+                        </div>
+                        <div class="font-bold text-white text-base">3. TSM 檔案 (永久儲存)</div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            當 MemTable 滿了或達時間限制，會將記憶體數據序列化批量寫入硬碟，變成<strong>唯讀的 <code class="text-amber-300">.tsm</code> 檔案 (Flush)</strong>。
+                        </p>
+                    </div>
+
+                    <!-- Stage 4: Compaction -->
+                    <div onclick="selectTsmStage(3)" id="tsm-card-3" class="tsm-card cursor-pointer rounded-xl p-4 bg-[#141824] border border-slate-800 hover:border-slate-600 transition space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono font-bold text-emerald-400">STAGE 04 // 背景壓縮合併</span>
+                            <i class="fa-solid fa-compress text-emerald-400"></i>
+                        </div>
+                        <div class="font-bold text-white text-base">4. Compaction (壓縮合併)</div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            後台程序定期把多個小 <code class="text-emerald-300">.tsm</code> 合併成大 <code class="text-emerald-300">.tsm</code> 檔案，自動剔除重複或已刪除數據並釋放空間。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Dynamic Detail Banner for Selected Stage -->
+                <div id="tsm-stage-detail" class="bg-[#0B0D14] rounded-xl p-4 border border-cyan-500/30 text-sm text-slate-200 flex items-start gap-3">
+                    <i class="fa-solid fa-circle-info text-cyan-400 mt-1"></i>
+                    <div id="tsm-stage-text">
+                        <strong>目前檢視【1. WAL 預寫日誌】：</strong>隨機寫入硬碟非常慢，但「順序追加 (Sequential Append)」極快。WAL 讓 InfluxDB 兼顧記憶體等級的寫入速度與硬碟等級的斷電安全性。
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part B: Row-based vs Column-based Storage Comparison (Slide 13) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-6 glass-card rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white">傳統 MySQL：行式儲存 (Row-based)</h3>
+                        <span class="text-xs px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30">I/O 讀取冗餘高</span>
+                    </div>
+                    <p class="text-xs text-slate-400">一整行資料不論型態（時間、整數、浮點數、文字）全部連續存在一起：</p>
+                    <div class="bg-[#08090E] p-4 rounded-xl border border-slate-800 font-mono text-xs space-y-2">
+                        <div class="text-slate-500">// 硬碟區塊連續排列方式：</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="px-2 py-1 rounded bg-slate-800 text-slate-300">[Row1: T1 | feed:100 | drill:50 | stamp:40]</span>
+                            <span class="px-2 py-1 rounded bg-slate-800 text-slate-300">[Row2: T2 | feed:101 | drill:51 | stamp:41]</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i>
+                        當你只想查詢「過去 30 天的進料次數 (<code class="text-white">feed_count</code>)」時，傳統行式資料庫仍必須把整行裡的 <code class="text-slate-300">drill_count</code> 與 <code class="text-slate-300">stamp_count</code> 一併讀出，造成大量無謂的硬碟 I/O，且不同型態混放難以高效壓縮。
+                    </p>
+                </div>
+
+                <div class="lg:col-span-6 glass-card rounded-2xl p-6 border border-cyan-500/40 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white">InfluxDB：列式儲存 (Column-based)</h3>
+                        <span class="text-xs px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">極致壓縮 + I/O 精準讀取</span>
+                    </div>
+                    <p class="text-xs text-slate-400">同一條 Series 的各個欄位在硬碟中分別存成獨立連續區塊：</p>
+                    <div class="bg-[#08090E] p-4 rounded-xl border border-slate-800 font-mono text-xs space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-28 text-cyan-400">Timestamp 區塊:</span>
+                            <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-200">[T1, T2, T3, T4 ...]</span>
+                            <span class="text-[11px] text-emerald-400">→ Gorilla 壓縮 (Delta-of-Delta &gt;90%)</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-amber-500/10 p-1 rounded border border-amber-500/40">
+                            <span class="w-28 text-amber-300 font-bold">feed_count 區塊:</span>
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-200">[100i, 101i, 102i ...]</span>
+                            <span class="text-[11px] text-amber-300">← 查詢時只精準讀取此列！</span>
+                        </div>
+                        <div class="flex items-center gap-2 opacity-50">
+                            <span class="w-28 text-slate-400">drill_count 區塊:</span>
+                            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400">[50i, 51i, 52i ...]</span>
+                            <span class="text-[11px] text-slate-500">（完全不需讀取，跳過 I/O）</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+                            <strong class="text-cyan-400">1. 超高壓縮比：</strong>同列型態完全相同。時間戳記採用 <strong>Gorilla 演算法</strong>（計算前後時間差值的差值 Delta-of-Delta）壓縮率達 90% 以上；數值採用 <strong>Bit-packing / Float</strong> 壓縮。
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800">
+                            <strong class="text-emerald-400">2. 查詢極快：</strong>查 <code class="text-white">feed_count</code> 時完全不碰 <code class="text-slate-400">drill_count</code> 或 <code class="text-slate-400">stamp_count</code> 的硬碟區塊，大幅降低硬碟 I/O。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part C: Core Design Philosophy Table (Slide 14) -->
+            <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                        <i class="fa-solid fa-lightbulb text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">InfluxDB 三大核心設計思維總結</h3>
+                        <p class="text-xs text-slate-400">理解時序資料庫與傳統關聯式資料庫（RDBMS）在設計哲學上的根本差異</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="bg-[#121521] border border-slate-800 rounded-xl p-5 space-y-2 hover:border-cyan-500/50 transition">
+                        <div class="text-xs font-mono text-cyan-400">PHILOSOPHY 01</div>
+                        <div class="text-lg font-bold text-white flex items-center justify-between">
+                            <span>寫入 &gt; 讀取</span>
+                            <i class="fa-solid fa-gauge-high text-cyan-400"></i>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed pt-1">
+                            為了應付每秒海量寫入，寧可先寫入記憶體（MemTable）與預寫日誌（WAL），背景再慢慢執行壓縮合併（Compaction）。
+                        </p>
+                    </div>
+
+                    <div class="bg-[#121521] border border-slate-800 rounded-xl p-5 space-y-2 hover:border-purple-500/50 transition">
+                        <div class="text-xs font-mono text-purple-400">PHILOSOPHY 02</div>
+                        <div class="text-lg font-bold text-white flex items-center justify-between">
+                            <span>數據幾乎不修改</span>
+                            <i class="fa-solid fa-lock text-purple-400"></i>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed pt-1">
+                            時序數據是「歷史紀錄」，發生了就不會變。因此<strong>不支援傳統的 <code class="text-rose-400 font-mono">UPDATE</code></strong>，只允許追加（Append）與同時間點覆寫。
+                        </p>
+                    </div>
+
+                    <div class="bg-[#121521] border border-slate-800 rounded-xl p-5 space-y-2 hover:border-amber-500/50 transition">
+                        <div class="text-xs font-mono text-amber-400">PHILOSOPHY 03</div>
+                        <div class="text-lg font-bold text-white flex items-center justify-between">
+                            <span>時間是第一公民</span>
+                            <i class="fa-regular fa-clock text-amber-400"></i>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed pt-1">
+                            所有數據都必須帶有時間（Timestamp），底層儲存、分割區塊（Shard）、保留策略（Retention Policy）全部繞著時間轉。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 bg-[#07080C] py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-database text-cyan-500"></i>
+                <span>教材來源：《04-03.資料庫_influxdb.pptx》時序資料庫實戰與核心原理</span>
+            </div>
+            <div>
+                支援響應式瀏覽 • 點擊任何程式碼區塊旁按鈕即可複製語法直接貼入終端機或 InfluxDB UI
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+        function copyText(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('已複製：' + (text.length > 36 ? text.substring(0, 36) + '...' : text));
+            } catch (err) {
+                showToast('複製失敗，請手動選取複製');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function copyDockerCommand() {
+            const cmd = `docker run -d -p 8086:8086 --name influxdb -e DOCKER_INFLUXDB_INIT_MODE=setup -e DOCKER_INFLUXDB_INIT_USERNAME=my-admin-user -e DOCKER_INFLUXDB_INIT_PASSWORD=my-secret-password123 -e DOCKER_INFLUXDB_INIT_ORG=my-org -e DOCKER_INFLUXDB_INIT_BUCKET=my-bucket -e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token-123 influxdb:2.9.1`;
+            copyText(cmd);
+        }
+
+        function copyFluxQuery() {
+            const flux = `from(bucket: "production_data")\n  |> range(start: -90d)\n  |> filter(fn: (r) => r._measurement == "production_stats")\n  |> pivot(rowKey: ["_time", "machine_name"], columnKey: ["_field"], valueColumn: "_value")\n  |> sort(columns: ["_time"], desc: true)\n  |> limit(n: 200)`;
+            copyText(flux);
+        }
+
+        let toastTimer = null;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-msg');
+            msgEl.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2600);
+        }
+
+        const uiStepMeta = [
+            { url: 'http://localhost:8086/orgs/23fe91588c3a53c3', badge: '步驟 1 / 5：登入成功首頁 (Get Started)' },
+            { url: 'http://localhost:8086/orgs/23fe91588c3a53c3/load-data/buckets', badge: '步驟 2 / 5：選擇 Bucket 並點擊 + ADD DATA → Line Protocol' },
+            { url: 'http://localhost:8086/orgs/23fe91588c3a53c3/load-data/line-protocol', badge: '步驟 3 / 5：手動輸入 Line Protocol 並點擊 WRITE DATA' },
+            { url: 'http://localhost:8086/orgs/23fe91588c3a53c3/data-explorer', badge: '步驟 4 / 5：Data Explorer 篩選與腳本查詢' },
+            { url: 'http://localhost:8086/orgs/23fe91588c3a53c3/switch-org', badge: '步驟 5 / 5：切換組織 (Switch Organizations)' }
+        ];
+
+        function switchUiTab(index) {
+            const panels = document.querySelectorAll('.ui-panel');
+            const btns = document.querySelectorAll('.ui-tab-btn');
+            panels.forEach((p, idx) => {
+                p.classList.toggle('hidden', idx !== index);
+            });
+            btns.forEach((b, idx) => {
+                if (idx === index) {
+                    b.className = 'ui-tab-btn active px-4 py-2.5 rounded-xl text-sm font-semibold transition bg-purple-600 text-white shadow-lg shadow-purple-600/25';
+                } else {
+                    b.className = 'ui-tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition bg-slate-800/80 text-slate-300 hover:bg-slate-700';
+                }
+            });
+            document.getElementById('mock-url').textContent = uiStepMeta[index].url;
+            document.getElementById('ui-step-badge').textContent = uiStepMeta[index].badge;
+        }
+
+        const lpPresets = [
+            {
+                title: '目前檢視：投影片第 9 頁「生產統計表 PLC #1」範例（注意 PLC\\ #1 使用反斜線跳脫空白字元）',
+                raw: 'production_stats,machine_name=PLC\\ #1 feed=10i,discharge=8i,defect=2i,drill=5i,stamp=5i 1781258400000000000',
+                seriesKey: 'production_stats + machine_name=PLC\\ #1',
+                columns: [
+                    { role: 'Measurement (資料表)', cn: '生產統計表', val: 'production_stats', color: 'text-purple-300 bg-purple-500/10' },
+                    { role: 'Tag Key (標籤名)', cn: '機台欄位', val: 'machine_name', color: 'text-emerald-300 bg-emerald-500/10' },
+                    { role: 'Tag Value (標籤值)', cn: 'PLC 1號機', val: 'PLC\\ #1', color: 'text-emerald-300 bg-emerald-500/10' },
+                    { role: 'Field 1 (數據 1)', cn: '進料 10次(整數)', val: 'feed=10i', color: 'text-amber-300 bg-amber-500/10' },
+                    { role: 'Field 2 (數據 2)', cn: '出料 8次(整數)', val: 'discharge=8i', color: 'text-amber-300 bg-amber-500/10' },
+                    { role: 'Field 3 (數據 3)', cn: '不良 2次(整數)', val: 'defect=2i', color: 'text-amber-300 bg-amber-500/10' },
+                    { role: 'Field 4 (數據 4)', cn: '鑽孔 5次(整數)', val: 'drill=5i', color: 'text-amber-300 bg-amber-500/10' },
+                    { role: 'Field 5 (數據 5)', cn: '蓋印 5次(整數)', val: 'stamp=5i', color: 'text-amber-300 bg-amber-500/10' },
+                    { role: 'Timestamp (時間戳記)', cn: '記錄時間 (奈秒)', val: '1781258400000000000', color: 'text-cyan-300 bg-cyan-500/10' }
+                ]
+            },
+            {
+                title: '目前檢視：投影片第 6 & 11 頁「機台狀態 CNC_A01」範例（包含 id 與 machine_name 雙標籤）',
+                raw: 'machine_status,id=id_001,machine_name=CNC_A01 feed_count=100i,discharge_count=98i,defect_count=2i,drill_count=50i,stamp_count=40i 1781276400000000000',
+                seriesKey: 'machine_status + id=id_001 + machine_name=CNC_A01',
+                columns: [
+                    { role: 'Measurement (資料表)', cn: '機台狀態表', val: 'machine_status', color: 'text-purple-300 bg-purple-500/10' },
+                    { role: 'Tag 1 (標籤 1)', cn: '設備編號', val: 'id=id_001', color: 'text-emerald-300 bg-emerald-500/10' },
+                    { role: 'Tag 2 (標籤 2)', cn: '機台名稱', val: 'machine_name=CNC_A01', color: 'text-emerald-300 bg-emerald-500/10' },
+                    { role: 'Field 1 (數據 1)', cn: '進料計數(整數)', val: 'feed_count=100i', color: 'text-amber-300 bg-amber-500/10' },
+                    { role: 'Field 2 (數據 2)', cn: '出料計數(整數)', val: 'discharge_count=98i', color: 'text-amber-300 bg-amber-500/10' },
+                    { role: 'Field 3 (數據 3)', cn: '不良計數(整數)', val: 'defect_count=2i', color: 'text-amber-300 bg-amber-500/10' },
+                    { role: 'Field 4 (數據 4)', cn: '鑽孔計數(整數)', val: 'drill_count=50i', color: 'text-amber-300 bg-amber-500/10' },
+                    { role: 'Field 5 (數據 5)', cn: '蓋印計數(整數)', val: 'stamp_count=40i', color: 'text-amber-300 bg-amber-500/10' },
+                    { role: 'Timestamp (時間戳記)', cn: '記錄時間 (奈秒)', val: '1781276400000000000', color: 'text-cyan-300 bg-cyan-500/10' }
+                ]
+            }
+        ];
+
+        let currentLpIndex = 0;
+
+        function loadPresetLP(idx) {
+            currentLpIndex = idx;
+            const item = lpPresets[idx];
+            document.getElementById('lp-current-title').textContent = item.title;
+            document.getElementById('lp-raw-box').textContent = item.raw;
+            document.getElementById('series-key-demo').textContent = item.seriesKey;
+
+            const btn0 = document.getElementById('preset-btn-0');
+            const btn1 = document.getElementById('preset-btn-1');
+            if (idx === 0) {
+                btn0.className = 'px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-semibold transition';
+                btn1.className = 'px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-xs font-semibold transition';
+            } else {
+                btn1.className = 'px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-semibold transition';
+                btn0.className = 'px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-xs font-semibold transition';
+            }
+
+            const table = document.getElementById('lp-breakdown-table');
+            let thHtml = '<tr class="bg-[#161926] border-b border-slate-800 text-slate-300">';
+            let cnHtml = '<tr class="bg-[#11131D] border-b border-slate-800 text-slate-400">';
+            let valHtml = '<tr class="bg-[#0B0D14] font-mono">';
+
+            item.columns.forEach(c => {
+                thHtml += `<th class="p-2.5 whitespace-nowrap font-semibold">${c.role}</th>`;
+                cnHtml += `<td class="p-2.5 whitespace-nowrap">${c.cn}</td>`;
+                valHtml += `<td class="p-2.5 whitespace-nowrap font-bold ${c.color}">${c.val}</td>`;
+            });
+
+            thHtml += '</tr>';
+            cnHtml += '</tr>';
+            valHtml += '</tr>';
+            table.innerHTML = `<thead>${thHtml}</thead><tbody>${cnHtml}${valHtml}</tbody>`;
+        }
+
+        function copyCurrentLP() {
+            copyText(lpPresets[currentLpIndex].raw);
+        }
+
+        function togglePivotView(isAfter) {
+            const beforeTable = document.getElementById('table-pivot-before');
+            const afterTable = document.getElementById('table-pivot-after');
+            const btnBefore = document.getElementById('btn-pivot-before');
+            const btnAfter = document.getElementById('btn-pivot-after');
+            const desc = document.getElementById('pivot-desc');
+
+            if (isAfter) {
+                beforeTable.classList.add('hidden');
+                afterTable.classList.remove('hidden');
+                btnAfter.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-pink-600 text-white shadow';
+                btnBefore.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-slate-800 text-slate-300';
+                desc.innerHTML = '已啟用 <code class="text-pink-400">pivot()</code>：同一個時間點與機台的所有感測器數值（進料、出料、不良、鑽孔、蓋印）完美合併成單一列寬表，方便報表呈現或匯出 CSV！';
+            } else {
+                afterTable.classList.add('hidden');
+                beforeTable.classList.remove('hidden');
+                btnBefore.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-pink-600 text-white shadow';
+                btnAfter.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-slate-800 text-slate-300';
+                desc.innerHTML = '未執行 <code class="text-pink-400">pivot()</code> 前：InfluxDB 預設將每個 <code class="text-amber-300">_field</code> 分開儲存與回傳，因此同一時間點的 5 個欄位會分散在 5 列中。';
+            }
+        }
+
+        const tsmDetails = [
+            '<strong>目前檢視【1. WAL (Write Ahead Log，預寫日誌)】：</strong>當資料一進來，InfluxDB 會先把資料以「追加（Append）」的方式快速寫入硬碟的 WAL 檔案中。這確保了如果突然斷電，資料不會遺失。',
+            '<strong>目前檢視【2. MemTable (記憶體表)】：</strong>在寫入 WAL 的同時，資料會被寫入記憶體中的 MemTable。當資料還在記憶體時，你就可以立刻透過 Flux 查詢到它，實現毫秒級即時監控。',
+            '<strong>目前檢視【3. TSM 檔案 (硬碟永久儲存 - Flush 刷盤)】：</strong>當 MemTable 滿了（或達到時間限制），InfluxDB 會將記憶體中的數據序列化，批量寫入硬碟，變成唯讀的 <code>.tsm</code> 檔案。這個過程叫做 Flush（刷盤）。',
+            '<strong>目前檢視【4. Compaction (背景壓縮合併)】：</strong>後台程序會定期把多個小的 <code>.tsm</code> 檔案合併成一個大的 <code>.tsm</code> 檔案，並自動剔除重複或被刪除的數據，釋放硬碟空間並維持讀取效率。'
+        ];
+
+        function selectTsmStage(idx) {
+            for (let i = 0; i < 4; i++) {
+                const card = document.getElementById('tsm-card-' + i);
+                if (i === idx) {
+                    card.className = 'tsm-card cursor-pointer rounded-xl p-4 bg-[#192030] border-2 border-cyan-400 transition space-y-2 shadow-lg shadow-cyan-500/10 animate-flow';
+                } else {
+                    card.className = 'tsm-card cursor-pointer rounded-xl p-4 bg-[#141824] border border-slate-800 hover:border-slate-600 transition space-y-2';
+                }
+            }
+            document.getElementById('tsm-stage-text').innerHTML = tsmDetails[idx];
+        }
+
+        let simInterval = null;
+        function simulateWriteFlow() {
+            if (simInterval) clearInterval(simInterval);
+            let step = 0;
+            selectTsmStage(0);
+            simInterval = setInterval(() => {
+                step++;
+                if (step < 4) {
+                    selectTsmStage(step);
+                } else {
+                    clearInterval(simInterval);
+                    simInterval = null;
+                }
+            }, 1100);
+        }
+
+        // Initialize default state on load
+        window.onload = function () {
+            loadPresetLP(0);
+        };
+    </script>
+</body>
+</html>

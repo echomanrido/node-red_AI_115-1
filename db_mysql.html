@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>專題資料庫：MySQL root 允許遠端連線教學</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', 'Inter', sans-serif;
+        }
+        code, pre, .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom Workbench scrollbar & classic look */
+        .wb-shadow {
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.18), 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+        }
+        .hotspot-pulse {
+            animation: pulse-ring 2s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+        }
+        .step-active {
+            border-color: #0284c7;
+            background-color: #f0f9ff;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- 頂部導覽列快捷按鈕 -->
+    <div style="position: sticky; top: 0; z-index: 9999; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <a href="project_database.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.45); color: #c084fc; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: all 0.2s;">
+                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                回資料庫專題主頁
+            </a>
+            <a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; text-decoration: none; font-size: 0.85rem; transition: all 0.2s;">
+                首頁
+            </a>
+            <span style="color: #3b82f6; font-size: 0.82rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                MySQL root 遠端連線實作教學
+            </span>
+        </div>
+        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 500;">
+            五股職訓局 機電 AI 115-1 期 實務專題
+        </span>
+    </div>
+
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-sky-600 p-2 rounded-lg flex items-center justify-center">
+                    <i data-lucide="database" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-mono uppercase tracking-wider px-2 py-0.5 bg-sky-500/20 text-sky-300 rounded border border-sky-500/30">04-01 專題_資料庫</span>
+                        <span class="text-xs text-slate-400 hidden sm:inline">MySQL Workbench 實務操作</span>
+                    </div>
+                    <h1 class="text-lg font-bold tracking-tight">MySQL <code class="text-amber-400">root</code> 允許遠端連線設定教學</h1>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex items-center space-x-1">
+                <a href="#simulator-section" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition">互動介面模擬器</a>
+                <a href="#steps-section" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition">圖解步驟拆解</a>
+                <a href="#sql-section" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition">SQL 指令對照</a>
+                <a href="#quiz-section" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-800 hover:text-white transition">隨堂練習</a>
+            </nav>
+
+            <div class="flex items-center space-x-2">
+                <button id="startPracticeBtn" onclick="startPracticeMode()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold px-3.5 py-2 rounded-lg text-sm flex items-center space-x-1.5 transition shadow-sm">
+                    <i data-lucide="play-circle" class="w-4 h-4"></i>
+                    <span>開始實作練習</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- Overview Banner -->
+        <section class="bg-gradient-to-br from-sky-900 via-slate-900 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="inline-flex items-center space-x-2 bg-sky-500/20 border border-sky-400/30 text-sky-300 px-3 py-1 rounded-full text-xs font-medium">
+                        <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+                        <span>專題資料庫連線核心設定 (PLC / 遠端設備存取)</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-bold leading-tight">
+                        為什麼需要設定 <code class="text-amber-300 bg-slate-800/80 px-2 py-0.5 rounded">root@%</code> 遠端連線？
+                    </h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        MySQL 預設安裝後，<code class="text-white font-mono">root</code> 帳號通常僅允許從本機（<code class="text-emerald-300 font-mono">localhost</code>）登入。在專題開發（例如 PLC 資料收集、跨電腦前端/後端串接、物聯網設備寫入資料庫）時，我們需要透過 <strong>MySQL Workbench</strong> 的 <strong>Users and Privileges</strong> 將允許連線的主機設為萬用字元 <code class="text-amber-300 font-mono">%</code>，代表允許來自任何 IP 位址的遠端連線。
+                    </p>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-5 space-y-3">
+                    <h3 class="text-sm font-semibold text-sky-300 flex items-center space-x-2">
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        <span>本單元重點參數摘要</span>
+                    </h3>
+                    <div class="space-y-2 text-xs sm:text-sm">
+                        <div class="flex justify-between py-1.5 border-b border-slate-700/70">
+                            <span class="text-slate-400">管理功能位置</span>
+                            <span class="font-mono text-white">Users and Privileges</span>
+                        </div>
+                        <div class="flex justify-between py-1.5 border-b border-slate-700/70">
+                            <span class="text-slate-400">Login Name</span>
+                            <span class="font-mono text-emerald-400 font-semibold">root</span>
+                        </div>
+                        <div class="flex justify-between py-1.5 border-b border-slate-700/70">
+                            <span class="text-slate-400">Authentication Type</span>
+                            <span class="font-mono text-sky-300">caching_sha2_password</span>
+                        </div>
+                        <div class="flex justify-between py-1.5">
+                            <span class="text-slate-400">Limit to Hosts Matching</span>
+                            <span class="font-mono text-amber-400 font-bold text-base">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 1: Interactive MySQL Workbench Simulator -->
+        <section id="simulator-section" class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center space-x-2">
+                        <i data-lucide="monitor" class="w-6 h-6 text-sky-600"></i>
+                        <span>投影片畫面互動模擬器 (MySQL Workbench)</span>
+                    </h2>
+                    <p class="text-sm text-slate-600 mt-1">點擊畫面上的橘色標記 <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-orange-500 text-white rounded-full">1</span> ~ <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-orange-500 text-white rounded-full">6</span> 查看投影片各欄位說明，或切換至「實作練習模式」親手設定。</p>
+                </div>
+
+                <!-- Mode Switcher -->
+                <div class="inline-flex rounded-xl bg-slate-200 p-1 self-start">
+                    <button id="modeExploreBtn" onclick="setSimulatorMode('explore')" class="px-4 py-1.5 rounded-lg text-sm font-medium bg-white text-slate-900 shadow-sm transition">
+                        🔍 導覽解說模式
+                    </button>
+                    <button id="modePracticeBtn" onclick="setSimulatorMode('practice')" class="px-4 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition">
+                        🛠️ 實作練習模式
+                    </button>
+                </div>
+            </div>
+
+            <!-- Practice Task Prompt Banner (Hidden in Explore Mode) -->
+            <div id="practiceBanner" class="hidden bg-amber-50 border-2 border-amber-400 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-start space-x-3">
+                    <div class="bg-amber-500 text-white p-2 rounded-lg mt-0.5">
+                        <i data-lucide="target" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-amber-950 text-sm sm:text-base">實作任務：請完成投影片中的 <code class="bg-amber-200/70 px-1.5 py-0.5 rounded">root@%</code> 遠端連線設定</h3>
+                        <p id="practiceTaskDesc" class="text-xs sm:text-sm text-amber-900 mt-0.5">
+                            請依序：1. 點擊左側「Users and Privileges」 ➔ 2. 選擇或設定 Login Name 為 <code class="font-mono font-bold">root</code> ➔ 3. 將 Limit to Hosts Matching 設為 <code class="font-mono font-bold">%</code> ➔ 4. 輸入一致的 8 位以上密碼並點擊右下角「Apply」。
+                        </p>
+                    </div>
+                </div>
+                <button onclick="resetPractice()" class="text-xs font-medium bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg shrink-0 transition">
+                    重設練習狀態
+                </button>
+            </div>
+
+            <!-- Workbench Simulator + Inspector Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+                <!-- Left 8 cols: Simulated MySQL Workbench Window -->
+                <div class="lg:col-span-8 bg-[#f0f0f0] border border-slate-300 rounded-xl overflow-hidden wb-shadow select-none">
+
+                    <!-- Window Top Bar (PLC Tab & Menu) -->
+                    <div class="bg-[#e4e6eb] border-b border-slate-300 px-3 pt-2 flex items-center space-x-2 text-xs text-slate-700">
+                        <div class="p-1 text-slate-600"><i data-lucide="home" class="w-4 h-4"></i></div>
+                        <div class="bg-white border-t border-l border-r border-slate-300 rounded-t-md px-3 py-1.5 font-medium flex items-center space-x-3">
+                            <span>PLC</span>
+                            <span class="text-slate-400">×</span>
+                        </div>
+                    </div>
+
+                    <!-- Menu Bar -->
+                    <div class="bg-white border-b border-slate-200 px-3 py-1 flex flex-wrap gap-x-4 text-xs text-slate-700">
+                        <span>File</span><span>Edit</span><span>View</span><span>Query</span><span>Database</span><span>Server</span><span>Tools</span><span>Scripting</span><span>Help</span>
+                    </div>
+
+                    <!-- Toolbar Icons -->
+                    <div class="bg-[#f7f7f7] border-b border-slate-300 px-3 py-1.5 flex items-center space-x-3 text-slate-600">
+                        <i data-lucide="file-code" class="w-4 h-4"></i>
+                        <i data-lucide="folder-open" class="w-4 h-4"></i>
+                        <i data-lucide="database" class="w-4 h-4"></i>
+                        <i data-lucide="table" class="w-4 h-4"></i>
+                        <i data-lucide="users" class="w-4 h-4 text-sky-700"></i>
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </div>
+
+                    <!-- Workbench Main Body -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 bg-white min-h-[470px]">
+
+                        <!-- Navigator Left Pane -->
+                        <div class="md:col-span-4 border-b md:border-b-0 md:border-r border-slate-300 bg-white flex flex-col justify-between">
+                            <div>
+                                <div class="bg-[#e9ecef] px-3 py-1 text-xs font-semibold text-slate-600 border-b border-slate-300">
+                                    Navigator
+                                </div>
+                                <div class="p-2.5 space-y-4 text-xs">
+                                    <!-- MANAGEMENT Section -->
+                                    <div>
+                                        <div class="font-bold text-slate-800 tracking-wide mb-1.5">MANAGEMENT</div>
+                                        <ul class="space-y-1 text-slate-700">
+                                            <li class="flex items-center space-x-2 px-2 py-1 rounded hover:bg-slate-100 cursor-pointer" onclick="selectHotspot(1)">
+                                                <i data-lucide="activity" class="w-3.5 h-3.5 text-slate-500"></i>
+                                                <span>Server Status</span>
+                                            </li>
+                                            <li class="flex items-center space-x-2 px-2 py-1 rounded hover:bg-slate-100 cursor-pointer" onclick="selectHotspot(1)">
+                                                <i data-lucide="plug" class="w-3.5 h-3.5 text-slate-500"></i>
+                                                <span>Client Connections</span>
+                                            </li>
+                                            <!-- Hotspot 1: Users and Privileges -->
+                                            <li id="navUsersItem" onclick="handleNavigatorUsersClick()" class="relative flex items-center justify-between px-2 py-1.5 rounded bg-sky-100 text-sky-900 font-semibold border border-sky-300 cursor-pointer transition">
+                                                <div class="flex items-center space-x-2">
+                                                    <i data-lucide="users" class="w-3.5 h-3.5 text-sky-700"></i>
+                                                    <span>Users and Privileges</span>
+                                                </div>
+                                                <span class="hotspot-badge w-5 h-5 rounded-full bg-orange-500 text-white text-[11px] font-bold flex items-center justify-center hotspot-pulse">1</span>
+                                            </li>
+                                            <li class="flex items-center space-x-2 px-2 py-1 rounded hover:bg-slate-100 text-slate-600">
+                                                <i data-lucide="Sliders" class="w-3.5 h-3.5 text-slate-500"></i>
+                                                <span>Status and System Variables</span>
+                                            </li>
+                                            <li class="flex items-center space-x-2 px-2 py-1 rounded hover:bg-slate-100 text-slate-600">
+                                                <i data-lucide="upload" class="w-3.5 h-3.5 text-slate-500"></i>
+                                                <span>Data Export</span>
+                                            </li>
+                                            <li class="flex items-center space-x-2 px-2 py-1 rounded hover:bg-slate-100 text-slate-600">
+                                                <i data-lucide="download" class="w-3.5 h-3.5 text-slate-500"></i>
+                                                <span>Data Import/Restore</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- INSTANCE Section -->
+                                    <div>
+                                        <div class="font-bold text-slate-800 tracking-wide mb-1.5 flex items-center space-x-1">
+                                            <span>INSTANCE</span>
+                                            <i data-lucide="wrench" class="w-3 h-3 text-slate-500"></i>
+                                        </div>
+                                        <ul class="space-y-1 text-slate-600">
+                                            <li class="flex items-center space-x-2 px-2 py-1">
+                                                <i data-lucide="power" class="w-3.5 h-3.5 text-slate-500"></i>
+                                                <span>Startup / Shutdown</span>
+                                            </li>
+                                            <li class="flex items-center space-x-2 px-2 py-1">
+                                                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-slate-500"></i>
+                                                <span>Server Logs</span>
+                                            </li>
+                                            <li class="flex items-center space-x-2 px-2 py-1">
+                                                <i data-lucide="settings" class="w-3.5 h-3.5 text-slate-500"></i>
+                                                <span>Options File</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- PERFORMANCE Section -->
+                                    <div>
+                                        <div class="font-bold text-slate-800 tracking-wide mb-1.5">PERFORMANCE</div>
+                                        <ul class="space-y-1 text-slate-600">
+                                            <li class="flex items-center space-x-2 px-2 py-1">
+                                                <i data-lucide="gauge" class="w-3.5 h-3.5 text-slate-500"></i>
+                                                <span>Dashboard</span>
+                                            </li>
+                                            <li class="flex items-center space-x-2 px-2 py-1">
+                                                <i data-lucide="file-bar-chart" class="w-3.5 h-3.5 text-slate-500"></i>
+                                                <span>Performance Reports</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Administration Panel -->
+                        <div class="md:col-span-8 flex flex-col">
+                            <!-- Sub-Tab Bar -->
+                            <div class="bg-[#dce1e7] border-b border-slate-300 px-2 pt-1 flex items-center">
+                                <div class="bg-[#0078d7] text-white text-xs font-medium px-3 py-1 rounded-t flex items-center space-x-2">
+                                    <span>Administration - Users and Privil...</span>
+                                    <span class="opacity-80">×</span>
+                                </div>
+                            </div>
+
+                            <!-- Panel Header -->
+                            <div class="p-4 flex items-center space-x-3 border-b border-slate-200">
+                                <div class="w-11 h-11 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
+                                    <i data-lucide="user" class="w-7 h-7"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-slate-500 font-medium">PLC</div>
+                                    <div class="text-lg font-bold text-slate-900 leading-tight">Users and Privileges</div>
+                                </div>
+                            </div>
+
+                            <!-- Content Split: User Accounts Table & Details Form -->
+                            <div class="p-3 grid grid-cols-1 sm:grid-cols-12 gap-3 flex-grow">
+
+                                <!-- User Accounts List (5 cols) -->
+                                <div class="sm:col-span-5 flex flex-col">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-xs font-semibold text-slate-700">User Accounts</span>
+                                        <button onclick="selectHotspot(2)" class="hotspot-badge w-5 h-5 rounded-full bg-orange-500 text-white text-[11px] font-bold flex items-center justify-center hotspot-pulse">2</button>
+                                    </div>
+                                    <div class="border border-slate-300 bg-white flex-grow flex flex-col justify-between min-h-[220px]">
+                                        <table class="w-full text-left text-xs">
+                                            <thead>
+                                                <tr class="border-b border-slate-300 bg-slate-100 text-slate-700">
+                                                    <th class="py-1 px-2 border-r border-slate-300 font-medium">User</th>
+                                                    <th class="py-1 px-2 font-medium">From Host</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="wbUserTableBody" class="divide-y divide-slate-100">
+                                                <tr onclick="selectAccountRow('mysql.infoschema', 'localhost')" class="hover:bg-slate-100 cursor-pointer">
+                                                    <td class="py-1 px-2">mysql.infoschema</td>
+                                                    <td class="py-1 px-2">localhost</td>
+                                                </tr>
+                                                <tr onclick="selectAccountRow('mysql.session', 'localhost')" class="hover:bg-slate-100 cursor-pointer">
+                                                    <td class="py-1 px-2">mysql.session</td>
+                                                    <td class="py-1 px-2">localhost</td>
+                                                </tr>
+                                                <tr onclick="selectAccountRow('mysql.sys', 'localhost')" class="hover:bg-slate-100 cursor-pointer">
+                                                    <td class="py-1 px-2">mysql.sys</td>
+                                                    <td class="py-1 px-2">localhost</td>
+                                                </tr>
+                                                <tr onclick="selectAccountRow('rido', '%')" class="hover:bg-slate-100 cursor-pointer">
+                                                    <td class="py-1 px-2">rido</td>
+                                                    <td class="py-1 px-2">%</td>
+                                                </tr>
+                                                <tr id="rootAccountRow" onclick="selectAccountRow('root', document.getElementById('wbHostInput').value || '%'); selectHotspot(2)" class="bg-sky-600 text-white font-medium cursor-pointer">
+                                                    <td id="rootRowName" class="py-1 px-2">root</td>
+                                                    <td id="rootRowHost" class="py-1 px-2">%</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        <!-- Bottom Account Action Buttons -->
+                                        <div class="p-1.5 bg-slate-50 border-t border-slate-200 flex flex-wrap gap-1 justify-end">
+                                            <button onclick="addAccountHelper()" class="px-2 py-0.5 text-[11px] bg-white border border-slate-300 rounded hover:bg-slate-100">Add Account</button>
+                                            <button class="px-2 py-0.5 text-[11px] bg-white border border-slate-300 rounded text-slate-400 cursor-not-allowed">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Details for account root@% (7 cols) -->
+                                <div class="sm:col-span-7 flex flex-col">
+                                    <div id="wbDetailsHeader" class="text-xs font-bold text-slate-800 mb-1">
+                                        Details for account root@%
+                                    </div>
+
+                                    <!-- Inner Tabs (Login / Account Limits / Administrative Roles / Schema Privileges) -->
+                                    <div class="flex border-b border-slate-300 text-[11px] bg-slate-100 rounded-t">
+                                        <button id="subTabLogin" onclick="switchWbSubTab('login')" class="px-2.5 py-1 bg-white border-t border-l border-r border-slate-300 font-semibold text-slate-900 -mb-px">Login</button>
+                                        <button id="subTabLimits" onclick="switchWbSubTab('limits')" class="px-2 py-1 text-slate-600 hover:text-slate-900">Account Limits</button>
+                                        <button id="subTabRoles" onclick="switchWbSubTab('roles')" class="px-2 py-1 text-slate-600 hover:text-slate-900">Administrative Roles</button>
+                                        <button id="subTabSchema" onclick="switchWbSubTab('schema')" class="px-2 py-1 text-slate-600 hover:text-slate-900">Schema Privileges</button>
+                                    </div>
+
+                                    <!-- Login Tab Content -->
+                                    <div id="wbTabLoginContent" class="border-l border-r border-b border-slate-300 bg-[#f8f9fa] p-3 space-y-3 flex-grow text-xs">
+
+                                        <!-- Row 1: Login Name -->
+                                        <div class="grid grid-cols-12 gap-2 items-center">
+                                            <label class="col-span-4 text-right text-slate-700 font-medium">Login Name:</label>
+                                            <div class="col-span-5 relative flex items-center">
+                                                <input id="wbLoginInput" type="text" value="root" oninput="syncLiveSQL()" onclick="selectHotspot(3)" class="w-full border border-slate-400 bg-white px-2 py-1 text-xs font-mono rounded-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                                <button onclick="selectHotspot(3)" class="hotspot-badge ml-1.5 w-5 h-5 shrink-0 rounded-full bg-orange-500 text-white text-[11px] font-bold flex items-center justify-center hotspot-pulse">3</button>
+                                            </div>
+                                            <div class="col-span-3 text-[10px] text-slate-500 leading-tight">
+                                                You may create multiple accounts with the same name to connect from different hosts.
+                                            </div>
+                                        </div>
+
+                                        <!-- Row 2: Authentication Type -->
+                                        <div class="grid grid-cols-12 gap-2 items-center">
+                                            <label class="col-span-4 text-right text-slate-700 font-medium">Authentication Type:</label>
+                                            <div class="col-span-5 flex items-center">
+                                                <select id="wbAuthSelect" onchange="syncLiveSQL(); selectHotspot(4)" onclick="selectHotspot(4)" class="w-full border border-slate-400 bg-white px-1.5 py-1 text-xs font-mono rounded-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                                    <option value="caching_sha2_password" selected>caching_sha2_password</option>
+                                                    <option value="mysql_native_password">Standard (mysql_native_password)</option>
+                                                    <option value="sha256_password">SHA256 Password</option>
+                                                </select>
+                                                <button onclick="selectHotspot(4)" class="hotspot-badge ml-1.5 w-5 h-5 shrink-0 rounded-full bg-orange-500 text-white text-[11px] font-bold flex items-center justify-center hotspot-pulse">4</button>
+                                            </div>
+                                            <div class="col-span-3 text-[10px] text-slate-500 leading-tight">
+                                                For the standard password and/or host based authentication, select 'Standard'.
+                                            </div>
+                                        </div>
+
+                                        <!-- Row 3: Limit to Hosts Matching -->
+                                        <div class="grid grid-cols-12 gap-2 items-center bg-amber-50/80 -mx-2 px-2 py-1.5 rounded border border-amber-200/80">
+                                            <label class="col-span-4 text-right text-slate-900 font-bold">Limit to Hosts Matching:</label>
+                                            <div class="col-span-5 flex items-center">
+                                                <input id="wbHostInput" type="text" value="%" oninput="syncLiveSQL()" onclick="selectHotspot(5)" class="w-full border-2 border-amber-500 bg-white px-2 py-1 text-xs font-mono font-bold text-slate-900 rounded-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                                <button onclick="selectHotspot(5)" class="hotspot-badge ml-1.5 w-5 h-5 shrink-0 rounded-full bg-orange-500 text-white text-[11px] font-bold flex items-center justify-center hotspot-pulse">5</button>
+                                            </div>
+                                            <div class="col-span-3 text-[10px] text-slate-600 font-medium leading-tight">
+                                                <code class="font-bold">%</code> and <code class="font-bold">_</code> wildcards may be used
+                                            </div>
+                                        </div>
+
+                                        <!-- Row 4: Password -->
+                                        <div class="grid grid-cols-12 gap-2 items-center">
+                                            <label class="col-span-4 text-right text-slate-700 font-medium">Password:</label>
+                                            <div class="col-span-5 flex items-center">
+                                                <input id="wbPassInput" type="password" value="RootPassword123!" oninput="syncLiveSQL()" onclick="selectHotspot(6)" class="w-full border border-slate-400 bg-white px-2 py-1 text-xs rounded-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                                <button onclick="selectHotspot(6)" class="hotspot-badge ml-1.5 w-5 h-5 shrink-0 rounded-full bg-orange-500 text-white text-[11px] font-bold flex items-center justify-center hotspot-pulse">6</button>
+                                            </div>
+                                            <div class="col-span-3 text-[10px] text-slate-500 leading-tight">
+                                                Type a password to reset it.
+                                            </div>
+                                        </div>
+
+                                        <!-- Red Password Hint from Slide -->
+                                        <div class="grid grid-cols-12 gap-2">
+                                            <div class="col-span-4"></div>
+                                            <div class="col-span-8 text-[10px] text-red-700 leading-tight">
+                                                Consider using a password with 8 or more characters with mixed case letters, numbers and punctuation marks.
+                                            </div>
+                                        </div>
+
+                                        <!-- Row 5: Confirm Password -->
+                                        <div class="grid grid-cols-12 gap-2 items-center">
+                                            <label class="col-span-4 text-right text-slate-700 font-medium">Confirm Password:</label>
+                                            <div class="col-span-5">
+                                                <input id="wbConfirmInput" type="password" value="RootPassword123!" oninput="syncLiveSQL()" onclick="selectHotspot(6)" class="w-full border border-slate-400 bg-white px-2 py-1 text-xs rounded-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                            </div>
+                                            <div class="col-span-3 text-[10px] text-slate-500 leading-tight">
+                                                Enter password again to confirm.
+                                            </div>
+                                        </div>
+
+                                        <!-- Expire Password Button -->
+                                        <div class="grid grid-cols-12 gap-2">
+                                            <div class="col-span-4"></div>
+                                            <div class="col-span-5">
+                                                <button type="button" onclick="showSimToast('密碼到期標記功能：強制使用者下次登入時重設密碼（一般專題連線無須點擊）。', 'info')" class="w-full py-1 bg-[#e1e1e1] border border-slate-400 text-slate-800 text-[11px] rounded-sm hover:bg-slate-200">
+                                                    Expire Password
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Authentication String -->
+                                        <div class="grid grid-cols-12 gap-2 items-center pt-1">
+                                            <label class="col-span-4 text-right text-slate-400">Authentication String:</label>
+                                            <div class="col-span-5">
+                                                <input type="text" disabled value="$A$005$>c Gb3`dCF V b !%zn" class="w-full border border-slate-300 bg-slate-100 text-slate-500 px-2 py-0.5 text-[10px] font-mono">
+                                            </div>
+                                            <div class="col-span-3 text-[10px] text-slate-400 leading-tight">
+                                                Authentication plugin specific parameters.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Alternative Sub-tab Content (Administrative Roles / Schema Privileges explanation) -->
+                                    <div id="wbTabOtherContent" class="hidden border-l border-r border-b border-slate-300 bg-[#f8f9fa] p-4 flex-grow text-xs space-y-3">
+                                        <div class="bg-sky-50 border border-sky-200 rounded-lg p-3 text-sky-900">
+                                            <h4 id="wbOtherTitle" class="font-bold text-sm mb-1">Administrative Roles (管理角色權限)</h4>
+                                            <p id="wbOtherDesc" class="text-xs leading-relaxed">
+                                                如果是新增的 <code class="font-mono font-bold">root@%</code> 帳號，別忘了在 <strong>Administrative Roles</strong> 勾選 <code class="font-mono">DBA</code>（或全選所有權限），並點擊右下角 <strong>Apply</strong>，否則遠端登入後會看不見其他資料庫！
+                                            </p>
+                                        </div>
+                                        <button onclick="switchWbSubTab('login')" class="text-xs text-sky-600 font-semibold hover:underline flex items-center space-x-1">
+                                            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                                            <span>返回 Login 設定頁籤</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Bottom Apply / Revert Bar -->
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <span id="simFeedbackMsg" class="text-xs font-medium text-emerald-700"></span>
+                                        <div class="space-x-2">
+                                            <button type="button" onclick="resetPractice()" class="px-3 py-1 text-xs bg-white border border-slate-300 rounded hover:bg-slate-100 text-slate-700">Revert</button>
+                                            <button type="button" onclick="handleApplySettings()" class="px-4 py-1 text-xs bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded shadow-sm transition">Apply</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 4 cols: Interactive Hotspot Explanation & Live SQL -->
+                <div class="lg:col-span-4 space-y-4">
+                    <!-- Hotspot Detail Card -->
+                    <div class="bg-white rounded-xl border-2 border-sky-500/80 shadow-md p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span id="inspectorBadge" class="inline-flex items-center space-x-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-orange-100 text-orange-800 border border-orange-300">
+                                <span>重點標記 #5</span>
+                            </span>
+                            <div class="flex space-x-1">
+                                <button onclick="prevHotspot()" class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600" title="上一個重點">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="nextHotspot()" class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600" title="下一個重點">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 id="inspectorTitle" class="text-lg font-bold text-slate-900">
+                                Limit to Hosts Matching: %
+                            </h3>
+                            <p id="inspectorDesc" class="text-sm text-slate-600 mt-2 leading-relaxed">
+                                這是允許遠端連線<strong>最關鍵的設定欄位</strong>！預設的 <code class="font-mono bg-slate-100 px-1 rounded">localhost</code> 只允許資料庫所在的那台電腦自己連線；將其改為萬用字元 <code class="font-mono font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">%</code>，即代表<strong>允許任何 IP 位址的主機</strong>連入此 MySQL 伺服器。
+                            </p>
+                        </div>
+
+                        <div id="inspectorTip" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-700 space-y-1">
+                            <div class="font-semibold text-slate-900 flex items-center space-x-1.5">
+                                <i data-lucide="lightbulb" class="w-4 h-4 text-amber-500"></i>
+                                <span>實務補充技巧：</span>
+                            </div>
+                            <p id="inspectorTipText">
+                                若專題在固定區域網路（例如教室或工廠內網 <code class="font-mono">192.168.1.%</code>），也可以填入 <code class="font-mono">192.168.1.%</code> 來限制只有同網段的 PLC 或電腦可以連入，兼顧便利與資安。
+                            </p>
+                        </div>
+
+                        <!-- Quick Hotspot Selector Pills -->
+                        <div class="pt-2 border-t border-slate-100">
+                            <div class="text-xs text-slate-400 mb-2">快速切換畫面部位解說：</div>
+                            <div class="grid grid-cols-6 gap-1.5">
+                                <button onclick="selectHotspot(1)" id="pill-1" class="hotspot-pill py-1.5 rounded-lg text-xs font-bold border border-slate-200 hover:bg-orange-50 text-slate-700">1</button>
+                                <button onclick="selectHotspot(2)" id="pill-2" class="hotspot-pill py-1.5 rounded-lg text-xs font-bold border border-slate-200 hover:bg-orange-50 text-slate-700">2</button>
+                                <button onclick="selectHotspot(3)" id="pill-3" class="hotspot-pill py-1.5 rounded-lg text-xs font-bold border border-slate-200 hover:bg-orange-50 text-slate-700">3</button>
+                                <button onclick="selectHotspot(4)" id="pill-4" class="hotspot-pill py-1.5 rounded-lg text-xs font-bold border border-slate-200 hover:bg-orange-50 text-slate-700">4</button>
+                                <button onclick="selectHotspot(5)" id="pill-5" class="hotspot-pill py-1.5 rounded-lg text-xs font-bold border border-orange-500 bg-orange-500 text-white">5</button>
+                                <button onclick="selectHotspot(6)" id="pill-6" class="hotspot-pill py-1.5 rounded-lg text-xs font-bold border border-slate-200 hover:bg-orange-50 text-slate-700">6</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Synchronized SQL Preview Card -->
+                    <div class="bg-slate-900 text-slate-100 rounded-xl p-4 shadow-md space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono text-sky-400 flex items-center space-x-1.5">
+                                <i data-lucide="terminal" class="w-4 h-4"></i>
+                                <span>即時對應 SQL 語法預覽</span>
+                            </span>
+                            <button onclick="copyLiveSQL()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded border border-slate-700 flex items-center space-x-1 transition">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                <span id="copyLiveBtnText">複製語法</span>
+                            </button>
+                        </div>
+                        <pre id="liveSqlCode" class="text-xs font-mono bg-slate-950 p-3 rounded-lg overflow-x-auto text-emerald-300 leading-relaxed">-- 儲存設定時 Workbench 執行的等效 SQL：
+ALTER USER 'root'@'%'
+IDENTIFIED WITH caching_sha2_password
+BY 'RootPassword123!';
+
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;</pre>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section 2: Step-by-Step Guide -->
+        <section id="steps-section" class="space-y-6">
+            <div class="border-b border-slate-200 pb-3">
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center space-x-2">
+                    <i data-lucide="list-ordered" class="w-6 h-6 text-sky-600"></i>
+                    <span>標準操作步驟詳解 (Step-by-Step)</span>
+                </h2>
+                <p class="text-sm text-slate-600 mt-1">依照投影片中的設定畫面，在 MySQL Workbench 開放 <code class="font-mono text-slate-800">root</code> 遠端連線只需 4 個步驟：</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- Step 1 -->
+                <div onclick="selectHotspot(1)" class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-sky-400 transition cursor-pointer flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-sky-600 bg-sky-50 px-2.5 py-1 rounded-md">STEP 01</span>
+                            <i data-lucide="mouse-pointer-click" class="w-4 h-4 text-slate-400"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base">進入使用者與權限管理</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            開啟 MySQL Workbench 並連入伺服器（投影片範例連線名稱為 <code class="font-mono text-slate-800">PLC</code>），於左側 <strong>Navigator</strong> 面板的 <strong>MANAGEMENT</strong> 區塊點擊 <strong>Users and Privileges</strong>。
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-sky-600 font-medium flex items-center space-x-1">
+                        <span>對應畫面標記 #1</span>
+                        <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div onclick="selectHotspot(2)" class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-sky-400 transition cursor-pointer flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-sky-600 bg-sky-50 px-2.5 py-1 rounded-md">STEP 02</span>
+                            <i data-lucide="user-plus" class="w-4 h-4 text-slate-400"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base">選取或新增 root 帳號</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            在中間 <strong>User Accounts</strong> 清單檢視 <code class="font-mono text-slate-800">root</code> 帳號的 <strong>From Host</strong> 欄位。若只有 <code class="font-mono">localhost</code>，可點選它直接修改，或點擊下方 <strong>Add Account</strong> 建立遠端專用帳號。
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-sky-600 font-medium flex items-center space-x-1">
+                        <span>對應畫面標記 #2、#3</span>
+                        <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div onclick="selectHotspot(5)" class="bg-white rounded-xl p-5 border-2 border-amber-400 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-1 rounded-md">STEP 03 (核心重點)</span>
+                            <i data-lucide="globe" class="w-4 h-4 text-amber-600"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base">設定萬用字元 <code class="text-amber-600 font-mono">%</code></h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            在右側 <strong>Login</strong> 頁籤中，確認 <strong>Login Name</strong> 為 <code class="font-mono">root</code>，並將 <strong>Limit to Hosts Matching</strong> 改為 <code class="font-mono font-bold text-amber-700 bg-amber-50 px-1 rounded">%</code>（代表允許任何外部 IP 連線）。
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-amber-700 font-semibold flex items-center space-x-1">
+                        <span>對應畫面標記 #5</span>
+                        <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div onclick="selectHotspot(6)" class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-sky-400 transition cursor-pointer flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-sky-600 bg-sky-50 px-2.5 py-1 rounded-md">STEP 04</span>
+                            <i data-lucide="key-round" class="w-4 h-4 text-slate-400"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base">確認密碼、權限並儲存</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            在 <strong>Password</strong> 與 <strong>Confirm Password</strong> 輸入密碼，若為新增帳號請至 <strong>Administrative Roles</strong> 勾選 DBA 權限，最後點擊右下角 <strong>Apply</strong> 即完成。
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-sky-600 font-medium flex items-center space-x-1">
+                        <span>對應畫面標記 #4、#6</span>
+                        <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Key Concepts & SQL Comparison -->
+        <section id="sql-section" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Left 6 cols: Host Wildcards & Authentication Types -->
+            <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i data-lucide="shield-check" class="w-5 h-5 text-sky-600"></i>
+                    <span><code class="font-mono">From Host</code> 萬用字元與驗證方式比較</span>
+                </h3>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                        <thead>
+                            <tr class="border-b-2 border-slate-200 text-slate-700 bg-slate-50">
+                                <th class="py-2.5 px-3 font-semibold">Limit to Hosts 設定值</th>
+                                <th class="py-2.5 px-3 font-semibold">代表意義與適用情境</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            <tr class="bg-amber-50/50">
+                                <td class="py-2.5 px-3 font-mono font-bold text-amber-700">%</td>
+                                <td class="py-2.5 px-3 text-slate-700">
+                                    <strong>允許任何主機連線</strong>（投影片設定值）。適用於專題開發、跨網段測試或浮動 IP 環境。
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 px-3 font-mono font-semibold text-slate-800">localhost / 127.0.0.1</td>
+                                <td class="py-2.5 px-3 text-slate-600">
+                                    <strong>僅允許本機連線</strong>。外部電腦、PLC 或其他設備皆無法連入（例如投影片中的系統預設帳號 <code class="font-mono">mysql.sys</code>）。
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 px-3 font-mono font-semibold text-sky-700">192.168.1.%</td>
+                                <td class="py-2.5 px-3 text-slate-600">
+                                    <strong>允許特定區網段連線</strong>。<code class="font-mono">%</code> 可搭配網段使用，限制僅 <code class="font-mono">192.168.1.0 ~ 255</code> 的設備可連線。
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 px-3 font-mono font-semibold text-emerald-700">192.168.1.10_</td>
+                                <td class="py-2.5 px-3 text-slate-600">
+                                    <strong>單一字元萬用字元 <code class="font-mono">_</code></strong>。代表僅匹配 <code class="font-mono">192.168.1.100</code> ～ <code class="font-mono">192.168.1.109</code>。
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Authentication Plugin Note -->
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2 text-xs sm:text-sm">
+                    <div class="font-bold text-slate-900 flex items-center space-x-2">
+                        <i data-lucide="cpu" class="w-4 h-4 text-sky-600"></i>
+                        <span>為什麼投影片中 Authentication Type 是 <code class="font-mono text-sky-700">caching_sha2_password</code>？</span>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed">
+                        自 <strong>MySQL 8.0</strong> 起，預設的密碼加密驗證外掛改為安全性更高的 <code class="font-mono">caching_sha2_password</code>。若您的專題使用較舊版的 PLC 通訊模組、Node-RED 舊套件或舊版驅動程式連線時出現 <code class="font-mono text-red-600">Authentication plugin 'caching_sha2_password' cannot be loaded</code> 錯誤，可將此下拉選單改為 <strong>Standard (<code class="font-mono">mysql_native_password</code>)</strong>。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right 6 cols: Troubleshooting Checklist when remote connection still fails -->
+            <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i data-lucide="wrench" class="w-5 h-5 text-amber-600"></i>
+                    <span>常見問題排查：設好 <code class="font-mono">root@%</code> 還是連不上？</span>
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-600">
+                    在專題實作中，除了完成投影片的 MySQL 帳號設定外，請勾選檢查以下 3 個環境條件：
+                </p>
+
+                <div class="space-y-3">
+                    <label class="flex items-start space-x-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500">
+                        <div class="text-xs sm:text-sm">
+                            <div class="font-bold text-slate-900">1. Windows 防火牆是否已開放 Port 3306？</div>
+                            <p class="text-slate-600 mt-0.5">
+                                MySQL 預設使用通訊埠 <code class="font-mono font-semibold text-slate-800">3306</code>。請在伺服器電腦的「具有進階安全性的 Windows Defender 防火牆」新增「輸入規則」，允許 TCP 連接埠 <code class="font-mono">3306</code>。
+                            </p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start space-x-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500">
+                        <div class="text-xs sm:text-sm">
+                            <div class="font-bold text-slate-900">2. 兩台設備（如 PLC 與資料庫電腦）是否在同一個網段？</div>
+                            <p class="text-slate-600 mt-0.5">
+                                在命令提示字元 (<code class="font-mono">cmd</code>) 使用 <code class="font-mono bg-slate-100 px-1 rounded">ipconfig</code> 查詢資料庫電腦的 IP 位址，並從遠端電腦執行 <code class="font-mono bg-slate-100 px-1 rounded">ping 資料庫IP</code> 測試網路是否暢通。
+                            </p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start space-x-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500">
+                        <div class="text-xs sm:text-sm">
+                            <div class="font-bold text-slate-900">3. MySQL 設定檔 (<code class="font-mono">my.ini</code> / <code class="font-mono">mysqld.cnf</code>) 的 <code class="font-mono">bind-address</code></div>
+                            <p class="text-slate-600 mt-0.5">
+                                若為 Linux 或特定安裝版本，需確認設定檔中的 <code class="font-mono">bind-address</code> 為 <code class="font-mono font-semibold text-emerald-700">0.0.0.0</code>（不可被綁死在 <code class="font-mono">127.0.0.1</code>）。可透過左側 Navigator 的 <strong>Options File</strong> 檢查。
+                            </p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Interactive Mini Quiz -->
+        <section id="quiz-section" class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                        <i data-lucide="award" class="w-6 h-6 text-amber-500"></i>
+                        <span>課後隨堂測驗 (自我檢核)</span>
+                    </h2>
+                    <p class="text-sm text-slate-600 mt-0.5">透過 3 題選擇題，確認您已掌握投影片中的 MySQL 遠端連線設定重點。</p>
+                </div>
+                <span id="quizScoreBadge" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 self-start sm:self-center">
+                    目前作答進度：0 / 3 題
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Question 1 -->
+                <div class="border border-slate-200 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold text-sky-600">問題 01</span>
+                        <h4 class="font-bold text-slate-900 text-sm">
+                            在 MySQL Workbench 左側的 Navigator 中，要設定使用者允許遠端連線，應點選哪一個項目？
+                        </h4>
+                        <div class="space-y-2 pt-2 text-xs sm:text-sm">
+                            <button onclick="answerQuiz(1, 'A', false)" class="quiz-btn-1 w-full text-left p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">A. Server Status</button>
+                            <button onclick="answerQuiz(1, 'B', true)" class="quiz-btn-1 w-full text-left p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">B. Users and Privileges</button>
+                            <button onclick="answerQuiz(1, 'C', false)" class="quiz-btn-1 w-full text-left p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">C. Data Export</button>
+                        </div>
+                    </div>
+                    <div id="quizFeedback1" class="hidden text-xs p-2.5 rounded-lg"></div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="border border-slate-200 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold text-sky-600">問題 02</span>
+                        <h4 class="font-bold text-slate-900 text-sm">
+                            若要讓 <code class="font-mono">root</code> 帳號允許從「任何外部 IP 位址」進行遠端連線，<strong>Limit to Hosts Matching</strong> 應填入什麼符號？
+                        </h4>
+                        <div class="space-y-2 pt-2 text-xs sm:text-sm">
+                            <button onclick="answerQuiz(2, 'A', false)" class="quiz-btn-2 w-full text-left p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">A. <code class="font-mono">localhost</code></button>
+                            <button onclick="answerQuiz(2, 'B', false)" class="quiz-btn-2 w-full text-left p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">B. <code class="font-mono">_</code> (底線)</button>
+                            <button onclick="answerQuiz(2, 'C', true)" class="quiz-btn-2 w-full text-left p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">C. <code class="font-mono">%</code> (百分比萬用字元)</button>
+                        </div>
+                    </div>
+                    <div id="quizFeedback2" class="hidden text-xs p-2.5 rounded-lg"></div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="border border-slate-200 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold text-sky-600">問題 03</span>
+                        <h4 class="font-bold text-slate-900 text-sm">
+                            觀察投影片中的 User Accounts 清單，除了 <code class="font-mono">root</code> 之外，還有哪一個自訂帳號也開啟了 <code class="font-mono">%</code> 遠端連線？
+                        </h4>
+                        <div class="space-y-2 pt-2 text-xs sm:text-sm">
+                            <button onclick="answerQuiz(3, 'A', true)" class="quiz-btn-3 w-full text-left p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">A. <code class="font-mono">rido</code></button>
+                            <button onclick="answerQuiz(3, 'B', false)" class="quiz-btn-3 w-full text-left p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">B. <code class="font-mono">mysql.session</code></button>
+                            <button onclick="answerQuiz(3, 'C', false)" class="quiz-btn-3 w-full text-left p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">C. <code class="font-mono">mysql.sys</code></button>
+                        </div>
+                    </div>
+                    <div id="quizFeedback3" class="hidden text-xs p-2.5 rounded-lg"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs gap-2">
+            <div>04-01.專題_資料庫_MySQL — <span class="text-slate-200">root 允許遠端連線互動教學網</span></div>
+            <div>提示：可隨時點擊上方模擬器中的欄位測試不同 Host 與加密方式的 SQL 語法變化</div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Hotspot explanatory data matching the PPTX screenshot
+        const hotspotsData = {
+            1: {
+                badge: "重點標記 #1 — Navigator 導覽列",
+                title: "MANAGEMENT ➔ Users and Privileges",
+                desc: "位於 MySQL Workbench 左側 Navigator 面板的 MANAGEMENT（管理）區塊第 3 項。點擊此處可開啟伺服器所有使用者帳號與連線權限的管理分頁。",
+                tip: "若開啟 Workbench 後沒看到此面板，請確認左側邊欄已切換至「Administration」頁籤（而非僅停留在 Schemas 頁籤）。"
+            },
+            2: {
+                badge: "重點標記 #2 — User Accounts 帳號清單",
+                title: "檢視 User 與 From Host 對應關係",
+                desc: "在 MySQL 中，帳號是由「使用者名稱 (User)」加上「來源主機 (From Host)」共同識別的。投影片中可以看到系統預設帳號為 localhost，而 rido 與 root 的 From Host 已設為 %。",
+                tip: "同一組名稱（如 root）可以同時擁有 root@localhost 與 root@% 兩筆紀錄，分別給本機與遠端連線使用。"
+            },
+            3: {
+                badge: "重點標記 #3 — Login Name 登入帳號名稱",
+                title: "Login Name: root",
+                desc: "設定欲登入 MySQL 資料庫的使用者帳號名稱。投影片中設定的是最高權限管理員 root，右側說明也提示您可以建立多個同名但不同來源 Host 的帳號。",
+                tip: "在正式上線的工廠或商務系統中，也可仿照投影片中的 rido 帳號，另外建立專供 PLC 或應用程式讀寫特定資料表的專屬帳號。"
+            },
+            4: {
+                badge: "重點標記 #4 — Authentication Type 驗證類型",
+                title: "Authentication Type: caching_sha2_password",
+                desc: "MySQL 8.0 預設採用 caching_sha2_password 進行密碼雜湊驗證，提供比早期版本更高的安全性。",
+                tip: "若遠端連線的客戶端（例如舊版 PLC 模組、舊版 PHP/Python 連接器）不支援 SHA2 快取驗證，可將此處改為 Standard (mysql_native_password)。"
+            },
+            5: {
+                badge: "重點標記 #5 — 遠端連線關鍵設定",
+                title: "Limit to Hosts Matching: %",
+                desc: "這是允許遠端連線最關鍵的設定欄位！預設的 localhost 只允許本機連線；將其改為萬用字元 %，即代表允許任何 IP 位址的主機連入此 MySQL 伺服器。",
+                tip: "欄位右側提示「% and _ wildcards may be used」：% 代表任意長度字元，_ 代表單一字元（例如 192.168.1.% 僅允許該區網段）。"
+            },
+            6: {
+                badge: "重點標記 #6 — Password 密碼設定與確認",
+                title: "Password & Confirm Password",
+                desc: "設定或重設該遠端帳號的登入密碼。紅字提醒建議使用 8 個字元以上，並混合大小寫英文字母、數字與標點符號以保護遠端開放後的資料庫安全。",
+                tip: "輸入完成後，務必點擊畫面右下角的「Apply」按鈕，設定才會真正寫入 MySQL 的 mysql.user 系統資料表中！"
+            }
+        };
+
+        let currentHotspot = 5;
+        let simulatorMode = 'explore'; // 'explore' or 'practice'
+
+        function selectHotspot(id) {
+            currentHotspot = id;
+            const data = hotspotsData[id];
+            if (!data) return;
+
+            document.getElementById('inspectorBadge').textContent = data.badge;
+            document.getElementById('inspectorTitle').textContent = data.title;
+            document.getElementById('inspectorDesc').textContent = data.desc;
+            document.getElementById('inspectorTipText').textContent = data.tip;
+
+            // Update pill button highlights
+            for (let i = 1; i <= 6; i++) {
+                const pill = document.getElementById(`pill-${i}`);
+                if (i === id) {
+                    pill.className = "hotspot-pill py-1.5 rounded-lg text-xs font-bold border border-orange-500 bg-orange-500 text-white transition";
+                } else {
+                    pill.className = "hotspot-pill py-1.5 rounded-lg text-xs font-bold border border-slate-200 hover:bg-orange-50 text-slate-700 transition";
+                }
+            }
+        }
+
+        function prevHotspot() {
+            const next = currentHotspot <= 1 ? 6 : currentHotspot - 1;
+            selectHotspot(next);
+        }
+
+        function nextHotspot() {
+            const next = currentHotspot >= 6 ? 1 : currentHotspot + 1;
+            selectHotspot(next);
+        }
+
+        // Sync Live SQL Code Box with Workbench Form Inputs
+        function syncLiveSQL() {
+            const loginName = document.getElementById('wbLoginInput').value.trim() || 'root';
+            const authType = document.getElementById('wbAuthSelect').value;
+            const hostVal = document.getElementById('wbHostInput').value.trim() || 'localhost';
+            const passVal = document.getElementById('wbPassInput').value || 'your_password';
+
+            // Update header & table row in Workbench UI
+            document.getElementById('wbDetailsHeader').textContent = `Details for account ${loginName}@${hostVal}`;
+            document.getElementById('rootRowName').textContent = loginName;
+            document.getElementById('rootRowHost').textContent = hostVal;
+
+            const sqlText = `-- 儲存設定時 Workbench 執行的等效 SQL：
+ALTER USER '${loginName}'@'${hostVal}'
+IDENTIFIED WITH ${authType}
+BY '${passVal}';
+
+GRANT ALL PRIVILEGES ON *.* TO '${loginName}'@'${hostVal}' WITH GRANT OPTION;
+FLUSH PRIVILEGES;`;
+
+            document.getElementById('liveSqlCode').textContent = sqlText;
+        }
+
+        function selectAccountRow(user, host) {
+            document.getElementById('wbLoginInput').value = user;
+            document.getElementById('wbHostInput').value = host;
+            syncLiveSQL();
+        }
+
+        function addAccountHelper() {
+            document.getElementById('wbLoginInput').value = 'root';
+            document.getElementById('wbHostInput').value = '%';
+            document.getElementById('wbPassInput').value = '';
+            document.getElementById('wbConfirmInput').value = '';
+            syncLiveSQL();
+            showSimToast('已準備新增帳號表單，請確認 Limit to Hosts Matching 為 % 並輸入密碼後點擊 Apply。', 'info');
+        }
+
+        function switchWbSubTab(tab) {
+            const loginContent = document.getElementById('wbTabLoginContent');
+            const otherContent = document.getElementById('wbTabOtherContent');
+            const tabs = {
+                login: document.getElementById('subTabLogin'),
+                limits: document.getElementById('subTabLimits'),
+                roles: document.getElementById('subTabRoles'),
+                schema: document.getElementById('subTabSchema')
+            };
+
+            Object.values(tabs).forEach(btn => {
+                btn.className = "px-2 py-1 text-slate-600 hover:text-slate-900";
+            });
+            tabs[tab].className = "px-2.5 py-1 bg-white border-t border-l border-r border-slate-300 font-semibold text-slate-900 -mb-px";
+
+            if (tab === 'login') {
+                loginContent.classList.remove('hidden');
+                otherContent.classList.add('hidden');
+            } else {
+                loginContent.classList.add('hidden');
+                otherContent.classList.remove('hidden');
+                const titleEl = document.getElementById('wbOtherTitle');
+                const descEl = document.getElementById('wbOtherDesc');
+                if (tab === 'limits') {
+                    titleEl.textContent = 'Account Limits (帳號連線與查詢次數限制)';
+                    descEl.textContent = '可限制每小時最大查詢數、更新數與最大同時連線數。一般專題維持預設 0（無限制）即可。';
+                } else if (tab === 'roles') {
+                    titleEl.textContent = 'Administrative Roles (伺服器管理角色)';
+                    descEl.textContent = '若您是透過「Add Account」新增一個全新的 root@% 帳號，請務必在此頁籤勾選「DBA」，讓遠端 root 具備完整管理權限。';
+                } else {
+                    titleEl.textContent = 'Schema Privileges (特定資料庫權限)';
+                    descEl.textContent = '可針對單一資料庫 (Schema) 授權給特定使用者，適合限制專題中特定設備只能存取指定資料庫。';
+                }
+            }
+        }
+
+        // Practice Mode vs Explore Mode
+        function setSimulatorMode(mode) {
+            simulatorMode = mode;
+            const exploreBtn = document.getElementById('modeExploreBtn');
+            const practiceBtn = document.getElementById('modePracticeBtn');
+            const banner = document.getElementById('practiceBanner');
+
+            if (mode === 'practice') {
+                practiceBtn.className = "px-4 py-1.5 rounded-lg text-sm font-medium bg-white text-slate-900 shadow-sm transition";
+                exploreBtn.className = "px-4 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition";
+                banner.classList.remove('hidden');
+                resetPractice();
+            } else {
+                exploreBtn.className = "px-4 py-1.5 rounded-lg text-sm font-medium bg-white text-slate-900 shadow-sm transition";
+                practiceBtn.className = "px-4 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition";
+                banner.classList.add('hidden');
+                document.getElementById('wbLoginInput').value = 'root';
+                document.getElementById('wbAuthSelect').value = 'caching_sha2_password';
+                document.getElementById('wbHostInput').value = '%';
+                document.getElementById('wbPassInput').value = 'RootPassword123!';
+                document.getElementById('wbConfirmInput').value = 'RootPassword123!';
+                syncLiveSQL();
+                showSimToast('已恢復為投影片標準設定預覽。', 'success');
+            }
+        }
+
+        function startPracticeMode() {
+            document.getElementById('simulator-section').scrollIntoView({ behavior: 'smooth' });
+            setSimulatorMode('practice');
+        }
+
+        function resetPractice() {
+            switchWbSubTab('login');
+            document.getElementById('wbLoginInput').value = 'root';
+            document.getElementById('wbAuthSelect').value = 'caching_sha2_password';
+            document.getElementById('wbHostInput').value = 'localhost';
+            document.getElementById('wbPassInput').value = '';
+            document.getElementById('wbConfirmInput').value = '';
+            syncLiveSQL();
+            showSimToast('練習開始：目前 root 僅允許 localhost 連線，請改為允許遠端連線 (%) 並設定密碼後按 Apply！', 'info');
+        }
+
+        function handleNavigatorUsersClick() {
+            selectHotspot(1);
+            if (simulatorMode === 'practice') {
+                showSimToast('步驟 1 完成：已開啟 Users and Privileges，請接著修改右側 Limit to Hosts Matching 為 %。', 'info');
+            }
+        }
+
+        function handleApplySettings() {
+            const loginName = document.getElementById('wbLoginInput').value.trim();
+            const hostVal = document.getElementById('wbHostInput').value.trim();
+            const passVal = document.getElementById('wbPassInput').value;
+            const confirmVal = document.getElementById('wbConfirmInput').value;
+
+            if (loginName !== 'root') {
+                showSimToast('⚠️ 請將 Login Name 設為 root 以符合投影片目標。', 'error');
+                return;
+            }
+            if (hostVal !== '%') {
+                showSimToast('⚠️ Limit to Hosts Matching 目前為 "' + hostVal + '"，請改為 "%" 才能允許所有遠端 IP 連線！', 'error');
+                document.getElementById('wbHostInput').focus();
+                return;
+            }
+            if (!passVal || passVal.length < 8) {
+                showSimToast('⚠️ 請輸入至少 8 個字元的密碼（Password 欄位）。', 'error');
+                document.getElementById('wbPassInput').focus();
+                return;
+            }
+            if (passVal !== confirmVal) {
+                showSimToast('⚠️ Password 與 Confirm Password 兩次輸入的密碼不一致！', 'error');
+                document.getElementById('wbConfirmInput').focus();
+                return;
+            }
+
+            syncLiveSQL();
+            showSimToast('🎉 恭喜完成！root@% 遠端連線設定已成功套用 (Applied)！', 'success');
+        }
+
+        function showSimToast(msg, type) {
+            const el = document.getElementById('simFeedbackMsg');
+            el.textContent = msg;
+            if (type === 'error') {
+                el.className = "text-xs font-semibold text-red-600";
+            } else if (type === 'info') {
+                el.className = "text-xs font-medium text-sky-700";
+            } else {
+                el.className = "text-xs font-bold text-emerald-700";
+            }
+        }
+
+        function copyLiveSQL() {
+            const code = document.getElementById('liveSqlCode').textContent;
+            const temp = document.createElement('textarea');
+            temp.value = code;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+
+            const btnText = document.getElementById('copyLiveBtnText');
+            btnText.textContent = '已複製！';
+            setTimeout(() => {
+                btnText.textContent = '複製語法';
+            }, 2000);
+        }
+
+        // Quiz Logic
+        const quizState = { 1: false, 2: false, 3: false };
+
+        function answerQuiz(qNum, choice, isCorrect) {
+            const feedbackEl = document.getElementById(`quizFeedback${qNum}`);
+            const buttons = document.querySelectorAll(`.quiz-btn-${qNum}`);
+
+            buttons.forEach(btn => {
+                btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'border-red-400', 'bg-red-50');
+            });
+
+            feedbackEl.classList.remove('hidden');
+            if (isCorrect) {
+                quizState[qNum] = true;
+                feedbackEl.className = "text-xs p-2.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium";
+                feedbackEl.textContent = `✅ 答對了！(${choice}) 完全正確。`;
+            } else {
+                quizState[qNum] = false;
+                feedbackEl.className = "text-xs p-2.5 rounded-lg bg-red-50 text-red-800 border border-red-200 font-medium";
+                feedbackEl.textContent = `❌ 再試一次！請對照上方投影片模擬器查看正確欄位。`;
+            }
+
+            const correctCount = Object.values(quizState).filter(Boolean).length;
+            const scoreBadge = document.getElementById('quizScoreBadge');
+            scoreBadge.textContent = `目前答對：${correctCount} / 3 題`;
+            if (correctCount === 3) {
+                scoreBadge.className = "text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 self-start sm:self-center";
+            }
+        }
+    </script>
+</body>
+</html>
