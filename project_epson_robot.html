@@ -22,6 +22,16 @@
       --robot-emerald: #10b981;
     }
 
+    /* 圖片點選放大游標與效果 */
+    .project-page-container img {
+      cursor: zoom-in;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .project-page-container img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px rgba(6, 182, 212, 0.25);
+    }
+
     /* 專題切換頁籤導覽列 (六大專題切換) */
     .project-tabs-nav {
       display: flex;
@@ -1437,7 +1447,58 @@ Fend`;
       calculateFK();
       generateSPEL();
       calculateIK();
+      initImageLightbox();
     });
+
+    // 圖片點擊放大 (Lightbox)
+    function initImageLightbox() {
+      const lbModal = document.getElementById('imageLightboxModal');
+      const lbImg = document.getElementById('imageLightboxImg');
+      const lbCaption = document.getElementById('imageLightboxCaption');
+      const lbClose = document.getElementById('imageLightboxClose');
+
+      function openLightbox(src, alt) {
+        lbImg.src = src;
+        lbCaption.textContent = alt || '圖片放大檢視';
+        lbModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeLightbox() {
+        lbModal.style.display = 'none';
+        lbImg.src = '';
+        document.body.style.overflow = '';
+      }
+
+      document.querySelectorAll('.project-page-container img').forEach(img => {
+        img.title = img.title || '點擊放大圖片檢視細節';
+        img.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openLightbox(img.src, img.alt);
+        });
+      });
+
+      lbClose.addEventListener('click', closeLightbox);
+      lbModal.addEventListener('click', (e) => {
+        if (e.target === lbModal || e.target === lbClose) {
+          closeLightbox();
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lbModal.style.display === 'flex') {
+          closeLightbox();
+        }
+      });
+    }
   </script>
+
+  <!-- Lightbox 圖片放大檢視 Modal -->
+  <div id="imageLightboxModal" style="display:none; position:fixed; z-index:99999; top:0; left:0; width:100vw; height:100vh; background:rgba(3, 7, 18, 0.92); backdrop-filter:blur(8px); justify-content:center; align-items:center; flex-direction:column; padding:20px; box-sizing:border-box;">
+    <div style="position:relative; max-width:92vw; max-height:88vh; display:flex; flex-direction:column; align-items:center;">
+      <button id="imageLightboxClose" aria-label="關閉" style="position:absolute; top:-40px; right:0; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; font-size:1.5rem; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;">&times;</button>
+      <img id="imageLightboxImg" src="" alt="放大圖片" style="max-width:92vw; max-height:80vh; object-fit:contain; border-radius:8px; box-shadow:0 20px 50px rgba(0,0,0,0.85); border:1px solid rgba(6, 182, 212, 0.35); background:#0b0f19;">
+      <div id="imageLightboxCaption" style="margin-top:14px; color:#e2e8f0; font-size:0.95rem; font-weight:500; text-align:center; max-width:85vw; background:rgba(15,23,42,0.85); padding:6px 18px; border-radius:20px; border:1px solid rgba(6, 182, 212, 0.25);"></div>
+    </div>
+  </div>
 </body>
 </html>
