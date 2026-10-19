@@ -468,6 +468,40 @@
       <!-- 專題實作擴充教材：六大主題獨立互動系統 -->
       <div class="interactive-manuals-container" style="margin-top: 35px; width: 100%; max-width: 1100px; margin-left: auto; margin-right: auto; text-align: left;">
         
+        <!-- 全球機器人格局與五大機構形態展示 (投影片 01 Slide 6~14) -->
+        <div style="margin-bottom: 28px; background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 16px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="background: rgba(6, 182, 212, 0.15); color: #06b6d4; font-size: 0.75rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(6, 182, 212, 0.3);">
+                工業機器人全景視野
+              </span>
+              <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 0;">
+                <i class="fa-solid fa-industry" style="color: #06b6d4;"></i> 五大工業機器人機構形態與全球四大廠 (Big Four)
+              </h3>
+            </div>
+            <span style="color: #64748b; font-size: 0.75rem; font-family: monospace;">Epson Robot Overview</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: center; margin-top: 14px;">
+            <div>
+              <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6; margin-bottom: 12px;">
+                工業機器人依機構剛性、自由度與工作空間分為<strong>五大基本形態</strong>：
+              </p>
+              <ul style="padding-left: 20px; font-size: 0.84rem; color: #94a3b8; line-height: 1.6; margin: 0;">
+                <li><strong>單軸機器人 (Single-Axis)</strong>：滾珠螺桿或皮帶驅動之基礎線性模組。</li>
+                <li><strong>笛卡兒直角坐標 (Cartesian/Gantry)</strong>：正交 X-Y-Z 軸，運動學直觀，負載大且行程容易擴展。</li>
+                <li><strong>水平多關節 SCARA</strong>：垂直 Z 軸高剛性、水平 X-Y 平面具順應性微調，速度極快，為 3C 組裝霸主。</li>
+                <li><strong>並聯機器人 (DELTA / Spider)</strong>：驅動源在頂座，連桿極致輕量化，加速度達 10G~15G，專注食品醫藥高速挑揀。</li>
+                <li><strong>垂直多關節 (Articulated 6-Axis)</strong>：擬人手臂 6 自由度，空間姿態最靈活，應用於汽車焊接、噴塗與大型搬運。</li>
+              </ul>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; text-align: center;">
+              <img src="images_src/epson_robot/big_four_robotics.png" alt="全球四大工業機器人大廠 ABB FANUC YASKAWA KUKA" style="max-width: 100%; height: 140px; object-fit: contain; display: block; margin: 0 auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));">
+              <span style="font-size: 0.72rem; color: #94a3b8; display: block; margin-top: 8px;">全球四大工業機器人巨頭 (ABB、發那科 FANUC、安川 YASKAWA、庫卡 KUKA) 與 SCARA 霸主 Epson</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 重點推薦：3D 數位孿生與 G-Code 軌跡工作台 (Web 模擬器) -->
         <div style="margin-bottom: 28px; background: linear-gradient(135deg, rgba(79, 70, 229, 0.22) 0%, rgba(6, 182, 212, 0.22) 100%); border: 2px solid rgba(6, 182, 212, 0.5); border-radius: 16px; padding: 24px; box-shadow: 0 15px 35px rgba(6, 182, 212, 0.15); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;">
           <div style="flex: 1 1 500px;">
@@ -780,55 +814,354 @@
       </div>
     </section>
 
-    <!-- 區塊三：運動學核心 (FK vs IK) 與奇點解析 -->
+    <!-- 深度模組二：機器人多重座標系全景剖析與外部控制點 ECP 異形點膠實務 (投影片 01 Slide 15~24, 79~89) -->
+    <section class="project-content-block">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-crosshairs" style="color: #06b6d4;"></i>
+        <h3>座標系統深論：多重座標系 (World/Joint/Tool/Local) 與外部控制點 (ECP) 點膠應用</h3>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        在工業應用中，不同的工序必須使用最適配的參考坐標系。Epson RC+ 支援完整的座標轉換體系，特別是高階<strong>外部控制點 (ECP)</strong> 更是解決異形工件精密點膠與打磨的關鍵利器：
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <!-- 卡片 1: 機器人原生座標系 vs 工具座標系 -->
+        <div class="text-card-glow">
+          <h4 style="color: #06b6d4; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-arrows-to-dot"></i> Base/World 原生座標 vs Tool 工具座標系
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/scara_coords.png" alt="SCARA 座標系 X-Y-Z-U" style="max-width: 100%; height: 105px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">SCARA: X, Y, Z 平移 + U 旋轉</span>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/six_axis_coords.png" alt="6軸垂直多關節座標系" style="max-width: 100%; height: 105px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">6-Axis: X,Y,Z + 姿態角 Roll,Pitch,Yaw</span>
+            </div>
+          </div>
+          <ul style="padding-left: 20px; font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+            <li><strong>World 座標系</strong>：以手臂本體基座中心為原點 $(0,0,0)$，為全域絕對空間參考點。</li>
+            <li><strong>Joint 關節座標系</strong>：直接讀取與控制各伺服馬達轉角 $(\text{deg})$ 或螺桿行程 $(\text{mm})$。</li>
+            <li><strong>Tool 工具座標系</strong>：原點設在手臂末端夾爪或吸盤尖端 (TCP)。當工具傾斜時，沿 Tool Z 軸推進即可實現「直進直退」。</li>
+            <li><strong>Local 局部座標系</strong>：為傾斜擺放的料盤建立獨立參考系，只需定義原點、X軸與Y軸，程式碼即可免改座標直接套用！</li>
+          </ul>
+        </div>
+
+        <!-- 卡片 2: ECP (External Control Point) 外部控制點突破性原理 -->
+        <div class="text-card-glow">
+          <h4 style="color: #38bdf8; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-syringe"></i> ECP (外部控制點) 與高階點膠應用 (Slide 17, 79~89)
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/ecp_concept_diagram.png" alt="ECP 外部控制點概念" style="max-width: 100%; height: 105px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">ECP 概念：工具固定於桌台・工件在手臂移動</span>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/ecp_dispensing_trajectory.png" alt="ECP 點膠軌跡" style="max-width: 100%; height: 105px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">工件繞固定注射筒針尖走連續圓弧軌跡</span>
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 8px;">
+            <strong>傳統方式 vs ECP 外部控制點方式：</strong>
+          </p>
+          <ul style="padding-left: 20px; font-size: 0.83rem; color: #cbd5e1; line-height: 1.5; margin: 0;">
+            <li><strong>傳統模式</strong>：點膠閥裝在手臂末端隨機台移動，工件固定在工作台。缺點是膠閥與供膠管線晃動拉扯，容易斷膠且重量負載大。</li>
+            <li><strong>ECP 模式 (外部控制點)</strong>：<strong>點膠閥固定於工作台上，機械手臂夾持工件移動去接觸針尖！</strong></li>
+            <li>透過 <code>ECPSet 1, x, y, z, u, v, w</code> 定義外部固定針尖為 ECP 原點，後續指令直接以 <code>Move P1 /ECP 1</code> 走直線或 <code>Arc P2, P3 /ECP 1</code> 走圓弧，工件表面相對於固定針尖保持恆定線速度與切線方向，徹底解決 3D 異形外殼點膠痛點！</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊三：運動學核心 (FK vs IK) 與三大奇點深入剖析 (投影片 01 Slide 31~66) -->
     <section class="project-content-block">
       <div class="section-title-wrap">
         <i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i>
-        <h3>運動學核心：順逆運動學 (FK/IK) 與奇點 (Singularity) 避障</h3>
+        <h3>運動學核心：順逆運動學 (FK/IK)、手臂姿態 (Righty/Lefty) 與三大奇點 (Singularity) 避障</h3>
       </div>
       <p style="color: var(--text-muted); margin-bottom: 20px;">
-        機械手臂不是只要馬達會轉就好，理解其背後的數學原理是進階工程師的關鍵門檻：
+        機械手臂在空間中的運動本質是幾何與矩陣運算。深入理解<strong>姿態旗標 (Orientation)</strong> 與<strong>奇異點 (Singularity)</strong> 是預防產線撞機、伺服過載跳脫與軌跡畸變的必備核心能力：
       </p>
 
-      <div class="project-grid-two">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <!-- 卡片 1: 順向運動學 vs 逆向運動學與 SCARA 姿態旗標 -->
         <div class="text-card-glow">
-          <h4><i class="fa-solid fa-arrows-split-up-and-left"></i> 1. 順向運動學 (FK) vs 逆向運動學 (IK)</h4>
-          <table class="fx-table" style="font-size: 0.82rem; margin: 10px 0;">
+          <h4 style="color: #06b6d4; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-arrows-split-up-and-left"></i> 順逆運動學與 SCARA 姿態旗標 (/R vs /L)
+          </h4>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 8px; margin-bottom: 12px; text-align: center;">
+            <img src="images_src/epson_robot/scara_orientation_righty_lefty.png" alt="SCARA 手臂右手方向與左手方向姿態" style="max-width: 100%; height: 120px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">SCARA 手臂姿態旗標：右手方向 (/R Righty) vs 左手方向 (/L Lefty)</span>
+          </div>
+          <table class="fx-table" style="font-size: 0.8rem; margin: 8px 0;">
             <tr><th>比較項目</th><th>順向運動學 (FK)</th><th>逆向運動學 (IK)</th></tr>
             <tr>
               <td><strong>已知條件</strong></td>
-              <td>各關節轉角 \((\theta_1, \theta_2, ...)\)</td>
-              <td>末端夾爪目標座標 \((X, Y, Z, U)\)</td>
+              <td>各關節轉角 \((\theta_1, \theta_2, \dots)\)</td>
+              <td>目標座標 \((X, Y, Z, U)\)</td>
             </tr>
             <tr>
-              <td><strong>求解目標</strong></td>
-              <td>末端在空間中的座標 \((X, Y, Z)\)</td>
-              <td>各馬達應轉動的角度 \((\theta_1, \theta_2)\)</td>
-            </tr>
-            <tr>
-              <td><strong>數學解性</strong></td>
-              <td><strong>唯一解</strong>（角度確定，位置必唯一）</td>
-              <td><strong>多解性或無解</strong>（左手系/右手系兩組解）</td>
-            </tr>
-            <tr>
-              <td><strong>實務應用</strong></td>
-              <td>模擬器繪製手臂即時姿態</td>
-              <td>視覺相機給座標，手臂自動算轉角</td>
+              <td><strong>解的特性</strong></td>
+              <td><strong>唯一解</strong>（角度確定則位置必唯一）</td>
+              <td><strong>多解性或無解</strong>（通常有 2 組解）</td>
             </tr>
           </table>
+          <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5; margin: 8px 0 0 0;">
+            <strong>手臂姿態旗標重要性</strong>：當指定末端到達 $(X,Y)$ 時，手臂可以「關節向右凸出 (/R)」或「關節向左凸出 (/L)」兩種姿態到達。在點位中必須精確指定姿態（如 <code>P1 = XY(200, 150, -20, 0) /R</code>），避免手臂在運動過程中為了切換姿態而與側邊機構發生干涉碰撞！
+          </p>
         </div>
 
+        <!-- 卡片 2: 六軸機械手臂三大奇異點剖析 (Slide 58~60) -->
         <div class="text-card-glow">
-          <h4><i class="fa-solid fa-skull-crossbones" style="color: #f87171;"></i> 2. 機械手臂奇點 (Singularity) 的致命威脅</h4>
-          <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.7;">
-            當手臂伸直到最極限（臂展全平），或腕部兩軸重疊共線時，雅可比矩陣的行列式等於零 \(\det(J) = 0\)。此時會產生<strong>奇點</strong>：
-          </p>
-          <div class="guideline-alert-box caution" style="margin: 10px 0; padding: 12px 14px;">
-            <i class="fa-solid fa-triangle-exclamation"></i> <strong>奇點後果</strong>：手臂在該方向失去自由度；逆向運動學解出馬達需要「無限大的角速度」才能維持直線軌跡，造成伺服過載跳脫或手臂劇烈震顫！
+          <h4 style="color: #f87171; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-skull-crossbones"></i> 6 軸機械手臂三大奇異點 (Singularity)
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/wrist_singularity.jpg" alt="腕關節奇異點" style="max-width: 100%; height: 80px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.65rem; color: #f87171; display: block; margin-top: 4px;">1. 腕關節奇點 (J4與J6共線)</span>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/shoulder_singularity.png" alt="肩關節奇異點" style="max-width: 100%; height: 80px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.65rem; color: #f87171; display: block; margin-top: 4px;">2. 肩關節奇點 (腕在J1旋轉軸上)</span>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/elbow_singularity.jpg" alt="肘關節奇異點" style="max-width: 100%; height: 80px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.65rem; color: #f87171; display: block; margin-top: 4px;">3. 肘關節奇點 (手臂拉伸至全平)</span>
+            </div>
           </div>
-          <p style="font-size: 0.84rem; color: #94a3b8;">
-            <strong>工控避障策略</strong>：在教導點位時，嚴禁設定在大臂小臂夾角接近 0&deg; 或 180&deg; 的邊界，並在軟體中開啟奇點平滑過渡（Singularity Avoidance）。
+          <p style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 8px;">
+            <strong>數學本質：雅可比矩陣奇異（$\det(J) = 0$）</strong>。
           </p>
+          <ul style="padding-left: 18px; font-size: 0.82rem; color: #cbd5e1; line-height: 1.5; margin: 0;">
+            <li><strong>腕關節奇異點</strong>：第 4 軸與第 6 軸同軸共線（第 5 軸角度為 $0^\circ$），末端微小旋轉要求 4、6 軸以無窮大角速度逆向旋轉！</li>
+            <li><strong>肩關節奇異點</strong>：手腕中心點剛好落在第 1 軸旋轉中心軸線上，手臂失去向側面平移的能力。</li>
+            <li><strong>肘關節奇異點</strong>：手臂完全伸直（大臂與小臂夾角 $180^\circ$）或完全折疊，到達機械工作半徑邊界。</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 奇點避障策略：軟體關節空間過渡 vs 七軸冗餘手臂 (Slide 63~65) -->
+      <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 20px;">
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: center;">
+          <div>
+            <h4 style="color: #34d399; margin: 0 0 10px 0; font-size: 1.05rem;">
+              <i class="fa-solid fa-shield-halved"></i> 工業避奇點兩大主流策略
+            </h4>
+            <ul style="padding-left: 20px; font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+              <li><strong>策略一：修改運動指令為關節插補 (Move ➔ Go / MoveJ)</strong><br>
+                直線插補 (Move/MoveL) 在穿越奇點時會因關節速度發散而劇烈震動並停機；改用關節空間插補 (Go/MoveJ) 讓各軸馬達按自身角度平滑旋轉，即可無縫穿越奇點區域！
+              </li>
+              <li><strong>策略二：導入七軸冗餘機器人 (7-Axis Redundant Robot)</strong><br>
+                如 Yaskawa SIA 系列七軸手臂。在傳統 6 軸基礎上<strong>額外增加第 7 個旋轉關節</strong>，使機構擁有多餘的自由度（Null Space）。機械手臂可在保持末端工具中心點 (TCP) 空間位置與姿態完全不動的前提下，自由擺動手肘 (Arm Angle) 避開障礙物與內部奇異點！
+              </li>
+            </ul>
+          </div>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; text-align: center;">
+            <img src="images_src/epson_robot/seven_axis_redundant_robot.png" alt="七軸冗餘機械手臂 Motoman SIA" style="max-width: 100%; height: 130px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 6px;">七軸冗餘手臂 (Redundant Robot)：增加 1 軸自由度，徹底消除奇異點拘束</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 深度模組四：C# 透過 RCAPINet.dll 控制二次開發實戰 (投影片 02 Slide 1~26) -->
+    <section class="project-content-block">
+      <div class="section-title-wrap">
+        <i class="fa-brands fa-microsoft" style="color: #c084fc;"></i>
+        <h3>PC-Based 二次開發：C# 透過 RCAPINet.dll 集中控制 Epson 機械手臂</h3>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        在現代智慧自動化產線中，上位工控機 (IPC) 通常以 C# 整合工業相機視覺、MES 製造系統與 Epson 機械手臂。Epson 官方提供 <strong>RCAPINet.dll (.NET API)</strong>，讓開發者直接在 Visual Studio C# 中呼叫底層 RC+ 伺服器核心：
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <!-- 卡片 1: 專案建置與 RCAPINet 引用 -->
+        <div class="text-card-glow">
+          <h4 style="color: #c084fc; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-file-import"></i> 專案建置與 RCAPINet.dll 引用 (Slide 3~6)
+          </h4>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center; margin-bottom: 12px;">
+            <img src="images_src/epson_robot/csharp_rcapinet_reference.png" alt="C# 引用 RCAPINet.dll" style="max-width: 100%; height: 110px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">加入參考：Windows GAC 或 RC+ 安裝路徑下的 RCAPINet.dll</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 8px;">
+            建立 Windows Forms App (.NET Framework)，在專案中加入 <code>RCAPINet.dll</code> 參考。核心控制物件為 <code>Spel</code> 類別，封裝了所有底層通訊與運動命令：
+          </p>
+          <div class="code-block-dark" style="font-size: 0.8rem; margin: 0;">
+            <code>using RCAPINet;
+
+private Spel m_spel;
+
+private void Form1_Load(object sender, EventArgs e) {
+    m_spel = new Spel();
+    m_spel.ServerWinHandle = this.Handle.ToInt32();
+    m_spel.Initialize(); // 初始化 EPSON RC+ 伺服器程序
+    
+    // 載入 RC+ 專案
+    m_spel.Project = @"C:\EpsonRC70\Projects\VisualPick\VisualPick.sprj";
+    
+    // 開啟伺服激磁並切換至高功率 (High Power)
+    m_spel.MotorsOn = true;
+    m_spel.PowerHigh = true;
+}</code>
+          </div>
+        </div>
+
+        <!-- 卡片 2: Spel 核心方法與即時位置回讀 -->
+        <div class="text-card-glow">
+          <h4 style="color: #38bdf8; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-code"></i> Spel 核心運動方法與 GetRobotPos (Slide 6~14)
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/csharp_spel_methods.png" alt="C# Spel 類別運動方法" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.65rem; color: #94a3b8; display: block; margin-top: 4px;">Spel 類別方法與參數</span>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/csharp_getrobotpos.png" alt="GetRobotPos 方法讀取座標" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.65rem; color: #94a3b8; display: block; margin-top: 4px;">GetRobotPos 即時讀取座標</span>
+            </div>
+          </div>
+          <div class="code-block-dark" style="font-size: 0.8rem; margin: 0;">
+            <code>// 1. 點對點與直線運動
+m_spel.Go("P1");                  // PTP 運動至 P1
+m_spel.Move("P2");                // 線性插補直線運動至 P2
+m_spel.Jump("P3");                // 門型動作取放至 P3
+
+// 2. 相對移動：JTran (相對關節) / PTran (相對空間點)
+m_spel.JTran(1, 15.0f);           // 第 1 關節相對轉動 +15 度
+m_spel.PTran(10.0f, 0, -5.0f, 0); // X+10mm, Z-5mm 相對位移
+
+// 3. 即時讀取目前末端空間座標與姿態
+SpelPoint curPos = m_spel.GetRobotPos(SpelRobotPosType.World);
+Console.WriteLine($"目前座標: X={curPos.X}, Y={curPos.Y}, Z={curPos.Z}, U={curPos.U}");</code>
+          </div>
+        </div>
+
+        <!-- 卡片 3: 非同步模式 (AsyncMode) 與例外排查 (Slide 9~10, 23~26) -->
+        <div class="text-card-glow">
+          <h4 style="color: #fbbf24; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-triangle-exclamation"></i> 非同步模式 (AsyncMode) 與例外排查 (Slide 9, 23)
+          </h4>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center; margin-bottom: 12px;">
+            <img src="images_src/epson_robot/csharp_spelexception_1808.png" alt="SpelException 錯誤 1808 排查" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.68rem; color: #fbbf24; display: block; margin-top: 4px;">SpelException：Error 1808 未安裝選項 / Error 10007 項目不存在</span>
+          </div>
+          <ul style="padding-left: 20px; font-size: 0.83rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
+            <li><strong>同步 vs 非同步模式</strong>：預設為同步呼叫，手臂動作未完成前 UI 介面會暫時卡住。若設定 <code>m_spel.AsyncMode = true;</code>，呼叫 <code>Go("P1")</code> 會立即返回，主線程可繼續刷新相機影像，並由 <code>m_spel.WaitCommandComplete();</code> 或 <code>EventReceived</code> 事件監聽完成通知！</li>
+            <li><strong>常規異常排查</strong>：
+              <ul style="padding-left: 16px; margin-top: 4px;">
+                <li><strong>Error 1808 (未安裝選項)</strong>：呼叫了未購買許可證的高階選件（如某些外部視覺追隨套件）。</li>
+                <li><strong>Error 10007 (項目不存在)</strong>：呼叫了點位檔中未定義的點（如 <code>Go("P99")</code> 而 P99 未示教）。</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 深度模組五：Epson LS3-401S 實體手臂、RC90 控制器與無電池馬達技術維護 (投影片 03 Slide 1~45) -->
+    <section class="project-content-block">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-screwdriver-wrench" style="color: #10b981;"></i>
+        <h3>機台實務與維護：Epson LS3-401S SCARA 手臂、RC90 控制器與無電池馬達革命</h3>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        在工廠自動化現場，機械手臂的硬體保養與控制器配線決定了產線的稼動率 (OEE)。本節彙整職訓教室與工廠最常見的 <strong>Epson LS3-401S + RC90 系統</strong> 維護要訣：
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <!-- 卡片 1: LS3 手臂與 RC90 控制器硬體 -->
+        <div class="text-card-glow">
+          <h4 style="color: #10b981; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-server"></i> RC90 工業控制器與 LS3-401S 規格 (Slide 16~19)
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/epson_rc90_controller.png" alt="Epson RC90 控制器實體" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.65rem; color: #94a3b8; display: block; margin-top: 4px;">Epson RC90 工業控制器</span>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/epson_ls3_robot_body.png" alt="Epson LS3-401S SCARA 手臂實體" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.65rem; color: #94a3b8; display: block; margin-top: 4px;">LS3-401S SCARA 手臂實體</span>
+            </div>
+          </div>
+          <ul style="padding-left: 20px; font-size: 0.83rem; color: #cbd5e1; line-height: 1.5; margin: 0;">
+            <li><strong>LS3-401S 規格</strong>：第一臂 225mm + 第二臂 175mm = 總工作半徑 <strong>400 mm</strong>；最大額定負載 <strong>3 kg</strong>；Z 軸升降行程 150 mm；重複定位精度高達 <strong>&plusmn;0.01 mm</strong>。</li>
+            <li><strong>通訊介面</strong>：前面板配備 USB 埠（免密碼即插即用，供現場工程師筆電示教調試）；後背板配備 100BASE-TX 工業乙太網埠（與 PLC、PC 上位機通訊）與標準 24 點光隔離 I/O。</li>
+          </ul>
+        </div>
+
+        <!-- 卡片 2: 電池更換維護 vs 新一代 LS-B 無電池馬達革命 -->
+        <div class="text-card-glow">
+          <h4 style="color: #fbbf24; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-battery-half"></i> 電池維護 vs 新一代 LS-B 無電池馬達技術 (Slide 22~27)
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/epson_rc90_battery_replace.png" alt="RC90 控制器鋰電池更換" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.65rem; color: #94a3b8; display: block; margin-top: 4px;">傳統機型：定期更換 3.6V 鋰電池</span>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/epson_robot/epson_lsb_batteryless_motor.png" alt="LS-B 系列無電池馬達" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.65rem; color: #34d399; display: block; margin-top: 4px;">LS-B 新機型：無電池馬達永久記憶</span>
+            </div>
+          </div>
+          <ul style="padding-left: 20px; font-size: 0.83rem; color: #cbd5e1; line-height: 1.5; margin: 0;">
+            <li><strong>傳統機型維護痛點</strong>：控制器與手臂關節內建鋰電池（如 ER17500V 3.6V / CR17335SE 3V）。電池壽命約 2~3 年，<strong>若電池電量耗盡且斷電，絕對型編碼器的多圈圈數將永久丟失，開機後報警且必須耗費數小時重新執行原點校正 (Calibration)！</strong></li>
+            <li><strong>新一代 LS3-B / LS6-B 技術革命</strong>：<strong>全機馬達採用「無電池式絕對型編碼器 (Battery-less Absolute Encoder)」！</strong>馬達內部利用磁阻效應齒輪永久記錄圈數與位置情報，<strong>終身免更換電池、終身免除斷電原點丟失風險</strong>，大幅降低維護成本與產線無預警停機！</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊四：互動工具箱 (擴充逆向運動學 IK 計算器) -->
+    <section class="project-content-block">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-toolbox" style="color: #06b6d4;"></i>
+        <h3>Epson 手臂互動工具箱：逆向運動學 (IK) 角度解算器與奇點檢測</h3>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        輸入目標工作點 $(X, Y)$ 與大臂小臂長度，即時解算出對應的<strong>右手系 (/R)</strong> 與 <strong>左手系 (/L)</strong> 兩組關節轉角 $(\theta_1, \theta_2)$，並具備工作半徑極限與奇異點防呆檢測：
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+        <!-- 工具：IK 逆向運算 -->
+        <div class="tool-interactive-card">
+          <div class="tool-card-header">
+            <i class="fa-solid fa-compass-drafting" style="color: #06b6d4;"></i>
+            <h4>SCARA 逆向運動學 (IK) 即時角度解算器 (右手系 vs 左手系)</h4>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 12px;">
+            <div class="tool-input-row">
+              <label>大臂長度 L1 (mm)：</label>
+              <input type="number" id="ik-l1" class="tool-field" value="225" oninput="calculateIK()">
+            </div>
+            <div class="tool-input-row">
+              <label>小臂長度 L2 (mm)：</label>
+              <input type="number" id="ik-l2" class="tool-field" value="175" oninput="calculateIK()">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+            <div class="tool-input-row">
+              <label>目標 X 座標 (mm)：</label>
+              <input type="number" id="ik-target-x" class="tool-field" value="250" oninput="calculateIK()">
+            </div>
+            <div class="tool-input-row">
+              <label>目標 Y 座標 (mm)：</label>
+              <input type="number" id="ik-target-y" class="tool-field" value="150" oninput="calculateIK()">
+            </div>
+          </div>
+
+          <div class="tool-result-panel">
+            <button class="btn-copy-code" onclick="copyResult('ik-output')"><i class="fa-solid fa-copy"></i> 複製結果</button>
+            <pre id="ik-output">逆向運動學解算中...</pre>
+          </div>
         </div>
       </div>
     </section>
@@ -927,10 +1260,78 @@ Fend`;
       });
     }
 
+    // SCARA 逆向運動學 (IK) 解算器
+    function calculateIK() {
+      const l1 = parseFloat(document.getElementById('ik-l1').value) || 225.0;
+      const l2 = parseFloat(document.getElementById('ik-l2').value) || 175.0;
+      const x = parseFloat(document.getElementById('ik-target-x').value) || 250.0;
+      const y = parseFloat(document.getElementById('ik-target-y').value) || 150.0;
+
+      const r2 = x * x + y * y;
+      const r = Math.sqrt(r2);
+      const maxR = l1 + l2;
+      const minR = Math.abs(l1 - l2);
+
+      let output = "";
+
+      // 檢查是否超出工作空間或進入奇異點死區
+      if (r > maxR) {
+        output = `[警告!! 目標點超出最大工作半徑 (奇點極限)]:
+目標距離 R = ${r.toFixed(2)} mm > 最大伸展極限 (L1+L2 = ${maxR} mm)
+手臂無法到達該點！逆向運動學無實數解 (Jacobian 奇異)。`;
+      } else if (r < minR) {
+        output = `[警告!! 目標點進入內側死區 (奇點極限)]:
+目標距離 R = ${r.toFixed(2)} mm < 內圈最小極限 (|L1-L2| = ${minR} mm)
+大臂與小臂互相干涉折疊，逆向運動學無實數解。`;
+      } else {
+        // 餘弦定理求 θ2
+        const cosTheta2 = (r2 - l1 * l1 - l2 * l2) / (2 * l1 * l2);
+        // 防呆限制在 [-1, 1]
+        const clampedCos2 = Math.min(Math.max(cosTheta2, -1.0), 1.0);
+        
+        // 兩組解：右手系 (/R, θ2 < 0) 與 左手系 (/L, θ2 > 0)
+        const theta2Rad_L = Math.acos(clampedCos2);
+        const theta2Rad_R = -theta2Rad_L;
+
+        const beta = Math.atan2(y, x);
+
+        // 左手系 θ1
+        const psi_L = Math.atan2(l2 * Math.sin(theta2Rad_L), l1 + l2 * Math.cos(theta2Rad_L));
+        const theta1Rad_L = beta - psi_L;
+
+        // 右手系 θ1
+        const psi_R = Math.atan2(l2 * Math.sin(theta2Rad_R), l1 + l2 * Math.cos(theta2Rad_R));
+        const theta1Rad_R = beta - psi_R;
+
+        // 弧度轉角度
+        const toDeg = rad => (rad * 180 / Math.PI).toFixed(2);
+
+        output = `/* SCARA 逆向運動學 (IK) 兩組姿態解析 */
+目標點空間位置: X = ${x} mm, Y = ${y} mm
+目標距離 R = ${r.toFixed(2)} mm (最大工作半徑: ${maxR} mm)
+
+➤ 解法一：右手方向姿態 (/R Righty)
+  大臂轉角 θ1: ${toDeg(theta1Rad_R)}°
+  小臂轉角 θ2: ${toDeg(theta2Rad_R)}°
+  SPEL+ 語法: P1 = XY(${x}, ${y}, 0, 0) /R
+
+➤ 解法二：左手方向姿態 (/L Lefty)
+  大臂轉角 θ1: ${toDeg(theta1Rad_L)}°
+  小臂轉角 θ2: ${toDeg(theta2Rad_L)}°
+  SPEL+ 語法: P2 = XY(${x}, ${y}, 0, 0) /L
+
+[實務避障建議]:
+請檢視治具或工件夾具擺放方位，若右側有立柱干涉請選用 /L，左側有機構請選用 /R！`;
+      }
+
+      document.getElementById('ik-output').textContent = output;
+    }
+
     // 網頁載入時預設算一次
     window.addEventListener('DOMContentLoaded', () => {
       calculateFK();
       generateSPEL();
+      calculateIK();
     });
   </script>
 </body>
