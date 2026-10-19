@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>五股職訓局-機電AI_115-1期 | 實務專題：地端 LLM 與企業私有知識庫 (Ollama + AnythingLLM + LM Studio)</title>
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    /* 專用色彩定義 (地端 LLM 主題：翠綠與紫青科技光感) */
+    :root {
+      --llm-accent: #10b981;
+      --llm-glow: rgba(16, 185, 129, 0.25);
+      --llm-border: rgba(16, 185, 129, 0.4);
+    }
+    
+    .project-tabs-nav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 0 16px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      scrollbar-width: thin;
+    }
+    .project-tab-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      border: 1px solid transparent;
+    }
+    .project-tab-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .project-tab-link.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 182, 212, 0.15) 100%);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
+    }
+    .project-tab-badge {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .project-tab-link.active .project-tab-badge {
+      background: rgba(16, 185, 129, 0.25);
+      color: #34d399;
+    }
+
+    /* 章節標題容器 */
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .section-title-wrap i {
+      font-size: 1.5rem;
+    }
+    .section-title-wrap h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+    }
+
+    /* 深色程式碼區塊 */
+    .code-block-dark {
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 14px 18px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .code-block-dark code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: #34d399;
+      line-height: 1.6;
+      white-space: pre;
+    }
+
+    /* 步驟流程卡片 */
+    .step-flow-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+    .step-flow-card:hover {
+      border-color: rgba(16, 185, 129, 0.35);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      background: #10b981;
+      color: #030712;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      flex-shrink: 0;
+    }
+    .step-title-text {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+    }
+    .step-tag-pill {
+      margin-left: auto;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* 互動工具卡片 */
+    .tool-box-card {
+      background: #0f172a;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      margin: 24px 0;
+    }
+    .tool-box-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .tool-box-header i {
+      font-size: 1.4rem;
+      color: #10b981;
+    }
+    .tool-box-header h4 {
+      font-size: 1.15rem;
+      color: #f1f5f9;
+      margin: 0;
+    }
+    .tool-input-group {
+      margin-bottom: 14px;
+    }
+    .tool-input-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .tool-input {
+      width: 100%;
+      background: #030712;
+      border: 1px solid #334155;
+      color: #34d399;
+      font-family: 'Fira Code', monospace;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .tool-input:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+    .tool-btn-calc {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: #030712;
+      font-weight: 700;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .tool-btn-calc:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    .tool-result-panel {
+      margin-top: 16px;
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 16px;
+      position: relative;
+    }
+    .tool-result-panel pre {
+      margin: 0;
+      color: #38bdf8;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .btn-copy-code {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-copy-code:hover {
+      background: #10b981;
+      color: #030712;
+    }
+
+    .guideline-alert-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 4px solid #10b981;
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+    }
+    .guideline-alert-box.caution {
+      background: rgba(239, 68, 68, 0.08);
+      border-left-color: #ef4444;
+    }
+
+    /* 表格樣式 */
+    .fx-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+      background: #0f172a;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .fx-table th {
+      background: #1e293b;
+      color: #34d399;
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 1px solid #334155;
+    }
+    .fx-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #cbd5e1;
+    }
+    .fx-table tr:hover {
+      background: rgba(16, 185, 129, 0.04);
+    }
+  </style>
+</head>
+<body class="project-body-theme">
+  <div class="project-page-container">
+    
+    <!-- 頂部導覽列 -->
+    <header class="home-navbar" style="border-bottom: 1px solid var(--border-color); background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;">
+      <div class="brand-logo">
+        <i class="fa-solid fa-microchip logo-icon"></i>
+        <div class="brand-titles">
+          <h1 class="main-title">五股職訓局</h1>
+          <span class="sub-title">機電AI_115-1期（作者：Rido老師）</span>
+        </div>
+      </div>
+      <div class="nav-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="index.html" class="nav-cta-btn secondary-btn" style="background: rgba(255,255,255,0.05); border-color: var(--border-color); color: var(--text-main);">
+          <i class="fa-solid fa-house"></i> 首頁
+        </a>
+        <a href="csharp.html" class="nav-cta-btn secondary-btn" style="background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.35); color: #c084fc;">
+          <i class="fa-brands fa-microsoft"></i> C# 課程
+        </a>
+        <a href="labs.html" class="nav-cta-btn secondary-btn" style="background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.3); color: var(--primary);">
+          <i class="fa-brands fa-node-js"></i> Node-RED
+        </a>
+        <a href="vibecoding.html" class="nav-cta-btn secondary-btn" style="background: rgba(14, 165, 233, 0.08); border-color: rgba(56, 189, 248, 0.25); color: #38bdf8;">
+          <i class="fa-solid fa-bolt"></i> Vibe Coding
+        </a>
+        <a href="aiknowledge.html" class="nav-cta-btn secondary-btn" style="background: rgba(244, 63, 94, 0.08); border-color: rgba(244, 63, 94, 0.25); color: #fb7185;">
+          <i class="fa-solid fa-brain"></i> AI 知識
+        </a>
+        
+        <!-- 實務專題下拉選單 -->
+        <div class="nav-dropdown-wrapper">
+          <a href="project.html" class="nav-dropdown-btn" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #34d399;">
+            <i class="fa-solid fa-diagram-project"></i> 實務專題 <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+          </a>
+          <div class="nav-dropdown-menu">
+            <a href="project.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #34d399;">範例期末專題：ESG 智慧工廠</span>
+                <span class="item-sub">機電丙級第二題・AI 視覺瑕疵・動態碳足跡閉環</span>
+              </div>
+            </a>
+            <a href="project_plc_fx3u.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #38bdf8;">專題：PC-Based 控制三菱 FX3U</span>
+                <span class="item-sub">RS232 序列通訊・三菱編程口協定・三階段自動化</span>
+              </div>
+            </a>
+            <a href="project_modbus.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-satellite-dish" style="color: #fbbf24;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #fbbf24;">專題：Modbus 通訊協定 (TCP / RTU)</span>
+                <span class="item-sub">工業物聯網標準語彙・MBAP Header・CRC-16 檢校</span>
+              </div>
+            </a>
+            <a href="project_linebot.html" class="nav-dropdown-item">
+              <i class="fa-brands fa-line" style="color: #06c755;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #06c755;">專題：LINE Bot 開發者指南詳解</span>
+                <span class="item-sub">發送 API 注意事項・n8n 工作流・GAS 免費雲端部署</span>
+              </div>
+            </a>
+            <a href="project_database.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-database" style="color: #c084fc;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #c084fc;">專題：工業與雲端資料庫全解</span>
+                <span class="item-sub">MySQL・MSSQL C#・InfluxDB 時序・Firebase</span>
+              </div>
+            </a>
+            <a href="project_epson_robot.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-robot" style="color: #06b6d4;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #06b6d4;">專題：Epson 機械手臂整合</span>
+                <span class="item-sub">SCARA LS3・SPEL+ 語言・正逆運動學・奇點・C#</span>
+              </div>
+            </a>
+            <a href="project_local_llm.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-microchip-ai" style="color: #10b981;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #10b981;">專題：地端 LLM 與企業私有知識庫</span>
+                <span class="item-sub">Ollama・AnythingLLM・LM Studio・RAG・Node-RED 串接</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 麵包屑 -->
+    <div class="project-breadcrumb">
+      <a href="index.html"><i class="fa-solid fa-house"></i> 首頁</a> / 
+      <a href="project.html">實務專題</a> / 
+      <span class="active-item">專題：地端 LLM 與企業私有知識庫 (Ollama + AnythingLLM + LM Studio)</span>
+    </div>
+
+    <!-- 專題切換頁籤導覽列 (七大專題切換) -->
+    <div class="project-tabs-nav">
+      <a href="project.html" class="project-tab-link">
+        <i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+        <span>範例期末專題：ESG 智慧工廠</span>
+        <span class="project-tab-badge">機電丙級第二題</span>
+      </a>
+      <a href="project_plc_fx3u.html" class="project-tab-link">
+        <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+        <span>專題：PC-Based控制_三菱FX3U</span>
+        <span class="project-tab-badge">RS232+編程口</span>
+      </a>
+      <a href="project_modbus.html" class="project-tab-link">
+        <i class="fa-solid fa-satellite-dish" style="color: #fbbf24;"></i>
+        <span>專題：Modbus 通訊協定</span>
+        <span class="project-tab-badge">TCP 502 + RTU</span>
+      </a>
+      <a href="project_linebot.html" class="project-tab-link">
+        <i class="fa-brands fa-line" style="color: #06c755;"></i>
+        <span>專題：LINE Bot 開發者指南</span>
+        <span class="project-tab-badge">API 注意事項+自動化</span>
+      </a>
+      <a href="project_database.html" class="project-tab-link">
+        <i class="fa-solid fa-database" style="color: #c084fc;"></i>
+        <span>專題：工業與雲端資料庫</span>
+        <span class="project-tab-badge">四大主流全景</span>
+      </a>
+      <a href="project_epson_robot.html" class="project-tab-link">
+        <i class="fa-solid fa-robot" style="color: #06b6d4;"></i>
+        <span>專題：Epson 機械手臂</span>
+        <span class="project-tab-badge">SCARA+SPEL+運動學</span>
+      </a>
+      <a href="project_local_llm.html" class="project-tab-link active">
+        <i class="fa-solid fa-microchip-ai" style="color: #10b981;"></i>
+        <span>專題：地端 LLM 知識庫</span>
+        <span class="project-tab-badge">Ollama+RAG+LM Studio</span>
+      </a>
+    </div>
+
+    <!-- 主區塊：專題名稱與簡介 -->
+    <section class="project-hero-section">
+      <span class="project-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.35);">
+        <i class="fa-solid fa-shield-halved"></i> 100% 離線私有化・工業機敏資料不外流
+      </span>
+      <h2 class="project-title">地端 LLM 與企業私有知識庫 RAG 實戰<br>
+        <span class="gradient-text" style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          Ollama 命令行驅動・AnythingLLM 知識庫・LM Studio 本地 API・Node-RED 故障診斷
+        </span>
+      </h2>
+      <p class="project-desc">
+        針對工業製造與機電自動化現場，解決雲端 AI（如 ChatGPT、Gemini）面臨的「企業機敏數據外洩」與「廠區無外網連線」的致命痛點！全面掌握三大地端主流方案：<strong>Ollama</strong> 輕量命令行模型載入、<strong>AnythingLLM</strong> 企業向量知識庫 (LanceDB/ChromaDB) 與 <code>@agent</code> 智慧代理人、以及 <strong>LM Studio</strong> 友善圖形化介面與 OpenAI 相容 REST API 伺服器；並深入實戰將地端模型與 <strong>Node-RED / C#</strong> 串接，實現機台故障即時問答、設備運轉 SOP 檢索與自動化閉環！
+      </p>
+
+      <!-- 三大主流工具亮點展示 -->
+      <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; text-align: left;">
+        
+        <!-- 卡片 1: Ollama -->
+        <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.1);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3);">
+              命令行核心引擎
+            </span>
+            <span style="color: #64748b; font-size: 0.75rem; font-family: monospace;">Port: 11434</span>
+          </div>
+          <h4 style="font-size: 1.15rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px;">
+            <i class="fa-solid fa-terminal" style="color: #10b981;"></i> Ollama + Page Assist
+          </h4>
+          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-bottom: 12px;">
+            極致輕量、原生支援 GPU 硬體加速。一鍵拉取 Llama 3.2 Vision、Gemma 2、Qwen 2.5；配合瀏覽器外掛 Page Assist 實現聯網搜尋與 Embedding 向量模型。
+          </p>
+          <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; font-size: 0.8rem; color: #34d399;">
+            <i class="fa-solid fa-check"></i> 適用情境：後端微服務、自動化腳本、無頭伺服器
+          </div>
+        </div>
+
+        <!-- 卡片 2: AnythingLLM -->
+        <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(6, 182, 212, 0.1);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="background: rgba(6, 182, 212, 0.15); color: #06b6d4; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(6, 182, 212, 0.3);">
+              企業私有 RAG 知識庫
+            </span>
+            <span style="color: #64748b; font-size: 0.75rem; font-family: monospace;">Port: 3001</span>
+          </div>
+          <h4 style="font-size: 1.15rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px;">
+            <i class="fa-solid fa-book-bookmark" style="color: #06b6d4;"></i> AnythingLLM + LanceDB
+          </h4>
+          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-bottom: 12px;">
+            開箱即用的知識庫管理系統。支援 PDF、DOCX、TXT 解析與向量切分 (Chunking)，搭配 LanceDB 向量庫精準引用來源，內建 <code>@agent</code> 智慧代理人與語音輸入。
+          </p>
+          <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; font-size: 0.8rem; color: #06b6d4;">
+            <i class="fa-solid fa-check"></i> 適用情境：廠務維護 SOP 檢索、團隊知識庫共享
+          </div>
+        </div>
+
+        <!-- 卡片 3: LM Studio -->
+        <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(168, 85, 247, 0.1);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="background: rgba(168, 85, 247, 0.15); color: #c084fc; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(168, 85, 247, 0.3);">
+              圖形化 API 伺服器
+            </span>
+            <span style="color: #64748b; font-size: 0.75rem; font-family: monospace;">Port: 1234</span>
+          </div>
+          <h4 style="font-size: 1.15rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px;">
+            <i class="fa-solid fa-sliders" style="color: #c084fc;"></i> LM Studio (Local Server)
+          </h4>
+          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-bottom: 12px;">
+            直觀瀏覽與下載 Hugging Face GGUF 量化模型。支援顯卡層數卸載 (GPU Offload)，一鍵啟動 100% 相容 OpenAI 規格的本地 REST API 伺服器供程式無痛調用。
+          </p>
+          <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; font-size: 0.8rem; color: #c084fc;">
+            <i class="fa-solid fa-check"></i> 適用情境：模型量化性能評估、C# / Python / Node-RED API 串接
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 視覺化架構圖解 (地端 LLM 與工控邊緣整合) -->
+    <section class="project-animation-card">
+      <div class="animation-header">
+        <div class="animation-title">
+          <i class="fa-solid fa-circle-nodes pulse-dot-static" style="color: #10b981;"></i>
+          <span>地端 LLM 系統架構：硬體 GPU ➔ 推論核心 (Ollama/LM Studio) ➔ 向量知識庫 (RAG) ➔ 工控自動化 (Node-RED/C#)</span>
+        </div>
+        <span class="animation-status-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.35);">
+          Local Edge AI Active
+        </span>
+      </div>
+      <div class="animation-body" style="padding: 24px; text-align: center;">
+        <svg viewBox="0 0 980 200" style="width: 100%; max-height: 200px; display: block; margin: 0 auto;" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="llmGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.1"/>
+            </linearGradient>
+            <filter id="neonShadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#10b981" flood-opacity="0.4"/>
+            </filter>
+          </defs>
+
+          <!-- 區塊 1: 實體硬體與 GPU -->
+          <rect x="20" y="30" width="180" height="130" rx="10" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+          <text x="110" y="65" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="700">地端算力主機</text>
+          <text x="110" y="90" text-anchor="middle" fill="#94a3b8" font-size="12">NVIDIA RTX 4090 / 3060</text>
+          <text x="110" y="110" text-anchor="middle" fill="#94a3b8" font-size="11">CUDA / TensorRT 硬體加速</text>
+          <text x="110" y="135" text-anchor="middle" fill="#10b981" font-size="11" font-weight="600">VRAM 8GB ~ 24GB</text>
+
+          <!-- 箭頭 1 -->
+          <path d="M 200 95 L 260 95" stroke="#10b981" stroke-width="2.5" stroke-dasharray="5 3" fill="none"/>
+          <polygon points="260,90 270,95 260,100" fill="#10b981"/>
+
+          <!-- 區塊 2: 推論引擎 -->
+          <rect x="270" y="25" width="200" height="140" rx="12" fill="url(#llmGlow)" stroke="#10b981" stroke-width="2" filter="url(#neonShadow)"/>
+          <text x="370" y="55" text-anchor="middle" fill="#34d399" font-size="15" font-weight="800">地端推論核心</text>
+          <text x="370" y="80" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">Ollama (11434) / LM Studio</text>
+          <text x="370" y="105" text-anchor="middle" fill="#cbd5e1" font-size="11">Llama 3.2・Gemma 2・Qwen 2.5</text>
+          <text x="370" y="125" text-anchor="middle" fill="#94a3b8" font-size="11">GGUF 4-bit 量化・極致省顯存</text>
+          <text x="370" y="145" text-anchor="middle" fill="#38bdf8" font-size="11">OpenAI 相容 REST API</text>
+
+          <!-- 箭頭 2 -->
+          <path d="M 470 95 L 530 95" stroke="#06b6d4" stroke-width="2.5" stroke-dasharray="5 3" fill="none"/>
+          <polygon points="530,90 540,95 530,100" fill="#06b6d4"/>
+
+          <!-- 區塊 3: 向量資料庫與 RAG -->
+          <rect x="540" y="30" width="190" height="130" rx="10" fill="#0f172a" stroke="#06b6d4" stroke-width="2"/>
+          <text x="635" y="60" text-anchor="middle" fill="#38bdf8" font-size="14" font-weight="700">AnythingLLM 知識庫</text>
+          <text x="635" y="85" text-anchor="middle" fill="#f8fafc" font-size="12">LanceDB 向量資料庫</text>
+          <text x="635" y="105" text-anchor="middle" fill="#94a3b8" font-size="11">廠規 PDF / 設備故障手冊</text>
+          <text x="635" y="125" text-anchor="middle" fill="#94a3b8" font-size="11">Embedding 向量相似比對</text>
+          <text x="635" y="145" text-anchor="middle" fill="#06b6d4" font-size="11" font-weight="600">@agent 智慧代理人</text>
+
+          <!-- 箭頭 3 -->
+          <path d="M 730 95 L 790 95" stroke="#a855f7" stroke-width="2.5" stroke-dasharray="5 3" fill="none"/>
+          <polygon points="790,90 800,95 790,100" fill="#a855f7"/>
+
+          <!-- 區塊 4: 現場設備與自動化 -->
+          <rect x="800" y="30" width="160" height="130" rx="10" fill="#0f172a" stroke="#a855f7" stroke-width="2"/>
+          <text x="880" y="60" text-anchor="middle" fill="#c084fc" font-size="14" font-weight="700">工控整合應用</text>
+          <text x="880" y="85" text-anchor="middle" fill="#f8fafc" font-size="12">Node-RED / C# 程式</text>
+          <text x="880" y="105" text-anchor="middle" fill="#94a3b8" font-size="11">HTTP POST 故障診斷</text>
+          <text x="880" y="125" text-anchor="middle" fill="#94a3b8" font-size="11">三菱 PLC / Modbus 反饋</text>
+          <text x="880" y="145" text-anchor="middle" fill="#10b981" font-size="11" font-weight="600">自動調頻降載閉環</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 三大地端工具全景對比表 -->
+    <section class="section-container" style="margin-top: 40px;">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-scale-balanced" style="color: #10b981;"></i>
+        <h3>三大地端方案技術規格與選型決策矩陣</h3>
+      </div>
+      <table class="fx-table">
+        <thead>
+          <tr>
+            <th>比較維度</th>
+            <th>Ollama</th>
+            <th>AnythingLLM</th>
+            <th>LM Studio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>核心定位</strong></td>
+            <td>輕量級命令列推論引擎 (CLI Daemon)</td>
+            <td>企業私有知識庫 (RAG) 桌面 / Web 完整平台</td>
+            <td>專業圖形化模型管理與 OpenAI 相容 API Server</td>
+          </tr>
+          <tr>
+            <td><strong>預設通訊埠</strong></td>
+            <td><code>11434</code> (REST API)</td>
+            <td><code>3001</code> (Web UI / API)</td>
+            <td><code>1234</code> (OpenAI 相容端點 <code>/v1</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>模型來源與格式</strong></td>
+            <td>Ollama 官方庫、Modelfile 自定義、GGUF</td>
+            <td>可外掛 Ollama、LM Studio、OpenAI、LocalAI</td>
+            <td>直接整合 Hugging Face、本地 GGUF 量化模型</td>
+          </tr>
+          <tr>
+            <td><strong>向量知識庫 (RAG)</strong></td>
+            <td>需搭配外掛 (Page Assist / LangChain)</td>
+            <td><strong>原生內建</strong> (LanceDB、ChromaDB、Pinecone)</td>
+            <td>需外掛或於客戶端自行實作 Embedding</td>
+          </tr>
+          <tr>
+            <td><strong>外網搜尋 (Web Search)</strong></td>
+            <td>透過 Page Assist 外掛 Searx / Google</td>
+            <td><strong>內建支援</strong> (SearXNG, Google PSE 等)</td>
+            <td>主要專注於純本地對話與 API 輸出</td>
+          </tr>
+          <tr>
+            <td><strong>多模態 (視覺/語音)</strong></td>
+            <td>支援 Llama 3.2 Vision (視覺辨識)</td>
+            <td>支援 Speech-to-Text 語音輸入、文件 OCR</td>
+            <td>支援 Vision 模型圖文對話</td>
+          </tr>
+          <tr>
+            <td><strong>工控串接難易度</strong></td>
+            <td>極佳（簡潔 JSON 請求 <code>/api/generate</code>）</td>
+            <td>極佳（具備 Workspace REST API 與 API Key）</td>
+            <td><strong>最標準</strong>（100% 相容 OpenAI SDK）</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 四大詳細實作教學步驟 (Step-by-Step) -->
+    <section class="section-container" style="margin-top: 40px;">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-list-check" style="color: #10b981;"></i>
+        <h3>地端 LLM 實務教學：從模型部署到工控 RAG 閉環 Step-by-Step</h3>
+      </div>
+
+      <!-- Step 1: Ollama 安裝與模型運行 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <div class="step-badge">1</div>
+          <h4 class="step-title-text">Ollama 地端大模型部署與 Page Assist 瀏覽器外掛配置</h4>
+          <span class="step-tag-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+            Ollama CLI 實戰
+          </span>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          <p><strong>1.1 下載與安裝 Ollama</strong></p>
+          <p>
+            至官方網站 <a href="https://ollama.com/download/windows" target="_blank" style="color: #38bdf8;">ollama.com</a> 下載 Windows 安裝檔，安裝後 Ollama 服務將常駐於系統列，並自動監聽本地 <code>http://localhost:11434</code>。
+          </p>
+          <div class="code-block-dark">
+            <code># 檢查 Ollama 版本與系統服務狀態
+ollama --version
+
+# 拉取並運行 3B 級別超輕量多模態模型 (適合一般商務筆電或無獨顯環境)
+ollama run llama3.2-vision
+
+# 拉取並運行 Google Gemma 2 (9B / 27B)
+ollama run gemma2:9b
+
+# 拉取專用向量嵌入模型 (用於 RAG 切分比對)
+ollama pull embeddinggemma
+ollama pull nomic-embed-text</code>
+          </div>
+
+          <p style="margin-top: 14px;"><strong>1.2 配置 Page Assist 瀏覽器 Web UI 與 Web Search 聯網搜尋</strong></p>
+          <ul style="padding-left: 20px; margin: 8px 0;">
+            <li>安裝 Chrome 線上應用程式商店外掛：<strong>Page Assist - A Web UI for Local AI Models</strong>。</li>
+            <li>開啟外掛選項 (Options)，確認 Ollama URL 指向 <code>http://localhost:11434</code>，即可看到本機所有拉取的模型。</li>
+            <li><strong>開啟 Web Search 功能</strong>：在地端模型回答時，可設定先以 SearXNG 實例或 Google API 爬取最新即時新聞或零件技術手冊，彌補訓練數據時間差，再交由地端模型總結輸出。</li>
+          </ul>
+
+          <div class="guideline-alert-box">
+            <i class="fa-solid fa-lightbulb"></i> <strong>記憶體調優秘訣 (Context Length)：</strong><br>
+            預設 Ollama 上下文長度為 2048 tokens。若需處理整份機電說明書，可在 Modelfile 中寫入 <code>PARAMETER num_ctx 8192</code> 或 <code>16384</code>，善用顯卡 VRAM 避免上下文截斷！
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: AnythingLLM 與 LanceDB 知識庫 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <div class="step-badge">2</div>
+          <h4 class="step-title-text">AnythingLLM 企業知識庫 (RAG) 構建、向量檢索與 @agent 代理人</h4>
+          <span class="step-tag-pill" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3);">
+            RAG 檢索增強生成
+          </span>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          <p><strong>2.1 建立專屬工作區 (Workspace) 與資料庫選型</strong></p>
+          <p>
+            安裝 AnythingLLM 後，建立名為 <code>factory-maintenance</code> 的工作區。在設定中指定：
+          </p>
+          <ul style="padding-left: 20px; margin: 8px 0;">
+            <li><strong>LLM Provider (語言模型提供者)</strong>：選擇本地 <strong>Ollama</strong>，模型選定 <code>llama3.2</code> 或 <code>gemma2:9b</code>。</li>
+            <li><strong>Embedding Provider (向量模型)</strong>：選擇本地 <strong>Ollama (nomic-embed-text)</strong> 或內建引擎。</li>
+            <li><strong>Vector Database (向量資料庫)</strong>：選用內建的高效 <strong>LanceDB</strong>（零配置、儲存於本機檔案、毫秒級比對），或切換至外部 <strong>ChromaDB</strong>。</li>
+          </ul>
+
+          <p style="margin-top: 14px;"><strong>2.2 文件上傳與向量切分 (Pin to Workspace)</strong></p>
+          <p>
+            將工廠現場的 <code>機台故障常見處理流程.txt</code>、<code>三菱PLC_FX3U通信手冊.pdf</code> 上傳至 AnythingLLM。系統會自動進行文字萃取、Chunk 切分與向量化，點擊「Pin to Workspace」即可將知識注入此工作區。
+          </p>
+
+          <p style="margin-top: 14px;"><strong>2.3 @agent 智慧代理人與外部技能調用</strong></p>
+          <p>
+            在對話框輸入 <code>@agent</code>，即可切換為 Agent 模式。AnythingLLM 能根據問題自主規劃步驟，調用網頁搜尋、計算機技能，甚至自動分析整份 PDF 文件，並給出<strong>精確的參考頁碼與章節引用</strong>，徹底消除大模型的胡言亂語（幻覺 Hallucination）！
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 3: LM Studio 本地 API 伺服器 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <div class="step-badge">3</div>
+          <h4 class="step-title-text">LM Studio 圖形化模型管理與 OpenAI 相容 Local Server 架設</h4>
+          <span class="step-tag-pill" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">
+            Local API Server
+          </span>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          <p><strong>3.1 GGUF 量化模型下載與 GPU 層數卸載</strong></p>
+          <p>
+            LM Studio 提供直觀的模型搜尋介面，直接搜尋 <code>Qwen2.5-Coder-7B</code>、<code>Meta-Llama-3-8B-Instruct</code>。選擇 <code>Q4_K_M</code>（推薦性價比最高）或 <code>Q8_0</code>（高精度）下載。在右側側邊欄將 <strong>GPU Offload (GPU 層數卸載)</strong> 設為最大，讓幾十層的神經網路全數進駐顯卡顯存，推論速度提升 5~10 倍！
+          </p>
+
+          <p style="margin-top: 14px;"><strong>3.2 啟動本機 API 伺服器 (Port 1234)</strong></p>
+          <p>
+            點擊左側「Local Server」分頁，點選頂部「Start Server」。服務將在 <code>http://localhost:1234</code> 運行，提供標準端點：
+          </p>
+          <div class="code-block-dark">
+            <code># 檢驗本機當前載入之模型清單
+curl http://localhost:1234/v1/models
+
+# 測試標準 OpenAI Chat Completion 格式
+curl http://localhost:1234/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen2.5-coder-7b-instruct",
+    "messages": [
+      {"role": "system", "content": "你是一位工業機電與 PLC 顧問。"},
+      {"role": "user", "content": "三菱 FX3U 如何設定 RS232 通信格式？"}
+    ],
+    "temperature": 0.7
+  }'</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: 工控整合 Node-RED / C# 串接 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <div class="step-badge">4</div>
+          <h4 class="step-title-text">工控閉環整合：Node-RED & C# 串接地端 LLM 進行異常即時診斷</h4>
+          <span class="step-tag-pill" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">
+            IoT + LLM 閉環
+          </span>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          <p><strong>4.1 Node-RED HTTP Request 節點調用實務</strong></p>
+          <p>
+            當 Node-RED 透過 Modbus 或 PLC RS232 讀取到現場馬達溫度超過 75°C、或連續卡料時，立即觸發 Function 節點組織 Prompt，並以 <code>http request</code> 節點（方法：POST）拋送至本機 Ollama <code>http://localhost:11434/api/generate</code>：
+          </p>
+          <div class="code-block-dark">
+            <code>// Node-RED Function 節點程式碼範例
+msg.headers = { 'Content-Type': 'application/json' };
+msg.payload = {
+  model: "gemma2:9b",
+  prompt: `[工廠警報系統]\n機台ID: M-01\n異常狀態: 主軸馬達溫度達到 78°C (警戒值 70°C)\n請根據機台常見故障處理流程，用繁體中文給出 3 點即時排查處置建議。`,
+  stream: false
+};
+return msg;</code>
+          </div>
+
+          <p style="margin-top: 14px;"><strong>4.2 診斷結果反饋控制迴路</strong></p>
+          <p>
+            Node-RED 解析回傳的 JSON <code>msg.payload.response</code> 後：
+          </p>
+          <ol style="padding-left: 20px; margin: 8px 0;">
+            <li>將排查文字透過 <strong>LINE Bot 專題</strong> 拋送給機電維護值班工程師。</li>
+            <li>同時觸發寫入 PLC 暫存器（如 D200），命令變頻器降頻 20% 進行緊急保護降溫，達成無人化邊緣 AI 閉環保護！</li>
+          </ol>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 互動式實用工具箱 (Interactive Toolboxes) -->
+    <section class="section-container" style="margin-top: 40px;">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-toolbox" style="color: #10b981;"></i>
+        <h3>地端 LLM 互動工具箱：命令生成與 API 測試代碼產生器</h3>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px;">
+        
+        <!-- 工具 1: Ollama CLI 產生器 -->
+        <div class="tool-box-card">
+          <div class="tool-box-header">
+            <i class="fa-solid fa-terminal"></i>
+            <h4>Ollama 模型管理與 Modelfile 產生器</h4>
+          </div>
+          
+          <div class="tool-input-group">
+            <label>選擇目標基礎模型：</label>
+            <select id="ollama-model-select" class="tool-input" onchange="generateOllamaCmd()">
+              <option value="llama3.2-vision:latest">Llama 3.2 Vision (視覺多模態・11B/90B)</option>
+              <option value="gemma2:9b" selected>Gemma 2 (Google 輕量高性能・9B)</option>
+              <option value="qwen2.5-coder:7b">Qwen 2.5 Coder (工業代碼強烈推薦・7B)</option>
+              <option value="embeddinggemma">EmbeddingGemma (向量嵌入 RAG 專用)</option>
+            </select>
+          </div>
+
+          <div class="tool-input-group">
+            <label>設定上下文長度 (Context Tokens)：</label>
+            <input type="number" id="ollama-ctx-tokens" class="tool-input" value="8192" step="2048" onchange="generateOllamaCmd()">
+          </div>
+
+          <div class="tool-input-group">
+            <label>系統 Prompt (System Instruction)：</label>
+            <input type="text" id="ollama-sys-prompt" class="tool-input" value="你是一位專業的機電整合與智慧製造 AI 顧問，請一律使用繁體中文專業回答。" oninput="generateOllamaCmd()">
+          </div>
+
+          <div class="tool-result-panel">
+            <button class="btn-copy-code" onclick="copyResult('ollama-result-code')"><i class="fa-solid fa-copy"></i> 複製</button>
+            <pre><code id="ollama-result-code"># 點擊下方按鈕或更動參數即時產生</code></pre>
+          </div>
+        </div>
+
+        <!-- 工具 2: 本地 API 請求產生器 -->
+        <div class="tool-box-card">
+          <div class="tool-box-header">
+            <i class="fa-solid fa-network-wired"></i>
+            <h4>地端 LLM API 調用程式碼產生器 (cURL / Fetch / Node-RED)</h4>
+          </div>
+
+          <div class="tool-input-group">
+            <label>選擇伺服器引擎：</label>
+            <select id="api-engine-select" class="tool-input" onchange="generateApiCode()">
+              <option value="ollama" selected>Ollama (:11434/api/generate)</option>
+              <option value="lmstudio">LM Studio (:1234/v1/chat/completions)</option>
+              <option value="anythingllm">AnythingLLM (:3001/api/v1/workspace/{slug}/chat)</option>
+            </select>
+          </div>
+
+          <div class="tool-input-group">
+            <label>提問內容 (User Prompt)：</label>
+            <input type="text" id="api-user-prompt" class="tool-input" value="三菱 FX3U PLC 通訊逾時可能的原因有哪些？" oninput="generateApiCode()">
+          </div>
+
+          <div class="tool-input-group">
+            <label>生成語言格式：</label>
+            <div style="display: flex; gap: 10px;">
+              <button onclick="setApiLang('curl')" class="nav-cta-btn secondary-btn" style="padding: 6px 14px; font-size: 0.8rem; background: rgba(16,185,129,0.15); border-color: #10b981; color: #34d399;">cURL</button>
+              <button onclick="setApiLang('js')" class="nav-cta-btn secondary-btn" style="padding: 6px 14px; font-size: 0.8rem; background: rgba(255,255,255,0.05); color: #cbd5e1;">JS (Fetch)</button>
+              <button onclick="setApiLang('nodered')" class="nav-cta-btn secondary-btn" style="padding: 6px 14px; font-size: 0.8rem; background: rgba(255,255,255,0.05); color: #cbd5e1;">Node-RED JSON</button>
+            </div>
+          </div>
+
+          <div class="tool-result-panel">
+            <button class="btn-copy-code" onclick="copyResult('api-result-code')"><i class="fa-solid fa-copy"></i> 複製</button>
+            <pre><code id="api-result-code"># 點擊即時生成代碼</code></pre>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 頁尾 -->
+    <footer class="project-footer" style="text-align: center; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 60px;">
+      <p style="color: #64748b; font-size: 0.88rem;">五股職訓局 機電 AI 115-1 期 實務專題系列教材・版權所有 © 2026</p>
+      <div style="margin-top: 12px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+        <a href="index.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-house"></i> 首頁</a>
+        <a href="project.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-leaf"></i> 期末專題</a>
+        <a href="project_plc_fx3u.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-network-wired"></i> 三菱 FX3U</a>
+        <a href="project_modbus.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-satellite-dish"></i> Modbus</a>
+        <a href="project_linebot.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-brands fa-line"></i> LINE Bot</a>
+        <a href="project_database.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-database"></i> 工業資料庫</a>
+        <a href="project_epson_robot.html" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-robot"></i> Epson 手臂</a>
+        <a href="project_local_llm.html" style="color: #10b981; text-decoration: none; font-size: 0.85rem;"><i class="fa-solid fa-microchip-ai"></i> 地端 LLM 知識庫</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    let currentApiLang = 'curl';
+
+    function setApiLang(lang) {
+      currentApiLang = lang;
+      generateApiCode();
+    }
+
+    function generateOllamaCmd() {
+      const model = document.getElementById('ollama-model-select').value;
+      const ctx = document.getElementById('ollama-ctx-tokens').value || 8192;
+      const sys = document.getElementById('ollama-sys-prompt').value;
+
+      const code = `# 1. 拉取模型
+ollama pull ${model}
+
+# 2. 建立自定義 Modelfile (Modelfile.txt)
+echo FROM ${model} > Modelfile.txt
+echo PARAMETER num_ctx ${ctx} >> Modelfile.txt
+echo SYSTEM "${sys}" >> Modelfile.txt
+
+# 3. 建構專屬模型並啟動
+ollama create my-factory-ai -f ./Modelfile.txt
+ollama run my-factory-ai`;
+
+      document.getElementById('ollama-result-code').innerText = code;
+    }
+
+    function generateApiCode() {
+      const engine = document.getElementById('api-engine-select').value;
+      const prompt = document.getElementById('api-user-prompt').value || '測試提問';
+      let result = '';
+
+      if (currentApiLang === 'curl') {
+        if (engine === 'ollama') {
+          result = `curl http://localhost:11434/api/generate -d '{
+  "model": "gemma2:9b",
+  "prompt": "${prompt}",
+  "stream": false
+}'`;
+        } else if (engine === 'lmstudio') {
+          result = `curl http://localhost:1234/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "local-model",
+    "messages": [
+      {"role": "user", "content": "${prompt}"}
+    ],
+    "temperature": 0.7
+  }'`;
+        } else {
+          result = `curl http://localhost:3001/api/v1/workspace/factory-maintenance/chat \\
+  -H "Authorization: Bearer YOUR_ANYTHINGLLM_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "message": "${prompt}",
+    "mode": "chat"
+  }'`;
+        }
+      } else if (currentApiLang === 'js') {
+        if (engine === 'ollama') {
+          result = `const res = await fetch("http://localhost:11434/api/generate", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    model: "gemma2:9b",
+    prompt: "${prompt}",
+    stream: false
+  })
+});
+const data = await res.json();
+console.log(data.response);`;
+        } else if (engine === 'lmstudio') {
+          result = `const res = await fetch("http://localhost:1234/v1/chat/completions", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    model: "local-model",
+    messages: [{ role: "user", content: "${prompt}" }]
+  })
+});
+const data = await res.json();
+console.log(data.choices[0].message.content);`;
+        } else {
+          result = `const res = await fetch("http://localhost:3001/api/v1/workspace/factory/chat", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer YOUR_ANYTHINGLLM_API_KEY",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ message: "${prompt}", mode: "chat" })
+});
+const data = await res.json();
+console.log(data.textResponse);`;
+        }
+      } else {
+        // Node-RED
+        result = `// Node-RED Function 節點程式碼
+msg.headers = { 'Content-Type': 'application/json' };
+msg.payload = {
+  model: "gemma2:9b",
+  prompt: "${prompt}",
+  stream: false
+};
+return msg;
+
+// 請後接 HTTP Request 節點：
+// 方法: POST
+// URL: http://localhost:11434/api/generate`;
+      }
+
+      document.getElementById('api-result-code').innerText = result;
+    }
+
+    function copyResult(id) {
+      const txt = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(txt).then(() => {
+        alert('代碼已成功複製至剪貼簿！');
+      });
+    }
+
+    // 初始化
+    generateOllamaCmd();
+    generateApiCode();
+  </script>
+</body>
+</html>
