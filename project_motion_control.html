@@ -648,7 +648,7 @@
       <div class="step-flow-card">
         <div class="step-header">
           <div class="step-badge">1</div>
-          <h4 class="step-title-text">Step 1：設定機構參數 (Mechanism Parameters) 與脈衝輸出格式</h4>
+          <h4 class="step-title-text">Step 1：設定機構參數 (Mechanism Parameters) 與脈衝 / 速度控制格式</h4>
           <span class="step-tag-pill" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">
             機構方向與速度極限
           </span>
@@ -663,10 +663,13 @@
               <code>// 宣告機構參數結構體並初始化
 SYS_MAC_PARAM stAxisParam = new SYS_MAC_PARAM();
 
-stAxisParam.wPosToEncoderDir = 0;    // 方向調整：0=輸出不反向, 1=反向 (免改接線)
+// wPosToEncoderDir：方向調整參數 (0=不反向, 1=反向)
+// 修正當運動命令方向與期望機構方向不同時，純軟體切換，不需拆改馬達配線！
+stAxisParam.wPosToEncoderDir = 0;    
 stAxisParam.dwRPM = 3000;            // 馬達最高轉速限制 (轉/分)
 stAxisParam.dwPPR = 10000;           // 每轉脈波數 (Pulse Per Revolution)
 stAxisParam.dfPitch = 5.0;           // 滾珠螺桿導程 (單位: mm/轉)
+stAxisParam.wPulseMode = MCCL.DDA_FMT_PD; // 輸出格式: Pulse/Dir 或 CW/CCW
 
 // 套用至指定 Channel (以 Channel 0 為例)
 int nRet = MCCL.MCC_SetMacParam(ref stAxisParam, 0, MCCL.CARDINDEX0);</code>
@@ -674,6 +677,27 @@ int nRet = MCCL.MCC_SetMacParam(ref stAxisParam, 0, MCCL.CARDINDEX0);</code>
             <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; text-align: center;">
               <img src="images_src/motion_control/pulse_output_modes.png" alt="脈衝輸出格式" style="max-width: 100%; height: 130px; object-fit: contain; display: block; margin: 0 auto;">
               <span style="font-size: 0.72rem; color: #94a3b8; display: block; margin-top: 6px;">三大脈衝格式：CW/CCW 雙脈衝、Pulse/Dir 脈衝+方向、A/B 相</span>
+            </div>
+          </div>
+
+          <!-- 延伸核心：脈衝命令 vs 速度命令 (4~20mA / 0~10V) -->
+          <div style="margin-top: 14px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; padding: 14px;">
+            <h5 style="color: #fbbf24; margin: 0 0 8px 0; font-size: 0.95rem;">
+              <i class="fa-solid fa-bolt"></i> 深入評估：脈衝命令 (Pulse Command) vs 速度命令 (Velocity Command 4~20mA / 0~10V)
+            </h5>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 0.85rem;">
+              <div>
+                <strong style="color: #38bdf8;">1. 脈衝命令 (Pulse Mode)：</strong><br>
+                以脈衝頻率控制轉速、脈衝數量控制絕對移動量。運動過程中若有外力阻礙，伺服驅動器會即刻拉高轉矩克服；若轉矩達上限仍無法補足落後誤差，驅動器會發出警報並立即停機保護！
+              </div>
+              <div>
+                <strong style="color: #34d399;">2. 速度命令 (Velocity Mode - 類比訊號)：</strong><br>
+                類比電壓 ($0 \sim 10\text{V}$) 或電流 ($4 \sim 20\text{mA}$) 與轉速成線性正比關係，適用於連續調速與張力控制主軸。<br>
+                <span style="color: #fbbf24; font-family: monospace;">
+                  【經典計算】：額定 3000 RPM，以 4~20mA 輸出控制 1500 RPM：<br>
+                  電流 = [(20 - 4) / 3000] &times; 1500 + 4 = 12.0 mA！
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -685,7 +709,7 @@ int nRet = MCCL.MCC_SetMacParam(ref stAxisParam, 0, MCCL.CARDINDEX0);</code>
           <div class="step-badge">2</div>
           <h4 class="step-title-text">Step 2：設定編碼器參數 (Encoder Configuration) 與硬體極限保護</h4>
           <span class="step-tag-pill" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
-            AB相四倍頻解析
+            ABZ相四倍頻解析
           </span>
         </div>
         <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
@@ -702,6 +726,40 @@ int nRet = MCCL.MCC_SetMacParam(ref stAxisParam, 0, MCCL.CARDINDEX0);</code>
               <img src="images_src/motion_control/limit_switch_wiring.png" alt="極限開關與原點開關配線" style="max-width: 100%; height: 135px; object-fit: contain; display: block; margin: 0 auto;">
               <span style="font-size: 0.72rem; color: #94a3b8; display: block; margin-top: 6px;">極限開關配線：正極限 (OT+)、負極限 (OT-) 與原點開關 (Home)</span>
             </div>
+          </div>
+
+          <!-- 編碼器三相訊號職責深入表 -->
+          <div style="margin: 12px 0; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; text-align: left; background: #030712; border: 1px solid rgba(255,255,255,0.08);">
+              <thead>
+                <tr style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+                  <th style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">訊號名稱</th>
+                  <th style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">別名</th>
+                  <th style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">出現頻率</th>
+                  <th style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">核心工程用途</th>
+                </tr>
+              </thead>
+              <tbody style="color: #cbd5e1;">
+                <tr>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08); font-weight: bold; color: #fbbf24;">A 相</td>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">Phase A</td>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">高頻率（隨解析度而定）</td>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">累計脈衝數計算旋轉角度、線性位移與即時進給速度</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08); font-weight: bold; color: #38bdf8;">B 相</td>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">Phase B</td>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">高頻率（相位差 90&deg;）</td>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">搭配 A 相判斷馬達旋轉方向 (CW/CCW)，並實現 4 倍頻硬體邊緣計數</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08); font-weight: bold; color: #34d399;">Z 相</td>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">Index / Zero</td>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">每旋轉一圈僅出現 1 次</td>
+                  <td style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.08);">精準校準機械原點 (Homing Lock)、圈數計數，消除光電開關機械熱漂移</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           <div class="code-block-dark">
@@ -724,7 +782,7 @@ nRet = MCCL.MCC_SetEncoderConfig(ref stENCConfig, 0, MCCL.CARDINDEX0);</code>
       <div class="step-flow-card">
         <div class="step-header">
           <div class="step-badge">3</div>
-          <h4 class="step-title-text">Step 3：設定原點復歸參數 (Home Configuration - 16種模式)</h4>
+          <h4 class="step-title-text">Step 3：設定原點復歸參數 (Home Configuration - 16種模式與三大情境狀態機)</h4>
           <span class="step-tag-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
             機械與邏輯原點校正
           </span>
@@ -737,6 +795,39 @@ nRet = MCCL.MCC_SetEncoderConfig(ref stENCConfig, 0, MCCL.CARDINDEX0);</code>
           <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; margin: 14px 0; text-align: center;">
             <img src="images_src/motion_control/homing_mode3_flow.png" alt="原點復歸模式 3 運動軌跡" style="max-width: 100%; height: 110px; object-fit: contain; display: block; margin: 0 auto;">
             <span style="font-size: 0.72rem; color: #94a3b8; display: block; margin-top: 6px;">模式 3 原點復歸軌跡：高速移動 ➔ 進入 Home Sensor 減速停止 (停於機械原點) ➔ 根據 dfOffset 移至邏輯原點</span>
+          </div>
+
+          <!-- 模式 3 三大啟動點情境狀態機深度剖析 (Slide 31) -->
+          <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 14px; margin-bottom: 14px;">
+            <h5 style="color: #34d399; margin: 0 0 10px 0; font-size: 0.95rem;">
+              <i class="fa-solid fa-code-branch"></i> 模式 3 內部狀態機：啟動點不同如何自動切換復歸路徑（投影片 Slide 31 核心剖析）
+            </h5>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; font-size: 0.83rem;">
+              <div style="background: #030712; padding: 10px; border-radius: 6px; border-left: 3px solid #38bdf8;">
+                <strong style="color: #38bdf8;">Case 1：啟動點在 Home 感測器前方</strong>
+                <p style="margin: 6px 0 0 0; color: #cbd5e1; line-height: 1.5;">
+                  1. 高速正向（往右）移動，直到偵測到 Home 上升緣。<br>
+                  2. 啟動減速並反轉（往左）低速脫離。<br>
+                  3. 離開 Home 遮光區後，捕捉第一個編碼器 <strong>Index (Z相) 脈衝</strong> 鎖定機械原點！
+                </p>
+              </div>
+              <div style="background: #030712; padding: 10px; border-radius: 6px; border-left: 3px solid #fbbf24;">
+                <strong style="color: #fbbf24;">Case 2：啟動點已在 Home 感測器之上</strong>
+                <p style="margin: 6px 0 0 0; color: #cbd5e1; line-height: 1.5;">
+                  1. 系統偵測到開機當下 Home 即為 ON (高電位)。<br>
+                  2. 先行正向低速移動，直到<strong>完全脫離 Home 遮光範圍</strong>變為 Low。<br>
+                  3. 脫離後立即切換為 Case 1 的標準往回搜尋邊緣與 Index 流程！
+                </p>
+              </div>
+              <div style="background: #030712; padding: 10px; border-radius: 6px; border-left: 3px solid #f43f5e;">
+                <strong style="color: #f43f5e;">Case 3：啟動點在 Home 與 Limit 開關之間</strong>
+                <p style="margin: 6px 0 0 0; color: #cbd5e1; line-height: 1.5;">
+                  1. 正向尋找時未碰到 Home，反而先觸發<strong>正極限開關 (Limit+)</strong>。<br>
+                  2. 軸卡硬體急停，並自動反向高速往左脫離。<br>
+                  3. 越過整個 Home 感測區後，自動轉為 Case 1 完成標準復歸！
+                </p>
+              </div>
+            </div>
           </div>
 
           <div class="code-block-dark">
@@ -800,7 +891,7 @@ nRet = MCCL.MCC_CreateGroup(
       <div class="step-flow-card">
         <div class="step-header">
           <div class="step-badge">5</div>
-          <h4 class="step-title-text">Step 5：設定系統參數與插值時間 (Interpolation Time)</h4>
+          <h4 class="step-title-text">Step 5：設定系統參數與插值時間 (Interpolation Time 1~50 ms)</h4>
           <span class="step-tag-pill" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
             軌跡離散時間調優
           </span>
@@ -809,8 +900,10 @@ nRet = MCCL.MCC_CreateGroup(
           <p>
             初始化系統底層驅動與通訊中斷，並設定核心<strong>插值時間 (Interpolation Time)</strong>。數值介於 <code>1 ms ~ 50 ms</code>（建議值為 <code>5 ms</code>）。插值時間越短，軌跡越平滑、輪廓誤差越小，但會提高 PC CPU 運算負載：
           </p>
-          <div class="code-block-dark">
-            <code>SYS_CARD_CONFIG stCardConfig = new SYS_CARD_CONFIG();
+
+          <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; margin: 14px 0; align-items: center;">
+            <div class="code-block-dark" style="margin: 0;">
+              <code>SYS_CARD_CONFIG stCardConfig = new SYS_CARD_CONFIG();
 
 stCardConfig.wCardAddress = 0x240;                              // 基礎位址 (PCI 卡自動配置，可保留預設)
 stCardConfig.wIRQ_No = 5;                                       // 中斷號 IRQ
@@ -820,8 +913,13 @@ stCardConfig.wCardType = (ushort)EPCIO_CARD_TYPE.EPCIO_4_AXIS_PCI_CARD; // 2: �
 nRet = MCCL.MCC_InitSystem(
     5,                 // 插值時間 Interpolation Time = 5 ms (建議值)
     ref stCardConfig,  // 軸卡組態結構
-    1                  // 運動控制卡使用張數 = 1
+    1                  // 運動控制卡使用張數 = 1 (全系統最高可支援 12 張卡、72 軸)
 );</code>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; text-align: center;">
+              <img src="images_src/motion_control/interpolation_cycle_time.png" alt="插值時間與離散插補點計算" style="max-width: 100%; height: 135px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.72rem; color: #94a3b8; display: block; margin-top: 6px;">插值時間：較小插值時間可縮短兩插補點間距，但顯著增加 CPU 工作負載</span>
+            </div>
           </div>
         </div>
       </div>
@@ -830,7 +928,7 @@ nRet = MCCL.MCC_InitSystem(
       <div class="step-flow-card">
         <div class="step-header">
           <div class="step-badge">6</div>
-          <h4 class="step-title-text">Step 6：運動控制設定 (單位、座標系、加減速、P Gain 與即時速度強制)</h4>
+          <h4 class="step-title-text">Step 6：運動控制設定 (單位、座標系、加減速、P Gain 閉迴路調諧與即時速度強制)</h4>
           <span class="step-tag-pill" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">
             進給速度與閉迴路增益
           </span>
@@ -846,15 +944,18 @@ nRet = MCCL.MCC_InitSystem(
 MCCL.MCC_SetUnit(MCCL.UNIT_MM, MCCL.GROUPINDEX0);
 MCCL.MCC_SetAbsolute(MCCL.GROUPINDEX0);
 
-// 2. 加減速時間 (毫秒)
-MCCL.MCC_SetAccTime(300, MCCL.GROUPINDEX0); // 300 ms 加速
-MCCL.MCC_SetDecTime(300, MCCL.GROUPINDEX0); // 300 ms 減速
+// 2. 加減速時間 (毫秒) - 決定梯形/S-Curve 坡度
+MCCL.MCC_SetAccTime(300, MCCL.GROUPINDEX0); // 300 ms 加速到穩定速度
+MCCL.MCC_SetDecTime(300, MCCL.GROUPINDEX0); // 300 ms 減速到停止
 
-// 3. 設定穩定運行進給速度 (mm/sec) 與閉迴路比例增益
+// 3. 設定穩定運行進給速度 (mm/sec)
 MCCL.MCC_SetFeedSpeed(30.0, MCCL.GROUPINDEX0);
+
+// 4. 設定位置閉迴路比例增益 (P-Gain, 設定範圍 1 ~ 16256)
+// 提高 P-Gain 可降低跟隨誤差 (Following Error)，但過高會引起高頻機械共振嘯叫！
 MCCL.MCC_SetPGain(60, 60, 60, 60, 60, 60, MCCL.CARDINDEX0);
 
-// 4. 動態調速 (例如旋鈕調至 120% 原速)
+// 5. 動態調速 (例如操作面板旋鈕調至 120% 原速)
 MCCL.MCC_SetOverrideRate(120, MCCL.GROUPINDEX0);</code>
             </div>
             <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; text-align: center;">
@@ -1010,6 +1111,35 @@ MCCL.MCC_SetBacklash(
             <li><strong>CNC 循圓測試</strong>：以非切削方式快速檢驗工具機定位效能與動態背隙幾何誤差。</li>
           </ul>
         </div>
+
+        <!-- 概念 4: 製程能力指數 Cpk 評級表與 AGV 送餐機器人實例 (Slide 41, 43) -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+          <h4 style="color: #fbbf24; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-calculator"></i> Cpk 公式、等級表與 AGV 伺服重複性
+          </h4>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/motion_control/cpk_formula_chart.png" alt="Cpk 計算公式與管制界限" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">Cpk 公式：Ca精確度 &times; Cp精密度</span>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/motion_control/agv_robot_repeatability.png" alt="送餐機器人 / AGV 可重複定位實例" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">Slide 41: AGV/送餐車重複抵達精準度</span>
+            </div>
+          </div>
+
+          <div style="background: #030712; border-left: 3px solid #fbbf24; padding: 8px 10px; font-family: monospace; font-size: 0.8rem; color: #fbbf24; margin-bottom: 8px;">
+            Cpk = min( (USL - &mu;) / (3&sigma;), (&mu; - LSL) / (3&sigma;) )
+          </div>
+
+          <ul style="padding-left: 20px; font-size: 0.83rem; color: #cbd5e1; line-height: 1.5; margin: 0;">
+            <li><strong>Cpk &ge; 1.67 (A+ 級)</strong>：製程能力特優，不良率 &lt; 0.0001%，可放寬抽驗頻率。</li>
+            <li><strong>1.33 &le; Cpk &lt; 1.67 (A 級)</strong>：製程能力充份，符合台積電/ASML 半導體與車規要求。</li>
+            <li><strong>1.00 &le; Cpk &lt; 1.33 (B 級)</strong>：製程能力尚可，但必須加強 SPC 管制圖即時監控。</li>
+            <li><strong>Cpk &lt; 1.00 (C 級)</strong>：製程能力不足，產品易超出公差界限，必須立刻停機調整機構與伺服增益！</li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -1061,6 +1191,31 @@ MCCL.MCC_SetBacklash(
           <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
             現場操作員常透過實體按鈕與 MPG 手搖輪（Handwheel）調整機台。利用研華 PCI-1756 數位 IO 卡讀取實體按鈕接點，即可在 C# 中呼叫 <code>MCC_JogPulse()</code> 與 <code>MCC_JogConti()</code> 精準對刀！
           </p>
+        </div>
+
+        <!-- 卡片 4: 數控工具機國際檢驗標準 (ISO 230 系列) 與精密幾何檢測 (Slide 65) -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; display: flex; flex-direction: column;">
+          <h4 style="color: #fbbf24; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-certificate"></i> 工具機國際檢驗標準 (ISO 230 系列)
+          </h4>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/motion_control/laser_interferometer_calibration.png" alt="雷射干涉儀三軸定位精度補正" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">ISO 230-2 雷射干涉儀補正</span>
+            </div>
+            <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center;">
+              <img src="images_src/motion_control/iso_cnc_geometric_scraping.png" alt="幾何精度直角規與精密鏟花檢驗" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
+              <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">ISO 230-1 直角規與精密鏟花</span>
+            </div>
+          </div>
+
+          <ul style="padding-left: 20px; font-size: 0.83rem; color: #cbd5e1; line-height: 1.5; margin: 0;">
+            <li><strong>ISO 230-1 (幾何精度檢驗)</strong>：使用高精度大理石角尺與百分表，檢驗 X-Y-Z 軸的相互垂直度與平面度；結合老師傅手藝<strong>精密鏟花 (Scraping)</strong> 消除滑軌接觸面之微小應力與油膜間隙。</li>
+            <li><strong>ISO 230-2 (定位與重複精度)</strong>：以<strong>雙頻雷射干涉儀 (Laser Interferometer)</strong> 沿軸向連續量測數十個目標點，量化螺桿累積螺距誤差，並產出補償表載入軸卡韌體！</li>
+            <li><strong>ISO 230-4 / ISO 10791-7 (動態切削與循圓)</strong>：以 Renishaw QC20-W 球桿儀進行 XY 平面高速循圓，即時診斷背隙、反向尖角 (Spike) 與伺服增益失配。</li>
+            <li><strong>ISO 230-5 (振動噪音檢測)</strong>：量測高速旋轉主軸之動態不平衡與共振頻率，確保切削表面粗糙度 (Ra &le; 0.4 &mu;m)。</li>
+          </ul>
         </div>
       </div>
     </section>
@@ -1399,6 +1554,37 @@ MCCL.MCC_SetBacklash(
           </div>
         </div>
 
+        <!-- 工具 4: 類比速度控制指令 (4~20mA / 0~10V) 換算器 (Slide 19) -->
+        <div class="tool-box-card">
+          <div class="tool-box-header">
+            <i class="fa-solid fa-gauge-high"></i>
+            <h4>類比速度指令 (4~20mA / 0~10V) 與 伺服轉速換算器</h4>
+          </div>
+
+          <div class="tool-input-group">
+            <label>伺服馬達額定最大轉速 Rated RPM (轉/分)：</label>
+            <input type="number" id="analog-max-rpm" class="tool-input" value="3000" step="500" oninput="calculateAnalogVelocity()">
+          </div>
+
+          <div class="tool-input-group">
+            <label>目標運轉轉速 Target RPM (轉/分)：</label>
+            <input type="number" id="analog-target-rpm" class="tool-input" value="1500" step="100" oninput="calculateAnalogVelocity()">
+          </div>
+
+          <div class="tool-input-group">
+            <label>控制訊號類型：</label>
+            <select id="analog-type-sel" class="tool-input" onchange="calculateAnalogVelocity()" style="background: #030712; color: #f8fafc; border: 1px solid rgba(255,255,255,0.15);">
+              <option value="current">4 ~ 20 mA 工業標準電流控制</option>
+              <option value="voltage">0 ~ 10 V 類比電壓控制</option>
+            </select>
+          </div>
+
+          <div class="tool-result-panel">
+            <button class="btn-copy-code" onclick="copyToolText('analog-res-result')">複製結果</button>
+            <pre id="analog-res-result">// 類比輸出換算結果將即時呈現在此...</pre>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -1503,6 +1689,43 @@ ${statusMsg}`;
       document.getElementById('scale-res-result').innerText = output;
     }
 
+    // 計算類比速度控制輸出 (4-20mA / 0-10V)
+    function calculateAnalogVelocity() {
+      const maxRpm = parseFloat(document.getElementById('analog-max-rpm').value) || 3000.0;
+      const targetRpm = parseFloat(document.getElementById('analog-target-rpm').value) || 1500.0;
+      const selType = document.getElementById('analog-type-sel').value;
+
+      const ratio = Math.min(Math.max(targetRpm / maxRpm, 0.0), 1.0);
+      let calcStr = "";
+
+      if (selType === "current") {
+        // 4 ~ 20 mA 公式: [(20 - 4) / maxRpm] * targetRpm + 4
+        const currentMa = (16.0 * ratio) + 4.0;
+        calcStr = `/* 類比電流控制 (4 ~ 20 mA) 計算 */
+馬達額定最高轉速: ${maxRpm} RPM
+目標設定運轉轉速: ${targetRpm} RPM (轉速比率: ${(ratio * 100).toFixed(1)}%)
+
+計算公式: [ (20 mA - 4 mA) / ${maxRpm} RPM ] × ${targetRpm} RPM + 4 mA
+➤ 上位機類比輸出模組 (AO) 應輸出電流: ${currentMa.toFixed(3)} mA
+
+[投影片 Slide 19 檢驗]:
+3000 RPM 額定，目標 1500 RPM 時，精準輸出剛好為 12.000 mA！`;
+      } else {
+        // 0 ~ 10 V 公式: [10 / maxRpm] * targetRpm
+        const voltV = 10.0 * ratio;
+        calcStr = `/* 類比電壓控制 (0 ~ 10 V) 計算 */
+馬達額定最高轉速: ${maxRpm} RPM
+目標設定運轉轉速: ${targetRpm} RPM (轉速比率: ${(ratio * 100).toFixed(1)}%)
+
+計算公式: [ 10 V / ${maxRpm} RPM ] × ${targetRpm} RPM
+➤ 上位機類比輸出模組 (AO) 應輸出電壓: ${voltV.toFixed(3)} V
+
+[工程提示]: 類比電壓長距離傳輸易受伺服馬達 PWM 雜訊干擾，工業現場強烈建議採用 4~20mA 電流迴路！`;
+      }
+
+      document.getElementById('analog-res-result').innerText = calcStr;
+    }
+
     // 複製文字至剪貼簿
     function copyToolText(elementId) {
       const text = document.getElementById(elementId).innerText;
@@ -1518,6 +1741,7 @@ ${statusMsg}`;
       calculateGearRatio();
       calculatePulseFreq();
       calculateLinearScaleRes();
+      calculateAnalogVelocity();
     });
   </script>
 </body>
