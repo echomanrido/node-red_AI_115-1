@@ -165,9 +165,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // 動態渲染 Lab 詳細內容
   function renderLabContent(lab) {
     const stepsHtml = lab.tutorialSteps.map(step => `
-      <div class="step-card">
-        <div class="step-header" style="color: #c084fc;"><i class="fa-solid fa-angle-right"></i> ${escapeHtml(step.step)}</div>
-        <div class="step-desc">${escapeHtml(step.description)}</div>
+      <div class="step-card" style="margin-bottom: 20px;">
+        <div class="step-header" style="color: #c084fc; font-weight: 700; font-size: 0.95rem;">
+          <i class="fa-solid fa-circle-chevron-right" style="color: #c084fc; margin-right: 8px;"></i> ${escapeHtml(step.step)}
+        </div>
+        <div class="step-desc" style="margin-top: 6px; line-height: 1.6; color: var(--text-muted);">${escapeHtml(step.description)}</div>
+        ${step.image ? `
+        <div class="step-image-box" style="margin-top: 14px; border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 8px; overflow: hidden; background: #0b0f19; cursor: zoom-in;" onclick="window.openLightbox('${step.image}', '${escapeHtml(step.imageCaption || step.step)}')">
+          <div style="padding: 6px 12px; background: rgba(168, 85, 247, 0.12); border-bottom: 1px solid rgba(168, 85, 247, 0.2); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.8rem; color: #d8b4fe; font-weight: 600;"><i class="fa-solid fa-file-powerpoint" style="margin-right: 6px; color: #f43f5e;"></i>${escapeHtml(step.imageCaption || step.step)}</span>
+            <span style="font-size: 0.72rem; color: var(--text-dim);"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大投影片</span>
+          </div>
+          <div style="padding: 6px; display: flex; justify-content: center; align-items: center; background: #000;">
+            <img src="${step.image}" alt="${escapeHtml(step.imageCaption || step.step)}" style="max-width: 100%; max-height: 480px; height: auto; object-fit: contain; border-radius: 4px; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.008)'" onmouseout="this.style.transform='scale(1)'">
+          </div>
+        </div>
+        ` : ''}
       </div>
     `).join('');
 
@@ -179,16 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </a>
     `).join('') : '<p style="color:var(--text-dim);">無延伸連結</p>';
     
-    const appsHtml = lab.applications ? lab.applications.map(app => `
-      <div class="app-scenario-card" style="background: rgba(168, 85, 247, 0.05); border-color: rgba(168, 85, 247, 0.2);">
-        <div class="app-scenario-header">
-          <i class="${escapeHtml(app.icon || 'fa-solid fa-cubes')}" style="color: #c084fc;"></i>
-          <span>${escapeHtml(app.scenario)}</span>
-        </div>
-        <div class="app-scenario-desc">${escapeHtml(app.description)}</div>
-      </div>
-    `).join('') : '<p style="color:var(--text-dim);">暫無實務情境應用</p>';
-
     contentBodyEl.innerHTML = `
       <!-- (1) Lab Header -->
       <section class="lab-header-card" style="border-top: 4px solid #a855f7;">
@@ -201,32 +204,20 @@ document.addEventListener('DOMContentLoaded', () => {
         <p class="lab-summary">${escapeHtml(lab.summary)}</p>
       </section>
 
-      <!-- (2) 架構圖 & 執行結果截圖 -->
-      <section class="gallery-section">
-        ${lab.flowImage ? `
+      <!-- (2) 投影片核心架構與介面設計展示 -->
+      ${lab.image ? `
+      <section class="gallery-section" style="width: 100%; margin-bottom: 24px;">
         <div class="image-card">
-          <div class="image-header">
-            <span class="image-title" style="color: #c084fc;"><i class="fa-solid fa-diagram-project"></i> ${escapeHtml(lab.flowTitle || 'C# 系統架構 / 投影片說明')}</span>
-            <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+          <div class="image-header" style="border-bottom: 1px solid rgba(168, 85, 247, 0.2); display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span class="image-title" style="color: #c084fc; font-size: 0.85rem;"><i class="fa-solid fa-file-powerpoint" style="color: #f43f5e;"></i> ${escapeHtml(lab.title)} - 投影片實作指引</span>
+            <span class="zoom-hint" style="font-size: 0.75rem;"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大投影片</span>
           </div>
-          <div class="image-wrapper" id="flowImgWrapper">
-            <img src="${lab.flowImage}" alt="架構截圖" onerror="this.src='https://via.placeholder.com/600x300?text=Flow+Image+Not+Found'">
+          <div class="image-wrapper sup-img-wrapper" id="mainImgWrapper" style="cursor: zoom-in; max-height: 520px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; width: 100%;" onclick="window.openLightbox('${lab.image}', '${escapeHtml(lab.title)}')">
+            <img src="${lab.image}" alt="投影片截圖" style="width: 100%; height: auto; object-fit: contain;" onerror="this.src='https://via.placeholder.com/800x450?text=Slide+Image+Not+Found'">
           </div>
         </div>
-        ` : ''}
-
-        ${lab.resultImage ? `
-        <div class="image-card">
-          <div class="image-header">
-            <span class="image-title" style="color: #38bdf8;"><i class="fa-solid fa-window-maximize"></i> ${escapeHtml(lab.resultTitle || 'WinForms 人機介面 / 實體控制結果')}</span>
-            <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
-          </div>
-          <div class="image-wrapper" id="resultImgWrapper">
-            <img src="${lab.resultImage}" alt="執行結果截圖" onerror="this.src='https://via.placeholder.com/600x300?text=Result+Image+Not+Found'">
-          </div>
-        </div>
-        ` : ''}
       </section>
+      ` : ''}
 
       <!-- (3) Lab 學習目標 -->
       <section class="section-card">
@@ -369,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxCaption.textContent = caption;
     lightboxModal.style.display = 'flex';
   }
+  window.openLightbox = openLightbox;
 
   if (lightboxClose) {
     lightboxClose.addEventListener('click', () => {

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>五股職訓局-機電AI_115-1期 | Node-RED 實戰專題專區</title>
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* 專題專區專屬客製強化樣式 */
+    :root {
+      --nr-proj-color: #ef4444;
+      --nr-proj-glow: rgba(239, 68, 68, 0.35);
+    }
+    
+    .proj-category-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+    .proj-tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .proj-tab-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ffffff;
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+    .proj-tab-btn.active {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.35), rgba(249, 115, 22, 0.25));
+      border-color: #ef4444;
+      color: #fca5a5;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+    }
+
+    /* 投影片輪播器樣式 */
+    .slide-deck-viewer {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 20px 0;
+      position: relative;
+    }
+    .slide-deck-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+    }
+    .slide-deck-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fca5a5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .slide-deck-screen {
+      width: 100%;
+      height: 480px;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .slide-deck-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      cursor: zoom-in;
+      transition: opacity 0.2s ease;
+    }
+    .slide-deck-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+    .slide-deck-nav-btn:hover {
+      background: rgba(239, 68, 68, 0.8);
+      border-color: #ef4444;
+      transform: translateY(-50%) scale(1.1);
+    }
+    .slide-deck-nav-btn.prev { left: 16px; }
+    .slide-deck-nav-btn.next { right: 16px; }
+
+    .slide-deck-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .slide-deck-counter {
+      font-weight: 700;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.15);
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .slide-deck-thumbnails {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 0 4px 0;
+      scrollbar-width: thin;
+    }
+    .slide-thumb {
+      width: 80px;
+      height: 45px;
+      border-radius: 4px;
+      border: 2px solid transparent;
+      object-fit: cover;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .slide-thumb:hover {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+    .slide-thumb.active {
+      opacity: 1;
+      border-color: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar / 左側專題選單 -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">
+          <i class="fa-solid fa-microchip logo-icon" style="color: #ef4444;"></i>
+          <div class="brand-titles">
+            <h1 class="main-title">五股職訓局</h1>
+            <span class="sub-title">機電AI_115-1期（作者：Rido老師）</span>
+          </div>
+        </div>
+        <button class="mobile-toggle-btn" id="sidebarCloseBtn" aria-label="關閉選單">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- 搜尋框 -->
+      <div class="sidebar-search">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" placeholder="搜尋 Node-RED 專題名稱、關鍵字..." />
+        </div>
+      </div>
+
+      <!-- 分類切換 Tabs -->
+      <div class="proj-category-tabs">
+        <button class="proj-tab-btn active" data-category="all">
+          <i class="fa-solid fa-layer-group"></i> 全部
+        </button>
+        <button class="proj-tab-btn" data-category="通訊與物聯網">
+          <i class="fa-solid fa-network-wired"></i> 物聯網
+        </button>
+        <button class="proj-tab-btn" data-category="智慧生活與金融 API">
+          <i class="fa-solid fa-cloud-sun"></i> API生活
+        </button>
+        <button class="proj-tab-btn" data-category="機器學習與視覺 AI">
+          <i class="fa-solid fa-camera"></i> 視覺AI
+        </button>
+        <button class="proj-tab-btn" data-category="大語言模型 (LLM) 整合">
+          <i class="fa-solid fa-brain"></i> LLM
+        </button>
+        <button class="proj-tab-btn" data-category="工業自動化與機器人">
+          <i class="fa-solid fa-robot"></i> 手臂/自動化
+        </button>
+      </div>
+
+      <div class="sidebar-menu-title" style="display: flex; justify-content: space-between; align-items: center; color: #ef4444;">
+        <span><i class="fa-solid fa-diagram-project"></i> NODE-RED 專題清單</span>
+        <span class="lab-count-badge" id="projCountBadge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4);">0</span>
+      </div>
+
+      <nav class="lab-list" id="projList">
+        <!-- JS 動態渲染專題選單列表 -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="footer-info" style="display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem;">
+          <div><i class="fa-solid fa-diagram-project" style="color: #ef4444;"></i> Node-RED 實戰專題模組</div>
+          <div style="opacity: 0.7; font-size: 0.72rem; padding-left: 18px;">作者：Rido老師</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主內容區域 -->
+    <main class="main-content">
+      <!-- 頂部 Header -->
+      <header class="top-header">
+        <button class="mobile-toggle-btn" id="sidebarOpenBtn" aria-label="開啟選單">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="breadcrumb" id="breadcrumb">
+          <a href="index.html" class="back-home-link"><i class="fa-solid fa-house"></i> 首頁</a> / <span class="active-lab-name">載入中...</span>
+        </div>
+        <div class="header-actions">
+          <a href="labs.html" class="status-tag" style="text-decoration: none; background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3); color: var(--primary); margin-right: 6px;">
+            <i class="fa-solid fa-flask"></i> node-red課程
+          </a>
+          <a href="supplements.html" class="status-tag" style="text-decoration: none; background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3); color: var(--primary); margin-right: 6px;">
+            <i class="fa-solid fa-book"></i> node-red學習補充教材
+          </a>
+          <a href="vibecoding.html" class="status-tag" style="text-decoration: none; background: rgba(14, 165, 233, 0.15); border-color: rgba(56, 189, 248, 0.35); color: #38bdf8; margin-right: 6px;">
+            <i class="fa-solid fa-bolt"></i> Vibe Coding
+          </a>
+          <span class="status-tag" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.45); color: #fca5a5;">
+            <i class="fa-solid fa-diagram-project"></i> 115-1期 專題實作
+          </span>
+        </div>
+      </header>
+
+      <!-- 動態載入專題教學內容 -->
+      <div class="content-body" id="contentBody">
+        <!-- JS 動態插入內容 -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Lightbox Modal (圖片放大預覽) -->
+  <div class="lightbox-modal" id="lightboxModal">
+    <span class="lightbox-close" id="lightboxClose">&times;</span>
+    <img class="lightbox-content" id="lightboxImg" alt="照片放大預覽">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+
+  <!-- Toast Notification 通知 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- 引用資料與主程式 -->
+  <script src="noderedProjectsData.js?v=1.0"></script>
+  <script src="noderedProjectsApp.js?v=1.0"></script>
+</body>
+</html>
