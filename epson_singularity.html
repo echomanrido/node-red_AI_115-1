@@ -20,6 +20,15 @@
     </script>
     <style>
         body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+        /* 圖片點選放大游標與效果 */
+        main img {
+            cursor: zoom-in;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        main img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.35);
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased leading-relaxed">
@@ -79,9 +88,17 @@
             <p class="text-slate-600 mb-4">
                 從物理結構上來說，奇異點的發生通常與機器手臂的兩個或多個關節軸線的排列方式有關。當不同的關節軸線變得共線（在同一直線上）或共面（在同一個平面上）時，它們的運動會產生相互依賴或抵銷的效果。
             </p>
-            <p class="text-slate-600">
+            <p class="text-slate-600 mb-6">
                 這會導致末端執行器在某個方向上的運動能力喪失。在這種情況下，一個方向的微小運動可能需要兩個或多個關節以<strong>無限大的速度</strong>來補償，這在物理上是不可能實現的。
             </p>
+
+            <!-- 投影片圖解：反向運動學角度看奇異點 -->
+            <div class="rounded-xl overflow-hidden border border-slate-200 shadow-md my-4 bg-slate-900">
+                <img src="images_src/epson_robot/deck1_s56_1.jpg" alt="反向運動學角度之奇異點" class="w-full h-auto object-contain max-h-[380px] mx-auto p-2" onclick="openLightbox(this.src, '反向運動學角度看奇異點 (簡報 01 Slide 56)')">
+                <div class="p-3 bg-slate-800 text-slate-300 text-xs text-center border-t border-slate-700">
+                    ▲ 【原廠簡報 01 P.56】反向運動學 (Inverse Kinematics) 奇異點解析：笛卡爾空間軌跡在逆算關節角時出現除以零與無限速度要求
+                </div>
+            </div>
         </section>
 
         <!-- Section 3: Mathematical Principle -->
@@ -144,26 +161,98 @@
                 六軸機器手臂常見的三種奇異點類型
             </h2>
 
-            <div class="space-y-6">
+            <div class="space-y-8">
                 <!-- Type 1 -->
                 <div class="border border-slate-200 rounded-xl p-6 bg-slate-50">
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">1. 腕部奇異點 (Wrist Singularity)</h3>
-                    <p class="text-sm text-blue-700 font-semibold mb-2">軸角度原因：第五軸角度趨近於零，第四軸與第六軸軸線重合或平行。</p>
-                    <p class="text-slate-600 mb-3"><strong>笛卡爾結果：</strong>失去繞第五軸原軸線方向進行獨立旋轉的自由度。為了作微小姿態調整，J4與J6可能需以極高速度反向旋轉180度。</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2 flex items-center justify-between">
+                        <span>1. 腕部奇異點 (Wrist Singularity)</span>
+                        <span class="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded font-semibold">最常見奇點</span>
+                    </h3>
+                    <p class="text-sm text-blue-700 font-semibold mb-2">軸角度原因：第五軸角度趨近於零（J5 = 0°），第四軸與第六軸軸線重合或平行。</p>
+                    <p class="text-slate-600 mb-4"><strong>笛卡爾結果：</strong>失去繞第五軸原軸線方向進行獨立旋轉的自由度。為了作微小姿態調整，J4 與 J6 可能需以極高速度反向旋轉 180 度。</p>
+                    <div class="rounded-lg overflow-hidden border border-slate-200 bg-white">
+                        <img src="images_src/epson_robot/deck1_s58_1.jpg" alt="腕部奇異點" class="w-full h-auto object-contain max-h-[340px] mx-auto p-2" onclick="openLightbox(this.src, '腕關節奇異點 Wrist Singularity (簡報 01 Slide 58)')">
+                        <div class="p-2.5 bg-slate-100 text-slate-600 text-xs text-center border-t border-slate-200 font-mono">
+                            ▲ 【原廠簡報 01 P.58】腕部奇異點（軸 4 與軸 6 軸心重合，J5 轉角為 0 度）
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Type 2 -->
                 <div class="border border-slate-200 rounded-xl p-6 bg-slate-50">
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">2. 肩部奇異點 (Shoulder Singularity)</h3>
-                    <p class="text-sm text-blue-700 font-semibold mb-2">軸角度原因：腕關節中心點正好落在第一軸的旋轉軸線上。</p>
-                    <p class="text-slate-600 mb-3"><strong>笛卡爾結果：</strong>第一軸與第四軸運動產生衝突。通過此「死亡地帶」時，姿態需瞬間翻轉，導致關節速度趨近無限大。</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2 flex items-center justify-between">
+                        <span>2. 肩部奇異點 (Shoulder Singularity)</span>
+                        <span class="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded font-semibold">中心軸死區</span>
+                    </h3>
+                    <p class="text-sm text-blue-700 font-semibold mb-2">軸角度原因：腕關節中心點正好落在第一軸的旋轉軸線上（X=0, Y=0 直線柱面）。</p>
+                    <p class="text-slate-600 mb-4"><strong>笛卡爾結果：</strong>第一軸與第四軸運動產生衝突。通過此「死亡地帶」時，第一軸需瞬間旋轉 180°，導致關節速度趨近無限大。</p>
+                    <div class="rounded-lg overflow-hidden border border-slate-200 bg-white">
+                        <img src="images_src/epson_robot/deck1_s59_1.png" alt="肩部奇異點" class="w-full h-auto object-contain max-h-[340px] mx-auto p-2" onclick="openLightbox(this.src, '肩關節奇異點 Shoulder Singularity (簡報 01 Slide 59)')">
+                        <div class="p-2.5 bg-slate-100 text-slate-600 text-xs text-center border-t border-slate-200 font-mono">
+                            ▲ 【原廠簡報 01 P.59】肩部奇異點（腕中心點與第一軸旋轉中心重合）
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Type 3 -->
                 <div class="border border-slate-200 rounded-xl p-6 bg-slate-50">
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">3. 肘部奇異點 (Elbow Singularity)</h3>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2 flex items-center justify-between">
+                        <span>3. 肘部奇異點 (Elbow Singularity)</span>
+                        <span class="text-xs bg-purple-100 text-purple-700 px-2.5 py-1 rounded font-semibold">最大伸展極限</span>
+                    </h3>
                     <p class="text-sm text-blue-700 font-semibold mb-2">軸角度原因：手臂完全伸展，第二、三軸中心與腕部中心三點共線。</p>
-                    <p class="text-slate-600 mb-3"><strong>笛卡爾結果：</strong>手臂達到工作範圍極限，失去沿著手臂伸展方向進一步移動的能力。</p>
+                    <p class="text-slate-600 mb-4"><strong>笛卡爾結果：</strong>手臂達到工作範圍極限，失去沿著手臂伸展方向進一步移動的能力，無法再往前延伸哪怕 0.1mm。</p>
+                    <div class="rounded-lg overflow-hidden border border-slate-200 bg-white">
+                        <img src="images_src/epson_robot/deck1_s60_1.jpg" alt="肘部奇異點" class="w-full h-auto object-contain max-h-[340px] mx-auto p-2" onclick="openLightbox(this.src, '肘關節奇異點 Elbow Singularity (簡報 01 Slide 60)')">
+                        <div class="p-2.5 bg-slate-100 text-slate-600 text-xs text-center border-t border-slate-200 font-mono">
+                            ▲ 【原廠簡報 01 P.60】肘部奇異點（手臂伸展至最大半徑，兩連桿夾角趨向 180°）
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: How to Avoid Singularity -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center">
+                <span class="bg-blue-600 text-white w-8 h-8 rounded-lg inline-flex items-center justify-center text-sm mr-3">6</span>
+                現場工程師如何避開奇異點？實務手法與 7 軸手臂創新
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-bold">1</span>
+                            工裝與佈局設計避障
+                        </h3>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-3">
+                            在機台機構佈局時，將手臂傾斜安裝（如傾斜 45°）或調整治具高度，使加工軌跡避開正上方肩部中心柱面，讓第五軸恆處於 5°~15° 偏擺角。
+                        </p>
+                    </div>
+                    <div class="rounded-lg overflow-hidden border border-slate-200 bg-white">
+                        <img src="images_src/epson_robot/deck1_s63_2.png" alt="避開奇異點三大工法" class="w-full h-auto object-contain max-h-[260px] mx-auto p-2" onclick="openLightbox(this.src, '原廠推薦避奇異點佈局技巧 (簡報 01 Slide 63)')">
+                        <div class="p-2 bg-slate-100 text-slate-500 text-[11px] text-center border-t border-slate-200">
+                            ▲ 【原廠簡報 01 P.63】治具傾斜與點位微調避開奇點
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 text-xs flex items-center justify-center font-bold">2</span>
+                            7 軸冗餘度機器手臂（Redundant Robot）
+                        </h3>
+                        <p class="text-slate-600 text-xs leading-relaxed mb-3">
+                            在三維空間 6 自由度任務中加入第 7 旋轉軸（冗餘自由度 Null Space）。末端執行器位置姿態不變的前提下，手臂內部關節可以「如人手肘抬起落下」自如靈活轉動，徹底擺脫奇點束縛！
+                        </p>
+                    </div>
+                    <div class="rounded-lg overflow-hidden border border-slate-200 bg-white">
+                        <img src="images_src/epson_robot/deck1_s64_1.png" alt="7軸機器手臂避奇異點" class="w-full h-auto object-contain max-h-[260px] mx-auto p-2" onclick="openLightbox(this.src, '7軸冗餘手臂運動學優勢 (簡報 01 Slide 64)')">
+                        <div class="p-2 bg-slate-100 text-slate-500 text-[11px] text-center border-t border-slate-200">
+                            ▲ 【原廠簡報 01 P.64】7軸手臂利用零空間姿態自如避奇異點與障礙物
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -178,6 +267,7 @@
                             <th class="py-3 px-4 font-semibold">奇異點類型</th>
                             <th class="py-3 px-4 font-semibold">軸角度的「因」</th>
                             <th class="py-3 px-4 font-semibold">笛卡爾空間的「果」 (失去的自由度)</th>
+                            <th class="py-3 px-4 font-semibold">原廠規避對策</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 text-slate-600 text-sm">
@@ -185,16 +275,19 @@
                             <td class="py-3 px-4 font-medium text-slate-900">腕部奇異點</td>
                             <td class="py-3 px-4">第五軸角度為零，第四、六軸軸線重合。</td>
                             <td class="py-3 px-4">失去繞第五軸軸線方向的角速度能力。</td>
+                            <td class="py-3 px-4">治具或點位強制維持 J5 ≥ 3°~5° 偏置角。</td>
                         </tr>
                         <tr>
                             <td class="py-3 px-4 font-medium text-slate-900">肘部奇異點</td>
                             <td class="py-3 px-4">手臂完全伸直，第二、三軸及腕部中心共線。</td>
                             <td class="py-3 px-4">失去沿手臂伸展方向的線速度能力。</td>
+                            <td class="py-3 px-4">工作行程限制在最大半徑的 90% 以內。</td>
                         </tr>
                         <tr>
                             <td class="py-3 px-4 font-medium text-slate-900">肩部奇異點</td>
                             <td class="py-3 px-4">腕部中心與第一軸軸線重合。</td>
                             <td class="py-3 px-4">失去在特定平面內橫向移動的線速度能力。</td>
+                            <td class="py-3 px-4">工站左右位移，避開手臂正上方/正下方死區。</td>
                         </tr>
                     </tbody>
                 </table>
@@ -205,8 +298,57 @@
 
     <!-- Footer -->
     <footer class="text-center py-8 text-slate-500 text-sm">
-        <p>&copy; 2026 六軸機器手臂奇異點教學網頁. All rights reserved.</p>
+        <p>&copy; 2026 六軸機器手臂奇異點教學網頁. All rights reserved. 五股職訓局 機電 AI 115-1 期</p>
     </footer>
+
+    <!-- Lightbox 圖片放大模態框 -->
+    <div id="imageLightboxModal" style="display: none; position: fixed; inset: 0; z-index: 999999; background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(10px); align-items: center; justify-content: center; padding: 24px;" onclick="closeLightbox()">
+        <div style="position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center;" onclick="event.stopPropagation()">
+            <button onclick="closeLightbox()" style="position: absolute; top: -45px; right: 0; background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.8)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">✕</button>
+            <img id="lightboxImg" src="" alt="放大圖" style="max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); border: 2px solid rgba(255,255,255,0.15); background: #0f172a;">
+            <p id="lightboxCaption" style="margin-top: 14px; color: #f1f5f9; font-size: 0.95rem; text-align: center; font-weight: 500; text-shadow: 0 2px 4px rgba(0,0,0,0.8); max-width: 80vw;"></p>
+        </div>
+    </div>
+
+    <!-- Lightbox 互動腳本 -->
+    <script>
+        function openLightbox(src, caption) {
+            var modal = document.getElementById('imageLightboxModal');
+            var img = document.getElementById('lightboxImg');
+            var cap = document.getElementById('lightboxCaption');
+            if (!modal || !img) return;
+            img.src = src;
+            cap.innerText = caption || '投影片高解析截圖 (點擊任意處或按 ESC 關閉)';
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            var modal = document.getElementById('imageLightboxModal');
+            if (!modal) return;
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+
+        // 為所有 main 標籤中的 img 自動註冊 lightbox
+        document.addEventListener('DOMContentLoaded', function() {
+            var imgs = document.querySelectorAll('main img');
+            imgs.forEach(function(img) {
+                if (!img.getAttribute('onclick')) {
+                    img.style.cursor = 'zoom-in';
+                    img.addEventListener('click', function() {
+                        openLightbox(this.src, this.alt || '投影片圖片');
+                    });
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>

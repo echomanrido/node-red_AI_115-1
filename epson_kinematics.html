@@ -14,6 +14,15 @@
         body {
             font-family: 'Noto Sans TC', sans-serif;
         }
+        /* 圖片點選放大游標與效果 */
+        main img {
+            cursor: zoom-in;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        main img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
@@ -78,6 +87,53 @@
                     <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl">
                         <div class="text-teal-400 font-bold mb-1"><i class="fa-solid fa-bullseye mr-2"></i>反向運動學 (IK)</div>
                         <p class="text-sm text-slate-400">從「世界語言」翻譯成「關節語言」。已知目標位置，求關節角度。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Robot Coordinate Systems & Joint Axes (From Deck 01 Slides 21 & 22) -->
+        <section class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
+            <div class="flex items-center space-x-3">
+                <div class="h-8 w-2 bg-indigo-500 rounded-full"></div>
+                <div>
+                    <h3 class="text-2xl font-bold text-white">六軸機器手臂的關節軸向與座標系定義</h3>
+                    <p class="text-sm text-slate-400">理解運動學的前提：基座座標系 (Base)、世界座標系 (World)、工具座標系 (Tool) 與 6 個旋轉自由度</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-4 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-indigo-400 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-arrows-to-dot"></i> 六軸垂直關節機器人結構與自由度
+                        </h4>
+                        <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+                            J1 (基座旋轉)、J2 (大臂俯仰)、J3 (小臂俯仰)、J4 (手腕旋轉)、J5 (手腕彎曲)、J6 (手腕法蘭旋轉)。6 個旋轉關節串聯組成完整 6 自由度 (3 位置 + 3 姿態)。
+                        </p>
+                    </div>
+                    <div class="rounded-lg overflow-hidden border border-slate-700 bg-slate-950">
+                        <img src="images_src/epson_robot/deck1_s21_1.png" alt="六軸機器手臂關節軸向" class="w-full h-auto object-contain max-h-[300px] mx-auto p-2" onclick="openLightbox(this.src, '六軸垂直關節手臂關節定義 (簡報 01 Slide 21)')">
+                        <div class="p-2 bg-slate-800 text-slate-400 text-xs text-center border-t border-slate-700">
+                            ▲ 【原廠簡報 01 P.21】六軸機器人各關節（J1 ~ J6）旋轉軸方向與運動結構
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-4 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-cyan-400 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-compass"></i> 直角座標系與歐拉角姿態 (Roll / Pitch / Yaw)
+                        </h4>
+                        <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+                            笛卡爾空間除了 $(X, Y, Z)$ 位置，末端還具備 3 個旋轉姿態角：U（繞 Z 軸轉動/偏航 Yaw）、V（繞 Y 軸轉動/俯仰 Pitch）、W（繞 X 軸轉動/翻滾 Roll）。
+                        </p>
+                    </div>
+                    <div class="rounded-lg overflow-hidden border border-slate-700 bg-slate-950">
+                        <img src="images_src/epson_robot/deck1_s22_1.png" alt="六軸直角座標系定義" class="w-full h-auto object-contain max-h-[300px] mx-auto p-2" onclick="openLightbox(this.src, '直角座標系與姿態角定義 (簡報 01 Slide 22)')">
+                        <div class="p-2 bg-slate-800 text-slate-400 text-xs text-center border-t border-slate-700">
+                            ▲ 【原廠簡報 01 P.22】笛卡爾世界座標系與末端工具姿態角 (U, V, W)
+                        </div>
                     </div>
                 </div>
             </div>
@@ -282,12 +338,123 @@
             </div>
         </section>
 
+        <!-- Section: IK Multiple Solutions & Posture Flags (From Deck 01 Slides 45 & 46) -->
+        <section class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
+            <div class="flex items-center space-x-3">
+                <div class="h-8 w-2 bg-amber-500 rounded-full"></div>
+                <div>
+                    <h3 class="text-2xl font-bold text-white">逆運動學的多組解 (Multiple Solutions) 與姿態旗標 (Posture Flags)</h3>
+                    <p class="text-sm text-slate-400">當目標座標相同時，手臂可用不同的關節姿態抵達——EPSON 控制器如何精確指定唯一姿態？</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- SCARA /R and /L -->
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-base font-bold text-amber-400">SCARA 手臂：右手系 (/R) 與左手系 (/L)</h4>
+                            <span class="text-xs bg-amber-500/20 text-amber-300 px-2.5 py-0.5 rounded border border-amber-500/30">2 組解</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+                            平面 4 軸 SCARA 手臂抵達同一個 $(X, Y)$ 座標時，手肘可向右凸出（右手姿勢 <code class="text-amber-300 font-mono">/R</code>，J2 ≤ 0°）或向左凸出（左手姿勢 <code class="text-amber-300 font-mono">/L</code>，J2 ≥ 0°）。點位標籤如 <code class="text-indigo-300 font-mono">P1 /R</code> 或 <code class="text-indigo-300 font-mono">P1 /L</code>。
+                        </p>
+                    </div>
+                    <div class="rounded-lg overflow-hidden border border-slate-700 bg-slate-950">
+                        <img src="images_src/epson_robot/deck1_s45_1.png" alt="SCARA 手臂右手系與左手系姿態" class="w-full h-auto object-contain max-h-[280px] mx-auto p-2" onclick="openLightbox(this.src, 'SCARA 手臂左右手姿態旗標 (簡報 01 Slide 45)')">
+                        <div class="p-2 bg-slate-800 text-slate-400 text-xs text-center border-t border-slate-700">
+                            ▲ 【原廠簡報 01 P.45】SCARA 手臂右手姿態 (/R) 與左手姿態 (/L) 逆運動學分支
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6-Axis Posture Combinations -->
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-base font-bold text-teal-400">六軸垂直關節手臂：高達 8 組解的姿態旗標</h4>
+                            <span class="text-xs bg-teal-500/20 text-teal-300 px-2.5 py-0.5 rounded border border-teal-500/30">8 組解</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+                            六軸機械手臂抵達同一目標位姿具有 8 種構型組合：手肘朝上/下（<code class="text-teal-300 font-mono">/A</code>, <code class="text-teal-300 font-mono">/B</code>）、手腕翻轉/非翻轉（<code class="text-teal-300 font-mono">/F</code>, <code class="text-teal-300 font-mono">/NF</code>）、肩部左/右。透過旗標鎖定能避免手臂運動中劇烈甩動撞機！
+                        </p>
+                    </div>
+                    <div class="rounded-lg overflow-hidden border border-slate-700 bg-slate-950">
+                        <img src="images_src/epson_robot/deck1_s46_1.png" alt="六軸機器人多解姿態旗標" class="w-full h-auto object-contain max-h-[280px] mx-auto p-2" onclick="openLightbox(this.src, '六軸機器人姿態旗標對照 (簡報 01 Slide 46)')">
+                        <div class="p-2 bg-slate-800 text-slate-400 text-xs text-center border-t border-slate-700">
+                            ▲ 【原廠簡報 01 P.46】六軸手臂肘姿態 (Above/Below) 與腕姿態 (Flip/NoFlip)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: PTP vs CP Trajectory & Kinematics Essence (From Deck 01 Slides 69 & 70) -->
+        <section class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
+            <div class="flex items-center space-x-3">
+                <div class="h-8 w-2 bg-pink-500 rounded-full"></div>
+                <div>
+                    <h3 class="text-2xl font-bold text-white">運動插補的運動學本質：PTP (Go) 弧線 vs CP (Move) 直線</h3>
+                    <p class="text-sm text-slate-400">點對點關節插補與連續路徑直角插補的計算開銷與路徑差異</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- PTP -->
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-base font-bold text-indigo-400">PTP (Point-To-Point) 關節插補 — Go / JTran</h4>
+                            <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">計算最少・速度最快</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+                            控制器僅在「起點」與「終點」各執行一次逆運動學求解，隨後各關節在關節空間中以平滑 S 曲線獨立加減速旋轉。末端軌跡為空間複合弧線，<strong>絕不發生奇異點卡死</strong>，最適合快速搬運空載換位！
+                        </p>
+                    </div>
+                    <div class="rounded-lg overflow-hidden border border-slate-700 bg-slate-950">
+                        <img src="images_src/epson_robot/deck1_s69_1.png" alt="PTP 運動軌跡" class="w-full h-auto object-contain max-h-[280px] mx-auto p-2" onclick="openLightbox(this.src, 'PTP 關節插補運動軌跡 (簡報 01 Slide 69)')">
+                        <div class="p-2 bg-slate-800 text-slate-400 text-xs text-center border-t border-slate-700">
+                            ▲ 【原廠簡報 01 P.69】PTP 運動：末端自然弧形軌跡，關節同步等時抵達
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CP -->
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-base font-bold text-pink-400">CP (Continuous Path) 直線插補 — Move / Arc</h4>
+                            <span class="text-xs bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded">幾何直線・即時高頻 IK</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+                            控制器在世界空間將直線路徑等距切分為數千個微小插補點，每隔 1~2 毫秒執行一次高頻逆運動學 IK 計算。末端絕對保證為精準直線，但若路徑穿越奇異點，關節速度將衝破物理極限而劇烈報警。
+                        </p>
+                    </div>
+                    <div class="rounded-lg overflow-hidden border border-slate-700 bg-slate-950">
+                        <img src="images_src/epson_robot/deck1_s70_1.png" alt="CP 直線連續路徑運動" class="w-full h-auto object-contain max-h-[280px] mx-auto p-2" onclick="openLightbox(this.src, 'CP 直線插補運動 (簡報 01 Slide 70)')">
+                        <div class="p-2 bg-slate-800 text-slate-400 text-xs text-center border-t border-slate-700">
+                            ▲ 【原廠簡報 01 P.70】CP 直線運動：末端沿直線等速前進，即時 IK 逆算各軸速度
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- Footer -->
     <footer class="bg-slate-800 border-t border-slate-700 py-6 text-center text-xs text-slate-400">
-        <p>六軸機器手臂運動學教學網頁 &copy; 2026 |基於正向與反向運動學核心理論設計</p>
+        <p>六軸機器手臂運動學教學網頁 &copy; 2026 | 基於正向與反向運動學核心理論設計 | 五股職訓局 機電 AI 115-1 期</p>
     </footer>
+
+    <!-- Lightbox 圖片放大模態框 -->
+    <div id="imageLightboxModal" style="display: none; position: fixed; inset: 0; z-index: 999999; background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(10px); align-items: center; justify-content: center; padding: 24px;" onclick="closeLightbox()">
+        <div style="position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center;" onclick="event.stopPropagation()">
+            <button onclick="closeLightbox()" style="position: absolute; top: -45px; right: 0; background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.8)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">✕</button>
+            <img id="lightboxImg" src="" alt="放大圖" style="max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); border: 2px solid rgba(255,255,255,0.15); background: #0f172a;">
+            <p id="lightboxCaption" style="margin-top: 14px; color: #f1f5f9; font-size: 0.95rem; text-align: center; font-weight: 500; text-shadow: 0 2px 4px rgba(0,0,0,0.8); max-width: 80vw;"></p>
+        </div>
+    </div>
 
     <!-- JavaScript for Interactive Simulation -->
     <script>
@@ -459,7 +626,43 @@
         // Initialize on load
         window.onload = function() {
             updateFK();
+
+            // 為所有 main 標籤中的 img 自動註冊 lightbox
+            var imgs = document.querySelectorAll('main img');
+            imgs.forEach(function(img) {
+                if (!img.getAttribute('onclick')) {
+                    img.style.cursor = 'zoom-in';
+                    img.addEventListener('click', function() {
+                        openLightbox(this.src, this.alt || '投影片圖片');
+                    });
+                }
+            });
         };
+
+        // Lightbox 互動處理
+        function openLightbox(src, caption) {
+            var modal = document.getElementById('imageLightboxModal');
+            var img = document.getElementById('lightboxImg');
+            var cap = document.getElementById('lightboxCaption');
+            if (!modal || !img) return;
+            img.src = src;
+            cap.innerText = caption || '投影片高解析截圖 (點擊任意處或按 ESC 關閉)';
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            var modal = document.getElementById('imageLightboxModal');
+            if (!modal) return;
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
     </script>
 </body>
 </html>
