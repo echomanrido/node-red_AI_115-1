@@ -812,6 +812,55 @@
           <pre id="spel-output">SPEL+ 代碼即時預覽...</pre>
         </div>
       </div>
+
+      <!-- SPEL+ 運動命令兩大體系：PTP (點到點) vs CP (連續軌跡) 深度對比 (投影片 01 Slide 67~75) -->
+      <div style="margin-top: 24px; background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+          <h4 style="color: #06b6d4; margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-route"></i> PTP (點到點運動) vs CP (連續路徑運動) 深度對比 (Slide 67~75)
+          </h4>
+          <span style="font-size: 0.75rem; color: #94a3b8; font-family: monospace;">SPEL+ Motion Architecture</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: center;">
+          <div style="overflow-x: auto;">
+            <table class="fx-table" style="font-size: 0.82rem; margin: 0;">
+              <thead>
+                <tr style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
+                  <th>運動類別</th>
+                  <th>代表指令</th>
+                  <th>末端軌跡特性</th>
+                  <th>工程適用場景</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color: #fbbf24; font-weight: bold;">PTP (點到點)</td>
+                  <td><code>Go</code>, <code>Jump</code>, <code>BGo</code></td>
+                  <td>各關節同時啟動、以最快速度各自到位；<strong>末端在空間中不是直線</strong>（為弧線或門形拱弧）</td>
+                  <td>一般快速搬運、晶圓取放、料盒堆疊 (高速無障礙空間)</td>
+                </tr>
+                <tr>
+                  <td style="color: #38bdf8; font-weight: bold;">CP (連續軌跡)</td>
+                  <td><code>Move</code>, <code>Arc</code>, <code>Curve</code></td>
+                  <td><strong>末端工具嚴格沿著直線、圓弧或平滑空間曲線行進</strong>，速度受控</td>
+                  <td>自動塗膠、超音波焊接、狹窄孔位垂直裝配、去毛邊拋光</td>
+                </tr>
+                <tr>
+                  <td style="color: #34d399; font-weight: bold;">停駐 / 歸零</td>
+                  <td><code>Home</code>, <code>HomeSet</code></td>
+                  <td>將手臂各關節安全收攏，移動至工程師指定的<strong>安全待命停駐點 (Park Position)</strong></td>
+                  <td>換線待機、緊急復歸、產線停機維護位置</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; text-align: center;">
+            <img src="images_src/epson_robot/linear_motion_cp.png" alt="線性動作 CP 連續軌跡與插補" style="max-width: 100%; height: 120px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 6px;">CP 直線插補運動：維持末端工具恆定切線速度與姿態</span>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- 深度模組二：機器人多重座標系全景剖析與外部控制點 ECP 異形點膠實務 (投影片 01 Slide 15~24, 79~89) -->
@@ -1041,21 +1090,23 @@ Console.WriteLine($"目前座標: X={curPos.X}, Y={curPos.Y}, Z={curPos.Z}, U={c
           </div>
         </div>
 
-        <!-- 卡片 3: 非同步模式 (AsyncMode) 與例外排查 (Slide 9~10, 23~26) -->
+        <!-- 卡片 3: 立即 vs 非同步模式 (AsyncMode) 與例外排查 (Slide 9~10, 23~26) -->
         <div class="text-card-glow">
           <h4 style="color: #fbbf24; margin-top: 0; display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-triangle-exclamation"></i> 非同步模式 (AsyncMode) 與例外排查 (Slide 9, 23)
+            <i class="fa-solid fa-triangle-exclamation"></i> 立即 vs 非同步模式 (AsyncMode) 與例外排查 (Slide 9, 23)
           </h4>
           <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; text-align: center; margin-bottom: 12px;">
             <img src="images_src/epson_robot/csharp_spelexception_1808.png" alt="SpelException 錯誤 1808 排查" style="max-width: 100%; height: 95px; object-fit: contain; display: block; margin: 0 auto;">
             <span style="font-size: 0.68rem; color: #fbbf24; display: block; margin-top: 4px;">SpelException：Error 1808 未安裝選項 / Error 10007 項目不存在</span>
           </div>
           <ul style="padding-left: 20px; font-size: 0.83rem; color: #cbd5e1; line-height: 1.6; margin: 0;">
-            <li><strong>同步 vs 非同步模式</strong>：預設為同步呼叫，手臂動作未完成前 UI 介面會暫時卡住。若設定 <code>m_spel.AsyncMode = true;</code>，呼叫 <code>Go("P1")</code> 會立即返回，主線程可繼續刷新相機影像，並由 <code>m_spel.WaitCommandComplete();</code> 或 <code>EventReceived</code> 事件監聽完成通知！</li>
-            <li><strong>常規異常排查</strong>：
+            <li><strong>立即方法 (Immediate)</strong>：如所有 I/O 命令（<code>m_spel.On(1)</code>, <code>m_spel.Off(1)</code>, <code>m_spel.Sw(1)</code>），控制器執行後立即傳回結果，無等待延遲。</li>
+            <li><strong>非同步方法 (Asynchronous)</strong>：所有運動命令（<code>Go</code>, <code>Move</code>, <code>Jump</code>）。Spel 類別發出命令後，會自動在背景處理 Windows Message Dispatch，<strong>讓 UI 介面維持回應，使用者隨時能按「急停」按鈕</strong>！</li>
+            <li><strong>AsyncMode 控制</strong>：若設 <code>m_spel.AsyncMode = true;</code>，呼叫動作會立刻返回，主程式可透過 <code>m_spel.WaitCommandComplete();</code> 輪詢或透過 <code>EventReceived</code> 事件監聽完成通知。</li>
+            <li><strong>常規實戰異常排查</strong>：
               <ul style="padding-left: 16px; margin-top: 4px;">
-                <li><strong>Error 1808 (未安裝選項)</strong>：呼叫了未購買許可證的高階選件（如某些外部視覺追隨套件）。</li>
-                <li><strong>Error 10007 (項目不存在)</strong>：呼叫了點位檔中未定義的點（如 <code>Go("P99")</code> 而 P99 未示教）。</li>
+                <li><strong>Error 1808 (未安裝 USB 驅動器)</strong>：尚未連接實體 USB 控制器時跳出。解法：在 EPSON RC+ 7.0 點選「連線 ➔ 連接虛擬控制器 (Virtual Controller)」即可本機全功能模擬！</li>
+                <li><strong>Error 10007 (項目不存在)</strong>：專案路徑不正確或點位名稱未宣告。解法：檢查 <code>m_spel.Project</code> 是否指向真實存在的 <code>.sprj</code> 檔案，或點位檔中已示教該目標點。</li>
               </ul>
             </li>
           </ul>
@@ -1063,11 +1114,11 @@ Console.WriteLine($"目前座標: X={curPos.X}, Y={curPos.Y}, Z={curPos.Z}, U={c
       </div>
     </section>
 
-    <!-- 深度模組五：Epson LS3-401S 實體手臂、RC90 控制器與無電池馬達技術維護 (投影片 03 Slide 1~45) -->
+    <!-- 深度模組五：Epson LS3-401S 實體手臂、RC90 控制器與機台維護 (投影片 03 Slide 1~45) -->
     <section class="project-content-block">
       <div class="section-title-wrap">
         <i class="fa-solid fa-screwdriver-wrench" style="color: #10b981;"></i>
-        <h3>機台實務與維護：Epson LS3-401S SCARA 手臂、RC90 控制器與無電池馬達革命</h3>
+        <h3>機台實務與維護：Epson LS3-401S 實機上線 5 大 SOP、RC90 控制器與無電池馬達革命</h3>
       </div>
       <p style="color: var(--text-muted); margin-bottom: 20px;">
         在工廠自動化現場，機械手臂的硬體保養與控制器配線決定了產線的稼動率 (OEE)。本節彙整職訓教室與工廠最常見的 <strong>Epson LS3-401S + RC90 系統</strong> 維護要訣：
@@ -1114,6 +1165,60 @@ Console.WriteLine($"目前座標: X={curPos.X}, Y={curPos.Y}, Z={curPos.Z}, U={c
             <li><strong>傳統機型維護痛點</strong>：控制器與手臂關節內建鋰電池（如 ER17500V 3.6V / CR17335SE 3V）。電池壽命約 2~3 年，<strong>若電池電量耗盡且斷電，絕對型編碼器的多圈圈數將永久丟失，開機後報警且必須耗費數小時重新執行原點校正 (Calibration)！</strong></li>
             <li><strong>新一代 LS3-B / LS6-B 技術革命</strong>：<strong>全機馬達採用「無電池式絕對型編碼器 (Battery-less Absolute Encoder)」！</strong>馬達內部利用磁阻效應齒輪永久記錄圈數與位置情報，<strong>終身免更換電池、終身免除斷電原點丟失風險</strong>，大幅降低維護成本與產線無預警停機！</li>
           </ul>
+        </div>
+      </div>
+
+      <!-- 卡片 3: 工業機台導入 5 大實操標準 SOP 流程 (投影片 03 Slide 2~15, 33~41) -->
+      <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 22px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+          <h4 style="color: #34d399; margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-list-ol"></i> 機台導入與調試 5 大標準上線流程 SOP (Slide 2~15, 33~41)
+          </h4>
+          <span style="font-size: 0.75rem; color: #94a3b8; font-family: monospace;">Epson Robot Commissioning SOP</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 18px;">
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px; border-top: 3px solid #06b6d4;">
+            <span style="font-size: 0.75rem; color: #06b6d4; font-weight: bold;">Step 1. 電腦備份與專案</span>
+            <p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0 0 0; line-height: 1.4;">
+              開啟 RC+ 進行全機備份 (Project Backup)，儲存所有點位檔 (.pts)、系統組態與校正數據，以防意外覆蓋。
+            </p>
+          </div>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px; border-top: 3px solid #38bdf8;">
+            <span style="font-size: 0.75rem; color: #38bdf8; font-weight: bold;">Step 2. 通訊連線</span>
+            <p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0 0 0; line-height: 1.4;">
+              透過前置 USB 連接（免密碼，維修便利）或後置 Ethernet 乙太網（設定靜態 IP，與 PLC/IPC 整合）。
+            </p>
+          </div>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px; border-top: 3px solid #f59e0b;">
+            <span style="font-size: 0.75rem; color: #f59e0b; font-weight: bold;">Step 3. 硬體測試與連鎖</span>
+            <p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0 0 0; line-height: 1.4;">
+              檢測急停開關 (E-Stop)、安全門互鎖 (Safety Door)、氣壓缸訊號與控制器狀態自我診斷。
+            </p>
+          </div>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px; border-top: 3px solid #a855f7;">
+            <span style="font-size: 0.75rem; color: #a855f7; font-weight: bold;">Step 4. 點位示教 (Teach)</span>
+            <p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0 0 0; line-height: 1.4;">
+              透過 Robot Manager 步進示教視窗，在 Joint、World、Tool 模式下微調手臂並 Teach 儲存點位。
+            </p>
+          </div>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px; border-top: 3px solid #10b981;">
+            <span style="font-size: 0.75rem; color: #10b981; font-weight: bold;">Step 5. 程式與 3D 模擬</span>
+            <p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0 0 0; line-height: 1.4;">
+              編寫 SPEL+ 運動程式，透過運行視窗與 3D 模擬器 (Simulator) 預先驗證避免空間干涉！
+            </p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; text-align: center;">
+            <img src="images_src/epson_robot/rc_plus_jog_teach.png" alt="EPSON RC+ 7.0 步進示教視窗" style="max-width: 100%; height: 130px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 6px;">Step 4: EPSON RC+ 7.0 Robot Manager 步進示教視窗 (寸動與座標存取)</span>
+          </div>
+          <div style="background: #030712; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; text-align: center;">
+            <img src="images_src/epson_robot/epson_rc_simulator_3d.png" alt="EPSON RC+ 3D 模擬器" style="max-width: 100%; height: 130px; object-fit: contain; display: block; margin: 0 auto;">
+            <span style="font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 6px;">Step 5: 運行視窗與 3D 實體模擬器 (Simulator) 軌跡干涉校驗</span>
+          </div>
         </div>
       </div>
     </section>
