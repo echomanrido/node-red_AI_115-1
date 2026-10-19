@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>專題：PC-Based 運動軸卡與 IO 卡控制實戰 - 五股職訓局</title>
+  <!-- Google Fonts & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* 運動軸卡控制專用主題樣式 (琥珀金與工業科技橘 #f59e0b / #d97706) */
+    .project-hero-section {
+      background: radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.15) 0%, rgba(15, 23, 42, 0) 70%),
+                  linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 15, 25, 1) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      margin-bottom: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+    .project-hero-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .project-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      border: 1px solid;
+    }
+    .project-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #f8fafc;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    .project-desc {
+      color: #94a3b8;
+      font-size: 1.02rem;
+      line-height: 1.7;
+      max-width: 950px;
+      margin: 0;
+    }
+
+    /* 程式碼區塊 */
+    .code-block-dark {
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 14px 18px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .code-block-dark code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: #fbbf24;
+      line-height: 1.6;
+      white-space: pre;
+    }
+
+    /* 步驟流程卡片 */
+    .step-flow-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+    .step-flow-card:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      background: #f59e0b;
+      color: #030712;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+      flex-shrink: 0;
+    }
+    .step-title-text {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+    }
+    .step-tag-pill {
+      margin-left: auto;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* 互動工具卡片 */
+    .tool-box-card {
+      background: #0f172a;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-top: 20px;
+    }
+    .tool-box-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .tool-box-header i {
+      font-size: 1.4rem;
+      color: #f59e0b;
+    }
+    .tool-box-header h4 {
+      font-size: 1.15rem;
+      color: #f1f5f9;
+      margin: 0;
+    }
+    .tool-input-group {
+      margin-bottom: 14px;
+    }
+    .tool-input-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .tool-input {
+      width: 100%;
+      background: #030712;
+      border: 1px solid #334155;
+      color: #fbbf24;
+      font-family: 'Fira Code', monospace;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .tool-input:focus {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+    }
+    .tool-btn-calc {
+      background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+      color: #030712;
+      font-weight: 700;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .tool-btn-calc:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    .tool-result-panel {
+      margin-top: 16px;
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 16px;
+      position: relative;
+    }
+    .tool-result-panel pre {
+      margin: 0;
+      color: #38bdf8;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .btn-copy-code {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-copy-code:hover {
+      background: #f59e0b;
+      color: #030712;
+    }
+
+    .guideline-alert-box {
+      background: rgba(245, 158, 11, 0.08);
+      border-left: 4px solid #f59e0b;
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+    }
+
+    /* 表格樣式 */
+    .fx-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+      background: #0f172a;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .fx-table th {
+      background: #1e293b;
+      color: #fbbf24;
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 1px solid #334155;
+    }
+    .fx-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #cbd5e1;
+    }
+    .fx-table tr:hover {
+      background: rgba(245, 158, 11, 0.04);
+    }
+  </style>
+</head>
+<body class="project-body-theme">
+  <div class="project-page-container">
+    
+    <!-- 頂部導覽列 -->
+    <header class="home-navbar" style="border-bottom: 1px solid var(--border-color); background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;">
+      <div class="brand-logo">
+        <i class="fa-solid fa-microchip logo-icon"></i>
+        <div class="brand-titles">
+          <h1 class="main-title">五股職訓局</h1>
+          <span class="sub-title">機電AI_115-1期（作者：Rido老師）</span>
+        </div>
+      </div>
+      <div class="nav-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="index.html" class="nav-cta-btn secondary-btn" style="background: rgba(255,255,255,0.05); border-color: var(--border-color); color: var(--text-main);">
+          <i class="fa-solid fa-house"></i> 首頁
+        </a>
+        <a href="csharp.html" class="nav-cta-btn secondary-btn" style="background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.35); color: #c084fc;">
+          <i class="fa-brands fa-microsoft"></i> C# 課程
+        </a>
+        <a href="labs.html" class="nav-cta-btn secondary-btn" style="background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.3); color: var(--primary);">
+          <i class="fa-brands fa-node-js"></i> Node-RED
+        </a>
+        <a href="vibecoding.html" class="nav-cta-btn secondary-btn" style="background: rgba(14, 165, 233, 0.08); border-color: rgba(56, 189, 248, 0.25); color: #38bdf8;">
+          <i class="fa-solid fa-bolt"></i> Vibe Coding
+        </a>
+        <a href="aiknowledge.html" class="nav-cta-btn secondary-btn" style="background: rgba(244, 63, 94, 0.08); border-color: rgba(244, 63, 94, 0.25); color: #fb7185;">
+          <i class="fa-solid fa-brain"></i> AI 知識
+        </a>
+        
+        <!-- 實務專題下拉選單 -->
+        <div class="nav-dropdown-wrapper">
+          <a href="project.html" class="nav-dropdown-btn" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #f59e0b;">
+            <i class="fa-solid fa-diagram-project"></i> 實務專題 <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+          </a>
+          <div class="nav-dropdown-menu">
+            <a href="project.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #34d399;">範例期末專題：ESG 智慧工廠</span>
+                <span class="item-sub">機電丙級第二題・AI 視覺瑕疵・動態碳足跡閉環</span>
+              </div>
+            </a>
+            <a href="project_plc_fx3u.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #38bdf8;">專題：PC-Based 控制三菱 FX3U</span>
+                <span class="item-sub">RS232 序列通訊・三菱編程口協定・三階段自動化</span>
+              </div>
+            </a>
+            <a href="project_modbus.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-satellite-dish" style="color: #fbbf24;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #fbbf24;">專題：Modbus 通訊協定 (TCP / RTU)</span>
+                <span class="item-sub">工業物聯網標準語彙・MBAP Header・CRC-16 檢校</span>
+              </div>
+            </a>
+            <a href="project_linebot.html" class="nav-dropdown-item">
+              <i class="fa-brands fa-line" style="color: #06c755;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #06c755;">專題：LINE Bot 開發者指南詳解</span>
+                <span class="item-sub">發送 API 注意事項・n8n 工作流・GAS 免費雲端部署</span>
+              </div>
+            </a>
+            <a href="project_database.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-database" style="color: #c084fc;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #c084fc;">專題：工業與雲端資料庫全解</span>
+                <span class="item-sub">MySQL・MSSQL C#・InfluxDB 時序・Firebase</span>
+              </div>
+            </a>
+            <a href="project_epson_robot.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-robot" style="color: #06b6d4;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #06b6d4;">專題：Epson 機械手臂整合</span>
+                <span class="item-sub">SCARA LS3・SPEL+ 語言・正逆運動學・奇點・C#</span>
+              </div>
+            </a>
+            <a href="project_local_llm.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-microchip-ai" style="color: #10b981;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #10b981;">專題：地端 LLM 與私有知識庫</span>
+                <span class="item-sub">Ollama・AnythingLLM・LM Studio・RAG・Node-RED 串接</span>
+              </div>
+            </a>
+            <a href="project_motion_control.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-gamepad" style="color: #f59e0b;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #f59e0b;">專題：運動軸卡與 IO 卡控制</span>
+                <span class="item-sub">大銀 PCI4P・研華 PCI-1756・MCCL・四軸同動・插補</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 麵包屑 -->
+    <div class="project-breadcrumb">
+      <a href="index.html"><i class="fa-solid fa-house"></i> 首頁</a> / 
+      <a href="project.html">實務專題</a> / 
+      <span class="active-item">專題：PC-Based 運動軸卡與 IO 卡控制 (大銀 PCI4P + 研華 PCI-1756 + MCCL)</span>
+    </div>
+
+    <!-- 專題切換頁籤導覽列 (八大專題切換) -->
+    <div class="project-tabs-nav">
+      <a href="project.html" class="project-tab-link">
+        <i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+        <span>範例期末專題：ESG 智慧工廠</span>
+        <span class="project-tab-badge">機電丙級第二題</span>
+      </a>
+      <a href="project_plc_fx3u.html" class="project-tab-link">
+        <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+        <span>專題：PC-Based控制_三菱FX3U</span>
+        <span class="project-tab-badge">RS232+編程口</span>
+      </a>
+      <a href="project_modbus.html" class="project-tab-link">
+        <i class="fa-solid fa-satellite-dish" style="color: #fbbf24;"></i>
+        <span>專題：Modbus 通訊協定</span>
+        <span class="project-tab-badge">TCP 502 + RTU</span>
+      </a>
+      <a href="project_linebot.html" class="project-tab-link">
+        <i class="fa-brands fa-line" style="color: #06c755;"></i>
+        <span>專題：LINE Bot 開發者指南</span>
+        <span class="project-tab-badge">API 注意事項+自動化</span>
+      </a>
+      <a href="project_database.html" class="project-tab-link">
+        <i class="fa-solid fa-database" style="color: #c084fc;"></i>
+        <span>專題：工業與雲端資料庫</span>
+        <span class="project-tab-badge">四大主流全景</span>
+      </a>
+      <a href="project_epson_robot.html" class="project-tab-link">
+        <i class="fa-solid fa-robot" style="color: #06b6d4;"></i>
+        <span>專題：Epson 機械手臂</span>
+        <span class="project-tab-badge">SCARA+SPEL+運動學</span>
+      </a>
+      <a href="project_local_llm.html" class="project-tab-link">
+        <i class="fa-solid fa-microchip-ai" style="color: #10b981;"></i>
+        <span>專題：地端 LLM 知識庫</span>
+        <span class="project-tab-badge">Ollama+RAG+LM Studio</span>
+      </a>
+      <a href="project_motion_control.html" class="project-tab-link active">
+        <i class="fa-solid fa-gamepad" style="color: #f59e0b;"></i>
+        <span>專題：運動軸卡與 IO 卡</span>
+        <span class="project-tab-badge">大銀PCI4P+研華1756</span>
+      </a>
+    </div>
+
+    <!-- 主區塊：專題名稱與簡介 -->
+    <section class="project-hero-section">
+      <span class="project-tag" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.35);">
+        <i class="fa-solid fa-microchip"></i> 工業級 PC-Based 高精密同動控制
+      </span>
+      <h2 class="project-title">PC-Based 運動控制軸卡與工業 IO 卡整合實戰<br>
+        <span class="gradient-text" style="background: linear-gradient(135deg, #f59e0b 0%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          大銀微系統 PCI4P 四軸軸卡・研華 PCI-1756 隔離 IO 卡・MCCL 運動函式庫・多軸插補運動
+        </span>
+      </h2>
+      <p class="project-desc">
+        在精密半導體設備、龍門型加工機 (Gantry) 與四軸機械手臂 (X, Y, Z, &Theta;) 中，傳統 PLC 難以滿足高速脈衝 (2.44 Mpps) 與微秒級多軸軌跡插補的需求。本專題以<strong>大銀微系統 (HIWIN MIKROSYSTEM) 四軸運動卡 PCI4P</strong> 與 <strong>研華 (Advantech) PCI-1756 64通道光隔離數位 IO 卡</strong> 為核心，詳細剖析 <strong>MCCL (Motion Control Command Library)</strong> 運動命令函式庫從硬體初始化、機構參數設定、AB相編碼器回授、原點復歸 (Homing 16種模式)、多軸運動群組建置 (Group)，到直線/圓弧/螺旋軌跡插補、寸動 (Jog) 與背隙補償 (Backlash Compensation) 的完整 C# 實務開發心法！
+      </p>
+
+      <!-- 核心技術四大維度展示 -->
+      <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; text-align: left;">
+        
+        <!-- 卡片 1: 運動控制核心 PCI4P -->
+        <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.1);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(245, 158, 11, 0.3);">
+              硬體軸卡核心
+            </span>
+            <span style="color: #64748b; font-size: 0.75rem; font-family: monospace;">2.44 Mpps 高速脈衝</span>
+          </div>
+          <h4 style="font-size: 1.15rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px;">
+            <i class="fa-solid fa-route" style="color: #f59e0b;"></i> 大銀 PCI4P 四軸運動控制卡
+          </h4>
+          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+            支援 PCI 匯流排，單卡獨立控制 4 軸伺服/步進馬達，全系統最高可擴充 12 張卡 (72 軸同控)。內建硬體極限保護開關、高速編碼器計數器與驅動器致能迴路。
+          </p>
+        </div>
+
+        <!-- 卡片 2: 工業隔離 IO 卡 PCI-1756 -->
+        <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(56, 189, 248, 0.1);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3);">
+              高壓光隔離防護
+            </span>
+            <span style="color: #64748b; font-size: 0.75rem; font-family: monospace;">2,500 VDC 隔離</span>
+          </div>
+          <h4 style="font-size: 1.15rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px;">
+            <i class="fa-solid fa-shield-halved" style="color: #38bdf8;"></i> 研華 PCI-1756 64通道 IO 卡
+          </h4>
+          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+            具備 32 通道隔離輸入 (DI) 與 32 通道隔離輸出 (DO，每通道可承受 200mA 大電流)。支援輸出狀態回讀 (Readback) 與系統熱重置保持狀態，杜絕突波雜訊干擾。
+          </p>
+        </div>
+
+        <!-- 卡片 3: 運動控制函式庫 MCCL -->
+        <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.1);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3);">
+              空間軌跡演算法
+            </span>
+            <span style="color: #64748b; font-size: 0.75rem; font-family: monospace;">1~50 ms 插補週期</span>
+          </div>
+          <h4 style="font-size: 1.15rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px;">
+            <i class="fa-solid fa-code" style="color: #34d399;"></i> MCCL 運動命令庫 (7大步驟)
+          </h4>
+          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+            提供點對點 (PTP)、連續直線補間、圓弧、圓與螺旋軌跡規劃。內建 S-Curve 與 T-Curve 加減速平滑濾波，支援非同步命令佇列 (Command Queue) 與即時位置回授監控。
+          </p>
+        </div>
+
+        <!-- 卡片 4: 精密計量與誤差補償 -->
+        <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(192, 132, 252, 0.4); border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(192, 132, 252, 0.1);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="background: rgba(192, 132, 252, 0.15); color: #c084fc; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(192, 132, 252, 0.3);">
+              品質精度管理
+            </span>
+            <span style="color: #64748b; font-size: 0.75rem; font-family: monospace;">6&sigma; / Cpk &ge; 1.33</span>
+          </div>
+          <h4 style="font-size: 1.15rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px;">
+            <i class="fa-solid fa-bullseye" style="color: #c084fc;"></i> 精度・重複性與背隙補償
+          </h4>
+          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+            釐清解析度 (Resolution)、精度 (Accuracy) 與重複精度 (Repeatability)。掌握全閉迴路光學尺回授、螺桿背隙 (Backlash) 補償計算，並結合工控 Six Sigma 製程能力指數！
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 視覺化架構圖解 (PC-Based 運動控制硬體數據流) -->
+    <section class="project-animation-card">
+      <div class="animation-header">
+        <div class="animation-title">
+          <i class="fa-solid fa-circle-nodes pulse-dot-static" style="color: #f59e0b;"></i>
+          <span>PC-Based 運動控制閉環架構：C# 應用層 ➔ MCCL 核心 ➔ PCI 運動卡 / IO 卡 ➔ 伺服驅動器 ➔ 機械平台 (X-Y-Z-&Theta;)</span>
+        </div>
+        <span class="animation-status-badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.35);">
+          PCI-BUS High Speed
+        </span>
+      </div>
+      <div class="animation-body" style="padding: 24px; text-align: center;">
+        <svg viewBox="0 0 1000 220" style="width: 100%; max-height: 220px; display: block; margin: 0 auto;" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="motionGold" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#d97706" stop-opacity="0.1"/>
+            </linearGradient>
+            <marker id="arrowAmber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b"/>
+            </marker>
+            <marker id="arrowBlue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+            </marker>
+            <marker id="arrowGreen" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981"/>
+            </marker>
+          </defs>
+
+          <!-- 區塊 1: 工控主機 C# 軟體層 -->
+          <rect x="20" y="30" width="190" height="150" rx="10" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+          <text x="115" y="60" text-anchor="middle" fill="#fbbf24" font-size="14" font-weight="700">PC 工控應用層 (C#)</text>
+          <text x="115" y="85" text-anchor="middle" fill="#ffffff" font-size="12">MCCL API 調用函式</text>
+          <text x="115" y="105" text-anchor="middle" fill="#94a3b8" font-size="11">吋動 Jog / 插補 Line, Arc</text>
+          <text x="115" y="125" text-anchor="middle" fill="#94a3b8" font-size="11">命令佇列 (Command Queue)</text>
+          <text x="115" y="150" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="600">非同步即時運動規劃</text>
+
+          <!-- 箭頭 1 (雙向: 下達命令 + 讀取狀態) -->
+          <line x1="210" y1="85" x2="280" y2="85" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrowAmber)"/>
+          <text x="245" y="75" fill="#f59e0b" font-size="10" text-anchor="middle">PCI 匯流排</text>
+          <line x1="280" y1="125" x2="210" y2="125" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowBlue)" stroke-dasharray="4 3"/>
+          <text x="245" y="142" fill="#38bdf8" font-size="10" text-anchor="middle">中斷 IRQ/狀態</text>
+
+          <!-- 區塊 2: 硬體軸卡 & IO 卡 -->
+          <rect x="285" y="25" width="220" height="160" rx="12" fill="url(#motionGold)" stroke="#f59e0b" stroke-width="2"/>
+          <text x="395" y="55" text-anchor="middle" fill="#fbbf24" font-size="14" font-weight="800">工業軸卡 & IO 介面卡</text>
+          <text x="395" y="80" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">大銀 PCI4P (四軸脈衝卡)</text>
+          <text x="395" y="100" text-anchor="middle" fill="#cbd5e1" font-size="11">Pulse/Dir・CW/CCW (2.44MHz)</text>
+          <text x="395" y="125" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="700">研華 PCI-1756 (64ch IO)</text>
+          <text x="395" y="145" text-anchor="middle" fill="#94a3b8" font-size="11">2,500VDC 光隔離 DI/DO</text>
+          <text x="395" y="165" text-anchor="middle" fill="#10b981" font-size="10" font-weight="600">硬體極限開關 (OT+/OT-) 瞬斷</text>
+
+          <!-- 箭頭 2 -->
+          <line x1="505" y1="85" x2="575" y2="85" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrowAmber)"/>
+          <text x="540" y="75" fill="#f59e0b" font-size="10" text-anchor="middle">高速脈衝</text>
+          <line x1="575" y1="125" x2="505" y2="125" stroke="#10b981" stroke-width="2" marker-end="url(#arrowGreen)"/>
+          <text x="540" y="142" fill="#10b981" font-size="10" text-anchor="middle">光學尺/編碼器</text>
+
+          <!-- 區塊 3: 驅動器與馬達 -->
+          <rect x="580" y="30" width="190" height="150" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+          <text x="675" y="60" text-anchor="middle" fill="#38bdf8" font-size="14" font-weight="700">伺服驅動器 (Servo Drive)</text>
+          <text x="675" y="85" text-anchor="middle" fill="#ffffff" font-size="12">位置環 (Position Loop) 控制</text>
+          <text x="675" y="105" text-anchor="middle" fill="#94a3b8" font-size="11">電子齒輪比 (Gear Ratio) 縮放</text>
+          <text x="675" y="125" text-anchor="middle" fill="#94a3b8" font-size="11">伺服致能 (Servo-On) / 警報</text>
+          <text x="675" y="150" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="600">交流伺服 / 步進馬達</text>
+
+          <!-- 箭頭 3 -->
+          <line x1="770" y1="95" x2="830" y2="95" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrowAmber)"/>
+
+          <!-- 區塊 4: 實體機械運動機構 -->
+          <rect x="835" y="30" width="150" height="150" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+          <text x="910" y="60" text-anchor="middle" fill="#10b981" font-size="14" font-weight="700">實體機械機構</text>
+          <text x="910" y="85" text-anchor="middle" fill="#ffffff" font-size="12">大銀四軸手臂機台</text>
+          <text x="910" y="105" text-anchor="middle" fill="#94a3b8" font-size="11">X / Y 軸龍門 Gantry</text>
+          <text x="910" y="125" text-anchor="middle" fill="#94a3b8" font-size="11">Z 軸垂直升降</text>
+          <text x="910" y="145" text-anchor="middle" fill="#94a3b8" font-size="11">&Theta; 軸旋轉定位</text>
+          <text x="910" y="165" text-anchor="middle" fill="#10b981" font-size="10" font-weight="700">滾珠螺桿 + 線軌傳動</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 軸卡與 IO 卡核心規格比對表 -->
+    <section class="section-container" style="margin-top: 40px;">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-table-list" style="color: #f59e0b;"></i>
+        <h3>大銀 PCI4P 運動控制卡 vs 研華 PCI-1756 數位 IO 卡 規格解析</h3>
+      </div>
+      <table class="fx-table">
+        <thead>
+          <tr>
+            <th>比較項目</th>
+            <th>大銀微系統 PCI4P 四軸運動卡</th>
+            <th>研華 PCI-1756 隔離數位 IO 卡</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>核心功能定位</strong></td>
+            <td>高速多軸馬達運動軌跡生成、插補、脈衝發送與編碼器回授</td>
+            <td>周邊氣壓缸電磁閥、光電感測器、安全光柵之隔離數位信號監控</td>
+          </tr>
+          <tr>
+            <td><strong>控制通道數</strong></td>
+            <td>單卡 4 軸獨立控制（全系統最高可串聯 12 張卡達 48 軸~72 軸）</td>
+            <td>64 通道隔離數位 IO（32 DI 輸入 / 32 DO 輸出，分組獨立接地）</td>
+          </tr>
+          <tr>
+            <td><strong>輸出信號頻率 / 功率</strong></td>
+            <td>最高脈波輸出頻率達 <strong>2.44 Mpps (2.44 MHz)</strong>，支援 CW/CCW 與 Pulse/Dir</td>
+            <td>每通道最大可吸收 <strong>200 mA</strong> 大電流（High-sink），可直接驅動繼電器</td>
+          </tr>
+          <tr>
+            <td><strong>電氣隔離與安全防護</strong></td>
+            <td>硬體正負極限開關 (OT+ / OT-)、原點開關 (Home)、伺服警報 (ALM) 瞬斷輸入</td>
+            <td>通道間提供高達 <strong>2,500 VDC 光隔離保護</strong>、70 VDC 過電壓保護、2,000 VDC 靜電防護</td>
+          </tr>
+          <tr>
+            <td><strong>回讀與狀態保持</strong></td>
+            <td>硬體即時回讀 32-bit 編碼器絕對位置計數器 (Encoder Counter)</td>
+            <td>具備 <strong>Output Status Readback</strong>，且系統溫開機 (Hot Reset) 保持輸出狀態不跳脫</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- MCCL 啟動運動函式庫 7 大步驟實戰 (Step-by-Step) -->
+    <section class="section-container" style="margin-top: 40px;">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-list-check" style="color: #f59e0b;"></i>
+        <h3>MCCL (Motion Control Command Library) 啟動運動函式庫 7 大步驟實戰</h3>
+      </div>
+
+      <!-- Step 1: 設定機構參數 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <div class="step-badge">1</div>
+          <h4 class="step-title-text">Step 1：設定機構參數 (Mechanism Parameters)</h4>
+          <span class="step-tag-pill" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">
+            機構方向與速度極限
+          </span>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          <p>
+            設定馬達旋轉與機械實際移動方向之對應關係，並定義最高安全轉速與每轉脈波數。透過軟體參數調整，工程師<strong>無需更改馬達實體配線</strong>即可修正方向：
+          </p>
+          <div class="code-block-dark">
+            <code>// 宣告機構參數結構體並初始化
+SYS_MAC_PARAM stAxisParam = new SYS_MAC_PARAM();
+
+stAxisParam.wPosToEncoderDir = 0;    // 方向調整參數：0=輸出命令不反向, 1=輸出命令反向 (免改馬達接線)
+stAxisParam.dwRPM = 3000;            // 馬達最大安全轉速限制 (轉/分)，防止機構超速損壞
+stAxisParam.dwPPR = 10000;           // 馬達每旋轉一圈所需的脈波數 (Pulse Per Revolution)
+stAxisParam.dfPitch = 5.0;           // 滾珠螺桿導程 (單位: mm/轉)
+
+// 套用至指定 Channel (以 Channel 0 為例)
+int nRet = MCCL.MCC_SetMacParam(ref stAxisParam, 0, MCCL.CARDINDEX0);</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: 設定編碼器參數 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <div class="step-badge">2</div>
+          <h4 class="step-title-text">Step 2：設定編碼器參數 (Encoder Configuration)</h4>
+          <span class="step-tag-pill" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+            AB相四倍頻解析
+          </span>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          <p>
+            配置光學編碼器回授格式。工業標準大多採用 <strong>A/B Phase 90&deg; 相位差</strong>，透過硬體<strong>四倍頻 (4x Multiplier)</strong> 計算，可將解析度提升 4 倍：
+          </p>
+          <div class="code-block-dark">
+            <code>SYS_ENCODER_CONFIG stENCConfig = new SYS_ENCODER_CONFIG();
+
+stENCConfig.wType = MCCL.ENC_TYPE_AB;      // 輸入格式：ENC_TYPE_AB (A/B相), ENC_TYPE_CW, ENC_TYPE_PD
+stENCConfig.wAInverse = MCCL.INVERSE_NO;   // Phase A 訊號是否反相 (0=不反相, 1=反相)
+stENCConfig.wBInverse = MCCL.INVERSE_NO;   // Phase B 訊號是否反相
+stENCConfig.wCInverse = MCCL.INVERSE_NO;   // Phase C (Index/Z相) 訊號是否反相
+stENCConfig.wABSwap   = MCCL.INVERSE_NO;   // Phase A/B 訊號是否交換 (可變更正負計數方向)
+stENCConfig.wInputRate = 4;                // 編碼器回授倍率：4 代表 4 倍頻 (×4 鑑別微步位移)
+
+// 寫入軸卡暫存器
+nRet = MCCL.MCC_SetEncoderConfig(ref stENCConfig, 0, MCCL.CARDINDEX0);</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: 設定原點復歸參數 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <div class="step-badge">3</div>
+          <h4 class="step-title-text">Step 3：設定原點復歸參數 (Home Configuration - 16種模式)</h4>
+          <span class="step-tag-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+            機械與邏輯原點校正
+          </span>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          <p>
+            MCCL 提供多達 16 種原點復歸模式。<strong>模式 3 (wMode = 3)</strong> 廣泛應用於工業台：以高速 <code>dfHighSpeed</code> 尋找原點開關 (Home Sensor)，觸發後減速停止，接著根據 <code>dfOffset</code> 位移至精密的邏輯原點：
+          </p>
+          <div class="code-block-dark">
+            <code>SYS_HOME_CONFIG stHomeConfig = new SYS_HOME_CONFIG();
+
+stHomeConfig.wMode = 3;                            // 原點復歸模式 3 (碰 Home Sensor 減速停止並偏移)
+stHomeConfig.wDirection = 0;                       // 起始搜尋方向：0=正方向, 1=負方向
+stHomeConfig.wSensorMode = MCCL.SL_NORMAL_OPEN;    // 開關配線方式：常開 (Active High) 或 常閉 (Active Low)
+stHomeConfig.nIndexCount = 0;                      // 指定編碼器 Index (Z相) 零位脈波訊號編號
+stHomeConfig.dfAccTime = 300;                      // 加速時間 (ms)
+stHomeConfig.dfDecTime = 300;                      // 減速時間 (ms)
+stHomeConfig.dfHighSpeed = 15.0;                   // 第一階段高速尋找速度 (mm/sec)
+stHomeConfig.dfLowSpeed = 2.0;                     // 第二階段碰觸低速爬行速度 (mm/sec)
+stHomeConfig.dfOffset = 5.5;                       // 機械原點至邏輯原點的補償偏移量 (mm)
+
+// 對每個通道設定專屬的原點補償
+nRet = MCCL.MCC_SetHomeConfig(ref stHomeConfig, 0, MCCL.CARDINDEX0);</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: 設定運動群組 (Group) -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <div class="step-badge">4</div>
+          <h4 class="step-title-text">Step 4：設定運動群組 (Multi-Axis Group Creation)</h4>
+          <span class="step-tag-pill" style="background: rgba(192, 132, 252, 0.15); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3);">
+            多軸同動綁定
+          </span>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          <p>
+            將各自獨立的物理馬達通道 (Channels) 綁定為一個「同動群組 (Group)」。例如大銀機台之 X-Y-Z-&Theta; 四軸龍門，必須綁入同一個 Group 才能執行直線與圓弧軌跡插補：
+          </p>
+          <div class="code-block-dark">
+            <code>// 建立新群組前，務必先關閉系統中所有現存群組
+MCCL.MCC_CloseAllGroups();
+
+// 建立群組：指定 X, Y, Z, U, V, W 對應之實體輸出通道 (-1 代表無該軸)
+nRet = MCCL.MCC_CreateGroup(
+    0,                     // Group X 軸 -> 實體輸出 Channel 0
+    1,                     // Group Y 軸 -> 實體輸出 Channel 1
+    2,                     // Group Z 軸 -> 實體輸出 Channel 2
+    3,                     // Group U 軸 (&Theta;旋轉) -> 實體輸出 Channel 3
+    -1,                    // Group V 軸 (未使用設為 -1)
+    -1,                    // Group W 軸 (未使用設為 -1)
+    MCCL.CARDINDEX0,       // 對應軸卡編號 (Card Index 0)
+    MCCL.COMMAND_QUEUE_SIZE// 系統命令佇列緩衝區深度
+);</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5: 設定系統參數與插值時間 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <div class="step-badge">5</div>
+          <h4 class="step-title-text">Step 5：設定系統參數與插值時間 (Interpolation Time)</h4>
+          <span class="step-tag-pill" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
+            軌跡離散時間調優
+          </span>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          <p>
+            初始化系統底層驅動與通訊中斷，並設定核心<strong>插值時間 (Interpolation Time)</strong>。數值介於 <code>1 ms ~ 50 ms</code>（建議值為 <code>5 ms</code>）。插值時間越短，軌跡越平滑、輪廓誤差越小，但會提高 PC CPU 運算負載：
+          </p>
+          <div class="code-block-dark">
+            <code>SYS_CARD_CONFIG stCardConfig = new SYS_CARD_CONFIG();
+
+stCardConfig.wCardAddress = 0x240;                              // 基礎位址 (PCI 卡自動配置，可保留預設)
+stCardConfig.wIRQ_No = 5;                                       // 中斷號 IRQ
+stCardConfig.wCardType = (ushort)EPCIO_CARD_TYPE.EPCIO_4_AXIS_PCI_CARD; // 2: 四軸 PCI 運動卡
+
+// 初始化系統：設定 5ms 插補週期，註冊 1 張控制卡
+nRet = MCCL.MCC_InitSystem(
+    5,                 // 插值時間 Interpolation Time = 5 ms
+    ref stCardConfig,  // 軸卡組態結構
+    1                  // 運動控制卡使用張數 = 1
+);</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6: 運動控制設定 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <div class="step-badge">6</div>
+          <h4 class="step-title-text">Step 6：運動控制設定 (單位、座標系、加減速與 P Gain)</h4>
+          <span class="step-tag-pill" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">
+            閉迴路比例增益
+          </span>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          <p>
+            設定座標系統（公制 mm、絕對座標/增量座標）、進給速度、加減速時間，以及位置閉迴路控制的<strong>比例增益 (P Gain)</strong>，消除穩態誤差：
+          </p>
+          <div class="code-block-dark">
+            <code>// 1. 設定工程單位為公釐 (mm)
+MCCL.MCC_SetUnit(MCCL.UNIT_MM, MCCL.GROUPINDEX0);
+
+// 2. 設定為絕對座標模式 (Absolute Coordinates，如同 CNC G90)
+MCCL.MCC_SetAbsolute(MCCL.GROUPINDEX0);
+
+// 3. 設定直線與圓弧同動時的加速與減速時間 (毫秒)
+MCCL.MCC_SetAccTime(300, MCCL.GROUPINDEX0);     // 300 ms 加速至目標進給速度
+MCCL.MCC_SetDecTime(300, MCCL.GROUPINDEX0);     // 300 ms 減速至停止
+
+// 4. 設定穩定運行進給速度 (Feed Speed)
+MCCL.MCC_SetFeedSpeed(30.0, MCCL.GROUPINDEX0);  // 30 mm/sec
+
+// 5. 設定位置閉迴路比例增益 P Gain (範圍 1 ~ 16256，建議值 60)
+MCCL.MCC_SetPGain(60, 60, 60, 60, 60, 60, MCCL.CARDINDEX0);</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 7: 啟動函式庫開始動作 -->
+      <div class="step-flow-card">
+        <div class="step-header">
+          <div class="step-badge">7</div>
+          <h4 class="step-title-text">Step 7：啟動伺服激磁 (Servo-On) 與軌跡插補運動指令</h4>
+          <span class="step-tag-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+            同動插補與吋動
+          </span>
+        </div>
+        <div style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">
+          <p>
+            通電致能各軸馬達伺服 (Servo-On)，並執行直線補間 (Linear Interpolation)、圓弧補間 (Circular) 或吋動定位 (Jog)：
+          </p>
+          <div class="code-block-dark">
+            <code>// 1. 開啟伺服馬達激磁 (各 Channel Servo-On)
+MCCL.MCC_SetServoOn(0, MCCL.CARDINDEX0); // X 軸
+MCCL.MCC_SetServoOn(1, MCCL.CARDINDEX0); // Y 軸
+MCCL.MCC_SetServoOn(2, MCCL.CARDINDEX0); // Z 軸
+MCCL.MCC_SetServoOn(3, MCCL.CARDINDEX0); // &Theta; 軸
+
+// 2. 吋動操作：微動脈衝 (JogPulse)、步進吋動 (JogSpace) 與連續吋動 (JogConti)
+MCCL.MCC_JogPulse(100, 0, MCCL.GROUPINDEX0);       // X軸前進 100 pulses (微調對準)
+MCCL.MCC_JogSpace(10.0, 50, 1, MCCL.GROUPINDEX0);   // Y軸以 50% 速度前進 10.0 mm
+MCCL.MCC_JogConti(1, 20, 2, MCCL.GROUPINDEX0);      // Z軸以 20% 速度連續負向吋動 (手動面板操作)
+
+// 3. 四軸多軸直線插補同動 (Linear Interpolation)
+// 同時將機台移動至 X=120.0, Y=85.0, Z=-15.0, U=90.0&deg;
+MCCL.MCC_Line(120.0, 85.0, -15.0, 90.0, 0, 0, 0, MCCL.GROUPINDEX0);
+
+// 4. 平面圓弧插補 (Arc Interpolation)
+// 在 XY 平面內，通過終點與指定圓心座標進行圓弧軌跡運動
+MCCL.MCC_ArcTheta(150.0, 85.0, 15.0, MCCL.GROUPINDEX0);</code>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 精密度、可重複性、背隙補償與 Six Sigma -->
+    <section class="section-container" style="margin-top: 40px;">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-bullseye" style="color: #f59e0b;"></i>
+        <h3>運動控制計量心法：解析度、精度、重複性與背隙補償 (Backlash)</h3>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        <!-- 概念 1: 解析度 vs 精度 vs 重複性 -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px;">
+          <h4 style="color: #fbbf24; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-crosshairs"></i> 解析度、精密度與準確度
+          </h4>
+          <ul style="padding-left: 20px; font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+            <li><strong>解析度 (Resolution)</strong>：編碼器能感測到的最小步進位移量（如 17-bit = 131,072 pulses/rev）。</li>
+            <li><strong>精密度 / 準確度 (Accuracy)</strong>：目標真值與測量值之間的接近程度。不與雷射干涉儀標準校正，精度就無從談起。</li>
+            <li><strong>可重複性 (Repeatability)</strong>：在同一條件下，重複定位於同一點時結果的極端散佈程度。工廠往往更重視重複精度，因為<strong>具備可重複性的誤差可以透過軟體補償消除</strong>！</li>
+          </ul>
+        </div>
+
+        <!-- 概念 2: 背隙補償 -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px;">
+          <h4 style="color: #38bdf8; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-gears"></i> 齒輪背隙與螺桿間隙補償
+          </h4>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+            傳動滾珠螺桿或減速機齒輪換向時，因物理齒間隙產生<strong>無效行程誤差 (Backlash)</strong>。MCCL 支援在換向瞬間由軸卡額外多送出若干補償脈衝：
+          </p>
+          <div class="code-block-dark" style="font-size: 0.82rem;">
+            <code>// 設定各軸換向背隙補償量 (單位: pulse 或 mm)
+MCCL.MCC_SetBacklash(
+    0.012, // X 軸換向補償 0.012 mm
+    0.015, // Y 軸換向補償 0.015 mm
+    0.005, // Z 軸換向補償 0.005 mm
+    0.0,   // &Theta; 軸
+    MCCL.GROUPINDEX0
+);</code>
+          </div>
+        </div>
+
+        <!-- 概念 3: 六個標準差與 Cpk -->
+        <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px;">
+          <h4 style="color: #34d399; font-size: 1.1rem; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-chart-line"></i> 六個標準差 (6&sigma;) 與 Cpk 製程能力
+          </h4>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+            當機械手臂重複取放數千次工件時，關鍵尺寸分佈必須符合常態分佈：
+          </p>
+          <ul style="padding-left: 20px; font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;">
+            <li><strong>6&sigma; 品質水準</strong>：百萬次運作中僅允許 3.4 次不良 (Defects Per Million)。</li>
+            <li><strong>Cpk &ge; 1.33</strong>：代表機台綜合精度與散布穩定度足以滿足高科技半導體與車用電子生產線！</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 互動式實用工具箱 (Interactive Toolboxes) -->
+    <section class="section-container" style="margin-top: 40px;">
+      <div class="section-title-wrap">
+        <i class="fa-solid fa-toolbox" style="color: #f59e0b;"></i>
+        <h3>運動控制實用互動工具箱：電子齒輪比與脈波頻率即時計算機</h3>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px;">
+        
+        <!-- 工具 1: 電子齒輪比計算機 -->
+        <div class="tool-box-card">
+          <div class="tool-box-header">
+            <i class="fa-solid fa-calculator"></i>
+            <h4>伺服馬達電子齒輪比 (Gear Ratio) 計算機</h4>
+          </div>
+          
+          <div class="tool-input-group">
+            <label>編碼器每轉解析度 (Encoder Resolution, pulses/rev)：</label>
+            <input type="number" id="gear-encoder-res" class="tool-input" value="131072" step="1024" oninput="calculateGearRatio()">
+          </div>
+
+          <div class="tool-input-group">
+            <label>滾珠螺桿導程 (Screw Pitch, mm/rev)：</label>
+            <input type="number" id="gear-pitch-val" class="tool-input" value="10.0" step="1.0" oninput="calculateGearRatio()">
+          </div>
+
+          <div class="tool-input-group">
+            <label>上位機期望每 1 個脈波移動距離 (Command Unit, &mu;m/pulse)：</label>
+            <input type="number" id="gear-cmd-unit" class="tool-input" value="1.0" step="0.1" oninput="calculateGearRatio()">
+          </div>
+
+          <div class="tool-result-panel">
+            <button class="btn-copy-code" onclick="copyToolText('gear-ratio-res')">複製結果</button>
+            <pre id="gear-ratio-res">// 電子齒輪比計算結果將即時呈現在此...</pre>
+          </div>
+        </div>
+
+        <!-- 工具 2: 進給速度與脈波輸出頻率轉換器 -->
+        <div class="tool-box-card">
+          <div class="tool-box-header">
+            <i class="fa-solid fa-wave-square"></i>
+            <h4>脈波頻率 (Hz) 與進給速度 (mm/s) 轉換器</h4>
+          </div>
+
+          <div class="tool-input-group">
+            <label>機構進給速度 Feed Speed (mm/sec)：</label>
+            <input type="number" id="feed-speed-val" class="tool-input" value="50.0" step="5.0" oninput="calculatePulseFreq()">
+          </div>
+
+          <div class="tool-input-group">
+            <label>每 mm 所需脈波數 (Pulses per mm)：</label>
+            <input type="number" id="pulse-per-mm" class="tool-input" value="1000" step="100" oninput="calculatePulseFreq()">
+          </div>
+
+          <div class="tool-input-group">
+            <label>PCI4P 卡最高上限：</label>
+            <input type="text" class="tool-input" value="2,440,000 Hz (2.44 Mpps)" disabled style="opacity: 0.7;">
+          </div>
+
+          <div class="tool-result-panel">
+            <button class="btn-copy-code" onclick="copyToolText('pulse-freq-res')">複製結果</button>
+            <pre id="pulse-freq-res">// 脈波頻率評估結果將即時呈現在此...</pre>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <footer style="text-align: center; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.08); color: #64748b; font-size: 0.88rem; margin-top: 60px;">
+    五股職訓局 機電 AI 115-1 期 實務專題系列教材・版權所有 © 2026
+  </footer>
+
+  <!-- 互動計算機腳本 -->
+  <script>
+    // 最大公因數計算
+    function gcd(a, b) {
+      return b === 0 ? a : gcd(b, a % b);
+    }
+
+    // 計算電子齒輪比
+    function calculateGearRatio() {
+      const encRes = parseFloat(document.getElementById('gear-encoder-res').value) || 131072;
+      const pitch = parseFloat(document.getElementById('gear-pitch-val').value) || 10.0;
+      const cmdUnitUm = parseFloat(document.getElementById('gear-cmd-unit').value) || 1.0;
+
+      // 每轉機構位移 (微米)
+      const pitchUm = pitch * 1000.0;
+      // 期望上位機每轉發出的脈波數
+      const targetPPR = pitchUm / cmdUnitUm;
+
+      // 電子齒輪比 = 馬達每轉脈波數 (encRes) / 上位機期望每轉脈波數 (targetPPR)
+      const num = Math.round(encRes);
+      const den = Math.round(targetPPR);
+      const common = gcd(num, den);
+      const simpNum = num / common;
+      const simpDen = den / common;
+
+      const output = `/* 電子齒輪比 (Electronic Gear Ratio) 計算 */
+馬達編碼器每轉脈衝數: ${encRes} pulses/rev
+螺桿每轉移動距離: ${pitch} mm (${pitchUm} μm)
+上位機脈衝解析度: 1 pulse = ${cmdUnitUm} μm
+上位機每轉應發送脈波數: ${den} pulses
+
+未約分齒輪比 (分子/分母): ${num} / ${den}
+約分後最佳設定 (Numerator/Denominator):
+➤ 分子 (Numerator):   ${simpNum}
+➤ 分母 (Denominator): ${simpDen}
+
+[驅動器參數設定建議]:
+三菱 / 台達 / 伺服驅動器請將 P1-44(分子) 設為 ${simpNum}，P1-45(分母) 設為 ${simpDen}。`;
+
+      document.getElementById('gear-ratio-res').innerText = output;
+    }
+
+    // 計算脈波輸出頻率
+    function calculatePulseFreq() {
+      const feedSpeed = parseFloat(document.getElementById('feed-speed-val').value) || 50.0;
+      const pulsePerMm = parseFloat(document.getElementById('pulse-per-mm').value) || 1000.0;
+
+      const freqHz = feedSpeed * pulsePerMm;
+      const freqKhz = freqHz / 1000.0;
+      const maxLimit = 2440000; // 2.44 MHz
+      const usagePercent = ((freqHz / maxLimit) * 100).toFixed(2);
+
+      let statusMsg = "";
+      if (freqHz <= maxLimit) {
+        statusMsg = `[狀態正常]: 頻率符合大銀 PCI4P 運動軸卡硬體極限 (2.44 Mpps)，佔用率 ${usagePercent}%。`;
+      } else {
+        statusMsg = `[警告!! 超過頻率上限]: 頻率 ${freqKhz} kHz 已超出軸卡最大 2,440 kHz，需降低進給速度或調整齒輪比！`;
+      }
+
+      const output = `/* 脈波頻率轉換評估 */
+目標進給速度: ${feedSpeed} mm/sec
+每公釐脈衝數: ${pulsePerMm} pulses/mm
+➤ 軸卡需發送脈波頻率: ${freqHz.toLocaleString()} Hz (${freqKhz.toFixed(2)} kHz)
+
+${statusMsg}`;
+
+      document.getElementById('pulse-freq-res').innerText = output;
+    }
+
+    // 複製文字至剪貼簿
+    function copyToolText(elementId) {
+      const text = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("已成功複製到剪貼簿！");
+      }).catch(err => {
+        console.error("複製失敗: ", err);
+      });
+    }
+
+    // 初始化執行計算
+    window.addEventListener('DOMContentLoaded', () => {
+      calculateGearRatio();
+      calculatePulseFreq();
+    });
+  </script>
+</body>
+</html>
