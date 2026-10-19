@@ -10,6 +10,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- KaTeX for LaTeX Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        });
+    </script>
     <style>
         body {
             font-family: 'Noto Sans TC', sans-serif;
@@ -22,6 +36,14 @@
         main img:hover {
             transform: scale(1.02);
             box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
+        }
+        /* 自訂動畫與樣式 */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(244, 63, 94, 0.4); }
+            50% { box-shadow: 0 0 28px rgba(244, 63, 94, 0.85); }
+        }
+        .singularity-warn {
+            animation: pulseGlow 1.5s infinite;
         }
     </style>
 </head>
@@ -139,6 +161,137 @@
             </div>
         </section>
 
+        <!-- Section: Forward Kinematics Deep-Dive & DH Parameters -->
+        <section class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
+            <div class="flex items-center space-x-3">
+                <div class="h-8 w-2 bg-indigo-500 rounded-full"></div>
+                <div>
+                    <h3 class="text-2xl font-bold text-white">正向運動學 (FK) 核心數學：DH 參數法與齊次變換矩陣</h3>
+                    <p class="text-sm text-slate-400">工業機器人學的基石：如何將各關節馬達編碼器旋轉角度 $\theta_i$，精確換算為法蘭面世界座標 $(X, Y, Z, U, V, W)$</p>
+                </div>
+            </div>
+
+            <!-- DH 4-Parameter Principle -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 space-y-4">
+                    <h4 class="text-base font-bold text-indigo-400 flex items-center gap-2">
+                        <i class="fa-solid fa-square-root-variable"></i> Denavit-Hartenberg (D-H) 4 大幾何參數
+                    </h4>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Denavit-Hartenberg 規範僅需使用 <strong>4 個幾何參數</strong>即可完整描述兩個相鄰關節座標系 $\{i-1\}$ 與 $\{i\}$ 之間的相對空間關係：
+                    </p>
+                    <div class="space-y-2 text-xs">
+                        <div class="bg-slate-800/80 p-2.5 rounded border border-slate-700">
+                            <span class="font-bold text-indigo-300">1. 連桿長度 $a_i$ (Link Length)：</span>沿 $x_i$ 軸，測量 $z_{i-1}$ 軸到 $z_i$ 軸的垂線距離。
+                        </div>
+                        <div class="bg-slate-800/80 p-2.5 rounded border border-slate-700">
+                            <span class="font-bold text-indigo-300">2. 連桿扭角 $\alpha_i$ (Link Twist)：</span>繞 $x_i$ 軸，測量 $z_{i-1}$ 軸轉至 $z_i$ 軸的旋轉角度。
+                        </div>
+                        <div class="bg-slate-800/80 p-2.5 rounded border border-slate-700">
+                            <span class="font-bold text-teal-300">3. 連桿偏置 $d_i$ (Link Offset)：</span>沿 $z_{i-1}$ 軸，測量 $x_{i-1}$ 軸到 $x_i$ 軸的距離（稜柱關節變數）。
+                        </div>
+                        <div class="bg-slate-800/80 p-2.5 rounded border border-slate-700">
+                            <span class="font-bold text-teal-300">4. 關節角度 $\theta_i$ (Joint Angle)：</span>繞 $z_{i-1}$ 軸，測量 $x_{i-1}$ 軸轉至 $x_i$ 軸的旋轉角度（旋轉關節變數）。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4x4 Homogeneous Transformation Matrix -->
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 space-y-4 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-base font-bold text-indigo-400 flex items-center gap-2">
+                            <i class="fa-solid fa-table-cells"></i> 單一連桿齊次變換矩陣 $^{i-1}T_i$
+                        </h4>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-3">
+                            由四個基本變換合成：$\text{Rot}(z, \theta_i) \cdot \text{Trans}(z, d_i) \cdot \text{Trans}(x, a_i) \cdot \text{Rot}(x, \alpha_i)$：
+                        </p>
+                        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 overflow-x-auto text-center font-mono text-xs">
+                            $$^{i-1}T_i = \begin{bmatrix} 
+                            \cos\theta_i & -\sin\theta_i\cos\alpha_i & \sin\theta_i\sin\alpha_i & a_i\cos\theta_i \\
+                            \sin\theta_i & \cos\theta_i\cos\alpha_i & -\cos\theta_i\sin\alpha_i & a_i\sin\theta_i \\
+                            0 & \sin\alpha_i & \cos\alpha_i & d_i \\
+                            0 & 0 & 0 & 1
+                            \end{bmatrix}$$
+                        </div>
+                    </div>
+                    <div class="bg-indigo-950/40 p-3 rounded-lg border border-indigo-800/40 text-xs text-indigo-200">
+                        <strong class="text-indigo-400">連桿串聯乘法：</strong> 機器手臂末端相對於基座的世界位姿矩陣為所有連桿矩陣的連續相乘：
+                        $$^0T_n = \prod_{i=1}^n \, ^{i-1}T_i = {^0T_1} \cdot {^1T_2} \cdot {^2T_3} \cdots {^{n-1}T_n}$$
+                    </div>
+                </div>
+            </div>
+
+            <!-- EPSON SCARA LS3 D-H Table Example -->
+            <div class="bg-slate-900 border border-slate-700 rounded-xl p-5">
+                <h4 class="text-base font-bold text-amber-400 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-microchip"></i> 實例剖析：EPSON LS3-401S (SCARA 4 軸) 的 DH 參數表
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-800 text-slate-300 border-b border-slate-700">
+                                <th class="p-3">連桿 $i$</th>
+                                <th class="p-3">關節名稱</th>
+                                <th class="p-3">連桿長度 $a_i$ (mm)</th>
+                                <th class="p-3">連桿扭角 $\alpha_i$ (rad)</th>
+                                <th class="p-3">連桿偏置 $d_i$ (mm)</th>
+                                <th class="p-3">關節變數 $\theta_i$</th>
+                                <th class="p-3">運動形式</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800 text-slate-400">
+                            <tr>
+                                <td class="p-3 font-bold text-slate-200">1</td>
+                                <td class="p-3">第 1 臂 (J1)</td>
+                                <td class="p-3 font-mono text-indigo-300">225 mm ($L_1$)</td>
+                                <td class="p-3 font-mono">0</td>
+                                <td class="p-3 font-mono">0</td>
+                                <td class="p-3 font-mono text-teal-300">$\theta_1$ (可動)</td>
+                                <td class="p-3 text-emerald-400">旋轉 (Revolute)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-200">2</td>
+                                <td class="p-3">第 2 臂 (J2)</td>
+                                <td class="p-3 font-mono text-indigo-300">175 mm ($L_2$)</td>
+                                <td class="p-3 font-mono">$\pi$ (180°)</td>
+                                <td class="p-3 font-mono">0</td>
+                                <td class="p-3 font-mono text-teal-300">$\theta_2$ (可動)</td>
+                                <td class="p-3 text-emerald-400">旋轉 (Revolute)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-200">3</td>
+                                <td class="p-3">Z 升降軸 (J3)</td>
+                                <td class="p-3 font-mono">0</td>
+                                <td class="p-3 font-mono">0</td>
+                                <td class="p-3 font-mono text-teal-300">$d_3$ (可動行程 0~150mm)</td>
+                                <td class="p-3 font-mono">0</td>
+                                <td class="p-3 text-blue-400">移動 (Prismatic)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-200">4</td>
+                                <td class="p-3">U 旋轉軸 (J4)</td>
+                                <td class="p-3 font-mono">0</td>
+                                <td class="p-3 font-mono">0</td>
+                                <td class="p-3 font-mono">0</td>
+                                <td class="p-3 font-mono text-teal-300">$\theta_4$ (可動)</td>
+                                <td class="p-3 text-emerald-400">旋轉 (Revolute)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3 p-3 bg-slate-950 rounded border border-slate-800 text-xs text-slate-400 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <strong>SCARA 正向運動學封閉解：</strong>
+                        $X = L_1 \cos\theta_1 + L_2 \cos(\theta_1 + \theta_2)$，
+                        $Y = L_1 \sin\theta_1 + L_2 \sin(\theta_1 + \theta_2)$，
+                        $Z = -d_3$，
+                        $U = \theta_1 + \theta_2 + \theta_4$
+                    </div>
+                    <span class="text-indigo-400 font-mono text-[11px]">計算耗時 &lt; 0.001 ms (極速確定解)</span>
+                </div>
+            </div>
+        </section>
+
         <!-- Comparison Table Section -->
         <section id="comparison" class="space-y-6">
             <div class="flex items-center space-x-3">
@@ -190,94 +343,249 @@
             </div>
         </section>
 
-        <!-- Interactive Simulator Simulation Section -->
-        <section id="simulator" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700 pb-4">
+        <!-- Section: Inverse Kinematics Deep-Dive & Geometric Law of Cosines -->
+        <section class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
+            <div class="flex items-center space-x-3">
+                <div class="h-8 w-2 bg-teal-500 rounded-full"></div>
                 <div>
-                    <h3 class="text-xl font-bold text-white flex items-center">
-                        <i class="fa-solid fa-gamepad text-indigo-400 mr-2"></i> 互動體驗區：運動學運作模擬
-                    </h3>
-                    <p class="text-sm text-slate-400 mt-1">體驗「只有正向運動學」的關節點動模式 vs 「透過反向運動學」指定目標點。</p>
-                </div>
-                <div class="mt-3 md:mt-0 flex space-x-2">
-                    <button id="mode-fk" onclick="setMode('fk')" class="px-4 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white shadow transition">FK 模式 (關節控制)</button>
-                    <button id="mode-ik" onclick="setMode('ik')" class="px-4 py-2 text-xs font-bold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition">IK 模式 (世界座標)</button>
+                    <h3 class="text-2xl font-bold text-white">逆向運動學 (IK) 深度幾何推導：餘弦定理與多姿態解</h3>
+                    <p class="text-sm text-slate-400">當使用者給定末端目標座標 $(X, Y)$，控制器內部究竟是如何計算出兩個關節角度 $(\theta_1, \theta_2)$？</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Control Panel -->
-                <div class="bg-slate-900 p-5 rounded-xl border border-slate-700 flex flex-col justify-between space-y-4">
-                    <div id="controls-fk" class="space-y-4">
-                        <h4 class="text-sm font-semibold text-indigo-300 uppercase tracking-wider"><i class="fa-solid fa-sliders mr-1"></i> 關節角度設定 (Joint Space)</h4>
-                        <div>
-                            <div class="flex justify-between text-xs text-slate-400 mb-1">
-                                <span>關節 1 ($J_1$)</span>
-                                <span id="j1-val">0°</span>
-                            </div>
-                            <input type="range" min="-180" max="180" value="0" class="w-full accent-indigo-500 cursor-pointer" id="j1" oninput="updateFK()">
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-xs text-slate-400 mb-1">
-                                <span>關節 2 ($J_2$)</span>
-                                <span id="j2-val">0°</span>
-                            </div>
-                            <input type="range" min="-90" max="90" value="0" class="w-full accent-indigo-500 cursor-pointer" id="j2" oninput="updateFK()">
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-xs text-slate-400 mb-1">
-                                <span>關節 3 ($J_3$)</span>
-                                <span id="j3-val">0°</span>
-                            </div>
-                            <input type="range" min="-90" max="90" value="0" class="w-full accent-indigo-500 cursor-pointer" id="j3" oninput="updateFK()">
-                        </div>
+            <!-- Mathematical Step-by-Step Derivation -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Step 1 & 2: Theta 2 and Elbow Configuration -->
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 space-y-4">
+                    <h4 class="text-base font-bold text-teal-400 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> 步驟 1：利用餘弦定理求解肘關節角 $\theta_2$
+                    </h4>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        基座原點 $(0,0)$、肩部/肘部關節與末端目標點 $(X,Y)$ 形成一個三角形。基座到目標點的距離平方為 $r^2 = X^2 + Y^2$。根據餘弦定理（Law of Cosines）：
+                    </p>
+                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-center font-mono text-xs">
+                        $$r^2 = L_1^2 + L_2^2 - 2 L_1 L_2 \cos(180^\circ - \theta_2) = L_1^2 + L_2^2 + 2 L_1 L_2 \cos\theta_2$$
+                        $$\Downarrow$$
+                        $$\cos\theta_2 = \frac{X^2 + Y^2 - L_1^2 - L_2^2}{2 L_1 L_2}$$
                     </div>
-
-                    <div id="controls-ik" class="space-y-4 hidden">
-                        <h4 class="text-sm font-semibold text-teal-300 uppercase tracking-wider"><i class="fa-solid fa-crosshairs mr-1"></i> 目標笛卡爾位置 (Cartesian Space)</h4>
-                        <div>
-                            <div class="flex justify-between text-xs text-slate-400 mb-1">
-                                <span>X 座標</span>
-                                <span id="x-val">200 mm</span>
-                            </div>
-                            <input type="range" min="-250" max="250" value="200" class="w-full accent-teal-500 cursor-pointer" id="target-x" oninput="updateIK()">
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-xs text-slate-400 mb-1">
-                                <span>Y 座標</span>
-                                <span id="y-val">150 mm</span>
-                            </div>
-                            <input type="range" min="50" max="350" value="150" class="w-full accent-teal-500 cursor-pointer" id="target-y" oninput="updateIK()">
-                        </div>
-                        <div class="text-xs text-amber-300 bg-amber-950/40 p-3 rounded-lg border border-amber-800/50">
-                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> 提示：IK 會自動計算關節角度，讓末端工具精準抵達目標位置！
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 space-y-2">
-                        <div class="text-xs font-semibold text-slate-400 uppercase">即時計算結果 (Status)</div>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div class="bg-slate-900 p-2 rounded">
-                                <span class="text-slate-400 block">末端 X:</span>
-                                <span id="out-x" class="font-mono text-indigo-300 font-bold">200.0 mm</span>
-                            </div>
-                            <div class="bg-slate-900 p-2 rounded">
-                                <span class="text-slate-400 block">末端 Y:</span>
-                                <span id="out-y" class="font-mono text-indigo-300 font-bold">150.0 mm</span>
-                            </div>
+                    
+                    <div class="bg-amber-950/40 border-l-4 border-amber-500 p-3 rounded-r-lg text-xs text-slate-300 space-y-1">
+                        <p class="font-bold text-amber-400">姿態旗標的數學根源：$\sin\theta_2$ 的正負雙解</p>
+                        <p>因為 $\sin^2\theta_2 + \cos^2\theta_2 = 1$，所以 $\sin\theta_2 = \pm \sqrt{1 - \cos^2\theta_2}$：</p>
+                        <ul class="list-disc list-inside text-slate-400 text-[11px] pl-1">
+                            <li><strong>取負號 ($-\sqrt{\dots}$)：</strong>肘部往右彎曲 $\implies$ <span class="text-amber-300 font-bold">右手姿態 (/R, Elbow Right)</span></li>
+                            <li><strong>取正號 ($+\sqrt{\dots}$)：</strong>肘部往左彎曲 $\implies$ <span class="text-teal-300 font-bold">左手姿態 (/L, Elbow Left)</span></li>
+                        </ul>
+                        <div class="pt-1 text-center font-mono text-teal-300 font-bold">
+                            $$\theta_2 = \text{atan2}\left(\pm\sqrt{1-\cos^2\theta_2}, \; \cos\theta_2\right)$$
                         </div>
                     </div>
                 </div>
 
-                <!-- Visual Canvas Area -->
-                <div class="lg:col-span-2 bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-col items-center justify-center relative min-h-[350px]">
-                    <div class="absolute top-4 left-4 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700 text-xs text-slate-300">
-                        <span id="canvas-mode-label" class="font-bold text-indigo-400">目前模式：正向運動學 (FK)</span>
+                <!-- Step 3 & 4: Theta 1 and Jacobian Matrix -->
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 space-y-4 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-base font-bold text-teal-400 flex items-center gap-2">
+                            <i class="fa-solid fa-compass-drafting"></i> 步驟 2：利用三角幾何疊加求解肩關節角 $\theta_1$
+                        </h4>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-2">
+                            令目標點極坐標幅角為 $\beta = \text{atan2}(Y, X)$，第一連桿與目標連線的夾角為 $\psi$：
+                        </p>
+                        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-center font-mono text-xs mb-3">
+                            $$\psi = \text{atan2}(L_2 \sin\theta_2, \; L_1 + L_2 \cos\theta_2)$$
+                            $$\Downarrow$$
+                            $$\theta_1 = \beta - \psi = \text{atan2}(Y, X) - \text{atan2}(L_2 \sin\theta_2, \; L_1 + L_2 \cos\theta_2)$$
+                        </div>
+
+                        <h4 class="text-base font-bold text-indigo-400 flex items-center gap-2 mt-4">
+                            <i class="fa-solid fa-gauge-high"></i> 速度雅可比矩陣與奇異點條件
+                        </h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            對正向運動學對時間微分，得到末端線速度與關節角速度關係：
+                        </p>
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-center font-mono text-xs my-2">
+                            $$\begin{bmatrix} \dot{X} \\ \dot{Y} \end{bmatrix} = \underbrace{\begin{bmatrix} -L_1 S_1 - L_2 S_{12} & -L_2 S_{12} \\ L_1 C_1 + L_2 C_{12} & L_2 C_{12} \end{bmatrix}}_{J(\theta)} \begin{bmatrix} \dot{\theta}_1 \\ \dot{\theta}_2 \end{bmatrix}$$
+                            $$\det(J) = L_1 L_2 \sin\theta_2$$
+                        </div>
                     </div>
+
+                    <div class="bg-red-950/40 p-2.5 rounded-lg border border-red-800/40 text-xs text-red-200">
+                        <strong class="text-red-400">奇異點物理意義：</strong> 當 $\sin\theta_2 = 0$（即手臂完全伸展 $\theta_2 = 0^\circ$ 或完全折疊 $\theta_2 = 180^\circ$）時，雅可比行列式 $\det(J) = 0$，逆矩陣 $J^{-1}$ 無窮大！控制器將無法在此方向產生微小線速度！
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Simulator Simulation Section -->
+        <section id="simulator" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700 pb-4 gap-3">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-gamepad text-indigo-400"></i> 工業機器人運動學全功能互動模擬器
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">
+                        支援 <strong class="text-indigo-300">滑鼠直接拖曳目標點</strong>、<strong class="text-amber-300">/R 與 /L 姿態切換</strong>、<strong class="text-pink-300">PTP/CP 軌跡插補</strong> 與 <strong class="text-rose-400">奇異點預警</strong>！
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button id="mode-fk" onclick="setMode('fk')" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition">FK 模式 (關節控制)</button>
+                    <button id="mode-ik" onclick="setMode('ik')" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-teal-600 text-white shadow transition">IK 模式 (世界座標)</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Control Panel (5 cols) -->
+                <div class="lg:col-span-5 bg-slate-900 p-5 rounded-xl border border-slate-700 flex flex-col justify-between space-y-5">
+                    
+                    <!-- Posture Configuration & Quick Actions -->
+                    <div class="bg-slate-800/80 p-3.5 rounded-lg border border-slate-700 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-code-fork text-amber-400"></i> 手臂姿態旗標 (Posture)
+                            </span>
+                            <span id="current-posture-badge" class="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">/R 右手姿態</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="btn-posture-r" onclick="setPosture('R')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 text-white shadow transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-hand"></i> 右手系 (/R)
+                            </button>
+                            <button id="btn-posture-l" onclick="setPosture('L')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-hand-back-fist"></i> 左手系 (/L)
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-slate-400 leading-tight">
+                            同一個 $(X, Y)$ 座標可透過切換 $/R$ 或 $/L$ 觀察關節構型翻轉，深刻體會逆運動學的多組解！
+                        </p>
+                    </div>
+
+                    <!-- FK Controls -->
+                    <div id="controls-fk" class="space-y-4 hidden">
+                        <h4 class="text-xs font-semibold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-sliders"></i> 關節角度設定 (Joint Space)
+                        </h4>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-400 mb-1">
+                                <span>關節 1 ($J_1$ / 肩旋轉)</span>
+                                <span id="j1-val" class="font-mono text-indigo-300 font-bold">25°</span>
+                            </div>
+                            <input type="range" min="-170" max="170" value="25" class="w-full accent-indigo-500 cursor-pointer" id="j1" oninput="updateFK()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-400 mb-1">
+                                <span>關節 2 ($J_2$ / 肘折疊)</span>
+                                <span id="j2-val" class="font-mono text-indigo-300 font-bold">-60°</span>
+                            </div>
+                            <input type="range" min="-150" max="150" value="-60" class="w-full accent-indigo-500 cursor-pointer" id="j2" oninput="updateFK()">
+                        </div>
+                    </div>
+
+                    <!-- IK Controls -->
+                    <div id="controls-ik" class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-semibold text-teal-300 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-crosshairs"></i> 目標笛卡爾位置 (Cartesian Space)
+                            </h4>
+                            <span class="text-[11px] text-teal-400/80 bg-teal-950/60 px-2 py-0.5 rounded border border-teal-800/40">支援畫布拖曳</span>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-400 mb-1">
+                                <span>X 座標 (左右方向)</span>
+                                <span id="x-val" class="font-mono text-teal-300 font-bold">180 mm</span>
+                            </div>
+                            <input type="range" min="-240" max="240" value="180" class="w-full accent-teal-500 cursor-pointer" id="target-x" oninput="updateIKFromSlider()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-400 mb-1">
+                                <span>Y 座標 (前後方向)</span>
+                                <span id="y-val" class="font-mono text-teal-300 font-bold">140 mm</span>
+                            </div>
+                            <input type="range" min="20" max="250" value="140" class="w-full accent-teal-500 cursor-pointer" id="target-y" oninput="updateIKFromSlider()">
+                        </div>
+                    </div>
+
+                    <!-- Visual Toggles & Trajectory Animation -->
+                    <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/80 space-y-2.5">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">視覺輔助與插補展示</span>
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer">
+                                <input type="checkbox" id="chk-envelope" checked onchange="drawCurrentState()" class="accent-indigo-500 rounded">
+                                工作範圍環 ($R_{max}/R_{min}$)
+                            </label>
+                            <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer">
+                                <input type="checkbox" id="chk-triangle" checked onchange="drawCurrentState()" class="accent-indigo-500 rounded">
+                                三角幾何輔助線
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-1">
+                            <button onclick="playTrajectory('ptp')" class="px-2.5 py-1.5 text-xs font-semibold rounded bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 border border-indigo-700/50 transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-bezier-curve text-[10px]"></i> 動畫：PTP 弧線
+                            </button>
+                            <button onclick="playTrajectory('cp')" class="px-2.5 py-1.5 text-xs font-semibold rounded bg-pink-900/60 hover:bg-pink-800 text-pink-200 border border-pink-700/50 transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-arrows-left-right text-[10px]"></i> 動畫：CP 直線
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Real-Time Math & Diagnostics Board -->
+                    <div class="bg-slate-950 p-3.5 rounded-lg border border-slate-800 space-y-2 font-mono text-xs">
+                        <div class="flex items-center justify-between text-slate-400 border-b border-slate-800 pb-1 text-[11px]">
+                            <span>運動學數值即時看板</span>
+                            <span id="singularity-status" class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 font-sans font-bold">狀態正常</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-[11px]">
+                            <div>
+                                <span class="text-slate-500 block">末端 (X, Y)</span>
+                                <span id="board-xy" class="text-teal-300 font-bold">180, 140</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block">徑向距 $r$</span>
+                                <span id="board-r" class="text-indigo-300 font-bold">228.0 mm</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block">雅可比 $\det(J)$</span>
+                                <span id="board-det" class="text-amber-300 font-bold">10392</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block">關節 $J_1$ ($\theta_1$)</span>
+                                <span id="board-j1" class="text-indigo-300 font-bold">25.3°</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block">關節 $J_2$ ($\theta_2$)</span>
+                                <span id="board-j2" class="text-teal-300 font-bold">-60.0°</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block">$\sin\theta_2$ (奇點指標)</span>
+                                <span id="board-sin" class="text-slate-200 font-bold">-0.866</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Canvas Simulation Area (7 cols) -->
+                <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-col items-center justify-between relative min-h-[460px]">
+                    <div class="w-full flex items-center justify-between mb-2">
+                        <span id="canvas-mode-label" class="text-xs font-bold px-2.5 py-1 rounded bg-teal-950/80 border border-teal-800 text-teal-300">
+                            模式：反向運動學 (IK) — 請在畫布上直接拖曳橘色末端目標點
+                        </span>
+                        <span class="text-[11px] text-slate-500">
+                            臂長：$L_1=130\text{mm}, L_2=110\text{mm}$
+                        </span>
+                    </div>
+
                     <!-- Canvas for Robotic Arm 2D Simulation -->
-                    <canvas id="armCanvas" width="500" height="350" class="bg-slate-950/60 rounded-lg border border-slate-800 shadow-inner max-w-full"></canvas>
-                    <div class="text-xs text-slate-500 mt-2 text-center">
-                        模擬 2D 簡化兩節臂機器人模型：展現關節角度與末端空間座標的轉換關係。
+                    <div class="relative w-full flex justify-center">
+                        <canvas id="armCanvas" width="580" height="400" class="bg-slate-950 rounded-xl border border-slate-800 shadow-inner max-w-full cursor-crosshair"></canvas>
+                        
+                        <!-- Overlay Touch/Drag Badge -->
+                        <div id="drag-hint" class="absolute bottom-3 left-4 bg-slate-900/85 backdrop-filter backdrop-blur-sm px-3 py-1.5 rounded-lg border border-slate-700 text-[11px] text-slate-400 pointer-events-none flex items-center gap-2">
+                            <i class="fa-solid fa-hand-pointer text-amber-400 animate-bounce"></i> 按住滑鼠左鍵可拖動橘色目標點
+                        </div>
+                    </div>
+
+                    <div class="w-full mt-3 flex items-center justify-between text-[11px] text-slate-500 px-1">
+                        <span>● 綠色線：第 1 臂 ($L_1$) ｜ ● 青色線：第 2 臂 ($L_2$) ｜ 虛線圓：工作範圍邊界</span>
+                        <button onclick="resetArmDefault()" class="text-slate-400 hover:text-white underline">重置預設姿態</button>
                     </div>
                 </div>
             </div>
@@ -458,10 +766,30 @@
 
     <!-- JavaScript for Interactive Simulation -->
     <script>
-        let currentMode = 'fk';
-        const L1 = 120; // Length of arm link 1
-        const L2 = 100; // Length of arm link 2
+        // Core Kinematic Parameters (Scaled for 580x400 Canvas)
+        let currentMode = 'ik'; // Default to IK for drag interaction
+        let currentPosture = 'R'; // 'R' = Right-arm (/R), 'L' = Left-arm (/L)
+        const L1 = 130; // Length of Link 1 in mm
+        const L2 = 110; // Length of Link 2 in mm
+        
+        let curTargetX = 180;
+        let curTargetY = 140;
+        let curTheta1 = 25 * Math.PI / 180;
+        let curTheta2 = -60 * Math.PI / 180;
+        let isDragging = false;
+        let animId = null;
+        let trajectoryTrail = [];
 
+        // Canvas Origin (Base of the robot at center bottom)
+        function getCanvasBase() {
+            const canvas = document.getElementById('armCanvas');
+            return {
+                x: canvas.width / 2,
+                y: canvas.height - 60
+            };
+        }
+
+        // Mode Switcher (FK vs IK)
         function setMode(mode) {
             currentMode = mode;
             const btnFk = document.getElementById('mode-fk');
@@ -471,24 +799,52 @@
             const label = document.getElementById('canvas-mode-label');
 
             if (mode === 'fk') {
-                btnFk.className = "px-4 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white shadow transition";
-                btnIk.className = "px-4 py-2 text-xs font-bold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition";
+                btnFk.className = "px-3.5 py-1.5 text-xs font-bold rounded-lg bg-indigo-600 text-white shadow transition";
+                btnIk.className = "px-3.5 py-1.5 text-xs font-bold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition";
                 controlsFk.classList.remove('hidden');
                 controlsIk.classList.add('hidden');
-                label.className = "font-bold text-indigo-400";
-                label.innerText = "目前模式：正向運動學 (FK - 關節控制)";
+                label.className = "text-xs font-bold px-2.5 py-1 rounded bg-indigo-950/80 border border-indigo-800 text-indigo-300";
+                label.innerText = "模式：正向運動學 (FK) — 請調整左側 J1、J2 滑桿設定關節角度";
                 updateFK();
             } else {
-                btnIk.className = "px-4 py-2 text-xs font-bold rounded-lg bg-teal-600 text-white shadow transition";
-                btnFk.className = "px-4 py-2 text-xs font-bold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition";
+                btnIk.className = "px-3.5 py-1.5 text-xs font-bold rounded-lg bg-teal-600 text-white shadow transition";
+                btnFk.className = "px-3.5 py-1.5 text-xs font-bold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition";
                 controlsIk.classList.remove('hidden');
                 controlsFk.classList.add('hidden');
-                label.className = "font-bold text-teal-400";
-                label.innerText = "目前模式：反向運動學 (IK - 目標座標控制)";
-                updateIK();
+                label.className = "text-xs font-bold px-2.5 py-1 rounded bg-teal-950/80 border border-teal-800 text-teal-300";
+                label.innerText = "模式：反向運動學 (IK) — 請在畫布上直接拖曳橘色末端目標點";
+                updateIKFromCoordinates(curTargetX, curTargetY);
             }
         }
 
+        // Posture Switcher (/R vs /L)
+        function setPosture(posture) {
+            currentPosture = posture;
+            const btnR = document.getElementById('btn-posture-r');
+            const btnL = document.getElementById('btn-posture-l');
+            const badge = document.getElementById('current-posture-badge');
+
+            if (posture === 'R') {
+                btnR.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 text-white shadow transition flex items-center justify-center gap-1.5";
+                btnL.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition flex items-center justify-center gap-1.5";
+                badge.className = "text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                badge.innerText = "/R 右手姿態 (Elbow Right)";
+            } else {
+                btnL.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-teal-600 text-white shadow transition flex items-center justify-center gap-1.5";
+                btnR.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition flex items-center justify-center gap-1.5";
+                badge.className = "text-[11px] font-mono px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30";
+                badge.innerText = "/L 左手姿態 (Elbow Left)";
+            }
+
+            if (currentMode === 'ik') {
+                updateIKFromCoordinates(curTargetX, curTargetY);
+            } else {
+                // In FK, changing posture recalculates target into the alternative configuration
+                updateFK();
+            }
+        }
+
+        // Forward Kinematics Calculation
         function updateFK() {
             const j1 = parseFloat(document.getElementById('j1').value);
             const j2 = parseFloat(document.getElementById('j2').value);
@@ -496,138 +852,459 @@
             document.getElementById('j1-val').innerText = j1 + '°';
             document.getElementById('j2-val').innerText = j2 + '°';
 
-            // Convert to radians
-            const rad1 = j1 * Math.PI / 180;
-            const rad2 = j2 * Math.PI / 180;
+            curTheta1 = j1 * Math.PI / 180;
+            curTheta2 = j2 * Math.PI / 180;
 
-            // Forward Kinematics calculation for 2-link arm
-            const x = L1 * Math.cos(rad1) + L2 * Math.cos(rad1 + rad2);
-            const y = L1 * Math.sin(rad1) + L2 * Math.sin(rad1 + rad2);
+            // FK Formulas
+            curTargetX = L1 * Math.cos(curTheta1) + L2 * Math.cos(curTheta1 + curTheta2);
+            curTargetY = L1 * Math.sin(curTheta1) + L2 * Math.sin(curTheta1 + curTheta2);
 
-            document.getElementById('out-x').innerText = x.toFixed(1) + ' mm';
-            document.getElementById('out-y').innerText = y.toFixed(1) + ' mm';
+            // Sync IK sliders
+            document.getElementById('target-x').value = Math.round(curTargetX);
+            document.getElementById('target-y').value = Math.round(curTargetY);
+            document.getElementById('x-val').innerText = Math.round(curTargetX) + ' mm';
+            document.getElementById('y-val').innerText = Math.round(curTargetY) + ' mm';
 
-            drawArm(rad1, rad1 + rad2, null);
+            updateDiagnostics(curTargetX, curTargetY, curTheta1, curTheta2, true);
+            drawCanvas();
         }
 
-        function updateIK() {
-            const targetX = parseFloat(document.getElementById('target-x').value);
-            const targetY = parseFloat(document.getElementById('target-y').value);
+        // Inverse Kinematics from Sliders
+        function updateIKFromSlider() {
+            const tx = parseFloat(document.getElementById('target-x').value);
+            const ty = parseFloat(document.getElementById('target-y').value);
+            document.getElementById('x-val').innerText = tx + ' mm';
+            document.getElementById('y-val').innerText = ty + ' mm';
+            updateIKFromCoordinates(tx, ty);
+        }
 
-            document.getElementById('x-val').innerText = targetX + ' mm';
-            document.getElementById('y-val').innerText = targetY + ' mm';
+        // Core IK Solver
+        function updateIKFromCoordinates(tx, ty) {
+            curTargetX = tx;
+            curTargetY = ty;
 
-            // Inverse Kinematics calculation for 2-link planar arm
-            // distance squared from origin
-            const r2 = targetX * targetX + targetY * targetY;
+            // Distance squared from base origin
+            const r2 = tx * tx + ty * ty;
+            const r = Math.sqrt(r2);
             const cosTheta2 = (r2 - L1 * L1 - L2 * L2) / (2 * L1 * L2);
 
-            if (cosTheta2 >= -1 && cosTheta2 <= 1) {
-                const theta2 = Math.acos(cosTheta2);
-                const theta1 = Math.atan2(targetY, targetX) - Math.atan2(L2 * Math.sin(theta2), L1 + L2 * Math.cos(theta2));
-
-                // Update FK sliders to reflect solved angles
-                const j1Deg = Math.round(theta1 * 180 / Math.PI);
-                const j2Deg = Math.round(theta2 * 180 / Math.PI);
+            // Check reachability
+            if (cosTheta2 >= -1.0001 && cosTheta2 <= 1.0001) {
+                const clampedCos = Math.max(-1, Math.min(1, cosTheta2));
                 
-                document.getElementById('j1').value = j1Deg;
-                document.getElementById('j2').value = j2Deg;
-                document.getElementById('j1-val').innerText = j1Deg + '°';
-                document.getElementById('j2-val').innerText = j2Deg + '°';
+                // Posture determination: /R (negative sin), /L (positive sin)
+                const sinSign = (currentPosture === 'L') ? 1 : -1;
+                const sinTheta2 = sinSign * Math.sqrt(Math.max(0, 1 - clampedCos * clampedCos));
+                curTheta2 = Math.atan2(sinTheta2, clampedCos);
 
-                document.getElementById('out-x').innerText = targetX.toFixed(1) + ' mm';
-                document.getElementById('out-y').innerText = targetY.toFixed(1) + ' mm';
+                // Base angle beta and offset psi
+                const beta = Math.atan2(ty, tx);
+                const psi = Math.atan2(L2 * Math.sin(curTheta2), L1 + L2 * Math.cos(curTheta2));
+                curTheta1 = beta - psi;
 
-                drawArm(theta1, theta1 + theta2, {x: targetX, y: targetY});
+                // Sync FK Sliders
+                const deg1 = Math.round(curTheta1 * 180 / Math.PI);
+                const deg2 = Math.round(curTheta2 * 180 / Math.PI);
+                document.getElementById('j1').value = deg1;
+                document.getElementById('j2').value = deg2;
+                document.getElementById('j1-val').innerText = deg1 + '°';
+                document.getElementById('j2-val').innerText = deg2 + '°';
+
+                updateDiagnostics(tx, ty, curTheta1, curTheta2, true);
+                drawCanvas();
             } else {
-                document.getElementById('out-x').innerText = "超出工作範圍!";
-                document.getElementById('out-y').innerText = "無解 (Unreachable)";
-                drawArm(0, 0, {x: targetX, y: targetY}, true);
+                updateDiagnostics(tx, ty, 0, 0, false);
+                drawCanvas(true);
             }
         }
 
-        function drawArm(theta1, theta2, target, unreachable = false) {
-            const canvas = document.getElementById('armCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Real-Time Kinematics & Jacobian Diagnostics Update
+        function updateDiagnostics(x, y, t1, t2, reachable) {
+            const boardXY = document.getElementById('board-xy');
+            const boardR = document.getElementById('board-r');
+            const boardDet = document.getElementById('board-det');
+            const boardJ1 = document.getElementById('board-j1');
+            const boardJ2 = document.getElementById('board-j2');
+            const boardSin = document.getElementById('board-sin');
+            const statusEl = document.getElementById('singularity-status');
+            const canvasEl = document.getElementById('armCanvas');
 
-            // Origin offset (Base of the robot)
-            const baseX = canvas.width / 2;
-            const baseY = canvas.height - 50;
-
-            // Draw grid lines
-            ctx.strokeStyle = '#1e293b';
-            ctx.lineWidth = 1;
-            for (let i = 0; i < canvas.width; i += 40) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
-            }
-            for (let j = 0; j < canvas.height; j += 40) {
-                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
-            }
-
-            // Draw Base
-            ctx.fillStyle = '#64748b';
-            ctx.fillRect(baseX - 30, baseY, 60, 15);
-
-            if (unreachable) {
-                ctx.fillStyle = '#ef4444';
-                ctx.font = '14px sans-serif';
-                ctx.fillText('目標點超出工作範圍 (No IK Solution)', 40, 40);
+            if (!reachable) {
+                boardXY.innerText = `${Math.round(x)}, ${Math.round(y)}`;
+                boardR.innerText = `${Math.sqrt(x*x + y*y).toFixed(1)} mm`;
+                boardDet.innerText = "N/A";
+                boardJ1.innerText = "無解";
+                boardJ2.innerText = "無解";
+                boardSin.innerText = "N/A";
+                statusEl.className = "px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-400 font-sans font-bold";
+                statusEl.innerText = "超出工作邊界 (Unreachable)";
+                canvasEl.classList.remove('singularity-warn');
                 return;
             }
 
-            // Joint 1 position (Origin)
-            const x1 = baseX + L1 * Math.cos(theta1);
-            const y1 = baseY - L1 * Math.sin(theta1); // Canvas Y is inverted
+            const r = Math.sqrt(x*x + y*y);
+            const deg1 = t1 * 180 / Math.PI;
+            const deg2 = t2 * 180 / Math.PI;
+            const sinVal = Math.sin(t2);
+            const detJ = Math.round(L1 * L2 * sinVal);
 
-            // End Effector position
-            const xEnd = baseX + (L1 * Math.cos(theta1) + L2 * Math.cos(theta2));
-            const yEnd = baseY - (L1 * Math.sin(theta1) + L2 * Math.sin(theta2));
+            boardXY.innerText = `${Math.round(x)}, ${Math.round(y)}`;
+            boardR.innerText = `${r.toFixed(1)} mm`;
+            boardDet.innerText = `${detJ}`;
+            boardJ1.innerText = `${deg1.toFixed(1)}°`;
+            boardJ2.innerText = `${deg2.toFixed(1)}°`;
+            boardSin.innerText = `${sinVal.toFixed(3)}`;
 
-            // Draw Link 1
+            // Singularity Assessment
+            const absSin = Math.abs(sinVal);
+            if (absSin < 0.05) {
+                statusEl.className = "px-2 py-0.5 rounded text-[10px] bg-red-600 text-white font-sans font-bold animate-pulse";
+                statusEl.innerText = "⚠️ 處於奇異點 (Singularity!)";
+                canvasEl.classList.add('singularity-warn');
+            } else if (absSin < 0.20) {
+                statusEl.className = "px-2 py-0.5 rounded text-[10px] bg-amber-500/30 text-amber-300 font-sans font-bold";
+                statusEl.innerText = "注意：逼近奇異區 (Near Singular)";
+                canvasEl.classList.remove('singularity-warn');
+            } else {
+                statusEl.className = "px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 font-sans font-bold";
+                statusEl.innerText = "狀態正常 (Condition OK)";
+                canvasEl.classList.remove('singularity-warn');
+            }
+        }
+
+        // Draw Canvas Routine
+        function drawCanvas(unreachable = false) {
+            const canvas = document.getElementById('armCanvas');
+            const ctx = canvas.getContext('2d');
+            const base = getCanvasBase();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Grid & Origin Crosshair
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 30) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for (let j = 0; j < canvas.height; j += 30) {
+                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
+            }
+
+            // Origin axes
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(base.x, 0); ctx.lineTo(base.x, canvas.height); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, base.y); ctx.lineTo(canvas.width, base.y); ctx.stroke();
+
+            // 2. Workspace Envelope Rings
+            const showEnvelope = document.getElementById('chk-envelope') ? document.getElementById('chk-envelope').checked : true;
+            if (showEnvelope) {
+                // Max reach circle R_max = L1 + L2
+                ctx.strokeStyle = 'rgba(99, 102, 241, 0.35)';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.arc(base.x, base.y, L1 + L2, 0, 2 * Math.PI);
+                ctx.stroke();
+
+                // Min deadzone circle R_min = |L1 - L2|
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+                ctx.beginPath();
+                ctx.arc(base.x, base.y, Math.abs(L1 - L2), 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Annotation
+                ctx.fillStyle = '#64748b';
+                ctx.font = '10px monospace';
+                ctx.fillText(`外半徑 R_max = ${L1 + L2}mm`, base.x + 10, base.y - (L1 + L2) + 12);
+                ctx.fillText(`內盲區 R_min = ${Math.abs(L1 - L2)}mm`, base.x + 10, base.y - Math.abs(L1 - L2) + 12);
+            }
+
+            // 3. Trajectory Trail (if any)
+            if (trajectoryTrail.length > 1) {
+                ctx.strokeStyle = '#ec4899';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(base.x + trajectoryTrail[0].x, base.y - trajectoryTrail[0].y);
+                for (let k = 1; k < trajectoryTrail.length; k++) {
+                    ctx.lineTo(base.x + trajectoryTrail[k].x, base.y - trajectoryTrail[k].y);
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // 4. Base Pedestal
+            ctx.fillStyle = '#475569';
+            ctx.beginPath();
+            ctx.roundRect ? ctx.roundRect(base.x - 36, base.y, 72, 22, 6) : ctx.fillRect(base.x - 36, base.y, 72, 22);
+            ctx.fill();
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('BASE 原點', base.x, base.y + 15);
+            ctx.textAlign = 'start';
+
+            // If Unreachable
+            if (unreachable) {
+                // Target marker in red
+                const txCanvas = base.x + curTargetX;
+                const tyCanvas = base.y - curTargetY;
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(txCanvas, tyCanvas, 12, 0, 2 * Math.PI); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(txCanvas - 16, tyCanvas); ctx.lineTo(txCanvas + 16, tyCanvas); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(txCanvas, tyCanvas - 16); ctx.lineTo(txCanvas, tyCanvas + 16); ctx.stroke();
+
+                ctx.fillStyle = '#ef4444';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillText('⚠️ 目標點超出工作範圍 (No IK Solution)', 30, 40);
+                return;
+            }
+
+            // Calculated Joint Coordinates
+            const x1 = base.x + L1 * Math.cos(curTheta1);
+            const y1 = base.y - L1 * Math.sin(curTheta1);
+
+            const xEnd = base.x + (L1 * Math.cos(curTheta1) + L2 * Math.cos(curTheta1 + curTheta2));
+            const yEnd = base.y - (L1 * Math.sin(curTheta1) + L2 * Math.sin(curTheta1 + curTheta2));
+
+            // 5. Geometric Triangle Dashed Lines (Optional)
+            const showTriangle = document.getElementById('chk-triangle') ? document.getElementById('chk-triangle').checked : true;
+            if (showTriangle) {
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+                ctx.lineWidth = 1.2;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(base.x, base.y);
+                ctx.lineTo(xEnd, yEnd);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // 6. Draw Link 1 (J1 to J2)
             ctx.strokeStyle = '#6366f1';
-            ctx.lineWidth = 8;
+            ctx.lineWidth = 10;
             ctx.lineCap = 'round';
             ctx.beginPath();
-            ctx.moveTo(baseX, baseY);
+            ctx.moveTo(base.x, base.y);
             ctx.lineTo(x1, y1);
             ctx.stroke();
 
-            // Draw Link 2
+            // Link 1 inner glow
+            ctx.strokeStyle = '#a5b4fc';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(base.x, base.y);
+            ctx.lineTo(x1, y1);
+            ctx.stroke();
+
+            // 7. Draw Link 2 (J2 to Tool)
             ctx.strokeStyle = '#14b8a6';
-            ctx.lineWidth = 6;
+            ctx.lineWidth = 8;
             ctx.beginPath();
             ctx.moveTo(x1, y1);
             ctx.lineTo(xEnd, yEnd);
             ctx.stroke();
 
-            // Draw Joints
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath(); ctx.arc(baseX, baseY, 6, 0, 2 * Math.PI); ctx.fill();
-            ctx.beginPath(); ctx.arc(x1, y1, 5, 0, 2 * Math.PI); ctx.fill();
-            ctx.beginPath(); ctx.arc(xEnd, yEnd, 6, 0, 2 * Math.PI); ctx.fill();
+            // Link 2 inner glow
+            ctx.strokeStyle = '#5eead4';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(xEnd, yEnd);
+            ctx.stroke();
 
-            // If in IK mode, draw target marker
-            if (target) {
-                const tCanvasX = baseX + target.x;
-                const tCanvasY = baseY - target.y;
-                ctx.strokeStyle = '#f59e0b';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(tCanvasX, tCanvasY, 8, 0, 2 * Math.PI);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(tCanvasX - 12, tCanvasY); ctx.lineTo(tCanvasX + 12, tCanvasY);
-                ctx.moveTo(tCanvasX, tCanvasY - 12); ctx.lineTo(tCanvasX, tCanvasY + 12);
-                ctx.stroke();
+            // 8. Joints Pins
+            // Base Joint (J1)
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.arc(base.x, base.y, 8, 0, 2 * Math.PI); ctx.fill();
+            ctx.fillStyle = '#6366f1';
+            ctx.beginPath(); ctx.arc(base.x, base.y, 4, 0, 2 * Math.PI); ctx.fill();
+
+            // Elbow Joint (J2)
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.arc(x1, y1, 7, 0, 2 * Math.PI); ctx.fill();
+            ctx.fillStyle = '#0f766e';
+            ctx.beginPath(); ctx.arc(x1, y1, 3.5, 0, 2 * Math.PI); ctx.fill();
+
+            // 9. End-Effector Gripper
+            ctx.save();
+            ctx.translate(xEnd, yEnd);
+            ctx.rotate(-(curTheta1 + curTheta2));
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(0, -6, 12, 12);
+            // Gripper fingers
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(12, -8, 8, 3);
+            ctx.fillRect(12, 5, 8, 3);
+            ctx.restore();
+
+            // 10. Target Reticle & Marker (Interactive Handle)
+            const txCanvas = base.x + curTargetX;
+            const tyCanvas = base.y - curTargetY;
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(txCanvas, tyCanvas, 10, 0, 2 * Math.PI); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(txCanvas - 14, tyCanvas); ctx.lineTo(txCanvas + 14, tyCanvas); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(txCanvas, tyCanvas - 14); ctx.lineTo(txCanvas, tyCanvas + 14); ctx.stroke();
+
+            // Target glow circle
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+            ctx.beginPath(); ctx.arc(txCanvas, tyCanvas, 15, 0, 2 * Math.PI); ctx.fill();
+        }
+
+        // Mouse & Touch Dragging Listeners on Canvas
+        function setupCanvasInteraction() {
+            const canvas = document.getElementById('armCanvas');
+            const hint = document.getElementById('drag-hint');
+
+            function getMouseCoords(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const canvasX = (clientX - rect.left) * scaleX;
+                const canvasY = (clientY - rect.top) * scaleY;
+                const base = getCanvasBase();
+                return {
+                    x: canvasX - base.x,
+                    y: base.y - canvasY
+                };
             }
+
+            canvas.addEventListener('mousedown', function(e) {
+                const p = getMouseCoords(e);
+                const distToTarget = Math.hypot(p.x - curTargetX, p.y - curTargetY);
+                if (distToTarget < 35 || currentMode === 'ik') {
+                    isDragging = true;
+                    if (hint) hint.style.opacity = '0';
+                    updateIKFromCoordinates(p.x, p.y);
+                }
+            });
+
+            window.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                const p = getMouseCoords(e);
+                // Clamp to reasonable half-plane
+                const clampedY = Math.max(10, Math.min(260, p.y));
+                const clampedX = Math.max(-250, Math.min(250, p.x));
+                
+                // Sync sliders
+                document.getElementById('target-x').value = Math.round(clampedX);
+                document.getElementById('target-y').value = Math.round(clampedY);
+                document.getElementById('x-val').innerText = Math.round(clampedX) + ' mm';
+                document.getElementById('y-val').innerText = Math.round(clampedY) + ' mm';
+
+                updateIKFromCoordinates(clampedX, clampedY);
+            });
+
+            window.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+
+            // Touch support for mobile devices
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                const p = getMouseCoords(e);
+                isDragging = true;
+                if (hint) hint.style.opacity = '0';
+                updateIKFromCoordinates(p.x, p.y);
+            }, { passive: false });
+
+            window.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                const p = getMouseCoords(e);
+                const clampedY = Math.max(10, Math.min(260, p.y));
+                const clampedX = Math.max(-250, Math.min(250, p.x));
+                updateIKFromCoordinates(clampedX, clampedY);
+            }, { passive: false });
+
+            window.addEventListener('touchend', function() {
+                isDragging = false;
+            });
+        }
+
+        // Trajectory Interpolation Animation Player (PTP vs CP)
+        function playTrajectory(type) {
+            if (animId) cancelAnimationFrame(animId);
+            trajectoryTrail = [];
+
+            const startX = -120;
+            const startY = 150;
+            const endX = 160;
+            const endY = 100;
+
+            let progress = 0;
+            const totalSteps = 100;
+
+            // Compute Start and End IK
+            const rStart2 = startX * startX + startY * startY;
+            const cosT2Start = (rStart2 - L1 * L1 - L2 * L2) / (2 * L1 * L2);
+            const sinSign = (currentPosture === 'L') ? 1 : -1;
+            const t2Start = Math.atan2(sinSign * Math.sqrt(Math.max(0, 1 - cosT2Start*cosT2Start)), cosT2Start);
+            const t1Start = Math.atan2(startY, startX) - Math.atan2(L2 * Math.sin(t2Start), L1 + L2 * Math.cos(t2Start));
+
+            const rEnd2 = endX * endX + endY * endY;
+            const cosT2End = (rEnd2 - L1 * L1 - L2 * L2) / (2 * L1 * L2);
+            const t2End = Math.atan2(sinSign * Math.sqrt(Math.max(0, 1 - cosT2End*cosT2End)), cosT2End);
+            const t1End = Math.atan2(endY, endX) - Math.atan2(L2 * Math.sin(t2End), L1 + L2 * Math.cos(t2End));
+
+            function step() {
+                progress += 0.015;
+                if (progress > 1) progress = 1;
+
+                if (type === 'ptp') {
+                    // PTP Mode: Linear joint angle interpolation
+                    curTheta1 = t1Start + progress * (t1End - t1Start);
+                    curTheta2 = t2Start + progress * (t2End - t2Start);
+                    curTargetX = L1 * Math.cos(curTheta1) + L2 * Math.cos(curTheta1 + curTheta2);
+                    curTargetY = L1 * Math.sin(curTheta1) + L2 * Math.sin(curTheta1 + curTheta2);
+                } else {
+                    // CP Mode: Linear Cartesian space interpolation (Straight line)
+                    curTargetX = startX + progress * (endX - startX);
+                    curTargetY = startY + progress * (endY - startY);
+                    
+                    const r2 = curTargetX * curTargetX + curTargetY * curTargetY;
+                    const cosT2 = (r2 - L1 * L1 - L2 * L2) / (2 * L1 * L2);
+                    const clampedCos = Math.max(-1, Math.min(1, cosT2));
+                    curTheta2 = Math.atan2(sinSign * Math.sqrt(Math.max(0, 1 - clampedCos*clampedCos)), clampedCos);
+                    curTheta1 = Math.atan2(curTargetY, curTargetX) - Math.atan2(L2 * Math.sin(curTheta2), L1 + L2 * Math.cos(curTheta2));
+                }
+
+                trajectoryTrail.push({ x: curTargetX, y: curTargetY });
+                updateDiagnostics(curTargetX, curTargetY, curTheta1, curTheta2, true);
+                drawCanvas();
+
+                if (progress < 1) {
+                    animId = requestAnimationFrame(step);
+                }
+            }
+
+            step();
+        }
+
+        // Reset to Default Preset
+        function resetArmDefault() {
+            trajectoryTrail = [];
+            setPosture('R');
+            setMode('ik');
+            document.getElementById('target-x').value = 180;
+            document.getElementById('target-y').value = 140;
+            updateIKFromCoordinates(180, 140);
+        }
+
+        function drawCurrentState() {
+            drawCanvas();
         }
 
         // Initialize on load
         window.onload = function() {
-            updateFK();
+            setupCanvasInteraction();
+            resetArmDefault();
 
-            // 為所有 main 標籤中的 img 自動註冊 lightbox
+            // Auto register Lightbox on all main imgs
             var imgs = document.querySelectorAll('main img');
             imgs.forEach(function(img) {
                 if (!img.getAttribute('onclick')) {
