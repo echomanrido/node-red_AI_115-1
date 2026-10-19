@@ -11,6 +11,15 @@
         body { font-family: 'Noto Sans TC', 'Inter', sans-serif; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        /* 圖片點選放大游標與效果 */
+        img.zoomable, .tab-content img {
+            cursor: zoom-in;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        img.zoomable:hover, .tab-content img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.35);
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white">
@@ -84,14 +93,14 @@
         <div id="overview" class="tab-content active space-y-8">
             <div class="bg-gradient-to-r from-slate-800 to-slate-800/80 border border-slate-700 rounded-2xl p-6 sm:p-10 shadow-xl">
                 <div class="max-w-3xl">
-                    <span class="bg-cyan-500/10 text-cyan-400 text-xs font-semibold px-3 py-1 rounded-full border border-cyan-500/20 uppercase tracking-wider">Epson SCARA Robot Guide</span>
+                    <span class="bg-cyan-500/10 text-cyan-400 text-xs font-semibold px-3 py-1 rounded-full border border-cyan-500/20 uppercase tracking-wider">Epson SCARA Robot Guide (Deck 03)</span>
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-4 tracking-tight">Epson LS3 水平多關節機械手臂操作指南</h2>
                     <p class="text-slate-300 text-base sm:text-lg leading-relaxed mb-6">
-                        本教學網頁依據 Epson LS3 機械手臂與 RC90-B 控制器技術手冊及培訓投影片製作。完整涵蓋從環境備份、USB/Ethernet 連線、手動點位示教到 SPEL+ 程式語言控制的核心步驟。
+                        本教學依據《03.Epson_LS3機械手臂.pptx》原廠實機培訓教材製作。完整涵蓋 LS3-401S 本體機構、RC90 控制器背板接線、無電池馬達技術革命、專案備份、USB/Ethernet 免密連線、示教器與 SPEL+ 程式設計。
                     </p>
                     <div class="flex flex-wrap gap-4">
                         <button onclick="switchTab('step1')" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center">
-                            開始學習步驟 <i class="fa-solid fa-arrow-right ml-2"></i>
+                            開始學習步驟 (Step 1 ~ 5) <i class="fa-solid fa-arrow-right ml-2"></i>
                         </button>
                         <button onclick="switchTab('simulator')" class="bg-slate-700 hover:bg-slate-600 text-cyan-300 font-bold px-6 py-3 rounded-xl shadow border border-cyan-500/30 transition flex items-center">
                             <i class="fa-solid fa-terminal mr-2"></i> 進入指令模擬器
@@ -100,48 +109,74 @@
                 </div>
             </div>
 
-            <!-- Specs & Cards Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Card 1 -->
-                <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-lg hover:border-cyan-500/50 transition">
-                    <div class="w-12 h-12 bg-cyan-500/10 text-cyan-400 rounded-lg flex items-center justify-center text-xl mb-4">
-                        <i class="fa-solid fa-microchip"></i>
+            <!-- 實體手臂與控制器投影片實物截圖 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- LS3-401S 本體 -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-5 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-lg font-bold text-cyan-300 flex items-center gap-2">
+                                <i class="fa-solid fa-robot"></i> Epson LS3-401S 實體規格 (Slide 18)
+                            </h3>
+                            <span class="text-xs font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800">4 軸 SCARA</span>
+                        </div>
+                        <img src="images_src/epson_robot/deck3_s18_1_ls3-401s.png" alt="Epson LS3-401S 機器手臂本體規格" class="w-full max-h-56 object-contain rounded border border-slate-700/60 bg-black/40 mb-3">
+                        <ul class="text-xs text-slate-300 space-y-1.5 leading-relaxed">
+                            <li>• <strong>本體重量：</strong> 14 kg | <strong>額定/最大負載：</strong> 1 kg / 3 kg</li>
+                            <li>• <strong>工作臂長：</strong> J1 (225 mm) + J2 (175 mm) = 總工作半徑 400 mm</li>
+                            <li>• <strong>垂直行程 (Z軸)：</strong> 150 mm | <strong>末端旋轉 (U軸)：</strong> ±360°</li>
+                        </ul>
                     </div>
-                    <h3 class="text-lg font-bold text-white mb-2">硬體規格 (LS3-401S)</h3>
-                    <ul class="text-sm text-slate-300 space-y-2">
-                        <li><strong>本體重量：</strong> 14 kg</li>
-                        <li><strong>最大負載：</strong> 3 kg</li>
-                        <li><strong>手臂臂長：</strong> J1+J2 = 400 mm</li>
-                        <li><strong>Z軸行程：</strong> 150 mm</li>
-                        <li><strong>馬達功率：</strong> Axis1(200W), Axis2/3/4(100W)</li>
-                    </ul>
                 </div>
-                <!-- Card 2 -->
-                <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-lg hover:border-cyan-500/50 transition">
-                    <div class="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-lg flex items-center justify-center text-xl mb-4">
-                        <i class="fa-solid fa-box-archive"></i>
+
+                <!-- RC90 控制器與端子 -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-5 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-lg font-bold text-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-server"></i> RC90 工業控制器面板配置 (Slide 16)
+                            </h3>
+                            <span class="text-xs font-mono bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-800">前後面板</span>
+                        </div>
+                        <img src="images_src/epson_robot/deck3_s16_1_rc90.png" alt="Epson RC90 控制器面板配置與連接端子" class="w-full max-h-56 object-contain rounded border border-slate-700/60 bg-black/40 mb-3">
+                        <ul class="text-xs text-slate-300 space-y-1.5 leading-relaxed">
+                            <li>• <strong>前面板：</strong> USB B 型通訊埠、狀態 7 段顯示器、標準 I/O D-Sub 25Pin。</li>
+                            <li>• <strong>後面板：</strong> AC 220V 電源輸入、Emergency Stop 急停端子、馬達動力訊號航插。</li>
+                            <li>• <strong>安全迴路：</strong> 急停具備雙迴路安全繼電器互鎖，確保未短接即觸發硬體斷電。</li>
+                        </ul>
                     </div>
-                    <h3 class="text-lg font-bold text-white mb-2">控制器與軟體</h3>
-                    <ul class="text-sm text-slate-300 space-y-2">
-                        <li><strong>控制器：</strong> RC90-B 系列控制器</li>
-                        <li><strong>開發軟體：</strong> Epson RC+ 7.0 (Ver.7.4.4或更高)</li>
-                        <li><strong>通訊方式：</strong> USB 2.0 (免密碼) 或 Ethernet (TCP/IPv4)</li>
-                        <li><strong>作業系統限制：</strong> 不支援 IPv6，需使用 IPv4</li>
-                    </ul>
                 </div>
-                <!-- Card 3 -->
-                <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-lg hover:border-cyan-500/50 transition">
-                    <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-lg flex items-center justify-center text-xl mb-4">
-                        <i class="fa-solid fa-list-check"></i>
+            </div>
+
+            <!-- 馬達與電池革命專區 -->
+            <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-car-battery text-rose-400"></i> 維護革命：傳統鋰電池更換 vs LS-B 無電池馬達技術
+                    </h3>
+                    <span class="text-xs font-mono bg-rose-950 text-rose-300 border border-rose-800 px-3 py-1 rounded-full">投影片 03: Slide 22 ~ 27</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                        <p>
+                            <strong class="text-rose-400">傳統機種維護痛點 (Slide 22)：</strong><br>
+                            採用 3.6V ER17500V 鋰電池保存編碼器多圈數據。每 2~3 年須通電更換電池，若未及時更換導致斷電，原點資訊將全數遺失，必須執行耗時且高精度的校準程序 (Calibration)。
+                        </p>
+                        <p>
+                            <strong class="text-emerald-400">LS-B / LS6-B 創新革命 (Slide 27)：</strong><br>
+                            全面採用<strong>無電池式絕對型編碼器 (Battery-less Motor)</strong>，透過磁阻記憶體在斷電時永久鎖定圈數與角度資訊。<strong>終身免更換電池、終身免校準原點</strong>，大幅降低維護成本與非預期停機風險！
+                        </p>
                     </div>
-                    <h3 class="text-lg font-bold text-white mb-2">核心操作 5 步驟</h3>
-                    <ol class="text-sm text-slate-300 space-y-1 list-decimal list-inside">
-                        <li>電腦上確認備份和專案</li>
-                        <li>連線設定 (透過USB免密碼)</li>
-                        <li>命令測試 (Reset / Motor On)</li>
-                        <li>示教機器人點 (Jog & Teach)</li>
-                        <li>寫程式控制 (SPEL+ 語法)</li>
-                    </ol>
+                    <div class="grid grid-cols-2 gap-3 text-center">
+                        <div class="bg-black/30 p-2 rounded border border-slate-700/60">
+                            <img src="images_src/epson_robot/deck3_s22_1_電池.png" alt="傳統 3.6V 鋰電池更換" class="w-full max-h-40 object-contain rounded mb-1">
+                            <span class="text-[11px] text-slate-400 font-mono">Slide 22: 3.6V 鋰電池</span>
+                        </div>
+                        <div class="bg-black/30 p-2 rounded border border-slate-700/60">
+                            <img src="images_src/epson_robot/deck3_s27_1_ls3-bls6-b系列沒有電池馬達記錄位置情報電.png" alt="LS-B系列無電池馬達" class="w-full max-h-40 object-contain rounded mb-1">
+                            <span class="text-[11px] text-slate-400 font-mono">Slide 27: 無電池馬達革命</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -149,31 +184,40 @@
         <!-- TAB: Step 1 (確認備份和專案) -->
         <div id="step1" class="tab-content space-y-6">
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl">
-                <div class="flex items-center space-x-3 mb-6">
-                    <span class="bg-cyan-500 text-slate-950 font-bold px-3 py-1 rounded-lg text-sm">Step 1</span>
-                    <h2 class="text-2xl font-bold text-white">確認備份與專案 (Project & Backup)</h2>
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-cyan-500 text-slate-950 font-bold px-3 py-1 rounded-lg text-sm">Step 1</span>
+                        <h2 class="text-2xl font-bold text-white">確認備份與專案管理 (Project & Backup SOP)</h2>
+                    </div>
+                    <span class="text-xs font-mono bg-cyan-950 text-cyan-300 border border-cyan-800 px-3 py-1 rounded-full">投影片 03: Slide 03 ~ 05</span>
                 </div>
                 <div class="space-y-6 text-slate-300 leading-relaxed">
                     <p class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
-                        在進行任何機器人程式開發前，務必確認出廠配置的機器人數據與專案備份。專案與系統配置的完整備份流程如下：
+                        在進行任何機械手臂調整前，必須先建立系統基線備份，確保隨時可透過外部隨身碟還原點位與控制器韌體組態。
                     </p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700/80">
-                            <h3 class="font-bold text-cyan-400 text-lg mb-3 flex items-center"><i class="fa-solid fa-folder-tree mr-2"></i>專案複製步驟</h3>
-                            <ol class="list-decimal list-inside space-y-2 text-sm">
-                                href
-                                <li>從功能表選擇 <strong>[專案 (Project)]</strong> -> <strong>[複製 (Copy)]</strong>。</li>
-                                <li>變更 <strong>[Destination Drive]</strong> 至任意磁碟機。</li>
-                                <li>點擊 <strong>&lt;OK&gt;</strong>，將專案複製到外部媒體。</li>
-                            </ol>
+                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700/80 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-cyan-400 text-lg mb-2 flex items-center"><i class="fa-solid fa-folder-tree mr-2"></i>專案複製步驟 (Slide 04)</h3>
+                                <ol class="list-decimal list-inside space-y-2 text-xs sm:text-sm text-slate-300 mb-3">
+                                    <li>功能表點選 <strong>[專案 (Project)] ➔ [複製 (Copy)]</strong>。</li>
+                                    <li>變更 <strong>[Destination Drive]</strong> 為外接隨身碟磁區。</li>
+                                    <li>點擊 <strong>&lt;OK&gt;</strong>，將完整 <code>.sprj</code> 專案複製至外部媒體備存。</li>
+                                </ol>
+                            </div>
+                            <img src="images_src/epson_robot/deck3_s04_1_專案.png" alt="專案複製視窗" class="w-full max-h-48 object-contain rounded border border-slate-700/60 bg-black/40">
                         </div>
-                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700/80">
-                            <h3 class="font-bold text-cyan-400 text-lg mb-3 flex items-center"><i class="fa-solid fa-database mr-2"></i>控制器系統備份步驟</h3>
-                            <ol class="list-decimal list-inside space-y-2 text-sm">
-                                <li>從功能表選擇 <strong>[工具 (Tools)]</strong> -> <strong>[控制器 (Controller)]</strong>。</li>
-                                <li>按下 <strong>&lt;備份控制器 (Backup Controller)&gt;</strong> 按鈕。</li>
-                                <li>選擇任意磁碟機並點擊 <strong>&lt;OK&gt;</strong> 完成系統配置備份。</li>
-                            </ol>
+
+                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700/80 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-cyan-400 text-lg mb-2 flex items-center"><i class="fa-solid fa-database mr-2"></i>控制器系統備份步驟 (Slide 05)</h3>
+                                <ol class="list-decimal list-inside space-y-2 text-xs sm:text-sm text-slate-300 mb-3">
+                                    <li>功能表點選 <strong>[工具 (Tools)] ➔ [控制器 (Controller)]</strong>。</li>
+                                    <li>按下 <strong>&lt;備份控制器 (Backup Controller)&gt;</strong> 按鈕。</li>
+                                    <li>設定備份檔名並指定磁碟機，完成驅動韌體與系統配置備份。</li>
+                                </ol>
+                            </div>
+                            <img src="images_src/epson_robot/deck3_s05_1_備份.png" alt="控制器備份對話框" class="w-full max-h-48 object-contain rounded border border-slate-700/60 bg-black/40">
                         </div>
                     </div>
                 </div>
@@ -183,37 +227,41 @@
         <!-- TAB: Step 2 (連線設定) -->
         <div id="step2" class="tab-content space-y-6">
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl">
-                <div class="flex items-center space-x-3 mb-6">
-                    <span class="bg-cyan-500 text-slate-950 font-bold px-3 py-1 rounded-lg text-sm">Step 2</span>
-                    <h2 class="text-2xl font-bold text-white">連線設定 (PC to Controller Communications)</h2>
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-cyan-500 text-slate-950 font-bold px-3 py-1 rounded-lg text-sm">Step 2</span>
+                        <h2 class="text-2xl font-bold text-white">通訊連線設定 (USB 免密碼連線與 Ethernet 網路)</h2>
+                    </div>
+                    <span class="text-xs font-mono bg-cyan-950 text-cyan-300 border border-cyan-800 px-3 py-1 rounded-full">投影片 03: Slide 06 ~ 11</span>
                 </div>
                 <div class="space-y-6 text-slate-300 leading-relaxed">
                     <p class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
-                        Epson RC+ 7.0 預設支援透過 <strong>USB 2.0 / 1.1</strong> 與控制器進行通訊，<strong>透過 USB 連線時不需要密碼身份驗證</strong>。
+                        Epson RC+ 7.0 預設支援 <strong>USB 2.0 / 1.1 免密碼連線</strong>，亦可透過工業乙太網路 (Ethernet TCP/IPv4) 進行跨網段遠端連線：
                     </p>
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-semibold text-white">詳細連線步驟：</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
-                                <span class="text-cyan-400 font-bold text-xl">01</span>
-                                <h4 class="font-bold text-white mt-1">硬體連接</h4>
-                                <p class="text-sm text-slate-400 mt-1">使用 USB 線連接開發電腦與控制器的專用 USB 連接埠 (USB B系列接頭)。</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-cyan-400 text-lg mb-2 flex items-center">
+                                    <i class="fa-brands fa-usb mr-2"></i> USB 2.0 連線 (Slide 06 ~ 07)
+                                </h3>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    使用 USB Type-B 纜線直接插入 RC90 控制器前面板。在 RC+ 中點擊 <strong>[設置] ➔ [電腦與控制器通信]</strong>，選擇「No.1 USB」，點擊 <strong>&lt;連接&gt;</strong>，狀態顯示為已連接即可。
+                                </p>
                             </div>
-                            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
-                                <span class="text-cyan-400 font-bold text-xl">02</span>
-                                <h4 class="font-bold text-white mt-1">開啟電源</h4>
-                                <p class="text-sm text-slate-400 mt-1">打開控制器主電源開關。</p>
+                            <img src="images_src/epson_robot/deck3_s06_1_step2連線透過usb不需要密碼.png" alt="USB 連線免密碼投影片" class="w-full max-h-52 object-contain rounded border border-slate-700/60 bg-black/40">
+                        </div>
+
+                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-cyan-400 text-lg mb-2 flex items-center">
+                                    <i class="fa-solid fa-network-wired mr-2"></i> Ethernet 網路連線 (Slide 11)
+                                </h3>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    使用 RJ45 網路線連入工廠區域網路。手動指定控制器固定 IPv4 位址（例如 <code>192.168.0.1</code>）與子網路遮罩，<strong>請注意 EPSON RC+ 目前不支援 IPv6 協議</strong>。
+                                </p>
                             </div>
-                            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
-                                <span class="text-cyan-400 font-bold text-xl">03</span>
-                                <h4 class="font-bold text-white mt-1">軟體設定</h4>
-                                <p class="text-sm text-slate-400 mt-1">開啟 Epson RC+ 7.0，點選 <strong>[設置] -> [電腦與控制器通信]</strong>。</p>
-                            </div>
-                            <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
-                                <span class="text-cyan-400 font-bold text-xl">04</span>
-                                <h4 class="font-bold text-white mt-1">點擊連接</h4>
-                                <p class="text-sm text-slate-400 mt-1">選擇「No.1 USB」，點擊 <strong>&lt;連接&gt;</strong>，確認狀態顯示「已連接」後點擊 <strong>&lt;關閉&gt;</strong>。</p>
-                            </div>
+                            <img src="images_src/epson_robot/deck3_s11_1_ethernet連接.png" alt="Ethernet 網路連接設定投影片" class="w-full max-h-52 object-contain rounded border border-slate-700/60 bg-black/40">
                         </div>
                     </div>
                 </div>
@@ -223,22 +271,46 @@
         <!-- TAB: Step 3 (測試指令) -->
         <div id="step3" class="tab-content space-y-6">
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl">
-                <div class="flex items-center space-x-3 mb-6">
-                    <span class="bg-cyan-500 text-slate-950 font-bold px-3 py-1 rounded-lg text-sm">Step 3</span>
-                    <h2 class="text-2xl font-bold text-white">指令視窗測試 (Command Window Testing)</h2>
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-cyan-500 text-slate-950 font-bold px-3 py-1 rounded-lg text-sm">Step 3</span>
+                        <h2 class="text-2xl font-bold text-white">指令視窗測試與系統自我診斷 (Command Testing)</h2>
+                    </div>
+                    <span class="text-xs font-mono bg-cyan-950 text-cyan-300 border border-cyan-800 px-3 py-1 rounded-full">投影片 03: Slide 12 ~ 14</span>
                 </div>
                 <div class="space-y-6 text-slate-300 leading-relaxed">
-                    <p>連線成功後，可透過 <strong>[工具 (Tools)] -> [命令窗口 (Command Window)]</strong> 執行基礎指令來測試機械手臂狀態。</p>
-                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-700 font-mono text-sm space-y-3">
-                        <div class="text-slate-400">// 1. 重置控制器狀態</div>
-                        <div class="text-cyan-400">> Reset</div>
-                        <div class="text-slate-400">// 2. 解除機械臂(#1到#4)的制動器</div>
-                        <div class="text-cyan-400">> Brake Off</div>
-                        <div class="text-slate-400">// 3. 重新開啟制動器</div>
-                        <div class="text-cyan-400">> Brake On</div>
-                        <div class="text-slate-400">// 4. 啟動馬達並歸零脈衝位置 (水平多關節機器人)</div>
-                        <div class="text-cyan-400">> Motor On</div>
-                        <div class="text-cyan-400">> Go Pulse (0, 0, 0, 0)</div>
+                    <p class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+                        通訊連線成功後，進入 <strong>[工具 (Tools)] ➔ [命令窗口 (Command Window)]</strong>。在送電激磁前，必須先執行控制器狀態重置並檢測急停互鎖狀態：
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-cyan-400 text-lg mb-2 flex items-center">
+                                    <i class="fa-solid fa-sliders mr-2"></i> 系統配置與硬體診斷 (Slide 12)
+                                </h3>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    檢查安全門回路 (Safeguard) 是否閉合、急停開關 (E-Stop) 是否彈起，並確認四軸馬達溫度與編碼器通訊訊號全部正常。
+                                </p>
+                            </div>
+                            <img src="images_src/epson_robot/deck3_s12_1_系統配置.png" alt="系統配置與硬體狀態視窗" class="w-full max-h-52 object-contain rounded border border-slate-700/60 bg-black/40">
+                        </div>
+
+                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-cyan-400 text-lg mb-2 flex items-center">
+                                    <i class="fa-solid fa-terminal mr-2"></i> 命令窗口指令即時測試 (Slide 14)
+                                </h3>
+                                <div class="bg-slate-950 p-3 rounded font-mono text-xs text-cyan-300 border border-slate-800 space-y-1 mb-3">
+                                    <div class="text-slate-500">// 重置系統狀態</div>
+                                    <div>> Reset</div>
+                                    <div class="text-slate-500">// 啟動馬達並歸零脈衝</div>
+                                    <div class="text-emerald-400">> Motor On</div>
+                                    <div class="text-emerald-400">> Go Pulse(0, 0, 0, 0)</div>
+                                </div>
+                            </div>
+                            <img src="images_src/epson_robot/deck3_s14_1_step3測試.png" alt="命令窗口指令測試投影片" class="w-full max-h-52 object-contain rounded border border-slate-700/60 bg-black/40">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -247,19 +319,43 @@
         <!-- TAB: Step 4 (示教機器人點) -->
         <div id="step4" class="tab-content space-y-6">
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl">
-                <div class="flex items-center space-x-3 mb-6">
-                    <span class="bg-cyan-500 text-slate-950 font-bold px-3 py-1 rounded-lg text-sm">Step 4</span>
-                    <h2 class="text-2xl font-bold text-white">示教機器人點 (Robot Manager / Jog & Teach)</h2>
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-cyan-500 text-slate-950 font-bold px-3 py-1 rounded-lg text-sm">Step 4</span>
+                        <h2 class="text-2xl font-bold text-white">示教機器人點位 (Robot Manager / Jog & Teach)</h2>
+                    </div>
+                    <span class="text-xs font-mono bg-cyan-950 text-cyan-300 border border-cyan-800 px-3 py-1 rounded-full">投影片 03: Slide 15, 38, 39</span>
                 </div>
                 <div class="space-y-6 text-slate-300 leading-relaxed">
-                    <p>透過圖形化介面精準控制手臂位置並記錄點位資料。</p>
-                    <ol class="list-decimal list-inside space-y-3 bg-slate-900/50 p-5 rounded-xl border border-slate-700">
-                        <li>點擊工具列上的 <strong>&lt;Robot Manager&gt;</strong> <i class="fa-solid fa-robot text-cyan-400"></i> 按鈕，開啟控制器面板。</li>
-                        <li>在狀態頁面確認安全防護(Safeguard)與急停(Emergency Stop)狀態正常。</li>
-                        <li>點擊 <strong>[Jog & Teach]</strong> 標籤頁進入手動微調模式。</li>
-                        <li>使用世界坐標系 (World) 或關節坐標系 (Joint) 的方向按鈕（+X, -X, +Y, -Y 等）移動手臂。</li>
-                        <li>點擊右下角的 <strong>&lt;Teach&gt;</strong> 按鈕，即可將當前位置儲存為點位（如 P0, pick, place）。</li>
-                    </ol>
+                    <p class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+                        透過圖形化 <strong>Robot Manager</strong> 介面以吋動 (Jog) 方式微調各關節，並記錄實際取放點位數據表 (Point Data Table)：
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-cyan-400 text-lg mb-2 flex items-center">
+                                    <i class="fa-solid fa-gamepad mr-2"></i> Jog & Teach 吋動示教 (Slide 15 & 39)
+                                </h3>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    選擇座標模式 (World / Joint)，點擊 <code>+X / -X</code>、<code>+Y / -Y</code> 步進前進。到達目標位置後點選 <strong>&lt;Teach&gt;</strong> 儲存為 <code>pick</code> 或 <code>place</code>。
+                                </p>
+                            </div>
+                            <img src="images_src/epson_robot/deck3_s15_1_step4示教機器人點.png" alt="Robot Manager 步進示教投影片" class="w-full max-h-52 object-contain rounded border border-slate-700/60 bg-black/40">
+                        </div>
+
+                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-cyan-400 text-lg mb-2 flex items-center">
+                                    <i class="fa-solid fa-table-list mr-2"></i> 點位數據表管理 (Slide 38)
+                                </h3>
+                                <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                                    所有示教點位均會自動登錄於 <code>robot1.pts</code> 點位檔案中，包含 X, Y, Z, U 座標以及 <code>/R</code> (右手姿態) 或 <code>/L</code> (左手姿態) 旗標。
+                                </p>
+                            </div>
+                            <img src="images_src/epson_robot/deck3_s38_1_數據點.png" alt="數據點管理與點位表格" class="w-full max-h-52 object-contain rounded border border-slate-700/60 bg-black/40">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -267,37 +363,52 @@
         <!-- TAB: Step 5 (寫程式控制) -->
         <div id="step5" class="tab-content space-y-6">
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl">
-                <div class="flex items-center space-x-3 mb-6">
-                    <span class="bg-cyan-500 text-slate-950 font-bold px-3 py-1 rounded-lg text-sm">Step 5</span>
-                    <h2 class="text-2xl font-bold text-white">寫程式控制 (SPEL+ Programming)</h2>
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-cyan-500 text-slate-950 font-bold px-3 py-1 rounded-lg text-sm">Step 5</span>
+                        <h2 class="text-2xl font-bold text-white">寫程式控制與 3D 模擬驗證 (SPEL+ & Simulation)</h2>
+                    </div>
+                    <span class="text-xs font-mono bg-cyan-950 text-cyan-300 border border-cyan-800 px-3 py-1 rounded-full">投影片 03: Slide 40 ~ 41</span>
                 </div>
                 <div class="space-y-6 text-slate-300 leading-relaxed">
-                    <p>使用 Epson 專屬的 <strong>SPEL+</strong> 語言撰寫自動化搬運 (Pick and Place) 程式。</p>
-                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-700 font-mono text-xs sm:text-sm text-cyan-300 overflow-x-auto space-y-1">
-                        <p class="text-slate-500">' Epson RC+ 7.0 Sample Project - Pick and Place Demo</p>
-                        <p class="text-white">Function main</p>
-                        <p class="pl-4">Long cycleCount</p>
-                        <p class="pl-4">InitRobot</p>
-                        <p class="pl-4 text-amber-400">Do</p>
-                        <p class="pl-8">Go middle :Z(0)</p>
-                        <p class="pl-8">Wait .5</p>
-                        <p class="pl-8 text-cyan-400">Jump pick</p>
-                        <p class="pl-8">Wait .5</p>
-                        <p class="pl-8">Go middle</p>
-                        <p class="pl-8">Wait .5</p>
-                        <p class="pl-8 text-cyan-400">Jump place</p>
-                        <p class="pl-8">Wait .5</p>
-                        <p class="pl-8">cycleCount = cycleCount + 1</p>
-                        <p class="pl-8">Print "Cycle count: ", cycleCount</p>
-                        <p class="pl-4 text-amber-400">Loop</p>
-                        <p class="text-white">Fend</p>
-                        <p class="text-white mt-3">Function InitRobot</p>
-                        <p class="pl-4">Reset</p>
-                        <p class="pl-4">If Motor = Off Then Motor On</p>
-                        <p class="pl-4">Power High</p>
-                        <p class="pl-4">Speed 50</p>
-                        <p class="pl-4">Accel 50, 50</p>
-                        <p class="text-white">Fend</p>
+                    <p class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+                        使用 SPEL+ 撰寫完整取放循環，並在啟動實體機械手臂前，透過 EPSON RC+ 3D 模擬器進行虛擬碰撞干涉防護檢查：
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-cyan-400 text-lg mb-2 flex items-center">
+                                    <i class="fa-solid fa-code mr-2"></i> SPEL+ 取放自動化程式 (Slide 40)
+                                </h3>
+                                <div class="bg-slate-950 p-3 rounded font-mono text-xs text-emerald-400 border border-slate-800 space-y-1 mb-2">
+                                    Function main<br>
+                                    &nbsp;&nbsp;Motor On<br>
+                                    &nbsp;&nbsp;Power High<br>
+                                    &nbsp;&nbsp;Speed 70; Accel 70, 70<br>
+                                    &nbsp;&nbsp;Do<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;Jump pick<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;On 1; Wait .2<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;Jump place<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;Off 1; Wait .2<br>
+                                    &nbsp;&nbsp;Loop<br>
+                                    Fend
+                                </div>
+                            </div>
+                            <img src="images_src/epson_robot/deck3_s40_1_程式.png" alt="SPEL+ 程式編輯器投影片" class="w-full max-h-52 object-contain rounded border border-slate-700/60 bg-black/40">
+                        </div>
+
+                        <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-700 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-cyan-400 text-lg mb-2 flex items-center">
+                                    <i class="fa-solid fa-cube mr-2"></i> 模擬運行窗口控制面板 (Slide 41)
+                                </h3>
+                                <p class="text-xs text-slate-300 mb-2 leading-relaxed">
+                                    在控制面板 (Run Window) 點選 <strong>&lt;Start&gt;</strong> 啟動，可即時查看馬達負載率、I/O 點狀態與 3D 模擬器即時空間姿態動作。
+                                </p>
+                            </div>
+                            <img src="images_src/epson_robot/deck3_s41_1_模擬運行窗口控制面板模擬器.png" alt="模擬運行窗口控制面板模擬器投影片" class="w-full max-h-52 object-contain rounded border border-slate-700/60 bg-black/40">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -550,6 +661,54 @@
 
             alert(`測驗完成！您的得分是：${score} / 3 分`);
         }
+
+        // 初始化圖片點擊放大 (Lightbox)
+        function initImageLightbox() {
+            const lbModal = document.getElementById('imageLightboxModal');
+            const lbImg = document.getElementById('imageLightboxImg');
+            const lbCaption = document.getElementById('imageLightboxCaption');
+            const lbClose = document.getElementById('imageLightboxClose');
+
+            function openLightbox(src, alt) {
+                lbImg.src = src;
+                lbCaption.textContent = alt || 'LS3 投影片截圖放大檢視';
+                lbModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLightbox() {
+                lbModal.style.display = 'none';
+                lbImg.src = '';
+                document.body.style.overflow = '';
+            }
+
+            document.querySelectorAll('main img, .tab-content img').forEach(img => {
+                img.title = img.title || '點擊放大圖片檢視投影片細節';
+                img.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openLightbox(img.src, img.alt);
+                });
+            });
+
+            lbClose.addEventListener('click', closeLightbox);
+            lbModal.addEventListener('click', (e) => {
+                if (e.target === lbModal || e.target === lbClose) closeLightbox();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && lbModal.style.display === 'flex') closeLightbox();
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', initImageLightbox);
     </script>
+
+    <!-- Lightbox 圖片放大檢視 Modal -->
+    <div id="imageLightboxModal" style="display:none; position:fixed; z-index:99999; top:0; left:0; width:100vw; height:100vh; background:rgba(3, 7, 18, 0.92); backdrop-filter:blur(8px); justify-content:center; align-items:center; flex-direction:column; padding:20px; box-sizing:border-box;">
+        <div style="position:relative; max-width:92vw; max-height:88vh; display:flex; flex-direction:column; align-items:center;">
+            <button id="imageLightboxClose" aria-label="關閉" style="position:absolute; top:-40px; right:0; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; font-size:1.5rem; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;">&times;</button>
+            <img id="imageLightboxImg" src="" alt="放大圖片" style="max-width:92vw; max-height:80vh; object-fit:contain; border-radius:8px; box-shadow:0 20px 50px rgba(0,0,0,0.85); border:1px solid rgba(6, 182, 212, 0.35); background:#0b0f19;">
+            <div id="imageLightboxCaption" style="margin-top:14px; color:#e2e8f0; font-size:0.95rem; font-weight:500; text-align:center; max-width:85vw; background:rgba(15,23,42,0.85); padding:6px 18px; border-radius:20px; border:1px solid rgba(6, 182, 212, 0.25);"></div>
+        </div>
+    </div>
 </body>
 </html>
