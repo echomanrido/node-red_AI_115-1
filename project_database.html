@@ -4,11 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>專題：工業與雲端資料庫全解 - 四大主題 Step by Step 實作教學</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts & FontAwesome Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
   
   <style>
     :root {
@@ -19,6 +20,91 @@
       --db-blue: #3b82f6;
       --db-red: #ef4444;
       --db-green: #10b981;
+    }
+
+    /* 專題切換頁籤導覽列 (五大專題切換) */
+    .project-tabs-nav {
+      display: flex;
+      gap: 10px;
+      margin: 25px auto 35px;
+      background: rgba(15, 23, 42, 0.75);
+      padding: 8px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      max-width: 1100px;
+      flex-wrap: wrap;
+    }
+    .project-tab-link {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.86rem;
+      transition: all 0.25s ease;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+    }
+    .project-tab-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .project-tab-link.active {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.22) 0%, rgba(14, 165, 233, 0.18) 100%);
+      color: #c084fc;
+      border-color: rgba(168, 85, 247, 0.4);
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.15);
+    }
+    .project-tab-badge {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .project-tab-link.active .project-tab-badge {
+      background: rgba(168, 85, 247, 0.25);
+      color: #c084fc;
+    }
+
+    /* 章節標題容器 */
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .section-title-wrap i {
+      font-size: 1.5rem;
+    }
+    .section-title-wrap h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0;
+    }
+
+    /* 深色程式碼區塊 */
+    .code-block-dark {
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 14px 18px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .code-block-dark code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      line-height: 1.6;
+      white-space: pre;
     }
     
     .db-badge-mysql { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); }
@@ -403,25 +489,25 @@
 
     <!-- 四大主題切換大按鈕群 (Topic Tabs) -->
     <div class="topic-switch-container">
-      <button class="topic-switch-btn active" onclick="switchTopic('topic-mysql')">
+      <button class="topic-switch-btn active" onclick="switchTopic('topic-mysql', this)">
         <i class="fa-solid fa-server topic-switch-icon" style="color: #60a5fa;"></i>
         <span class="topic-switch-title">主題一：MySQL</span>
         <span class="topic-switch-desc">關聯式基礎・root 遠端權限・工單表設計</span>
       </button>
 
-      <button class="topic-switch-btn" onclick="switchTopic('topic-mssql')">
+      <button class="topic-switch-btn" onclick="switchTopic('topic-mssql', this)">
         <i class="fa-brands fa-microsoft topic-switch-icon" style="color: #f87171;"></i>
         <span class="topic-switch-title">主題二：SQL Server + C#</span>
         <span class="topic-switch-desc">ADO.NET CRUD・DataGridView・Grafana時區</span>
       </button>
 
-      <button class="topic-switch-btn" onclick="switchTopic('topic-influxdb')">
+      <button class="topic-switch-btn" onclick="switchTopic('topic-influxdb', this)">
         <i class="fa-solid fa-bolt topic-switch-icon" style="color: #c084fc;"></i>
         <span class="topic-switch-title">主題三：InfluxDB 時序</span>
         <span class="topic-switch-desc">Line Protocol・TSM/WAL引擎・Gorilla壓縮</span>
       </button>
 
-      <button class="topic-switch-btn" onclick="switchTopic('topic-firebase')">
+      <button class="topic-switch-btn" onclick="switchTopic('topic-firebase', this)">
         <i class="fa-solid fa-fire topic-switch-icon" style="color: #fbbf24;"></i>
         <span class="topic-switch-title">主題四：Firebase Firestore</span>
         <span class="topic-switch-desc">雲端 NoSQL・onSnapshot即時同步・安全規則</span>
@@ -955,17 +1041,21 @@ service cloud.firestore {
 
   <script>
     // 主題 Tab 切換控制
-    function switchTopic(topicId) {
+    function switchTopic(topicId, clickedBtn) {
       const buttons = document.querySelectorAll('.topic-switch-btn');
       buttons.forEach(btn => btn.classList.remove('active'));
-      event.currentTarget.classList.add('active');
+      
+      if (clickedBtn) {
+        clickedBtn.classList.add('active');
+      } else if (window.event && window.event.currentTarget) {
+        window.event.currentTarget.classList.add('active');
+      }
 
       const panes = document.querySelectorAll('.topic-content-pane');
       panes.forEach(pane => pane.classList.remove('active'));
       const targetPane = document.getElementById(topicId);
       if (targetPane) {
         targetPane.classList.add('active');
-        targetPane.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
 
