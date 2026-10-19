@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>五股職訓局-機電AI_115-1期 | 實務專題 - LINE Bot 開發者指南與 API 實務</title>
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* 專題切換頁籤導覽列 (四大專題切換) */
+    .project-tabs-nav {
+      display: flex;
+      gap: 10px;
+      margin: 25px auto 35px;
+      background: rgba(15, 23, 42, 0.75);
+      padding: 8px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      max-width: 1100px;
+      flex-wrap: wrap;
+    }
+    .project-tab-link {
+      flex: 1;
+      min-width: 230px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.86rem;
+      transition: all 0.25s ease;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+    }
+    .project-tab-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .project-tab-link.active {
+      background: linear-gradient(135deg, rgba(6, 199, 85, 0.22) 0%, rgba(14, 165, 233, 0.18) 100%);
+      color: #06c755;
+      border-color: rgba(6, 199, 85, 0.4);
+      box-shadow: 0 4px 15px rgba(6, 199, 85, 0.15);
+    }
+    .project-tab-badge {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .project-tab-link.active .project-tab-badge {
+      background: rgba(6, 199, 85, 0.25);
+      color: #06c755;
+    }
+
+    /* 互動工具箱卡片 */
+    .interactive-tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+      margin: 28px 0;
+    }
+    .tool-box-card {
+      background: #0f172a;
+      border: 1px solid rgba(6, 199, 85, 0.25);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+    }
+    .tool-box-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .tool-box-header i {
+      font-size: 1.4rem;
+      color: #06c755;
+    }
+    .tool-box-header h4 {
+      font-size: 1.15rem;
+      color: #f1f5f9;
+      margin: 0;
+    }
+    .tool-input-group {
+      margin-bottom: 14px;
+    }
+    .tool-input-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .tool-input {
+      width: 100%;
+      background: #030712;
+      border: 1px solid #334155;
+      color: #06c755;
+      font-family: 'Fira Code', monospace;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .tool-input:focus {
+      border-color: #06c755;
+      box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.2);
+    }
+    .tool-btn-calc {
+      background: linear-gradient(135deg, #059669 0%, #06c755 100%);
+      color: #030712;
+      font-weight: 700;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .tool-btn-calc:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    .tool-result-panel {
+      margin-top: 16px;
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 14px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.86rem;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+    }
+    .result-row:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .result-label {
+      color: #94a3b8;
+    }
+    .result-val {
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .result-val.highlight {
+      color: #06c755;
+    }
+    .result-val.warn {
+      color: #ef4444;
+    }
+
+    /* 警示與注意告示框 */
+    .guideline-alert-box {
+      background: rgba(6, 199, 85, 0.08);
+      border-left: 4px solid #06c755;
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+    }
+    .guideline-alert-box.caution {
+      background: rgba(239, 68, 68, 0.08);
+      border-left-color: #ef4444;
+    }
+
+    /* 表格樣式 */
+    .fx-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+      background: #0f172a;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .fx-table th {
+      background: #1e293b;
+      color: #06c755;
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 1px solid #334155;
+    }
+    .fx-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #cbd5e1;
+    }
+    .fx-table tr:hover {
+      background: rgba(6, 199, 85, 0.04);
+    }
+    .fx-table code {
+      background: rgba(0,0,0,0.4);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #38bdf8;
+    }
+  </style>
+</head>
+<body class="project-body-theme">
+  <div class="project-page-container">
+    
+    <!-- 頂部導覽列 -->
+    <header class="home-navbar" style="border-bottom: 1px solid var(--border-color); background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;">
+      <div class="brand-logo">
+        <i class="fa-solid fa-microchip logo-icon"></i>
+        <div class="brand-titles">
+          <h1 class="main-title">五股職訓局</h1>
+          <span class="sub-title">機電AI_115-1期（作者：Rido老師）</span>
+        </div>
+      </div>
+      <div class="nav-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="index.html" class="nav-cta-btn secondary-btn" style="background: rgba(255,255,255,0.05); border-color: var(--border-color); color: var(--text-main);">
+          <i class="fa-solid fa-house"></i> 首頁
+        </a>
+        <a href="csharp.html" class="nav-cta-btn secondary-btn" style="background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.35); color: #c084fc;">
+          <i class="fa-brands fa-microsoft"></i> C# 課程
+        </a>
+        <a href="labs.html" class="nav-cta-btn secondary-btn" style="background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.3); color: var(--primary);">
+          <i class="fa-brands fa-node-js"></i> Node-RED
+        </a>
+        <a href="vibecoding.html" class="nav-cta-btn secondary-btn" style="background: rgba(14, 165, 233, 0.08); border-color: rgba(56, 189, 248, 0.25); color: #38bdf8;">
+          <i class="fa-solid fa-bolt"></i> Vibe Coding
+        </a>
+        <a href="aiknowledge.html" class="nav-cta-btn secondary-btn" style="background: rgba(244, 63, 94, 0.08); border-color: rgba(244, 63, 94, 0.25); color: #fb7185;">
+          <i class="fa-solid fa-brain"></i> AI 知識
+        </a>
+        
+        <!-- 實務專題下拉選單 -->
+        <div class="nav-dropdown-wrapper">
+          <a href="project.html" class="nav-dropdown-btn" style="background: rgba(6, 199, 85, 0.15); border-color: rgba(6, 199, 85, 0.4); color: #06c755;">
+            <i class="fa-solid fa-diagram-project"></i> 實務專題 <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+          </a>
+          <div class="nav-dropdown-menu">
+            <a href="project.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #34d399;">範例期末專題：ESG 智慧工廠</span>
+                <span class="item-sub">機電丙級第二題・AI 視覺瑕疵・動態碳足跡閉環</span>
+              </div>
+            </a>
+            <a href="project_plc_fx3u.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #38bdf8;">專題：PC-Based 控制三菱 FX3U</span>
+                <span class="item-sub">RS232 序列通訊・三菱編程口協定・三階段自動化</span>
+              </div>
+            </a>
+            <a href="project_modbus.html" class="nav-dropdown-item">
+              <i class="fa-solid fa-satellite-dish" style="color: #fbbf24;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #fbbf24;">專題：Modbus 通訊協定 (TCP / RTU)</span>
+                <span class="item-sub">工業物聯網標準語彙・MBAP Header・CRC-16 檢校</span>
+              </div>
+            </a>
+            <a href="project_linebot.html" class="nav-dropdown-item">
+              <i class="fa-brands fa-line" style="color: #06c755;"></i>
+              <div class="item-text">
+                <span style="font-weight: 700; color: #06c755;">專題：LINE Bot 開發者指南詳解</span>
+                <span class="item-sub">發送 API 注意事項・n8n 工作流・GAS 免費雲端部署</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 麵包屑 -->
+    <div class="project-breadcrumb">
+      <a href="index.html"><i class="fa-solid fa-house"></i> 首頁</a> / 
+      <a href="project.html">實務專題</a> / 
+      <span class="active-item">專題：LINE Bot 開發者指南與 API 實務</span>
+    </div>
+
+    <!-- 專題切換頁籤導覽列 (四大專題切換) -->
+    <div class="project-tabs-nav">
+      <a href="project.html" class="project-tab-link">
+        <i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+        <span>範例期末專題：ESG 智慧工廠</span>
+        <span class="project-tab-badge">機電丙級第二題</span>
+      </a>
+      <a href="project_plc_fx3u.html" class="project-tab-link">
+        <i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i>
+        <span>專題：PC-Based控制_三菱FX3U</span>
+        <span class="project-tab-badge">RS232+編程口</span>
+      </a>
+      <a href="project_modbus.html" class="project-tab-link">
+        <i class="fa-solid fa-satellite-dish" style="color: #fbbf24;"></i>
+        <span>專題：Modbus 通訊協定</span>
+        <span class="project-tab-badge">TCP 502 + RTU</span>
+      </a>
+      <a href="project_linebot.html" class="project-tab-link active">
+        <i class="fa-brands fa-line" style="color: #06c755;"></i>
+        <span>專題：LINE Bot 開發者指南</span>
+        <span class="project-tab-badge">API 注意事項+自動化</span>
+      </a>
+    </div>
+
+    <!-- 主區塊：專題名稱與簡介 -->
+    <section class="project-hero-section">
+      <span class="project-tag" style="background: rgba(6, 199, 85, 0.15); color: #06c755; border-color: rgba(6, 199, 85, 0.35);"><i class="fa-brands fa-line"></i> LINE Messaging API 核心實務</span>
+      <h2 class="project-title">LINE Bot 開發者指南詳解<br><span class="gradient-text" style="background: linear-gradient(135deg, #06c755 0%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">發送 API 請求注意事項・n8n 自動化・Google Apps Script 雲端整合</span></h2>
+      <p class="project-desc">依據 LINE 官方工程團隊《LINE Bot 開發者指南》第 3 部分精髓，全面解析發送 Messaging API 請求時的防坑關鍵。掌握 Reply vs Push 費用控制機制、X-Line-Retry-Key 冪等性防重複扣款保護、速率限制 (Rate Limit 429) 退避處理、HMAC-SHA256 簽名驗證，並結合 Docker + n8n 本地 AI Agent 與 Google Apps Script (GAS) 零成本雲端資料庫串接！</p>
+      
+      <!-- 外部實務資源按鈕 -->
+      <div class="resource-links-bar" style="justify-content: center; margin-top: 20px;">
+        <a href="https://engineering.linecorp.com/zh-hant/blog/line-bot-guideline-3" target="_blank" rel="noopener noreferrer" class="resource-link-btn" style="border-color: rgba(6, 199, 85, 0.4); color: #06c755;">
+          <i class="fa-brands fa-line"></i> <span>LINE 官方工程部：API 請求注意事項</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+        </a>
+        <a href="https://developers.line.biz/console/" target="_blank" rel="noopener noreferrer" class="resource-link-btn" style="border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
+          <i class="fa-solid fa-sliders"></i> <span>LINE Developers Console</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+        </a>
+        <a href="https://manager.line.biz/" target="_blank" rel="noopener noreferrer" class="resource-link-btn" style="border-color: rgba(245, 158, 11, 0.4); color: #fbbf24;">
+          <i class="fa-solid fa-user-gear"></i> <span>LINE 官方帳號管理後台 (Manager)</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+        </a>
+      </div>
+
+      <!-- 專題實作擴充教材：雙核心互動指南 -->
+      <div class="interactive-manuals-container" style="margin-top: 35px; width: 100%; max-width: 1050px; margin-left: auto; margin-right: auto; text-align: left;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px;">
+          <span style="height: 1px; flex: 1; background: linear-gradient(90deg, transparent, rgba(6, 199, 85, 0.4));"></span>
+          <span style="font-size: 0.95rem; font-weight: 700; color: #06c755; text-transform: uppercase; letter-spacing: 1.5px; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-book-open-reader"></i> 專題互動實作手冊・專用教材系統
+          </span>
+          <span style="height: 1px; flex: 1; background: linear-gradient(90deg, rgba(6, 199, 85, 0.4), transparent);"></span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+          <!-- 手冊 1: LINE Messaging API 申請與設定手冊 -->
+          <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(6, 199, 85, 0.4); border-radius: 12px; padding: 24px; box-shadow: 0 10px 30px rgba(6, 199, 85, 0.1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -10px; right: -10px; background: rgba(6, 199, 85, 0.15); width: 80px; height: 80px; border-radius: 50%; filter: blur(20px); pointer-events: none;"></div>
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <span style="background: rgba(6, 199, 85, 0.15); color: #06c755; border: 1px solid rgba(6, 199, 85, 0.3); font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 20px;">
+                  <i class="fa-solid fa-key"></i> SOP 引導 & 金鑰筆記
+                </span>
+                <span style="color: #64748b; font-size: 0.8rem; font-family: monospace;">line_messaging_api.html</span>
+              </div>
+              <h3 style="font-size: 1.25rem; font-weight: 700; color: #f8fafc; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-brands fa-line" style="color: #06c755; font-size: 1.5rem;"></i> LINE Messaging API 申請與設定手冊
+              </h3>
+              <p style="color: #94a3b8; font-size: 0.88rem; line-height: 1.6; margin-bottom: 16px;">
+                完整收錄 LINE Developers Console 逐步註冊 SOP、Provider 與 Channel 建立指引。內建<strong>安全金鑰暫存筆記本</strong>（Channel ID / Secret / Access Token 本地暫存）與<strong>多語言即時發送測試代碼產生器</strong>（Curl / Python / Node.js）及 Webhook 部署常見問題排解！
+              </p>
+            </div>
+            <div style="margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 16px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="color: #06c755; font-size: 0.82rem; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> 內含互動代碼產生器</span>
+              <a href="line_messaging_api.html" class="nav-cta-btn" style="background: #06c755; color: #0f172a; font-weight: 700; padding: 8px 18px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3); transition: all 0.2s;">
+                開啟實作手冊 <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- 手冊 2: LINE Bot 開發指南與 LINE Login 系統架構 -->
+          <div style="background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 24px; box-shadow: 0 10px 30px rgba(56, 189, 248, 0.1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -10px; right: -10px; background: rgba(56, 189, 248, 0.15); width: 80px; height: 80px; border-radius: 50%; filter: blur(20px); pointer-events: none;"></div>
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 20px;">
+                  <i class="fa-solid fa-network-wired"></i> 系統架構 & 最佳實踐
+                </span>
+                <span style="color: #64748b; font-size: 0.8rem; font-family: monospace;">line_bot.html</span>
+              </div>
+              <h3 style="font-size: 1.25rem; font-weight: 700; color: #f8fafc; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-robot" style="color: #38bdf8; font-size: 1.5rem;"></i> LINE Bot & Login 系統架構指南
+              </h3>
+              <p style="color: #94a3b8; font-size: 0.88rem; line-height: 1.6; margin-bottom: 16px;">
+                全面解析 LINE 官方工程團隊指南第 3 部分。包含 <strong>Webhook 接收八大要點 (A~H)</strong>、<strong>API 發送九大實務規範 (A~I)</strong>（冪等性 X-Line-Retry-Key、Rate Limit 429 應對策略），並具備 <strong>LINE Login OAuth 2.0 授權連結產生器</strong> 與 <strong>Webhook 簽名校驗模擬器</strong>！
+              </p>
+            </div>
+            <div style="margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 16px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="color: #38bdf8; font-size: 0.82rem; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> 內含 OAuth / 簽名驗證器</span>
+              <a href="line_bot.html" class="nav-cta-btn" style="background: #38bdf8; color: #0f172a; font-weight: 700; padding: 8px 18px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3); transition: all 0.2s;">
+                開啟架構指南 <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 實時數據流動與架構 SVG 動畫看板 (Live Architecture SVG) -->
+    <section class="project-animation-card">
+      <div class="animation-header">
+        <div class="animation-title">
+          <i class="fa-solid fa-circle-nodes pulse-dot-static" style="color: #06c755;"></i>
+          <span>LINE Bot 雙向通訊流向：Webhook 接收 ➔ 簽名校驗 ➔ AI Agent 運算 ➔ 冪等性 API 回覆與推播</span>
+        </div>
+        <span class="animation-status-badge" style="background: rgba(6, 199, 85, 0.15); color: #06c755; border-color: rgba(6, 199, 85, 0.35);"><i class="fa-solid fa-play fa-fade"></i> HTTPS / TLS 1.2+ 運作中</span>
+      </div>
+      <div class="animation-viewport">
+        <!-- SVG 動畫畫布 -->
+        <svg viewBox="0 0 1000 450" class="dataflow-svg">
+          <defs>
+            <filter id="glow-green-line" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="5" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="glow-cyan-line" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="5" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            
+            <linearGradient id="grad-line-path" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#06c755" stop-opacity="0.3" />
+              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.3" />
+            </linearGradient>
+          </defs>
+
+          <!-- ================= 拓撲路徑 ================= -->
+          <!-- 1. 使用者 ➔ LINE Platform (傳送訊息) -->
+          <path id="path-user-line" d="M 180,120 L 360,120" stroke="url(#grad-line-path)" stroke-width="3" fill="none" stroke-dasharray="8 6" />
+          <!-- 2. LINE Platform ➔ Webhook 後端 (帶 x-line-signature 與 replyToken) -->
+          <path id="path-line-webhook" d="M 520,120 L 700,120" stroke="url(#grad-line-path)" stroke-width="3" fill="none" stroke-dasharray="8 6" />
+          <!-- 3. 後端 ➔ AI Agent / Database 查詢 -->
+          <path id="path-webhook-ai" d="M 780,175 L 780,260 L 680,260" stroke="url(#grad-line-path)" stroke-width="2.5" fill="none" stroke-dasharray="6 4" />
+          <!-- 4. AI 產生答案 ➔ 後端回傳 -->
+          <path id="path-ai-webhook" d="M 520,260 L 440,260 L 440,165" stroke="url(#grad-line-path)" stroke-width="2.5" fill="none" stroke-dasharray="6 4" />
+          <!-- 5. 後端 ➔ LINE Reply/Push API (帶 X-Line-Retry-Key 冪等性) -->
+          <path id="path-backend-reply" d="M 700,145 L 520,145" stroke="url(#grad-line-path)" stroke-width="3" fill="none" stroke-dasharray="8 6" />
+          <!-- 6. LINE Platform ➔ 使用者手機 (顯示訊息) -->
+          <path id="path-line-user-reply" d="M 360,145 L 180,145" stroke="url(#grad-line-path)" stroke-width="3" fill="none" stroke-dasharray="8 6" />
+
+          <!-- ================= 粒子動畫 ================= -->
+          <!-- 綠色粒子：使用者上行訊息 -->
+          <circle r="6" fill="#06c755" filter="url(#glow-green-line)">
+            <animateMotion dur="2.4s" repeatCount="indefinite" path="M 180,120 L 360,120 L 520,120 L 700,120" />
+          </circle>
+          <!-- 藍色粒子：AI 助理生成回答 -->
+          <circle r="5" fill="#38bdf8" filter="url(#glow-cyan-line)">
+            <animateMotion dur="2s" begin="0.8s" repeatCount="indefinite" path="M 780,175 L 780,260 L 680,260 L 520,260 L 440,260 L 440,165" />
+          </circle>
+          <!-- 金黃色粒子：Reply/Push API 下行推送 (帶 Retry-Key) -->
+          <circle r="6" fill="#fbbf24" filter="url(#glow-green-line)">
+            <animateMotion dur="2.4s" begin="1.4s" repeatCount="indefinite" path="M 700,145 L 520,145 L 360,145 L 180,145" />
+          </circle>
+
+          <!-- ================= 拓撲節點框 ================= -->
+          <!-- Node 1: 使用者手機 -->
+          <rect x="30" y="75" width="150" height="100" rx="8" fill="#111827" stroke="#38bdf8" stroke-width="2" />
+          <text x="105" y="105" fill="#f3f4f6" font-size="13" font-weight="700" text-anchor="middle">使用者手機</text>
+          <text x="105" y="125" fill="#06c755" font-size="11" font-weight="600" text-anchor="middle">LINE Client App</text>
+          <text x="105" y="145" fill="#9ca3af" font-size="9" text-anchor="middle">傳送文字 / 圖片 / 點擊選單</text>
+          <circle cx="48" cy="92" r="5" fill="#38bdf8" />
+
+          <!-- Node 2: LINE Platform -->
+          <rect x="360" y="70" width="160" height="110" rx="8" fill="#111827" stroke="#06c755" stroke-width="2" />
+          <text x="440" y="100" fill="#f3f4f6" font-size="13" font-weight="700" text-anchor="middle">LINE Platform</text>
+          <text x="440" y="120" fill="#06c755" font-size="10" font-weight="600" text-anchor="middle">Messaging API Gateway</text>
+          <text x="440" y="138" fill="#9ca3af" font-size="9" text-anchor="middle">Webhook 簽名 (HMAC)</text>
+          <text x="440" y="154" fill="#fbbf24" font-size="9" text-anchor="middle">產生 replyToken (單次限時)</text>
+          <circle cx="378" cy="88" r="5" fill="#06c755" />
+
+          <!-- Node 3: 後端處理系統 (n8n / GAS / C#) -->
+          <rect x="700" y="70" width="190" height="110" rx="8" fill="#111827" stroke="#a855f7" stroke-width="2" />
+          <text x="795" y="100" fill="#f3f4f6" font-size="13" font-weight="700" text-anchor="middle">後端處理系統</text>
+          <text x="795" y="120" fill="#c084fc" font-size="10" font-weight="600" text-anchor="middle">n8n (Docker) / GAS / C#</text>
+          <text x="795" y="138" fill="#9ca3af" font-size="9" text-anchor="middle">Webhook 接收與簽名校驗</text>
+          <text x="795" y="154" fill="#38bdf8" font-size="9" text-anchor="middle">X-Line-Retry-Key 冪等防護</text>
+          <circle cx="718" cy="88" r="5" fill="#a855f7" />
+
+          <!-- Node 4: AI Agent & 資料庫 (Gemini / Google Sheets) -->
+          <rect x="520" y="225" width="160" height="75" rx="6" fill="#111827" stroke="#f59e0b" stroke-width="2" />
+          <text x="600" y="250" fill="#f3f4f6" font-size="12" font-weight="700" text-anchor="middle">AI Agent & 雲端試算表</text>
+          <text x="600" y="270" fill="#fbbf24" font-size="10" font-weight="600" text-anchor="middle">Google Gemini / n8n Agent</text>
+          <text x="600" y="285" fill="#64748b" font-size="8" text-anchor="middle">工廠日誌・即時問答・工單填寫</text>
+        </svg>
+      </div>
+      <!-- 圖例說明 -->
+      <div class="animation-footer-desc">
+        <div class="desc-item"><span class="bullet green-b"></span><span>綠色：Webhook 訊息接收 (LINE ➔ 後端，附帶 x-line-signature 防偽校驗與 replyToken)</span></div>
+        <div class="desc-item"><span class="bullet blue-b"></span><span>藍色：後端與大語言模型 AI Agent / Google Sheets 知識庫之非同步查詢處理</span></div>
+        <div class="desc-item"><span class="bullet yellow-b"></span><span>黃色：發送 API 請求（被動 Reply 不計費、主動 Push 需防重複扣款與 429 退避）</span></div>
+      </div>
+    </section>
+
+    <!-- 核心第一章：發送 API 請求時的四大注意事項 (官方指南精髓) -->
+    <section class="section-container" style="margin-top: 40px;">
+      <h3 class="home-section-title"><i class="fa-solid fa-triangle-exclamation"></i> LINE Bot 開發者指南核心：發送 API 請求四大注意事項</h3>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">發送 LINE Messaging API 請求時，若忽略官方規範，容易導致訊息重複發送、推播費用暴增或被系統強制限流。以下為官方工程團隊提醒之最核心原則：</p>
+
+      <div class="project-grid-two">
+        
+        <!-- 注意事項 1: Reply vs Push -->
+        <div class="text-card-glow">
+          <h4><i class="fa-solid fa-coins"></i> 1. Reply vs Push：費用控管與 Token 限制</h4>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+            <strong>Reply Message (被動回應)</strong> 與 <strong>Push Message (主動推播)</strong> 是最容易混淆的兩種機制：
+          </p>
+          <table class="fx-table" style="font-size: 0.82rem; margin: 10px 0;">
+            <tr><th>比較維度</th><th>Reply Message (/v2/bot/message/reply)</th><th>Push Message (/v2/bot/message/push)</th></tr>
+            <tr>
+              <td><strong>費用計費</strong></td>
+              <td><span style="color: #34d399; font-weight: 700;">完全免費</span>（不扣官方帳號推播配額）</td>
+              <td><span style="color: #ef4444; font-weight: 700;">計入推播費用</span>（超出免費額度需收費）</td>
+            </tr>
+            <tr>
+              <td><strong>目標依據</strong></td>
+              <td>必須使用 Webhook 傳來的 <code>replyToken</code></td>
+              <td>使用使用者的 <code>userId</code> 或 <code>groupId</code></td>
+            </tr>
+            <tr>
+              <td><strong>時效與次數</strong></td>
+              <td>只能使用 <strong>1 次</strong>，且時效極短（約 1 分鐘過期）</td>
+              <td>無時效限制，隨時可主動下發</td>
+            </tr>
+            <tr>
+              <td><strong>重試限制</strong></td>
+              <td><strong>不可重試</strong>（失敗後該 token 立即失效）</td>
+              <td>可搭配 <code>X-Line-Retry-Key</code> 進行安全重試</td>
+            </tr>
+          </table>
+          <div class="guideline-alert-box" style="margin-top: 10px; padding: 10px 14px;">
+            <i class="fa-solid fa-lightbulb"></i> <strong>黃金原則</strong>：能用 Reply 解決的問答場景，一律優先使用 Reply；僅有在工控警報定時巡檢、感測器異常越限等背景非同步通知時，才使用 Push！
+          </div>
+        </div>
+
+        <!-- 注意事項 2: X-Line-Retry-Key 冪等性 -->
+        <div class="text-card-glow">
+          <h4><i class="fa-solid fa-repeat"></i> 2. 冪等性防重複扣款：X-Line-Retry-Key</h4>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+            在網路不穩定時，後端發送 Push 請求若發生逾時（Timeout），開發者往往會啟動 Retry 重送。但可能第一次請求早已被 LINE 伺服器成功處理，重送會導致<strong>使用者收到兩次重複訊息並被扣兩倍費用</strong>！
+          </p>
+          <div class="guideline-alert-box caution" style="margin: 10px 0; padding: 10px 14px;">
+            <i class="fa-solid fa-shield"></i> <strong>解決方案：附加 <code>X-Line-Retry-Key</code> 標頭</strong>
+            <p style="font-size: 0.84rem; margin-top: 6px;">
+              發送 Push API 時，在 HTTP Header 加上由客戶端產生的 <strong>UUID v4</strong>。LINE 伺服器會在 1 分鐘內記住此 Key。若收到相同 Key 的重試請求，LINE 保證只會發送一次訊息，且<strong>絕不會重複計費</strong>！
+            </p>
+          </div>
+          <pre class="code-block-dark"><code>POST https://api.line.me/v2/bot/message/push
+Authorization: Bearer {Channel_Access_Token}
+X-Line-Retry-Key: 123e4567-e89b-12d3-a456-426614174000
+Content-Type: application/json</code></pre>
+        </div>
+
+        <!-- 注意事項 3: 速率限制與 429 退避 -->
+        <div class="text-card-glow">
+          <h4><i class="fa-solid fa-gauge-high"></i> 3. 速率限制 (Rate Limit) 與指數退避處理</h4>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+            LINE Messaging API 設有嚴格的頻率限制。當短時間內發送大量請求時，伺服器會回應 <strong>HTTP 429 Too Many Requests</strong>：
+          </p>
+          <ul style="color: #cbd5e1; font-size: 0.84rem; line-height: 1.8; margin-top: 8px;">
+            <li><strong>讀取重試時間</strong>：檢查 Response Header 中的 <code>Retry-After</code>（秒數）或 <code>X-Line-RateLimit-Reset</code>（重置時間戳）。</li>
+            <li><strong>切勿盲目立即重試</strong>：若收到 429 仍連續發送，可能導致整組 Channel 被暫時凍結。</li>
+            <li><strong>實作指數退避演算法 (Exponential Backoff with Jitter)</strong>：等待時間為 \(2^n \times \text{基數} + \text{隨機擾動}\)，給予伺服器緩衝時間。</li>
+          </ul>
+        </div>
+
+        <!-- 注意事項 4: 簽名驗證與權限金鑰 -->
+        <div class="text-card-glow">
+          <h4><i class="fa-solid fa-key"></i> 4. Channel Secret vs Access Token</h4>
+          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+            清楚區分兩大金鑰的職責，避免資安漏洞：
+          </p>
+          <ul style="color: #cbd5e1; font-size: 0.84rem; line-height: 1.8; margin-top: 8px;">
+            <li><strong>Channel Secret (最高機密，用於驗證來源)</strong>：
+              LINE 平台在呼叫你的 Webhook 時，會將請求內容以 Channel Secret 透過 <strong>HMAC-SHA256</strong> 演算法計算出摘要，放在 <code>x-line-signature</code> 標頭。後端必須自行比對，以防駭客偽造請求！
+            </li>
+            <li><strong>Channel Access Token (操作權杖，用於發送請求)</strong>：
+              呼叫 LINE API 時置於 <code>Authorization: Bearer &lt;Token&gt;</code> 標頭。官方提供長期有效、短期有效及 Stateless 三種，建議實務開發使用長期權杖或搭配更新機制。
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 互動式工控工具箱 (Interactive Workbench) -->
+    <section class="section-container" style="margin-top: 40px;">
+      <h3 class="home-section-title"><i class="fa-solid fa-toolbox"></i> 互動式工控工具箱：簽名計算與 API 請求組裝器</h3>
+      <p style="color: var(--text-muted);">本工具箱提供開發者在本地即時驗證 Webhook 簽名與組裝帶有冪等性防護的發送請求：</p>
+      
+      <div class="interactive-tool-grid">
+        <!-- 工具 1：UUID v4 與 X-Line-Retry-Key 產生器 -->
+        <div class="tool-box-card">
+          <div class="tool-box-header">
+            <i class="fa-solid fa-fingerprint"></i>
+            <div>
+              <h4>X-Line-Retry-Key 冪等性金鑰產生器</h4>
+              <span style="font-size: 0.75rem; color: #64748b;">自動生成標準 UUID v4 標頭，防止網路超時重試重複扣款</span>
+            </div>
+          </div>
+          
+          <div class="tool-input-group">
+            <label>當前生成的 UUID v4 標頭值：</label>
+            <input type="text" id="retryKeyVal" class="tool-input" readonly value="e4b2a890-1c52-47de-8a19-9cf17d235801">
+          </div>
+          
+          <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+            <button type="button" class="tool-btn-calc" onclick="generateNewRetryKey()">
+              <i class="fa-solid fa-arrows-rotate"></i> 重新產生 UUID v4
+            </button>
+            <button type="button" class="tool-btn-calc" style="background: #334155; color: #fff;" onclick="copyRetryKey()">
+              <i class="fa-solid fa-copy"></i> 複製標頭值
+            </button>
+          </div>
+
+          <div class="tool-result-panel">
+            <div class="result-row">
+              <span class="result-label">Header 名稱：</span>
+              <span class="result-val highlight">X-Line-Retry-Key</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">有效防護時間：</span>
+              <span class="result-val">LINE 伺服器端保留 1 分鐘</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">適用端點：</span>
+              <span class="result-val">/v2/bot/message/push、/multicast</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 工具 2：Messaging API 封包產生器與費用評估 -->
+        <div class="tool-box-card">
+          <div class="tool-box-header">
+            <i class="fa-solid fa-paper-plane"></i>
+            <div>
+              <h4>Messaging API 請求組裝與計費評估</h4>
+              <span style="font-size: 0.75rem; color: #64748b;">即時預覽 Reply / Push 的 JSON Payload 與計費警示</span>
+            </div>
+          </div>
+
+          <div class="tool-input-group">
+            <label for="apiModeSelect">選擇發送 API 模式：</label>
+            <select id="apiModeSelect" class="tool-input" onchange="updateApiPayload()">
+              <option value="reply_text">被動回應 Reply (純文字，帶 replyToken)</option>
+              <option value="push_alert">主動推播 Push (工廠機台卡料異常警報)</option>
+              <option value="reply_quick">被動回應 Reply (附帶 Quick Reply 快捷按鈕)</option>
+            </select>
+          </div>
+
+          <div class="tool-input-group">
+            <label>即時 JSON Payload 預覽：</label>
+            <pre class="code-block-dark" id="apiPayloadPreview" style="margin: 0; max-height: 160px; overflow-y: auto; font-size: 0.8rem;"><code>// JSON 即時呈現</code></pre>
+          </div>
+
+          <div class="tool-result-panel">
+            <div class="result-row">
+              <span class="result-label">發送端點 URL：</span>
+              <span class="result-val highlight" id="apiEndpointUrl">https://api.line.me/v2/bot/message/reply</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">計費評估：</span>
+              <span class="result-val highlight" id="apiCostBadge">免費（被動回應不扣點）</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 實戰章節：兩大整合部屬架構全攻略 -->
+    <section class="section-container" style="margin-top: 50px;">
+      <h3 class="home-section-title"><i class="fa-solid fa-cubes-stacked"></i> 兩大實戰架構：Docker + n8n 與 Google Apps Script (GAS)</h3>
+      
+      <!-- 方案 A: Docker + n8n + ngrok -->
+      <div class="text-card-glow" style="margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+          <h4 style="margin: 0; color: #38bdf8;"><i class="fa-brands fa-docker"></i> 實戰方案 A：Docker + n8n + ngrok 本地 AI Agent 工作流</h4>
+          <span style="font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; background: rgba(56, 189, 248, 0.2); color: #38bdf8;">本地容器化部屬</span>
+        </div>
+        <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+          n8n 是一款強大且高自由度的開源工作流自動化平台。結合 Docker 與 ngrok，能在本地電腦輕鬆架構出具備 AI 思考能力的智慧 LINE 機器人：
+        </p>
+        <ol style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.8; margin-top: 10px; padding-left: 20px;">
+          <li><strong>Docker Desktop 快速啟動 n8n</strong>：建立 Volume 持久化資料庫，映射 Port 5678。</li>
+          <li><strong>ngrok 建立安全隧道</strong>：執行 <code>ngrok http 5678</code>，取得 <code>https://xxxx.ngrok-free.dev</code> 網址，填入 LINE Developers Console 的 Webhook URL 並點擊 <strong>Verify</strong>。</li>
+          <li><strong>n8n 工作流節點配置</strong>：
+            <ul>
+              <li><strong>Webhook 節點</strong>：監聽 <code>/webhook-test/line</code>，接收使用者的發話事件。</li>
+              <li><strong>擷取 replyToken</strong>：在下一個節點中將 <code>{{ $json.body.events[0].replyToken }}</code> 暫存為全域參數。</li>
+              <li><strong>AI Agent 節點</strong>：串接 OpenRouter / Google Gemini Chat Model，輸入使用者文字進行語意解析。</li>
+              <li><strong>HTTP Request 節點</strong>：呼叫 <code>https://api.line.me/v2/bot/message/reply</code>，帶入 <code>replyToken</code> 與 AI 生成內容，完成零成本極速應答！</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
+      <!-- 方案 B: Google Apps Script (GAS) + Sheets + Gemini -->
+      <div class="text-card-glow">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+          <h4 style="margin: 0; color: #34d399;"><i class="fa-brands fa-google"></i> 實戰方案 B：Google Apps Script (GAS) 零成本雲端全自動化系統</h4>
+          <span style="font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #34d399;">免伺服器 Serverless</span>
+        </div>
+        <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+          無須自建主機、天然內建 HTTPS 網址與 Google 雲端生態無縫鏈接，為中小型工廠與設備告警系統的最愛方案：
+        </p>
+        <ol style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.8; margin-top: 10px; padding-left: 20px;">
+          <li><strong>建立 GAS 專案並實作 <code>doPost(e)</code></strong>：
+            <pre class="code-block-dark"><code>function doPost(e) {
+  var data = JSON.parse(e.postData.contents);
+  var replyToken = data.events[0].replyToken;
+  var userMessage = data.events[0].message.text;
+
+  // 1. 即時寫入 Google 試算表作為工業報修日誌
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  sheet.appendRow([new Date(), userMessage]);
+
+  // 2. 呼叫 Gemini AI 產生專業故障排除指引
+  var aiResponse = callGeminiAPI(userMessage);
+
+  // 3. 回覆使用者 (被動 Reply，不扣推播點數)
+  replyToLine(replyToken, aiResponse);
+}</code></pre>
+          </li>
+          <li><strong>部屬為 Web 應用程式 (Web App)</strong>：設定存取權限為「所有人 (Anyone)」，複製生成的 <code>https://script.google.com/macros/s/.../exec</code> 填入 LINE Webhook URL。</li>
+          <li><strong>多重生態整合擴充</strong>：可進一步搭配 Google Sites (協作平台) 內嵌看板，或利用定時觸發器 (Time Trigger) 定期檢查機台 D 暫存器數據並發出 Push 推播。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 學習成果與產線效益 -->
+    <section class="section-container" style="margin-bottom: 60px; margin-top: 40px;">
+      <h3 class="home-section-title"><i class="fa-solid fa-award"></i> 專題學習成果與工業應用價值</h3>
+      <div class="syllabus-columns">
+        <div class="syllabus-col-card" style="border-top-color: #06c755;">
+          <div class="col-header" style="background: rgba(6, 199, 85, 0.1); color: #06c755; padding: 15px 20px;">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <div>
+              <h4 style="color: var(--text-main);">學員技能養成</h4>
+              <span style="color: var(--text-muted);">完成本專題後的關鍵實戰能力</span>
+            </div>
+          </div>
+          <div class="col-body" style="padding: 20px;">
+            <ul>
+              <li><strong>通曉官方 API 規範</strong>：清楚掌握 Reply/Push 機制、X-Line-Retry-Key 冪等性與 429 速率限制避坑要領。</li>
+              <li><strong>工作流自動化整合</strong>：熟練運用 Docker + n8n 視覺化編排 AI 智慧代理人與工業告警系統。</li>
+              <li><strong>雲端無伺服器架構</strong>：掌握 GAS + Google Sheets 雲端資料庫設計，能獨立開發免伺服器的輕量級企業機器人。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="syllabus-col-card" style="border-top-color: #38bdf8;">
+          <div class="col-header" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; padding: 15px 20px;">
+            <i class="fa-solid fa-industry"></i>
+            <div>
+              <h4 style="color: var(--text-main);">工業實務效益</h4>
+              <span style="color: var(--text-muted);">現代智慧工廠導入 LINE Bot 價值</span>
+            </div>
+          </div>
+          <div class="col-body" style="padding: 20px;">
+            <ul>
+              <li><strong>維修響應速度提升 80%</strong>：PLC 異常即時推播至工程師手機群組，附帶 Gemini 維修 SOP。</li>
+              <li><strong>推播營運成本降低 90%</strong>：嚴格採用 Reply 免費機制與 X-Line-Retry-Key，杜絕重複扣款。</li>
+              <li><strong>設備歷史數據 100% 雲端同步</strong>：巡檢與報修紀錄直接寫入 Google Sheets，方便產線進行統計與追蹤。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="home-footer" style="border-top: 1px solid var(--border-color); padding: 30px 0; margin-top: 40px;">
+      <p>&copy; 2026 五股職訓局（作者：Rido老師） - 機電AI_115-1期 | LINE Bot 開發者指南與 API 實務專題手冊</p>
+      <p style="font-size: 0.8rem; color: #64748b; margin-top: 8px;">注意：本專題投影片及實作規範僅供本地實習教學使用，請勿上傳雲端。</p>
+    </footer>
+  </div>
+
+  <!-- JavaScript 互動腳本：UUID 生成與 API 組裝 -->
+  <script>
+    // 1. UUID v4 產生器 (X-Line-Retry-Key)
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    function generateNewRetryKey() {
+      const newKey = generateUUID();
+      document.getElementById("retryKeyVal").value = newKey;
+      updateApiPayload();
+    }
+
+    function copyRetryKey() {
+      const val = document.getElementById("retryKeyVal").value;
+      navigator.clipboard.writeText(val).then(() => {
+        alert("已複製 X-Line-Retry-Key 標頭值：" + val);
+      });
+    }
+
+    // 2. Messaging API 請求組裝預覽
+    const apiTemplates = {
+      reply_text: {
+        url: "https://api.line.me/v2/bot/message/reply",
+        cost: "完全免費（被動回應不扣點數）",
+        payload: {
+          replyToken: "nHxlDHgqqEZCHHS2A...",
+          messages: [
+            {
+              type: "text",
+              text: "您好！機台目前處於正常生產狀態，良率為 98.5%。"
+            }
+          ]
+        }
+      },
+      push_alert: {
+        url: "https://api.line.me/v2/bot/message/push",
+        cost: "計費訊息（扣除 1 點推播配額，附帶 X-Line-Retry-Key 防護）",
+        payload: {
+          to: "U4af4980629...",
+          messages: [
+            {
+              type: "text",
+              text: "⚠️【產線即時警報】機電丙級第二題裝配台連續 3 次卡料！馬達電流過載，已自動降速停機。"
+            }
+          ]
+        }
+      },
+      reply_quick: {
+        url: "https://api.line.me/v2/bot/message/reply",
+        cost: "完全免費（被動回應 Quick Reply 不扣點）",
+        payload: {
+          replyToken: "nHxlDHgqqEZCHHS2A...",
+          messages: [
+            {
+              type: "text",
+              text: "請選擇您欲查詢的設備狀態：",
+              quickReply: {
+                items: [
+                  {
+                    type: "action",
+                    action: {
+                      type: "message",
+                      label: "查詢 Y 接點狀態",
+                      text: "查詢 Y0~Y17"
+                    }
+                  },
+                  {
+                    type: "action",
+                    action: {
+                      type: "message",
+                      label: "查詢即時能耗",
+                      text: "查詢電表功率"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    };
+
+    function updateApiPayload() {
+      const selectVal = document.getElementById("apiModeSelect").value;
+      const tpl = apiTemplates[selectVal];
+      if (!tpl) return;
+
+      document.getElementById("apiEndpointUrl").innerText = tpl.url;
+      const costEl = document.getElementById("apiCostBadge");
+      costEl.innerText = tpl.cost;
+      if (selectVal === 'push_alert') {
+        costEl.className = "result-val warn";
+      } else {
+        costEl.className = "result-val highlight";
+      }
+
+      document.getElementById("apiPayloadPreview").innerText = JSON.stringify(tpl.payload, null, 2);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      generateNewRetryKey();
+      updateApiPayload();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINE Bot 開發指南 - 互動式教學網站</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 FontAwesome 圖示庫 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入 Google Fonts (Inter & Noto Sans TC) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        line: {
+                            DEFAULT: '#06C755',
+                            dark: '#05a546',
+                            light: '#e6f9ed',
+                            accent: '#00B900'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 自定義捲軸與細節動畫 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .flow-arrow::after {
+            content: '→';
+            font-size: 1.5rem;
+            color: #06C755;
+            margin: 0 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .flow-arrow::after {
+                content: '↓';
+                display: block;
+                text-align: center;
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-line selection:text-white">
+
+    <!-- 頂部導覽列 -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+            <div class="hidden sm:flex items-center gap-2">
+                <a href="project_linebot.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition border border-emerald-300">
+                    <i class="fa-solid fa-arrow-left"></i> 回專題主頁
+                </a>
+                <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition border border-slate-300">
+                    <i class="fa-solid fa-house"></i> 首頁
+                </a>
+            </div>
+
+                <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <a href="#" class="flex items-center gap-2.5 group">
+                    <div class="w-10 h-10 rounded-xl bg-line flex items-center justify-center text-white font-bold text-xl shadow-md shadow-line/20 group-hover:scale-105 transition-transform">
+                        <i class="fa-brands fa-line text-2xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-lg tracking-tight text-slate-900">LINE Bot 開發指南</span>
+                        <span class="hidden sm:inline-block ml-2 text-xs px-2 py-0.5 bg-line-light text-line-dark font-semibold rounded-full border border-line/20">互動教學版 v2.7</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- 快速搜尋與進度顯示 -->
+            <div class="flex items-center gap-4">
+                <div class="relative hidden md:block w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" placeholder="搜尋關鍵字 (如: Webhook, Token...)" 
+                        class="w-full pl-9 pr-4 py-1.5 bg-slate-100 border border-transparent focus:bg-white focus:border-line rounded-xl text-sm outline-none transition-all">
+                </div>
+                <a href="https://developers.line.biz/en/docs/" target="_blank" rel="noopener noreferrer" 
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-medium transition-colors shadow-sm">
+                    <span>官方文件</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 flex flex-col lg:flex-row gap-8 relative">
+        
+        <!-- 左側邊欄導覽 (桌機固定，手機抽屜) -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-white lg:bg-transparent border-r lg:border-r-0 border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:static lg:w-64 lg:shrink-0 pt-20 lg:pt-0 px-4 lg:px-0 overflow-y-auto">
+            <div class="lg:sticky lg:top-24 space-y-6">
+                
+                <!-- 章節清單 -->
+                <nav class="space-y-1">
+                    <p class="px-3 text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">教學目錄 Contents</p>
+                    <a href="#ch1" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-line-light hover:text-line-dark transition-colors">
+                        <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">01</span>
+                        <span>關於 LINE Bot 與架構</span>
+                    </a>
+                    <a href="#ch2" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-line-light hover:text-line-dark transition-colors">
+                        <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">02</span>
+                        <span>Webhook 接收請求規範</span>
+                    </a>
+                    <a href="#ch3" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-line-light hover:text-line-dark transition-colors">
+                        <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">03</span>
+                        <span>發送 API 請求注意事項</span>
+                    </a>
+                    <a href="#ch4" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-line-light hover:text-line-dark transition-colors">
+                        <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">04</span>
+                        <span>LINE Login 整合與綁定</span>
+                    </a>
+                    <a href="#ch5" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-line-light hover:text-line-dark transition-colors">
+                        <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">05</span>
+                        <span>其他相關功能 (LIFF/貼圖)</span>
+                    </a>
+                </nav>
+
+                <!-- 互動工具快速跳轉 -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+                    <p class="text-xs font-bold uppercase tracking-wider text-line-dark flex items-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> 互動模擬工具箱
+                    </p>
+                    <ul class="space-y-1.5 text-xs">
+                        <li><a href="#checklist-tool" class="text-slate-600 hover:text-line font-medium flex items-center gap-2 py-1"><i class="fa-solid fa-list-check w-4 text-slate-400"></i> 發布前合規檢查表</a></li>
+                        <li><a href="#webhook-matrix-tool" class="text-slate-600 hover:text-line font-medium flex items-center gap-2 py-1"><i class="fa-solid fa-Sliders w-4 text-slate-400"></i> Webhook 回應模式模擬</a></li>
+                        <li><a href="#login-url-builder" class="text-slate-600 hover:text-line font-medium flex items-center gap-2 py-1"><i class="fa-solid fa-link w-4 text-slate-400"></i> LINE Login URL 產生器</a></li>
+                        <li><a href="#url-scheme-tool" class="text-slate-600 hover:text-line font-medium flex items-center gap-2 py-1"><i class="fa-solid fa-mobile-screen w-4 text-slate-400"></i> URL Scheme 實測產生器</a></li>
+                    </ul>
+                </div>
+
+                <!-- 發布前檢核進度卡 -->
+                <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 rounded-2xl shadow-md">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-slate-300">上線準備度檢核</span>
+                        <span id="sidebar-progress-text" class="text-xs font-bold text-line">0 / 8</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div id="sidebar-progress-bar" class="h-full bg-line transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-2">完成第 1 章的發布前確認清單以確保符合官方規範。</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 手機版遮罩 -->
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/50 z-30 hidden lg:hidden"></div>
+
+        <!-- 主要內容區 -->
+        <main class="flex-1 min-w-0 space-y-12 pb-16">
+            
+            <!-- Hero 橫幅 -->
+            <div class="relative rounded-3xl bg-gradient-to-r from-line-dark via-line to-emerald-500 p-6 sm:p-10 text-white shadow-xl overflow-hidden">
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs font-semibold">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>官方開發基本規則與最佳實踐指南</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                        從零掌握 LINE Bot 與 LINE Login 系統架構
+                    </h1>
+                    <p class="text-white/90 text-sm sm:text-base leading-relaxed">
+                        本教學網站完整收錄《LINE Bot 開發指南》，詳解 Messaging API 運作機制、Webhook 安全驗證與 1 秒回應守則、Token 自動更新策略、LINE Login OAuth 2.0 綁定流程以及 LIFF 應用規範。
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <a href="#ch1" class="px-5 py-2.5 rounded-xl bg-white text-line-dark font-bold text-sm shadow hover:bg-slate-50 transition-colors">
+                            開始閱讀指南
+                        </a>
+                        <a href="#webhook-matrix-tool" class="px-5 py-2.5 rounded-xl bg-black/20 hover:bg-black/30 text-white font-semibold text-sm backdrop-blur-sm transition-colors">
+                            體驗互動工具
+                        </a>
+                    </div>
+                </div>
+                <i class="fa-brands fa-line absolute -right-8 -bottom-10 text-[12rem] text-white/15 pointer-events-none select-none"></i>
+            </div>
+
+            <!-- ==========================================
+                 CHAPTER 01: 關於 LINE Bot
+            =========================================== -->
+            <section id="ch1" class="scroll-mt-20 space-y-8 searchable-section">
+                <div class="border-b border-slate-200 pb-4 flex items-center gap-3">
+                    <span class="px-3 py-1 rounded-xl bg-line text-white font-bold text-sm">Chapter 01</span>
+                    <h2 class="text-2xl font-bold text-slate-900">關於 LINE Bot 與基礎架構</h2>
+                </div>
+
+                <!-- 1.1 LINE Developers 入口介紹 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-file-code text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">技術文件 (Documentation)</h3>
+                        <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+                            包含使用 Messaging API (Bot)、LINE Login、LIFF、LINE SDK (iOS/Android/Unity/Flutter) 與 Social API 等功能所需的完整技術規格。
+                        </p>
+                        <a href="https://developers.line.biz/en/docs/" target="_blank" class="text-xs font-bold text-blue-600 hover:underline inline-flex items-center gap-1">
+                            前往 developers.line.biz/en/docs/ <i class="fa-solid fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 rounded-xl bg-line-light text-line-dark flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-sliders text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">開發者控制台 (Console)</h3>
+                        <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+                            用於建立 Provider 並管理開發 LINE Bot 及 LINE 連結服務所需的 <strong>Channel</strong>（包含 Channel ID、Secret、Webhook URL 及角色權限設定）。
+                        </p>
+                        <a href="https://developers.line.biz/console/" target="_blank" class="text-xs font-bold text-line-dark hover:underline inline-flex items-center gap-1">
+                            前往 developers.line.biz/console/ <i class="fa-solid fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 1.2 LINE Bot 的運作機制圖解 -->
+                <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-network-wired text-line"></i>
+                            LINE Bot 的運作機制與系統架構
+                        </h3>
+                        <p class="text-sm text-slate-600 mt-1">
+                            LINE Bot 是一種透過 <strong>Channel Gateway Server (GW Server)</strong>，在客戶端系統的 Bot Server 與 LINE App 之間收發 JSON 格式數據 API 請求的機制。點擊下方節點可查看各元件詳細職責：
+                        </p>
+                    </div>
+
+                    <!-- 互動式架構圖 -->
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-center bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200/80">
+                        <!-- Node 1: LINE App -->
+                        <button onclick="showArchDetail('app')" class="arch-node group p-4 rounded-xl bg-white border-2 border-line shadow-sm hover:shadow-md transition-all text-left focus:outline-none">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-line text-white">用戶端</span>
+                                <i class="fa-solid fa-mobile-screen-button text-line text-lg"></i>
+                            </div>
+                            <p class="font-bold text-sm text-slate-900 group-hover:text-line transition-colors">LINE App</p>
+                            <p class="text-xs text-slate-500 mt-1">用戶傳訊 / 接收企業推播</p>
+                        </button>
+
+                        <!-- Node 2: Talk Server -->
+                        <button onclick="showArchDetail('talk')" class="arch-node group p-4 rounded-xl bg-white border border-slate-200 hover:border-line shadow-sm hover:shadow-md transition-all text-left focus:outline-none">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">LINE Platform</span>
+                                <i class="fa-solid fa-comments text-emerald-600 text-lg"></i>
+                            </div>
+                            <p class="font-bold text-sm text-slate-900 group-hover:text-line transition-colors">Talk Server</p>
+                            <p class="text-xs text-slate-500 mt-1">平台負責收發訊息的伺服器</p>
+                        </button>
+
+                        <!-- Node 3: GW Server -->
+                        <button onclick="showArchDetail('gw')" class="arch-node group p-4 rounded-xl bg-white border border-slate-200 hover:border-line shadow-sm hover:shadow-md transition-all text-left focus:outline-none">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">LINE Platform</span>
+                                <i class="fa-solid fa-shield-halved text-emerald-600 text-lg"></i>
+                            </div>
+                            <p class="font-bold text-sm text-slate-900 group-hover:text-line transition-colors">Channel GW Server</p>
+                            <p class="text-xs text-slate-500 mt-1">雙向轉發 JSON API 請求</p>
+                        </button>
+
+                        <!-- Node 4: Bot Server -->
+                        <button onclick="showArchDetail('bot')" class="arch-node group p-4 rounded-xl bg-white border border-slate-200 hover:border-line shadow-sm hover:shadow-md transition-all text-left focus:outline-none">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-white">客戶端系統</span>
+                                <i class="fa-solid fa-server text-slate-700 text-lg"></i>
+                            </div>
+                            <p class="font-bold text-sm text-slate-900 group-hover:text-line transition-colors">Bot Server</p>
+                            <p class="text-xs text-slate-500 mt-1">設定 Webhook URL 接收與發送</p>
+                        </button>
+
+                        <!-- Node 5: Backend DB -->
+                        <button onclick="showArchDetail('db')" class="arch-node group p-4 rounded-xl bg-white border border-slate-200 hover:border-line shadow-sm hover:shadow-md transition-all text-left focus:outline-none">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-white">客戶端系統</span>
+                                <i class="fa-solid fa-database text-slate-700 text-lg"></i>
+                            </div>
+                            <p class="font-bold text-sm text-slate-900 group-hover:text-line transition-colors">後端處理 / DB</p>
+                            <p class="text-xs text-slate-500 mt-1">商業邏輯與會員資料庫</p>
+                        </button>
+                    </div>
+
+                    <!-- 節點詳細說明面板 -->
+                    <div id="arch-detail-box" class="p-4 rounded-xl bg-line-light/60 border border-line/30 text-sm text-slate-800 flex items-start gap-3">
+                        <i class="fa-solid fa-circle-info text-line text-lg mt-0.5"></i>
+                        <div id="arch-detail-content">
+                            <strong>LINE App (用戶端)：</strong>當用戶加入好友、傳送訊息或封鎖時，訊號會先送往 LINE Platform 的 Talk Server；企業也能透過 API 將訊息經由平台推播回用戶的 LINE App。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1.3 官方帳號與 Channel 的關聯性 -->
+                <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-sitemap text-line"></i>
+                        LINE 官方帳號、Bot 與 Channel 之間的關聯性
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="p-5 rounded-xl bg-slate-50 border border-slate-200">
+                            <span class="text-xs font-bold text-slate-500 uppercase">管理後台 (OA Manager)</span>
+                            <h4 class="font-bold text-base text-slate-900 mt-1 mb-2">Bot (LINE 官方帳號)</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                以 <strong>LINE Official Account Manager</strong> 管理。當不使用 API 時，可單純透過後台設定歡迎訊息與自動回應；啟用 API 後則與 Messaging API Channel 連動。
+                            </p>
+                        </div>
+                        <div class="p-5 rounded-xl bg-emerald-50/60 border border-emerald-200">
+                            <span class="text-xs font-bold text-emerald-700 uppercase">Messaging API Channel</span>
+                            <h4 class="font-bold text-base text-slate-900 mt-1 mb-2">收發 Webhook 與訊息</h4>
+                            <p class="text-xs text-slate-700 leading-relaxed">
+                                當用戶傳訊、加入好友或封鎖時，平台會向此 Channel 設定的 <strong>Webhook URL</strong> 發送 Webhook event；Bot 則使用此 Channel 發行的 <strong>Channel Access Token</strong> 向用戶傳遞訊息。
+                            </p>
+                        </div>
+                        <div class="p-5 rounded-xl bg-blue-50/60 border border-blue-200">
+                            <span class="text-xs font-bold text-blue-700 uppercase">關鍵重點：Provider 與 userId</span>
+                            <h4 class="font-bold text-base text-slate-900 mt-1 mb-2">跨 Channel 識別同一用戶</h4>
+                            <p class="text-xs text-slate-700 leading-relaxed">
+                                如果 <strong>Messaging API Channel</strong> 與 <strong>LINE Login Channel</strong> 隸屬於<strong>同一個 Provider</strong> 之下，則兩者取得的 <code>userId</code> 是<strong>完全相同</strong>的！且注意 LINE Login 設定完成後必須更改為「已公開 (Published)」狀態才算完成發布。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1.4 專有名詞表 (Glossary) -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-900">LINE Bot 核心術語表 (Glossary)</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                                    <th class="py-3.5 px-6 font-bold w-1/4">術語名稱</th>
+                                    <th class="py-3.5 px-6 font-bold">定義與說明</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 text-slate-700">
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="py-3.5 px-6 font-semibold text-slate-900">Bot Server</td>
+                                    <td class="py-3.5 px-6">為了接收 LINE 所發出的請求（如加入好友、封鎖、來自用戶的訊息等），而架設於客戶端的伺服器。</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="py-3.5 px-6 font-semibold text-slate-900">Talk Server</td>
+                                    <td class="py-3.5 px-6">LINE Platform 中負責發送和接收訊息的伺服器。</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="py-3.5 px-6 font-semibold text-slate-900">Channel Gateway Server (GW Server)</td>
+                                    <td class="py-3.5 px-6">用來將從 Talk Server 接收到的資訊發送到 Bot Server，或將從 Bot Server 接收到的資訊發送到 Talk Server，使用時必須經過 Channel。</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="py-3.5 px-6 font-semibold text-slate-900">Webhook / Webhook event</td>
+                                    <td class="py-3.5 px-6">當發生訊息交換時，Bot Server 從 GW Server 接收到的 JSON 請求中包含的加入好友、封鎖、傳訊等資訊統稱。<strong>1 個 Webhook 請求可能會包含多個事件 (events)</strong>。</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="py-3.5 px-6 font-semibold text-slate-900">Webhook URL</td>
+                                    <td class="py-3.5 px-6">Bot Server 的 endpoint URL。當用戶與 Bot 互動觸發 Webhook event 時，LINE 平台會向此 URL 發送 HTTPS POST Request。</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="py-3.5 px-6 font-semibold text-slate-900">Provider</td>
+                                    <td class="py-3.5 px-6">提供服務的個人、企業或公司主體，在 LINE Developers 控制台中建立。不同 Provider 之間的 <code>userId</code> 不互通。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 1.5 開始開發步驟 & 發布前確認事項 (互動檢核表) -->
+                <div id="checklist-tool" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6 scroll-mt-24">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                        <div>
+                            <span class="text-xs font-bold text-line uppercase tracking-wider">Interactive Tool</span>
+                            <h3 class="text-lg font-bold text-slate-900 mt-0.5">開發開始步驟與「發布前合規確認清單」</h3>
+                        </div>
+                        <button onclick="resetChecklist()" class="self-start sm:self-auto text-xs text-slate-500 hover:text-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
+                            重置檢核表
+                        </button>
+                    </div>
+
+                    <!-- 開發 5 步驟 -->
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800 mb-3">🚀 開發開始 5 步驟：</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs">
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <span class="font-bold text-line block mb-1">Step 1</span>
+                                申請 LINE 官方帳號，並啟用 Messaging API Channel。
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <span class="font-bold text-line block mb-1">Step 2</span>
+                                部署 Bot Server，使用受信任 CA 發行的 SSL/TLS 憑證設定 Webhook URL。
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <span class="font-bold text-line block mb-1">Step 3</span>
+                                準備在 Bot 伺服器上接收事件請求，並回傳 HTTP 狀態碼 <code>200 OK</code>。
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <span class="font-bold text-line block mb-1">Step 4</span>
+                                將 LINE Developers 中 Messaging API 設定的「Use webhook」開啟。
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <span class="font-bold text-line block mb-1">Step 5</span>
+                                將帳號加入好友，並確認 Webhook event 是否已成功送達 Bot Server。
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 發布前 8 大檢核項 -->
+                    <div class="space-y-3">
+                        <h4 class="text-sm font-bold text-slate-800">✅ 正式發布給用戶前，請務必勾選確認以下 8 項條款與技術規範：</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="checklist-container">
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                                <input type="checkbox" class="release-check mt-1 w-4 h-4 accent-line rounded">
+                                <span class="text-xs text-slate-700 leading-relaxed"><strong>1. 成員權限確認：</strong>需要存取 LINE Developers 的所有團隊成員，都已設定為可以使用的狀態。</span>
+                            </label>
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                                <input type="checkbox" class="release-check mt-1 w-4 h-4 accent-line rounded">
+                                <span class="text-xs text-slate-700 leading-relaxed"><strong>2. Webhook 連通確認：</strong>已確認在 Webhook URL 項目中設定了正確的正式環境 URL，且請求已可送達。</span>
+                            </label>
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                                <input type="checkbox" class="release-check mt-1 w-4 h-4 accent-line rounded">
+                                <span class="text-xs text-slate-700 leading-relaxed"><strong>3. 遵守技術注意事項：</strong>系統實作時已完整考量開發指南中記載的「接收請求時」與「發送請求時」的注意事項。</span>
+                            </label>
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                                <input type="checkbox" class="release-check mt-1 w-4 h-4 accent-line rounded">
+                                <span class="text-xs text-slate-700 leading-relaxed"><strong>4. 資料結合取得許可：</strong>將自家公司會員資訊、顧客資料或網站內行動記錄與 LINE 結合使用時，已明確取得用戶的許可。</span>
+                            </label>
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                                <input type="checkbox" class="release-check mt-1 w-4 h-4 accent-line rounded">
+                                <span class="text-xs text-slate-700 leading-relaxed"><strong>5. 隱私權政策透明：</strong>用戶可以隨時檢查已收集到的資訊處理方式（明確標示隱私權政策等）。</span>
+                            </label>
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-red-200 bg-red-50/30 hover:bg-red-50/60 cursor-pointer transition-colors">
+                                <input type="checkbox" class="release-check mt-1 w-4 h-4 accent-line rounded">
+                                <span class="text-xs text-slate-700 leading-relaxed"><strong class="text-red-700">6. 禁止發送機密資訊：</strong>訊息內容中<strong>嚴禁發送</strong>需嚴格控管安全性的機密資訊，例如<strong>密碼、驗證碼 (OTP) 和信用卡號</strong>等。</span>
+                            </label>
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-amber-200 bg-amber-50/30 hover:bg-amber-50/60 cursor-pointer transition-colors">
+                                <input type="checkbox" class="release-check mt-1 w-4 h-4 accent-line rounded">
+                                <span class="text-xs text-slate-700 leading-relaxed"><strong class="text-amber-800">7. 封鎖後 24 小時內刪除資料：</strong>當用戶解除好友關係（封鎖）時，原則上開發者需於 <strong>24 小時以內</strong>刪除在帳號管理上不需要用到的資訊（※有例外可繼續保存之情況除外）。</span>
+                            </label>
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                                <input type="checkbox" class="release-check mt-1 w-4 h-4 accent-line rounded">
+                                <span class="text-xs text-slate-700 leading-relaxed"><strong>8. userId 專號專用：</strong>使用 LINE 提供的資訊（如已取得的 <code>userId</code> 等），僅限於已取得資訊的該帳號管理相關操作，其他帳號不得挪用。</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 CHAPTER 02: 使用 Webhook URL 接收請求時的注意事項
+            =========================================== -->
+            <section id="ch2" class="scroll-mt-20 space-y-8 searchable-section">
+                <div class="border-b border-slate-200 pb-4 flex items-center gap-3">
+                    <span class="px-3 py-1 rounded-xl bg-line text-white font-bold text-sm">Chapter 02</span>
+                    <h2 class="text-2xl font-bold text-slate-900">使用 Webhook URL 接收請求時的注意事項 (A ~ H)</h2>
+                </div>
+
+                <!-- A, B, C 三大黃金守則卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- A: SSL/TLS -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs">注意事項 A</span>
+                            <i class="fa-solid fa-lock text-emerald-600 text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-base text-slate-900">考量安全性的 SSL/TLS 通訊環境</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            GW Server 與 Bot Server 之間必須使用對應 <strong>SSL/TLS</strong> 的 HTTPS 通訊環境。
+                        </p>
+                        <div class="p-3 rounded-xl bg-red-50 border border-red-100 text-xs text-red-700">
+                            <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                            <strong>不接受自我簽署憑證 (Self-signed certificate)</strong>，請務必使用受信任第三方憑證頒發機構 (CA) 認可的憑證。
+                        </div>
+                    </div>
+
+                    <!-- B: 1秒內回傳 200 OK -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 font-bold text-xs">注意事項 B</span>
+                            <i class="fa-solid fa-stopwatch text-amber-600 text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-base text-slate-900">1000 毫秒 (1秒) 內回傳狀態碼 200</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Bot Server 接收到請求時，請先非同步寫入佇列/記憶體並<strong>盡快回傳 HTTP 200 OK</strong>，後續商業邏輯再交由後端處理。
+                        </p>
+                        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800">
+                            <i class="fa-solid fa-bell mr-1"></i>
+                            回傳標準必須在 <strong>1000ms (1秒) 以內</strong>。若超過 1 秒，系統將自動發送 Error Notification 警示郵件（需為 Certified Provider 並洽詢業務開啟）。
+                        </div>
+                    </div>
+
+                    <!-- C: Signature 驗證 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 font-bold text-xs">注意事項 C</span>
+                            <i class="fa-solid fa-signature text-blue-600 text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-base text-slate-900">Webhook 數位簽章驗證</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            為防止來自 LINE 以外的偽造請求，請以 <code>Channel Secret</code> 為密鑰，對 Request Body 進行 <strong>HMAC-SHA256</strong> 計算並轉為 Base64，比對是否與標頭中的 <code>x-line-signature</code> 一致。
+                        </p>
+                        <div class="p-3 rounded-xl bg-slate-100 text-xs text-slate-700">
+                            <i class="fa-solid fa-circle-exclamation mr-1"></i>
+                            <strong>注意：</strong>LINE 公司並未揭露 GW Server 的 IP 地址，請勿使用 IP 白名單驗證，務必使用簽章驗證。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- C & G 延伸：建議的請求處理流程與程式碼範例 -->
+                <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900">G) 建議的請求處理步驟 & 簽章驗證範例</h3>
+                            <p class="text-xs text-slate-500 mt-1">為什麼建議先回傳 200 OK 再做後續處理？因為確保在 1 秒內完成回應可避免高併發時觸發逾時錯誤。</p>
+                        </div>
+                    </div>
+
+                    <!-- 流程圖 (對應 PDF Page 18) -->
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+                        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 relative">
+                            <span class="font-bold text-emerald-800 block mb-1">1. 接收請求 (1秒內)</span>
+                            GW Server 發送請求 → Bot Server 以 Webhook URL 接收請求。
+                        </div>
+                        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                            <span class="font-bold text-emerald-800 block mb-1">2. 暫存並回 200 (1秒內)</span>
+                            寫入 DB / 記憶體佇列 (Queue) 等，並<strong>立即回傳狀態碼 200 OK</strong> 給 GW Server。
+                        </div>
+                        <div class="p-4 rounded-xl bg-blue-50 border border-blue-200">
+                            <span class="font-bold text-blue-800 block mb-1">3. 簽章驗證</span>
+                            驗證 <code>x-line-signature</code>（不區分大小寫）。若<strong>不一致則直接廢除</strong>不處理。
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <span class="font-bold text-slate-800 block mb-1">4. 拆解多個事件</span>
+                            在請求的 <code>events[]</code> 陣列中分別提取各個 Webhook event。
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <span class="font-bold text-slate-800 block mb-1">5. 執行商業邏輯</span>
+                            針對各個事件（文字、加好友、解封鎖等）進行非同步處理與回覆。
+                        </div>
+                    </div>
+
+                    <!-- 程式碼區塊：Node.js / Python 簽章與非同步處理 -->
+                    <div class="bg-slate-900 rounded-2xl overflow-hidden text-slate-100 text-xs">
+                        <div class="flex items-center justify-between px-4 py-2.5 bg-slate-800 border-b border-slate-700">
+                            <span class="font-mono text-slate-300">webhook_handler.js (Node.js 實作概念範例)</span>
+                            <button onclick="copyCode('sig-code')" class="px-2.5 py-1 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 transition-colors">
+                                <i class="fa-regular fa-copy mr-1"></i>複製程式碼
+                            </button>
+                        </div>
+                        <pre id="sig-code" class="p-4 overflow-x-auto font-mono leading-relaxed text-emerald-300"><code>const crypto = require('crypto');
+
+app.post('/webhook', (req, res) => {
+  // [注意事項 B & G] 1000ms (1秒) 內立即回傳 200 OK
+  res.status(200).json({});
+
+  // [注意事項 F-3] 標頭名稱必須設定為「不區分大小寫」(Express req.headers 預設已轉小寫)
+  const signature = req.headers['x-line-signature'];
+  const rawBody = req.rawBody; // 必須為原始字串或 Buffer
+
+  // [注意事項 C] 計算 HMAC-SHA256 數位簽章
+  const expectedSig = crypto
+    .createHmac('SHA256', process.env.CHANNEL_SECRET)
+    .update(rawBody)
+    .digest('base64');
+
+  if (signature !== expectedSig) {
+    console.warn('非法請求：數位簽章不一致，予以廢除！');
+    return;
+  }
+
+  // [注意事項 F-1] 1 個請求可能包含多個事件，請使用迴圈處理並容許新屬性 (F-2)
+  const events = req.body.events || [];
+  for (const event of events) {
+    processEventAsync(event);
+  }
+});</code></pre>
+                    </div>
+                </div>
+
+                <!-- E-1 & E-2: Webhook 的 ON/OFF 設定組合模擬器 -->
+                <div id="webhook-matrix-tool" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6 scroll-mt-24">
+                    <div>
+                        <span class="text-xs font-bold text-line uppercase tracking-wider">Interactive Simulator (對應指南 E-1 & E-2)</span>
+                        <h3 class="text-lg font-bold text-slate-900 mt-0.5">Webhook 與官方帳號回應設定組合檢測器</h3>
+                        <p class="text-xs text-slate-600 mt-1">
+                            LINE Developers 的「Use webhook」與 LINE Official Account Manager 的「Webhook」設定是<strong>雙向同步</strong>的。請切換下方開關，查看 4 種設定組合的系統行為與合法性：
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <!-- 左側開關面板 -->
+                        <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                            <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200">
+                                <div>
+                                    <p class="font-bold text-sm text-slate-900">Use webhook (發送 Webhook)</p>
+                                    <p class="text-xs text-slate-500">LINE Developers / OA Manager 同步</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-webhook" class="sr-only peer" checked onchange="updateWebhookMatrix()">
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-line"></div>
+                                </label>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200">
+                                <div>
+                                    <p class="font-bold text-sm text-slate-900">自動回應訊息 / 加入好友歡迎訊息</p>
+                                    <p class="text-xs text-slate-500">於 LINE Official Account Manager 設定</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-autoreply" class="sr-only peer" onchange="updateWebhookMatrix()">
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-line"></div>
+                                </label>
+                            </div>
+
+                            <p class="text-[11px] text-slate-500 leading-relaxed">
+                                💡 <strong>注意事項：</strong>如果您將「加入好友的歡迎訊息」設定為「使用」，那麼當用戶<strong>解除封鎖 (Unblock)</strong> 時，系統仍然會發送加入好友時的歡迎訊息。
+                            </p>
+                        </div>
+
+                        <!-- 右側結果顯示 -->
+                        <div id="webhook-matrix-result" class="p-6 rounded-2xl border-2 border-line bg-line-light/40 space-y-3 transition-all">
+                            <!-- 由 JS 動態渲染 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- D, F, H 補充注意事項 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- D: 大規模訊息處理 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+                        <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded bg-slate-900 text-white text-xs flex items-center justify-center">D</span>
+                            大規模訊息處理的考量
+                        </h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            在<strong>剛開啟顯示搜尋結果、推出贊助貼圖、群發訊息後、媒體曝光、或午間/晚間至午夜高峰期</strong>，請求會極度集中。
+                        </p>
+                        <ul class="text-xs text-slate-600 list-disc pl-4 space-y-1">
+                            <li><strong>嚴禁對 GW 伺服器進行壓力測試</strong>（請在自家環境測試）。</li>
+                            <li>若 Bot Server 無法消化導致請求在 GW Server 大量累積並影響其他 Channel，<strong>LINE 將不得不刪除累積的請求</strong>。</li>
+                            <li>擁有百萬好友的帳號推播活動時，請<strong>分批傳遞或錯開傳遞時間</strong>。</li>
+                        </ul>
+                    </div>
+
+                    <!-- F: 3 個細節防呆 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+                        <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded bg-slate-900 text-white text-xs flex items-center justify-center">F</span>
+                            防範系統故障的 3 個細節
+                        </h4>
+                        <ul class="text-xs text-slate-600 space-y-2 leading-relaxed">
+                            <li><strong>F-1 單次請求含多個事件：</strong>同時間大量傳訊或加好友時，1 次 Webhook 請求的 <code>events</code> 陣列可能包含多個事件，請務必以陣列迭代處理。</li>
+                            <li><strong>F-2 容許新增 JSON 屬性：</strong>Messaging API 更新時可能會在 Webhook event 中新增欄位，JSON Parser 請勿設定為遇到未知欄位即報錯崩潰。</li>
+                            <li><strong>F-3 HTTP Header 不分大小寫：</strong>標頭欄位名稱大小寫可能不經通知變更（如 <code>X-Line-Signature</code> 或 <code>x-line-signature</code>），驗證時請務必忽略大小寫。</li>
+                        </ul>
+                    </div>
+
+                    <!-- H: 通訊錯誤通知 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+                        <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded bg-slate-900 text-white text-xs flex items-center justify-center">H</span>
+                            GW → Bot 通訊錯誤通知
+                        </h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            當 GW Server 發送請求至 Bot Server 發生錯誤時，LINE 會發送郵件或顯示於 Console 的統計錯誤頁。
+                        </p>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1">
+                            <p>• <strong>適用對象：</strong>僅適用於 Certified Provider 下的 Channel（需洽詢業務開啟）。</p>
+                            <p>• <strong>收件人：</strong>登錄於 Channel 基本設定及 Admin 註冊的電子郵件地址。</p>
+                            <p>• <strong>查看路徑：</strong>Console &gt; 統計資訊 (Statistics) &gt; 錯誤資訊 (Errors)。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 CHAPTER 03: 發送 API 請求時的注意事項
+            =========================================== -->
+            <section id="ch3" class="scroll-mt-20 space-y-8 searchable-section">
+                <div class="border-b border-slate-200 pb-4 flex items-center gap-3">
+                    <span class="px-3 py-1 rounded-xl bg-line text-white font-bold text-sm">Chapter 03</span>
+                    <h2 class="text-2xl font-bold text-slate-900">發送 API 請求時的注意事項 (A ~ I)</h2>
+                </div>
+
+                <!-- A, B, C: Channel Access Token 比較與輪替機制 -->
+                <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">A ~ C) Channel Access Token 的發行、自動更新與有效上限</h3>
+                        <p class="text-sm text-slate-600 mt-1">
+                            呼叫 Messaging API 時必須在 Header 帶入 <code>Authorization: Bearer {channel_access_token}</code>。基於安全性考量，<strong>建議透過 API 發行短期 (Short-lived) 或指定效期 (v2.1) 的 Token</strong>，並建立後端自動更新與撤銷 (Revoke) 舊 Token 的機制。
+                        </p>
+                    </div>
+
+                    <!-- Token 輪替時間軸示意 (對應 PDF Page 23) -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                        <p class="text-xs font-bold text-slate-700">🔄 Token 無縫輪替最佳實踐 (Backend Server 定期執行)：</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                            <div class="p-3 rounded-xl bg-orange-100/70 border border-orange-200 text-orange-950">
+                                <strong>階段 1：使用 Token A</strong><br>
+                                有效期屆滿前，後端先呼叫 API <strong>發行 Token B</strong>。
+                            </div>
+                            <div class="p-3 rounded-xl bg-blue-100/70 border border-blue-200 text-blue-950">
+                                <strong>階段 2：切換至 Token B</strong><br>
+                                確認 Calling Server 切換至 Token B 後，呼叫 Revoke API <strong>取消 Token A</strong>。
+                            </div>
+                            <div class="p-3 rounded-xl bg-emerald-100/70 border border-emerald-200 text-emerald-950">
+                                <strong>階段 3：發行 Token C</strong><br>
+                                Token B 到期前，發行 Token C 並<strong>取消 Token B</strong>。
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-200/70 border border-slate-300 text-slate-800">
+                                <strong>為什麼要取消舊 Token？</strong><br>
+                                因為可同時操作的 Token 數量有上限（30個），多伺服器共用時務必撤銷舊權杖。
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3 種 Token 上限表格 (對應 PDF Page 24) -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                    <th class="py-3 px-4 font-bold">Token 種類</th>
+                                    <th class="py-3 px-4 font-bold">發行方式</th>
+                                    <th class="py-3 px-4 font-bold">同時有效上限</th>
+                                    <th class="py-3 px-4 font-bold">超過上限時的系統動作</th>
+                                    <th class="py-3 px-4 font-bold">失效條件</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 text-slate-700">
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-slate-900">Short-lived (短期 30 天)</td>
+                                    <td class="py-3 px-4">由 API 發行</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded">30 個</span></td>
+                                    <td class="py-3 px-4">按照發行順序，使最舊的短期 Token 自動失效</td>
+                                    <td class="py-3 px-4">超過有效期限 (2592000秒) / 超過上限 / 呼叫 Revoke API</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-slate-900">Long-lived (長期無期限)</td>
+                                    <td class="py-3 px-4">由 Console 手動發行</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-amber-100 text-amber-800 font-bold rounded">1 個</span></td>
+                                    <td class="py-3 px-4">重新發行時，使現有的長期 Token 立即失效</td>
+                                    <td class="py-3 px-4">重新發行 / 呼叫 Revoke API</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-slate-900">User-specified expiration (v2.1)</td>
+                                    <td class="py-3 px-4">由 API 發行 (JWT)</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 font-bold rounded">30 個</span></td>
+                                    <td class="py-3 px-4 text-red-600 font-semibold">回傳 API Error，無法追加發行！</td>
+                                    <td class="py-3 px-4">超過有效期限 / 呼叫 Revoke API</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- D, E, F: 回應處理、重試機制與限制 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- D: 訊息發送回應 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 font-bold text-xs">注意事項 D</span>
+                        <h4 class="font-bold text-base text-slate-900">發送完成後的回應與 Request ID</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            成功時回傳 <code>200 OK</code> 與空 JSON 物件 <code>{}</code>；失敗時回傳包含 <code>message</code> 與 <code>details</code> 的錯誤說明（注意：失敗 Body 格式可能不經通知變動）。
+                        </p>
+                        <div class="p-3 rounded-xl bg-slate-900 text-emerald-300 font-mono text-[11px] overflow-x-auto">
+                            // 請務必記錄 Response Header 中的唯一識別碼：<br>
+                            X-Line-Request-Id: f70dd685-499a-4231...
+                        </div>
+                    </div>
+
+                    <!-- E: API 請求重試 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <span class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 font-bold text-xs">注意事項 E</span>
+                        <h4 class="font-bold text-base text-slate-900">API 請求重試與防重複發送</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            當遇到網路異常或 HTTP 500 錯誤需重試時，請在 Header 加入 UUID 格式的 <code>X-Line-Retry-Key</code>，避免用戶收到重複訊息！
+                        </p>
+                        <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 space-y-1">
+                            <p><strong>Header 範例：</strong><br><code>X-Line-Retry-Key: 123e4567-e89b-12d3-a456-426655440001</code></p>
+                            <p class="text-[11px] text-blue-700">※ 為減輕故障時伺服器負載，請務必使用 <strong>Exponential backoff (指數退避演算法)</strong> 控制重試間隔。</p>
+                        </div>
+                    </div>
+
+                    <!-- F: 請求相關限制 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 font-bold text-xs">注意事項 F</span>
+                        <h4 class="font-bold text-base text-slate-900">字數上限與 Rate Limit 速率限制</h4>
+                        <ul class="text-xs text-slate-600 space-y-2 leading-relaxed">
+                            <li>• <strong>文字長度上限：</strong>單則文字訊息上限為 <strong>5,000 個字</strong>（超過會回傳 <code>Length must be between 0 and 5000</code>）。</li>
+                            <li>• <strong>超出速率限制：</strong>短時間大量請求會回傳 <code>The API rate limit has been exceeded. Try again later.</code></li>
+                            <li>• <strong>嚴禁線上壓測：</strong>無論正式或測試帳號，請避免對 LINE 發送大量測試請求，負載測試請在自家封閉環境實施。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- G, H, I: Reply vs Push、HTTPS TLS 1.2 與 CDN 負載均衡 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- G: Reply vs Push -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <h4 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane text-line"></i>
+                            G) 回應 (Reply) 訊息 vs 推播 (Push) 訊息
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1.5">
+                                <span class="font-bold text-emerald-900 text-sm block">Reply API (回應訊息)</span>
+                                <p class="text-slate-700">針對用戶觸發的 Webhook event，使用事件內附帶的 <code>replyToken</code> 進行回覆。</p>
+                                <ul class="list-disc pl-4 text-emerald-800 font-medium space-y-0.5 pt-1">
+                                    <li>一定時間內未使用即失效</li>
+                                    <li>請設定為即時回覆</li>
+                                    <li><strong>每個 replyToken 只能使用 1 次</strong></li>
+                                </ul>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                                <span class="font-bold text-slate-900 text-sm block">Push API (主動推播)</span>
+                                <p class="text-slate-700">無論是否有來自用戶的訊息，都可以在<strong>任意時間點</strong>，指定 <code>userId</code>、群組或聊天室 ID 發送訊息。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- H & I: HTTPS TLS 1.2 & 大量 Access 處理 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <h4 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-photo-film text-line"></i>
+                            H) HTTPS 媒體規範 & I) 大量 Access 防護
+                        </h4>
+                        <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <strong class="text-slate-900 block mb-1">H) 媒體資源必須使用 HTTPS (TLS 1.2 以上)：</strong>
+                                發送 Image、Video、Audio、Imagemap、Template、Flex Message 時，物件內指定的 <code>originalContentUrl</code> 或 <code>previewImageUrl</code> 必須為 <strong>HTTPS over TLS 1.2 以上</strong>（符合 Apple iOS 指南方針），否則內容將無法正常顯示。
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-red-50/50 border border-red-200">
+                                <strong class="text-red-900 block mb-1">I) 防範 502 Bad Gateway (管理圖片/影片 URL 的伺服器)：</strong>
+                                當向大量用戶群發含圖片/影片的訊息時，所有用戶端手機會瞬間同時造訪您的媒體伺服器。請務必配置 <strong>CDN 或 Load Balancer 負載均衡機制</strong>，並採<strong>分批逐步發送</strong>，避免託管圖片的伺服器因瞬間流量崩潰回傳 HTTP 502。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 CHAPTER 04: LINE Login 整合與官方帳號綁定
+            =========================================== -->
+            <section id="ch4" class="scroll-mt-20 space-y-8 searchable-section">
+                <div class="border-b border-slate-200 pb-4 flex items-center gap-3">
+                    <span class="px-3 py-1 rounded-xl bg-line text-white font-bold text-sm">Chapter 04</span>
+                    <h2 class="text-2xl font-bold text-slate-900">LINE Login 驗證授權與帳號綁定機制</h2>
+                </div>
+
+                <!-- LINE Login 6 大步驟卡片 (對應 PDF Page 34-40) -->
+                <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">LINE Login OAuth 2.0 & OpenID Connect 標準 6 步驟</h3>
+                        <p class="text-xs text-slate-600 mt-1">
+                            透過 LINE Login，企業網站或 App 可取得用戶的 <code>userId</code>，進而與企業會員 DB 建立關聯性（帳號綁定）。注意：若用戶使用外部瀏覽器以帳號密碼登入，用戶必須事先在 LINE App「我的帳號」中註冊電子郵件與密碼。
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                            <span class="px-2 py-0.5 rounded bg-line text-white font-bold">步驟 (1) 設定 Callback URL</span>
+                            <p class="text-slate-700">於 Console 的 LINE Login 頁面設定驗證後的重定向網址。<strong>必須為 HTTPS</strong>，多個 URL 請以<strong>換行</strong>分隔（最多 400 行，每行不超過 1000 字元）。</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                            <span class="px-2 py-0.5 rounded bg-line text-white font-bold">步驟 (2) 導向授權 URL</span>
+                            <p class="text-slate-700">產生唯一隨機的 <code>state</code> 值（防止 CSRF 跨站請求偽造，<strong>嚴禁使用固定值或易猜測值</strong>），將用戶導向 <code>https://access.line.me/oauth2/v2.1/authorize</code>。</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                            <span class="px-2 py-0.5 rounded bg-line text-white font-bold">步驟 (3) 重新導向並驗證 state</span>
+                            <p class="text-slate-700">用戶同意授權後，頁面帶回 <code>code</code>、<code>state</code> 與 <code>friendship_status_changed</code>。後端<strong>務必先比對 <code>state</code> 是否與步驟 2 一致</strong>！</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                            <span class="px-2 py-0.5 rounded bg-line text-white font-bold">步驟 (4) 取得 Access Token</span>
+                            <p class="text-slate-700">使用 <code>code</code> 向 <code>POST https://api.line.me/oauth2/v2.1/token</code> (<code>application/x-www-form-urlencoded</code>) 換取 <code>access_token</code> 與 <code>id_token</code>。</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                            <span class="px-2 py-0.5 rounded bg-line text-white font-bold">步驟 (5) 解析與驗證 ID Token</span>
+                            <p class="text-slate-700">當 <code>scope</code> 包含 <code>openid</code> 時會回傳符合 OIDC 規格的 <code>id_token</code>。請以簽章與 <code>nonce</code> 驗證。<strong>※電話號碼與 Email 只能從 ID Token 解碼取得</strong>（電話號碼需另外申請權限）。</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                            <span class="px-2 py-0.5 rounded bg-line text-white font-bold">步驟 (6) 取得個人資料與綁定</span>
+                            <p class="text-slate-700">或呼叫 <code>GET https://api.line.me/v2/profile</code> 取得 <code>userId</code>，最後將 <code>userId</code> 與企業會員 DB 的帳號建立關聯性。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 互動工具：LINE Login 授權 URL 產生器 + 自動加入好友說明 -->
+                <div id="login-url-builder" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6 scroll-mt-24">
+                    <div>
+                        <span class="text-xs font-bold text-line uppercase tracking-wider">Interactive Builder (對應指南 Page 35 & 43-47)</span>
+                        <h3 class="text-lg font-bold text-slate-900 mt-0.5">LINE Login 授權 URL 產生器（含「自動加入好友」參數設定）</h3>
+                        <p class="text-xs text-slate-600 mt-1">
+                            透過在 Console 將 LINE Login Channel 與同一個 Provider 下的 Bot 進行連結 (Linked OA)，並在授權 URL 加入 <code>bot_prompt</code> 參數，即可讓用戶在登入同時將官方帳號加為好友（甚至解除封鎖）！
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 表單輸入 -->
+                        <div class="space-y-3.5 text-xs">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="font-bold text-slate-700 block mb-1">Client ID (Channel ID)</label>
+                                    <input type="text" id="login-client-id" value="1234567890" oninput="buildLoginUrl()" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-line outline-none">
+                                </div>
+                                <div>
+                                    <label class="font-bold text-slate-700 block mb-1">State (防 CSRF 隨機唯一值)</label>
+                                    <div class="flex gap-1.5">
+                                        <input type="text" id="login-state" value="state_9f8a7b6c" oninput="buildLoginUrl()" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-line outline-none font-mono">
+                                        <button onclick="generateRandomState()" title="重新產生隨機 State" class="px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold">
+                                            <i class="fa-solid fa-dice"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="font-bold text-slate-700 block mb-1">Redirect URI (必須與 Console 設定完全一致)</label>
+                                <input type="text" id="login-redirect" value="https://sample.com/auth" oninput="buildLoginUrl()" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-line outline-none">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="font-bold text-slate-700 block mb-1">Scope (權限範圍)</label>
+                                    <select id="login-scope" onchange="buildLoginUrl()" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-line outline-none">
+                                        <option value="openid profile email">openid profile email</option>
+                                        <option value="openid profile">openid profile</option>
+                                        <option value="profile">profile</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="font-bold text-slate-700 block mb-1">bot_prompt (加好友選項)</label>
+                                    <select id="login-bot-prompt" onchange="buildLoginUrl()" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-line outline-none">
+                                        <option value="normal">normal (在權限同意頁內顯示加好友開關)</option>
+                                        <option value="aggressive">aggressive (同意授權後獨立跳出加好友畫面)</option>
+                                        <option value="">不設定 (不顯示將 Bot 加入好友選項)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 產出結果與 Callback 解析說明 -->
+                        <div class="bg-slate-900 text-slate-100 p-5 rounded-2xl flex flex-col justify-between space-y-4">
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-emerald-400">產生的授權請求 URL：</span>
+                                    <button onclick="copyCode('generated-login-url')" class="text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200">
+                                        <i class="fa-regular fa-copy mr-1"></i>複製連結
+                                    </button>
+                                </div>
+                                <div id="generated-login-url" class="p-3 rounded-xl bg-slate-950 font-mono text-[11px] text-emerald-300 break-all leading-relaxed border border-slate-800"></div>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs space-y-1.5">
+                                <p class="font-bold text-white">📌 重新導向 Callback 參數 <code>friendship_status_changed</code> 解析：</p>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">
+                                    • <code>true</code>：透過本次登入，將官方帳號<strong>新加成好友</strong>或<strong>解除封鎖</strong>。<br>
+                                    • <code>false</code>：未勾選加好友、未解封鎖，或<strong>登入前原本就已經是好友</strong>。<br>
+                                    • <strong>不出現此參數</strong>：未設定 <code>bot_prompt</code> 或未顯示加好友選項時。<br>
+                                    • <strong>主動查詢好友狀態 API：</strong><code>GET https://api.line.me/friendship/v1/status</code> (回傳 <code>{"friendFlag": true}</code>)。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 補充：不同 OS 登入流程與轉換目標瀏覽器參數 (對應 PDF Page 50-53) -->
+                <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">LINE Login 補充：Auto Login 與轉換目標端瀏覽器設定方法</h3>
+                        <p class="text-xs text-slate-600 mt-1">
+                            當環境同時支援<strong>自動登入 (Auto Login)</strong> 與<strong>單一登入 (SSO Cookie)</strong> 時，LINE App 優先採用自動登入。此外，您可以透過 URL 查詢參數控制從 LINE 聊天室、Timeline 或 QR Code Reader 點擊連結時開啟的瀏覽器類型（注意 Android 與 iOS 規格不同）：
+                        </p>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                    <th class="py-3 px-4 font-bold">目標瀏覽器</th>
+                                    <th class="py-3 px-4 font-bold">URL 查詢參數設定方法</th>
+                                    <th class="py-3 px-4 font-bold">iOS 與 Android 平台差異注意事項</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 text-slate-700">
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-slate-900">應用程式內建瀏覽器 (In-App Browser)</td>
+                                    <td class="py-3 px-4"><code>不加任何參數</code></td>
+                                    <td class="py-3 px-4">※注意：若利用 <strong>Android 版 LINE 的 QR Code Reader</strong> 讀取無參數網址，會強制轉換至 <strong>Custom Tab</strong>；iOS 則皆進入 In-App Browser。</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-slate-900">外部瀏覽器 (External Browser: Safari / Chrome)</td>
+                                    <td class="py-3 px-4"><code class="px-2 py-0.5 bg-emerald-50 text-emerald-800 rounded font-mono">openExternalBrowser=1</code> (或 <code>true</code>)</td>
+                                    <td class="py-3 px-4">在 iOS 與 Android 上（無論從聊天室、Timeline 或 QR Code Reader 點擊），皆會自動開啟系統預設外部瀏覽器。</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-slate-900">Chrome Custom Tab</td>
+                                    <td class="py-3 px-4"><code class="px-2 py-0.5 bg-blue-50 text-blue-800 rounded font-mono">openInAppBrowser=0</code> (或 <code>false</code>)</td>
+                                    <td class="py-3 px-4"><strong>僅適用於 Android 版本的 LINE (8.15.0 以上)</strong>，從聊天室或 Timeline 點擊時會開啟 Custom Tab。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 CHAPTER 05: 其他相關功能 (URL Scheme / LIFF / 權限 / 貼圖與 Emoji)
+            =========================================== -->
+            <section id="ch5" class="scroll-mt-20 space-y-8 searchable-section">
+                <div class="border-b border-slate-200 pb-4 flex items-center gap-3">
+                    <span class="px-3 py-1 rounded-xl bg-line text-white font-bold text-sm">Chapter 05</span>
+                    <h2 class="text-2xl font-bold text-slate-900">其他相關功能 (URL Scheme、LIFF、權限與貼圖規範)</h2>
+                </div>
+
+                <!-- 互動工具：LINE URL Scheme 產生器 (對應 PDF Page 55) -->
+                <div id="url-scheme-tool" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6 scroll-mt-24">
+                    <div>
+                        <span class="text-xs font-bold text-line uppercase tracking-wider">Interactive Tool (對應指南 Page 55)</span>
+                        <h3 class="text-lg font-bold text-slate-900 mt-0.5">LINE URL Scheme 快速產生器 (自動 UTF-8 URL 編碼)</h3>
+                        <p class="text-xs text-slate-600 mt-1">
+                            LINE 提供 4 種常用的 URL Scheme。當傳遞包含中文字或多字節文字時，<strong>必須使用 UTF-8 進行 URL 編碼</strong>。請選擇功能並輸入文字自動生成標準連結：
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-4 text-xs">
+                            <div>
+                                <label class="font-bold text-slate-700 block mb-1">選擇 URL Scheme 類型</label>
+                                <select id="scheme-type" onchange="updateUrlScheme()" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-line outline-none font-medium">
+                                    <option value="oaMessage">A) 開啟官方帳號聊天室並預填文字 (oaMessage)</option>
+                                    <option value="addFriend">B) 開啟官方帳號加入好友畫面 / PC 顯示 QR Code (ti/p)</option>
+                                    <option value="shareText">C) 開啟分享畫面傳送指定文字給好友 (msg/text)</option>
+                                    <option value="location">D) 開啟分享位置資訊畫面 (nv/location - 僅限 1對1 與 Bot 聊天)</option>
+                                </select>
+                            </div>
+
+                            <div id="scheme-id-group">
+                                <label class="font-bold text-slate-700 block mb-1">官方帳號 LINE ID (請包含 @)</label>
+                                <input type="text" id="scheme-line-id" value="@linenews" oninput="updateUrlScheme()" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-line outline-none">
+                            </div>
+
+                            <div id="scheme-text-group">
+                                <label class="font-bold text-slate-700 block mb-1">預填或分享的文字訊息 (自動轉為 UTF-8 URL 編碼)</label>
+                                <input type="text" id="scheme-text" value="您好！我想查詢最新優惠活動" oninput="updateUrlScheme()" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-line outline-none">
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 text-slate-100 p-5 rounded-2xl flex flex-col justify-between space-y-4">
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-emerald-400">生成的 LINE URL Scheme：</span>
+                                    <button onclick="copyCode('scheme-result-url')" class="text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200">
+                                        <i class="fa-regular fa-copy mr-1"></i>複製連結
+                                    </button>
+                                </div>
+                                <div id="scheme-result-url" class="p-3.5 rounded-xl bg-slate-950 font-mono text-xs text-emerald-300 break-all border border-slate-800"></div>
+                            </div>
+                            <p id="scheme-desc" class="text-xs text-slate-300 leading-relaxed bg-slate-800/80 p-3 rounded-xl border border-slate-700"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LIFF、權限管理、貼圖與 Emoji (對應 PDF Page 56-59) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- LIFF -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-line flex items-center justify-center">
+                            <i class="fa-solid fa-window-restore text-lg"></i>
+                        </div>
+                        <h4 class="font-bold text-base text-slate-900">LIFF (LINE Front-end Framework)</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            在 LINE 平台內啟動的 Web App 平台。可從 LINE 平台直接取得 <code>userId</code>、<code>chatId</code> 及 Token，開發與用戶資訊連動或<strong>代替用戶將訊息發送到聊天室</strong>的應用程式。
+                        </p>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-700">
+                            啟動網址格式：<br>
+                            <span class="text-line-dark font-bold">https://liff.line.me/{liffId}</span>
+                        </div>
+                    </div>
+
+                    <!-- 權限管理 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <i class="fa-solid fa-user-shield text-lg"></i>
+                        </div>
+                        <h4 class="font-bold text-base text-slate-900">Console 角色權限管理 (Roles)</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            在 LINE Login 服務尚未公開 (Developing) 階段執行測試時，請先確認人員權限：
+                        </p>
+                        <ul class="text-xs text-slate-600 space-y-1.5">
+                            <li>• <strong class="text-slate-900">Admin：</strong>可執行該 Channel 所有操作（且自動具備 Tester 測試權限）。</li>
+                            <li>• <strong class="text-slate-900">Member：</strong>可查看基本資訊與統計資訊。</li>
+                            <li>• <strong class="text-slate-900">Tester：</strong>可查看 Channel 名稱，並<strong>可在「非公開狀態」的 Channel 上進行測試</strong>。</li>
+                        </ul>
+                    </div>
+
+                    <!-- 貼圖與 Emoji -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                            <i class="fa-regular fa-face-smile-wink text-lg"></i>
+                        </div>
+                        <h4 class="font-bold text-base text-slate-900">貼圖 (Sticker) 與 Emoji 規範</h4>
+                        <ul class="text-xs text-slate-600 space-y-2 leading-relaxed">
+                            <li>• <strong>官方帳號可發送的 2 種貼圖：</strong><br>
+                                (A) 官方預設貼圖（依 ID 對應表發送）<br>
+                                (B) 企業提供且自家公司擁有授權的貼圖（<strong>需先向 LINE 業務申請設定白名單</strong>才可發送）。</li>
+                            <li>• <strong>接收 LINE Emoji 注意事項：</strong><br>
+                                用戶傳送 Emoji 時，Webhook 會收到如 <code>(full moon)</code> 字串與 <code>emojis</code> 陣列。但<strong>從 Android 版 LINE 發送的預設 Emoji 不會包含在內</strong>，且舊版或 Unicode Emoji 可能無法正確取得。</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 全域複製成功 Toast 提示框 (不使用 alert) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-slate-900 text-white text-xs font-semibold shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2 pointer-events-none">
+        <i class="fa-solid fa-circle-check text-line text-base"></i>
+        <span id="toast-msg">已成功複製到剪貼簿！</span>
+    </div>
+
+    <script>
+        // 1. 架構圖節點說明資料
+        const archDetails = {
+            app: '<strong>LINE App (用戶端)：</strong>當用戶加入好友、傳送訊息或封鎖時，訊號會先送往 LINE Platform 的 Talk Server；企業也能透過 API 將訊息經由平台推播回用戶的 LINE App。',
+            talk: '<strong>Talk Server (LINE Platform)：</strong>LINE 平台內部負責實際處理與用戶聊天室訊息收發的核心伺服器。',
+            gw: '<strong>Channel Gateway Server (GW Server)：</strong>負責將從 Talk Server 收到的事件轉發至客戶端 Bot Server (Webhook)，或接收客戶端發出的 API 請求（需驗證 Channel Access Token）並轉交給 Talk Server。注意：嚴禁對 GW Server 進行壓力測試！',
+            bot: '<strong>Bot Server (客戶端系統)：</strong>架設於開發者端的伺服器，必須配置受信任 CA 簽發的 SSL/TLS 憑證，並在接收到 Webhook 請求時於 <strong>1000 毫秒 (1秒) 內回傳 HTTP 200 OK</strong>，同時驗證 <code>x-line-signature</code>。',
+            db: '<strong>後端處理 Server / 會員 DB (客戶端系統)：</strong>負責處理非同步商業邏輯、儲存 <code>userId</code> 與企業會員資料綁定，並注意當用戶封鎖帳號時，原則上需於 24 小時內刪除帳號管理上不需要的資訊。'
+        };
+
+        function showArchDetail(key) {
+            const contentEl = document.getElementById('arch-detail-content');
+            if (contentEl && archDetails[key]) {
+                contentEl.innerHTML = archDetails[key];
+            }
+        }
+
+        // 2. 發布前確認清單進度計算
+        const checkboxes = document.querySelectorAll('.release-check');
+        const progressText = document.getElementById('sidebar-progress-text');
+        const progressBar = document.getElementById('sidebar-progress-bar');
+
+        function updateChecklistProgress() {
+            const total = checkboxes.length;
+            let checked = 0;
+            checkboxes.forEach(cb => { if (cb.checked) checked++; });
+            progressText.textContent = `${checked} / ${total}`;
+            progressBar.style.width = `${(checked / total) * 100}%`;
+        }
+
+        checkboxes.forEach(cb => cb.addEventListener('change', updateChecklistProgress));
+
+        function resetChecklist() {
+            checkboxes.forEach(cb => cb.checked = false);
+            updateChecklistProgress();
+            showToast('已重置發布前檢核清單');
+        }
+
+        // 3. Webhook ON/OFF 設定組合模擬器 (對應 PDF Page 16)
+        function updateWebhookMatrix() {
+            const useWebhook = document.getElementById('toggle-webhook').checked;
+            const useAutoReply = document.getElementById('toggle-autoreply').checked;
+            const resultBox = document.getElementById('webhook-matrix-result');
+
+            if (useWebhook && useAutoReply) {
+                resultBox.className = 'p-6 rounded-2xl border-2 border-blue-500 bg-blue-50/50 space-y-2 transition-all';
+                resultBox.innerHTML = `
+                    <span class="px-2.5 py-1 rounded-full bg-blue-600 text-white text-xs font-bold">模式 ①：混合使用 (Webhook + 後台自動回應)</span>
+                    <h4 class="font-bold text-base text-slate-900 pt-1">「使用」Webhook 發送 ＋「使用」自動回應/歡迎訊息</h4>
+                    <p class="text-xs text-slate-700 leading-relaxed">
+                        Messaging API (Bot Server) <strong>會接收到 Webhook 請求</strong>，同時系統也會向用戶回傳登錄於 <strong>LINE Official Account Manager</strong> 的自動回應訊息與加入好友歡迎訊息。
+                    </p>
+                `;
+            } else if (useWebhook && !useAutoReply) {
+                resultBox.className = 'p-6 rounded-2xl border-2 border-line bg-line-light/40 space-y-2 transition-all';
+                resultBox.innerHTML = `
+                    <span class="px-2.5 py-1 rounded-full bg-line text-white text-xs font-bold">模式 ②：標準純 Bot API 模式 (最推薦)</span>
+                    <h4 class="font-bold text-base text-slate-900 pt-1">「使用」Webhook 發送 ＋「不使用」自動回應/歡迎訊息</h4>
+                    <p class="text-xs text-slate-700 leading-relaxed">
+                        Messaging API <strong>會接收 Webhook 請求</strong>，並且完全交由您的 <strong>Bot Server 透過 API</strong> 回應訊息給用戶（後台預設自動回應不會干擾）。
+                    </p>
+                `;
+            } else if (!useWebhook && useAutoReply) {
+                resultBox.className = 'p-6 rounded-2xl border-2 border-amber-500 bg-amber-50/50 space-y-2 transition-all';
+                resultBox.innerHTML = `
+                    <span class="px-2.5 py-1 rounded-full bg-amber-600 text-white text-xs font-bold">模式 ③：純官方帳號後台模式 (不使用 API)</span>
+                    <h4 class="font-bold text-base text-slate-900 pt-1">「不使用」Webhook 發送 ＋「使用」自動回應/歡迎訊息</h4>
+                    <p class="text-xs text-slate-700 leading-relaxed">
+                        Messaging API <strong>不接收任何請求</strong>，完全使用登錄於 LINE Official Account Manager 後台的各種設定訊息進行回應。
+                    </p>
+                `;
+            } else {
+                resultBox.className = 'p-6 rounded-2xl border-2 border-red-500 bg-red-50 space-y-2 transition-all';
+                resultBox.innerHTML = `
+                    <span class="px-2.5 py-1 rounded-full bg-red-600 text-white text-xs font-bold"><i class="fa-solid fa-ban mr-1"></i>模式 ④：禁止使用的組合！</span>
+                    <h4 class="font-bold text-base text-red-900 pt-1">「不使用」Webhook 發送 ＋「不使用」自動回應/歡迎訊息</h4>
+                    <p class="text-xs text-red-800 leading-relaxed font-medium">
+                        Messaging API 不接收請求，也不使用 LINE Official Account Manager，導致<strong>完全不向用戶回應任何訊息。此項設定在官方規範中是不允許的，請勿使用這樣的組合！</strong>
+                    </p>
+                `;
+            }
+        }
+
+        // 4. LINE Login 授權 URL 產生器
+        function generateRandomState() {
+            const randomStr = 'st_' + Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 6);
+            document.getElementById('login-state').value = randomStr;
+            buildLoginUrl();
+        }
+
+        function buildLoginUrl() {
+            const clientId = document.getElementById('login-client-id').value.trim() || '1234567890';
+            const state = document.getElementById('login-state').value.trim() || 'random_state';
+            const redirectUri = encodeURIComponent(document.getElementById('login-redirect').value.trim() || 'https://sample.com/auth');
+            const scope = encodeURIComponent(document.getElementById('login-scope').value);
+            const botPrompt = document.getElementById('login-bot-prompt').value;
+
+            let url = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${redirectUri}&state=${encodeURIComponent(state)}&scope=${scope}&nonce=09876xyz`;
+            if (botPrompt) {
+                url += `&bot_prompt=${botPrompt}`;
+            }
+            document.getElementById('generated-login-url').textContent = url;
+        }
+
+        // 5. LINE URL Scheme 產生器
+        function updateUrlScheme() {
+            const type = document.getElementById('scheme-type').value;
+            const idGroup = document.getElementById('scheme-id-group');
+            const textGroup = document.getElementById('scheme-text-group');
+            const lineId = document.getElementById('scheme-line-id').value.trim() || '@linenews';
+            const text = document.getElementById('scheme-text').value;
+            const encodedText = encodeURIComponent(text);
+
+            const resultEl = document.getElementById('scheme-result-url');
+            const descEl = document.getElementById('scheme-desc');
+
+            if (type === 'oaMessage') {
+                idGroup.classList.remove('hidden');
+                textGroup.classList.remove('hidden');
+                resultEl.textContent = `https://line.me/R/oaMessage/${lineId}/?${encodedText}`;
+                descEl.innerHTML = '點擊連結會開啟該官方帳號的聊天畫面，且指定的文字將自動出現在輸入欄內（若尚未加好友會先顯示加好友畫面）。';
+            } else if (type === 'addFriend') {
+                idGroup.classList.remove('hidden');
+                textGroup.classList.add('hidden');
+                resultEl.textContent = `https://line.me/R/ti/p/${lineId}`;
+                descEl.innerHTML = '點擊連結直接進入該官方帳號的加入好友畫面；若用戶從 PC 電腦開啟此頁面，將自動顯示 QR Code。';
+            } else if (type === 'shareText') {
+                idGroup.classList.add('hidden');
+                textGroup.classList.remove('hidden');
+                resultEl.textContent = `https://line.me/R/msg/text/?${encodedText}`;
+                descEl.innerHTML = '開啟 LINE 的好友/群組選擇畫面，將指定的 UTF-8 編碼文字分享出去（亦可使用 <code>https://line.me/R/share?text=...</code>）。';
+            } else {
+                idGroup.classList.add('hidden');
+                textGroup.classList.add('hidden');
+                resultEl.textContent = `https://line.me/R/nv/location/`;
+                descEl.innerHTML = '在與用戶的聊天畫面上開啟分享位置資訊的地圖畫面。<strong>※注意：此 Scheme 不支援 1對1 和 Bot 聊天室以外的形式或 LIFF Apps。</strong>';
+            }
+        }
+
+        // 6. 剪貼簿複製與 Toast 提示
+        function copyCode(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('已複製到剪貼簿！');
+            } catch (err) {
+                showToast('複製失敗，請手動選取複製');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        // 7. 手機版側邊欄開關與即時關鍵字搜尋
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+
+        function toggleSidebar() {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        mobileBtn.addEventListener('click', toggleSidebar);
+        backdrop.addEventListener('click', toggleSidebar);
+        document.querySelectorAll('#sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 1024) toggleSidebar();
+            });
+        });
+
+        // 關鍵字篩選高亮
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            const q = e.target.value.trim().toLowerCase();
+            const sections = document.querySelectorAll('.searchable-section');
+            sections.forEach(sec => {
+                if (!q || sec.innerText.toLowerCase().includes(q)) {
+                    sec.classList.remove('hidden');
+                } else {
+                    sec.classList.add('hidden');
+                }
+            });
+        });
+
+        // 初始化所有互動元件
+        window.onload = function() {
+            updateWebhookMatrix();
+            buildLoginUrl();
+            updateUrlScheme();
+            updateChecklistProgress();
+        };
+    </script>
+</body>
+</html>

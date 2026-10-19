@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINE Messaging API 申請與設定完整互動教學</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        line: {
+                            DEFAULT: '#06C755',
+                            dark: '#05a346',
+                            light: '#e6f9ee',
+                            navy: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar and transitions */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .step-card { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .step-card.completed { border-color: #06C755; background-color: #f8fafc; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-line selection:text-white">
+
+    <!-- Top Sticky Progress Navbar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+                <a href="project_linebot.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition border border-emerald-300">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    回專題主頁
+                </a>
+                <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition border border-slate-300">
+                    首頁
+                </a>
+            </div>
+
+                <div class="w-10 h-10 rounded-xl bg-line flex items-center justify-center text-white font-bold text-xl shadow-sm shadow-line/30">
+                    L
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 text-base sm:text-lg leading-tight">LINE Messaging API 實戰指南</h1>
+                    <p class="text-xs text-slate-500 hidden sm:block">從零建立官方帳號、取得金鑰到串接 Webhook 的逐步教學</p>
+                </div>
+            </div>
+
+            <!-- Interactive Progress Tracker -->
+            <div class="flex items-center gap-4 min-w-[180px] sm:min-w-[260px]">
+                <div class="flex-1">
+                    <div class="flex justify-between text-xs font-medium mb-1">
+                        <span class="text-slate-600">設定完成度</span>
+                        <span id="progress-text" class="text-line font-bold">0% (0/9)</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                        <div id="progress-bar" class="h-full bg-line transition-all duration-500 ease-out rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <button onclick="resetProgress()" title="重置進度" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors text-xs">
+                    重置
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="bg-gradient-to-b from-slate-900 to-slate-800 text-white py-10 sm:py-14 border-b border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-line/20 border border-line/40 text-line-light text-xs font-medium mb-4">
+                    <span class="w-2 h-2 rounded-full bg-line animate-pulse"></span>
+                    Step-by-Step 互動式檢查表
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-bold tracking-tight mb-4 leading-snug">
+                    申請 LINE Messaging API 完整步驟教學
+                </h2>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">
+                    申請 LINE Messaging API 需先建立 <strong>LINE 官方帳號 (LINE OA)</strong>，再透過官方帳號後台啟用服務，最後前往 <strong>LINE Developers Console</strong> 取得金鑰並設定 Webhook。請跟著下方步驟逐一勾選完成！
+                </p>
+                
+                <!-- Architecture Quick Flow -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs">
+                    <a href="#step-1" class="bg-slate-800/90 hover:bg-slate-700/80 border border-slate-700 rounded-xl p-3 transition flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full bg-line text-white font-bold flex items-center justify-center shrink-0">1</span>
+                        <div>
+                            <div class="font-semibold text-white">建立官方帳號</div>
+                            <div class="text-slate-400">LINE OA Manager</div>
+                        </div>
+                    </a>
+                    <a href="#step-2" class="bg-slate-800/90 hover:bg-slate-700/80 border border-slate-700 rounded-xl p-3 transition flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full bg-line text-white font-bold flex items-center justify-center shrink-0">2</span>
+                        <div>
+                            <div class="font-semibold text-white">啟用 API 服務</div>
+                            <div class="text-slate-400">綁定 Provider</div>
+                        </div>
+                    </a>
+                    <a href="#step-3" class="bg-slate-800/90 hover:bg-slate-700/80 border border-slate-700 rounded-xl p-3 transition flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full bg-line text-white font-bold flex items-center justify-center shrink-0">3</span>
+                        <div>
+                            <div class="font-semibold text-white">取得憑證與設定</div>
+                            <div class="text-slate-400">Secret / Token / Webhook</div>
+                        </div>
+                    </a>
+                    <a href="#step-4" class="bg-slate-800/90 hover:bg-slate-700/80 border border-slate-700 rounded-xl p-3 transition flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full bg-line text-white font-bold flex items-center justify-center shrink-0">4</span>
+                        <div>
+                            <div class="font-semibold text-white">關閉預設回應</div>
+                            <div class="text-slate-400">開啟 Webhook 開關</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Layout -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Sidebar: Navigation & Credential Notepad (Sticky on Desktop) -->
+            <aside class="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
+                <!-- Quick Portal Links -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-line" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                        官方後台快速入口
+                    </h3>
+                    <div class="space-y-2.5">
+                        <a href="https://manager.line.biz/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-700 bg-slate-50 hover:bg-line-light hover:text-line-dark border border-slate-200 rounded-xl transition">
+                            <span>1. LINE Official Account Manager</span>
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                        <a href="https://developers.line.biz/console/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-700 bg-slate-50 hover:bg-line-light hover:text-line-dark border border-slate-200 rounded-xl transition">
+                            <span>2. LINE Developers Console</span>
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Temporary Credential Notepad (Client-side only) -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                            金鑰暫存記事本 (自動帶入下方程式碼)
+                        </h3>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4">在步驟中取得的憑證可暫貼於此，系統會自動幫您替換進下方的測試程式碼中（僅存於您的瀏覽器記憶體）。</p>
+                    
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Channel Secret</label>
+                            <input type="text" id="input-secret" oninput="updateCodePreview()" placeholder="貼上 32 碼 Channel Secret..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-line focus:bg-white font-mono text-xs">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Channel Access Token</label>
+                            <input type="text" id="input-token" oninput="updateCodePreview()" placeholder="貼上長字串 Access Token..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-line focus:bg-white font-mono text-xs">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">您的 Webhook URL</label>
+                            <input type="text" id="input-webhook" oninput="updateCodePreview()" placeholder="https://your-domain.com/webhook" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-line focus:bg-white font-mono text-xs">
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Main Column: Step-by-Step Guide -->
+            <div class="lg:col-span-8 space-y-8">
+
+                <!-- STEP 1 -->
+                <section id="step-1" class="step-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-lg bg-line text-white font-bold flex items-center justify-center text-sm">步驟 1</span>
+                            <div>
+                                <h3 class="font-bold text-base sm:text-lg">建立 LINE 官方帳號 (LINE OA)</h3>
+                                <p class="text-xs text-slate-400">所有機器人都是以一個「LINE 官方帳號」作為與使用者聊天的窗口</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700">約 3 分鐘</span>
+                    </div>
+
+                    <div class="p-6 space-y-6">
+                        <!-- Checklist items for Step 1 -->
+                        <div class="space-y-3">
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition select-none">
+                                <input type="checkbox" class="step-checkbox mt-1 w-4 h-4 accent-line rounded cursor-pointer" onchange="updateProgress()">
+                                <div class="text-sm">
+                                    <span class="font-semibold text-slate-900">1-1. 前往管理後台並登入：</span>
+                                    <span class="text-slate-600">造訪 <a href="https://manager.line.biz/" target="_blank" class="text-line font-medium underline">LINE Official Account Manager</a>，點選「使用 LINE 帳號登入」並輸入您個人的 LINE 帳密。</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition select-none">
+                                <input type="checkbox" class="step-checkbox mt-1 w-4 h-4 accent-line rounded cursor-pointer" onchange="updateProgress()">
+                                <div class="text-sm">
+                                    <span class="font-semibold text-slate-900">1-2. 點選「建立」並填寫基本資料：</span>
+                                    <span class="text-slate-600">進入後台後點選「建立 LINE 官方帳號」，依序填寫<strong>帳號名稱</strong>（即機器人顯示名稱）、<strong>公司／經營者名稱</strong>、<strong>業種／業態</strong>等必填欄位後送出。</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Simulated UI Mockup for Step 1 -->
+                        <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-line" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                畫面示意：建立 LINE 官方帳號表單
+                            </div>
+                            <div class="bg-white rounded-lg border border-slate-200 p-4 max-w-md mx-auto shadow-xs space-y-3 text-xs">
+                                <div class="flex justify-between items-center border-b pb-2">
+                                    <span class="font-bold text-slate-800">建立 LINE 官方帳號</span>
+                                    <span class="text-[11px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-medium">必填欄位示範</span>
+                                </div>
+                                <div>
+                                    <div class="text-slate-600 font-medium mb-1">帳號名稱 <span class="text-red-500">*</span></div>
+                                    <div class="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded text-slate-800">我的智慧客服機器人</div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <div class="text-slate-600 font-medium mb-1">主要業種 <span class="text-red-500">*</span></div>
+                                        <div class="px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded text-slate-700">網站・網路服務</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-slate-600 font-medium mb-1">次要業種 <span class="text-red-500">*</span></div>
+                                        <div class="px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded text-slate-700">IT・通訊</div>
+                                    </div>
+                                </div>
+                                <div class="pt-1">
+                                    <div class="w-full py-2 bg-line text-white text-center font-bold rounded">確定建立</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STEP 2 -->
+                <section id="step-2" class="step-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-lg bg-line text-white font-bold flex items-center justify-center text-sm">步驟 2</span>
+                            <div>
+                                <h3 class="font-bold text-base sm:text-lg">在官方帳號後台啟用 Messaging API</h3>
+                                <p class="text-xs text-slate-400">將一般官方帳號升級為可透過程式控制的 Messaging API Channel</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700">關鍵步驟</span>
+                    </div>
+
+                    <div class="p-6 space-y-6">
+                        <div class="space-y-3">
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition select-none">
+                                <input type="checkbox" class="step-checkbox mt-1 w-4 h-4 accent-line rounded cursor-pointer" onchange="updateProgress()">
+                                <div class="text-sm">
+                                    <span class="font-semibold text-slate-900">2-1. 進入「設定」>「Messaging API」：</span>
+                                    <span class="text-slate-600">在 LINE 官方帳號後台右上角點選齒輪圖示「<strong>設定 (Settings)</strong>」，接著在左側選單找到並點擊「<strong>Messaging API</strong>」。</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition select-none">
+                                <input type="checkbox" class="step-checkbox mt-1 w-4 h-4 accent-line rounded cursor-pointer" onchange="updateProgress()">
+                                <div class="text-sm">
+                                    <span class="font-semibold text-slate-900">2-2. 點選「啟用 Messaging API」並綁定服務提供者 (Provider)：</span>
+                                    <span class="text-slate-600">點擊綠色「啟用 Messaging API」按鈕。系統會要求選擇或建立一個 <strong>Provider（服務提供者，代表您的組織、公司或個人開發者名稱，例如 `MyDevTeam`）</strong>。</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Visual Mockup of OA Manager Settings -->
+                        <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                                畫面導引：官方帳號後台 > 右上角「設定」> 左側「Messaging API」
+                            </div>
+                            <div class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-xs text-xs">
+                                <div class="bg-slate-800 text-white px-4 py-2 flex justify-between items-center">
+                                    <span class="font-bold">LINE Official Account Manager</span>
+                                    <span class="bg-line px-2 py-0.5 rounded text-[11px] font-semibold">⚙ 設定 (右上角)</span>
+                                </div>
+                                <div class="grid grid-cols-12 min-h-[150px]">
+                                    <div class="col-span-4 border-r border-slate-200 bg-slate-50 p-2 space-y-1">
+                                        <div class="px-2 py-1.5 text-slate-500">帳號設定</div>
+                                        <div class="px-2 py-1.5 text-slate-500">權限管理</div>
+                                        <div class="px-2 py-1.5 text-slate-500">回應設定</div>
+                                        <div class="px-2 py-1.5 bg-line/15 text-line-dark font-bold rounded border-l-4 border-line">Messaging API</div>
+                                    </div>
+                                    <div class="col-span-8 p-4 flex flex-col justify-center items-start">
+                                        <div class="font-bold text-slate-800 text-sm mb-1">Messaging API 狀態：未啟用</div>
+                                        <p class="text-slate-500 mb-3">啟用 Messaging API 即可透過開發人員控制台串接您自己的伺服器。</p>
+                                        <span class="px-4 py-2 bg-line text-white font-bold rounded shadow-xs">啟用 Messaging API</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Warning Callout -->
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 text-xs sm:text-sm text-amber-900">
+                            <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <div>
+                                <span class="font-bold">重要提醒：</span>如果您是第一次進入 LINE Developers，系統會先請您輸入開發者名稱與 Email 來註冊開發者帳號；且<strong>一旦綁定 Provider 後就無法更換至其他 Provider</strong>，請確認選擇正確的團隊或個人 Provider。
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STEP 3 -->
+                <section id="step-3" class="step-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-lg bg-line text-white font-bold flex items-center justify-center text-sm">步驟 3</span>
+                            <div>
+                                <h3 class="font-bold text-base sm:text-lg">取得 API 金鑰與設定 Webhook URL</h3>
+                                <p class="text-xs text-slate-400">前往 LINE Developers Console 取得兩把重要憑證並填入伺服器網址</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700">LINE Developers Console</span>
+                    </div>
+
+                    <div class="p-6 space-y-6">
+                        <p class="text-sm text-slate-600">
+                            啟用完成後，請前往 <a href="https://developers.line.biz/console/" target="_blank" class="text-line font-semibold underline">LINE Developers Console</a>，點選剛剛選擇的 <strong>Provider</strong>，再點選您的 <strong>Messaging API Channel</strong>。您會看到上方有多個分頁標籤：
+                        </p>
+
+                        <!-- Interactive Console Simulator Tabs -->
+                        <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                            <div class="bg-slate-200/70 px-4 pt-3 border-b border-slate-200 flex gap-2">
+                                <button onclick="switchConsoleTab('basic')" id="tab-btn-basic" class="px-4 py-2 text-xs sm:text-sm font-bold rounded-t-lg bg-white text-line border-t border-x border-slate-200">
+                                    ① Basic settings 分頁 (取 Secret)
+                                </button>
+                                <button onclick="switchConsoleTab('messaging')" id="tab-btn-messaging" class="px-4 py-2 text-xs sm:text-sm font-medium rounded-t-lg text-slate-600 hover:text-slate-900">
+                                    ② Messaging API 分頁 (取 Token & 設 Webhook)
+                                </button>
+                            </div>
+
+                            <!-- Tab 1: Basic Settings -->
+                            <div id="tab-content-basic" class="p-5 bg-white space-y-3 text-xs sm:text-sm">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-slate-800">位置：Basic settings 分頁最下方</span>
+                                    <span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-medium">用於驗證訊息來源簽章 (Signature)</span>
+                                </div>
+                                <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+                                    <div class="font-semibold text-slate-700">Channel secret</div>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <code class="px-3 py-1.5 bg-slate-900 text-emerald-400 rounded font-mono text-xs">4f9b8c7d6e5a4f3b2c1d0e9f8a7b6c5d</code>
+                                        <span class="px-2.5 py-1 bg-slate-200 text-slate-700 rounded text-xs font-medium">Issue (若需要重發)</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 pt-1">請複製這串 32 碼的密鑰，並貼到左側「金鑰暫存記事本」的 Channel Secret 欄位。</p>
+                                </div>
+                            </div>
+
+                            <!-- Tab 2: Messaging API -->
+                            <div id="tab-content-messaging" class="p-5 bg-white space-y-4 text-xs sm:text-sm hidden">
+                                <!-- Webhook Section -->
+                                <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2.5">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-slate-800">A. Webhook settings (中段區塊)</span>
+                                        <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">必須是 HTTPS 網址</span>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-slate-500 mb-1">Webhook URL</div>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <code class="px-3 py-1.5 bg-white border border-slate-300 text-slate-800 rounded font-mono text-xs flex-1">https://your-server.example.com/callback</code>
+                                            <span class="px-3 py-1.5 bg-slate-800 text-white rounded text-xs font-semibold">Verify (測試連線)</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between pt-2 border-t border-slate-200">
+                                        <div>
+                                            <div class="font-semibold text-slate-800">Use webhook (啟用 Webhook)</div>
+                                            <div class="text-xs text-slate-500">一定要把這個綠色開關打開，LINE 才會把訊息轉發到您的伺服器！</div>
+                                        </div>
+                                        <div class="w-11 h-6 bg-line rounded-full relative flex items-center px-1">
+                                            <div class="w-4 h-4 bg-white rounded-full ml-auto shadow"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Channel Access Token Section -->
+                                <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-slate-800">B. Channel access token (long-lived) (最底部區塊)</span>
+                                        <span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-medium">用於發送/回覆訊息</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600">捲動到頁面最下方，點選 <strong>「Issue」</strong> 按鈕即可產生一組長效期的存取權杖 (Token)。</p>
+                                    <div class="flex items-center gap-2">
+                                        <code class="px-3 py-1.5 bg-slate-900 text-emerald-400 rounded font-mono text-xs truncate">eyJhbGciOiJIUzI1NiJ9.eyJjaGFubmVsSWQiOjE2...</code>
+                                        <span class="px-3 py-1.5 bg-line text-white rounded text-xs font-semibold shrink-0">Issue</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Checklist for Step 3 -->
+                        <div class="space-y-3">
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition select-none">
+                                <input type="checkbox" class="step-checkbox mt-1 w-4 h-4 accent-line rounded cursor-pointer" onchange="updateProgress()">
+                                <div class="text-sm">
+                                    <span class="font-semibold text-slate-900">3-1. 取得 Channel Secret：</span>
+                                    <span class="text-slate-600">於 LINE Developers Console 的 <strong>Basic settings</strong> 分頁底部複製 `Channel secret`。</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition select-none">
+                                <input type="checkbox" class="step-checkbox mt-1 w-4 h-4 accent-line rounded cursor-pointer" onchange="updateProgress()">
+                                <div class="text-sm">
+                                    <span class="font-semibold text-slate-900">3-2. 產生並取得 Channel Access Token：</span>
+                                    <span class="text-slate-600">切換至 <strong>Messaging API</strong> 分頁最下方，點選 `Issue` 產生並複製 `Channel access token (long-lived)`。</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition select-none">
+                                <input type="checkbox" class="step-checkbox mt-1 w-4 h-4 accent-line rounded cursor-pointer" onchange="updateProgress()">
+                                <div class="text-sm">
+                                    <span class="font-semibold text-slate-900">3-3. 填入 Webhook URL 並開啟 Use webhook：</span>
+                                    <span class="text-slate-600">在 <strong>Messaging API</strong> 分頁中填入您的 HTTPS 伺服器或系統端點網址（亦可於 OA 後台填入），點選 `Update` 後<strong>務必開啟 `Use webhook` 開關</strong>，並可點擊 `Verify` 測試是否回傳 HTTP 200 OK。</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STEP 4 (User's Step 3: 關閉預設自動回應) -->
+                <section id="step-4" class="step-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-lg bg-line text-white font-bold flex items-center justify-center text-sm">步驟 4</span>
+                            <div>
+                                <h3 class="font-bold text-base sm:text-lg">關閉預設自動回應訊息</h3>
+                                <p class="text-xs text-slate-400">避免官方帳號一直跳出「感謝您的訊息，我們無法個別回覆...」干擾機器人運作</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-rose-500/20 text-rose-200 px-2.5 py-1 rounded-full border border-rose-400/30">新手最常漏掉！</span>
+                    </div>
+
+                    <div class="p-6 space-y-6">
+                        <p class="text-sm text-slate-600">
+                            剛建立的 LINE 官方帳號預設會開啟「罐頭自動回應」。如果不關閉，當使用者傳訊息給您的機器人時，除了您的程式會回覆外，LINE 也會同時跳出一則預設罐頭訊息。請回到 <a href="https://manager.line.biz/" target="_blank" class="text-line font-semibold underline">LINE Official Account Manager</a>（或從 Developers Console 點選「回應設定」連結）調整以下設定：
+                        </p>
+
+                        <!-- Visual Comparison Table for Response Settings -->
+                        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                        <th class="py-3 px-4 font-bold">設定項目 (位於：設定 > 回應設定)</th>
+                                        <th class="py-3 px-4 font-bold">建議狀態</th>
+                                        <th class="py-3 px-4 font-bold">原因說明</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    <tr>
+                                        <td class="py-3 px-4 font-semibold text-slate-900">回應模式 (Response mode)</td>
+                                        <td class="py-3 px-4"><span class="px-2.5 py-1 bg-slate-800 text-white rounded-md font-medium text-xs">聊天機器人 (Bot)</span> 或 <span class="px-2.5 py-1 bg-slate-200 text-slate-800 rounded-md font-medium text-xs">聊天</span></td>
+                                        <td class="py-3 px-4 text-slate-600">純 API 串接選「聊天機器人」；若需真人客服與機器人並存可開啟手動聊天。</td>
+                                    </tr>
+                                    <tr class="bg-rose-50/40">
+                                        <td class="py-3 px-4 font-semibold text-slate-900">自動回應訊息 (Auto-response)</td>
+                                        <td class="py-3 px-4"><span class="px-2.5 py-1 bg-rose-600 text-white rounded-md font-bold text-xs">停用 (Disabled)</span></td>
+                                        <td class="py-3 px-4 text-slate-600"><strong>必關！</strong>否則每次使用者發言都會收到系統預設的罐頭回覆。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 px-4 font-semibold text-slate-900">加入好友歡迎訊息 (Greeting message)</td>
+                                        <td class="py-3 px-4"><span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-md font-medium text-xs">依需求停用或保留</span></td>
+                                        <td class="py-3 px-4 text-slate-600">若您的程式會監聽 `follow` 事件自訂歡迎詞，建議設為「停用」。</td>
+                                    </tr>
+                                    <tr class="bg-emerald-50/40">
+                                        <td class="py-3 px-4 font-semibold text-slate-900">Webhook</td>
+                                        <td class="py-3 px-4"><span class="px-2.5 py-1 bg-line text-white rounded-md font-bold text-xs">啟用 (Enabled)</span></td>
+                                        <td class="py-3 px-4 text-slate-600"><strong>必開！</strong>確保使用者的訊息能即時傳送到您的 Webhook URL。</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Checklist for Step 4 -->
+                        <div class="space-y-3">
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition select-none">
+                                <input type="checkbox" class="step-checkbox mt-1 w-4 h-4 accent-line rounded cursor-pointer" onchange="updateProgress()">
+                                <div class="text-sm">
+                                    <span class="font-semibold text-slate-900">4-1. 將「自動回應訊息」設為【停用】：</span>
+                                    <span class="text-slate-600">於官方帳號後台點選「設定」>「回應設定」，將「自動回應訊息」改為停用。</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition select-none">
+                                <input type="checkbox" class="step-checkbox mt-1 w-4 h-4 accent-line rounded cursor-pointer" onchange="updateProgress()">
+                                <div class="text-sm">
+                                    <span class="font-semibold text-slate-900">4-2. 確認「Webhook」設為【啟用】：</span>
+                                    <span class="text-slate-600">在同一個「回應設定」頁面中，確認 Webhook 項目已勾選為「啟用」。</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- BONUS: Quick Test & Code Generator -->
+                <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-slate-800 text-white px-6 py-4 flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h3 class="font-bold text-base sm:text-lg flex items-center gap-2">
+                                <span>實戰測試：快速驗證 Token 與 Webhook 程式碼範本</span>
+                            </h3>
+                            <p class="text-xs text-slate-300">在左側輸入您的金鑰，下方程式碼會即時自動替換，可直接複製使用</p>
+                        </div>
+                        <div class="flex gap-1 bg-slate-900 p-1 rounded-lg text-xs">
+                            <button onclick="switchCodeLang('curl')" id="lang-btn-curl" class="px-3 py-1.5 rounded-md bg-line text-white font-semibold">cURL 測試金鑰</button>
+                            <button onclick="switchCodeLang('nodejs')" id="lang-btn-nodejs" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white">Node.js (Express)</button>
+                            <button onclick="switchCodeLang('python')" id="lang-btn-python" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white">Python (Flask)</button>
+                        </div>
+                    </div>
+
+                    <div class="p-6 space-y-4">
+                        <div class="relative">
+                            <button onclick="copyCode()" id="copy-btn" class="absolute top-3 right-3 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-medium rounded-lg transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                <span>複製程式碼</span>
+                            </button>
+                            <pre class="bg-slate-900 text-slate-100 p-4 rounded-xl overflow-x-auto text-xs font-mono leading-relaxed"><code id="code-block"></code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FAQ / Troubleshooting -->
+                <section class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-900 text-base sm:text-lg">常見問題排解 (Troubleshooting)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="font-bold text-slate-900 mb-1">Q1. 按下 Webhook 的 Verify 出現錯誤？</div>
+                            <p class="text-slate-600">請確認：(1) 網址必須是 `https://` 開頭且具合法 SSL 憑證（本機開發可使用 ngrok 或 Cloudflare Tunnel）；(2) 您的端點必須接收 `POST` 請求並回傳 HTTP 狀態碼 `200 OK`。</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="font-bold text-slate-900 mb-1">Q2. 為什麼在 LINE Developers Console 找不到「新增 Messaging API Channel」按鈕？</div>
+                            <p class="text-slate-600">LINE 已更新建立流程！現在無法直接從 Developers Console 建立新的 Messaging API Channel，<strong>必須先從步驟 1 的 LINE Official Account Manager 建立官方帳號</strong>，再從後台設定啟用。</p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5 text-sm">
+        <span class="w-2.5 h-2.5 rounded-full bg-line"></span>
+        <span id="toast-msg">已複製到剪貼簿！</span>
+    </div>
+
+    <script>
+        let currentLang = 'curl';
+
+        // Update checklist progress bar and card styling
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('.step-checkbox');
+            const total = checkboxes.length;
+            let checked = 0;
+
+            checkboxes.forEach(cb => {
+                if (cb.checked) checked++;
+            });
+
+            const percent = Math.round((checked / total) * 100);
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('progress-text').textContent = `${percent}% (${checked}/${total})`;
+
+            // Highlight completed step sections
+            document.querySelectorAll('.step-card').forEach(section => {
+                const sectionBoxes = section.querySelectorAll('.step-checkbox');
+                const allChecked = Array.from(sectionBoxes).every(cb => cb.checked);
+                if (allChecked && sectionBoxes.length > 0) {
+                    section.classList.add('completed');
+                } else {
+                    section.classList.remove('completed');
+                }
+            });
+
+            if (checked === total) {
+                showToast('恭喜！您已完成所有 LINE Messaging API 設定步驟！');
+            }
+        }
+
+        function resetProgress() {
+            document.querySelectorAll('.step-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            updateProgress();
+            showToast('已重置檢查清單進度');
+        }
+
+        // Switch simulated LINE Developers Console Tabs
+        function switchConsoleTab(tab) {
+            const basicBtn = document.getElementById('tab-btn-basic');
+            const msgBtn = document.getElementById('tab-btn-messaging');
+            const basicContent = document.getElementById('tab-content-basic');
+            const msgContent = document.getElementById('tab-content-messaging');
+
+            if (tab === 'basic') {
+                basicBtn.className = 'px-4 py-2 text-xs sm:text-sm font-bold rounded-t-lg bg-white text-line border-t border-x border-slate-200';
+                msgBtn.className = 'px-4 py-2 text-xs sm:text-sm font-medium rounded-t-lg text-slate-600 hover:text-slate-900';
+                basicContent.classList.remove('hidden');
+                msgContent.classList.add('hidden');
+            } else {
+                msgBtn.className = 'px-4 py-2 text-xs sm:text-sm font-bold rounded-t-lg bg-white text-line border-t border-x border-slate-200';
+                basicBtn.className = 'px-4 py-2 text-xs sm:text-sm font-medium rounded-t-lg text-slate-600 hover:text-slate-900';
+                msgContent.classList.remove('hidden');
+                basicContent.classList.add('hidden');
+            }
+        }
+
+        // Switch Code Preview Language
+        function switchCodeLang(lang) {
+            currentLang = lang;
+            ['curl', 'nodejs', 'python'].forEach(l => {
+                const btn = document.getElementById('lang-btn-' + l);
+                if (l === lang) {
+                    btn.className = 'px-3 py-1.5 rounded-md bg-line text-white font-semibold';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-md text-slate-300 hover:text-white';
+                }
+            });
+            updateCodePreview();
+        }
+
+        // Render code template with user's temporary credentials
+        function updateCodePreview() {
+            const secret = document.getElementById('input-secret').value.trim() || 'YOUR_CHANNEL_SECRET';
+            const token = document.getElementById('input-token').value.trim() || 'YOUR_CHANNEL_ACCESS_TOKEN';
+            const webhook = document.getElementById('input-webhook').value.trim() || 'https://your-domain.com/webhook';
+
+            const templates = {
+                curl: `# 測試您的 Channel Access Token 是否有效 (取得官方帳號基本資訊)
+curl -v -X GET https://api.line.me/v2/bot/info \\
+  -H "Authorization: Bearer ${token}"`,
+
+                nodejs: `// 安裝套件: npm install @line/bot-sdk express
+const express = require('express');
+const line = require('@line/bot-sdk');
+
+const config = {
+  channelSecret: '${secret}',
+  channelAccessToken: '${token}'
+};
+
+const app = express();
+const client = new line.messagingApi.MessagingApiClient(config);
+
+// 請將此端點網址設定至 LINE Webhook URL: ${webhook}
+app.post('/webhook', line.middleware(config), (req, res) => {
+  Promise.all(req.body.events.map(handleEvent))
+    .then((result) => res.json(result))
+    .catch((err) => {
+      console.error(err);
+      res.status(500).end();
+    });
+});
+
+function handleEvent(event) {
+  if (event.type !== 'message' || event.message.type !== 'text') {
+    return Promise.resolve(null);
+  }
+  return client.replyMessage({
+    replyToken: event.replyToken,
+    messages: [{ type: 'text', text: '收到您的訊息：' + event.message.text }]
+  });
+}
+
+app.listen(3000, () => console.log('LINE Bot Server running on port 3000'));`,
+
+                python: `# 安裝套件: pip install line-bot-sdk flask
+from flask import Flask, request, abort
+from linebot.v3 import WebhookHandler
+from linebot.v3.exceptions import InvalidSignatureError
+from linebot.v3.messaging import Configuration, ApiClient, MessagingApi, ReplyMessageRequest, TextMessage
+from linebot.v3.webhooks import MessageEvent, TextMessageContent
+
+app = Flask(__name__)
+
+configuration = Configuration(access_token="${token}")
+handler = WebhookHandler("${secret}")
+
+# 請將此端點網址設定至 LINE Webhook URL: ${webhook}
+@app.route("/webhook", methods=['POST'])
+def callback():
+    signature = request.headers.get('X-Line-Signature', '')
+    body = request.get_data(as_text=True)
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        abort(400)
+    return 'OK'
+
+@handler.add(MessageEvent, message=TextMessageContent)
+def handle_message(event):
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
+        line_bot_api.reply_message_with_http_info(
+            ReplyMessageRequest(
+                reply_token=event.reply_token,
+                messages=[TextMessage(text=f"收到您的訊息：{event.message.text}")]
+            )
+        )
+
+if __name__ == "__main__":
+    app.run(port=3000)`
+            };
+
+            document.getElementById('code-block').textContent = templates[currentLang];
+        }
+
+        // Copy code using execCommand for iframe compatibility
+        function copyCode() {
+            const codeText = document.getElementById('code-block').textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = codeText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('程式碼已複製到剪貼簿！');
+            } catch (err) {
+                showToast('複製失敗，請手動選取複製');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2600);
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            updateCodePreview();
+        };
+    </script>
+</body>
+</html>
