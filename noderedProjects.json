@@ -2,10 +2,10 @@
   {
     "id": "nr-proj-01",
     "projNumber": "專題 01",
-    "title": "台灣銀行-人民幣匯率爬蟲與 LINE 即時推播",
+    "title": "台灣銀行-人民幣匯率爬蟲與數據解析",
     "category": "智慧生活與金融 API",
     "date": "2026-10-19",
-    "slideRange": "第 3 ~ 28 頁 (共 26 頁)",
+    "slideRange": "第 3 ~ 10 頁 (共 8 頁)",
     "flowImage": "images_src/nodered_projects/slide_007.jpg",
     "resultImage": "images_src/nodered_projects/slide_008.jpg",
     "allSlides": [
@@ -16,74 +16,56 @@
       "images_src/nodered_projects/slide_007.jpg",
       "images_src/nodered_projects/slide_008.jpg",
       "images_src/nodered_projects/slide_009.jpg",
-      "images_src/nodered_projects/slide_010.jpg",
-      "images_src/nodered_projects/slide_011.jpg",
-      "images_src/nodered_projects/slide_012.jpg",
-      "images_src/nodered_projects/slide_013.jpg",
-      "images_src/nodered_projects/slide_014.jpg",
-      "images_src/nodered_projects/slide_015.jpg",
-      "images_src/nodered_projects/slide_016.jpg",
-      "images_src/nodered_projects/slide_017.jpg",
-      "images_src/nodered_projects/slide_018.jpg",
-      "images_src/nodered_projects/slide_019.jpg",
-      "images_src/nodered_projects/slide_020.jpg",
-      "images_src/nodered_projects/slide_021.jpg",
-      "images_src/nodered_projects/slide_022.jpg",
-      "images_src/nodered_projects/slide_023.jpg",
-      "images_src/nodered_projects/slide_024.jpg",
-      "images_src/nodered_projects/slide_025.jpg",
-      "images_src/nodered_projects/slide_026.jpg",
-      "images_src/nodered_projects/slide_027.jpg",
-      "images_src/nodered_projects/slide_028.jpg"
+      "images_src/nodered_projects/slide_010.jpg"
     ],
-    "summary": "透過 HTTP Request 節點定時爬取台灣銀行牌告匯率頁面，搭配 HTML 解析節點 (CSS Selector) 萃取人民幣現鈔買入/賣出匯率，並透過 LINE Messaging API / LINE Notify 即時推播警報至手機。",
-    "objective": "1. 掌握 Node-RED HTTP Request 與 HTML 節點的 CSS Selector 爬蟲技巧。\n2. 學會運用 Function 節點進行字串清洗、浮點數轉換與匯率波動邏輯判斷。\n3. 熟悉 LINE Developers 後台建立 Messaging API Channel 與 Channel Access Token 設定。\n4. 整合 LINE API 節點 (node-red-contrib-node-line-api) 實現自動化行動推播通知。",
+    "summary": "透過 HTTP Request 節點定時爬取台灣銀行牌告匯率頁面，搭配 HTML 解析節點 (CSS Selector) 萃取人民幣現鈔買入/賣出匯率，並透過 Function 節點完成字串清洗、數值浮點化與高低點閥值比對，輸出標準化告警與分析數據。",
+    "objective": "1. 掌握 Node-RED HTTP Request 節點發送 GET 請求抓取公開金融網頁技巧。\n2. 深入理解 HTML 節點與 CSS Selector (.rate-content-cash) 定位表格欄位原理。\n3. 學會運用 Function 節點進行字串切割清洗、parseFloat 浮點數轉換。\n4. 實作匯率閥值判斷邏輯（如人民幣現鈔賣出價低於 4.5 時觸發買進通知）。",
     "tutorialSteps": [
       {
-        "step": "步驟 1: 發送 HTTP 請求抓取台銀匯率網頁",
+        "step": "步驟 1: 發送 HTTP 請求抓取台銀牌告匯率網頁",
         "description": "使用 inject 節點設定定時觸發 (如每 30 分鐘一次)，連接 http request 節點，Method 設為 GET，URL 輸入台灣銀行牌告匯率網址：https://rate.bot.com.tw/xrt?Lang=zh-TW。"
       },
       {
         "step": "步驟 2: 使用 HTML 節點精準定位匯率欄位",
-        "description": "透過 html 節點的 CSS Selector 功能，設定選取器為 .rate-content-cash.text-right.print_hide，抓取網頁中所有幣別的現金買入與賣出價格，輸出為 Array。"
+        "description": "透過 html 節點的 CSS Selector 功能，設定選取器為 .rate-content-cash.text-right.print_hide，抓取網頁中所有幣別的現金買入與賣出價格，輸出為 Array 陣列。"
       },
       {
-        "step": "步驟 3: 提取人民幣數值與邏輯運算",
-        "description": "在 Function 節點中，根據幣別索引提取人民幣 (CNY) 的即時買入與賣出價 (例如 msg.payload[12])，轉換為 parseFloat 進行高低點閥值比較，若低於設定買進點則觸發通知。"
+        "step": "步驟 3: 提取人民幣現金賣出價與數值轉換",
+        "description": "在 Function 節點中，根據幣別索引提取人民幣 (CNY) 的即時買入與賣出價 (例如 msg.payload[12] 與 [13])，使用 parseFloat 去除空格與特殊符號，轉換為數值型態。"
       },
       {
-        "step": "步驟 4: 申請 LINE Developers Messaging API 金鑰",
-        "description": "登入 LINE Developers Console 建立 Provider 與 Messaging API Channel，於 Messaging API 分頁發行長期有效的 Channel Access Token，並取得個人/群組 User ID。"
+        "step": "步驟 4: 匯率閥值比較與格式化告警文字",
+        "description": "設定目標買進價 (如 4.50)，當即時賣出價低於目標值時，組裝格式化文字物件 msg.payload = { currency: 'CNY', rate: cny_sell, alert: true, time: new Date().toLocaleString() }。"
       },
       {
-        "step": "步驟 5: 串接 LINE API 節點實現自動化推播",
-        "description": "安裝 node-red-contrib-node-line-api 節點，填入 Channel Access Token，將格式化後的匯率文字「【台銀匯率警報】人民幣現鈔即時賣出價：4.52」送出至指定 LINE 聊天室。"
+        "step": "步驟 5: Debug 節點除錯與即時資料檢驗",
+        "description": "連接 debug 節點輸出完整 msg.payload 物件，驗證爬蟲回傳陣列長度、解析後數值正確性，確保自動化輪詢機制穩定運作。"
       }
     ],
     "applications": [
       {
         "scenario": "機電整合丙級",
         "icon": "fa-solid fa-gears",
-        "description": "將現場 PLC 的加工異常事件或材料短缺狀態，轉化為行動推播格式，透過 LINE 即時通知實習工廠檢定監評或維護人員。"
+        "description": "將現場檢定機台之生產報表與外圍原料成本報價即時整合，提供自動化計價與成本損益分析依據。"
       },
       {
         "scenario": "台積電工業務聯網",
         "icon": "fa-solid fa-microchip",
-        "description": "廠務 FMCS 系統定期抓取外圍原物料或電力計價 API，當能源峰值價格過高時，透過行動通訊群組向中控值班工程師示警。"
+        "description": "廠務 FMCS 監控中心定期抓取國際原物料即時牌價，搭配廠內能源耗損量計算即時生產成本看板。"
       },
       {
         "scenario": "家庭物流網",
         "icon": "fa-solid fa-truck-ramp-box",
-        "description": "智慧家庭中控定期輪詢金融與日常即時資訊，配合玄關電子紙看板與家庭 LINE 群組，實現重要生活提醒自動推播。"
+        "description": "智慧家庭中控定期輪詢金融外幣牌告，在電子紙或儀表板即時更新海外購物最佳換匯時機。"
       }
     ],
-    "aiPrompt": "請幫我寫一段 Node-RED Flow：定時每小時抓取台灣銀行牌告匯率 (https://rate.bot.com.tw/xrt?Lang=zh-TW)，使用 html 節點解析人民幣現金匯率，並在 Function 節點檢查是否小於 4.5，若符合條件則將格式化訊息輸出至 LINE Push Message 節點。",
+    "aiPrompt": "請幫我寫一段 Node-RED Flow：定時每 30 分鐘抓取台灣銀行牌告匯率 (https://rate.bot.com.tw/xrt?Lang=zh-TW)，使用 html 節點解析 .rate-content-cash 欄位，並在 Function 節點提取人民幣現鈔賣出價，若小於 4.5 則輸出告警 JSON 物件至 Debug 視窗。",
     "nodeRedJson": [
       {
         "id": "cny_inject",
         "type": "inject",
-        "name": "定時排程 (每小時)",
-        "repeat": "3600",
+        "name": "定時排程 (每30分鐘)",
+        "repeat": "1800",
         "wires": [
           [
             "cny_http"
@@ -117,8 +99,8 @@
       {
         "id": "cny_func",
         "type": "function",
-        "name": "比對匯率與組裝訊息",
-        "func": "var rates = msg.payload;\nvar cny_sell = parseFloat(rates[13]);\nmsg.payload = '【台銀匯率通報】人民幣即時賣出價：' + cny_sell;\nreturn msg;",
+        "name": "比對匯率與組裝物件",
+        "func": "var rates = msg.payload;\nvar cny_sell = parseFloat(rates[13]);\nvar target = 4.50;\nif (cny_sell <= target) {\n    msg.payload = {\n        currency: 'CNY',\n        sellRate: cny_sell,\n        status: 'ALERT',\n        message: '【台銀匯率通報】人民幣即時賣出價已達目標點：' + cny_sell,\n        timestamp: new Date().toISOString()\n    };\n    return msg;\n}\nreturn null;",
         "wires": [
           [
             "cny_debug"
@@ -138,18 +120,162 @@
         "url": "https://rate.bot.com.tw/xrt?Lang=zh-TW"
       },
       {
-        "title": "LINE Developers Messaging API 官方手冊",
-        "url": "https://developers.line.biz/en/docs/messaging-api/"
+        "title": "Node-RED core http request 節點手冊",
+        "url": "https://nodered.org/docs/user-guide/nodes#http-request"
       },
       {
-        "title": "node-red-contrib-node-line-api 節點說明",
-        "url": "https://flows.nodered.org/node/node-red-contrib-node-line-api"
+        "title": "Node-RED HTML (CSS Selector) 節點指南",
+        "url": "https://nodered.org/docs/user-guide/nodes#html"
       }
     ]
   },
   {
     "id": "nr-proj-02",
     "projNumber": "專題 02",
+    "title": "LINE 官方帳號申請與 Messaging API 訊息推播整合",
+    "category": "通訊與物聯網",
+    "date": "2026-10-19",
+    "slideRange": "第 11 ~ 28 頁 (共 18 頁)",
+    "flowImage": "images_src/nodered_projects/slide_027.jpg",
+    "resultImage": "images_src/nodered_projects/slide_028.jpg",
+    "allSlides": [
+      "images_src/nodered_projects/slide_011.jpg",
+      "images_src/nodered_projects/slide_012.jpg",
+      "images_src/nodered_projects/slide_013.jpg",
+      "images_src/nodered_projects/slide_014.jpg",
+      "images_src/nodered_projects/slide_015.jpg",
+      "images_src/nodered_projects/slide_016.jpg",
+      "images_src/nodered_projects/slide_017.jpg",
+      "images_src/nodered_projects/slide_018.jpg",
+      "images_src/nodered_projects/slide_019.jpg",
+      "images_src/nodered_projects/slide_020.jpg",
+      "images_src/nodered_projects/slide_021.jpg",
+      "images_src/nodered_projects/slide_022.jpg",
+      "images_src/nodered_projects/slide_023.jpg",
+      "images_src/nodered_projects/slide_024.jpg",
+      "images_src/nodered_projects/slide_025.jpg",
+      "images_src/nodered_projects/slide_026.jpg",
+      "images_src/nodered_projects/slide_027.jpg",
+      "images_src/nodered_projects/slide_028.jpg"
+    ],
+    "summary": "從零建立 LINE 官方帳號與 LINE Developers 開發者環境，申請 Messaging API Channel，發行長期 Channel Access Token 並取得個人 User ID。整合 Node-RED 中的 LINE Push API 節點，實作自動化單向主動推播功能，實現行動端即時警報與事件通報。",
+    "objective": "1. 熟悉 LINE Developers Console 開發者管理後台操作與 Provider / Channel 建立流程。\n2. 掌握 Messaging API 核心安全認證機制：Channel ID、Channel Secret 與 Channel Access Token (long-lived) 發行。\n3. 學會透過 LINE Official Account Manager 與 QR Code 加入好友，並取得接收者的 User ID。\n4. 在 Node-RED 中安裝 node-red-contrib-node-line-api 節點，設定金鑰與發送對象。\n5. 實作單向主動推播 (Push Message API)，將事件警報、設備異常或重要通報精準推送至個人或群組手機。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 登入 LINE Developers 並建立 Provider",
+        "description": "使用一般個人 LINE 帳號登入 LINE Developers Console (https://developers.line.biz/)，點選「Create a new provider」，輸入開發者提供者名稱。"
+      },
+      {
+        "step": "步驟 2: 建立 Messaging API Channel 官方帳號",
+        "description": "在 Provider 底下選擇建立「Messaging API」，填寫 Channel Name (機器人名稱)、Channel Description、類別分類與電子郵件，確認條款後建立官方帳號。"
+      },
+      {
+        "step": "步驟 3: 掃描 QR Code 加入好友並取得 User ID",
+        "description": "進入「Messaging API」分頁，使用手機 LINE 掃描頁面上的 Bot QR Code 將其加入好友；在「Basic settings」分頁最下方查閱自己的 Your user ID (以 U 開頭之 33 碼字串)。"
+      },
+      {
+        "step": "步驟 4: 發行長期有效之 Channel Access Token",
+        "description": "切換至「Messaging API」分頁捲動至最下方，在「Channel access token (long-lived)」區塊點選「Issue」發行長期存取權杖，妥善保存供 Node-RED 連線使用。"
+      },
+      {
+        "step": "步驟 5: 安裝與設定 Node-RED LINE API 節點",
+        "description": "開啟 Node-RED「節點管理」安裝 node-red-contrib-node-line-api (或使用 HTTP Request 呼叫 /v2/bot/message/push)，填入發行之 Access Token 與目標 User ID。"
+      },
+      {
+        "step": "步驟 6: 觸發測試推播與手機端接收驗證",
+        "description": "連接 Inject 節點並輸入推播字串「【系統通知】Node-RED LINE 推播服務連線成功！」，點擊注入按鈕後檢查手機 LINE 聊天室是否即時收到訊息。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "機電整合丙級",
+        "icon": "fa-solid fa-gears",
+        "description": "檢定機台警報即時通知：當 PLC 檢測到氣壓不足、送料機構卡料或安全門開啟時，立即推播 LINE 訊息至監評或維修員手機。"
+      },
+      {
+        "scenario": "台積電工業務聯網",
+        "icon": "fa-solid fa-microchip",
+        "description": "無塵室環境與 FMCS 巡檢異常通報：當冰水主機水溫超標或氣體偵測器讀數異常時，觸發 LINE 即時告警推播給值班工程師。"
+      },
+      {
+        "scenario": "家庭物流網",
+        "icon": "fa-solid fa-truck-ramp-box",
+        "description": "智慧門禁與快遞收件提醒：玄關紅外線感應或快遞置物箱感測器觸發時，自動發送 LINE 通知提醒家庭成員領取包裹。"
+      }
+    ],
+    "aiPrompt": "請幫我寫一段 Node-RED Flow：使用 node-red-contrib-node-line-api 的 Line Push Message 節點，配置 Channel Access Token 與目標 User ID，透過 Function 節點組裝包含當前時間與警告文字的推播訊息並發送。",
+    "nodeRedJson": [
+      {
+        "id": "line_test_inject",
+        "type": "inject",
+        "name": "手動觸發推播",
+        "topic": "",
+        "payload": "測試推播訊息",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "wires": [
+          [
+            "line_format_func"
+          ]
+        ]
+      },
+      {
+        "id": "line_format_func",
+        "type": "function",
+        "name": "組裝 LINE 推播內容",
+        "func": "var now = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });\nmsg.payload = '【系統即時通報】\\n事件：設備狀態正常連線\\n時間：' + now + '\\n發送端：Node-RED 工業推播中樞';\nreturn msg;",
+        "wires": [
+          [
+            "line_push_node"
+          ]
+        ]
+      },
+      {
+        "id": "line_push_node",
+        "type": "line-push",
+        "name": "LINE Messaging API 推播",
+        "token": "YOUR_CHANNEL_ACCESS_TOKEN",
+        "to": "YOUR_LINE_USER_ID",
+        "wires": [
+          [
+            "line_push_debug"
+          ]
+        ]
+      },
+      {
+        "id": "line_push_debug",
+        "type": "debug",
+        "name": "推播回傳結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "wires": []
+      }
+    ],
+    "references": [
+      {
+        "title": "LINE Developers Console 官方開發者後台",
+        "url": "https://developers.line.biz/console/"
+      },
+      {
+        "title": "LINE Messaging API Push Message 文件",
+        "url": "https://developers.line.biz/en/reference/messaging-api/#send-push-message"
+      },
+      {
+        "title": "node-red-contrib-node-line-api 官方節點套件",
+        "url": "https://flows.nodered.org/node/node-red-contrib-node-line-api"
+      }
+    ]
+  },
+  {
+    "id": "nr-proj-03",
+    "projNumber": "專題 03",
     "title": "Serial Port 串列通訊與 PLC / 硬體感測器資料擷取",
     "category": "通訊與物聯網",
     "date": "2026-10-19",
@@ -243,8 +369,8 @@
     ]
   },
   {
-    "id": "nr-proj-03",
-    "projNumber": "專題 03",
+    "id": "nr-proj-04",
+    "projNumber": "專題 04",
     "title": "MQTT 工業物聯網協議發布與訂閱實戰",
     "category": "通訊與物聯網",
     "date": "2026-10-19",
@@ -369,8 +495,8 @@
     ]
   },
   {
-    "id": "nr-proj-04",
-    "projNumber": "專題 04",
+    "id": "nr-proj-05",
+    "projNumber": "專題 05",
     "title": "中央氣象署開放資料平臺 API - 即時天氣預報與溫度看板",
     "category": "智慧生活與金融 API",
     "date": "2026-10-19",
@@ -493,8 +619,8 @@
     ]
   },
   {
-    "id": "nr-proj-05",
-    "projNumber": "專題 05",
+    "id": "nr-proj-06",
+    "projNumber": "專題 06",
     "title": "Google Teachable Machine 邊緣 AI 影像分類辨識",
     "category": "機器學習與視覺 AI",
     "date": "2026-10-19",
@@ -631,8 +757,8 @@
     ]
   },
   {
-    "id": "nr-proj-06",
-    "projNumber": "專題 06",
+    "id": "nr-proj-07",
+    "projNumber": "專題 07",
     "title": "TensorFlow.js COCO-SSD 即時物件偵測與邊界框定位",
     "category": "機器學習與視覺 AI",
     "date": "2026-10-19",
@@ -749,8 +875,8 @@
     ]
   },
   {
-    "id": "nr-proj-07",
-    "projNumber": "專題 07",
+    "id": "nr-proj-08",
+    "projNumber": "專題 08",
     "title": "Modbus TCP / RTU 工業通訊與三菱 PLC 輸出控制",
     "category": "通訊與物聯網",
     "date": "2026-10-19",
@@ -886,8 +1012,8 @@
     ]
   },
   {
-    "id": "nr-proj-08",
-    "projNumber": "專題 08",
+    "id": "nr-proj-09",
+    "projNumber": "專題 09",
     "title": "Google Gemini 雲端生成式 AI 多模態 API 串接與語音互動",
     "category": "大語言模型 (LLM) 整合",
     "date": "2026-10-19",
@@ -1003,8 +1129,8 @@
     ]
   },
   {
-    "id": "nr-proj-09",
-    "projNumber": "專題 09",
+    "id": "nr-proj-10",
+    "projNumber": "專題 10",
     "title": "本地端 Ollama + Llama 3.2-Vision 邊緣車牌視覺辨識",
     "category": "大語言模型 (LLM) 整合",
     "date": "2026-10-19",
@@ -1134,8 +1260,8 @@
     ]
   },
   {
-    "id": "nr-proj-10",
-    "projNumber": "專題 10",
+    "id": "nr-proj-11",
+    "projNumber": "專題 11",
     "title": "AnythingLLM + RAG 本地廠務專屬知識庫檢索與智慧問答",
     "category": "大語言模型 (LLM) 整合",
     "date": "2026-10-19",
@@ -1247,8 +1373,8 @@
     ]
   },
   {
-    "id": "nr-proj-11",
-    "projNumber": "專題 11",
+    "id": "nr-proj-12",
+    "projNumber": "專題 12",
     "title": "Gemini AI 協同 OpenCart 網路商城 MySQL 資料庫查詢與產能分析",
     "category": "大語言模型 (LLM) 整合",
     "date": "2026-10-19",
@@ -1349,8 +1475,8 @@
     ]
   },
   {
-    "id": "nr-proj-12",
-    "projNumber": "專題 12",
+    "id": "nr-proj-13",
+    "projNumber": "專題 13",
     "title": "LM Studio 地端大語言模型部署與 Node-RED 離線對話",
     "category": "大語言模型 (LLM) 整合",
     "date": "2026-10-19",
@@ -1467,8 +1593,8 @@
     ]
   },
   {
-    "id": "nr-proj-13",
-    "projNumber": "專題 13",
+    "id": "nr-proj-14",
+    "projNumber": "專題 14",
     "title": "AI LINE Bot 智慧助理 - Webhook 雙向對話與多模型輪詢",
     "category": "大語言模型 (LLM) 整合",
     "date": "2026-10-19",
@@ -1573,8 +1699,8 @@
     ]
   },
   {
-    "id": "nr-proj-14",
-    "projNumber": "專題 14",
+    "id": "nr-proj-15",
+    "projNumber": "專題 15",
     "title": "Google Sheets 雲端試算表自動化記錄與生產報表戰情室",
     "category": "工業自動化與雲端服務",
     "date": "2026-10-19",
@@ -1688,8 +1814,8 @@
     ]
   },
   {
-    "id": "nr-proj-15",
-    "projNumber": "專題 15",
+    "id": "nr-proj-16",
+    "projNumber": "專題 16",
     "title": "台北市公車即時動態追蹤 (TDX 運輸資料流通服務)",
     "category": "智慧生活與金融 API",
     "date": "2026-10-19",
@@ -1794,8 +1920,8 @@
     ]
   },
   {
-    "id": "nr-proj-16",
-    "projNumber": "專題 16",
+    "id": "nr-proj-17",
+    "projNumber": "專題 17",
     "title": "臺灣海域船舶即時動態資訊系統 (AIS 爬蟲與地理圖資定位)",
     "category": "智慧生活與金融 API",
     "date": "2026-10-19",
@@ -1901,8 +2027,8 @@
     ]
   },
   {
-    "id": "nr-proj-17",
-    "projNumber": "專題 17",
+    "id": "nr-proj-18",
+    "projNumber": "專題 18",
     "title": "新北市垃圾車即時動態路線監控 (政府 Open Data CSV 資料串接)",
     "category": "智慧生活與金融 API",
     "date": "2026-10-19",
@@ -2018,8 +2144,8 @@
     ]
   },
   {
-    "id": "nr-proj-18",
-    "projNumber": "專題 18",
+    "id": "nr-proj-19",
+    "projNumber": "專題 19",
     "title": "新北市工廠登記名冊地址轉經緯度 (Nominatim / TGOS 地理圖層視覺化)",
     "category": "智慧生活與金融 API",
     "date": "2026-10-19",
@@ -2153,8 +2279,8 @@
     ]
   },
   {
-    "id": "nr-proj-19",
-    "projNumber": "專題 19",
+    "id": "nr-proj-20",
+    "projNumber": "專題 20",
     "title": "台灣證券交易所 (TWSE) 上市個股本益比、殖利率與股價淨值比 RESTful API",
     "category": "智慧生活與金融 API",
     "date": "2026-10-19",
@@ -2259,8 +2385,8 @@
     ]
   },
   {
-    "id": "nr-proj-20",
-    "projNumber": "專題 20",
+    "id": "nr-proj-21",
+    "projNumber": "專題 21",
     "title": "Epson 4 軸工業機械手臂控制器 API 串接與精密路徑運動控制",
     "category": "工業自動化與機器人",
     "date": "2026-10-19",
@@ -2365,8 +2491,8 @@
     ]
   },
   {
-    "id": "nr-proj-21",
-    "projNumber": "專題 21",
+    "id": "nr-proj-22",
+    "projNumber": "專題 22",
     "title": "文字語意解析轉實體工件座標 (GenAI 空間規劃與多點抓取)",
     "category": "機器學習與視覺 AI",
     "date": "2026-10-19",
