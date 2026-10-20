@@ -1,4 +1,4 @@
-// 五股職訓局 - 機電AI_115-1期 (作者：Rido老師)
+// 五股職訓局 - 機電AI班 (作者：Rido老師)
 // Node-RED 實戰專題專區 前端應用主程式
 document.addEventListener('DOMContentLoaded', () => {
   let projData = [];

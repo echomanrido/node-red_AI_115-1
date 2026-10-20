@@ -1,4 +1,4 @@
-// 五股職訓局 - 機電AI_115-1期 (作者：Rido老師)
+// 五股職訓局 - 機電AI班 (作者：Rido老師)
 // Node-RED 智慧控制模組 - 22 大實戰專題核心資料庫
 const INITIAL_NODERED_PROJECTS_DATA = [
   {
