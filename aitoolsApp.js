@@ -251,6 +251,123 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
+    
+    let geminiModelsHighlightHtml = '';
+    if (tool.id === 'tool-gemini-models-thinking') {
+      geminiModelsHighlightHtml = `
+        <!-- (2.7) 核心特寫：Gemini Enterprise Agent Platform 官方受管 Google 模型矩陣 -->
+        <section class="section-card" style="border: 2px solid #38bdf8; background: linear-gradient(145deg, rgba(14, 165, 233, 0.08), rgba(15, 23, 42, 0.6)); border-radius: 14px; padding: 22px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; border-bottom: 1px dashed rgba(56, 189, 248, 0.4); padding-bottom: 14px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 class="section-title" style="margin-bottom: 0; border-bottom: none; color: #38bdf8; font-size: 1.25rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-layer-group" style="color: #38bdf8; font-size: 1.3rem;"></i>
+                <span>Gemini Enterprise Agent Platform - 官方 Google 模型全景架構</span>
+              </h3>
+              <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; margin-bottom: 0;">
+                依據 Google Cloud 官方最新架構規範，全面解析四大受管無伺服器 (Serverless) 模型與「思考程度」調控心法
+              </p>
+            </div>
+            <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/google-models?hl=zh_tw" target="_blank" rel="noopener noreferrer" style="font-size: 0.82rem; background: rgba(14, 165, 233, 0.18); color: #38bdf8; padding: 6px 14px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.4); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Google Cloud 官方文檔
+            </a>
+          </div>
+
+          <!-- 四大模型卡片網格 -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 20px;">
+            <!-- 卡片 1: 4 Argon -->
+            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.4); border-top: 3px solid #a855f7; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-weight: 800; font-size: 1.05rem; color: #e9d5ff;">4 Argon</span>
+                  <span style="font-size: 0.7rem; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 2px 8px; border-radius: 4px; font-weight: 700;">複雜任務 · 旗艦推理</span>
+                </div>
+                <div style="font-size: 0.82rem; color: #a855f7; font-weight: 600; margin-bottom: 6px;">Flagship Reasoning & Agentic Model</div>
+                <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 10px;">
+                  Google 最頂尖的旗艦級推理自主代理核心，具備統一超長上下文視窗、超長輸出生成與長程多步驟規劃 (Long-horizon Planning) 能力。
+                </p>
+              </div>
+              <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 8px 10px; font-size: 0.78rem; color: #d8b4fe;">
+                <i class="fa-solid fa-bullseye"></i> <strong>工控實戰</strong>：遠端瀏覽器全自主網頁探勘、全站架構逆向、多模組跨系統重構。
+              </div>
+            </div>
+
+            <!-- 卡片 2: 3.1 Pro -->
+            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.4); border-top: 3px solid #38bdf8; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-weight: 800; font-size: 1.05rem; color: #bae6fd;">3.1 Pro</span>
+                  <span style="font-size: 0.7rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 700;">進階推論 · 大腦核心</span>
+                </div>
+                <div style="font-size: 0.82rem; color: #38bdf8; font-weight: 600; margin-bottom: 6px;">Deep Multi-step Reasoning</div>
+                <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 10px;">
+                  高階多模態推論主力，擅長數理邏輯、多步驟因果推演與複雜系統分析，搭配「思考程度：高」可觸發深度思維鏈自我驗證。
+                </p>
+              </div>
+              <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 8px 10px; font-size: 0.78rem; color: #7dd3fc;">
+                <i class="fa-solid fa-bullseye"></i> <strong>工控實戰</strong>：C# 異步並發死鎖排查、Modbus CRC 封包除錯、S-Curve 運動演算法推導。
+              </div>
+            </div>
+
+            <!-- 卡片 3: 3.8 Flash -->
+            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-top: 3px solid #10b981; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-weight: 800; font-size: 1.05rem; color: #a7f3d0;">3.8 Flash</span>
+                  <span style="font-size: 0.7rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 2px 8px; border-radius: 4px; font-weight: 700;">全方位協助 · 黃金平衡</span>
+                </div>
+                <div style="font-size: 0.82rem; color: #10b981; font-weight: 600; margin-bottom: 6px;">Intelligence-Dense & Balanced</div>
+                <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 10px;">
+                  高智能密度的通用主力模型，在極致響應速度、經濟成本與推理品質間取得完美平衡，是多數日常工程開發的最佳預設選項。
+                </p>
+              </div>
+              <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 8px 10px; font-size: 0.78rem; color: #6ee7b7;">
+                <i class="fa-solid fa-bullseye"></i> <strong>工控實戰</strong>：Node-RED 常用 Flow 撰寫、HTML/JS 儀表板生成、設備數據摘要統計。
+              </div>
+            </div>
+
+            <!-- 卡片 4: 3.5 Flash-Lite -->
+            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(245, 158, 11, 0.4); border-top: 3px solid #f59e0b; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-weight: 800; font-size: 1.05rem; color: #fde68a;">3.5 Flash-Lite</span>
+                  <span style="font-size: 0.7rem; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 2px 8px; border-radius: 4px; font-weight: 700;">回覆最快 · 極致輕量</span>
+                </div>
+                <div style="font-size: 0.82rem; color: #f59e0b; font-weight: 600; margin-bottom: 6px;">High-Throughput & Low-Latency</div>
+                <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 10px;">
+                  專為高吞吐量 (High-Throughput) 與超低延遲設計的輕量級模型，毫秒級即時返回，有效消除等待延遲。
+                </p>
+              </div>
+              <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 8px 10px; font-size: 0.78rem; color: #fef08a;">
+                <i class="fa-solid fa-bullseye"></i> <strong>工控實戰</strong>：現場即時進制轉換 (Hex/Dec)、正則表達式快速檢驗、單行語法校正。
+              </div>
+            </div>
+          </div>
+
+          <!-- 思考程度 (Thinking Levels) 動態調節機制說明 -->
+          <div style="background: rgba(11, 15, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 16px;">
+            <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-brain" style="color: #ec4899;"></i>
+              <span>思考程度 (Thinking Levels) 三階深度解析</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+              <div style="background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #10b981;">
+                <div style="font-weight: 700; color: #34d399; font-size: 0.85rem; margin-bottom: 3px;">• 低 (高效)</div>
+                <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">幾乎無額外思考延遲，AI 直接輸出結果，適合已知固定解的標準範例、樣板代碼生成。</div>
+              </div>
+              <div style="background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #38bdf8;">
+                <div style="font-weight: 700; color: #38bdf8; font-size: 0.85rem; margin-bottom: 3px;">• 中等 (適中)</div>
+                <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">展開 5~15 秒邏輯推導與步驟拆解，在速度與解答嚴謹度間達到最佳平衡。</div>
+              </div>
+              <div style="background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #f43f5e;">
+                <div style="font-weight: 700; color: #fb7185; font-size: 0.85rem; margin-bottom: 3px;">• 高 (詳盡)</div>
+                <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">啟動深度思維鏈 (Chain of Thought)，逐步驗證假設邊界並反思修正，專攻高安全工控演算法。</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
     let usageHighlightHtml = '';
     if (usageStep) {
       usageHighlightHtml = `
@@ -373,6 +490,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       <!-- (2.6) 獨立設定專區框框：Models & Usage -->
       ${usageHighlightHtml}
+
+      <!-- (2.7) 核心特寫：Gemini Enterprise Agent Platform 官方受管模型 -->
+      ${geminiModelsHighlightHtml}
 
       <!-- (3) 教學步驟說明 -->
       <section class="section-card">

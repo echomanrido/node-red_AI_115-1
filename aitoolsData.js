@@ -419,8 +419,79 @@ window.INITIAL_AITOOLS_DATA = [
     ]
   },
   {
-    "id": "tool-gemini-gems",
+    "id": "tool-gemini-models-thinking",
     "toolNumber": "08",
+    "title": "Gemini - 模型選擇 (Flash-Lite / Flash / Pro / Argon) 與思考程度調控",
+    "date": "2026-10-20",
+    "category": "Gemini 智慧協作",
+    "summary": "依據 Google Cloud「Gemini Enterprise Agent Platform (企業代理人平台)」官方文檔規範，Google 提供全面託管、無伺服器 (Serverless) 的頂尖模型體系：從秒級回應的極低延遲「3.5 Flash-Lite」、全方位智慧高密度的通用主力「3.8 Flash」、專攻深層邏輯與架構推論的「3.1 Pro」，到具備統一超長上下文視窗與長程規劃能力的旗艦級推理自主代理核心「4 Argon」。更突破性地引入「思考程度 (Thinking Levels)」動態調節機制（低 / 中等 / 高），允許開發者依據工控任務的複雜度與延遲容忍度，精確掌控 AI 在作答前的思維鏈 (Chain of Thought) 深度，達到速度、成本與推理品質的極致平衡。",
+    "webUrl": "https://gemini.google.com",
+    "flowImage": [
+      "images_src/ok/20261020_gemini_model_selection_thinking_levels.png"
+    ],
+    "objective": "1. 深入理解 Google Cloud Gemini Enterprise Agent Platform 官方定義之四大模型階層（3.5 Flash-Lite、3.8 Flash、3.1 Pro、4 Argon）的核心定位與算力取向。\n2. 掌握「思考程度 (Thinking Levels)」機制：低（高效即時）、中等（適中平衡）、高（詳盡深層推理）的底層思維鏈運作。\n3. 學會在工控機電實作中依情境精準選模：快速語法查詢選 Flash-Lite、通訊除錯選 Pro、自主全站巡檢與跨工具鏈調度選 Argon。\n4. 掌握透過「思考程度：高」迫使模型在輸出代碼前進行全方位的 PLC 暫存器衝突檢驗、除零防呆與因果反思。\n5. 了解無伺服器完全託管 (Serverless)、上下文長度 (Context Window)、配額限制 (Rate Limits) 及回應延遲 (Latency) 的最佳工程配置。",
+    "tutorialSteps": [
+      {
+        "step": "1. 進入 Gemini 頂部輸入面板並展開模型切換選單",
+        "description": "開啟 Google Gemini 首頁 (https://gemini.google.com)，在輸入框右上側點擊目前的模型標籤（例如「Flash ⌃」），即可展開包含四大核心模型與思考程度設定的完整下拉面板。"
+      },
+      {
+        "step": "2. 掌握 Google Enterprise Agent Platform 官方四大模型定位",
+        "description": "依據 Google 官方說明，平台提供四種針對不同算力密度與任務長度最佳化的受管模型：\n• 3.5 Flash-Lite（回覆最快）：高吞吐量 (High-Throughput) 與超低延遲 (Ultra-low Latency) 模型，毫秒級即時響應，適合語法查詢、簡易進制轉換 (Hex/Dec) 或正則表達式驗證。\n• 3.8 Flash（全方位協助）：高智能密度 (Intelligence-Dense) 的黃金比例主力，兼顧速度與推理品質，是日常撰寫 Node-RED Flow、生成前端儀表板的預設首選。\n• 3.1 Pro（進階推論）：進階多步驟推理 (Deep Multi-step Reasoning) 大腦核心，專為複雜邏輯推導打造，適合排查 C# 異步並發死鎖、Modbus CRC 封包除錯或多變量數值運算。\n• 4 Argon（複雜任務）：Google 新一代旗艦級推理自主代理核心 (Flagship Reasoning & Agentic Model)，具備統一超長上下文視窗、長程多步驟規劃 (Long-horizon Planning) 與遠端瀏覽器容器自主調用能力。"
+      },
+      {
+        "step": "3. 配置「思考程度 (Thinking Levels)」深淺度",
+        "description": "在模型選單底部將滑鼠移至「思考程度 ▶」子選單：\n• 低（高效）：幾乎零額外思考延遲，AI 直接給出結論與代碼，適用於標準樣板生成與快速即時問答。\n• 中等（適中）：AI 在回答前展開 5~15 秒的邏輯推演，適合中等複雜度的工控通訊邏輯與資料庫 SQL 查詢。\n• 高（詳盡）：啟動超長思維鏈 (Chain of Thought)，模型會自我反思 (Self-Reflection)、假設檢驗並逐步驗證 Edge Cases，最適合架構設計與安全關鍵 (Safety-Critical) 代碼生成。"
+      },
+      {
+        "step": "4. 輸入測試 Prompt 並即時檢視思考過程",
+        "description": "輸入複雜的工控問題（如：設計三軸運動控制平滑加減速 S-Curve 演算法），送出後點擊回答上方的「思考完畢 ∨」，即可完整展開 AI 在背後展開的步驟拆解、矛盾排除與自我修正記錄。"
+      },
+      {
+        "step": "5. 建立個人的專案最佳選模矩陣與官方文檔查閱",
+        "description": "日常開發維持「3.8 Flash + 低思考」，遇到頑固 Bug 或架構重構切換「3.1 Pro + 高思考」，執行全自主自動化任務切換至「4 Argon」，並隨時查閱 Google Cloud 官方文檔掌握最新模型規格與 API 調度機制。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "低延遲快速查詢：Flash-Lite 即時轉換",
+        "icon": "fa-solid fa-bolt",
+        "description": "在現場配線或現場調機時，快速查詢 ASCII 碼、十進位轉十六進位暫存器或正規表達式 Regex，毫秒級返回無須等待。"
+      },
+      {
+        "scenario": "複雜工控邏輯與死鎖排查：Pro + 高思考程度",
+        "icon": "fa-solid fa-brain",
+        "description": "遇到 PLC 通訊偶發性斷線、C# 執行緒競爭 (Race Condition) 時，切換至 3.1 Pro 並開啟「高思考程度」，讓 AI 窮舉各種例外狀況，徹底抓出根本問題。"
+      },
+      {
+        "scenario": "自主代理與端到端任務：Argon 引擎驅動",
+        "icon": "fa-solid fa-robot",
+        "description": "執行跨網頁巡訪、全站逆向工程與大型代碼庫重構時，指定 4 Argon 模型，釋放高階自主調度與規劃潛能。"
+      }
+    ],
+    "aiPrompt": "【高思考程度深度推理 Prompt 範例 - 關鍵安全工控演算法】：\n請以資深機電控制與運動演算法專家身份，設計一段三菱 PLC / C# 專用的 S-Curve (S型曲線) 七段式加減速控制演算邏輯：\n1. 請啟動最詳盡的思考推論，推導加加速度 (Jerk)、加速度 (Acceleration) 與速度 (Velocity) 之間的微積分連續性關係。\n2. 嚴格驗算在任意位移距離小於極限值（短行程無法達到最高速）時的退化三角形演算法。\n3. 產出具備防止除以零、浮點數溢位防呆與極限位置硬體看門狗保護的完整 C# 程式碼。",
+    "references": [
+      {
+        "title": "Google Cloud 官方文檔 - Gemini Enterprise Agent Platform 中的受管 Google 模型介紹",
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/google-models?hl=zh_tw"
+      },
+      {
+        "title": "Google Gemini 官方網站",
+        "url": "https://gemini.google.com"
+      },
+      {
+        "title": "Google DeepMind - Gemini 思考模型與思維鏈推論研究",
+        "url": "https://deepmind.google/technologies/gemini/"
+      },
+      {
+        "title": "Google Cloud - Vertex AI / Agent Platform 模型花園 (Model Garden)",
+        "url": "https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models"
+      }
+    ]
+  },
+  {
+    "id": "tool-gemini-gems",
+    "toolNumber": "09",
     "title": "Gemini 專屬 Gems - Node-RED 5W1H 導師",
     "date": "2026-08-26",
     "category": "Gemini 智慧協作",
@@ -476,7 +547,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-gemini-canvas",
-    "toolNumber": "09",
+    "toolNumber": "10",
     "title": "Gemini Canvas - 網頁與 SCADA 原型設計",
     "date": "2026-08-26",
     "category": "Gemini 智慧協作",
@@ -536,7 +607,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-gemini-notebook",
-    "toolNumber": "10",
+    "toolNumber": "11",
     "title": "Gemini Notebook - AI 個人知識庫與學習助理",
     "date": "2026-08-26",
     "category": "Gemini 智慧協作",
@@ -593,7 +664,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-gemini-notebook-integration",
-    "toolNumber": "11",
+    "toolNumber": "12",
     "title": "Gemini 整合 Notebook - 跨平台知識庫連結",
     "date": "2026-08-26",
     "category": "Gemini 智慧協作",
@@ -653,7 +724,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-ai-studio-app",
-    "toolNumber": "12",
+    "toolNumber": "13",
     "title": "Google AI Studio - New app 應用快速開發",
     "date": "2026-08-26",
     "category": "Gemini 智慧協作",
@@ -713,7 +784,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-manus-notion",
-    "toolNumber": "13",
+    "toolNumber": "14",
     "title": "Manus - 透過 MCP 協議串接 Notion 自動化筆記",
     "date": "2026-08-28",
     "category": "Manus AI Agent",
@@ -776,7 +847,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-manus-skills",
-    "toolNumber": "14",
+    "toolNumber": "15",
     "title": "Manus - 自訂技能 (Skills) 與 AI 互動教學網站生成",
     "date": "2026-08-28",
     "category": "Manus AI Agent",
@@ -836,7 +907,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-drive-gemini-notebook-canvas",
-    "toolNumber": "15",
+    "toolNumber": "16",
     "title": "Google 雲端硬碟掃描 ➔ NotebookLM ➔ Gemini Canvas 互動網頁全流程",
     "date": "2026-09-01",
     "category": "Gemini 智慧協作",
@@ -906,7 +977,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-nodered-flow-generator",
-    "toolNumber": "16",
+    "toolNumber": "17",
     "title": "Google AI Studio - New app: 圖片/文字輸入轉 Node-RED 流程與 JSON 程式碼",
     "date": "2026-09-03",
     "category": "Google AI 實用工具",
@@ -975,7 +1046,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-gemini-rate-limits",
-    "toolNumber": "17",
+    "toolNumber": "18",
     "title": "Google AI Studio - 查詢 Gemini API Key 使用量與速率限制 (Rate Limits)",
     "date": "2026-09-03",
     "category": "Google AI 實用工具",
@@ -1039,7 +1110,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-manus-desktop-pcb-bom",
-    "toolNumber": "18",
+    "toolNumber": "19",
     "title": "Manus 桌面版 - 本地資料夾讀寫與 PCB 影像視覺辨識自動生成 Excel BOM 表",
     "date": "2026-09-03",
     "category": "Manus AI Agent",
@@ -1105,7 +1176,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-manus-line-integration",
-    "toolNumber": "19",
+    "toolNumber": "20",
     "title": "Manus - 串接 LINE 通訊軟體打造 24 小時隨身 AI 智能助理",
     "date": "2026-09-05",
     "category": "Manus AI Agent",
@@ -1176,7 +1247,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-gemini-skills",
-    "toolNumber": "20",
+    "toolNumber": "21",
     "title": "Gemini 技能 (Skills) - 自訂重複性指令與斜線指令 (/node-red助教) 實務指南",
     "date": "2026-09-30",
     "category": "Gemini 智慧協作",
@@ -1246,7 +1317,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-google-antigravity-2",
-    "toolNumber": "21",
+    "toolNumber": "22",
     "title": "Google Antigravity 2.0 - 多 Agent 協同自主開發平台、Turbo Mode 極速權限與智慧工控中樞",
     "date": "2026-10-06",
     "category": "Google AI 實用工具",
@@ -1329,7 +1400,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-gemini-memory-service",
-    "toolNumber": "22",
+    "toolNumber": "23",
     "title": "Gemini - 記憶功能 (個人化智慧服務)、自訂指令與活動記錄管理",
     "date": "2026-10-15",
     "category": "Gemini 智慧協作",
@@ -1403,7 +1474,7 @@ window.INITIAL_AITOOLS_DATA = [
   },
   {
     "id": "tool-gemini-agent-task",
-    "toolNumber": "23",
+    "toolNumber": "24",
     "title": "Gemini - 任務 (Task) 模式與遠端瀏覽器自主網頁探勘、網站地圖與心智圖生成",
     "date": "2026-10-20",
     "category": "Gemini 智慧協作",

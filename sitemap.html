@@ -480,10 +480,16 @@
 
         <!-- 心智圖畫布視窗 -->
         <div class="mindmap-viewport" id="mindmapViewport">
-          <div class="mindmap-canvas" id="mindmapCanvas">
-            <!-- 透過 SVG 動態繪製連線與互動節點 -->
-            <svg id="mindmapSvg" width="1600" height="900" style="overflow: visible;"></svg>
-          </div>
+          <!-- 透過 SVG 內部 viewportGroup 進行純向量座標系置中與縮放，徹底避免 CSS 偏心問題 -->
+          <svg id="mindmapSvg" width="100%" height="100%" style="display: block; cursor: grab; user-select: none;">
+            <defs>
+              <filter id="nodeGlow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+            <g id="viewportGroup"></g>
+          </svg>
           <div class="mindmap-tip">
             <i class="fa-solid fa-hand-pointer"></i> 支援滑鼠拖曳畫布、滾輪縮放、點擊節點跳轉頁面
           </div>
@@ -716,7 +722,7 @@
               <i class="fa-solid fa-robot" style="color: #ec4899;"></i>
               <span>AI 協作工具箱 (AI Tools)</span>
             </div>
-            <span class="dir-badge" style="background: rgba(236, 72, 153, 0.2); color: #f472b6;">23 款 AI 工具</span>
+            <span class="dir-badge" style="background: rgba(236, 72, 153, 0.2); color: #f472b6;">24 款 AI 工具</span>
             <i class="fa-solid fa-arrow-right action-icon"></i>
           </a>
           <a href="aiknowledge.html" class="dir-link-item">
@@ -873,32 +879,22 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const svg = document.getElementById('mindmapSvg');
-      const canvas = document.getElementById('mindmapCanvas');
+      const viewportGroup = document.getElementById('viewportGroup');
       const viewport = document.getElementById('mindmapViewport');
 
-      // 畫布實體尺寸
-      const CANVAS_WIDTH = 2000;
-      const CANVAS_HEIGHT = 1000;
-      svg.setAttribute('width', CANVAS_WIDTH);
-      svg.setAttribute('height', CANVAS_HEIGHT);
-
-      const cx = 1000;
-      const cy = 500;
-
-      // 排版度量常數 (保證絕不重疊)
+      // 嚴格座標度量 (以 0, 0 為絕對中心)
       const LEAF_W = 210;
       const LEAF_H = 32;
       const LEAF_GAP = 12;
       const PITCH = LEAF_H + LEAF_GAP; // 44px
-      const GROUP_EXTRA_GAP = 30;     // 分組額外間隙
-      const BRANCH_OFFSET_X = 280;    // 一級節點 X 距離
-      const LEAF_OFFSET_X = 600;      // 葉節點 X 距離
+      const GROUP_EXTRA_GAP = 30;     // 群組垂直額外間隔
+      const BRANCH_X = 270;           // 一級節點 X 座標 (左側 -270，右側 +270)
+      const LEAF_X = 580;             // 二級葉節點 X 座標 (左側 -580，右側 +580)
       const GROUP_W = 180;
       const GROUP_H = 44;
 
       // 心智圖資料架構定義
       const mindmapData = {
-        id: 'root',
         title: '機電 AI 整合教學系統',
         sub: '五股職訓局 115-1期',
         color: '#38bdf8',
@@ -948,7 +944,7 @@
             url: 'aitools.html',
             collapsed: false,
             children: [
-              { id: 'ai-tools', title: '23 款 AI 工具箱 (Gemini任務/Suno)', color: '#f472b6', url: 'aitools.html' },
+              { id: 'ai-tools', title: '24 款 AI 工具箱 (Suno/Manus)', color: '#f472b6', url: 'aitools.html' },
               { id: 'ai-know', title: '提示詞工程與 ReAct 架構', color: '#fb7185', url: 'aiknowledge.html' }
             ]
           }
@@ -999,38 +995,35 @@
       };
 
       // 視窗平移與縮放變數
-      let scale = 0.85;
+      let scale = 1.0;
       let panX = 0;
       let panY = 0;
       let isDragging = false;
-      let startX, startY;
+      let startMouseX = 0;
+      let startMouseY = 0;
+      let startPanX = 0;
+      let startPanY = 0;
 
-      // 心智圖動態排版核心演算法 (Hierarchical Collision-Free Tree Layout)
+      function updateTransform() {
+        viewportGroup.setAttribute('transform', `translate(${panX}, ${panY}) scale(${scale})`);
+      }
+
+      // 動態無重疊心智圖繪製
       function renderMindmap() {
-        svg.innerHTML = '';
+        viewportGroup.innerHTML = '';
 
-        // 定義 SVG 濾鏡
-        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-        defs.innerHTML = `
-          <filter id="nodeGlow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-        `;
-        svg.appendChild(defs);
+        // 1. 繪製中央根節點 (位於座標 0, 0)
+        renderNode(0, 0, mindmapData.title, mindmapData.sub, mindmapData.color, mindmapData.url, true, 200, 52);
 
-        // 1. 繪製中央根節點
-        renderNode(cx, cy, mindmapData.title, mindmapData.sub, mindmapData.color, mindmapData.url, true, 200, 52);
-
-        // 2. 自適應無重疊垂直排版：左側分支 (direction = -1)
+        // 2. 自適應排版左側分支 (direction = -1)
         layoutSide(mindmapData.leftGroups, -1);
 
-        // 3. 自適應無重疊垂直排版：右側分支 (direction = 1)
+        // 3. 自適應排版右側分支 (direction = 1)
         layoutSide(mindmapData.rightGroups, 1);
       }
 
       function layoutSide(groups, direction) {
-        // 第一步：精準計算該側每個 group 的垂直空間需求
+        // 第一步：精準計算該側每個 group 的垂直高度
         const groupHeights = groups.map(g => {
           if (g.collapsed || !g.children || g.children.length === 0) {
             return GROUP_H + GROUP_EXTRA_GAP;
@@ -1039,10 +1032,10 @@
         });
 
         const totalSideHeight = groupHeights.reduce((a, b) => a + b, 0) - GROUP_EXTRA_GAP;
-        let currentY = cy - totalSideHeight / 2;
+        let currentY = -totalSideHeight / 2;
 
-        const branchX = cx + direction * BRANCH_OFFSET_X;
-        const leafX = cx + direction * LEAF_OFFSET_X;
+        const branchX = direction * BRANCH_X;
+        const leafX = direction * LEAF_X;
 
         // 第二步：依序擺放，保證所有節點 Y 座標區間絕對不相交
         groups.forEach((group, gIdx) => {
@@ -1057,14 +1050,14 @@
           } else {
             const firstChildY = currentY + LEAF_H / 2;
             const lastChildY = currentY + (group.children.length - 1) * PITCH + LEAF_H / 2;
-            // 父節點自然置中對齊所有子節點
+            // 父節點自然對齊子節點垂直中心
             groupY = (firstChildY + lastChildY) / 2;
 
-            // 繪製二級葉節點與其連線
+            // 繪製二級葉節點
             group.children.forEach((child, sIdx) => {
               const childY = currentY + sIdx * PITCH + LEAF_H / 2;
 
-              // 連線錨點：從一級節點外緣連到葉節點內緣
+              // 連線錨點：一級外緣 -> 葉節點內緣
               const anchorStartX = branchX + direction * (GROUP_W / 2);
               const anchorEndX = leafX - direction * (LEAF_W / 2);
 
@@ -1073,15 +1066,14 @@
             });
           }
 
-          // 連線錨點：從根節點外緣連到一級節點內緣
-          const rootAnchorX = cx + direction * 100;
+          // 連線錨點：根節點外緣 (±100) -> 一級節點內緣
+          const rootAnchorX = direction * 100;
           const groupAnchorX = branchX - direction * (GROUP_W / 2);
-          drawSmoothBezier(rootAnchorX, cy, groupAnchorX, groupY, group.color, 2.6, false);
+          drawSmoothBezier(rootAnchorX, 0, groupAnchorX, groupY, group.color, 2.6, false);
 
           // 繪製一級節點
           renderNode(branchX, groupY, group.title, null, group.color, group.url, false, GROUP_W, GROUP_H, false, group);
 
-          // 推進下一個群組的起始 Y
           currentY += gh;
         });
       }
@@ -1097,12 +1089,12 @@
         path.setAttribute('stroke', color);
         path.setAttribute('stroke-width', width);
         path.setAttribute('fill', 'none');
-        path.setAttribute('opacity', isDashed ? '0.6' : '0.75');
+        path.setAttribute('opacity', isDashed ? '0.6' : '0.8');
         if (isDashed) {
           path.setAttribute('stroke-dasharray', '5,4');
         }
         path.classList.add('mm-line');
-        svg.appendChild(path);
+        viewportGroup.appendChild(path);
       }
 
       function renderNode(x, y, text, subText, color, url, isRoot = false, w = 180, h = 44, isLeaf = false, groupObj = null) {
@@ -1122,7 +1114,6 @@
           });
         }
 
-        // 節點背景膠囊框
         const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         rect.setAttribute('x', -w / 2);
         rect.setAttribute('y', -h / 2);
@@ -1147,7 +1138,6 @@
         }
         g.appendChild(rect);
 
-        // 主標籤文字
         const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         txt.setAttribute('text-anchor', 'middle');
         txt.setAttribute('fill', isRoot ? '#ffffff' : (isLeaf ? '#cbd5e1' : '#f8fafc'));
@@ -1157,7 +1147,6 @@
         txt.textContent = text;
         g.appendChild(txt);
 
-        // 副標籤文字
         if (subText) {
           const sub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           sub.setAttribute('text-anchor', 'middle');
@@ -1169,9 +1158,9 @@
           g.appendChild(sub);
         }
 
-        // 一級節點上的可折疊/展開按鈕 [+] / [-]
+        // 折疊 / 展開按鈕
         if (groupObj && groupObj.children && groupObj.children.length > 0) {
-          const isLeft = x < cx;
+          const isLeft = x < 0;
           const toggleX = isLeft ? (-w / 2 - 12) : (w / 2 + 12);
 
           const toggleG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -1203,84 +1192,101 @@
           g.appendChild(toggleG);
         }
 
-        svg.appendChild(g);
+        viewportGroup.appendChild(g);
       }
 
-      function updateCanvasTransform() {
-        canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
-      }
-
-      // 自動最適視角計算 (Fit View) - 根據節點邊界自適應置中縮放
+      // 嚴格數學置中演算法 (100% 絕對居中，杜絕偏一邊)
       function fitView() {
         const vw = viewport.clientWidth;
         const vh = viewport.clientHeight;
-        
-        // 實際節點區域寬約 1460，高約 780
-        const contentW = 1560;
-        const contentH = 800;
-        const padX = 50;
-        const padY = 50;
+
+        // 心智圖以 (0, 0) 為中心，全寬約 1440，全高約 720
+        const contentW = 1440;
+        const contentH = 720;
+        const padX = 40;
+        const padY = 40;
 
         const scaleX = (vw - padX * 2) / contentW;
         const scaleY = (vh - padY * 2) / contentH;
-        
-        // 取最適縮放比例 (上限 1.05，下限 0.42)
-        scale = Math.min(Math.max(Math.min(scaleX, scaleY), 0.42), 1.05);
 
-        // 精準將 (cx, cy) 置於視窗中央
-        panX = (vw / 2) - (cx * scale);
-        panY = (vh / 2) - (cy * scale);
-        
-        updateCanvasTransform();
+        // 計算最佳縮放 (桌機通常在 0.75 ~ 0.95，手機自動下修)
+        scale = Math.min(Math.max(Math.min(scaleX, scaleY), 0.4), 1.05);
+
+        // 核心幾何公式：將中心 (0, 0) 精確對齊至視窗正中央 (vw/2, vh/2)
+        panX = vw / 2;
+        panY = vh / 2;
+
+        updateTransform();
       }
 
-      // 拖曳平移 (Pan)
-      viewport.addEventListener('mousedown', (e) => {
+      // 滑鼠拖曳平移 (Pan)
+      svg.addEventListener('mousedown', (e) => {
         isDragging = true;
-        startX = e.clientX - panX;
-        startY = e.clientY - panY;
+        svg.style.cursor = 'grabbing';
+        startMouseX = e.clientX;
+        startMouseY = e.clientY;
+        startPanX = panX;
+        startPanY = panY;
       });
+
       window.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
-        panX = e.clientX - startX;
-        panY = e.clientY - startY;
-        updateCanvasTransform();
-      });
-      window.addEventListener('mouseup', () => {
-        isDragging = false;
+        panX = startPanX + (e.clientX - startMouseX);
+        panY = startPanY + (e.clientY - startMouseY);
+        updateTransform();
       });
 
-      // 滾輪縮放 (Zoom)
+      window.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          svg.style.cursor = 'grab';
+        }
+      });
+
+      // 以滑鼠指針為錨點的無偏差縮放 (Zoom at mouse point)
       viewport.addEventListener('wheel', (e) => {
         e.preventDefault();
-        const zoomDelta = e.deltaY < 0 ? 0.08 : -0.08;
-        const oldScale = scale;
-        scale = Math.min(Math.max(0.4, scale + zoomDelta), 2.2);
-
-        // 以滑鼠位置為錨點縮放
         const rect = viewport.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        panX = mouseX - (mouseX - panX) * (scale / oldScale);
-        panY = mouseY - (mouseY - panY) * (scale / oldScale);
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
 
-        updateCanvasTransform();
+        const zoomFactor = e.deltaY < 0 ? 1.09 : 0.91;
+        const newScale = Math.min(Math.max(0.35, scale * zoomFactor), 2.2);
+
+        // 幾何錨點不變量公式
+        panX = mx - (mx - panX) * (newScale / scale);
+        panY = my - (my - panY) * (newScale / scale);
+        scale = newScale;
+
+        updateTransform();
       }, { passive: false });
 
-      // 控制按鈕監聽
+      // 按鈕控制
       document.getElementById('btnZoomIn').addEventListener('click', () => {
-        scale = Math.min(scale + 0.15, 2.2);
-        updateCanvasTransform();
+        const cxScreen = viewport.clientWidth / 2;
+        const cyScreen = viewport.clientHeight / 2;
+        const newScale = Math.min(scale * 1.15, 2.2);
+        panX = cxScreen - (cxScreen - panX) * (newScale / scale);
+        panY = cyScreen - (cyScreen - panY) * (newScale / scale);
+        scale = newScale;
+        updateTransform();
       });
+
       document.getElementById('btnZoomOut').addEventListener('click', () => {
-        scale = Math.max(scale - 0.15, 0.4);
-        updateCanvasTransform();
+        const cxScreen = viewport.clientWidth / 2;
+        const cyScreen = viewport.clientHeight / 2;
+        const newScale = Math.max(scale / 1.15, 0.35);
+        panX = cxScreen - (cxScreen - panX) * (newScale / scale);
+        panY = cyScreen - (cyScreen - panY) * (newScale / scale);
+        scale = newScale;
+        updateTransform();
       });
+
       document.getElementById('btnResetView').addEventListener('click', () => {
         fitView();
       });
+
       document.getElementById('btnToggleAll').addEventListener('click', () => {
-        // 切換全部展開 / 全部折疊
         const allLeft = mindmapData.leftGroups;
         const allRight = mindmapData.rightGroups;
         const anyExpanded = allLeft.some(g => !g.collapsed) || allRight.some(g => !g.collapsed);
@@ -1289,7 +1295,6 @@
         renderMindmap();
       });
 
-      // 視窗大小改變時重算
       window.addEventListener('resize', () => {
         fitView();
       });
