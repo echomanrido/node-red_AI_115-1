@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大型專案：網路商城-資料庫應用 (OpenCart + Node-RED) - 四大主題 Step by Step 實作教學</title>
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    :root {
+      --oc-red: #ef4444;
+      --oc-red-glow: rgba(239, 68, 68, 0.25);
+      --oc-blue: #0284c7;
+      --oc-amber: #f59e0b;
+      --oc-green: #10b981;
+      --oc-purple: #8b5cf6;
+      --oc-dark: #0b0f19;
+      --oc-card-bg: rgba(15, 23, 42, 0.7);
+      --oc-border: rgba(255, 255, 255, 0.08);
+    }
+
+    body {
+      background-color: var(--oc-dark);
+      color: #e2e8f0;
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    /* 頂部專案 Hero 區塊 */
+    .project-hero {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(2, 132, 199, 0.08) 50%, rgba(15, 23, 42, 0.95) 100%);
+      border-bottom: 1px solid var(--oc-border);
+      padding: 40px 20px 30px;
+      text-align: center;
+      position: relative;
+    }
+    .project-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+    }
+    .project-hero-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin: 0 0 12px 0;
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      letter-spacing: -0.5px;
+    }
+    .project-hero-title span {
+      background: linear-gradient(135deg, #f87171, #fb923c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .project-hero-desc {
+      max-width: 860px;
+      margin: 0 auto 20px;
+      font-size: 0.98rem;
+      color: #94a3b8;
+    }
+
+    /* 專題橫向導覽頁籤 (九大實務專題) */
+    .project-tabs-nav {
+      display: flex;
+      gap: 8px;
+      margin: 20px auto 30px;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid var(--oc-border);
+      max-width: 1200px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .project-tab-link {
+      flex: 1;
+      min-width: 170px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.82rem;
+      transition: all 0.25s ease;
+      color: #94a3b8;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .project-tab-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .project-tab-link.active {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(2, 132, 199, 0.2));
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.4);
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.15);
+    }
+
+    /* 主題切換導覽列 (1~4 循序漸進) */
+    .theme-switch-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      max-width: 1160px;
+      margin: 0 auto 35px;
+      padding: 0 16px;
+    }
+    @media (max-width: 900px) {
+      .theme-switch-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 550px) {
+      .theme-switch-bar {
+        grid-template-columns: 1fr;
+      }
+    }
+    .theme-switch-btn {
+      background: var(--oc-card-bg);
+      border: 1px solid var(--oc-border);
+      padding: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .theme-switch-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: #64748b;
+      transition: all 0.3s;
+    }
+    .theme-switch-btn:hover {
+      border-color: rgba(239, 68, 68, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    .theme-switch-btn.active {
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+      border-color: #ef4444;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.25);
+    }
+    .theme-switch-btn.active::before {
+      background: #ef4444;
+      width: 6px;
+    }
+    .theme-btn-step {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .theme-switch-btn.active .theme-btn-step {
+      color: #f87171;
+    }
+    .theme-btn-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin: 0;
+    }
+    .theme-btn-desc {
+      font-size: 0.76rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* 主要內容容器 */
+    .content-container {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 16px 60px;
+    }
+
+    /* 區塊卡片 */
+    .theme-section {
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+    .theme-section.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-box {
+      background: var(--oc-card-bg);
+      border: 1px solid var(--oc-border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+    .card-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 12px;
+    }
+    .card-title-wrap i {
+      font-size: 1.4rem;
+      color: #ef4444;
+    }
+    .card-title-wrap h3 {
+      font-size: 1.28rem;
+      font-weight: 700;
+      margin: 0;
+      color: #f8fafc;
+    }
+
+    /* Step 指引條列 */
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .step-item {
+      display: flex;
+      gap: 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      padding: 16px 18px;
+      transition: all 0.2s ease;
+    }
+    .step-item:hover {
+      border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(0, 0, 0, 0.35);
+    }
+    .step-num-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.88rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-body {
+      flex: 1;
+    }
+    .step-heading {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin: 0 0 6px 0;
+    }
+    .step-desc {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      margin: 0 0 10px 0;
+      line-height: 1.5;
+    }
+
+    /* 程式碼與指令框 */
+    .code-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      font-family: 'Fira Code', monospace;
+    }
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #ef4444;
+    }
+    .code-box {
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 0 0 8px 8px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      color: #38bdf8;
+      margin: 0 0 12px 0;
+      white-space: pre;
+    }
+
+    /* 警告與提醒 Callout */
+    .alert-callout {
+      border-left: 4px solid #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+      font-size: 0.86rem;
+      color: #fca5a5;
+    }
+    .alert-callout.tip {
+      border-left-color: #10b981;
+      background: rgba(16, 185, 129, 0.08);
+      color: #6ee7b7;
+    }
+    .alert-callout.info {
+      border-left-color: #0284c7;
+      background: rgba(2, 132, 199, 0.08);
+      color: #7dd3fc;
+    }
+
+    /* 表格樣式 */
+    .schema-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      margin: 14px 0;
+    }
+    .schema-table th, .schema-table td {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 10px 14px;
+      text-align: left;
+    }
+    .schema-table th {
+      background: rgba(15, 23, 42, 0.9);
+      color: #f1f5f9;
+      font-weight: 700;
+    }
+    .schema-table tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Toast 通知 */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #10b981;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.86rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      z-index: 9999;
+      display: none;
+      animation: toastIn 0.3s ease;
+    }
+    @keyframes toastIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header class="home-navbar" style="border-bottom: 1px solid var(--border-color); background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center;">
+    <div class="brand-logo" style="display: flex; align-items: center; gap: 10px;">
+      <i class="fa-solid fa-microchip logo-icon" style="color: #ef4444; font-size: 1.4rem;"></i>
+      <div class="brand-titles">
+        <h1 class="main-title" style="font-size: 1.05rem; margin: 0; color: #fff;">五股職訓局</h1>
+        <span class="sub-title" style="font-size: 0.72rem; color: #94a3b8;">機電AI_115-1期（指導老師：Rido老師）</span>
+      </div>
+    </div>
+    <div class="nav-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+      <a href="index.html" class="nav-cta-btn secondary-btn" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-main); padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: 0.8rem;">
+        <i class="fa-solid fa-house"></i> 首頁
+      </a>
+      <a href="sitemap.html" class="nav-cta-btn secondary-btn" style="background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: 0.8rem;">
+        <i class="fa-solid fa-sitemap"></i> 網站地圖
+      </a>
+      <a href="labs.html" class="nav-cta-btn secondary-btn" style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); color: #06b6d4; padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: 0.8rem;">
+        <i class="fa-solid fa-flask"></i> Node-RED
+      </a>
+      <a href="project.html" class="nav-cta-btn secondary-btn" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: 0.8rem;">
+        <i class="fa-solid fa-diagram-project"></i> 實務專題
+      </a>
+    </div>
+  </header>
+
+  <!-- 專案 Hero 區塊 -->
+  <section class="project-hero">
+    <div class="project-badge-pill">
+      <i class="fa-brands fa-node-js"></i> Node-RED 智慧控制模組・大型實戰專案
+    </div>
+    <h1 class="project-hero-title">大型專案：網路商城與資料庫應用 <span>(OpenCart + Node-RED)</span></h1>
+    <p class="project-hero-desc">
+      從客戶前台選購工件下單，貫穿 MariaDB 關聯式資料庫，藉由 Node-RED 邊緣運算執行派工、加急調度、虛擬 CNC 切削模擬與即時良率 KPI 看板，完整體驗工業 4.0 垂直整合實戰！
+    </p>
+  </section>
+
+  <!-- 九大實務專題橫向導覽頁籤 -->
+  <div class="project-tabs-nav">
+    <a href="labs.html" class="project-tab-link">
+      <i class="fa-solid fa-flask" style="color: #06b6d4;"></i> Node-RED 課程實驗 (Labs)
+    </a>
+    <a href="supplements.html" class="project-tab-link">
+      <i class="fa-solid fa-book" style="color: #38bdf8;"></i> 學習補充教材
+    </a>
+    <a href="nodered_projects.html" class="project-tab-link">
+      <i class="fa-solid fa-diagram-project" style="color: #fca5a5;"></i> 22 大實務專題
+    </a>
+    <a href="nodered_internals.html" class="project-tab-link">
+      <i class="fa-solid fa-microchip" style="color: #67e8f9;"></i> 底層運作邏輯
+    </a>
+    <a href="project_opencart.html" class="project-tab-link active">
+      <i class="fa-solid fa-cart-shopping" style="color: #ef4444;"></i> 大型專案：OpenCart 智慧商城與資料庫
+    </a>
+  </div>
+
+  <!-- 主題 1~4 循序漸進切換按鈕 (Step by Step) -->
+  <div class="theme-switch-bar">
+    <div class="theme-switch-btn active" onclick="switchTheme(1)">
+      <div class="theme-btn-step"><span>STEP 01</span> <span>投影片 01 (95頁)</span></div>
+      <h4 class="theme-btn-title">主題一：環境搭建與 OpenCart 架設</h4>
+      <div class="theme-btn-desc">XAMPP 安裝、80 Port 排解、資料庫建置、中文化與工件分類</div>
+    </div>
+    <div class="theme-switch-btn" onclick="switchTheme(2)">
+      <div class="theme-btn-step"><span>STEP 02</span> <span>投影片 02 (41頁)</span></div>
+      <h4 class="theme-btn-title">主題二：網路商城設定與工件管理</h4>
+      <div class="theme-btn-desc">自訂規格屬性、工件商品上架、購物車下單與底層資料表剖析</div>
+    </div>
+    <div class="theme-switch-btn" onclick="switchTheme(3)">
+      <div class="theme-btn-step"><span>STEP 03</span> <span>投影片 04 (29頁)</span></div>
+      <h4 class="theme-btn-title">主題三：SQL 語法與電商資料庫查詢</h4>
+      <div class="theme-btn-desc">SELECT、WHERE、UPDATE、LEFT JOIN、SUM/COUNT 與巢狀子查詢</div>
+    </div>
+    <div class="theme-switch-btn" onclick="switchTheme(4)">
+      <div class="theme-btn-step"><span>STEP 04</span> <span>投影片 05 (68頁)</span></div>
+      <h4 class="theme-btn-title">主題四：Node-RED 串接與智慧製造</h4>
+      <div class="theme-btn-desc">MySQL 節點連線、動態加急派工、虛擬切削 LED 模擬與良率 KPI 看板</div>
+    </div>
+  </div>
+
+  <!-- 主要內容區塊 -->
+  <main class="content-container">
+
+    <!-- ==================================================================== -->
+    <!-- 主題一：環境搭建與 OpenCart 架設 -->
+    <!-- ==================================================================== -->
+    <section class="theme-section active" id="theme-sec-1">
+      <div class="card-box">
+        <div class="card-title-wrap">
+          <i class="fa-solid fa-server"></i>
+          <h3>主題一：XAMPP 與 OpenCart 基礎環境建置 (循序漸進 Step by Step)</h3>
+        </div>
+        <p style="color: #94a3b8; font-size: 0.92rem; margin-bottom: 20px;">
+          本主題從零搭建 LAMP/WAMP 架構，排解 Windows 系統 80 Port 占用問題，設定 PHP 運作環境，並順利啟動 OpenCart 4.x 繁體中文購物商城。
+        </p>
+
+        <div class="step-list">
+          <!-- Step 1-1 -->
+          <div class="step-item">
+            <div class="step-num-badge">1</div>
+            <div class="step-body">
+              <h4 class="step-heading">下載並安裝 XAMPP 整合套件</h4>
+              <p class="step-desc">
+                前往 Apache Friends 官網下載適用 Windows 之 XAMPP 套件，安裝至 <code>C:\xampp</code>。套件內含 Apache (Web伺服器)、MariaDB (MySQL資料庫)、PHP (解析引擎) 與 phpMyAdmin。
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 1-2 -->
+          <div class="step-item">
+            <div class="step-num-badge">2</div>
+            <div class="step-body">
+              <h4 class="step-heading">解決常見故障：80 Port 被 System (PID 4) 占用鎖死</h4>
+              <p class="step-desc">
+                若 Apache 啟動失敗出現紅字，通常是 Windows 內建之 HTTP.SYS 占用了 80 Port。請以系統管理員身分開啟 CMD 執行以下指令：
+              </p>
+              <div class="code-toolbar">
+                <span>Command Prompt (CMD - 系統管理員)</span>
+                <button class="copy-btn" onclick="copyCode('code-cmd-port80')"><i class="fa-solid fa-copy"></i> 複製指令</button>
+              </div>
+              <pre class="code-box" id="code-cmd-port80">net stop http
+sc config http start= disabled</pre>
+              <div class="alert-callout tip">
+                <i class="fa-solid fa-circle-check"></i> 執行後在 XAMPP 點擊 Apache Start，即可看到綠燈順利亮起！
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 1-3 -->
+          <div class="step-item">
+            <div class="step-num-badge">3</div>
+            <div class="step-body">
+              <h4 class="step-heading">解壓縮 OpenCart 並調整 php.ini 擴充設定</h4>
+              <p class="step-desc">
+                將 <code>opencart-4.x.zip</code> 中的 upload 資料夾解壓縮至 <code>C:\xampp\htdocs\opencart</code>。接著點選 XAMPP Apache 旁的 Config -> <b>PHP (php.ini)</b>，搜尋並拿掉下列模組行首的分號 <code>;</code>：
+              </p>
+              <pre class="code-box">extension=curl
+extension=gd
+extension=mbstring
+extension=openssl
+extension=zip</pre>
+            </div>
+          </div>
+
+          <!-- Step 1-4 -->
+          <div class="step-item">
+            <div class="step-num-badge">4</div>
+            <div class="step-body">
+              <h4 class="step-heading">關鍵更名：config-dist.php 改為 config.php</h4>
+              <p class="step-desc">
+                OpenCart 規定安裝前必須手動將樣板檔重新命名，否則安裝精靈會報錯無法寫入：
+              </p>
+              <ul style="color: #94a3b8; font-size: 0.88rem; padding-left: 20px;">
+                <li>將 <code>C:\xampp\htdocs\opencart\config-dist.php</code> 重新命名為 <code>config.php</code></li>
+                <li>將 <code>C:\xampp\htdocs\opencart\admin\config-dist.php</code> 重新命名為 <code>config.php</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Step 1-5 -->
+          <div class="step-item">
+            <div class="step-num-badge">5</div>
+            <div class="step-body">
+              <h4 class="step-heading">phpMyAdmin 建立資料庫與安裝精靈設定</h4>
+              <p class="step-desc">
+                開啟 <code>http://localhost/phpmyadmin/</code>，建立名為 <code>db_opencart</code> (編碼 utf8mb4_general_ci) 的資料庫。接著瀏覽器進入 <code>http://localhost/opencart/install/index.php</code>，資料庫使用者填 <code>root</code>、密碼留空，並設定後台管理者帳號密碼完成安裝。
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 1-6 -->
+          <div class="step-item">
+            <div class="step-num-badge">6</div>
+            <div class="step-body">
+              <h4 class="step-heading">安裝繁中語系包與新增「工件」商品分類</h4>
+              <p class="step-desc">
+                下載 <code>zh-TW-4.zip</code> 解壓縮置入語言目錄，至後台 System -> Localisation -> Languages 新增繁體中文並設為商店預設語系。最後至 Catalog -> Categories 新增分類名稱「工件 (workpiece)」，勾選「在頂部選單顯示 (Top)」，前台首頁導覽列便會立即呈現工件專區！
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- 主題二：網路商城設定與工件管理 -->
+    <!-- ==================================================================== -->
+    <section class="theme-section" id="theme-sec-2">
+      <div class="card-box">
+        <div class="card-title-wrap">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          <h3>主題二：網路商城設定與工件管理 (規格屬性、下單實測與資料表剖析)</h3>
+        </div>
+        <p style="color: #94a3b8; font-size: 0.92rem; margin-bottom: 20px;">
+          本主題聚焦於工業工件之標準化上架流程，實測客戶端購物車結帳機制，並深入剖析 MariaDB 中支撐智慧製造運轉的關鍵資料表結構。
+        </p>
+
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num-badge">1</div>
+            <div class="step-body">
+              <h4 class="step-heading">自訂工業工件屬性 (Attributes) 與規格選項 (Options)</h4>
+              <p class="step-desc">
+                在後台 Catalog -> Attributes 建立「加工規格」群組，新增「工件材質 (Material)」與「加工公差 (Tolerance)」屬性；在 Options 新增「表面處理」選項 (陽極氧化、染黑、拋光)，模擬現場製造多樣化客製需求。
+              </p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-num-badge">2</div>
+            <div class="step-body">
+              <h4 class="step-heading">正式上架商品：精密圓形工件 (WP-RND-001)</h4>
+              <p class="step-desc">
+                至 Catalog -> Products 點擊新增。填寫品名「精密圓形工件」、型號「WP-RND-001」、單價「150 元」、設定庫存「100 件」，並關聯至「工件」分類與上傳 CAD 渲染圖，完成上架。
+              </p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-num-badge">3</div>
+            <div class="step-body">
+              <h4 class="step-heading">前台下單流程實測 (產生測試訂單)</h4>
+              <p class="step-desc">
+                開啟前台商城 <code>http://localhost/opencart/</code>，進入「工件」專區選購 5 件「精密圓形工件」加入購物車。點擊結帳並註冊測試帳號，選擇貨到付款完成送出，系統立即產生真實訂單 (如 Order #10)。
+              </p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-num-badge">4</div>
+            <div class="step-body">
+              <h4 class="step-heading">資料庫核心資料表結構深度剖析</h4>
+              <p class="step-desc">
+                下單瞬間，OpenCart 會在 <code>db_opencart</code> 寫入多張關聯資料表，其中以下三張表為 Node-RED 介接核心：
+              </p>
+              
+              <table class="schema-table">
+                <thead>
+                  <tr>
+                    <th>資料表名稱</th>
+                    <th>核心欄位</th>
+                    <th>型態</th>
+                    <th>工業 4.0 智慧製造意義</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="color: #f87171; font-weight: bold;">oc_order</td>
+                    <td><code>order_id</code><br><code>order_status_id</code><br><code>total</code><br><code>date_added</code></td>
+                    <td>INT<br>INT<br>DECIMAL<br>DATETIME</td>
+                    <td>訂單主表。記錄全廠生產訂單代碼、目前製造狀態編號 (1:待產, 2:加工中, 5:完工) 與下單時間。</td>
+                  </tr>
+                  <tr>
+                    <td style="color: #38bdf8; font-weight: bold;">oc_order_product</td>
+                    <td><code>order_id</code><br><code>name</code><br><code>model</code><br><code>quantity</code></td>
+                    <td>INT<br>VARCHAR<br>VARCHAR<br>INT</td>
+                    <td>工件明細表。詳細紀錄各筆訂單所購買的工件品名、CNC 加工型號與<b>預計加工件數 (Quantity)</b>。</td>
+                  </tr>
+                  <tr>
+                    <td style="color: #fbbf24; font-weight: bold;">oc_order_history</td>
+                    <td><code>order_id</code><br><code>order_status_id</code><br><code>comment</code><br><code>date_added</code></td>
+                    <td>INT<br>INT<br>TEXT<br>DATETIME</td>
+                    <td>訂單歷程表。記錄每一次現場調度、加急操作或機台完工之歷史稽核軌跡 (Audit Log)。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- 主題三：SQL 語法與電商資料庫查詢 -->
+    <!-- ==================================================================== -->
+    <section class="theme-section" id="theme-sec-3">
+      <div class="card-box">
+        <div class="card-title-wrap">
+          <i class="fa-solid fa-database"></i>
+          <h3>主題三：SQL 語法簡介與電商資料庫精準查詢 (全國技能競賽重點)</h3>
+        </div>
+        <p style="color: #94a3b8; font-size: 0.92rem; margin-bottom: 20px;">
+          SQL 是控制與擷取工業資料庫的關鍵語言。本主題涵蓋基礎查詢、資料更新、外部連接，以及第 53 屆全國技能競賽「工業 4.0」專用的多層巢狀子查詢 (Subquery)。
+        </p>
+
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num-badge">1</div>
+            <div class="step-body">
+              <h4 class="step-heading">基礎篩選查詢：篩選未完成之待產訂單</h4>
+              <p class="step-desc">
+                排除已完工 (status=5) 與已取消 (status=7) 的訂單，精準取出待排程的訂單編號：
+              </p>
+              <div class="code-toolbar">
+                <span>SQL Query</span>
+                <button class="copy-btn" onclick="copyCode('code-sql-pending-orders')"><i class="fa-solid fa-copy"></i> 複製語法</button>
+              </div>
+              <pre class="code-box" id="code-sql-pending-orders">SELECT `order_id` FROM `oc_order` WHERE `order_status_id` != '5' AND `order_status_id` != '7';</pre>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-num-badge">2</div>
+            <div class="step-body">
+              <h4 class="step-heading">多表連接 LEFT JOIN：查詢訂單關聯之工件品名與加工數量</h4>
+              <p class="step-desc">
+                將訂單主表 <code>oc_order</code> 與明細表 <code>oc_order_product</code> 依據 <code>order_id</code> 關聯，獲取工件品名與生產數量：
+              </p>
+              <div class="code-toolbar">
+                <span>SQL Query (LEFT JOIN)</span>
+                <button class="copy-btn" onclick="copyCode('code-sql-join')"><i class="fa-solid fa-copy"></i> 複製語法</button>
+              </div>
+              <pre class="code-box" id="code-sql-join">SELECT 
+    oc_order.order_id, 
+    oc_order_product.name AS workpiece_name, 
+    oc_order_product.quantity AS target_qty
+FROM oc_order
+LEFT JOIN oc_order_product ON oc_order.order_id = oc_order_product.order_id
+WHERE oc_order.order_id = 10;</pre>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-num-badge">3</div>
+            <div class="step-body">
+              <h4 class="step-heading">狀態更新 UPDATE 與歷程寫入 INSERT INTO (加急派工)</h4>
+              <p class="step-desc">
+                當產線決定加急插單時，同步變更訂單狀態碼為 99 並於歷史表留下紀錄。<b>注意：UPDATE 絕對不可遺漏 WHERE 條件！</b>
+              </p>
+              <div class="code-toolbar">
+                <span>SQL DML (UPDATE + INSERT)</span>
+                <button class="copy-btn" onclick="copyCode('code-sql-update-insert')"><i class="fa-solid fa-copy"></i> 複製語法</button>
+              </div>
+              <pre class="code-box" id="code-sql-update-insert">-- 1. 更新訂單狀態為加急 (order_status_id = 99)
+UPDATE oc_order SET order_status_id = 99 WHERE order_id = 10;
+
+-- 2. 插入歷史紀錄
+INSERT INTO oc_order_history (order_id, order_status_id, notify, comment, date_added) 
+VALUES (10, 99, 1, '現場作業員透過 Node-RED MES 啟動加急作業', NOW());</pre>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-num-badge">4</div>
+            <div class="step-body">
+              <h4 class="step-heading">國手競賽級：兩階段巢狀子查詢 (待生產工件總量統計)</h4>
+              <p class="step-desc">
+                若一筆訂單有多項工件，直接簡單 SUM 會造成分組混亂。標準做法是先由內層依 <code>order_id</code> 分組計算各訂單工件總數，再由外層加總出全廠待生產工件總數：
+              </p>
+              <div class="code-toolbar">
+                <span>SQL Subquery (待生產工件總量)</span>
+                <button class="copy-btn" onclick="copyCode('code-sql-subquery-pending')"><i class="fa-solid fa-copy"></i> 複製語法</button>
+              </div>
+              <pre class="code-box" id="code-sql-subquery-pending">SELECT SUM(total_quantity) AS grand_total_quantity FROM (
+    SELECT 
+        oc_order.order_id, 
+        oc_order.order_status_id, 
+        SUM(oc_order_product.quantity) AS total_quantity 
+    FROM oc_order 
+    LEFT JOIN oc_order_product ON oc_order.order_id = oc_order_product.order_id 
+    WHERE oc_order.order_status_id < '5' 
+    GROUP BY oc_order.order_id, oc_order.order_status_id
+) AS subquery;</pre>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-num-badge">5</div>
+            <div class="step-body">
+              <h4 class="step-heading">國手競賽級：兩階段巢狀子查詢 (已完工工件總量統計)</h4>
+              <p class="step-desc">
+                將篩選條件改為 <code>order_status_id = '5'</code> (已完成 Complete)，即可高速統計出全廠已完工合格入庫的工件總數：
+              </p>
+              <div class="code-toolbar">
+                <span>SQL Subquery (已完工工件總量)</span>
+                <button class="copy-btn" onclick="copyCode('code-sql-subquery-complete')"><i class="fa-solid fa-copy"></i> 複製語法</button>
+              </div>
+              <pre class="code-box" id="code-sql-subquery-complete">SELECT SUM(total_quantity) AS grand_total_quantity FROM (
+    SELECT 
+        oc_order.order_id, 
+        oc_order.order_status_id, 
+        SUM(oc_order_product.quantity) AS total_quantity 
+    FROM oc_order 
+    LEFT JOIN oc_order_product ON oc_order.order_id = oc_order_product.order_id 
+    WHERE oc_order.order_status_id = '5' 
+    GROUP BY oc_order.order_id, oc_order.order_status_id
+) AS subquery;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- 主題四：Node-RED 串接與智慧製造 -->
+    <!-- ==================================================================== -->
+    <section class="theme-section" id="theme-sec-4">
+      <div class="card-box">
+        <div class="card-title-wrap">
+          <i class="fa-solid fa-network-wired"></i>
+          <h3>主題四：Node-RED 串接電商資料庫與智慧製造實戰 (MES 邊緣系統)</h3>
+        </div>
+        <p style="color: #94a3b8; font-size: 0.92rem; margin-bottom: 20px;">
+          本主題使用 Node-RED 與 <code>node-red-node-mysql</code>、<code>node-red-dashboard</code> 打造全自動化工廠 MES 調度中心，涵蓋動態下拉選單、加急更新、LED 動態加工狀態機與產能良率 KPI 儀表。
+        </p>
+
+        <div class="step-list">
+          <!-- Step 4-1 -->
+          <div class="step-item">
+            <div class="step-num-badge">1</div>
+            <div class="step-body">
+              <h4 class="step-heading">單元一：動態訂單下拉選單 (msg.options 轉換機制)</h4>
+              <p class="step-desc">
+                透過 MySQL 節點定時查詢未完工工單，利用 Function 節點將資料庫 Array 封裝成 Dashboard 要求的 <code>msg.options</code> 格式，讓作業員能隨時選擇當前待切削之工單：
+              </p>
+              <pre class="code-box">let options = [];
+if (Array.isArray(msg.payload) && msg.payload.length > 0) {
+    msg.payload.forEach(row => {
+        options.push({ label: "待產工單 #" + row.order_id, value: row.order_id });
+    });
+    msg.options = options;
+    msg.payload = options[0].value;
+    flow.set("selected_order_id", msg.payload);
+}
+return msg;</pre>
+            </div>
+          </div>
+
+          <!-- Step 4-2 -->
+          <div class="step-item">
+            <div class="step-num-badge">2</div>
+            <div class="step-body">
+              <h4 class="step-heading">單元二：一鍵訂單加急機制 (Emergency Push)</h4>
+              <p class="step-desc">
+                點擊 Dashboard 的「🚨 訂單加急處理」紅色按鈕，Node-RED 立即組裝多重 SQL 指令將 <code>order_status_id</code> 提升為加急狀態，同時寫入 <code>oc_order_history</code> 並彈出 Toast 提示視窗，實現敏捷調度。
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 4-3 -->
+          <div class="step-item">
+            <div class="step-num-badge">3</div>
+            <div class="step-body">
+              <h4 class="step-heading">單元三：虛擬機台切削加工模擬與動態 LED 燈號</h4>
+              <p class="step-desc">
+                在 <code>ui_template</code> 節點中使用 HTML/CSS 打造自適應圓形狀態燈號，模擬機台加工循環：
+              </p>
+              <pre class="code-box">&lt;div style="text-align: center; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;"&gt;
+    &lt;div style="border: 2px solid #ffffff; border-radius: 50%; width: 50px; height: 50px; margin: 0 auto; 
+                box-shadow: 0 0 16px {{msg.payload || '#10b981'}}; background-color: {{msg.payload || '#10b981'}};"&gt;
+    &lt;/div&gt;
+    &lt;div style="margin-top: 10px; font-weight: bold; color: #f8fafc;"&gt;
+        &lt;span ng-bind="msg.status_text || '機台待機中 (Standby)'"&gt;&lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+              <ul style="color: #94a3b8; font-size: 0.88rem; padding-left: 20px;">
+                <li><b>待機狀態</b>：綠燈 (<code>#10b981</code>)，顯示「機台待機中」。</li>
+                <li><b>切削中狀態</b>：點擊啟動，切換為橙黃燈 (<code>#f59e0b</code>)，進入 4 秒延遲模擬切削。</li>
+                <li><b>完工回寫</b>：延遲結束，藍燈閃爍提示完工，自動執行 SQL 將 <code>order_status_id</code> 更新為 5 (已完成)！</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Step 4-4 -->
+          <div class="step-item">
+            <div class="step-num-badge">4</div>
+            <div class="step-body">
+              <h4 class="step-heading">單元四：產能指標 KPI 看板與即時良率計算 (Yield Rate)</h4>
+              <p class="step-desc">
+                定時觸發主題三的兩階段巢狀子查詢，並整合現場不良品數量，在 Function 節點計算出即時全廠良率百分比：
+              </p>
+              <pre class="code-box">let completeCount = flow.get("kpi_complete") || 0;
+let defectCount = flow.get("kpi_defects") || 2; // 抽檢不良品
+let totalProduced = completeCount + defectCount;
+let yieldRate = totalProduced > 0 ? ((completeCount / totalProduced) * 100).toFixed(1) : 100.0;
+msg.payload = parseFloat(yieldRate);
+return msg;</pre>
+              <p class="step-desc">
+                數據自動導向 Dashboard 的 Gauge 圓形儀表板，分別呈現「待生產工件數 (藍/橙/紅)」、「已完工工件數 (綠)」與「產線即時良率 (0~100%)」，打造直覺專業的戰情室儀表板！
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 4-5 -->
+          <div class="step-item">
+            <div class="step-num-badge">5</div>
+            <div class="step-body">
+              <h4 class="step-heading">開箱即用：完整 Node-RED Flow 流程代碼</h4>
+              <p class="step-desc">
+                複製下方完整 Flow JSON，開啟 Node-RED (http://localhost:1880) -> 右上角選單 -> 匯入 (Import) -> 貼上並點選部署，即可在 <code>http://localhost:1880/ui/</code> 立即操作！
+              </p>
+              <div class="code-toolbar">
+                <span>Node-RED Flow JSON (可一鍵匯入)</span>
+                <button class="copy-btn" onclick="copyFlowJson()"><i class="fa-solid fa-copy"></i> 複製完整 Flow JSON</button>
+              </div>
+              <pre class="code-box" id="code-flow-preview" style="max-height: 260px; overflow-y: auto;">載入 Flow JSON 中...</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 浮動 Toast 通知 -->
+  <div class="toast-msg" id="toastMsg">
+    <i class="fa-solid fa-check"></i> 複製成功！
+  </div>
+
+  <script>
+    // 切換主題 (1 ~ 4)
+    function switchTheme(themeNum) {
+      document.querySelectorAll('.theme-switch-btn').forEach((btn, idx) => {
+        if (idx === themeNum - 1) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.theme-section').forEach((sec, idx) => {
+        if (idx === themeNum - 1) {
+          sec.classList.add('active');
+        } else {
+          sec.classList.remove('active');
+        }
+      });
+      window.scrollTo({ top: 400, behavior: 'smooth' });
+    }
+
+    // 複製程式碼
+    function copyCode(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      navigator.clipboard.writeText(el.innerText).then(() => {
+        showToast("已成功複製指令至剪貼簿！");
+      });
+    }
+
+    // 複製完整 Flow JSON
+    let fullFlowJsonString = "";
+    fetch('0.原始檔案請問上傳/node-red/專案_網路商城-資料庫應用_OpenCart/flows/opencart_mes_dashboard_flow.json')
+      .then(res => res.text())
+      .then(data => {
+        fullFlowJsonString = data;
+        const preview = document.getElementById('code-flow-preview');
+        if (preview) {
+          preview.innerText = data.substring(0, 1500) + "\n\n... (其餘內容已準備完畢，點擊上方按鈕可複製完整 100% 代碼) ...";
+        }
+      })
+      .catch(err => {
+        console.error("載入 Flow 失敗:", err);
+      });
+
+    function copyFlowJson() {
+      if (fullFlowJsonString) {
+        navigator.clipboard.writeText(fullFlowJsonString).then(() => {
+          showToast("已成功複製完整 Node-RED Flow JSON！請至 Node-RED 匯入");
+        });
+      } else {
+        showToast("Flow 資料準備中，請稍後重試");
+      }
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toastMsg');
+      toast.innerHTML = '<i class="fa-solid fa-check"></i> ' + text;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

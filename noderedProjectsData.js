@@ -1471,6 +1471,10 @@ const INITIAL_NODERED_PROJECTS_DATA = [
         "url": "https://www.opencart.com/"
       },
       {
+        "title": "【大型專案旗艦講義】網路商城-資料庫應用 (OpenCart + Node-RED) 四大主題教學",
+        "url": "project_opencart.html"
+      },
+      {
         "title": "node-red-node-mysql 官方節點套件",
         "url": "https://flows.nodered.org/node/node-red-node-mysql"
       }
