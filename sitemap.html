@@ -158,6 +158,9 @@
       overflow: hidden;
       cursor: grab;
       user-select: none;
+      -webkit-user-select: none;
+      touch-action: none; /* 關鍵：攔截瀏覽器預設捲動，交由 JS 處理雙指縮放與拖曳 */
+      -webkit-touch-callout: none;
     }
     .mm-toggle-badge {
       cursor: pointer;
@@ -374,8 +377,11 @@
     .theme-simulators { border-top: 3px solid #0ea5e9; }
 
     @media (max-width: 768px) {
-      .sitemap-title { font-size: 1.85rem; }
-      .mindmap-viewport { height: 480px; }
+      .sitemap-title { font-size: 1.75rem; }
+      .mindmap-viewport { height: 560px; }
+      .mindmap-header { padding: 12px 14px; }
+      .mindmap-controls { width: 100%; justify-content: flex-end; gap: 6px; }
+      .map-btn { padding: 7px 11px; font-size: 0.8rem; }
       .directory-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -491,7 +497,7 @@
             <g id="viewportGroup"></g>
           </svg>
           <div class="mindmap-tip">
-            <i class="fa-solid fa-hand-pointer"></i> 支援滑鼠拖曳畫布、滾輪縮放、點擊節點跳轉頁面
+            <i class="fa-solid fa-mobile-screen"></i> 支援雙指縮放・單指滑動・滾輪縮放・點擊跳轉
           </div>
         </div>
       </div>
@@ -659,6 +665,13 @@
             <span class="dir-badge" style="background: rgba(245, 158, 11, 0.2); color: #fde68a;">MCCL 四軸同動</span>
             <i class="fa-solid fa-arrow-right action-icon"></i>
           </a>
+              <a href="project_opencart.html" class="sitemap-item-card" style="border-left-color: #ef4444;">
+                <div class="sitemap-item-icon" style="color: #ef4444;"><i class="fa-solid fa-cart-shopping"></i></div>
+                <div class="sitemap-item-content">
+                  <h4>專案：網路商城-資料庫應用 (OpenCart)</h4>
+                  <p>XAMPP 環境建置・電商工件下單・SQL 巢狀查詢・Node-RED MES 調度看板</p>
+                </div>
+              </a>
         </div>
       </div>
 
@@ -998,7 +1011,10 @@
       let scale = 1.0;
       let panX = 0;
       let panY = 0;
+
+      // 觸控與滑鼠操作狀態標記
       let isDragging = false;
+      let hasMovedSignificantly = false;
       let startMouseX = 0;
       let startMouseY = 0;
       let startPanX = 0;
@@ -1023,7 +1039,6 @@
       }
 
       function layoutSide(groups, direction) {
-        // 第一步：精準計算該側每個 group 的垂直高度
         const groupHeights = groups.map(g => {
           if (g.collapsed || !g.children || g.children.length === 0) {
             return GROUP_H + GROUP_EXTRA_GAP;
@@ -1037,7 +1052,6 @@
         const branchX = direction * BRANCH_X;
         const leafX = direction * LEAF_X;
 
-        // 第二步：依序擺放，保證所有節點 Y 座標區間絕對不相交
         groups.forEach((group, gIdx) => {
           const gh = groupHeights[gIdx];
           const hasChildren = group.children && group.children.length > 0;
@@ -1050,14 +1064,10 @@
           } else {
             const firstChildY = currentY + LEAF_H / 2;
             const lastChildY = currentY + (group.children.length - 1) * PITCH + LEAF_H / 2;
-            // 父節點自然對齊子節點垂直中心
             groupY = (firstChildY + lastChildY) / 2;
 
-            // 繪製二級葉節點
             group.children.forEach((child, sIdx) => {
               const childY = currentY + sIdx * PITCH + LEAF_H / 2;
-
-              // 連線錨點：一級外緣 -> 葉節點內緣
               const anchorStartX = branchX + direction * (GROUP_W / 2);
               const anchorEndX = leafX - direction * (LEAF_W / 2);
 
@@ -1066,12 +1076,10 @@
             });
           }
 
-          // 連線錨點：根節點外緣 (±100) -> 一級節點內緣
           const rootAnchorX = direction * 100;
           const groupAnchorX = branchX - direction * (GROUP_W / 2);
           drawSmoothBezier(rootAnchorX, 0, groupAnchorX, groupY, group.color, 2.6, false);
 
-          // 繪製一級節點
           renderNode(branchX, groupY, group.title, null, group.color, group.url, false, GROUP_W, GROUP_H, false, group);
 
           currentY += gh;
@@ -1104,7 +1112,9 @@
         g.style.color = color;
 
         if (url) {
+          // 支援點擊跳轉，但滑動/拖曳結束時不誤觸發
           g.addEventListener('click', (e) => {
+            if (hasMovedSignificantly) return;
             e.stopPropagation();
             if (url.startsWith('http')) {
               window.open(url, '_blank');
@@ -1168,10 +1178,10 @@
           toggleG.setAttribute('transform', `translate(${toggleX}, 0)`);
 
           const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          circle.setAttribute('r', '9');
+          circle.setAttribute('r', '10');
           circle.setAttribute('fill', '#0f172a');
           circle.setAttribute('stroke', color);
-          circle.setAttribute('stroke-width', '1.5');
+          circle.setAttribute('stroke-width', '1.6');
           toggleG.appendChild(circle);
 
           const sym = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -1184,6 +1194,7 @@
           toggleG.appendChild(sym);
 
           toggleG.addEventListener('click', (e) => {
+            if (hasMovedSignificantly) return;
             e.stopPropagation();
             groupObj.collapsed = !groupObj.collapsed;
             renderMindmap();
@@ -1195,33 +1206,34 @@
         viewportGroup.appendChild(g);
       }
 
-      // 嚴格數學置中演算法 (100% 絕對居中，杜絕偏一邊)
+      // 嚴格幾何自適應置中演算法 (100% 絕對居中，支援手機小螢幕自適應)
       function fitView() {
         const vw = viewport.clientWidth;
         const vh = viewport.clientHeight;
 
-        // 心智圖以 (0, 0) 為中心，全寬約 1440，全高約 720
         const contentW = 1440;
         const contentH = 720;
-        const padX = 40;
-        const padY = 40;
+        const padX = vw < 768 ? 20 : 40;
+        const padY = vw < 768 ? 20 : 40;
 
         const scaleX = (vw - padX * 2) / contentW;
         const scaleY = (vh - padY * 2) / contentH;
 
-        // 計算最佳縮放 (桌機通常在 0.75 ~ 0.95，手機自動下修)
-        scale = Math.min(Math.max(Math.min(scaleX, scaleY), 0.4), 1.05);
+        // 計算最佳縮放 (手機上自動調整為最適全景比例)
+        scale = Math.min(Math.max(Math.min(scaleX, scaleY), 0.35), 1.05);
 
-        // 核心幾何公式：將中心 (0, 0) 精確對齊至視窗正中央 (vw/2, vh/2)
         panX = vw / 2;
         panY = vh / 2;
 
         updateTransform();
       }
 
-      // 滑鼠拖曳平移 (Pan)
+      // ========================================================
+      // 1. 滑鼠操作事件 (桌面滑鼠拖曳與滾輪縮放)
+      // ========================================================
       svg.addEventListener('mousedown', (e) => {
         isDragging = true;
+        hasMovedSignificantly = false;
         svg.style.cursor = 'grabbing';
         startMouseX = e.clientX;
         startMouseY = e.clientY;
@@ -1231,8 +1243,13 @@
 
       window.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
-        panX = startPanX + (e.clientX - startMouseX);
-        panY = startPanY + (e.clientY - startMouseY);
+        const dx = e.clientX - startMouseX;
+        const dy = e.clientY - startMouseY;
+        if (Math.hypot(dx, dy) > 5) {
+          hasMovedSignificantly = true;
+        }
+        panX = startPanX + dx;
+        panY = startPanY + dy;
         updateTransform();
       });
 
@@ -1240,10 +1257,11 @@
         if (isDragging) {
           isDragging = false;
           svg.style.cursor = 'grab';
+          setTimeout(() => { hasMovedSignificantly = false; }, 50);
         }
       });
 
-      // 以滑鼠指針為錨點的無偏差縮放 (Zoom at mouse point)
+      // 滑鼠滾輪縮放 (Zoom at mouse anchor)
       viewport.addEventListener('wheel', (e) => {
         e.preventDefault();
         const rect = viewport.getBoundingClientRect();
@@ -1251,9 +1269,8 @@
         const my = e.clientY - rect.top;
 
         const zoomFactor = e.deltaY < 0 ? 1.09 : 0.91;
-        const newScale = Math.min(Math.max(0.35, scale * zoomFactor), 2.2);
+        const newScale = Math.min(Math.max(0.3, scale * zoomFactor), 2.5);
 
-        // 幾何錨點不變量公式
         panX = mx - (mx - panX) * (newScale / scale);
         panY = my - (my - panY) * (newScale / scale);
         scale = newScale;
@@ -1261,11 +1278,132 @@
         updateTransform();
       }, { passive: false });
 
-      // 按鈕控制
+      // ========================================================
+      // 2. 手機觸控手勢事件 (Touch Pan & Pinch Zoom 雙指縮放)
+      // ========================================================
+      let touchMode = null; // 'pan' | 'pinch'
+      let initialTouchDist = 0;
+      let initialScale = 1;
+      let initialMidX = 0;
+      let initialMidY = 0;
+      let initialPanX = 0;
+      let initialPanY = 0;
+
+      function getTouchDist(t1, t2) {
+        return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      }
+
+      function getTouchMid(t1, t2, rect) {
+        return {
+          x: ((t1.clientX + t2.clientX) / 2) - rect.left,
+          y: ((t1.clientY + t2.clientY) / 2) - rect.top
+        };
+      }
+
+      viewport.addEventListener('touchstart', (e) => {
+        hasMovedSignificantly = false;
+        const rect = viewport.getBoundingClientRect();
+
+        if (e.touches.length === 1) {
+          // 單指拖曳
+          touchMode = 'pan';
+          startMouseX = e.touches[0].clientX;
+          startMouseY = e.touches[0].clientY;
+          startPanX = panX;
+          startPanY = panY;
+        } else if (e.touches.length >= 2) {
+          // 雙指捏合縮放 (Pinch)
+          touchMode = 'pinch';
+          initialTouchDist = getTouchDist(e.touches[0], e.touches[1]);
+          const mid = getTouchMid(e.touches[0], e.touches[1], rect);
+          initialMidX = mid.x;
+          initialMidY = mid.y;
+          initialScale = scale;
+          initialPanX = panX;
+          initialPanY = panY;
+        }
+      }, { passive: false });
+
+      viewport.addEventListener('touchmove', (e) => {
+        if (!touchMode) return;
+        // 阻止手機頁面彈跳捲動，專注於心智圖操作
+        e.preventDefault();
+
+        const rect = viewport.getBoundingClientRect();
+
+        if (touchMode === 'pan' && e.touches.length === 1) {
+          const dx = e.touches[0].clientX - startMouseX;
+          const dy = e.touches[0].clientY - startMouseY;
+          if (Math.hypot(dx, dy) > 6) {
+            hasMovedSignificantly = true;
+          }
+          panX = startPanX + dx;
+          panY = startPanY + dy;
+          updateTransform();
+        } else if (touchMode === 'pinch' && e.touches.length >= 2) {
+          hasMovedSignificantly = true;
+          const curDist = getTouchDist(e.touches[0], e.touches[1]);
+          if (initialTouchDist > 0) {
+            const ratio = curDist / initialTouchDist;
+            const newScale = Math.min(Math.max(0.3, initialScale * ratio), 2.5);
+
+            const curMid = getTouchMid(e.touches[0], e.touches[1], rect);
+
+            // 雙指中心點錨定縮放公式
+            panX = curMid.x - (initialMidX - initialPanX) * (newScale / initialScale);
+            panY = curMid.y - (initialMidY - initialPanY) * (newScale / initialScale);
+            scale = newScale;
+
+            updateTransform();
+          }
+        }
+      }, { passive: false });
+
+      viewport.addEventListener('touchend', (e) => {
+        if (e.touches.length === 0) {
+          touchMode = null;
+          setTimeout(() => { hasMovedSignificantly = false; }, 60);
+        } else if (e.touches.length === 1) {
+          // 雙指鬆開剩一指，平滑切換回單指拖曳
+          touchMode = 'pan';
+          startMouseX = e.touches[0].clientX;
+          startMouseY = e.touches[0].clientY;
+          startPanX = panX;
+          startPanY = panY;
+        }
+      });
+
+      viewport.addEventListener('touchcancel', () => {
+        touchMode = null;
+        hasMovedSignificantly = false;
+      });
+
+      // 支援雙擊 (Double Tap) 快速放大與重設
+      let lastTapTime = 0;
+      viewport.addEventListener('touchend', (e) => {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTapTime;
+        if (tapLength < 300 && tapLength > 0 && !hasMovedSignificantly) {
+          // 雙擊切換放大 / 適配全景
+          if (scale < 0.7) {
+            scale = 1.0;
+          } else {
+            scale = 0.5;
+          }
+          panX = viewport.clientWidth / 2;
+          panY = viewport.clientHeight / 2;
+          updateTransform();
+        }
+        lastTapTime = currentTime;
+      });
+
+      // ========================================================
+      // 3. 控制按鈕與螢幕事件
+      // ========================================================
       document.getElementById('btnZoomIn').addEventListener('click', () => {
         const cxScreen = viewport.clientWidth / 2;
         const cyScreen = viewport.clientHeight / 2;
-        const newScale = Math.min(scale * 1.15, 2.2);
+        const newScale = Math.min(scale * 1.18, 2.5);
         panX = cxScreen - (cxScreen - panX) * (newScale / scale);
         panY = cyScreen - (cyScreen - panY) * (newScale / scale);
         scale = newScale;
@@ -1275,7 +1413,7 @@
       document.getElementById('btnZoomOut').addEventListener('click', () => {
         const cxScreen = viewport.clientWidth / 2;
         const cyScreen = viewport.clientHeight / 2;
-        const newScale = Math.max(scale / 1.15, 0.35);
+        const newScale = Math.max(scale / 1.18, 0.3);
         panX = cxScreen - (cxScreen - panX) * (newScale / scale);
         panY = cyScreen - (cyScreen - panY) * (newScale / scale);
         scale = newScale;
@@ -1295,8 +1433,12 @@
         renderMindmap();
       });
 
+      // 手機旋轉螢幕與視窗 Resize 事件
       window.addEventListener('resize', () => {
         fitView();
+      });
+      window.addEventListener('orientationchange', () => {
+        setTimeout(fitView, 150);
       });
 
       // 初始化渲染與置中
