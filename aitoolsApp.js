@@ -267,13 +267,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 依據 Google Cloud 官方最新架構規範，全面解析四大受管無伺服器 (Serverless) 模型與「思考程度」調控心法
               </p>
             </div>
-            <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/google-models?hl=zh_tw" target="_blank" rel="noopener noreferrer" style="font-size: 0.82rem; background: rgba(14, 165, 233, 0.18); color: #38bdf8; padding: 6px 14px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.4); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
-              <i class="fa-solid fa-arrow-up-right-from-square"></i> Google Cloud 官方文檔
-            </a>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <a href="https://ai.google.dev/gemini-api/docs/thinking?hl=zh-tw" target="_blank" rel="noopener noreferrer" style="font-size: 0.82rem; background: rgba(236, 72, 153, 0.18); color: #f472b6; padding: 6px 14px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(236, 72, 153, 0.4); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <i class="fa-solid fa-brain"></i> 控制思考官方文檔
+              </a>
+              <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/google-models?hl=zh_tw" target="_blank" rel="noopener noreferrer" style="font-size: 0.82rem; background: rgba(14, 165, 233, 0.18); color: #38bdf8; padding: 6px 14px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.4); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Agent Platform 官方文檔
+              </a>
+            </div>
           </div>
 
           <!-- 四大模型卡片網格 -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 20px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 22px;">
             <!-- 卡片 1: 4 Argon -->
             <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.4); border-top: 3px solid #a855f7; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
               <div>
@@ -343,23 +348,127 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
 
+          <!-- ★ 控制思考 (Controlling Thinking) 與 thinking_level 參數支援對照表 -->
+          <div style="background: rgba(11, 15, 25, 0.85); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.35);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h4 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-brain" style="color: #ec4899;"></i>
+                  <span>控制思考 (Controlling Thinking)</span>
+                </h4>
+                <p style="color: #cbd5e1; font-size: 0.88rem; margin: 6px 0 0; line-height: 1.6;">
+                  Gemini 模型預設會進行動態思考，根據要求的複雜程度，自動調整推論工作量。您可以使用 <code style="background: rgba(236, 72, 153, 0.15); color: #f472b6; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9em; border: 1px solid rgba(236, 72, 153, 0.3);">thinking_level</code> 參數控制這項行為。
+                </p>
+              </div>
+              <span style="font-size: 0.75rem; background: rgba(236, 72, 153, 0.15); color: #f472b6; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(236, 72, 153, 0.3); font-weight: 600;">
+                <i class="fa-solid fa-sliders"></i> thinking_level 參數矩陣
+              </span>
+            </div>
+
+            <!-- 12款模型思考規格完整對照表格 -->
+            <div style="overflow-x: auto; margin-top: 14px; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px;">
+              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.86rem;">
+                <thead>
+                  <tr style="background: rgba(255, 255, 255, 0.04); border-bottom: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8;">
+                    <th style="padding: 10px 16px; font-weight: 700;">模型 (Model)</th>
+                    <th style="padding: 10px 16px; font-weight: 700;">預設思考 (Default Thinking)</th>
+                    <th style="padding: 10px 16px; font-weight: 700;">支援的層級 (Supported Levels)</th>
+                  </tr>
+                </thead>
+                <tbody style="color: #e2e8f0;">
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: rgba(168, 85, 247, 0.04);">
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 700; color: #c084fc;">gemini-4-argon</td>
+                    <td style="padding: 9px 16px;"><span style="color: #38bdf8; font-weight: 600;">開啟 (中)</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">低、中、高</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: rgba(16, 185, 129, 0.04);">
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 700; color: #34d399;">gemini-3.8-flash</td>
+                    <td style="padding: 9px 16px;"><span style="color: #38bdf8; font-weight: 600;">開啟 (中)</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">低、中、高</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 600;">gemini-3.6-flash</td>
+                    <td style="padding: 9px 16px;"><span style="color: #38bdf8; font-weight: 600;">開啟 (中)</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">極低、低、中、高</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: rgba(245, 158, 11, 0.04);">
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 700; color: #fbbf24;">gemini-3.5-flash-lite</td>
+                    <td style="padding: 9px 16px;"><span style="color: #fde047; font-weight: 600;">開啟 (極簡)</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">極低、低、中、高</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: rgba(56, 189, 248, 0.04);">
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 700; color: #38bdf8;">gemini-3.1-pro-preview</td>
+                    <td style="padding: 9px 16px;"><span style="color: #fb7185; font-weight: 600;">開啟 (高)</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">低、中、高</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 600;">gemini-3.1-flash-lite-image</td>
+                    <td style="padding: 9px 16px;"><span style="color: #fde047; font-weight: 600;">開啟 (極簡)</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">極低、高</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 600;">gemini-3-flash-preview</td>
+                    <td style="padding: 9px 16px;"><span style="color: #fb7185; font-weight: 600;">開啟 (高)</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">極低、低、中、高</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 600;">gemini-3-pro-preview</td>
+                    <td style="padding: 9px 16px;"><span style="color: #fb7185; font-weight: 600;">開啟 (高)</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">低、高</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 600;">gemini-2.5-pro</td>
+                    <td style="padding: 9px 16px;"><span style="color: #34d399; font-weight: 600;">開啟</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">低、中、高</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 600;">gemini-2.5-flash</td>
+                    <td style="padding: 9px 16px;"><span style="color: #34d399; font-weight: 600;">開啟</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">低、中、高</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 600; color: #94a3b8;">gemini-2.5-flash-lite</td>
+                    <td style="padding: 9px 16px;"><span style="color: #ef4444; font-weight: 600;">關閉</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">低、中、高</span></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 9px 16px; font-family: monospace; font-weight: 700; color: #f43f5e;">gemini-robotics-er-2-preview</td>
+                    <td style="padding: 9px 16px;"><span style="color: #fb7185; font-weight: 600;">開啟 (高)</span></td>
+                    <td style="padding: 9px 16px;"><span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px;">極低、低、中、高</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 官方截圖放大按鈕 -->
+            <div style="margin-top: 14px; text-align: right;">
+              <span class="zoom-hint" style="cursor: pointer; color: #f472b6; font-size: 0.8rem; font-weight: 600;" onclick="const img = document.querySelector('img[src*=\'thinking_levels_control_table\']'); if (img) img.click();">
+                <i class="fa-solid fa-magnifying-glass-plus"></i> 點擊下方截圖可放大檢視 Google 官方完整對照表
+              </span>
+            </div>
+          </div>
+
           <!-- 思考程度 (Thinking Levels) 動態調節機制說明 -->
           <div style="background: rgba(11, 15, 25, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 16px;">
             <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-brain" style="color: #ec4899;"></i>
-              <span>思考程度 (Thinking Levels) 三階深度解析</span>
+              <i class="fa-solid fa-sliders" style="color: #ec4899;"></i>
+              <span>思考程度層級說明 (Thinking Levels Deep Dive)</span>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+              <div style="background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #f59e0b;">
+                <div style="font-weight: 700; color: #fbbf24; font-size: 0.85rem; margin-bottom: 3px;">• 極低 (Minimal)</div>
+                <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">極簡推論，優先追求極限低延遲，適用於正則表達式、單行指令語法校正。</div>
+              </div>
               <div style="background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #10b981;">
-                <div style="font-weight: 700; color: #34d399; font-size: 0.85rem; margin-bottom: 3px;">• 低 (高效)</div>
-                <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">幾乎無額外思考延遲，AI 直接輸出結果，適合已知固定解的標準範例、樣板代碼生成。</div>
+                <div style="font-weight: 700; color: #34d399; font-size: 0.85rem; margin-bottom: 3px;">• 低 (高效 / Low)</div>
+                <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">幾乎無額外思考延遲，AI 直接輸出結果，適合已知固定解的標準樣板與即時問答。</div>
               </div>
               <div style="background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #38bdf8;">
-                <div style="font-weight: 700; color: #38bdf8; font-size: 0.85rem; margin-bottom: 3px;">• 中等 (適中)</div>
+                <div style="font-weight: 700; color: #38bdf8; font-size: 0.85rem; margin-bottom: 3px;">• 中等 (適中 / Medium)</div>
                 <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">展開 5~15 秒邏輯推導與步驟拆解，在速度與解答嚴謹度間達到最佳平衡。</div>
               </div>
               <div style="background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #f43f5e;">
-                <div style="font-weight: 700; color: #fb7185; font-size: 0.85rem; margin-bottom: 3px;">• 高 (詳盡)</div>
+                <div style="font-weight: 700; color: #fb7185; font-size: 0.85rem; margin-bottom: 3px;">• 高 (詳盡 / High)</div>
                 <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">啟動深度思維鏈 (Chain of Thought)，逐步驗證假設邊界並反思修正，專攻高安全工控演算法。</div>
               </div>
             </div>

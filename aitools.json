@@ -424,32 +424,33 @@
     "title": "Gemini - 模型選擇 (Flash-Lite / Flash / Pro / Argon) 與思考程度調控",
     "date": "2026-10-20",
     "category": "Gemini 智慧協作",
-    "summary": "依據 Google Cloud「Gemini Enterprise Agent Platform (企業代理人平台)」官方文檔規範，Google 提供全面託管、無伺服器 (Serverless) 的頂尖模型體系：從秒級回應的極低延遲「3.5 Flash-Lite」、全方位智慧高密度的通用主力「3.8 Flash」、專攻深層邏輯與架構推論的「3.1 Pro」，到具備統一超長上下文視窗與長程規劃能力的旗艦級推理自主代理核心「4 Argon」。更突破性地引入「思考程度 (Thinking Levels)」動態調節機制（低 / 中等 / 高），允許開發者依據工控任務的複雜度與延遲容忍度，精確掌控 AI 在作答前的思維鏈 (Chain of Thought) 深度，達到速度、成本與推理品質的極致平衡。",
+    "summary": "Google Gemini 模型預設具備「動態思考 (Dynamic Thinking)」能力，會自動根據任務複雜度調整推論工作量。開發者與工程師可透過網頁介面的「思考程度」選單，或在 Gemini API 透過 thinking_level 參數精確控制 AI 的思維鏈深度（支援極低、低、中、高）。結合 Google Cloud「Gemini Enterprise Agent Platform」與 Google AI Studio 最新規範，本單元完整解析四大核心模型（3.5 Flash-Lite、3.8 Flash、3.1 Pro、4 Argon）以及 12 款 Gemini 模型系列在「預設思考狀態」與「支援思考層級」上的完整對照，讓工控軟體開發在速度、算力成本與深層推理品質間達到最佳化平衡。",
     "webUrl": "https://gemini.google.com",
     "flowImage": [
-      "images_src/ok/20261020_gemini_model_selection_thinking_levels.png"
+      "images_src/ok/20261020_gemini_model_selection_thinking_levels.png",
+      "images_src/ok/20261020_gemini_thinking_levels_control_table.png"
     ],
-    "objective": "1. 深入理解 Google Cloud Gemini Enterprise Agent Platform 官方定義之四大模型階層（3.5 Flash-Lite、3.8 Flash、3.1 Pro、4 Argon）的核心定位與算力取向。\n2. 掌握「思考程度 (Thinking Levels)」機制：低（高效即時）、中等（適中平衡）、高（詳盡深層推理）的底層思維鏈運作。\n3. 學會在工控機電實作中依情境精準選模：快速語法查詢選 Flash-Lite、通訊除錯選 Pro、自主全站巡檢與跨工具鏈調度選 Argon。\n4. 掌握透過「思考程度：高」迫使模型在輸出代碼前進行全方位的 PLC 暫存器衝突檢驗、除零防呆與因果反思。\n5. 了解無伺服器完全託管 (Serverless)、上下文長度 (Context Window)、配額限制 (Rate Limits) 及回應延遲 (Latency) 的最佳工程配置。",
+    "objective": "1. 深入理解 Google Gemini 官方「控制思考 (Thinking Process)」運作原理與 thinking_level 參數調控機制。\n2. 掌握官方 12 款 Gemini 模型（包含 gemini-4-argon、gemini-3.8-flash、gemini-3.1-pro 等）的「預設思考」與「支援層級（極低、低、中、高）」規格對照。\n3. 學會在工控機電實作中依情境精準選模：快速語法查詢選 Flash-Lite (極低/低思考)、通訊除錯選 3.1 Pro (高思考)、自主全站巡檢與跨系統調度選 4 Argon (中/高思考)。\n4. 掌握透過「思考程度：高」迫使模型在輸出代碼前進行全方位的 PLC 暫存器衝突檢驗、除零防呆與因果反思。\n5. 了解如何在程式碼 API 呼叫中設定 thinking_budget 與 thinking_level 參數，實現自動化測試流水線的最佳推論設定。",
     "tutorialSteps": [
       {
         "step": "1. 進入 Gemini 頂部輸入面板並展開模型切換選單",
         "description": "開啟 Google Gemini 首頁 (https://gemini.google.com)，在輸入框右上側點擊目前的模型標籤（例如「Flash ⌃」），即可展開包含四大核心模型與思考程度設定的完整下拉面板。"
       },
       {
-        "step": "2. 掌握 Google Enterprise Agent Platform 官方四大模型定位",
-        "description": "依據 Google 官方說明，平台提供四種針對不同算力密度與任務長度最佳化的受管模型：\n• 3.5 Flash-Lite（回覆最快）：高吞吐量 (High-Throughput) 與超低延遲 (Ultra-low Latency) 模型，毫秒級即時響應，適合語法查詢、簡易進制轉換 (Hex/Dec) 或正則表達式驗證。\n• 3.8 Flash（全方位協助）：高智能密度 (Intelligence-Dense) 的黃金比例主力，兼顧速度與推理品質，是日常撰寫 Node-RED Flow、生成前端儀表板的預設首選。\n• 3.1 Pro（進階推論）：進階多步驟推理 (Deep Multi-step Reasoning) 大腦核心，專為複雜邏輯推導打造，適合排查 C# 異步並發死鎖、Modbus CRC 封包除錯或多變量數值運算。\n• 4 Argon（複雜任務）：Google 新一代旗艦級推理自主代理核心 (Flagship Reasoning & Agentic Model)，具備統一超長上下文視窗、長程多步驟規劃 (Long-horizon Planning) 與遠端瀏覽器容器自主調用能力。"
+        "step": "2. 掌握 Google 官方 12 款模型思考規格與預設配置",
+        "description": "依據 Google AI 官方文件 (ai.google.dev/gemini-api/docs/thinking)，Gemini 各模型對思考程度的預設行為與支援層級如下：\n• gemini-4-argon：預設「開啟 (中)」，支援：低、中、高。\n• gemini-3.8-flash：預設「開啟 (中)」，支援：低、中、高。\n• gemini-3.6-flash：預設「開啟 (中)」，支援：極低、低、中、高。\n• gemini-3.5-flash-lite：預設「開啟 (極簡)」，支援：極低、低、中、高。\n• gemini-3.1-pro-preview：預設「開啟 (高)」，支援：低、中、高。\n• gemini-3.1-flash-lite-image：預設「開啟 (極簡)」，支援：極低、高。\n• gemini-3-flash-preview：預設「開啟 (高)」，支援：極低、低、中、高。\n• gemini-3-pro-preview：預設「開啟 (高)」，支援：低、高。\n• gemini-2.5-pro：預設「開啟」，支援：低、中、高。\n• gemini-2.5-flash：預設「開啟」，支援：低、中、高。\n• gemini-2.5-flash-lite：預設「關閉」，支援：低、中、高。\n• gemini-robotics-er-2-preview：預設「開啟 (高)」，支援：極低、低、中、高。"
       },
       {
         "step": "3. 配置「思考程度 (Thinking Levels)」深淺度",
-        "description": "在模型選單底部將滑鼠移至「思考程度 ▶」子選單：\n• 低（高效）：幾乎零額外思考延遲，AI 直接給出結論與代碼，適用於標準樣板生成與快速即時問答。\n• 中等（適中）：AI 在回答前展開 5~15 秒的邏輯推演，適合中等複雜度的工控通訊邏輯與資料庫 SQL 查詢。\n• 高（詳盡）：啟動超長思維鏈 (Chain of Thought)，模型會自我反思 (Self-Reflection)、假設檢驗並逐步驗證 Edge Cases，最適合架構設計與安全關鍵 (Safety-Critical) 代碼生成。"
+        "description": "在網頁介面模型選單底部將滑鼠移至「思考程度 ▶」子選單，或在 API 傳入 thinking_level 參數：\n• 極低 / 低 (高效)：幾乎零額外思考延遲，AI 直接給出結論與代碼，適用於標準樣板生成、正則表達式或簡易進制轉換。\n• 中等 (適中)：AI 在回答前展開 5~15 秒的邏輯推演，適合中等複雜度的工控通訊邏輯與資料庫 SQL 查詢。\n• 高 (詳盡)：啟動超長思維鏈 (Chain of Thought)，模型會主動自我反思 (Self-Reflection)、假設檢驗並逐步驗證 Edge Cases，最適合架構設計與安全關鍵 (Safety-Critical) 代碼生成。"
       },
       {
         "step": "4. 輸入測試 Prompt 並即時檢視思考過程",
         "description": "輸入複雜的工控問題（如：設計三軸運動控制平滑加減速 S-Curve 演算法），送出後點擊回答上方的「思考完畢 ∨」，即可完整展開 AI 在背後展開的步驟拆解、矛盾排除與自我修正記錄。"
       },
       {
-        "step": "5. 建立個人的專案最佳選模矩陣與官方文檔查閱",
-        "description": "日常開發維持「3.8 Flash + 低思考」，遇到頑固 Bug 或架構重構切換「3.1 Pro + 高思考」，執行全自主自動化任務切換至「4 Argon」，並隨時查閱 Google Cloud 官方文檔掌握最新模型規格與 API 調度機制。"
+        "step": "5. API 開發整合與 thinking_level 參數實務",
+        "description": "在 Python / Node.js 呼叫 Gemini 3.1 Pro 或 4 Argon 時，可配置 GenerationConfig(thinking_config={'thinking_level': 'HIGH'})，即可在自動化 CI/CD 或工控單元測試中，強制要求 AI 執行深度多步驟推理。"
       }
     ],
     "applications": [
@@ -472,6 +473,10 @@
     "aiPrompt": "【高思考程度深度推理 Prompt 範例 - 關鍵安全工控演算法】：\n請以資深機電控制與運動演算法專家身份，設計一段三菱 PLC / C# 專用的 S-Curve (S型曲線) 七段式加減速控制演算邏輯：\n1. 請啟動最詳盡的思考推論，推導加加速度 (Jerk)、加速度 (Acceleration) 與速度 (Velocity) 之間的微積分連續性關係。\n2. 嚴格驗算在任意位移距離小於極限值（短行程無法達到最高速）時的退化三角形演算法。\n3. 產出具備防止除以零、浮點數溢位防呆與極限位置硬體看門狗保護的完整 C# 程式碼。",
     "references": [
       {
+        "title": "Google AI 官方開發指南 - 控制思考 (Thinking in Gemini)",
+        "url": "https://ai.google.dev/gemini-api/docs/thinking?hl=zh-tw"
+      },
+      {
         "title": "Google Cloud 官方文檔 - Gemini Enterprise Agent Platform 中的受管 Google 模型介紹",
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/google-models?hl=zh_tw"
       },
@@ -482,10 +487,6 @@
       {
         "title": "Google DeepMind - Gemini 思考模型與思維鏈推論研究",
         "url": "https://deepmind.google/technologies/gemini/"
-      },
-      {
-        "title": "Google Cloud - Vertex AI / Agent Platform 模型花園 (Model Garden)",
-        "url": "https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models"
       }
     ]
   },
