@@ -1,4 +1,5 @@
-var INITIAL_LABS_DATA = [
+// Node-RED 實作課程資料庫
+const labsData = [
   {
     "id": "lab-01",
     "labNumber": "01",
@@ -9339,12 +9340,270 @@ var INITIAL_LABS_DATA = [
         "icon": "fa-solid fa-code"
       }
     ]
+  },
+  {
+    "id": "lab-34",
+    "labNumber": "34",
+    "title": "實作 13: Node-RED Dashboard Themes - 自訂 CSS 打造現代高質感漸層儀表板主題",
+    "date": "2026-10-21",
+    "category": "進階",
+    "summary": "在 Node-RED Dashboard 2.0 (v2) 中，前端採用現代化 Vue 3 與 Vuetify 3 框架進行元件渲染。本實作透過在流程中加入 ui-template 節點注入自訂 CSS，精確覆寫全局漸層背景 (55deg #009785 ➔ #245aa5 ➔ #b800e9)、頂部列透明化、側邊欄毛玻璃特效、群組卡片半透明背景與圓角邊框，將預設簡陋的白色介面徹底蛻變為科技感十足的現代 SCADA 戰情室主題！",
+    "flowImage": "images_src/ok/20261021_lab34_dashboard_theme_config.png",
+    "flowTitle": "ui-template 節點與自訂 CSS 樣式代碼配置",
+    "resultImage": "images_src/ok/20261021_lab34_dashboard_theme_result.png",
+    "resultTitle": "套用自訂漸層主題後成果畫面 (Dashboard 2.0)",
+    "extraImages": [
+      {
+        "title": "Node-RED 畫布上的 ui-template 節點",
+        "image": "images_src/ok/20261021_lab34_dashboard_theme_node.png",
+        "icon": "fa-solid fa-cube"
+      },
+      {
+        "title": "主題套用前：預設白色介面 (Before)",
+        "image": "images_src/ok/20261021_lab34_dashboard_theme_before.png",
+        "icon": "fa-solid fa-clock-rotate-left"
+      }
+    ],
+    "objective": "1. 認識 Node-RED Dashboard 2.0 (v2) 底層基於 Vue 3 與 Vuetify 3 的 DOM 階層與類別命名架構。\n2. 掌握利用 ui-template 節點注入全域 <style> 覆寫前端元件外觀的技巧。\n3. 學習現代視覺排版：linear-gradient 多色漸層背景、backdrop-filter: blur() 微毛玻璃擬態、border-radius: 10px 圓角與透明度運用。\n4. 掌握頂部工具列 (.v-toolbar)、側邊抽屜選單 (.v-navigation-drawer)、群組卡片 (.nr-db-ui-card) 與按鈕 (.v-btn) 的專屬 CSS 選擇器設定。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 新增與配置 ui-template 節點",
+        "description": "從節點面板的 Dashboard 2.0 分類中拖曳一個 ui-template 節點至畫布，連點兩下進入屬性視窗：\n• 名稱 (Name)：設定為『Node-Red Dashboard Custom CSS』。\n• 類型 (Type)：選擇『Widget (Group-Scoped)』。\n• 群組 (Group)：指定目前頁面的既有群組（例如 [115_機電AI班_01期] 民國轉西元）。\n• 尺寸 (Size)：設為 auto。\n• 勾選『Pass through messages from input.』允許訊息穿透傳遞。"
+      },
+      {
+        "step": "步驟 2: 注入全局 55 度現代漸層背景",
+        "description": "在 Template 輸入區塊鍵入 <style> 標籤，覆寫全域 Vue 應用容器：\n#app, .v-application {\n    background: linear-gradient(55deg, #009785 0%, #245aa5 50%, #b800e9 100%) !important;\n    background-attachment: fixed !important;\n}\n這段樣式將建立從碧綠翡翠色 (#009785)、科技靛藍 (#245aa5) 到霓虹紫 (#b800e9) 的多層次動態漸層，搭配 fixed 屬性使頁面捲動時背景保持穩定。"
+      },
+      {
+        "step": "步驟 3: 頂部列透明化與側邊欄選單優化",
+        "description": "覆寫頂部工具列與側邊抽屜樣式，消除傳統實心色塊帶來的沉重感：\n• 頂部列透明化：.v-toolbar, .v-card, .nr-db-ui-card { background-color: transparent !important; color: #FFFFFF !important; }\n• 側邊欄背景透明化：.v-navigation-drawer { color: white !important; background-color: rgba(0, 0, 0, 0) !important; }\n• 選取狀態藍色邊框標示：.v-list-item--active { border-right: 4px solid rgb(41, 98, 255) !important; }\n• 側邊欄項目背景半透明化：.v-navigation-drawer .v-list-item { background-color: rgba(40, 85, 165, 0.8) !important; border-radius: 10px !important; margin-bottom: 4px !important; }"
+      },
+      {
+        "step": "步驟 4: 卡片半透明化與毛玻璃擬態 (Glassmorphism)",
+        "description": "將所有群組卡片改為高質感半透明玻璃質感：\n.v-card, .nr-db-ui-card, .nr-db-ui-group {\n    background-color: rgba(255, 255, 255, 0.1) !important;\n    border-radius: 10px !important;\n    border: none !important;\n    backdrop-filter: blur(5px); /* 增加微玻璃質感 */\n}\n同時設定標題顏色：.v-card-title, .nr-db-ui-group .v-card-item__title { color: rgba(255, 255, 255, 0.7) !important; }，確保字體具有極佳的層次與閱讀對比。"
+      },
+      {
+        "step": "步驟 5: 按鈕、下拉選單與輸入框圓角透明化",
+        "description": "進一步微調按鈕與互動控制項細節：\n• 按鈕 (.v-btn)：background-color: rgba(255, 255, 255, 0.15) !important; border-radius: 10px !important;\n• 下拉選單 (.v-overlay__content .v-list)：背景設為深海軍藍半透明 rgba(40, 85, 165, 0.95)，Hover 懸停背景設為 #1a3566。\n• 輸入框 (.v-input input)：文字設為白色、背景設為 transparent。\n• 圖片 (.v-card img, .v-img)：統一設置 border-radius: 10px 圓角。"
+      },
+      {
+        "step": "步驟 6: 部署流程並在 Dashboard 前端檢視主題效果",
+        "description": "點擊右上角『Deploy』完成部署，開啟瀏覽器造訪 Dashboard 2.0 儀表板頁面 (/dashboard)。\n比對套用前與套用後的效果：\n• 套用前：純白刺眼、元件邊界生硬無層次。\n• 套用後：深邃夢幻的 55 度漸層背景，卡片元件輕盈浮現於畫面上，微毛玻璃質感與圓角讓整體 HMI 操作體驗媲美現代高階工業戰情室！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "現代化智慧工廠 VIP 戰情室大螢幕儀表板",
+        "icon": "fa-solid fa-tv",
+        "description": "在工廠大廳或接待會議室展示的 SCADA 儀表板中，告別傳統單調刺眼的白色或灰色預設主題，套用品牌專屬漸層與微毛玻璃質感，大幅提升企業工控數位轉型的科技形象。"
+      },
+      {
+        "scenario": "無塵室低光源與抗藍光護眼監控",
+        "icon": "fa-solid fa-eye",
+        "description": "在夜間無人值守中控室或微光機房中，純白介面容易造成作業員眼睛乾澀疲倦。利用漸層與深色半透明主題有效降低眩光，兼具工控美感與人體工學護眼效果。"
+      },
+      {
+        "scenario": "多廠區/跨產線主題快速品牌化與動態切換",
+        "icon": "fa-solid fa-palette",
+        "description": "將 ui-template 封裝為模組化主題節點，依照不同客戶、不同廠區或不同專案，只需更換 background 漸層色碼即可一鍵切換整座工廠的介面視覺風格。"
+      }
+    ],
+    "aiPrompt": "請扮演前端 CSS 架構師與 Node-RED Dashboard 2.0 專家，針對「在 ui-template 中以自訂 CSS 覆寫 Vuetify 3 元件樣式並打造高質感科技漸層主題」撰寫教學與 Node-RED 示範代碼：\n1. 詳細列出 Dashboard 2.0 (v2) 的關鍵 DOM 類別（#app, .v-application, .v-toolbar, .v-navigation-drawer, .nr-db-ui-card, .v-btn）。\n2. 提供完整的 CSS 代碼，包含 55 度漸層背景、毛玻璃模糊效果 (backdrop-filter: blur)、圓角與下拉選單優化。\n3. 解釋為什麼在 Vuetify 覆寫時必須適度加上 !important 以及 background-attachment: fixed 的視差優點。",
+    "nodeRedJson": [
+      {
+        "id": "theme_template_node",
+        "type": "ui-template",
+        "z": "tab_dashboard_theme",
+        "group": "group_demo",
+        "page": "",
+        "ui": "",
+        "name": "Node-Red Dashboard Custom CSS",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "<style>\n    /* Main background - 全局漸層背景 */\n    #app, .v-application {\n        background: linear-gradient(\n            55deg,\n            #009785 0%,\n            #245aa5 50%,\n            #b800e9 100%\n        ) !important;\n        background-attachment: fixed !important;\n    }\n\n    /* Top bar - 頂部列透明化 */\n    .v-toolbar,\n    .v-card, \n    .nr-db-ui-card {\n        background-color: transparent !important;\n        color: #FFFFFF !important;\n    }\n\n    /* Left menu / Sidebar - 側邊欄與選單 */\n    .v-navigation-drawer {\n        color: white !important;\n        background-color: rgba(0, 0, 0, 0) !important;\n    }\n\n    /* Hover selection - 按鈕與連結圓角 */\n    .v-list-item, .v-btn {\n        border-radius: 10px !important;\n    }\n\n    /* Selected - 選取狀態右側條藍色框線 */\n    .v-list-item--active {\n        border-right: 4px solid rgb(41, 98, 255) !important;\n    }\n\n    /* List - 側邊欄清單項目 */\n    .v-navigation-drawer .v-list-item {\n        color: white !important;\n        background-color: rgba(40, 85, 165, 0.8) !important;\n        border-radius: 10px !important;\n        margin-bottom: 4px !important;\n    }\n\n    /* Groups / Cards - 群組與半透明外框 */\n    .v-card,\n    .nr-db-ui-card,\n    .nr-db-ui-group {\n        background-color: rgba(255, 255, 255, 0.1) !important;\n        border-radius: 10px !important;\n        border: none !important;\n        backdrop-filter: blur(5px); /* 增加微玻璃質感 */\n    }\n\n    /* Name groups - 群組標題文字顏色 */\n    .v-card-title,\n    .nr-db-ui-group .v-card-item__title {\n        color: rgba(255, 255, 255, 0.7) !important;\n    }\n\n    /* Buttons - 按鈕樣式與圓角 */\n    .v-btn {\n        background-color: rgba(255, 255, 255, 0.15) !important;\n        color: white !important;\n        border-radius: 10px !important;\n    }\n\n    /* Dropdown menu - 下拉選單樣式 */\n    .v-overlay__content .v-list {\n        background-color: rgba(40, 85, 165, 0.95) !important;\n        border-radius: 10px !important;\n    }\n    \n    .v-overlay__content .v-list-item {\n        background-color: transparent !important;\n        color: white !important;\n    }\n\n    .v-overlay__content .v-list-item--active,\n    .v-overlay__content .v-list-item:hover {\n        color: white !important;\n        background-color: #1a3566 !important;\n    }\n\n    /* Template Image - 圖片圓角 */\n    .v-card img, .v-img {\n        border-radius: 10px !important;\n    }\n\n    /* Color picker text BG - 顏色選擇器輸入框透明化 */\n    .v-input input {\n        color: white !important;\n        background-color: transparent !important;\n    }\n</style>",
+        "storeOutMessages": true,
+        "passthrough": true,
+        "resendOnRefresh": true,
+        "templateScope": "widget:scoped",
+        "className": "",
+        "x": 240,
+        "y": 120,
+        "wires": [
+          []
+        ]
+      }
+    ],
+    "references": [
+      {
+        "title": "FlowFuse Dashboard 2.0 ui-template 官方文件",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-template.html"
+      },
+      {
+        "title": "Vuetify 3 官方元件樣式與佈局指南",
+        "url": "https://vuetifyjs.com/"
+      },
+      {
+        "title": "MDN Web Docs: CSS linear-gradient 漸層語法教學",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/CSS/gradient/linear-gradient"
+      },
+      {
+        "title": "Node-RED Dashboard 2.0 官方說明與安裝指南",
+        "url": "https://flows.nodered.org/node/@flowfuse/node-red-dashboard"
+      }
+    ]
+  },
+  {
+    "id": "lab-35",
+    "labNumber": "35",
+    "title": "實作 13-2: Dashboard 背景圖修改 - 自訂高解析度背景圖片與卡片風格",
+    "date": "2026-10-21",
+    "category": "進階",
+    "summary": "在 Node-RED Dashboard 2.0 (v2) 中，透過 ui-template 節點注入自訂 CSS，將全局容器 (#app, .v-application) 設定為高解析度實景背景圖片（如玉山雪景登山全景照或工廠空拍圖），並搭配 fixed 鎖定與 cover 滿版縮放。同時利用 CSS :root 變數集中定義調色盤，並自訂 .v-card 與 .nr-db-ui-card 卡片底色（#66ccff）、12px 圓角與立體陰影，打造層次分明的工控與戰情室介面。",
+    "flowImage": "images_src/ok/20261021_lab35_dashboard_bg_config.png",
+    "flowTitle": "ui-template 節點與 CSS 背景圖樣式配置",
+    "resultImage": "images_src/ok/20261021_lab35_dashboard_bg_result.jpg",
+    "resultTitle": "自訂高解析度背景圖片儀表板成果 (玉山雪景)",
+    "extraImages": [
+      {
+        "title": "Node-RED 畫布上的 Dashboard 風格流程 (時間戳 + template 節點)",
+        "image": "images_src/ok/20261021_lab35_dashboard_bg_node.png"
+      }
+    ],
+    "objective": "1. 掌握在 Node-RED Dashboard 2.0 (Vue 3 / Vuetify 3) 架構下，透過 ui-template 節點覆蓋全局容器 (#app, .v-application) 樣式的方法。\n2. 學會運用 CSS :root 定義色票變數，方便全站顏色統一規劃與維護。\n3. 熟悉 background-image、background-size: cover、background-attachment: fixed 與 background-repeat: no-repeat 之滿版自適應與視差鎖定技巧。\n4. 客製化 .v-card / .nr-db-ui-card 卡片背景顏色、文字顏色、12px 圓角邊框與 box-shadow 陰影，讓資訊卡片浮立於背景圖之上且保持高可讀性。\n5. 應用於工控 SCADA、智慧農業、環境氣象監測站與戶外場域之實景可視化儀表板。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 新增時間戳與 ui-template 節點",
+        "description": "在 Node-RED 流程畫布中新增一個「時間戳 (inject)」節點與一個 Dashboard 2.0 的「ui-template」節點，上方可使用「comment」節點註記『Dashboard風格』。將時間戳節點連線至 template 節點，並可設定 inject 節點在部署後立即觸發一次。"
+      },
+      {
+        "step": "步驟 2: 設定 ui-template 節點屬性",
+        "description": "雙擊開啟 ui-template 節點設定視窗，Group 選擇既有的儀表板群組（例如 [115_機電AI班_01期]），Type 可選擇 widget 或 head 模式，名稱命名為 template 或『自訂背景圖片與卡片樣式』。"
+      },
+      {
+        "step": "步驟 3: 注入 :root 色彩變數與背景圖片 CSS",
+        "description": "在 ui-template 編輯器中輸入 <style> 標籤。先在 :root 中定義常用顏色變數（--color-green-primary、--color-red-primary、--color-widget-border 等）；接著鎖定 #app, .v-application 容器，透過 background-image: url(...) 指定外部高解析度圖片 URL（如玉山國家公園雪景照片），並加上 background-size: cover !important 與 background-attachment: fixed !important 確保背景固定不隨內容滾動拉伸。"
+      },
+      {
+        "step": "步驟 4: 美化 .v-card 卡片與圓角陰影",
+        "description": "針對 .v-card 與 .nr-db-ui-card 設定 background-color: #66ccff !important（亮眼水藍色）與 color: #996600 !important（深棕文字），並賦予 border-radius: 12px !important 邊角圓角化，以及 box-shadow 增加立體陰影。同時將 #Control_Panel_System 設定為透明，確保整體外框與背景融為一體。"
+      },
+      {
+        "step": "步驟 5: 部署流程並開啟 Dashboard 驗證",
+        "description": "點擊右上角「Deploy」部署流程，開啟瀏覽器進入 Node-RED Dashboard 頁面（通常為 http://localhost:1880/dashboard）。畫面背景將瞬間切換為壯闊的高山雪景實景圖，卡片整齊排列在畫面頂端，呈現專業且具視覺衝擊力的現代儀表板。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "戶外環境氣象與國家公園生態監控大屏",
+        "icon": "fa-solid fa-mountain-sun",
+        "description": "將背景設定為高山、水庫、森林或農場的即時實景空拍圖，將溫度、濕度、紫外線與即時監控卡片置於上方，提供生動身歷其境的監控體驗。"
+      },
+      {
+        "scenario": "工廠廠區 3D 鳥瞰圖與產線設備狀態透明化",
+        "icon": "fa-solid fa-industry",
+        "description": "以工廠廠房平面圖或產線鳥瞰圖作為滿版背景，透過半透明或亮色卡片展示各區機台運轉率、溫度與警報，兼具數位孿生與直覺監控。"
+      },
+      {
+        "scenario": "智慧建築與太陽能光電案場發電戰情室",
+        "icon": "fa-solid fa-solar-panel",
+        "description": "展示太陽能電廠現場實況或綠能建築外觀，配合客製化水藍色/綠色資訊卡片，向訪客與管理人員呈現高水準的綠能數據展演。"
+      }
+    ],
+    "aiPrompt": "請擔任 Node-RED Dashboard 2.0 (Vue 3 / Vuetify 3) 的前端 CSS 與工控 SCADA UI 視覺專家。\n我想利用 ui-template 節點修改 Node-RED Dashboard 的全局背景圖片與卡片風格：\n\n【需求規格】\n1. 全局容器背景：針對 `#app, .v-application` 設定 `background-image: url('<圖片網址>')`，並確保 `background-size: cover`、`background-attachment: fixed`、`background-repeat: no-repeat`，讓圖片在手機、平板與寬螢幕皆能等比例滿版鎖定。\n2. CSS 變數定義：使用 `:root` 定義一組主色、警告色、文字色與邊框色（支援 CSS Variables 便於後續維護）。\n3. 卡片自訂樣式：覆蓋 `.v-card` 與 `.nr-db-ui-card`，設定背景色（例如水藍色 `#66ccff` 或半透明毛玻璃 `rgba(255,255,255,0.2)`）、文字顏色、圓角 `border-radius: 12px` 與立體邊框陰影。\n4. 提供可一鍵匯入 Node-RED 的 Flow JSON，包含 inject 節點與配置好 CSS 的 ui-template 節點。\n5. 請分析當背景圖片明暗度較高時，如何使用微透明深色遮罩（overlay）確保前景文字與儀表圖表之無障礙可讀性。",
+    "nodeRedJson": "[\n  {\n    \"id\": \"tab_lab35_dashboard_bg\",\n    \"type\": \"tab\",\n    \"label\": \"實作 13-2: Dashboard 背景圖修改\",\n    \"disabled\": false,\n    \"info\": \"Node-RED Dashboard 2.0 自訂背景圖片與卡片樣式\"\n  },\n  {\n    \"id\": \"comment_dashboard_style\",\n    \"type\": \"comment\",\n    \"z\": \"tab_lab35_dashboard_bg\",\n    \"name\": \"Dashboard風格\",\n    \"info\": \"透過 ui-template 注入自訂 CSS，設定高解析度背景圖片與卡片色彩\",\n    \"x\": 220,\n    \"y\": 80,\n    \"wires\": []\n  },\n  {\n    \"id\": \"inject_timestamp_bg\",\n    \"type\": \"inject\",\n    \"z\": \"tab_lab35_dashboard_bg\",\n    \"name\": \"時間戳\",\n    \"props\": [\n      {\n        \"p\": \"payload\"\n      },\n      {\n        \"p\": \"topic\",\n        \"vt\": \"str\"\n      }\n    ],\n    \"repeat\": \"\",\n    \"crontab\": \"\",\n    \"once\": true,\n    \"onceDelay\": 0.1,\n    \"topic\": \"\",\n    \"payload\": \"\",\n    \"payloadType\": \"date\",\n    \"x\": 190,\n    \"y\": 140,\n    \"wires\": [\n      [\n        \"template_dashboard_bg_css\"\n      ]\n    ]\n  },\n  {\n    \"id\": \"template_dashboard_bg_css\",\n    \"type\": \"ui-template\",\n    \"z\": \"tab_lab35_dashboard_bg\",\n    \"group\": \"group_115_mech_ai\",\n    \"name\": \"template (背景圖與卡片樣式)\",\n    \"order\": 1,\n    \"width\": 0,\n    \"height\": 0,\n    \"head\": false,\n    \"format\": \"<style>\\n:root {\\n  --color-green-primary: rgb(51, 204, 51);\\n  --color-green-secondary: rgb(26, 101, 26);\\n  --color-red-primary: rgb(255, 0, 0);\\n  --color-red-secondary: rgba(153,0,0,1);\\n  --color-gray-primary: rgba(40,40,40,1);\\n  --color-gray-secondary: rgba(65,65,65,1);\\n  --color-text-primary: rgb(230, 226, 209);\\n  --color-widget-border: rgb(84, 78, 78);\\n}\\n\\n/* 背景圖片：Dashboard 2.0 全局容器 */\\n#app, .v-application {\\n  background-image: url(https://www.ysnp.gov.tw/FileDownload/ContentManagement/20200917185611616637714.jpg); \\n  /* background-image: url(https://i.postimg.cc/MZmRcD04/25.png); */\\n  /* background-image: url(https://echomanrido.github.io/web/SoC%20Design%20Flow.png); */\\n  // background-image: url('https://drive.google.com/thumbnail?id=1I0eIfyeBgq381wCL_M77S0QUQSZOF0Ws&sz=w1600') !important; \\n\\n  background-repeat: no-repeat !important;\\n  background-size: cover !important;\\n  background-attachment: fixed !important;\\n}\\n\\n#Control_Panel_System {\\n  background: transparent !important;\\n  border: transparent !important; \\n}\\n\\n/* 卡片樣式：一比一替換 md-content md-card */\\n.v-card, .nr-db-ui-card {\\n  background-color: #66ccff !important;\\n  color: #996600 !important;\\n  /* text-shadow: 4px 2px 4px #00000045; */ /* 字體陰影 */\\n  box-shadow: 0 -1px 5px 1px #00000045 !important;\\n  border-radius: 12px !important; /* 框邊緣倒角 */\\n  border: 1px solid var(--color-widget-border) !important;\\n}\\n\\n/*\\n.nr-dashboard-cardtitle {\\n  background-color: #a13d20; \\n}\\n\\n.name {\\n  background-color: #ee7aea;\\n}\\n*/\\n</style>\",\n    \"storeOutMessages\": true,\n    \"passthrough\": true,\n    \"resendOnRefresh\": true,\n    \"templateScope\": \"local\",\n    \"className\": \"\",\n    \"x\": 380,\n    \"y\": 140,\n    \"wires\": [\n      []\n    ]\n  }\n]",
+    "references": [
+      {
+        "title": "FlowFuse Dashboard 2.0 ui-template 官方手冊",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/template.html"
+      },
+      {
+        "title": "MDN Web Docs - CSS background-image",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/CSS/background-image"
+      },
+      {
+        "title": "MDN Web Docs - 使用 CSS 自訂屬性 (變數)",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/CSS/Using_CSS_custom_properties"
+      }
+    ]
+  },
+  {
+    "id": "lab-36",
+    "labNumber": "36",
+    "title": "實作 13-3: Dashboard 背景圖修改-Base64 - 離線內嵌 Data URI 背景圖片",
+    "date": "2026-10-21",
+    "category": "進階",
+    "summary": "在工控 OT 隔離網路（Air-Gapped Network）或無外部網際網路連線的環境下，外部圖片 URL 往往會破圖失效。本單元介紹如何利用 Base64 Data URI (data:image/jpeg;base64,...) 技術，將高解析度圖片直接轉為文字字串內嵌至 ui-template 的 CSS 中，免除任何外部連網與伺服器依賴，百分之百離線穩定呈現玉山雪景等實景背景與高質感客製化圓角卡片。",
+    "flowImage": "images_src/ok/20261021_lab36_dashboard_bg_base64_config.png",
+    "flowTitle": "ui-template 節點注入 Base64 滿版背景圖配置",
+    "resultImage": "images_src/ok/20261021_lab36_dashboard_bg_base64_result.jpg",
+    "resultTitle": "Base64 內嵌背景圖離線渲染成果 (玉山雪景)",
+    "extraImages": [
+      {
+        "title": "Node-RED 畫布上的 Dashboard風格- base64 流程 (時間戳 + template)",
+        "image": "images_src/ok/20261021_lab36_dashboard_bg_base64_node.png"
+      }
+    ],
+    "objective": "1. 掌握 Base64 Data URI 編碼在 CSS background-image 中的宣告語法 (data:image/jpeg;base64,...)。\n2. 深入理解工控場域 OT 隔離網段、氣隙環境 (Air-Gapped) 下儀表板資源離線自包含 (Self-Contained) 的必要性與優勢。\n3. 結合前面學過的圖片轉 Base64 技術 (實作 11 與 11-2)，將任意自訂設備平面圖或廠景照片直接內嵌至 Node-RED Flow。\n4. 熟練掌握 cover 滿版自適應、fixed 視差滾動鎖定與 :root 變數設定，兼顧離線穩定性與視覺美感。\n5. 解決跨網域資源共享 (CORS) 阻擋與外部圖床 404 失效的根本性防破圖方案。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 準備圖片並轉碼為 Base64 字串",
+        "description": "挑選欲作為背景的高解析度圖片（如玉山雪景照片或廠房照片），利用前面章節開發的 Node-RED 圖片轉 Base64 流程或線上工具，將圖片轉換為包含 data:image/jpeg;base64,... 前綴的 Data URI 字串。"
+      },
+      {
+        "step": "步驟 2: 在 Node-RED 畫布建立流程",
+        "description": "新增「時間戳 (inject)」節點與「ui-template」節點，連線兩者，並在上方加入「comment」節點註明『Dashboard風格- base64』以便於團隊識別。"
+      },
+      {
+        "step": "步驟 3: 將 Base64 代碼寫入 ui-template",
+        "description": "開啟 ui-template 編輯視窗，在 <style> 標籤中鎖定 #app, .v-application，將 background-image 填入 url(data:image/jpeg;base64,...)，並保留 background-repeat: no-repeat、background-size: cover 與 background-attachment: fixed。"
+      },
+      {
+        "step": "步驟 4: 套用卡片調色盤與外框透明化",
+        "description": "沿用 :root 變數與 .v-card, .nr-db-ui-card 設定（亮水藍底色 #66ccff、12px 圓角與立體陰影），並將 #Control_Panel_System 背景與邊框設為透明。"
+      },
+      {
+        "step": "步驟 5: 部署流程並驗證離線背景效果",
+        "description": "點擊 Deploy 部署，即使關閉電腦的外網連線（或在純工控封閉網路中測試），開啟 /dashboard 依然能瞬間完整呈現高畫質的玉山雪峰登山全景背景圖與所有功能卡片，完全不發生破圖。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "純封閉/隔離網段 (Air-Gap) 工控 SCADA 戰情室",
+        "icon": "fa-solid fa-shield-halved",
+        "description": "高科技晶圓廠、石化廠、水電關鍵基礎設施等無法連外網的內網環境，所有 UI 圖資透過 Base64 自包含在流程 JSON 中，永不破圖。"
+      },
+      {
+        "scenario": "一鍵可攜式與開箱即用之展示專案",
+        "icon": "fa-solid fa-box-open",
+        "description": "只要匯入一個 Flow JSON 即可直接展演完整的 UI 視覺效果，免去學員額外下載圖檔或架設圖床伺服器的麻煩。"
+      },
+      {
+        "scenario": "防篡改與防外部圖床失效之高穩定監控系統",
+        "icon": "fa-solid fa-lock",
+        "description": "避免因外部圖床過期、網域變更或憑證問題導致監控大屏失效，確保 7x24 小時不間斷穩定運作。"
+      }
+    ],
+    "aiPrompt": "請擔任 Node-RED Dashboard 2.0 (Vue 3 / Vuetify 3) 與工控 SCADA 前端架構師。\n我想在隔離內網（無網際網路環境）中，使用 ui-template 節點將背景圖以 Base64 Data URI 的方式內嵌至 Node-RED Dashboard：\n\n【需求規格】\n1. 背景載入：在 `#app, .v-application` 中使用 `background-image: url(data:image/jpeg;base64,...)`，並配置 `cover`、`fixed` 與 `no-repeat`。\n2. 變數與組件樣式：在 `:root` 定義工控調色盤變數，並自訂 `.v-card`、`.nr-db-ui-card` 的背景色（例如 `#66ccff`）、文字顏色、12px 圓角與立體陰影。\n3. 系統外框透明化：確保 `#Control_Panel_System` 為透明無邊框。\n4. 提供一鍵匯入的完整 Node-RED Flow JSON。\n5. 請分析 Base64 內嵌背景圖對於 Flow JSON 檔案大小的影響，並給出圖片壓縮（如 WebP/JPEG 壓縮至 200KB 以下）與效能優化的專業建議。",
+    "nodeRedJson": "[\n  {\n    \"id\": \"tab_lab36_dashboard_bg_base64\",\n    \"type\": \"tab\",\n    \"label\": \"實作 13-3: Dashboard 背景圖修改-Base64\",\n    \"disabled\": false,\n    \"info\": \"Node-RED Dashboard 2.0 內嵌 Base64 Data URI 背景圖片與卡片樣式\"\n  },\n  {\n    \"id\": \"comment_dashboard_style_base64\",\n    \"type\": \"comment\",\n    \"z\": \"tab_lab36_dashboard_bg_base64\",\n    \"name\": \"Dashboard風格- base64\",\n    \"info\": \"透過 Base64 Data URI 離線內嵌高解析度背景圖片，適用於隔離網段與無外網 SCADA 系統\",\n    \"x\": 240,\n    \"y\": 80,\n    \"wires\": []\n  },\n  {\n    \"id\": \"inject_timestamp_bg_base64\",\n    \"type\": \"inject\",\n    \"z\": \"tab_lab36_dashboard_bg_base64\",\n    \"name\": \"時間戳\",\n    \"props\": [\n      {\n        \"p\": \"payload\"\n      },\n      {\n        \"p\": \"topic\",\n        \"vt\": \"str\"\n      }\n    ],\n    \"repeat\": \"\",\n    \"crontab\": \"\",\n    \"once\": true,\n    \"onceDelay\": 0.1,\n    \"topic\": \"\",\n    \"payload\": \"\",\n    \"payloadType\": \"date\",\n    \"x\": 190,\n    \"y\": 140,\n    \"wires\": [\n      [\n        \"template_dashboard_bg_base64_css\"\n      ]\n    ]\n  },\n  {\n    \"id\": \"template_dashboard_bg_base64_css\",\n    \"type\": \"ui-template\",\n    \"z\": \"tab_lab36_dashboard_bg_base64\",\n    \"group\": \"group_115_mech_ai\",\n    \"name\": \"template (Base64背景圖與卡片樣式)\",\n    \"order\": 1,\n    \"width\": 0,\n    \"height\": 0,\n    \"head\": false,\n    \"format\": \"<style>\\n:root {\\n  --color-green-primary: rgb(51, 204, 51);\\n  --color-green-secondary: rgb(26, 101, 26);\\n  --color-red-primary: rgb(255, 0, 0);\\n  --color-red-secondary: rgba(153,0,0,1);\\n  --color-gray-primary: rgba(40,40,40,1);\\n  --color-gray-secondary: rgba(65,65,65,1);\\n  --color-text-primary: rgb(230, 226, 209);\\n  --color-widget-border: rgb(84, 78, 78);\\n}\\n\\n/* 背景圖片：Dashboard 2.0 全局容器 */\\n#app, .v-application {\\n  //background-image: url('https://drive.google.com/thumbnail?id=1I0eIfyeBgq381wCL_M77S0QUQSZOF0Ws&sz=w1600');\\n  background-image: url(data:image/jpeg;base64,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);\\n\\n  background-repeat: no-repeat !important;\\n  background-size: cover !important;\\n  background-attachment: fixed !important;\\n}\\n\\n#Control_Panel_System {\\n  background: transparent !important;\\n  border: transparent !important; \\n}\\n\\n/* 卡片樣式：一比一替換 md-content md-card */\\n.v-card, .nr-db-ui-card {\\n  background-color: #66ccff !important;\\n  color: #996600 !important;\\n  /* text-shadow: 4px 2px 4px #00000045; */ /* 字體陰影 */\\n  box-shadow: 0 -1px 5px 1px #00000045 !important;\\n  border-radius: 12px !important; /* 框邊緣倒角 */\\n  border: 1px solid var(--color-widget-border) !important;\\n}\\n\\n/*\\n.nr-dashboard-cardtitle {\\n  background-color: #a13d20; \\n}\\n\\n.name {\\n  background-color: #ee7aea;\\n}\\n*/\\n</style>\\n\",\n    \"storeOutMessages\": true,\n    \"passthrough\": true,\n    \"resendOnRefresh\": true,\n    \"templateScope\": \"local\",\n    \"className\": \"\",\n    \"x\": 400,\n    \"y\": 140,\n    \"wires\": [\n      []\n    ]\n  }\n]",
+    "references": [
+      {
+        "title": "MDN Web Docs - Data URLs (資料 URL)",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/HTTP/Basics_of_HTTP/Data_URLs"
+      },
+      {
+        "title": "FlowFuse Dashboard 2.0 ui-template 官方文件",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/template.html"
+      },
+      {
+        "title": "實作 11: 圖片轉Base64 (課程單元連動)",
+        "url": "labs.html?id=lab-30"
+      }
+    ]
   }
 ];
-if (typeof window !== "undefined") {
-  window.INITIAL_LABS_DATA = INITIAL_LABS_DATA;
-  window.labsData = INITIAL_LABS_DATA;
-}
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = INITIAL_LABS_DATA;
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = labsData;
 }
