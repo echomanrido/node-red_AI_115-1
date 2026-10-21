@@ -9331,6 +9331,10 @@ var INITIAL_LABS_DATA = [
       {
         "title": "Node-RED 官方 Docs - File in (讀檔節點) 使用說明與設定",
         "url": "https://nodered.org/docs/user-guide/nodes#file-in"
+      },
+      {
+        "title": "照片轉 Base64 格式工具 (strerr.com)",
+        "url": "https://www.strerr.com/tw/base64_encode_img.html"
       }
     ],
     "extraImages": [
