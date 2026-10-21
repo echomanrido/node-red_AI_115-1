@@ -59,8 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
     labCountBadge.textContent = supplementsData.length;
     renderSidebar(supplementsData);
     
-    // 預設選取第一個項目
-    if (supplementsData.length > 0) {
+    // 預設選取項目：優先檢查 URL 參數 id
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetId = urlParams.get('id');
+    if (targetId && supplementsData.some(s => s.id === targetId)) {
+      selectSupplement(targetId);
+      const targetItem = document.querySelector(`.lab-item[data-id="${targetId}"]`);
+      if (targetItem) targetItem.scrollIntoView({ block: 'nearest' });
+    } else if (supplementsData.length > 0) {
       selectSupplement(supplementsData[0].id);
     }
   }
