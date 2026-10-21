@@ -1,6 +1,5 @@
-// 五股職訓局 - 機電AI班 (作者：Rido老師)
-// Node-RED 智慧控制模組 - 22 大實戰專題核心資料庫
-const INITIAL_NODERED_PROJECTS_DATA = [
+// Node-RED 專題專區資料庫
+var INITIAL_NODERED_PROJECTS_DATA = [
   {
     "id": "nr-proj-01",
     "projNumber": "專題 01",
@@ -365,8 +364,8 @@ const INITIAL_NODERED_PROJECTS_DATA = [
         "url": "https://flows.nodered.org/node/node-red-node-serialport"
       },
       {
-        "title": "三菱電機 FX 系列序列通訊手冊",
-        "url": "https://www.mitsubishielectric.com"
+        "title": "台灣三菱電機自動化 - FX 系列 PLC 序列通訊手冊與技術支援",
+        "url": "https://www.mitsubishielectric-automation.com.tw/"
       }
     ]
   },
@@ -1469,10 +1468,6 @@ const INITIAL_NODERED_PROJECTS_DATA = [
       {
         "title": "OpenCart 官方開放原始碼電商系統",
         "url": "https://www.opencart.com/"
-      },
-      {
-        "title": "【大型專案旗艦講義】網路商城-資料庫應用 (OpenCart + Node-RED) 四大主題教學",
-        "url": "project_opencart.html"
       },
       {
         "title": "node-red-node-mysql 官方節點套件",
@@ -2601,11 +2596,13 @@ const INITIAL_NODERED_PROJECTS_DATA = [
     ]
   }
 ];
+var noderedProjectsData = INITIAL_NODERED_PROJECTS_DATA;
 
-if (typeof window !== "undefined") {
-  window.INITIAL_NODERED_PROJECTS_DATA = INITIAL_NODERED_PROJECTS_DATA;
-  window.noderedProjectsData = INITIAL_NODERED_PROJECTS_DATA;
+if (typeof window !== 'undefined') {
+    window.INITIAL_NODERED_PROJECTS_DATA = INITIAL_NODERED_PROJECTS_DATA;
+    window.noderedProjectsData = INITIAL_NODERED_PROJECTS_DATA;
 }
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = INITIAL_NODERED_PROJECTS_DATA;
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = INITIAL_NODERED_PROJECTS_DATA;
 }

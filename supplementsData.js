@@ -1,3 +1,4 @@
+// 補充教材資料庫
 var INITIAL_SUPPLEMENTS_DATA = [
   {
     "id": "sup-01",
@@ -1368,11 +1369,13 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   }
 ];
+var supplementsData = INITIAL_SUPPLEMENTS_DATA;
 
-if (typeof window !== "undefined") {
-  window.INITIAL_SUPPLEMENTS_DATA = INITIAL_SUPPLEMENTS_DATA;
-  window.supplementsData = INITIAL_SUPPLEMENTS_DATA;
+if (typeof window !== 'undefined') {
+    window.INITIAL_SUPPLEMENTS_DATA = INITIAL_SUPPLEMENTS_DATA;
+    window.supplementsData = INITIAL_SUPPLEMENTS_DATA;
 }
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = INITIAL_SUPPLEMENTS_DATA;
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = INITIAL_SUPPLEMENTS_DATA;
 }

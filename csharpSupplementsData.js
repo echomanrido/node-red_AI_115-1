@@ -1,6 +1,4 @@
-// C# 學習補充教材離線備援資料 (自動根據投影片各議題產生)
-// 包含 14 大核心議題，每個步驟均嵌入投影片高解析度截圖與詳細圖說
-
+// C# 補充教材資料庫
 var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
   {
     "id": "cs-sup-01",
@@ -166,7 +164,7 @@ var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
     "references": [
       {
         "title": "三菱電機 - MELSEC-F 系列通訊手冊",
-        "url": "https://www.mitsubishielectric.tw/"
+        "url": "https://www.mitsubishielectric-automation.com.tw/"
       }
     ]
   },
@@ -666,8 +664,18 @@ var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
     "references": [
       {
         "title": "三菱電機 - MELSEC iQ-R 程式設計手冊 (結構化文字篇)",
-        "url": "https://www.mitsubishielectric.tw/"
+        "url": "https://www.mitsubishielectric-automation.com.tw/"
       }
     ]
   }
 ];
+var csharpSupplementsData = INITIAL_CSHARP_SUPPLEMENTS_DATA;
+
+if (typeof window !== 'undefined') {
+    window.INITIAL_CSHARP_SUPPLEMENTS_DATA = INITIAL_CSHARP_SUPPLEMENTS_DATA;
+    window.csharpSupplementsData = INITIAL_CSHARP_SUPPLEMENTS_DATA;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = INITIAL_CSHARP_SUPPLEMENTS_DATA;
+}
