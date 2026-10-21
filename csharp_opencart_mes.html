@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C# .NET 工業 4.0 MES 戰情室 - 串接 OpenCart 電商資料庫實戰</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-dark: #070b14;
+      --bg-panel: #0d1527;
+      --bg-card: #152238;
+      --bg-card-hover: #1e3150;
+      --border-color: #263859;
+      --border-focus: #c084fc;
+      --csharp-purple: #9333ea;
+      --csharp-light: #c084fc;
+      --csharp-glow: rgba(192, 132, 252, 0.35);
+      --primary: #38bdf8;
+      --accent-green: #10b981;
+      --accent-yellow: #f59e0b;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Noto Sans TC', 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* 頂部導覽列 */
+    header.lab-navbar {
+      background: rgba(13, 21, 39, 0.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #7c3aed, #c084fc);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: white;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
+    }
+
+    .brand-titles h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-titles p {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      padding: 8px 15px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+    }
+
+    .nav-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--csharp-light);
+      border-color: var(--csharp-light);
+    }
+
+    .nav-btn.primary {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      border-color: #c084fc;
+      color: white;
+      box-shadow: 0 0 16px rgba(147, 51, 234, 0.4);
+    }
+
+    .nav-btn.primary:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    /* 主容器 */
+    main.lab-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* 頂部 Hero 區塊 */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(147, 51, 234, 0.15) 0%, rgba(2, 132, 199, 0.1) 50%, rgba(13, 21, 39, 0.95) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(168, 85, 247, 0.18);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      color: #c084fc;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #c084fc, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+      max-width: 1000px;
+      margin-bottom: 18px;
+    }
+
+    /* 切換 Tabs (模擬器 / 7步詳細架構 / C#源代碼) */
+    .mode-tabs-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .mode-tab-btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: rgba(21, 34, 56, 0.7);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .mode-tab-btn:hover {
+      background: var(--bg-card-hover);
+      color: #fff;
+    }
+
+    .mode-tab-btn.active {
+      background: linear-gradient(135deg, rgba(147, 51, 234, 0.3), rgba(2, 132, 199, 0.25));
+      border-color: #c084fc;
+      color: #c084fc;
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.3);
+    }
+
+    /* 內容視圖容器 */
+    .tab-view {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* WPF 視窗外框模擬器 (Windows Desktop Window Simulation) */
+    .wpf-window-frame {
+      background: #090e1c;
+      border: 1px solid #334a70;
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(147, 51, 234, 0.2);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .wpf-title-bar {
+      background: #111a2f;
+      border-bottom: 1px solid #1c2b45;
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .wpf-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wpf-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .wpf-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #334155;
+      display: inline-block;
+    }
+    .wpf-btn.close { background: #ef4444; }
+    .wpf-btn.min { background: #f59e0b; }
+    .wpf-btn.max { background: #10b981; }
+
+    .wpf-body {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 1024px) {
+      .wpf-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .wpf-panel-box {
+      background: rgba(13, 21, 39, 0.9);
+      border: 1px solid #20314f;
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wpf-panel-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+    }
+
+    /* 控制按鈕 */
+    .ctrl-btn {
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-btn.purple {
+      background: #9333ea;
+      color: white;
+    }
+    .ctrl-btn.purple:hover { background: #7e22ce; }
+
+    .ctrl-btn.green {
+      background: #10b981;
+      color: white;
+    }
+    .ctrl-btn.green:hover { background: #059669; }
+
+    .ctrl-btn.orange {
+      background: #f59e0b;
+      color: white;
+    }
+    .ctrl-btn.orange:hover { background: #d97706; }
+
+    .ctrl-btn.blue {
+      background: #0284c7;
+      color: white;
+    }
+    .ctrl-btn.blue:hover { background: #0369a1; }
+
+    /* 動態圓形 LED 燈 */
+    .led-indicator {
+      width: 52px;
+      height: 52px;
+      border-radius: 100%;
+      border: 3px solid #334155;
+      background: #22c55e;
+      box-shadow: 0 0 20px #22c55e;
+      margin: 10px auto;
+      transition: all 0.3s ease;
+    }
+
+    .led-indicator.machining {
+      background: #eab308;
+      box-shadow: 0 0 24px #eab308;
+      animation: pulse 1s infinite alternate;
+    }
+
+    .led-indicator.complete {
+      background: #3b82f6;
+      box-shadow: 0 0 24px #3b82f6;
+    }
+
+    .led-indicator.urgent {
+      background: #f97316;
+      box-shadow: 0 0 26px #f97316;
+      animation: pulse 0.5s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(0.96); filter: brightness(0.9); }
+      to { transform: scale(1.05); filter: brightness(1.3); }
+    }
+
+    /* 程式碼展示框 */
+    .code-container {
+      background: #070c18;
+      border: 1px solid #1c2b45;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .code-header {
+      background: #0d1527;
+      border-bottom: 1px solid #1c2b45;
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-family: 'Fira Code', monospace;
+      color: #94a3b8;
+    }
+
+    .code-box {
+      padding: 16px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.84rem;
+      line-height: 1.6;
+      color: #38bdf8;
+      max-height: 380px;
+      overflow-y: auto;
+      white-space: pre;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover {
+      background: #9333ea;
+      color: white;
+      border-color: #c084fc;
+    }
+
+    /* Step 清單卡片 */
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: all 0.25s ease;
+    }
+    .step-card:hover {
+      border-color: #c084fc;
+      transform: translateY(-2px);
+    }
+    .step-header-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .step-badge-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c3aed, #9333ea);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.88rem;
+      flex-shrink: 0;
+    }
+    .step-title-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* 浮動提示 Toast */
+    .toast-box {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #9333ea;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: none;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* 頁腳 */
+    footer.lab-footer {
+      border-top: 1px solid var(--border-color);
+      padding: 16px 24px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: var(--bg-panel);
+    }
+  
+    /* ========== Lightbox & 圖文卡片樣式 ========== */
+    .slide-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .slide-card-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+    }
+
+    .slide-card-item:hover {
+      border-color: var(--csharp-light);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px var(--csharp-glow);
+    }
+
+    .slide-img-container {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      background: #000;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .slide-img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      transition: transform 0.3s ease;
+      display: block;
+    }
+
+    .slide-card-item:hover .slide-img-container img {
+      transform: scale(1.05);
+    }
+
+    .slide-zoom-overlay {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      color: #38bdf8;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      pointer-events: none;
+    }
+
+    .slide-card-info {
+      padding: 12px;
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      line-height: 1.4;
+      flex-grow: 1;
+    }
+
+    .slide-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #c084fc;
+      background: rgba(192, 132, 252, 0.15);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    /* Lightbox Modal */
+    .lightbox-modal {
+      display: none;
+      position: fixed;
+      z-index: 99999;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(3, 7, 18, 0.92);
+      backdrop-filter: blur(10px);
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .lightbox-modal.active {
+      display: flex;
+    }
+
+    .lightbox-content {
+      max-width: 90vw;
+      max-height: 82vh;
+      border-radius: 12px;
+      border: 1.5px solid rgba(192, 132, 252, 0.4);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(192, 132, 252, 0.3);
+      object-fit: contain;
+    }
+
+    .lightbox-caption {
+      margin-top: 14px;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-align: center;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 6px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 24px;
+      right: 32px;
+      color: #94a3b8;
+      font-size: 2.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .lightbox-close:hover {
+      color: #f87171;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header class="lab-navbar">
+    <div class="brand-group">
+      <div class="brand-icon">
+        <i class="fa-solid fa-code"></i>
+      </div>
+      <div class="brand-titles">
+        <h1>
+          C# .NET 工業 4.0 MES 戰情室方案
+          <span style="font-size: 0.65rem; background: #9333ea; color: #fff; padding: 2px 8px; border-radius: 999px;">C# .NET 8 / WPF</span>
+        </h1>
+        <p>五股職訓局 機電AI_115-1期・對齊全國技能競賽工業 4.0 規格</p>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-btn primary" onclick="runCsharpAutoSim()">
+        <i class="fa-solid fa-play"></i> 一鍵自動化演示
+      </button>
+      <a href="project_opencart_mindmap.html" class="nav-btn" style="background: rgba(14, 165, 233, 0.15); border-color: #38bdf8; color: #38bdf8;"><i class="fa-solid fa-sitemap"></i> 專案心智圖與介面導覽</a>
+      <a href="opencart_interactive_lab.html" class="nav-btn">
+        <i class="fa-solid fa-atom"></i> Node-RED 四主題互動實驗室
+      </a>
+      <a href="project_opencart.html" class="nav-btn">
+        <i class="fa-solid fa-book-open"></i> 回專案總講義
+      </a>
+      <a href="index.html" class="nav-btn">
+        <i class="fa-solid fa-house"></i> 首頁
+      </a>
+    </div>
+  </header>
+
+  <!-- 主內容容器 -->
+  <main class="lab-container">
+
+    <!-- 頂部 Hero 區塊 -->
+    <section class="hero-banner">
+      <div class="hero-pill">
+        <i class="fa-solid fa-microchip"></i> PC-Based 上位機程式設計・工業製造執行系統 (MES)
+      </div>
+      <h1 class="hero-title">C# 串接 OpenCart 電商資料庫 <span>智慧製造實戰方案</span></h1>
+      <p class="hero-desc">
+        本方案專為解決台灣精密製造與國手選拔賽之 PC-Based 上位機需求而設計。有別於 Node-RED 的 Low-Code 流程圖，本專案以 <strong>C# (.NET 8 + WPF + MySqlConnector + Dapper)</strong> 打造強型別、高併發、極致流暢的 MES 戰情室上位機。完整涵蓋工單動態下拉選單、現場一鍵緊急插單 (Status 99)、CNC 虛擬機台加工多執行緒模擬、HTML/CSS 圓形 LED 燈號即時反饋、合格完工雙表同步回寫，以及全廠兩階段巢狀查詢與 SCADA Gauge 即時良率計算！
+      </p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <span class="nav-btn" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
+          <i class="fa-brands fa-windows"></i> .NET 8 WPF 桌面端
+        </span>
+        <span class="nav-btn" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
+          <i class="fa-solid fa-database"></i> MySqlConnector + Dapper ORM
+        </span>
+        <span class="nav-btn" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #34d399;">
+          <i class="fa-solid fa-bolt"></i> async / await 非同步切削狀態機
+        </span>
+      </div>
+    </section>
+
+    <!-- 模式切換 Tabs -->
+    <div class="mode-tabs-bar">
+      <button class="mode-tab-btn active" onclick="switchModeTab('simulator')" id="mode-btn-sim">
+        <i class="fa-solid fa-desktop"></i> C# 上位機實境互動模擬器 (Live App)
+      </button>
+      <button class="mode-tab-btn" onclick="switchModeTab('steps')" id="mode-btn-steps">
+        <i class="fa-solid fa-list-ol"></i> 7 步詳細建置步驟手冊 (Step by step)
+      </button>
+      <button class="mode-tab-btn" onclick="switchModeTab('vibe')" id="mode-btn-vibe" style="border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Vibe Coding 提示詞實務與 AI 協同
+      </button>
+      <button class="mode-tab-btn" onclick="switchModeTab('code')" id="mode-btn-code">
+        <i class="fa-solid fa-file-code"></i> C# 完整核心源代碼庫 (Full Source Code)
+      </button>
+    </div>
+
+    <!-- 視圖一：C# 上位機實境互動模擬器 -->
+    <section class="tab-view active" id="view-simulator">
+
+      <!-- C# 上位機 MES 實境圖文全景 -->
+      <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; margin-bottom: 24px;">
+        <h4 style="font-size: 1rem; color: var(--csharp-light); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-camera"></i> C# .NET 8 / WPF 上位機與 OpenCart 資料庫拓撲圖解
+        </h4>
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px;">
+          點擊下方任一截圖可開啟高解析度放大檢視，深入比對電商前台、MariaDB 資料庫與 C# 上位機 MES 的即時連動機制。
+        </p>
+        <div class="slide-gallery-grid">
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image2.png', '工業 4.0 MES 上位機戰情室最終三欄式成果介面')">
+              <img src="images_src/opencart/theme4/image2.png" alt="MES 戰情室成果" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">WPF 上位機總覽</span>
+              <div>左欄工單資訊、中欄 CNC 狀態機 LED 燈號、右欄 SCADA 即時良率看板。</div>
+            </div>
+          </div>
+
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image3.png', '系統拓撲與全閉環資料流設計')">
+              <img src="images_src/opencart/theme4/image3.png" alt="系統拓撲" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">系統架構拓撲</span>
+              <div>OpenCart 商城下單 $\rightarrow$ MariaDB 儲存 $\rightarrow$ C# 上位機輪詢 $\rightarrow$ 完工回寫。</div>
+            </div>
+          </div>
+
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image4.png', 'phpMyAdmin db_opencart 資料庫實體表結構')">
+              <img src="images_src/opencart/theme4/image4.png" alt="資料庫表結構" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">MariaDB 核心資料表</span>
+              <div>剖析 oc_order、oc_order_product、oc_order_history 核心欄位關係。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wpf-window-frame">
+        <!-- 視窗標題列 -->
+        <div class="wpf-title-bar">
+          <div class="wpf-title">
+            <i class="fa-solid fa-industry" style="color: #c084fc;"></i>
+            <span>SmartFactory.MES.Client - [C# .NET 8 / WPF 智慧機電上位機戰情室]</span>
+          </div>
+          <div class="wpf-controls">
+            <span class="wpf-btn min"></span>
+            <span class="wpf-btn max"></span>
+            <span class="wpf-btn close"></span>
+          </div>
+        </div>
+
+        <!-- 視窗內部布局 (3 欄式 MES 布局) -->
+        <div class="wpf-body">
+          <!-- 左欄：工單資訊與 ComboBox 下拉選單 -->
+          <div class="wpf-panel-box">
+            <div class="wpf-panel-title">
+              <i class="fa-solid fa-list-check"></i> 1. 待產工單選擇 (ComboBox)
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+              對應 C# ObservableCollection&lt;OrderViewModel&gt; 綁定：
+            </p>
+            <div style="margin-bottom: 12px;">
+              <select id="csharp-order-combo" style="width: 100%; padding: 8px 10px; background: #070c18; color: #fff; border: 1px solid #20314f; border-radius: 6px; font-weight: 600;" onchange="onCsharpOrderChanged()">
+                <!-- 動態注入工單 -->
+              </select>
+            </div>
+            <div style="background: rgba(7, 12, 24, 0.8); border: 1px solid #1c2b45; border-radius: 8px; padding: 12px; font-size: 0.82rem; line-height: 1.8; flex: 1;">
+              <div><b>買家姓名：</b><span id="cs-buyer" style="color: #38bdf8;">林大明 (Lin Daming)</span></div>
+              <div><b>下單時間：</b><span id="cs-date" style="color: var(--text-muted);">2026-03-28 09:30:15</span></div>
+              <div><b>工件品名：</b><span id="cs-part" style="color: #34d399;">塑膠工件 (Plastic Part)</span></div>
+              <div><b>下單數量：</b><span id="cs-qty" style="color: #fbbf24; font-weight: 700;">5 件</span></div>
+              <div><b>加工規格：</b><span id="cs-option" style="color: #c084fc;">Process (需切削加工)</span></div>
+              <div><b>訂單狀態：</b><span id="cs-status" style="color: #f59e0b; font-weight: 700;">Pending (待產)</span></div>
+            </div>
+          </div>
+
+          <!-- 中欄：機台切削加工模擬與動態 LED 燈 -->
+          <div class="wpf-panel-box">
+            <div class="wpf-panel-title">
+              <i class="fa-solid fa-gears" style="color: #f59e0b;"></i> 2. CNC 切削狀態機與 LED
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
+              WPF 自訂圓形 LED 燈號與 Task.Delay 非同步排程：
+            </p>
+            <div style="text-align: center; margin: 8px 0 14px 0;">
+              <div class="led-indicator" id="cs-led-lamp"></div>
+              <div style="font-size: 0.85rem; font-weight: 700;" id="cs-led-text">機台待機中 (Standby - 綠燈)</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">WPF Ellipse + ColorAnimation 綁定</div>
+            </div>
+
+            <!-- 切削進度條 -->
+            <div style="margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 4px;">
+                <span>CNC 主軸切削計時</span>
+                <span id="cs-progress-text">0%</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: #070c18; border-radius: 999px; overflow: hidden; border: 1px solid #1c2b45;">
+                <div id="cs-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #c084fc, #38bdf8); transition: width 0.1s linear;"></div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: auto;">
+              <button class="ctrl-btn orange" style="flex: 1; justify-content: center;" onclick="csharpTriggerUrgent()" id="btn-cs-urgent">
+                <i class="fa-solid fa-bolt"></i> 現場加急 (99)
+              </button>
+              <button class="ctrl-btn purple" style="flex: 1.5; justify-content: center;" onclick="csharpStartMachining()" id="btn-cs-machining">
+                <i class="fa-solid fa-play"></i> 啟動切削 (4s)
+              </button>
+            </div>
+          </div>
+
+          <!-- 右欄：SCADA 全廠產能與即時良率 Gauge 儀表 -->
+          <div class="wpf-panel-box">
+            <div class="wpf-panel-title">
+              <i class="fa-solid fa-chart-pie" style="color: #10b981;"></i> 3. SCADA 產能與即時良率
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+              <div style="background: rgba(7, 12, 24, 0.7); border: 1px solid #1c2b45; border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.78rem; color: var(--text-muted);">全廠待加工總數:</span>
+                <span style="font-size: 1.2rem; font-weight: 800; color: #fbbf24;" id="cs-kpi-pending">14 件</span>
+              </div>
+              <div style="background: rgba(7, 12, 24, 0.7); border: 1px solid #1c2b45; border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.78rem; color: var(--text-muted);">全廠已完工總數:</span>
+                <span style="font-size: 1.2rem; font-weight: 800; color: #34d399;" id="cs-kpi-complete">25 件</span>
+              </div>
+            </div>
+
+            <!-- SVG 圓形 Gauge 儀表板 -->
+            <div style="text-align: center; margin-top: auto;">
+              <div style="position: relative; width: 140px; height: 140px; margin: 0 auto;">
+                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                  <circle cx="50" cy="50" r="40" fill="transparent" stroke="#1c2b45" stroke-width="10"></circle>
+                  <circle id="cs-gauge-circle" cx="50" cy="50" r="40" fill="transparent" stroke="#10b981" stroke-width="10" stroke-dasharray="251.2" stroke-dashoffset="18.6" stroke-linecap="round" style="transition: stroke-dashoffset 0.5s ease;"></circle>
+                </svg>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                  <div style="font-size: 1.4rem; font-weight: 900; color: #fff;" id="cs-gauge-val">92.6%</div>
+                  <div style="font-size: 0.68rem; color: #34d399;" id="cs-gauge-text">EXCELLENT</div>
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 0.75rem;">
+                <span style="color: var(--text-muted);">不良品抽檢數:</span>
+                <input type="range" min="0" max="10" value="2" id="cs-defects-slider" style="width: 80px; accent-color: #ef4444;" oninput="updateCsharpDefects(this.value)">
+                <span id="cs-defects-text" style="color: #ef4444; font-weight: 700;">2 件</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 視窗底端狀態列 (WPF StatusBar) -->
+        <div style="background: #0d1527; border-top: 1px solid #1c2b45; padding: 6px 14px; font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+          <div><i class="fa-solid fa-server" style="color: #10b981;"></i> MySQL 連線狀態: Connected (127.0.0.1:3306, Pool Size: 10)</div>
+          <div>架構: .NET 8.0-windows | UI: WPF XAML | ORM: Dapper 2.1</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 視圖二：7 步詳細建置步驟手冊 (Step by step) -->
+        <!-- 視圖四：Vibe Coding 提示詞實務與 AI 協同 -->
+    <section class="tab-view" id="view-vibe">
+
+      <!-- Vibe Coding 圖文畫廊 -->
+      <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; margin-bottom: 24px;">
+        <h4 style="font-size: 1rem; color: var(--csharp-light); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Vibe Coding 現代化 AI 生成上位機架構圖鑑
+        </h4>
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px;">
+          透過以下四階段精準 Prompt，帶領 LLM AI 直接生成強型別 C# .NET 8 / WPF 工控代碼，省去 90% 重複撰寫時間。
+        </p>
+        <div class="slide-gallery-grid">
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image11.png', 'Prompt 1 產物：專案節點與資料庫驅動管線')">
+              <img src="images_src/opencart/theme4/image11.png" alt="專案初始化" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">Prompt 1 對應產物</span>
+              <div>專案環境初始化、MySqlConnector 與 Dapper 快速注入。</div>
+            </div>
+          </div>
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image12.png', 'Prompt 2 產物：非同步 SQL 查詢與資料模型')">
+              <img src="images_src/opencart/theme4/image12.png" alt="非同步查詢" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">Prompt 2 對應產物</span>
+              <div>SQL 欄位對齊、強型別 OrderHeader 實體映射。</div>
+            </div>
+          </div>
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image2.png', 'Prompt 3 產物：WPF 三欄工控戰情室介面')">
+              <img src="images_src/opencart/theme4/image2.png" alt="WPF 戰情室" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">Prompt 3 對應產物</span>
+              <div>工控深色主題、三欄佈局、向量儀表板 XAML 佈局。</div>
+            </div>
+          </div>
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image46.png', 'Prompt 4 產物：狀態機切削計時與雙回寫')">
+              <img src="images_src/opencart/theme4/image46.png" alt="切削狀態機" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">Prompt 4 對應產物</span>
+              <div>DispatcherTimer 4 秒模擬、INSERT 歷史履歷表閉環。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vibe Coding 核心心法橫幅 -->
+      <div class="card" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(168, 85, 247, 0.12)); border: 1.5px solid rgba(56, 189, 248, 0.4); margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #0284c7, #9333ea); display: flex; align-items: center; justify-content: center; color: white;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <h3 style="font-size: 1.2rem; font-weight: 800; color: #fff;">
+            什麼是工控 Vibe Coding？（AI 協同程式開發心法）
+          </h3>
+        </div>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7; margin-bottom: 12px;">
+          在傳統工控開發中，工程師常耗費數小時手刻重複的 ADO.NET 連線、XAML 佈局與 SQL 字串拼接。在 <strong>Vibe Coding</strong> 時代，我們將開發焦點從「手敲語法」轉變為<strong>「精準架構設計、邊界規格制定、非同步安全守則與提示詞 (Prompt) 迭代」</strong>。透過結構化提示詞，大語言模型 (Claude 3.7 / GPT-4o / Gemini 2.0 / Cursor) 能夠在數秒內生成符合台灣工業 4.0 競賽標準之高品質、強型別、具備交易事務防呆的 C# 專案！
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <span style="font-size: 0.78rem; padding: 4px 10px; border-radius: 6px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+            <i class="fa-solid fa-check"></i> 自然語言規格驅動 (Spec-Driven)
+          </span>
+          <span style="font-size: 0.78rem; padding: 4px 10px; border-radius: 6px; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">
+            <i class="fa-solid fa-shield-halved"></i> 注入式防禦與 ACID 交易保障
+          </span>
+          <span style="font-size: 0.78rem; padding: 4px 10px; border-radius: 6px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+            <i class="fa-solid fa-bolt"></i> 非同步執行緒流暢度保證
+          </span>
+        </div>
+      </div>
+
+      <!-- Vibe Coding 4 階段演進與精選 Prompt -->
+      <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 24px;">
+
+        <!-- Prompt 1: 系統架構與資料層 -->
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">
+              <span class="step-badge-num" style="width: 26px; height: 26px; font-size: 0.78rem;">P1</span>
+              階段一：資料模型與 Dapper 存取層 Prompt (DAL Generation)
+            </h4>
+            <button class="copy-btn" onclick="copySnippet('prompt-dal')">
+              <i class="fa-solid fa-copy"></i> 複製此 Prompt 給 AI
+            </button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+            引導 AI 生成完整符合 OpenCart 資料庫之 OrderModel 與基於 Dapper 的非同步查詢類別：
+          </p>
+          <pre class="code-box" id="prompt-dal" style="max-height: 220px; color: #a5f3fc;">你是一位精通台灣製造執行系統 (MES) 與 PC-Based 工控上位機的 C# 架構師。
+請以 C# (.NET 8) 搭配 Dapper 與 MySqlConnector，為我撰寫一個串接 OpenCart 4 (MariaDB/MySQL) 資料庫的資料存取類別 OrderRepository：
+
+【資料庫與欄位需求】
+1. 連線字串指向 127.0.0.1:3306，資料庫名稱 db_opencart，帳號 root，無密碼。
+2. 查詢未完工訂單 GetPendingOrdersAsync()：
+   - 篩選條件：WHERE oc_order.order_status_id != '5' AND oc_order.order_status_id != '7'。
+   - 關聯表：LEFT JOIN oc_order_product 提取品名與數量，LEFT JOIN oc_order_option 提取加工選項 (value)。
+3. 一鍵現場緊急加急 PushUrgentOrderAsync(int orderId)：
+   - 使用 MySqlTransaction 事務交易。
+   - 步驟一：UPDATE oc_order SET order_status_id = 99 WHERE order_id = @orderId。
+   - 步驟二：INSERT INTO oc_order_history (order_id, order_status_id, notify, comment, date_added) 寫入加急歷程。
+4. 全廠 KPI 巢狀子查詢：
+   - GetGrandTotalPendingQuantityAsync()：使用兩階段巢狀子查詢統計 order_status_id &lt; '5' 總件數。
+   - GetGrandTotalCompleteQuantityAsync()：統計 order_status_id = '5' 總件數。
+
+請給出完整、強型別、具備 using 與安全釋放資源的完整 C# 程式碼。</pre>
+        </div>
+
+        <!-- Prompt 2: WPF XAML 與動態 LED 圓形指示燈 -->
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">
+              <span class="step-badge-num" style="width: 26px; height: 26px; font-size: 0.78rem;">P2</span>
+              階段二：WPF 現代深色科技風介面與圓形 LED 燈號 Prompt (XAML UI)
+            </h4>
+            <button class="copy-btn" onclick="copySnippet('prompt-xaml')">
+              <i class="fa-solid fa-copy"></i> 複製此 Prompt 給 AI
+            </button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+            引導 AI 設計符合工業 4.0 SCADA 戰情室的三欄式 WPF 介面，並以 XAML 呈現動態呼吸燈：
+          </p>
+          <pre class="code-box" id="prompt-xaml" style="max-height: 220px; color: #fed7aa;">請為我設計一個現代工業 4.0 深色科技風 (Dark Cyberpunk / SCADA) 的 WPF MainWindow.xaml：
+
+【UI 布局要求】
+1. 背景色為深色 #0F172A，文字採用 Segoe UI 或微軟正黑體，具備發光光暈邊框。
+2. 畫面分為三欄 (Grid Columns: 1fr 1fr 1.2fr)：
+   - 左欄【工單選擇】：ComboBox (綁定待產工單清單)、TextBlock 群組 (顯示客戶姓名、下單時間、工件品名、下單件數、加工規格)。
+   - 中欄【CNC 加工狀態機】：
+     * 中央顯示一個 50x50 圓形 LED 燈號 (Ellipse)，以 DropShadowEffect 呈現發光光暈，能透過資料綁定動態變色 (待機綠燈 #22C55E、加工中黃燈 #EAB308、完工藍燈 #3B82F6、加急橙燈 #F97316)。
+     * ProgressBar 加工進度條。
+     * 加急按鈕 (橘色) 與啟動切削按鈕 (紫色)。
+   - 右欄【SCADA 產能指標】：
+     * 待生產總件數、已完工總件數卡片。
+     * 抽檢不良品件數 Slider (0~10 件)。
+     * 動態圓形 Gauge 良率儀表板 (可用 SVG Path 或圓弧繪製) 顯示良率百分比。
+3. 頂部提供視窗標題與連線狀態燈，整體風格專業美觀，適合全國技能競賽評審評分展示。</pre>
+        </div>
+
+        <!-- Prompt 3: 非同步 CNC 切削循環與狀態機 -->
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">
+              <span class="step-badge-num" style="width: 26px; height: 26px; font-size: 0.78rem;">P3</span>
+              階段三：CNC 虛擬切削狀態機與非同步排程 Prompt (Async Simulation)
+            </h4>
+            <button class="copy-btn" onclick="copySnippet('prompt-cnc')">
+              <i class="fa-solid fa-copy"></i> 複製此 Prompt 給 AI
+            </button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+            引導 AI 運用 <code>async/await</code>、<code>IProgress&lt;T&gt;</code> 與 <code>Task.Delay</code> 打造流暢不卡頓的狀態轉換循環：
+          </p>
+          <pre class="code-box" id="prompt-cnc" style="max-height: 220px; color: #bbf7d0;">請為我撰寫 C# MainWindow.xaml.cs 中的切削加工事件處理函式：
+
+【業務與執行緒要求】
+1. 點擊「啟動切削」後，必須使用 async void / Task 確保 UI 介面維持 60 FPS 不卡頓。
+2. 切削前防呆：按鈕設定為 IsEnabled = false，防止作業員連點重複派工。
+3. 機台狀態轉換：
+   - 階段 1 (待機)：LED 燈為綠色。
+   - 階段 2 (加工)：LED 燈切換為黃色，透過 for 迴圈搭配 Task.Delay(200) 與 IProgress&lt;int&gt; 每 200ms 回報進度，累加至 100% (模擬 4 秒切削)。
+   - 階段 3 (完工回寫)：進度達到 100% 後，呼叫 OrderRepository.CompleteOrderAsync(orderId)，將狀態更新為 5 (Complete)，並寫入 oc_order_history。
+   - 階段 4 (展示完工)：LED 燈切換為藍色，彈出 MessageBox 告知作業員「完工入庫成功」，3 秒後自動重設回綠色待機狀態。
+4. 完工後自動重新執行 RefreshKpiAsync()，動態更新待產量、完工量與即時良率百分比。</pre>
+        </div>
+
+        <!-- Prompt 4: 單元測試與工控斷線自動重試 (Resilience) -->
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">
+              <span class="step-badge-num" style="width: 26px; height: 26px; font-size: 0.78rem;">P4</span>
+              階段四：工業級韌性重試與 Polly 防禦機制 Prompt (Industrial Resilience)
+            </h4>
+            <button class="copy-btn" onclick="copySnippet('prompt-polly')">
+              <i class="fa-solid fa-copy"></i> 複製此 Prompt 給 AI
+            </button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+            工業現場常遭遇網路抖動或 MySQL 伺服器重啟，利用 Polly 函式庫建立指數退避重試 (Exponential Backoff)：
+          </p>
+          <pre class="code-box" id="prompt-polly" style="max-height: 220px; color: #fbcfe8;">工廠現場存在網路雜訊與資料庫連線瞬間斷線風險。請以 C# 搭配 Polly (或原生重試機制)，為我的 OrderRepository 加入斷線自動重試防禦：
+1. 當發生 MySqlException 且錯誤碼為網路逾時 (Timeout) 或連線中斷時，自動進行 3 次重試。
+2. 採用指數退避 (Exponential Backoff)：第 1 次等待 500ms，第 2 次等待 1000ms，第 3 次等待 2000ms。
+3. 若連續 3 次均失敗，記錄工控警報日誌並拋出具備中文排錯建議的自訂 CustomMesException，提示檢查 XAMPP 3306 埠位與 Windows 防火牆。</pre>
+        </div>
+
+      </div>
+    </section>
+    <section class="tab-view" id="view-steps">
+      <div class="step-card">
+        <div class="step-header-wrap">
+          <div class="step-badge-num">1</div>
+          <div class="step-title-text">步驟一：建立 .NET 8 WPF 工控專案與安裝 NuGet 驅動</div>
+        </div>
+        <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 12px;">
+          在 Visual Studio 2022 中建立「WPF 應用程式 (.NET 8.0)」，並透過 NuGet 套件管理員安裝高性能的開源 MySQL 驅動與 Dapper 輕量 ORM：
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Package Manager Console</span>
+            <button class="copy-btn" onclick="copySnippet('nuget-cmd')"><i class="fa-solid fa-copy"></i> 複製指令</button>
+          </div>
+          <pre class="code-box" id="nuget-cmd">Install-Package MySqlConnector
+Install-Package Dapper
+Install-Package CommunityToolkit.Mvvm</pre>
+        </div>
+        <div class="slide-gallery-grid" style="margin-top: 14px;">
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image13.png', '步驟一：資料庫連線參數與非同步連線池配置')">
+              <img src="images_src/opencart/theme4/image13.png" alt="連線池配置" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">步驟一實作圖解</span>
+              <div>配置 Host: 127.0.0.1、Port: 3306、db_opencart，建立非同步連線池。</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="step-card">
+        <div class="step-header-wrap">
+          <div class="step-badge-num">2</div>
+          <div class="step-title-text">步驟二：定義資料庫實體模型 (Order &amp; OrderProduct Models)</div>
+        </div>
+        <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 12px;">
+          建立與 OpenCart 資料庫表結構對應的 C# 類別，確保強型別資料安全：
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Models/OrderModel.cs</span>
+            <button class="copy-btn" onclick="copySnippet('model-cs')"><i class="fa-solid fa-copy"></i> 複製代碼</button>
+          </div>
+          <pre class="code-box" id="model-cs">public class OrderModel
+{
+    public int OrderId { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public decimal Total { get; set; }
+    public int OrderStatusId { get; set; }
+    public DateTime DateAdded { get; set; }
+
+    // 關聯屬性
+    public string ProductName { get; set; } = string.Empty;
+    public int Quantity { get; set; }
+    public string? OptionValue { get; set; }
+}</pre>
+        </div>
+        <div class="slide-gallery-grid" style="margin-top: 14px;">
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image7.png', '步驟二：oc_order 訂單主表欄位結構剖析')">
+              <img src="images_src/opencart/theme4/image7.png" alt="oc_order 欄位" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">步驟二實作圖解</span>
+              <div>依據 order_id, firstname, lastname, order_status_id, total 定義強型別 C# Model。</div>
+            </div>
+          </div>
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image15.png', '步驟二：oc_order_product 產品表欄位結構剖析')">
+              <img src="images_src/opencart/theme4/image15.png" alt="oc_order_product 欄位" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">產品明細對照</span>
+              <div>對齊工件品名 (name)、型號 (model) 與訂單購買件數 (quantity)。</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="step-card">
+        <div class="step-header-wrap">
+          <div class="step-badge-num">3</div>
+          <div class="step-title-text">步驟三：編寫 OrderRepository 資料存取層 (Dapper 查詢)</div>
+        </div>
+        <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 12px;">
+          透過連線池執行原生 SQL，包含未完成訂單過濾、跨三表 JOIN 以及兩階段巢狀子查詢：
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Repositories/OrderRepository.cs</span>
+            <button class="copy-btn" onclick="copySnippet('repo-cs')"><i class="fa-solid fa-copy"></i> 複製代碼</button>
+          </div>
+          <pre class="code-box" id="repo-cs">public class OrderRepository
+{
+    private readonly string _connectionString = "Server=127.0.0.1;Port=3306;Database=db_opencart;Uid=root;Pwd=;CharSet=utf8mb4;";
+
+    // 1. 查詢未完工訂單
+    public async Task&lt;IEnumerable&lt;OrderModel&gt;&gt; GetPendingOrdersAsync()
+    {
+        using var conn = new MySqlConnection(_connectionString);
+        string sql = @"
+            SELECT 
+                o.order_id AS OrderId, 
+                o.firstname AS FirstName, 
+                o.lastname AS LastName, 
+                o.total AS Total, 
+                o.order_status_id AS OrderStatusId, 
+                o.date_added AS DateAdded,
+                p.name AS ProductName,
+                p.quantity AS Quantity,
+                opt.value AS OptionValue
+            FROM oc_order o
+            LEFT JOIN oc_order_product p ON o.order_id = p.order_id
+            LEFT JOIN oc_order_option opt ON p.order_product_id = opt.order_product_id
+            WHERE o.order_status_id != '5' AND o.order_status_id != '7';";
+        return await conn.QueryAsync&lt;OrderModel&gt;(sql);
+    }
+}</pre>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header-wrap">
+          <div class="step-badge-num">4</div>
+          <div class="step-title-text">步驟四：實作現場一鍵緊急加急 (Emergency Push) 雙表同步</div>
+        </div>
+        <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 12px;">
+          使用 MySQL Transaction 確保更新 <code>oc_order</code> 狀態為 99 與寫入 <code>oc_order_history</code> 歷程之原子性 (Atomicity)：
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Repositories/OrderRepository.cs (加急方法)</span>
+            <button class="copy-btn" onclick="copySnippet('urgent-cs')"><i class="fa-solid fa-copy"></i> 複製代碼</button>
+          </div>
+          <pre class="code-box" id="urgent-cs">public async Task&lt;bool&gt; PushUrgentOrderAsync(int orderId)
+{
+    using var conn = new MySqlConnection(_connectionString);
+    await conn.OpenAsync();
+    using var trans = await conn.BeginTransactionAsync();
+    try
+    {
+        string updateSql = "UPDATE oc_order SET order_status_id = 99 WHERE order_id = @OrderId;";
+        await conn.ExecuteAsync(updateSql, new { OrderId = orderId }, trans);
+
+        string historySql = @"
+            INSERT INTO oc_order_history (order_id, order_status_id, notify, comment, date_added)
+            VALUES (@OrderId, 99, 1, '現場作業員透過 C# MES 上位機啟動加急作業', NOW());";
+        await conn.ExecuteAsync(historySql, new { OrderId = orderId }, trans);
+
+        await trans.CommitAsync();
+        return true;
+    }
+    catch
+    {
+        await trans.RollbackAsync();
+        return false;
+    }
+}</pre>
+        </div>
+        <div class="slide-gallery-grid" style="margin-top: 14px;">
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image21.png', '步驟四：WPF 介面佈局規劃與欄位設計')">
+              <img src="images_src/opencart/theme4/image21.png" alt="WPF 介面佈局" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">步驟四實作圖解</span>
+              <div>左側訂單基本資訊看板、工單選單與操作按鈕視覺規劃。</div>
+            </div>
+          </div>
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image25.png', '步驟四：動態下拉選單與工單即時注入')">
+              <img src="images_src/opencart/theme4/image25.png" alt="工單下拉選單" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">ComboBox 工單連動</span>
+              <div>動態綁定未完成工單清單，選取後自動刷新明細與總額。</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="step-card">
+        <div class="step-header-wrap">
+          <div class="step-badge-num">5</div>
+          <div class="step-title-text">步驟五：CNC 虛擬機台非同步加工模擬 (async / await 狀態機)</div>
+        </div>
+        <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 12px;">
+          利用 <code>Task.Delay(4000)</code> 模擬 4 秒切削加工循環，加工期間動態更新 LED 顏色與進度條，完工自動回寫狀態碼 5：
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Services/MachiningService.cs</span>
+            <button class="copy-btn" onclick="copySnippet('cnc-cs')"><i class="fa-solid fa-copy"></i> 複製代碼</button>
+          </div>
+          <pre class="code-box" id="cnc-cs">public async Task StartMachiningAsync(int orderId, IProgress&lt;int&gt; progress)
+{
+    // 1. 切換狀態為加工中 (黃燈)
+    MachineStatus = Status.Machining;
+    
+    // 2. 模擬 4 秒切削進度
+    for (int i = 0; i &lt;= 100; i += 5)
+    {
+        await Task.Delay(200);
+        progress.Report(i);
+    }
+
+    // 3. 完工自動回寫資料庫 (Complete: 5)
+    using var conn = new MySqlConnection(_connectionString);
+    await conn.ExecuteAsync("UPDATE oc_order SET order_status_id = 5 WHERE order_id = @OrderId;", new { OrderId = orderId });
+    await conn.ExecuteAsync(@"
+        INSERT INTO oc_order_history (order_id, order_status_id, notify, comment, date_added)
+        VALUES (@OrderId, 5, 1, 'C# MES 自動切削完工入庫', NOW());", new { OrderId = orderId });
+
+    MachineStatus = Status.Complete; // 完工藍燈
+}</pre>
+        </div>
+        <div class="slide-gallery-grid" style="margin-top: 14px;">
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image40.png', '步驟五：動態圓形 LED 狀態指示燈設計')">
+              <img src="images_src/opencart/theme4/image40.png" alt="LED 燈號樣式" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">步驟五實作圖解</span>
+              <div>三態圓形燈號：待機 (#10b981 綠)、加工中 (#f59e0b 黃)、完工 (#3b82f6 藍)。</div>
+            </div>
+          </div>
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image38.png', '步驟五：模擬生產流程架構與狀態機切換')">
+              <img src="images_src/opencart/theme4/image38.png" alt="生產流程狀態機" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">切削狀態機時序</span>
+              <div>按鈕觸發 $\rightarrow$ DispatcherTimer 4秒計時 $\rightarrow$ 完工回寫。</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="step-card">
+        <div class="step-header-wrap">
+          <div class="step-badge-num">6</div>
+          <div class="step-title-text">步驟六：兩階段巢狀子查詢與全廠即時良率計算</div>
+        </div>
+        <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 12px;">
+          執行主題三兩階段巢狀子查詢，並透過屬性通知更新 WPF 介面上的圓形 Gauge 儀表：
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>ViewModels/KpiViewModel.cs</span>
+            <button class="copy-btn" onclick="copySnippet('kpi-cs')"><i class="fa-solid fa-copy"></i> 複製代碼</button>
+          </div>
+          <pre class="code-box" id="kpi-cs">public async Task RefreshKpiAsync()
+{
+    using var conn = new MySqlConnection(_connectionString);
+    
+    // 待生產工件兩階段巢狀子查詢
+    string pendingSql = @"
+        SELECT SUM(total_quantity) AS grand_total_quantity FROM (
+            SELECT oc_order.order_id, oc_order.order_status_id, SUM(oc_order_product.quantity) AS total_quantity 
+            FROM oc_order LEFT JOIN oc_order_product ON oc_order.order_id = oc_order_product.order_id 
+            WHERE oc_order.order_status_id &lt; '5' 
+            GROUP BY oc_order.order_id, oc_order.order_status_id
+        ) AS subquery;";
+    PendingTotal = await conn.ExecuteScalarAsync&lt;int&gt;(pendingSql);
+
+    // 已完工合格入庫兩階段巢狀子查詢
+    string completeSql = @"
+        SELECT SUM(total_quantity) AS grand_total_quantity FROM (
+            SELECT oc_order.order_id, oc_order.order_status_id, SUM(oc_order_product.quantity) AS total_quantity 
+            FROM oc_order LEFT JOIN oc_order_product ON oc_order.order_id = oc_order_product.order_id 
+            WHERE oc_order.order_status_id = '5' 
+            GROUP BY oc_order.order_id, oc_order.order_status_id
+        ) AS subquery;";
+    CompleteTotal = await conn.ExecuteScalarAsync&lt;int&gt;(completeSql);
+
+    // 計算良率
+    int totalProduced = CompleteTotal + Defects;
+    YieldRate = totalProduced &gt; 0 ? ((double)CompleteTotal / totalProduced) * 100.0 : 100.0;
+}</pre>
+        </div>
+        <div class="slide-gallery-grid" style="margin-top: 14px;">
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image34.png', '步驟六：SQL 更新訂單狀態碼為加急 99')">
+              <img src="images_src/opencart/theme4/image34.png" alt="加急 SQL UPDATE" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">步驟六實作圖解</span>
+              <div>執行 UPDATE oc_order SET order_status_id = 99，即時優先排程。</div>
+            </div>
+          </div>
+          <div class="slide-card-item">
+            <div class="slide-img-container" onclick="openLightbox('images_src/opencart/theme4/image47.png', '步驟六：OpenCart 前後台與資料庫同步完工驗證')">
+              <img src="images_src/opencart/theme4/image47.png" alt="完工雙回寫驗證" loading="lazy">
+              <span class="slide-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大</span>
+            </div>
+            <div class="slide-card-info">
+              <span class="slide-tag">完工雙回寫驗證</span>
+              <div>oc_order 狀態更新為 5 (Complete)，oc_order_history 新增歷程。</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="step-card">
+        <div class="step-header-wrap">
+          <div class="step-badge-num">7</div>
+          <div class="step-title-text">步驟七：WPF XAML 圓形 LED 燈號樣式與動畫範本</div>
+        </div>
+        <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 12px;">
+          在 XAML 中運用 <code>Ellipse</code> 搭配 <code>DropShadowEffect</code> 製作與 Node-RED 同款的動態呼吸光暈：
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Views/MainWindow.xaml (LED 燈號樣板)</span>
+            <button class="copy-btn" onclick="copySnippet('xaml-led')"><i class="fa-solid fa-copy"></i> 複製 XAML</button>
+          </div>
+          <pre class="code-box" id="xaml-led">&lt;!-- 圓形動態 LED 燈號 --&gt;
+&lt;Ellipse Width="50" Height="50" Stroke="#334155" StrokeThickness="3"&gt;
+    &lt;Ellipse.Fill&gt;
+        &lt;SolidColorBrush Color="{Binding LedColor, FallbackValue=#22C55E}"/&gt;
+    &lt;/Ellipse.Fill&gt;
+    &lt;Ellipse.Effect&gt;
+        &lt;DropShadowEffect BlurRadius="25" ShadowDepth="0" 
+                          Color="{Binding LedColor, FallbackValue=#22C55E}"/&gt;
+    &lt;/Ellipse.Effect&gt;
+&lt;/Ellipse&gt;</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 視圖三：C# 完整核心源代碼庫 -->
+    <section class="tab-view" id="view-code">
+      <div class="card" style="margin-bottom: 20px;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: #c084fc; margin-bottom: 8px;">
+          <i class="fa-solid fa-folder-tree"></i> C# MES 專案結構拓撲 (Project Hierarchy)
+        </h3>
+        <pre class="code-box" style="color: #94a3b8; max-height: 200px;">
+SmartFactory.MES.Client/
+├── Models/
+│   └── OrderModel.cs              // 訂單主檔與多表產品實體
+├── Repositories/
+│   └── OrderRepository.cs         // Dapper 原生 SQL 存取與加急交易
+├── Services/
+│   └── MachiningService.cs        // CNC 切削非同步狀態機
+├── ViewModels/
+│   ├── MainViewModel.cs           // 主介面資料綁定與命令
+│   └── KpiViewModel.cs            // 產能與即時良率計算
+└── Views/
+    └── MainWindow.xaml            // WPF 現代深色科技風介面
+        </pre>
+      </div>
+
+      <div class="code-container">
+        <div class="code-header">
+          <span>完整 C# WPF MainWindow.xaml.cs (開箱即用)</span>
+          <button class="copy-btn" onclick="copySnippet('full-csharp-code')"><i class="fa-solid fa-copy"></i> 複製完整 C# 代碼</button>
+        </div>
+        <pre class="code-box" id="full-csharp-code" style="max-height: 500px;">using System;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
+using Dapper;
+using MySqlConnector;
+
+namespace SmartFactory.MES.Client
+{
+    public partial class MainWindow : Window
+    {
+        private const string ConnStr = "Server=127.0.0.1;Port=3306;Database=db_opencart;Uid=root;Pwd=;CharSet=utf8mb4;";
+        private int _selectedOrderId = 10;
+        private int _defects = 2;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            Loaded += async (s, e) => await LoadDataAsync();
+        }
+
+        // 載入未完成工單清單
+        private async Task LoadDataAsync()
+        {
+            using var conn = new MySqlConnection(ConnStr);
+            string sql = @"
+                SELECT o.order_id AS OrderId, o.firstname AS FirstName, o.lastname AS LastName, 
+                       o.total AS Total, o.order_status_id AS OrderStatusId, o.date_added AS DateAdded,
+                       p.name AS ProductName, p.quantity AS Quantity, opt.value AS OptionValue
+                FROM oc_order o
+                LEFT JOIN oc_order_product p ON o.order_id = p.order_id
+                LEFT JOIN oc_order_option opt ON p.order_product_id = opt.order_product_id
+                WHERE o.order_status_id != '5' AND o.order_status_id != '7';";
+            
+            var orders = (await conn.QueryAsync&lt;dynamic&gt;(sql)).ToList();
+            OrderComboBox.ItemsSource = orders;
+            if (orders.Count > 0) OrderComboBox.SelectedIndex = 0;
+
+            await RefreshKpiAsync();
+        }
+
+        // 現場加急調度 (Emergency Push)
+        private async void BtnUrgent_Click(object sender, RoutedEventArgs e)
+        {
+            using var conn = new MySqlConnection(ConnStr);
+            await conn.OpenAsync();
+            using var trans = await conn.BeginTransactionAsync();
+            try
+            {
+                await conn.ExecuteAsync("UPDATE oc_order SET order_status_id = 99 WHERE order_id = @Id;", new { Id = _selectedOrderId }, trans);
+                await conn.ExecuteAsync(@"INSERT INTO oc_order_history (order_id, order_status_id, notify, comment, date_added)
+                                          VALUES (@Id, 99, 1, 'C# 上位機觸發加急排產', NOW());", new { Id = _selectedOrderId }, trans);
+                await trans.CommitAsync();
+
+                // 更新 LED 燈號為加急橙燈
+                LedEllipse.Fill = new SolidColorBrush(Color.FromRgb(249, 115, 22));
+                MessageBox.Show($"工單 #{_selectedOrderId} 加急調度成功！狀態已升級至 99！", "MES 系統提示");
+                await LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                await trans.RollbackAsync();
+                MessageBox.Show("加急失敗: " + ex.Message);
+            }
+        }
+
+        // 啟動 CNC 切削加工多執行緒模擬
+        private async void BtnStartMachining_Click(object sender, RoutedEventArgs e)
+        {
+            BtnStartMachining.IsEnabled = false;
+            // 切削中黃燈
+            LedEllipse.Fill = new SolidColorBrush(Color.FromRgb(234, 179, 8));
+            
+            for (int i = 0; i &lt;= 100; i += 5)
+            {
+                MachiningProgressBar.Value = i;
+                await Task.Delay(200); // 模擬 4 秒加工循環
+            }
+
+            // 完工回寫 status=5
+            using var conn = new MySqlConnection(ConnStr);
+            await conn.ExecuteAsync("UPDATE oc_order SET order_status_id = 5 WHERE order_id = @Id;", new { Id = _selectedOrderId });
+            await conn.ExecuteAsync(@"INSERT INTO oc_order_history (order_id, order_status_id, notify, comment, date_added)
+                                      VALUES (@Id, 5, 1, 'CNC 自動加工完成，合格入庫', NOW());", new { Id = _selectedOrderId });
+
+            // 完工藍燈
+            LedEllipse.Fill = new SolidColorBrush(Color.FromRgb(59, 130, 246));
+            MessageBox.Show($"工單 #{_selectedOrderId} 加工完畢！已自動回寫 Complete (5) 入庫！", "MES 完工回報");
+
+            BtnStartMachining.IsEnabled = true;
+            await LoadDataAsync();
+        }
+
+        // 兩階段巢狀子查詢與良率計算
+        private async Task RefreshKpiAsync()
+        {
+            using var conn = new MySqlConnection(ConnStr);
+            string pendingSql = @"SELECT SUM(total_quantity) FROM (
+                                    SELECT SUM(quantity) AS total_quantity FROM oc_order o 
+                                    LEFT JOIN oc_order_product p ON o.order_id = p.order_id 
+                                    WHERE o.order_status_id &lt; '5' GROUP BY o.order_id) t;";
+            int pending = await conn.ExecuteScalarAsync&lt;int&gt;(pendingSql);
+
+            string completeSql = @"SELECT SUM(total_quantity) FROM (
+                                     SELECT SUM(quantity) AS total_quantity FROM oc_order o 
+                                     LEFT JOIN oc_order_product p ON o.order_id = p.order_id 
+                                     WHERE o.order_status_id = '5' GROUP BY o.order_id) t;";
+            int complete = await conn.ExecuteScalarAsync&lt;int&gt;(completeSql);
+
+            int total = complete + _defects;
+            double yieldRate = total > 0 ? ((double)complete / total) * 100.0 : 100.0;
+
+            TxtPending.Text = pending + " 件";
+            TxtComplete.Text = complete + " 件";
+            TxtYield.Text = yieldRate.ToString("F1") + "%";
+        }
+    }
+}</pre>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 浮動提示 Toast -->
+  <div class="toast-box" id="toast-notify">操作成功！</div>
+
+  <!-- 頁腳 -->
+  <footer class="lab-footer">
+    五股職訓局 機電AI_115-1期・C# .NET 工業 4.0 MES 戰情室方案・指導老師：Rido老師
+  </footer>
+
+  <!-- 互動模擬腳本 -->
+  <script>
+    // 模擬資料庫
+    let csharpOrders = [
+      { id: 10, buyer: '林大明 (Lin Daming)', date: '2026-03-28 09:30:15', part: '塑膠工件 (Plastic Part)', qty: 5, option: 'Process (需切削加工)', price: 89, status: 1 },
+      { id: 19, buyer: '陳小美 (Chen Xiaomei)', date: '2026-03-28 10:15:22', part: '金屬工件 (Metal Part)', qty: 3, option: 'None', price: 49, status: 1 },
+      { id: 25, buyer: '王國手 (Wang Skills)', date: '2026-03-28 11:04:40', part: '塑膠工件 (Plastic Part)', qty: 6, option: 'Process (需切削加工)', price: 89, status: 1 }
+    ];
+
+    let csharpDefects = 2;
+    let isCsharpMachining = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      populateCsharpDropdown();
+      updateCsharpKpi();
+    });
+
+    function switchModeTab(tabId) {
+      document.querySelectorAll('.mode-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
+
+      if (tabId === 'simulator') {
+        document.getElementById('mode-btn-sim').classList.add('active');
+        document.getElementById('view-simulator').classList.add('active');
+      } else if (tabId === 'vibe') {
+        document.getElementById('mode-btn-vibe').classList.add('active');
+        document.getElementById('view-vibe').classList.add('active');
+      } else if (tabId === 'steps') {
+        document.getElementById('mode-btn-steps').classList.add('active');
+        document.getElementById('view-steps').classList.add('active');
+      } else if (tabId === 'code') {
+        document.getElementById('mode-btn-code').classList.add('active');
+        document.getElementById('view-code').classList.add('active');
+      }
+    }
+
+    function populateCsharpDropdown() {
+      const select = document.getElementById('csharp-order-combo');
+      select.innerHTML = '';
+      const pendings = csharpOrders.filter(o => o.status < 5 || o.status === 99);
+
+      if (pendings.length === 0) {
+        select.innerHTML = '<option value="">全廠無待產工單</option>';
+        return;
+      }
+
+      pendings.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o.id;
+        const tag = (o.status === 99) ? '【加急】' : '【待產】';
+        opt.innerText = tag + ' 工單 #' + o.id + ' - ' + o.part + ' (' + o.qty + '件)';
+        select.appendChild(opt);
+      });
+
+      onCsharpOrderChanged();
+    }
+
+    function onCsharpOrderChanged() {
+      const select = document.getElementById('csharp-order-combo');
+      const orderId = parseInt(select.value);
+      const order = csharpOrders.find(o => o.id === orderId);
+      if (!order) return;
+
+      document.getElementById('cs-buyer').innerText = order.buyer;
+      document.getElementById('cs-date').innerText = order.date;
+      document.getElementById('cs-part').innerText = order.part;
+      document.getElementById('cs-qty').innerText = order.qty + ' 件';
+      document.getElementById('cs-option').innerText = order.option;
+
+      const statusSpan = document.getElementById('cs-status');
+      if (order.status === 99) {
+        statusSpan.style.color = '#f97316';
+        statusSpan.innerText = 'Urgent (加急處理中)';
+      } else {
+        statusSpan.style.color = '#f59e0b';
+        statusSpan.innerText = 'Pending (待產排程中)';
+      }
+    }
+
+    function csharpTriggerUrgent() {
+      const select = document.getElementById('csharp-order-combo');
+      const orderId = parseInt(select.value);
+      const order = csharpOrders.find(o => o.id === orderId);
+      if (!order) return;
+
+      order.status = 99;
+      populateCsharpDropdown();
+
+      const led = document.getElementById('cs-led-lamp');
+      const ledText = document.getElementById('cs-led-text');
+      led.className = 'led-indicator urgent';
+      ledText.innerText = 'C# 加急排程中 (Urgent - 橙燈閃爍)';
+      ledText.style.color = '#f97316';
+
+      showToast('【C# 加急調度】工單 #' + orderId + ' 狀態更新為 99！');
+    }
+
+    function csharpStartMachining() {
+      if (isCsharpMachining) return;
+      const select = document.getElementById('csharp-order-combo');
+      const orderId = parseInt(select.value);
+      const order = csharpOrders.find(o => o.id === orderId);
+      if (!order) {
+        alert('請先選擇待產工單！');
+        return;
+      }
+
+      isCsharpMachining = true;
+      document.getElementById('btn-cs-machining').disabled = true;
+      document.getElementById('btn-cs-urgent').disabled = true;
+
+      const led = document.getElementById('cs-led-lamp');
+      const ledText = document.getElementById('cs-led-text');
+      const progressBar = document.getElementById('cs-progress-bar');
+      const progressText = document.getElementById('cs-progress-text');
+
+      led.className = 'led-indicator machining';
+      ledText.innerText = 'C# Task.Delay 切削中 (Machining - 黃燈)';
+      ledText.style.color = '#eab308';
+
+      let progress = 0;
+      const timer = setInterval(() => {
+        progress += 2.5;
+        progressBar.style.width = progress + '%';
+        progressText.innerText = Math.round(progress) + '%';
+
+        if (progress >= 100) {
+          clearInterval(timer);
+          finishCsharpMachining(order);
+        }
+      }, 100);
+    }
+
+    function finishCsharpMachining(order) {
+      isCsharpMachining = false;
+      document.getElementById('btn-cs-machining').disabled = false;
+      document.getElementById('btn-cs-urgent').disabled = false;
+
+      order.status = 5; // Complete
+
+      const led = document.getElementById('cs-led-lamp');
+      const ledText = document.getElementById('cs-led-text');
+      const progressBar = document.getElementById('cs-progress-bar');
+      const progressText = document.getElementById('cs-progress-text');
+
+      led.className = 'led-indicator complete';
+      ledText.innerText = 'C# 完工自動回寫 (Complete - 藍燈)';
+      ledText.style.color = '#38bdf8';
+
+      populateCsharpDropdown();
+      updateCsharpKpi();
+
+      setTimeout(() => {
+        progressBar.style.width = '0%';
+        progressText.innerText = '0%';
+        led.className = 'led-indicator';
+        ledText.innerText = '機台待機中 (Standby - 綠燈)';
+        ledText.style.color = '#fff';
+      }, 3000);
+
+      showToast('【C# 完工回報】工單 #' + order.id + ' 已自動回寫資料庫 Status 5！');
+    }
+
+    function updateCsharpDefects(val) {
+      csharpDefects = parseInt(val);
+      document.getElementById('cs-defects-text').innerText = csharpDefects + ' 件';
+      updateCsharpKpi();
+    }
+
+    function updateCsharpKpi() {
+      let pending = 0;
+      let complete = 25; // 既有已完工基底
+
+      csharpOrders.forEach(o => {
+        if (o.status < 5) pending += o.qty;
+        else if (o.status === 5) complete += o.qty;
+      });
+
+      document.getElementById('cs-kpi-pending').innerText = pending + ' 件';
+      document.getElementById('cs-kpi-complete').innerText = complete + ' 件';
+
+      const total = complete + csharpDefects;
+      let yieldRate = 100.0;
+      if (total > 0) {
+        yieldRate = ((complete / total) * 100).toFixed(1);
+      }
+
+      document.getElementById('cs-gauge-val').innerText = yieldRate + '%';
+      const gaugeCircle = document.getElementById('cs-gauge-circle');
+      const gaugeText = document.getElementById('cs-gauge-text');
+
+      const circumference = 251.2;
+      const offset = circumference - (circumference * (yieldRate / 100));
+      gaugeCircle.style.strokeDashoffset = offset;
+
+      if (yieldRate >= 90) {
+        gaugeCircle.style.stroke = '#10b981';
+        gaugeText.innerText = 'EXCELLENT';
+        gaugeText.style.color = '#34d399';
+      } else if (yieldRate >= 80) {
+        gaugeCircle.style.stroke = '#f59e0b';
+        gaugeText.innerText = 'ACCEPTABLE';
+        gaugeText.style.color = '#fbbf24';
+      } else {
+        gaugeCircle.style.stroke = '#ef4444';
+        gaugeText.innerText = 'ALERT';
+        gaugeText.style.color = '#f87171';
+      }
+    }
+
+    async function runCsharpAutoSim() {
+      switchModeTab('simulator');
+      showToast('【C# 自動演示啟動】模擬加急 -> 切削 -> 回寫 -> 計算良率！');
+      await sleep(1000);
+
+      csharpTriggerUrgent();
+      await sleep(1500);
+
+      csharpStartMachining();
+    }
+
+    function copySnippet(elementId) {
+      const code = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('程式碼已複製至剪貼簿！');
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast-notify');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+  </script>
+
+  <!-- Lightbox Modal -->
+  <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox(event)">
+    <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+    <img class="lightbox-content" id="lightboxImg" alt="實作操作截圖放大">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+
+</body>
+</html>
