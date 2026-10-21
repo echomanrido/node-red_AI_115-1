@@ -128,6 +128,8 @@
 
     /* 流程圖展示 */
     .flow-diagram-box {
+      white-space: pre;
+      font-family: 'Fira Code', monospace;
       background: #090d16; border: 1.5px solid rgba(16, 185, 129, 0.3);
       border-radius: 10px; padding: 16px; font-family: 'Fira Code', monospace;
       font-size: 0.82rem; line-height: 1.6; color: #6ee7b7; overflow-x: auto; margin: 16px 0;
@@ -305,26 +307,94 @@
         </p>
 
         <!-- 流程圖 -->
-        <div class="flow-diagram-box">
-[C# .NET 8 / RestSharp 客戶端]                          [OpenCart REST Admin API 模組]
-       │                                                              │
-  (1)  ├────── POST /api/rest_admin/oauth/token ─────────────────────►│  [驗證 Client ID & Secret]
-       │       Body: { grant_type: "client_credentials" }             │  [簽發 JWT / Bearer Token]
-       │                                                              │
-  (2)  │◄───── 200 OK + { access_token: "eyJhbGciOi...", exp: 7200 } ┤
-       │                                                              │
-  (3)  ├────── GET /api/rest_admin/orders?status=1 (Pending) ────────►│  [過濾未完成工單]
-       │       Header: Authorization: Bearer eyJhbGciOi...            │  [包含產品、客製化選項]
-       │                                                              │
-  (4)  │◄───── 200 OK + { success: true, data: [ { order_id: 10 } ] } ┤
-       │                                                              │
-  (5)  ├────── PUT /api/rest_admin/orders/10/status ─────────────────►│  [原子操作：修改狀態為 5]
-       │       Header: Authorization: Bearer ...                      │  [自動累計歷史與庫存回寫]
-       │       Body: { status_id: 5, comment: "CNC 切削全檢合格" }    │
-       │                                                              │
-  (6)  │◄───── 200 OK + { success: true, message: "Order updated" } ──┤
-       ▼                                                              ▼
+        
+        <!-- 現代化視覺時序流程圖 (RESTful API Sequence Cards) -->
+        <div style="background: #090d16; border: 1.5px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 20px; margin: 18px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 12px; height: 12px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 10px #10b981;"></span>
+              <span style="color: #34d399; font-weight: 800; font-size: 0.95rem;">C# .NET 8 / RestSharp 客戶端</span>
+            </div>
+            <span style="font-size: 0.8rem; color: #94a3b8;"><i class="fa-solid fa-arrows-left-right"></i> 無狀態 (Stateless) RESTful JSON 通訊時序</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="color: #38bdf8; font-weight: 800; font-size: 0.95rem;">OpenCart REST Admin API 模組</span>
+              <span style="width: 12px; height: 12px; border-radius: 50%; background: #38bdf8; display: inline-block; box-shadow: 0 0 10px #38bdf8;"></span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <!-- Step 1 -->
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 12px 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="color: #34d399; font-weight: 700; font-size: 0.84rem;">
+                  <i class="fa-solid fa-circle-arrow-right"></i> 步驟 1 (Request)：OAuth 2.0 Client Credentials 認證請求
+                </span>
+                <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">POST /oauth/token</span>
+              </div>
+              <p style="margin: 0; font-size: 0.8rem; color: #cbd5e1; font-family: 'Fira Code', monospace;">
+                Body: { client_id: "mes_factory", client_secret: "sec_8f3a1b...", grant_type: "client_credentials" }<br>
+                <span style="color: #94a3b8;">伺服器端比對：驗證 Client ID 與 Secret，簽發具備時效之 JWT Bearer Token。</span>
+              </p>
+            </div>
+
+            <!-- Step 2 -->
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 12px 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="color: #38bdf8; font-weight: 700; font-size: 0.84rem;">
+                  <i class="fa-solid fa-circle-arrow-left"></i> 步驟 2 (Response)：簽發存取權杖 (Bearer Token)
+                </span>
+                <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">200 OK + JWT</span>
+              </div>
+              <p style="margin: 0; font-size: 0.8rem; color: #cbd5e1; font-family: 'Fira Code', monospace;">
+                Body: { "access_token": "eyJhbGciOiJIUzI1Ni...", "token_type": "Bearer", "expires_in": 7200 }<br>
+                <span style="color: #94a3b8;">客戶端快取：將 Token 存入記憶體，並在後續所有 API 呼叫的 Header 自動注入。</span>
+              </p>
+            </div>
+
+            <!-- Step 3 -->
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="color: #fbbf24; font-weight: 700; font-size: 0.84rem;">
+                  <i class="fa-solid fa-circle-arrow-right"></i> 步驟 3 (Request)：查詢未生產待排工單列表
+                </span>
+                <span style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">GET /orders?status=1</span>
+              </div>
+              <p style="margin: 0; font-size: 0.8rem; color: #cbd5e1; font-family: 'Fira Code', monospace;">
+                Header: Authorization: Bearer eyJhbGciOi...<br>
+                <span style="color: #94a3b8;">查詢過濾：篩選 order_status_id = 1 (Pending)，一次性提取品項明細與選配屬性。</span>
+              </p>
+            </div>
+
+            <!-- Step 4 -->
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 12px 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="color: #38bdf8; font-weight: 700; font-size: 0.84rem;">
+                  <i class="fa-solid fa-circle-arrow-left"></i> 步驟 4 (Response)：回傳工單陣列純 JSON
+                </span>
+                <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">200 OK + JSON</span>
+              </div>
+              <p style="margin: 0; font-size: 0.8rem; color: #cbd5e1; font-family: 'Fira Code', monospace;">
+                Body: { "success": true, "data": [ { "order_id": 10, "customer": "張世學", "total": "$445.00", ... } ] }
+              </p>
+            </div>
+
+            <!-- Step 5 -->
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 12px 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="color: #c084fc; font-weight: 700; font-size: 0.84rem;">
+                  <i class="fa-solid fa-circle-arrow-right"></i> 步驟 5 (Request)：完工回寫原子操作 (PUT 更新狀態)
+                </span>
+                <span style="background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">PUT /orders/10/status</span>
+              </div>
+              <p style="margin: 0; font-size: 0.8rem; color: #cbd5e1; font-family: 'Fira Code', monospace;">
+                Header: Authorization: Bearer eyJhbGciOi...<br>
+                Body: { "status_id": 5, "comment": "CNC 切削全檢合格入庫", "notify": true }<br>
+                <span style="color: #94a3b8;">管理員級更新：即時同步電商庫存、更新狀態為 Complete，並累計全廠完工產能。</span>
+              </p>
+            </div>
+          </div>
         </div>
+
 
         <h4 style="color: #cbd5e1; margin-top: 20px; margin-bottom: 8px;">REST Admin API 核心工控端點清單</h4>
         <div class="code-toolbar">
@@ -377,9 +447,11 @@ POST /api/rest_admin/orders/{id}/history 寫入自定義工控全檢履歷與品
           <div class="step-content">
             <h4 class="step-title">步驟一：OpenCart 後台安裝 REST Admin API 擴充套件</h4>
             <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 10px;">
-              登入 OpenCart 後台，前往 <strong>Extensions (擴充功能) $ightarrow$ Installer (安裝器)</strong>。<br>
+              登入 OpenCart 後台，前往 <strong>Extensions (擴充功能) $
+ightarrow$ Installer (安裝器)</strong>。<br>
               上傳第三方 REST Admin API 的 <code>rest-admin-api.ocmod.zip</code> 安裝包。<br>
-              安裝完成後前往 <strong>Extensions $ightarrow$ Modifications</strong> 點擊右上角「刷新 (Refresh)」重編快取，使 API 路由生效。
+              安裝完成後前往 <strong>Extensions $
+ightarrow$ Modifications</strong> 點擊右上角「刷新 (Refresh)」重編快取，使 API 路由生效。
             </p>
             <div class="slide-gallery-grid">
               <div class="slide-card-item">
