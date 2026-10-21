@@ -27,8 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarCloseBtn.addEventListener('click', () => sidebar.classList.remove('open'));
   }
 
-  // 載入 Lab 資料 (優先 fetch labs.json，若 file:// 或 network 失敗則使用 window.INITIAL_LABS_DATA 備援)
+  // 載入 Lab 資料 (若為 file:// 協定直接使用本機備援，避免瀏覽器 CORS 阻擋；http/https 則優先 fetch labs.json)
   function loadData() {
+    const localFallback = (typeof window !== 'undefined' && (window.INITIAL_LABS_DATA || window.labsData)) || 
+                          (typeof INITIAL_LABS_DATA !== 'undefined' ? INITIAL_LABS_DATA : null);
+
+    // 如果使用者透過本機檔案協定 (file://) 開啟，直接使用本機注入資料
+    if (window.location.protocol === 'file:' && localFallback && localFallback.length > 0) {
+      console.log('偵測到 file:// 協定，直接使用本機備援資料 INITIAL_LABS_DATA');
+      initApp(localFallback);
+      return;
+    }
+
     fetch('labs.json')
       .then(res => {
         if (!res.ok) throw new Error('HTTP error ' + res.status);
@@ -39,7 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch(err => {
         console.warn('fetch labs.json 失敗，改用本機備援資料 INITIAL_LABS_DATA:', err);
-        const fallback = window.INITIAL_LABS_DATA || window.labsData;
+        const fallback = (typeof window !== 'undefined' && (window.INITIAL_LABS_DATA || window.labsData)) || 
+                         (typeof INITIAL_LABS_DATA !== 'undefined' ? INITIAL_LABS_DATA : null);
         if (fallback && fallback.length > 0) {
           initApp(fallback);
         } else {

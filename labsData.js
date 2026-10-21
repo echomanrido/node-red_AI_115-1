@@ -1,5 +1,5 @@
 // Node-RED 實作課程資料庫
-const labsData = [
+var INITIAL_LABS_DATA = [
   {
     "id": "lab-01",
     "labNumber": "01",
@@ -9603,7 +9603,13 @@ const labsData = [
     ]
   }
 ];
+var labsData = INITIAL_LABS_DATA;
+
+if (typeof window !== 'undefined') {
+    window.INITIAL_LABS_DATA = INITIAL_LABS_DATA;
+    window.labsData = INITIAL_LABS_DATA;
+}
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = labsData;
+    module.exports = INITIAL_LABS_DATA;
 }
