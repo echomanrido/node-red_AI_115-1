@@ -313,6 +313,199 @@
 
         <!-- 流程圖 -->
         
+        
+        <!-- SVG 1: OpenCart 4 原生 API 安全防禦與雙重憑證架構圖 -->
+        <div style="background: #090d16; border: 1.5px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 20px; margin: 18px 0;">
+          <h4 style="font-size: 0.95rem; color: #38bdf8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-shield-halved"></i> OpenCart 4 原生 API 安全防禦與雙重憑證架構 (Security Guard & Session Engine)
+          </h4>
+          <svg viewBox="0 0 920 220" style="width: 100%; height: auto; display: block; font-family: 'Noto Sans TC', sans-serif;">
+            <defs>
+              <linearGradient id="g-csharp" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0284c7" />
+                <stop offset="100%" stop-color="#38bdf8" />
+              </linearGradient>
+              <linearGradient id="g-firewall" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ea580c" />
+                <stop offset="100%" stop-color="#f97316" />
+              </linearGradient>
+              <linearGradient id="g-opencart" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#059669" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+              <linearGradient id="g-db" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#7c3aed" />
+                <stop offset="100%" stop-color="#a855f7" />
+              </linearGradient>
+              <filter id="glow-native" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            <!-- 模組 1: C# MES 上位機 -->
+            <g transform="translate(20, 30)">
+              <rect width="190" height="150" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.5))"/>
+              <rect x="0" y="0" width="190" height="34" rx="10" fill="url(#g-csharp)" />
+              <text x="16" y="23" fill="#ffffff" font-weight="bold" font-size="13">C# .NET 8 MES 端</text>
+              <text x="16" y="60" fill="#e2e8f0" font-size="11" font-weight="bold">來源 IP: 192.168.1.100</text>
+              <text x="16" y="82" fill="#94a3b8" font-size="10.5">· SocketsHttpHandler</text>
+              <text x="16" y="102" fill="#94a3b8" font-size="10.5">· CookieContainer (保持)</text>
+              <text x="16" y="122" fill="#38bdf8" font-size="10.5">· TokenRefreshHandler</text>
+              <text x="16" y="142" fill="#34d399" font-size="10.5">· 儲存 api_token (UUID)</text>
+            </g>
+
+            <!-- 連線 1: POST api/login -->
+            <g transform="translate(215, 80)">
+              <line x1="0" y1="15" x2="65" y2="15" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="4" />
+              <polygon points="65,10 75,15 65,20" fill="#f59e0b" />
+              <text x="5" y="0" fill="#f59e0b" font-size="10" font-weight="bold">HTTPS POST</text>
+              <text x="-5" y="32" fill="#94a3b8" font-size="9.5">api/login</text>
+            </g>
+
+            <!-- 模組 2: IP 白名單過濾守衛 -->
+            <g transform="translate(295, 30)">
+              <rect width="170" height="150" rx="10" fill="#0f172a" stroke="#f97316" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.5))"/>
+              <rect x="0" y="0" width="170" height="34" rx="10" fill="url(#g-firewall)" />
+              <text x="14" y="23" fill="#ffffff" font-weight="bold" font-size="12.5">① IP 白名單守衛</text>
+              <text x="14" y="60" fill="#fdba74" font-size="10.5" font-weight="bold">oc_api_ip 比對</text>
+              <text x="14" y="82" fill="#94a3b8" font-size="10">檢驗 REMOTE_ADDR</text>
+              <text x="14" y="104" fill="#ef4444" font-size="10">未註冊 ➔ 403 拒絕</text>
+              <text x="14" y="126" fill="#34d399" font-size="10">白名單符合 ➔ 放行</text>
+              <text x="14" y="148" fill="#94a3b8" font-size="9.5">嚴防外網偽冒存取</text>
+            </g>
+
+            <!-- 連線 2: 憑證校驗 -->
+            <g transform="translate(470, 80)">
+              <line x1="0" y1="15" x2="55" y2="15" stroke="#10b981" stroke-width="2.5" />
+              <polygon points="55,10 65,15 55,20" fill="#10b981" />
+              <text x="6" y="2" fill="#10b981" font-size="10" font-weight="bold">驗證通過</text>
+            </g>
+
+            <!-- 模組 3: OpenCart 核心控制器與憑證簽發 -->
+            <g transform="translate(540, 30)">
+              <rect width="180" height="150" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.5))"/>
+              <rect x="0" y="0" width="180" height="34" rx="10" fill="url(#g-opencart)" />
+              <text x="14" y="23" fill="#ffffff" font-weight="bold" font-size="12.5">② 憑證簽發核心</text>
+              <text x="14" y="60" fill="#6ee7b7" font-size="10.5" font-weight="bold">oc_api 帳密匹配</text>
+              <text x="14" y="82" fill="#94a3b8" font-size="10">1. 生成 Session ID</text>
+              <text x="14" y="102" fill="#94a3b8" font-size="10">2. Set-Cookie: OCSESSID</text>
+              <text x="14" y="122" fill="#38bdf8" font-size="10">3. 簽發 api_token</text>
+              <text x="14" y="144" fill="#a7f3d0" font-size="9.5">有效期限：預設 1 小時</text>
+            </g>
+
+            <!-- 連線 3: 解鎖工單存取 -->
+            <g transform="translate(725, 80)">
+              <line x1="0" y1="15" x2="45" y2="15" stroke="#a855f7" stroke-width="2.5" stroke-dasharray="3" />
+              <polygon points="45,10 55,15 45,20" fill="#a855f7" />
+              <text x="5" y="2" fill="#c084fc" font-size="10" font-weight="bold">授權</text>
+            </g>
+
+            <!-- 模組 4: 工單 API 路由處理 -->
+            <g transform="translate(785, 30)">
+              <rect width="120" height="150" rx="10" fill="#0f172a" stroke="#a855f7" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.5))"/>
+              <rect x="0" y="0" width="120" height="34" rx="10" fill="url(#g-db)" />
+              <text x="12" y="23" fill="#ffffff" font-weight="bold" font-size="12">③ 工單路由</text>
+              <text x="12" y="62" fill="#cbd5e1" font-size="10">api/order/info</text>
+              <text x="12" y="80" fill="#94a3b8" font-size="9">提取切削規格</text>
+              <text x="12" y="112" fill="#cbd5e1" font-size="10">api/order/history</text>
+              <text x="12" y="130" fill="#34d399" font-size="9">回寫完工狀態 5</text>
+              <text x="12" y="148" fill="#f59e0b" font-size="9">觸發買家 Email</text>
+            </g>
+          </svg>
+        </div>
+
+
+        
+        <!-- SVG 2: 自動 Token 刷新與請求攔截器自癒狀態機 -->
+        <div style="background: #090d16; border: 1.5px solid rgba(192, 132, 252, 0.4); border-radius: 12px; padding: 20px; margin: 18px 0;">
+          <h4 style="font-size: 0.95rem; color: #c084fc; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-arrows-rotate"></i> C# DelegatingHandler 自動 Token 刷新與斷網自癒流程 (Lifecycle State Machine)
+          </h4>
+          <svg viewBox="0 0 920 180" style="width: 100%; height: auto; display: block; font-family: 'Noto Sans TC', sans-serif;">
+            <defs>
+              <linearGradient id="g-step1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1e293b" />
+                <stop offset="100%" stop-color="#334155" />
+              </linearGradient>
+              <linearGradient id="g-step-err" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="100%" stop-color="#991b1b" />
+              </linearGradient>
+              <linearGradient id="g-step-refresh" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#581c87" />
+                <stop offset="100%" stop-color="#7e22ce" />
+              </linearGradient>
+              <linearGradient id="g-step-ok" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#064e3b" />
+                <stop offset="100%" stop-color="#047857" />
+              </linearGradient>
+            </defs>
+
+            <!-- 步驟 1: 發送正常工單請求 -->
+            <g transform="translate(20, 25)">
+              <rect width="180" height="125" rx="10" fill="url(#g-step1)" stroke="#64748b" stroke-width="1.8"/>
+              <text x="14" y="30" fill="#38bdf8" font-size="12" font-weight="bold">狀態 1: 發起工單請求</text>
+              <text x="14" y="55" fill="#cbd5e1" font-size="11">GET api/order/info</text>
+              <text x="14" y="75" fill="#94a3b8" font-size="10">附帶目前快取的</text>
+              <text x="14" y="93" fill="#94a3b8" font-size="10">api_token 與 Cookie</text>
+              <text x="14" y="115" fill="#34d399" font-size="10">▶ 正常情況回傳 200</text>
+            </g>
+
+            <!-- 箭頭 1: 遇到 Token 過期 -->
+            <g transform="translate(205, 75)">
+              <line x1="0" y1="10" x2="45" y2="10" stroke="#ef4444" stroke-width="2.5" />
+              <polygon points="45,5 55,10 45,15" fill="#ef4444" />
+              <text x="-5" y="-4" fill="#f87171" font-size="10" font-weight="bold">Session 過期</text>
+            </g>
+
+            <!-- 步驟 2: 攔截 401/403 異常 -->
+            <g transform="translate(265, 25)">
+              <rect width="180" height="125" rx="10" fill="url(#g-step-err)" stroke="#ef4444" stroke-width="1.8"/>
+              <text x="14" y="30" fill="#fca5a5" font-size="12" font-weight="bold">狀態 2: 攔截授權失敗</text>
+              <text x="14" y="55" fill="#fecaca" font-size="10.5">捕獲 Session Expired</text>
+              <text x="14" y="75" fill="#fed7aa" font-size="10">或 HTTP 401 / 403</text>
+              <text x="14" y="95" fill="#cbd5e1" font-size="10">SemaphoreSlim 鎖定</text>
+              <text x="14" y="115" fill="#f87171" font-size="10">防並發多次重複登入</text>
+            </g>
+
+            <!-- 箭頭 2: 觸發自動續期 -->
+            <g transform="translate(450, 75)">
+              <line x1="0" y1="10" x2="45" y2="10" stroke="#c084fc" stroke-width="2.5" />
+              <polygon points="45,5 55,10 45,15" fill="#c084fc" />
+              <text x="-3" y="-4" fill="#c084fc" font-size="10" font-weight="bold">背景自動續期</text>
+            </g>
+
+            <!-- 步驟 3: 背景重新呼叫 Login -->
+            <g transform="translate(500, 25)">
+              <rect width="190" height="125" rx="10" fill="url(#g-step-refresh)" stroke="#c084fc" stroke-width="1.8"/>
+              <text x="14" y="30" fill="#e9d5ff" font-size="12" font-weight="bold">狀態 3: 靜默刷新憑證</text>
+              <text x="14" y="55" fill="#ddd6fe" font-size="10.5">POST api/login (重登)</text>
+              <text x="14" y="75" fill="#cbd5e1" font-size="10">取得全新 api_token</text>
+              <text x="14" y="95" fill="#cbd5e1" font-size="10">更新 CookieContainer</text>
+              <text x="14" y="115" fill="#a7f3d0" font-size="10">釋放鎖並解凍等待請求</text>
+            </g>
+
+            <!-- 箭頭 3: 重放請求 -->
+            <g transform="translate(695, 75)">
+              <line x1="0" y1="10" x2="45" y2="10" stroke="#34d399" stroke-width="2.5" />
+              <polygon points="45,5 55,10 45,15" fill="#34d399" />
+              <text x="-4" y="-4" fill="#34d399" font-size="10" font-weight="bold">重放原請求</text>
+            </g>
+
+            <!-- 步驟 4: 請求重試成功回傳業務層 -->
+            <g transform="translate(745, 25)">
+              <rect width="165" height="125" rx="10" fill="url(#g-step-ok)" stroke="#10b981" stroke-width="1.8"/>
+              <text x="14" y="30" fill="#a7f3d0" font-size="12" font-weight="bold">狀態 4: 業務層無感</text>
+              <text x="14" y="55" fill="#6ee7b7" font-size="11">200 OK 資料返回</text>
+              <text x="14" y="75" fill="#cbd5e1" font-size="10">MES 介面不卡頓</text>
+              <text x="14" y="95" fill="#cbd5e1" font-size="10">CNC 機台持續運行</text>
+              <text x="14" y="115" fill="#38bdf8" font-size="10">全自動自癒完成 ✓</text>
+            </g>
+          </svg>
+        </div>
+
+
         <!-- 現代化視覺時序流程圖 (Sequence Flow Cards) -->
         <div style="background: #090d16; border: 1.5px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 20px; margin: 18px 0;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
@@ -757,6 +950,64 @@ public class OpenCartNativeApiClient
    - 呼叫該端點，並驗證 JSON 回應是否包含 "success"。
    - 成功回傳 true，失敗拋出自定義 MesApiException。
 請給出具備生產級穩健度的 C# 實作代碼。</pre>
+        </div>
+
+        
+        <!-- Prompt 5: DelegatingHandler 自動 Token 刷新與 Cookie 管理器實作 -->
+        <div class="prompt-card">
+          <div class="prompt-header">
+            <span class="prompt-title"><i class="fa-solid fa-robot"></i> Prompt 5：工控級 DelegatingHandler 自動 Token 續期與 Session 自癒實作</span>
+            <button class="copy-btn" onclick="copyCode('prompt-5')"><i class="fa-solid fa-copy"></i> 複製提示詞</button>
+          </div>
+          <pre class="code-box" id="prompt-5">你是一位精通 C# .NET 8 網路彈性工程與微服務整合的資深專家。
+請為 OpenCart 4 原生 API 客戶端撰寫一個工業級的 Http 訊息處理攔截器 (DelegatingHandler)：
+1. 需求：
+   - 建立 OpenCartAuthDelegatingHandler : DelegatingHandler。
+   - 攔截所有發往 OpenCart 的請求，自動於 URL 附加最新有效之 api_token，並確保帶上 CookieContainer (OCSESSID)。
+   - 當 API 回應偵測到 HTTP 401/403 或 JSON 內容包含 {"error": "Warning: You do not have permission to access the API!"} 或 Session 已過期時：
+     a. 使用 SemaphoreSlim(1, 1) 異步鎖，防止多執行緒並發時引發重複登入暴風 (Thundering Herd)。
+     b. 背景自動呼叫 AuthService.RefreshTokenAsync() 重新向 route=api/login 簽發新 Token。
+     c. 將剛剛失敗的 HttpRequestMessage 重寫 URL 中的 api_token 參數，重新發送 (Re-send)。
+     d. 成功取回結果後返回上層，讓上位機呼叫端完全無感知！
+2. 請輸出完整的 C# 程式碼，包含 IHttpClientFactory 註冊範例 (Program.cs)。</pre>
+        </div>
+
+        <!-- Prompt 6: 工控邊緣離線快取與 SQLite 雙緩衝佇列 -->
+        <div class="prompt-card">
+          <div class="prompt-header">
+            <span class="prompt-title"><i class="fa-solid fa-robot"></i> Prompt 6：工廠現場邊緣斷網容錯與 SQLite 雙緩衝工單同步佇列</span>
+            <button class="copy-btn" onclick="copyCode('prompt-6')"><i class="fa-solid fa-copy"></i> 複製提示詞</button>
+          </div>
+          <pre class="code-box" id="prompt-6">在智慧製造車間現場，網路交換機或 Wi-Fi 可能偶發瞬斷數分鐘。
+請為 C# MES 上位機設計一個「本地邊緣雙緩衝佇列」機制，確保機台切削完工回寫永不丟包：
+1. 核心需求：
+   - 使用輕量級本地嵌入式資料庫 (SQLite 或 LiteDB) 實作 LocalBufferQueueRepository。
+   - 當上位機呼叫 CompleteMachiningOrderAsync (POST api/order/history) 發生網路逾時或連線失敗時：
+     a. 不得向操作員報警崩潰，而是將完工狀態、訂單 ID、檢驗備註與時間戳寫入本地 SQLite "PendingUploadQueue" 佇列。
+     b. 機台畫面顯示「離線暫存成功，待網路復原後自動同步」。
+   - 背景常駐 IHostedService (SyncWorker)：
+     a. 每 15 秒偵測 OpenCart API 健康狀態。
+     b. 當網路恢復時，按時間先進先出 (FIFO) 批次取出離線工單，逐一補傳至 OpenCart 原生 API。
+     c. 補傳成功後標記已上傳並從隊列歸檔。
+2. 請輸出完整的 C# 實作代碼與架構邏輯說明。</pre>
+        </div>
+
+        <!-- Prompt 7: OpenCart 4 原生 API 錯誤代碼診斷與 Polly 8 指數退避 -->
+        <div class="prompt-card">
+          <div class="prompt-header">
+            <span class="prompt-title"><i class="fa-solid fa-robot"></i> Prompt 7：OpenCart 4 API 錯誤診斷專家與 Polly 8 指數退避彈性管線</span>
+            <button class="copy-btn" onclick="copyCode('prompt-7')"><i class="fa-solid fa-copy"></i> 複製提示詞</button>
+          </div>
+          <pre class="code-box" id="prompt-7">請針對 OpenCart 4 原生 API 常見的工控錯誤回應，建立專屬的錯誤診斷處理器與 Polly 8 彈性重試策略：
+1. 錯誤情境全解析：
+   - IP 未登記：{"error": {"ip": "Warning: Your IP 192.168.1.100 is not allowed to access this API!"}} ➔ 轉化為明確的 MesIpNotAllowedException，提示產線工程師後台設定路徑。
+   - 帳密錯誤：{"error": {"key": "Warning: Incorrect API Key!"}} ➔ 提示檢查 appsettings.json。
+   - 訂單不存在：{"error": "Warning: Could not find order!"} ➔ 返回友好防呆訊息。
+2. Polly 8 彈性管線：
+   - 使用 Microsoft.Extensions.Http.Resilience 的 ResiliencePipelineBuilder。
+   - 配置 3 次指數退避重試 (1s, 2s, 4s)，加入隨機抖動 (Jitter) 避免伺服器並發共振。
+   - 配置 10 秒總逾時 (TimeoutStrategy)。
+3. 請提供強型別的 OpenCartErrorResponse 類別以及整合 Polly 8 後的完整 C# 實作代碼。</pre>
         </div>
 
         <!-- Prompt 4 -->

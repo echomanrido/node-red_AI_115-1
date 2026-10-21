@@ -308,6 +308,180 @@
 
         <!-- 流程圖 -->
         
+        
+        <!-- SVG 1: OAuth 2.0 握手與無狀態 JWT 授權架構圖 -->
+        <div style="background: #090d16; border: 1.5px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 20px; margin: 18px 0;">
+          <h4 style="font-size: 0.95rem; color: #34d399; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-key"></i> OAuth 2.0 Client Credentials 握手與無狀態 JWT Bearer 授權架構 (Stateless Architecture)
+          </h4>
+          <svg viewBox="0 0 920 220" style="width: 100%; height: auto; display: block; font-family: 'Noto Sans TC', sans-serif;">
+            <defs>
+              <linearGradient id="g-rest-csharp" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#059669" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+              <linearGradient id="g-rest-oauth" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#2563eb" />
+                <stop offset="100%" stop-color="#38bdf8" />
+              </linearGradient>
+              <linearGradient id="g-rest-api" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#7c3aed" />
+                <stop offset="100%" stop-color="#a855f7" />
+              </linearGradient>
+              <linearGradient id="g-rest-db" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#d97706" />
+                <stop offset="100%" stop-color="#f59e0b" />
+              </linearGradient>
+            </defs>
+
+            <!-- 模組 1: C# MES 邊緣客戶端 -->
+            <g transform="translate(20, 30)">
+              <rect width="190" height="150" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.5))"/>
+              <rect x="0" y="0" width="190" height="34" rx="10" fill="url(#g-rest-csharp)" />
+              <text x="16" y="23" fill="#ffffff" font-weight="bold" font-size="13">C# MES (.NET 8)</text>
+              <text x="16" y="60" fill="#6ee7b7" font-size="11" font-weight="bold">RestSharp / HttpClient</text>
+              <text x="16" y="82" fill="#94a3b8" font-size="10.5">· Client ID & Secret</text>
+              <text x="16" y="102" fill="#94a3b8" font-size="10.5">· 快取 JWT Token (2hr)</text>
+              <text x="16" y="122" fill="#38bdf8" font-size="10.5">· Polly 8 彈性管線</text>
+              <text x="16" y="142" fill="#a7f3d0" font-size="10.5">· 自動注入 Bearer 標頭</text>
+            </g>
+
+            <!-- 連線 1: POST /oauth/token -->
+            <g transform="translate(215, 80)">
+              <line x1="0" y1="15" x2="65" y2="15" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="4" />
+              <polygon points="65,10 75,15 65,20" fill="#38bdf8" />
+              <text x="3" y="0" fill="#38bdf8" font-size="10" font-weight="bold">1. 換發 Token</text>
+              <text x="-5" y="32" fill="#94a3b8" font-size="9.5">/oauth/token</text>
+            </g>
+
+            <!-- 模組 2: OAuth 2.0 授權伺服器 -->
+            <g transform="translate(295, 30)">
+              <rect width="170" height="150" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.5))"/>
+              <rect x="0" y="0" width="170" height="34" rx="10" fill="url(#g-rest-oauth)" />
+              <text x="14" y="23" fill="#ffffff" font-weight="bold" font-size="12.5">OAuth 授權核心</text>
+              <text x="14" y="60" fill="#93c5fd" font-size="10.5" font-weight="bold">Client Credentials</text>
+              <text x="14" y="82" fill="#94a3b8" font-size="10">核對金鑰簽署權限</text>
+              <text x="14" y="104" fill="#6ee7b7" font-size="10">生成非對稱 JWT</text>
+              <text x="14" y="126" fill="#38bdf8" font-size="10">Scope: orders:rw</text>
+              <text x="14" y="148" fill="#94a3b8" font-size="9.5">Expires: 7200s (2hr)</text>
+            </g>
+
+            <!-- 連線 2: 攜帶 Bearer 請求 API -->
+            <g transform="translate(470, 80)">
+              <line x1="0" y1="15" x2="65" y2="15" stroke="#a855f7" stroke-width="2.5" />
+              <polygon points="65,10 75,15 65,20" fill="#a855f7" />
+              <text x="2" y="0" fill="#c084fc" font-size="10" font-weight="bold">2. 業務呼叫</text>
+              <text x="-8" y="32" fill="#94a3b8" font-size="9.5">Bearer &lt;JWT&gt;</text>
+            </g>
+
+            <!-- 模組 3: REST Admin API 網關 -->
+            <g transform="translate(550, 30)">
+              <rect width="175" height="150" rx="10" fill="#0f172a" stroke="#a855f7" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.5))"/>
+              <rect x="0" y="0" width="175" height="34" rx="10" fill="url(#g-rest-api)" />
+              <text x="14" y="23" fill="#ffffff" font-weight="bold" font-size="12.5">REST Admin API 網關</text>
+              <text x="14" y="60" fill="#d8b4fe" font-size="10.5" font-weight="bold">無狀態 (Stateless)</text>
+              <text x="14" y="82" fill="#94a3b8" font-size="10">快速解析 JWT 簽章</text>
+              <text x="14" y="102" fill="#94a3b8" font-size="10">免 Session 免 Cookie</text>
+              <text x="14" y="122" fill="#34d399" font-size="10">微服務高併發相容</text>
+              <text x="14" y="144" fill="#a7f3d0" font-size="9.5">嚴格 OpenAPI 標準規格</text>
+            </g>
+
+            <!-- 連線 3: 存取資料庫 -->
+            <g transform="translate(730, 80)">
+              <line x1="0" y1="15" x2="45" y2="15" stroke="#f59e0b" stroke-width="2.5" />
+              <polygon points="45,10 55,15 45,20" fill="#f59e0b" />
+              <text x="5" y="2" fill="#f59e0b" font-size="10" font-weight="bold">直通</text>
+            </g>
+
+            <!-- 模組 4: 訂單與製造端點資源 -->
+            <g transform="translate(780, 30)">
+              <rect width="125" height="150" rx="10" fill="#0f172a" stroke="#f59e0b" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.5))"/>
+              <rect x="0" y="0" width="125" height="34" rx="10" fill="url(#g-rest-db)" />
+              <text x="12" y="23" fill="#ffffff" font-weight="bold" font-size="12">工單端點資源</text>
+              <text x="12" y="62" fill="#cbd5e1" font-size="10">GET /orders</text>
+              <text x="12" y="80" fill="#94a3b8" font-size="9">批量拉取未排單</text>
+              <text x="12" y="112" fill="#cbd5e1" font-size="10">PUT /orders/{id}</text>
+              <text x="12" y="130" fill="#34d399" font-size="9">status_id=5 (完工)</text>
+              <text x="12" y="148" fill="#f59e0b" font-size="9">自動更新庫存履歷</text>
+            </g>
+          </svg>
+        </div>
+
+
+        
+        <!-- SVG 2: Polly 8 斷路器三態轉態模型圖 -->
+        <div style="background: #090d16; border: 1.5px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 20px; margin: 18px 0;">
+          <h4 style="font-size: 0.95rem; color: #38bdf8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-heart-pulse"></i> C# .NET 8 Polly 8 斷路器 (Circuit Breaker) 三態轉態與自癒保護模型
+          </h4>
+          <svg viewBox="0 0 920 190" style="width: 100%; height: auto; display: block; font-family: 'Noto Sans TC', sans-serif;">
+            <defs>
+              <linearGradient id="g-cb-closed" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#064e3b" />
+                <stop offset="100%" stop-color="#059669" />
+              </linearGradient>
+              <linearGradient id="g-cb-open" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="100%" stop-color="#dc2626" />
+              </linearGradient>
+              <linearGradient id="g-cb-half" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#78350f" />
+                <stop offset="100%" stop-color="#d97706" />
+              </linearGradient>
+            </defs>
+
+            <!-- 狀態 1: 閉合正常 (Closed) -->
+            <g transform="translate(30, 30)">
+              <rect width="230" height="130" rx="12" fill="url(#g-cb-closed)" stroke="#10b981" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.4))"/>
+              <circle cx="30" cy="30" r="12" fill="#10b981" />
+              <text x="52" y="35" fill="#ffffff" font-weight="bold" font-size="14">閉合態 (Closed) - 正常</text>
+              <text x="18" y="65" fill="#a7f3d0" font-size="11">✓ 所有 HTTP 請求正常放行呼叫</text>
+              <text x="18" y="85" fill="#e2e8f0" font-size="10.5">· 監控滑動窗口 (取樣 50 次呼叫)</text>
+              <text x="18" y="105" fill="#e2e8f0" font-size="10.5">· 若失敗率 &lt; 50% ➔ 持續維持綠燈</text>
+              <text x="18" y="122" fill="#34d399" font-size="10">MES 與電商 API 雙向連通順暢</text>
+            </g>
+
+            <!-- 轉態箭頭 1: 失敗過多 ➔ 跳脫 -->
+            <g transform="translate(270, 75)">
+              <line x1="0" y1="10" x2="55" y2="10" stroke="#ef4444" stroke-width="2.5" />
+              <polygon points="55,5 65,10 55,15" fill="#ef4444" />
+              <text x="-2" y="-4" fill="#f87171" font-size="10" font-weight="bold">失敗率 &gt; 50%</text>
+              <text x="2" y="28" fill="#94a3b8" font-size="9.5">觸發斷路跳脫</text>
+            </g>
+
+            <!-- 狀態 2: 斷路保護態 (Open) -->
+            <g transform="translate(345, 30)">
+              <rect width="230" height="130" rx="12" fill="url(#g-cb-open)" stroke="#ef4444" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.4))"/>
+              <circle cx="30" cy="30" r="12" fill="#ef4444" />
+              <text x="52" y="35" fill="#ffffff" font-weight="bold" font-size="14">開路態 (Open) - 熔斷</text>
+              <text x="18" y="65" fill="#fecaca" font-size="11">✗ 立即拒絕請求 (Fail-Fast)</text>
+              <text x="18" y="85" fill="#fecaca" font-size="10.5">· 拋出 BrokenCircuitException</text>
+              <text x="18" y="105" fill="#fecaca" font-size="10.5">· 避免打垮 OpenCart 後端資料庫</text>
+              <text x="18" y="122" fill="#fed7aa" font-size="10">冷卻時間：預設靜默 30 秒</text>
+            </g>
+
+            <!-- 轉態箭頭 2: 冷卻完畢 ➔ 探針測試 -->
+            <g transform="translate(585, 75)">
+              <line x1="0" y1="10" x2="55" y2="10" stroke="#f59e0b" stroke-width="2.5" />
+              <polygon points="55,5 65,10 55,15" fill="#f59e0b" />
+              <text x="2" y="-4" fill="#fbbf24" font-size="10" font-weight="bold">30 秒冷卻完畢</text>
+              <text x="4" y="28" fill="#94a3b8" font-size="9.5">嘗試探針測試</text>
+            </g>
+
+            <!-- 狀態 3: 半開自癒態 (Half-Open) -->
+            <g transform="translate(650, 30)">
+              <rect width="240" height="130" rx="12" fill="url(#g-cb-half)" stroke="#f59e0b" stroke-width="2" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.4))"/>
+              <circle cx="30" cy="30" r="12" fill="#f59e0b" />
+              <text x="52" y="35" fill="#ffffff" font-weight="bold" font-size="14">半開態 (Half-Open) - 探針</text>
+              <text x="18" y="65" fill="#fde68a" font-size="11">⚡ 僅放行 1 次試探性 HTTP 請求</text>
+              <text x="18" y="85" fill="#fef3c7" font-size="10.5">▶ 若試探成功 ➔ 立即自癒回到 Closed</text>
+              <text x="18" y="105" fill="#fca5a5" font-size="10.5">▶ 若試探失敗 ➔ 重新進入 Open 熔斷</text>
+              <text x="18" y="122" fill="#6ee7b7" font-size="10">全自動閉環自癒，無需人工重啟！</text>
+            </g>
+          </svg>
+        </div>
+
+
         <!-- 現代化視覺時序流程圖 (RESTful API Sequence Cards) -->
         <div style="background: #090d16; border: 1.5px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 20px; margin: 18px 0;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
@@ -713,6 +887,58 @@ public class RestAdminApiClient
    - 中欄：虛擬 CNC 加工控制卡，點擊「開始加工」按鈕後啟動 DispatcherTimer 4 秒計時，LED 燈由綠轉黃，加工完成轉藍燈，並自動發送 PUT /orders/{id}/status 將工單切換為已完工。
    - 右欄：REST API 即時呼叫日誌與全廠產能 Gauge 儀表板。
 3. 請提供 MainWindow.xaml 與 MainWindow.xaml.cs 的完整代碼。</pre>
+        </div>
+
+        
+        <!-- Prompt 5: NSwag / Refit 根據 OpenAPI (Swagger) 規格自動生成 C# SDK -->
+        <div class="prompt-card">
+          <div class="prompt-header">
+            <span class="prompt-title"><i class="fa-solid fa-robot"></i> Prompt 5：使用 OpenAPI (Swagger) 與 NSwag 自動生成強型別 C# SDK</span>
+            <button class="copy-btn" onclick="copyCode('prompt-rest-5')"><i class="fa-solid fa-copy"></i> 複製提示詞</button>
+          </div>
+          <pre class="code-box" id="prompt-rest-5">你是一位精通契約優先 (Contract-First) 微服務架構與 C# 代碼自動生成的技術專家。
+OpenCart REST Admin API 提供了標準的 Swagger / OpenAPI 3.0 JSON 規格文件。
+請指導我使用 NSwag 或 Refit 工具，在 .NET 8 專案中實現全自動 Client 類別生成：
+1. 需求：
+   - 撰寫一個自動化腳本或 .csproj 配置 (NSwag.MSBuild)，當編譯時自動下載 http://localhost/opencart/api/rest_admin/swagger.json。
+   - 生成強型別的 OpenCartRestClient 類別與所有 Order、Product、Customer 資料合約。
+   - 配置生成選項：GenerateClientInterfaces=true, GenerateOptionalParameters=true, JsonLibrary=SystemTextJson。
+   - 展示如何在依賴注入 (DI) 容器中註冊：builder.Services.AddHttpClient&lt;IOpenCartRestClient, OpenCartRestClient&gt;()。
+2. 請輸出清晰的 csproj 配置範例、指令腳本與 C# 呼叫示範代碼。</pre>
+        </div>
+
+        <!-- Prompt 6: .NET 8 最新 Polly 8 彈性管線 (StandardResilienceHandler) -->
+        <div class="prompt-card">
+          <div class="prompt-header">
+            <span class="prompt-title"><i class="fa-solid fa-robot"></i> Prompt 6：.NET 8 最新 Microsoft.Extensions.Http.Resilience 工業級彈性管線整合</span>
+            <button class="copy-btn" onclick="copyCode('prompt-rest-6')"><i class="fa-solid fa-copy"></i> 複製提示詞</button>
+          </div>
+          <pre class="code-box" id="prompt-rest-6">在工控車間現場，要求通訊客戶端具備最高層級的容錯與抗干擾能力。
+請淘汰 Polly 舊版 PolicyWrap 寫法，改用 .NET 8 原生的 Microsoft.Extensions.Http.Resilience 為 OpenCart REST Client 配置標準彈性管線：
+1. 配置細節：
+   - 使用 AddStandardResilienceHandler(options =&gt; { ... })。
+   - 總請求逾時 (TotalRequestTimeout)：上限 15 秒。
+   - 重試策略 (HttpRetryStrategyOptions)：最多重試 3 次，採用指數退避 (BackoffType.Exponential)，開啟隨機抖動 (UseJitter = true)，重試延遲基礎為 1 秒。
+   - 斷路器 (HttpCircuitBreakerStrategyOptions)：滑動取樣視窗 30 秒，失敗率閾值 0.5 (50%)，最小輸送量 10 次，開路熔斷持續 30 秒。
+   - 速率限制 (RateLimiterStrategyOptions)：每秒最大 20 次請求，防止瞬時並發過高壓垮電商資料庫。
+2. 請提供 Program.cs 中的註冊程式碼以及遭遇 BrokenCircuitException 時的工控降級處理 (Fallback) 示範。</pre>
+        </div>
+
+        <!-- Prompt 7: 生產看板即時健康檢查 (Health Check) 與 OpenTelemetry 遙測整合 -->
+        <div class="prompt-card">
+          <div class="prompt-header">
+            <span class="prompt-title"><i class="fa-solid fa-robot"></i> Prompt 7：MES 戰情室即時健康檢查 (Health Check) 與 OpenTelemetry 分散式追蹤</span>
+            <button class="copy-btn" onclick="copyCode('prompt-rest-7')"><i class="fa-solid fa-copy"></i> 複製提示詞</button>
+          </div>
+          <pre class="code-box" id="prompt-rest-7">請為 C# .NET 8 MES 戰情室上位機整合企業級健康檢查 (Health Check) 與 OpenTelemetry 監控遙測：
+1. 健康檢查需求：
+   - 實作 OpenCartApiHealthCheck : IHealthCheck。
+   - 定期背景 ping REST API 端點 (GET /api/rest_admin/orders?limit=1)。
+   - 在 WPF 戰情室右上角提供即時狀態小燈（Healthy 綠、Degraded 黃、Unhealthy 紅），並顯示延遲響應時間 (ms)。
+2. OpenTelemetry 與計量度量：
+   - 記錄自定義工控指標：opencart_orders_machined_total (完工總數計數器)、opencart_api_latency_seconds (API 響應延遲分佈直方圖)。
+   - 當發生錯誤或逾時時，自動將 TraceId 輸出至本機工控記錄檔，方便工程師進行事件根本原因分析 (RCA)。
+請給出完整的 C# 實作代碼與架構接軌說明。</pre>
         </div>
 
         <!-- Prompt 4 -->
