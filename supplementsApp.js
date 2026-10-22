@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="tag tag-cat" style="background: var(--primary-alpha); color: var(--primary);">${escapeHtml(sup.category)}</span>
           <span class="tag tag-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(sup.date)}</span>
         </div>
-        <h2 class="lab-main-title">${numStr ? `補充 ${numStr}: ` : ''}${escapeHtml(sup.title)}</h2>
+        <h2 class="lab-main-title">${escapeHtml(sup.title)}</h2>
         <p class="lab-summary">${escapeHtml(sup.summary)}</p>
       </section>
 
