@@ -1375,7 +1375,7 @@ var INITIAL_SUPPLEMENTS_DATA = [
     "title": "Base64 編碼原理與工控物聯網實務 - 為什麼要使用 Base64？",
     "category": "資料通訊與格式",
     "date": "2026-10-22",
-    "summary": "深入解析 Base64 編碼的數學原理與轉換機制，並從工控 SCADA、物聯網傳輸、AI 影像辨識與前後端整合等多重視角，全面回答『為什麼要使用 Base64？』。探討純文字協定安全傳輸、OT 隔離網段防破圖自包含、免架設圖床與 Data URI 內嵌等核心優勢，並搭配線上轉碼工具進行實作示範。",
+    "summary": "全面解析 Base64 編碼機制與實務價值。深入解答『為什麼要使用 Base64？』：將二進位資料轉為安全的純文字 (ASCII) 格式，避免在純文字協定（JSON、MQTT、Email、REST API）中因特殊字元而損毀；支援 Data URL 免額外連線與免跨域阻擋；並強化『Base64 絕不是加密』與『體積膨脹約 33%』的關鍵觀念與效能評估。",
     "image": "images_src/ok/20261022_base64_strerr_tool.png",
     "images": [
       "images_src/ok/20261022_base64_strerr_tool.png"
@@ -1386,24 +1386,24 @@ var INITIAL_SUPPLEMENTS_DATA = [
     "objective": "1. 理解 Base64 編碼的基本概念：以 64 個可列印 ASCII 字元表示任意二進位資料（Binary Data）的編碼機制。\n2. 深入掌握『為什麼要使用 Base64』的四大核心原因：文字協定傳輸安全、工控 OT 隔離網路防破圖、Data URI 內嵌與跨語言跨平台資料交換。\n3. 熟悉 Data URI 格式標準（data:[<mediatype>][;base64],<data>）及其在 HTML、CSS 與 Node-RED Dashboard 2.0 中的具體寫法。\n4. 熟練使用線上工具（如 strerr.com）將圖片轉為 Base64 字串，並能客觀評估 Base64 帶來約 33% 體積膨脹之效能權衡。\n5. 串聯課程所學：了解 Node-RED 實作 11（圖片轉Base64）、實作 12-2（射出機雙圖）與實作 13-3（Dashboard 離線背景圖）之底層通訊邏輯。",
     "tutorialSteps": [
       {
-        "step": "1. 什麼是 Base64？（編碼原理剖析）",
-        "description": "• 定義：Base64 是一種二進位轉文字（Binary-to-Text）的編碼機制，使用 64 個常見且安全的 ASCII 字元：A-Z (26個)、a-z (26個)、0-9 (10個) 以及 '+' 和 '/' (2個)，結尾不足位數則以 '=' 補齊。\n• 轉換原理：電腦中的資料每 1 個 Byte 為 8 位元（bits）。Base64 將每 3 個 Byte（3 × 8 = 24 bits）切分成 4 個單位（每單位 6 bits），每個 6-bit 單位可對應至 0 ~ 63 的數值，再映射到對應的 Base64 字元表。\n• 體積代價：因為 3 位元組變成 4 位元組，編碼後的資料長度固定會增加約 33%（4/3）。"
+        "step": "1. 核心定義：什麼是 Base64？",
+        "description": "• 核心目的：將二進位資料（Binary Data）轉換成安全的「純文字（ASCII 字元）」格式，好讓資料能在只支援文字傳輸的系統中正確無誤地傳遞與儲存。\n• 字元組成：Base64 僅使用 64 個安全且保證可列印的英數字元——大寫英文字母 (A-Z，26個)、小寫英文字母 (a-z，26個)、阿拉伯數字 (0-9，10個)，以及 '+' 與 '/' 兩個符號，當長度不足時以 '=' 作為尾部補位填充（Padding）。\n• 運作機制：每 3 個 Byte（24 bits）切分為 4 組 6-bit 的代碼，每組 6-bit 映射為 1 個 Base64 字元。"
       },
       {
-        "step": "2. 為什麼要使用 Base64？（解決四大關鍵痛點）",
-        "description": "【核心原因一：純文字通訊協定無法直接傳輸二進位資料】\n• 物聯網常用的 JSON、XML、MQTT Payload、RESTful API、HTML、CSS、Email 等格式，其本質全都是「文字串流（Text Streams）」。\n• 若直接將圖片、音訊或 PLC 韌體的 Raw Binary 塞進 JSON，二進位中的特殊位元（如 0x00 Null、0x0A 換行、0x0D 回車、EOF 結束符號）會被通訊閘道或 JSON 解析器當作控制字元，引發嚴重格式錯亂或封包截斷！\n• 解決方案：將二進位轉成保證安全的 ASCII 字串，就能安心放進 msg.payload 或 JSON 中傳輸。\n\n【核心原因二：工控 OT 隔離網路（Air-Gapped）防破圖與零外網依賴】\n• 高科技廠、石化廠、水電關鍵基礎設施的 SCADA 系統通常處於封閉內網，完全無法連線網際網路。\n• 若儀表板背景或設備圖採用外部 URL（如 http://example.com/logo.png），在廠區內會立刻發生 404 破圖或連線逾時。\n• 解決方案：利用 Base64 直接將圖片內嵌在 Flow 或 CSS 中，達成 100% 離線自包含（Self-Contained），免架設伺服器也不怕外部圖床失效。\n\n【核心原因三：Data URI 內嵌，減少 HTTP 連線與免除 CORS 阻擋】\n• 傳統網頁載入每張外部圖片都需要建立一次 HTTP 連線，並可能觸發瀏覽器跨來源資源共享（CORS）安全性阻擋。\n• 解決方案：使用 Data URI 語法（data:image/png;base64,...）將圖片直接內嵌於 HTML <img> 或 CSS background-image，一次傳輸到位，無額外請求。\n\n【核心原因四：邊緣運算與 AI 影像辨識標準介面】\n• 當攝影機擷取即時影像後，Node-RED 轉為 Base64 字串，能直接打包進 JSON API 傳給 Python/Ollama/Gemini/YOLO 進行邊緣辨識，無需在各程式間共用磁碟讀寫權限。"
+        "step": "2. 深度剖析：為什麼需要這樣轉換？（四大關鍵場景）",
+        "description": "【場景一：避免特殊字元在傳輸時被破壞】\n• 許多經典與現行傳輸協定（例如電子郵件 SMTP/MIME 系統、部分 HTTP 協定、MQTT 與 WebSocket）專門設計來傳送「可讀文字」。\n• 若直接傳送原始二進位資料（如圖片、音訊、壓縮檔或可執行檔 .exe），其中的特殊位元組（如 Null 0x00、換行 LF/CR、EOF 結束標籤）極易被中繼系統誤判為「指令」或發生編碼轉換亂碼，導致資料被截斷或損毀。轉為 Base64 後，保證 100% 安全無虞穿透各種文字閘道。\n\n【場景二：方便在純文字格式中嵌入資料（Data URL 與 CSS）】\n• 網頁開發（Data URL / 小圖片內嵌）：把小張圖片、圖標或自訂字型直接轉成 Base64 字串，寫死在 HTML <img> 或 CSS background-image 內，無須發送額外的 HTTP GET 請求，大幅減少連線握手開銷並徹底解決瀏覽器跨來源資源共享 (CORS) 阻擋。\n\n【場景三：JSON 與 API 資料交換標準】\n• JSON 格式本質上是純文字，規範中無法直接包裝原生二進位 Byte 陣列。\n• 透過 Base64，物聯網設備（如 Node-RED）能輕鬆將攝影機拍照、感測器波形或 PLC 暫存器二進位片段打包進 JSON 物件的字串欄位中，安全拋送給 RESTful API、雲端或 AI 伺服器。\n\n【場景四：權限憑證 (JWT) 與電子郵件附件 (MIME)】\n• 身分驗證憑證：現代主流的 JSON Web Token (JWT) 的表頭（Header）與負載（Payload），就是利用 Base64URL 編碼來封裝成標準純文字 Token 在 HTTP Authorization 標頭中傳遞。\n• 電子郵件附件：Email 本質純為文字訊息，現代郵件軟體（如 Outlook、Gmail）皆會自動將附加檔案轉為 Base64 格式編碼寄出，收件端再自動解碼還原成原始檔案。"
       },
       {
-        "step": "3. 認識 Data URI 語法結構",
-        "description": "標準格式如下：\n  data:[<MIME-type>][;base64],<data>\n\n• data: 協定前綴，告訴瀏覽器或 Node-RED 這不是網址，而是資料本體。\n• MIME-type：檔案類型（如 image/png、image/jpeg、image/svg+xml、application/pdf 等）。\n• ;base64：宣告後方資料採用 Base64 編碼。\n• <data>：實際編碼產生的文字字串。\n\n範例：\n  <img src=\"data:image/png;base64,iVBORw0KGgoAAA...\">\n  background-image: url(data:image/jpeg;base64,/9j/4AAQ...);"
+        "step": "3. 兩大重要觀念提醒（必備核心認知！）",
+        "description": "【觀念一：Base64 絕不是加密（Not Encryption）⚠️】\n• 本質差異：Base64 只是一種「公開透明的編碼方式（Encoding）」，其目的是確保資料傳輸格式相容，完全不具備任何密鑰保護或保密防護效果。\n• 資安提醒：任何人拿到 Base64 字串，都可以利用線上工具、瀏覽器 atob() 或任何程式語言瞬間解碼還原成原本的內容！切勿使用 Base64 來存放密碼、金鑰或機密個資。\n\n【觀念二：檔案體積會膨脹約 33%】\n• 體積計算：因為用 4 個文字字元（4 Bytes）去表示原本的 3 個位元組（3 Bytes），經過 Base64 編碼後，資料體積必定增加約 33.3%（比值為 4/3）。\n• 效能權衡建議：\n  - 適合：小型圖標（Icon）、企業 Logo、機台狀態指示燈、單張低解析度快照（100KB～200KB 以下）。\n  - 不適合：體積龐大的連續影片、高解析度相簿或數十 MB 的大檔案，避免過度消耗頻寬、記憶體與 JSON 解析器資源。"
       },
       {
-        "step": "4. 線上轉碼工具實作示範 (strerr.com)",
-        "description": "• 推薦工具：https://www.strerr.com/tw/base64_encode_img.html\n• 操作流程：\n  1. 開啟線上「圖片 轉Base64編碼」網頁。\n  2. 點選或拖曳上傳圖片（如範例中的『中華隊.png』隊徽）。\n  3. 網頁會自動轉換並產生包含 data:image/png;base64,... 前綴的完整字串。\n  4. 點擊「複製」按鈕，即可直接貼入 Node-RED 的 template 節點、UI CSS 或 Function 節點中使用。"
+        "step": "4. Data URI 語法規範與實際範例",
+        "description": "在前端與 Node-RED 中，Base64 最常見的呈現方式為 Data URI：\n  語法格式：data:[<MIME-type>][;base64],<編碼內容>\n\n• HTML 內嵌圖片：\n  <img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...\" alt=\"內嵌圖\" />\n\n• CSS / Dashboard 滿版背景：\n  #app { background-image: url(data:image/jpeg;base64,/9j/4AAQSk...); }\n\n• Node-RED Function 節點轉換範例：\n  // 將 buffer 轉為 Base64 Data URI\n  let base64Str = msg.payload.toString('base64');\n  msg.payload = 'data:image/jpeg;base64,' + base64Str;\n  return msg;"
       },
       {
-        "step": "5. Base64 的使用時機與效能權衡 (何時該用？何時避免？)",
-        "description": "【最佳使用時機 】\n  1. 小型圖標、設備 Status 狀態指示燈、企業 Logo（檔案在 100KB 以內）。\n  2. 封閉廠區/離線展示的 SCADA 儀表板背景圖。\n  3. RESTful API / MQTT 傳送單張感測快照。\n  4. Email 警報信件內嵌警報當下現場快照。\n\n【應避免的情況 ❌】\n  1. 超大型高畫質影片或數十 MB 的原始大檔（Base64 膨脹 33% 會消耗過多頻寬與記憶體）。\n  2. 頻繁變動的大量即時串流影像（應改採 RTSP / WebRTC 或二進位串流協定）。"
+        "step": "5. 線上轉碼工具實務操作 (strerr.com)",
+        "description": "• 推薦工具：https://www.strerr.com/tw/base64_encode_img.html\n• 操作步驟：\n  1. 開啟線上「圖片 轉Base64編碼」網頁工具。\n  2. 將欲內嵌的圖檔（例如教學範例中的中華隊隊徽『中華隊.png』）拖曳上傳。\n  3. 工具即時生成帶有 data:image/png;base64,... 標頭的標準文字字串。\n  4. 點擊「複製」按鈕，即可直接貼入 Node-RED 的 template 節點、UI CSS 或 JSON 欄位中進行離線自包含渲染。"
       }
     ],
     "applications": [
