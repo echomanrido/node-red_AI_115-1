@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node-RED 智慧控制模組 - 全景心智圖與核心架構指南 | 五股職訓局 機電AI班</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #070b14;
+      --bg-panel: #0d1527;
+      --bg-card: #131f37;
+      --bg-card-hover: #1c2c4c;
+      --border-color: rgba(56, 189, 248, 0.2);
+      --border-glow: rgba(56, 189, 248, 0.4);
+      --primary: #38bdf8;
+      --primary-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-purple: #a855f7;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Noto Sans TC', 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* 頂部導覽列 */
+    header.lab-navbar {
+      background: rgba(13, 21, 39, 0.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: white;
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.45);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
+
+    .brand-sub {
+      font-size: 0.78rem;
+      color: var(--primary);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      color: #fff;
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn.primary {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+    }
+
+    .nav-btn.primary:hover {
+      background: linear-gradient(135deg, #0369a1, #0891b2);
+    }
+
+    /* Hero 橫幅 */
+    .hero-section {
+      position: relative;
+      padding: 50px 24px 35px;
+      text-align: center;
+      background: radial-gradient(circle at 50% 15%, rgba(6, 182, 212, 0.18) 0%, rgba(7, 11, 20, 0) 70%),
+                  radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.1) 0%, transparent 60%);
+      border-bottom: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      border-radius: 999px;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      color: #38bdf8;
+      font-size: 0.86rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.25);
+    }
+
+    .hero-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin-bottom: 14px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, #38bdf8, #06b6d4, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      max-width: 900px;
+      margin: 0 auto 24px;
+      color: #cbd5e1;
+      font-size: 1.08rem;
+      line-height: 1.7;
+    }
+
+    /* 快速跳轉錨點列 */
+    .anchor-nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .anchor-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 16px;
+      background: rgba(19, 31, 55, 0.85);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .anchor-pill:hover {
+      background: rgba(6, 182, 212, 0.2);
+      border-color: var(--primary-cyan);
+      color: #38bdf8;
+      transform: translateY(-2px);
+    }
+
+    /* 主內容容器 */
+    main.content-container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    /* 區塊卡片共通樣式 */
+    .section-box {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 32px 36px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      position: relative;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .section-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .section-h2 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .section-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* 心智圖互動區塊 */
+    .mindmap-wrapper {
+      background: #090f1d;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 14px;
+      padding: 24px;
+      overflow-x: auto;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .mindmap-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* 五大模組網格卡片 */
+    .subsystem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 22px;
+    }
+
+    .sub-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sub-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-glow);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(6, 182, 212, 0.15);
+    }
+
+    .sub-card-top {
+      margin-bottom: 16px;
+    }
+
+    .sub-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .sub-card-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .sub-card-desc {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .sub-card-highlights {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .sub-card-highlights li {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .sub-card-highlights li i {
+      margin-top: 3px;
+      font-size: 0.8rem;
+    }
+
+    .sub-card-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: #fff;
+      transition: all 0.2s;
+    }
+
+    /* 流程資訊卡 */
+    .flow-step-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .flow-step-header {
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Footer */
+    footer.page-footer {
+      border-top: 1px solid var(--border-color);
+      background: #050811;
+      padding: 30px 24px;
+      text-align: center;
+      font-size: 0.84rem;
+      color: #64748b;
+      margin-top: auto;
+    }
+
+    footer.page-footer a {
+      color: var(--primary);
+      text-decoration: none;
+      margin: 0 8px;
+    }
+
+    /* 響應式優化 */
+    @media (max-width: 768px) {
+      .hero-title { font-size: 2rem; }
+      .section-box { padding: 22px 18px; }
+      .subsystem-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header class="lab-navbar">
+    <div class="brand-group">
+      <div class="brand-icon">
+        <i class="fa-brands fa-node-js"></i>
+      </div>
+      <div>
+        <div class="brand-title">Node-RED 智慧控制模組</div>
+        <div class="brand-sub">全景架構心智圖與五大核心子系統解析</div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <a href="index.html" class="nav-btn"><i class="fa-solid fa-house"></i> 首頁</a>
+      <a href="labs.html" class="nav-btn"><i class="fa-solid fa-flask"></i> 34 Labs 實驗</a>
+      <a href="supplements.html" class="nav-btn"><i class="fa-solid fa-book"></i> 25 篇補充教材</a>
+      <a href="nodered_projects.html" class="nav-btn"><i class="fa-solid fa-diagram-project"></i> 22 實務專題</a>
+      <a href="nodered_internals.html" class="nav-btn"><i class="fa-solid fa-microchip"></i> 底層運作邏輯</a>
+      <a href="sitemap.html" class="nav-btn primary"><i class="fa-solid fa-sitemap"></i> 全站地圖</a>
+    </div>
+  </header>
+
+  <!-- Hero 橫幅簡介 -->
+  <section class="hero-section">
+    <div class="hero-badge">
+      <i class="fa-solid fa-brain"></i> 物聯網中樞・SCADA 戰情室・IT/OT 全閉環架構
+    </div>
+    <h1 class="hero-title">
+      Node-RED <span class="gradient-text">智慧控制模組</span> 全景心智圖
+    </h1>
+    <p class="hero-desc">
+      在機電 AI 整合教學系統中，<strong>Node-RED 智慧控制模組</strong>扮演著連結 <strong>OT 現場硬體設備</strong>（PLC、感測器、機械手臂）與 <strong>IT 資訊決策層</strong>（關聯式資料庫、雲端/地端 LLM、電商製造 MES）的核心神經大腦。
+    </p>
+
+    <!-- 快速跳轉錨點 -->
+    <div class="anchor-nav">
+      <a href="#mindmap-section" class="anchor-pill"><i class="fa-solid fa-sitemap text-cyan-400"></i> 全域架構心智圖</a>
+      <a href="#sub-labs" class="anchor-pill"><i class="fa-solid fa-flask text-cyan-400"></i> 1. 核心實驗課程 (34 Labs)</a>
+      <a href="#sub-supplements" class="anchor-pill"><i class="fa-solid fa-book text-sky-400"></i> 2. 學習補充教材 (25 篇)</a>
+      <a href="#sub-projects" class="anchor-pill"><i class="fa-solid fa-diagram-project text-rose-400"></i> 3. 22 大實務專題</a>
+      <a href="#sub-internals" class="anchor-pill"><i class="fa-solid fa-microchip text-teal-400"></i> 4. 底層運作邏輯</a>
+      <a href="#sub-opencart" class="anchor-pill"><i class="fa-solid fa-cart-shopping text-emerald-400"></i> 5. 商城與 MES 整合</a>
+    </div>
+  </section>
+
+  <!-- 主要內容區 -->
+  <main class="content-container">
+
+    <!-- 區塊一：全域心智圖可視化展示 -->
+    <section class="section-box" id="mindmap-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
+            <i class="fa-solid fa-sitemap"></i>
+          </div>
+          <div>
+            <h2 class="section-h2">全域架構心智圖 (Architecture Mindmap)</h2>
+            <div class="section-subtitle">五大支柱垂直縱深・涵蓋基礎入門、工程通訊、數據視覺化到 AI 協同</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button id="copy-mermaid-btn" onclick="copyMermaidCode()" class="nav-btn" style="background: rgba(6, 182, 212, 0.2); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);">
+            <i class="fa-solid fa-copy"></i> <span>複製 Mermaid 代碼</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 圖例標籤 -->
+      <div class="mindmap-toolbar">
+        <div class="legend-row">
+          <span style="color: #cbd5e1; font-weight: 700;">架構色標：</span>
+          <div class="legend-item"><span class="legend-dot" style="background: #0284c7;"></span> 核心樞紐 (Root)</div>
+          <div class="legend-item"><span class="legend-dot" style="background: #06b6d4;"></span> 實驗實作 (Labs)</div>
+          <div class="legend-item"><span class="legend-dot" style="background: #38bdf8;"></span> 補充教材 (Guide)</div>
+          <div class="legend-item"><span class="legend-dot" style="background: #ef4444;"></span> 實務專題 (Projects)</div>
+          <div class="legend-item"><span class="legend-dot" style="background: #14b8a6;"></span> 底層邏輯 (Internals)</div>
+          <div class="legend-item"><span class="legend-dot" style="background: #10b981;"></span> 商城 MES (OpenCart)</div>
+        </div>
+      </div>
+
+      <!-- Mermaid 繪製區 -->
+      <div class="mindmap-wrapper">
+        <div class="mermaid" id="mindmap-mermaid">
+flowchart LR
+    Root["Node-RED 智慧控制模組<br/>(物聯網中樞・SCADA戰情室・IT/OT整合)"]:::rootStyle
+
+    %% 五大主支柱
+    Root --> Col1["1. 核心實驗課程<br/>(34 個實務 Labs)"]:::colStyle1
+    Root --> Col2["2. 學習補充教材<br/>(25 篇精選指南)"]:::colStyle2
+    Root --> Col3["3. 22 大實務專題<br/>(跨領域整合)"]:::colStyle3
+    Root --> Col4["4. 底層運作邏輯<br/>(Node.js / V8)"]:::colStyle4
+    Root --> Col5["5. 智慧製造 MES 與商城<br/>(OpenCart 全閉環)"]:::colStyle5
+
+    %% 分支 1: Labs 核心實驗
+    Col1 --> L1["基礎節點與資料流<br/>(Inject / Debug / Function / Switch / Change)"]
+    Col1 --> L2["工業通訊協定<br/>(Serial Port / MQTT Broker / Modbus TCP/RTU)"]
+    Col1 --> L3["關聯式資料庫<br/>(MySQL / MariaDB / SQL 查詢與 CRUD)"]
+    Col1 --> L4["Dashboard 2.0 戰情室<br/>(Vue 3 / Gauge / Chart / ui-template / Themes)"]
+
+    %% 分支 2: 學習補充教材
+    Col2 --> S1["環境建置與程式語法<br/>(Node.js/npm、JS型態、var/let/const、跳脫字元)"]
+    Col2 --> S2["工業標準與邏輯比喻<br/>(ISO 流程比喻、電磁閥/雙壓閥比喻 if-else/AND/OR)"]
+    Col2 --> S3["數據分析與圖表選型<br/>(直方圖分箱、長條圖、圓餅圖、股票戰情室 7 大圖表)"]
+    Col2 --> S4["客製 UI 與外觀美學<br/>(MDI 圖示、HEX 色碼、Base64 原理、Vue 3 主題模擬器)"]
+
+    %% 分支 3: 22 大實務專題
+    Col3 --> P1["工業物聯網實戰<br/>(Modbus 封包分析、Wireshark 抓包、氣壓自動化)"]
+    Col3 --> P2["生活與金融 API<br/>(台銀匯率 Line Bot、氣象預報、台北公車、船舶雷達)"]
+    Col3 --> P3["AI 視覺與機械手臂<br/>(Teachable Machine、COCO-SSD 物件偵測、Epson 手臂)"]
+    Col3 --> P4["地端與雲端 LLM 協同<br/>(Gemini API、Ollama 車牌辨識、AnythingLLM 知識庫)"]
+
+    %% 分支 4: 底層運作邏輯
+    Col4 --> I1["單執行緒與事件循環<br/>(JavaScript 單執行緒、非阻塞 Non-blocking I/O)"]
+    Col4 --> I2["libuv 底層執行緒池<br/>(檔案讀寫、DNS、密碼運算、硬體通訊非同步)"]
+    Col4 --> I3["全雙工 WebSocket 管線<br/>(前後端毫秒級推播、零刷新即時儀表渲染)"]
+
+    %% 分支 5: 商城與 MES 整合
+    Col5 --> O1["XAMPP 基礎設施<br/>(Apache Web Server / MariaDB 資料庫服務)"]
+    Col5 --> O2["OpenCart 訂單驅動生產<br/>(商城下單 ➔ 資料庫觸發 ➔ MES 排程 ➔ OEE 稼動率)"]
+    Col5 --> O3["C# 三大串接方案<br/>(方案一: DB 直連 / 方案二: 原生 API / 方案三: REST Admin API)"]
+
+    classDef rootStyle fill:#0284c7,stroke:#38bdf8,stroke-width:3px,color:#ffffff,font-weight:bold;
+    classDef colStyle1 fill:#164e63,stroke:#06b6d4,stroke-width:2px,color:#67e8f9,font-weight:bold;
+    classDef colStyle2 fill:#075985,stroke:#38bdf8,stroke-width:2px,color:#bae6fd,font-weight:bold;
+    classDef colStyle3 fill:#881337,stroke:#f43f5e,stroke-width:2px,color:#fecdd3,font-weight:bold;
+    classDef colStyle4 fill:#134e4a,stroke:#14b8a6,stroke-width:2px,color:#99f6e4,font-weight:bold;
+    classDef colStyle5 fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#a7f3d0,font-weight:bold;
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊二：五大子系統深度說明與入口跳轉 -->
+    <section class="section-box">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <div>
+            <h2 class="section-h2">五大核心子系統深度解析</h2>
+            <div class="section-subtitle">理論、實作、底層邏輯與工業製造場景完全貫通</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsystem-grid">
+
+        <!-- 子系統 1: 34 Labs 核心實驗 -->
+        <div class="sub-card" id="sub-labs" style="border-top: 4px solid #06b6d4;">
+          <div class="sub-card-top">
+            <span class="sub-card-badge" style="background: rgba(6, 182, 212, 0.2); color: #22d3ee;">
+              <i class="fa-solid fa-flask"></i> 實作手冊
+            </span>
+            <h3 class="sub-card-title">1. 核心實驗課程 (34 Labs)</h3>
+            <p class="sub-card-desc">
+              由淺入深的漸進式教學路徑，從最基礎的資料流變換，到工業級 Serial Port、MQTT 與 Modbus 通訊，再到現代 Dashboard 2.0 Vue 3 戰情室建置。
+            </p>
+            <ul class="sub-card-highlights">
+              <li><i class="fa-solid fa-check text-cyan-400"></i> <strong>核心五大基礎節點</strong>：Inject、Debug、Function、Switch、Change 綜合應用。</li>
+              <li><i class="fa-solid fa-check text-cyan-400"></i> <strong>工業與物聯網通訊</strong>：Serial Port 串口、MQTT 發布/訂閱 Broker、Modbus TCP/RTU 連線。</li>
+              <li><i class="fa-solid fa-check text-cyan-400"></i> <strong>Dashboard 2.0 人機戰情室</strong>：指針儀表、多軸折線圖、CSS 主題切換與背景漸層調色。</li>
+            </ul>
+          </div>
+          <a href="labs.html" class="sub-card-btn" style="background: linear-gradient(135deg, #0891b2, #0284c7);">
+            進入 34 個實驗課程清單 <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 子系統 2: 25 篇補充教材 -->
+        <div class="sub-card" id="sub-supplements" style="border-top: 4px solid #38bdf8;">
+          <div class="sub-card-top">
+            <span class="sub-card-badge" style="background: rgba(56, 189, 248, 0.2); color: #7dd3fc;">
+              <i class="fa-solid fa-book"></i> 深度筆記
+            </span>
+            <h3 class="sub-card-title">2. 學習補充教材 (25 篇)</h3>
+            <p class="sub-card-desc">
+              解構軟硬體底層觀念，將機電氣壓元件（電磁閥、雙壓閥、PLC 階梯圖）與程式語法邏輯（if-else、AND、OR）深度對照，並提供商業圖表與前端美學指南。
+            </p>
+            <ul class="sub-card-highlights">
+              <li><i class="fa-solid fa-check text-sky-400"></i> <strong>程式與機電對照</strong>：用三口二位電磁閥比喻 if-else，用梭動閥與雙壓閥比喻 OR/AND 邏輯。</li>
+              <li><i class="fa-solid fa-check text-sky-400"></i> <strong>數據與圖表選型</strong>：直方圖數據分箱 (Bins)、四大長條圖、圓餅環形圖與股票 7 大圖表。</li>
+              <li><i class="fa-solid fa-check text-sky-400"></i> <strong>Vue 3 主題模擬器</strong>：ui-template 萬能節點指南、Base64 編碼原理與本機即時調色盤。</li>
+            </ul>
+          </div>
+          <a href="supplements.html" class="sub-card-btn" style="background: linear-gradient(135deg, #0284c7, #2563eb);">
+            閱讀 25 篇精選補充教材 <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 子系統 3: 22 大實務專題 -->
+        <div class="sub-card" id="sub-projects" style="border-top: 4px solid #ef4444;">
+          <div class="sub-card-top">
+            <span class="sub-card-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">
+              <i class="fa-solid fa-diagram-project"></i> 專案實戰
+            </span>
+            <h3 class="sub-card-title">3. 22 大實務專題拆解</h3>
+            <p class="sub-card-desc">
+              完整收錄產線物聯網、金融生活爬蟲、AI 視覺辨識、工業手臂與地端大語言模型 (LLM) 協同作業的 22 個工業 4.0 完整專案。
+            </p>
+            <ul class="sub-card-highlights">
+              <li><i class="fa-solid fa-check text-rose-400"></i> <strong>工業與封包分析</strong>：Modbus TCP 連線與 Wireshark 網路抓包十六進位字串深度解析。</li>
+              <li><i class="fa-solid fa-check text-rose-400"></i> <strong>生活與金融 API</strong>：台銀匯率 Line Bot 告警、氣象預報、台北公車、海域船舶雷達。</li>
+              <li><i class="fa-solid fa-check text-rose-400"></i> <strong>AI 視覺與手臂</strong>：Teachable Machine 影像分類、COCO-SSD 物件偵測、Epson 手臂座標轉換。</li>
+              <li><i class="fa-solid fa-check text-rose-400"></i> <strong>大語言模型整合</strong>：Gemini 多模態 API、Ollama 車牌辨識、AnythingLLM 私有知識庫 (RAG)。</li>
+            </ul>
+          </div>
+          <a href="nodered_projects.html" class="sub-card-btn" style="background: linear-gradient(135deg, #e11d48, #dc2626);">
+            探索 22 個實務專題教學 <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 子系統 4: 底層運作邏輯 -->
+        <div class="sub-card" id="sub-internals" style="border-top: 4px solid #14b8a6;">
+          <div class="sub-card-top">
+            <span class="sub-card-badge" style="background: rgba(20, 184, 166, 0.2); color: #5eead4;">
+              <i class="fa-solid fa-microchip"></i> 核心機制
+            </span>
+            <h3 class="sub-card-title">4. Node-RED 底層運作邏輯</h3>
+            <p class="sub-card-desc">
+              深入剖析 Node-RED 為什麼具備極致低延遲與高並發吞吐能力，揭露 Node.js 單執行緒、libuv 異步執行緒池與 WebSocket 通訊架構。
+            </p>
+            <ul class="sub-card-highlights">
+              <li><i class="fa-solid fa-check text-teal-400"></i> <strong>事件循環 (Event Loop)</strong>：JavaScript 單執行緒如何靠無阻塞 I/O 同時處理數千感測節點。</li>
+              <li><i class="fa-solid fa-check text-teal-400"></i> <strong>libuv C/C++ 執行緒池</strong>：檔案系統、加解密與網路通訊如何交由底層執行緒背景運算。</li>
+              <li><i class="fa-solid fa-check text-teal-400"></i> <strong>全雙工 WebSocket 管線</strong>：儀表板數據毫秒級即時推送機制，告別傳統 HTTP 輪詢耗損。</li>
+            </ul>
+          </div>
+          <a href="nodered_internals.html" class="sub-card-btn" style="background: linear-gradient(135deg, #0d9488, #0891b2);">
+            檢視底層邏輯與架構動畫 <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 子系統 5: 商城與 MES 整合 -->
+        <div class="sub-card" id="sub-opencart" style="border-top: 4px solid #10b981;">
+          <div class="sub-card-top">
+            <span class="sub-card-badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7;">
+              <i class="fa-solid fa-cart-shopping"></i> 工業 4.0 MES
+            </span>
+            <h3 class="sub-card-title">5. 智慧製造 MES 與電商整合</h3>
+            <p class="sub-card-desc">
+              遵循國家技能競賽工業 4.0 規範，打通 OpenCart 商業電商購物車、MariaDB 資料庫、Node-RED 自動化排程與 C# 上位機的 IT/OT 完整閉環。
+            </p>
+            <ul class="sub-card-highlights">
+              <li><i class="fa-solid fa-check text-emerald-400"></i> <strong>訂單驅動生產</strong>：客戶下單 ➔ MariaDB 寫入 ➔ Node-RED 提取規格 ➔ CNC 自動加工排程。</li>
+              <li><i class="fa-solid fa-check text-emerald-400"></i> <strong>工廠 OEE 稼動率</strong>：實時計算可用率、效能比與良品率，在大螢幕 SCADA 即時呈現。</li>
+              <li><i class="fa-solid fa-check text-emerald-400"></i> <strong>C# 三大串接方案</strong>：方案一 DB 直連、方案二 原生 API、方案三 REST Admin API 微服務。</li>
+            </ul>
+          </div>
+          <a href="project_opencart.html" class="sub-card-btn" style="background: linear-gradient(135deg, #059669, #0284c7);">
+            進入 OpenCart 資料庫實戰 <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁尾 Footer -->
+  <footer class="page-footer">
+    <div style="max-w: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+      <div>
+        <strong style="color: #cbd5e1;">機電 AI 整合教學系統</strong> · 五股職訓局 機電AI班 專業課程教材
+      </div>
+      <div>
+        <a href="index.html">課程首頁</a>
+        <a href="labs.html">34 Labs 實驗</a>
+        <a href="supplements.html">25 篇補充教材</a>
+        <a href="nodered_projects.html">22 實務專題</a>
+        <a href="nodered_internals.html">底層運作邏輯</a>
+        <a href="sitemap.html">全站導覽地圖</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 初始化 Mermaid.js
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: false,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+
+    // 複製 Mermaid 程式碼至剪貼簿
+    function copyMermaidCode() {
+      const code = `flowchart LR
+    Root["Node-RED 智慧控制模組\\n(物聯網中樞・SCADA戰情室・IT/OT整合)"]:::rootStyle
+
+    %% 五大主支柱
+    Root --> Col1["1. 核心實驗課程\\n(34 個實務 Labs)"]:::colStyle1
+    Root --> Col2["2. 學習補充教材\\n(25 篇精選指南)"]:::colStyle2
+    Root --> Col3["3. 22 大實務專題\\n(跨領域整合)"]:::colStyle3
+    Root --> Col4["4. 底層運作邏輯\\n(Node.js / V8)"]:::colStyle4
+    Root --> Col5["5. 智慧製造 MES 與商城\\n(OpenCart 全閉環)"]:::colStyle5
+
+    %% 分支 1: Labs 核心實驗
+    Col1 --> L1["基礎節點與資料流\\n(Inject / Debug / Function / Switch / Change)"]
+    Col1 --> L2["工業通訊協定\\n(Serial Port / MQTT Broker / Modbus TCP/RTU)"]
+    Col1 --> L3["關聯式資料庫\\n(MySQL / MariaDB / SQL 查詢與 CRUD)"]
+    Col1 --> L4["Dashboard 2.0 戰情室\\n(Vue 3 / Gauge / Chart / ui-template / Themes)"]
+
+    %% 分支 2: 學習補充教材
+    Col2 --> S1["環境建置與程式語法\\n(Node.js/npm、JS型態、var/let/const、跳脫字元)"]
+    Col2 --> S2["工業標準與邏輯比喻\\n(ISO 流程比喻、電磁閥/雙壓閥比喻 if-else/AND/OR)"]
+    Col2 --> S3["數據分析與圖表選型\\n(直方圖分箱、長條圖、圓餅圖、股票戰情室 7 大圖表)"]
+    Col2 --> S4["客製 UI 與外觀美學\\n(MDI 圖示、HEX 色碼、Base64 原理、Vue 3 主題模擬器)"]
+
+    %% 分支 3: 22 大實務專題
+    Col3 --> P1["工業物聯網實戰\\n(Modbus 封包分析、Wireshark 抓包、氣壓自動化)"]
+    Col3 --> P2["生活與金融 API\\n(台銀匯率 Line Bot、氣象預報、台北公車、船舶雷達)"]
+    Col3 --> P3["AI 視覺與機械手臂\\n(Teachable Machine、COCO-SSD 物件偵測、Epson 手臂)"]
+    Col3 --> P4["地端與雲端 LLM 協同\\n(Gemini API、Ollama 車牌辨識、AnythingLLM 知識庫)"]
+
+    %% 分支 4: 底層運作邏輯
+    Col4 --> I1["單執行緒與事件循環\\n(JavaScript 單執行緒、非阻塞 Non-blocking I/O)"]
+    Col4 --> I2["libuv 底層執行緒池\\n(檔案讀寫、DNS、密碼運算、硬體通訊非同步)"]
+    Col4 --> I3["全雙工 WebSocket 管線\\n(前後端毫秒級推播、零刷新即時儀表渲染)"]
+
+    %% 分支 5: 商城與 MES 整合
+    Col5 --> O1["XAMPP 基礎設施\\n(Apache Web Server / MariaDB 資料庫服務)"]
+    Col5 --> O2["OpenCart 訂單驅動生產\\n(商城下單 ➔ 資料庫觸發 ➔ MES 排程 ➔ OEE 稼動率)"]
+    Col5 --> O3["C# 三大串接方案\\n(方案一: DB 直連 / 方案二: 原生 API / 方案三: REST Admin API)"]
+
+    classDef rootStyle fill:#0284c7,stroke:#38bdf8,stroke-width:3px,color:#ffffff,font-weight:bold;
+    classDef colStyle1 fill:#164e63,stroke:#06b6d4,stroke-width:2px,color:#67e8f9,font-weight:bold;
+    classDef colStyle2 fill:#075985,stroke:#38bdf8,stroke-width:2px,color:#bae6fd,font-weight:bold;
+    classDef colStyle3 fill:#881337,stroke:#f43f5e,stroke-width:2px,color:#fecdd3,font-weight:bold;
+    classDef colStyle4 fill:#134e4a,stroke:#14b8a6,stroke-width:2px,color:#99f6e4,font-weight:bold;
+    classDef colStyle5 fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#a7f3d0,font-weight:bold;`;
+
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copy-mermaid-btn');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check" style="color:#10b981;"></i> <span>已複製 Mermaid 代碼！</span>';
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+        }, 2000);
+      }).catch(err => {
+        alert('複製失敗，請手動複製');
+      });
+    }
+  </script>
+</body>
+</html>
