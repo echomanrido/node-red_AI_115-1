@@ -3,56 +3,6 @@ var INITIAL_SUPPLEMENTS_DATA = [
   {
     "id": "sup-01",
     "supNumber": "01",
-    "title": "電腦硬體規格需求與採購指南",
-    "date": "2026-08-28",
-    "category": "其他 (硬體規劃)",
-    "summary": "針對 Node-RED 開發、C# 程式開發與落地型大語言模型 (Local LLM) 三種應用場景，深入剖析其硬體瓶頸與資源消耗差異，並提供不同場景的推薦電腦規格配置、預算估算與採購參考連結。",
-    "image": "images_src/ok/20260828_pc_specs_comparison.png",
-    "objective": "1. 掌握 Node-RED、C# 程式開發與落地型大語言模型 (Local LLM) 在電腦硬體資源消耗上的根本差異。\n2. 學習如何依據自身開發需求選擇合適的 CPU 核心數、RAM 容量與 SSD 讀寫規格。\n3. 了解獨立顯卡 (GPU) 與顯示記憶體 (VRAM) 對於運行落地 LLM 的決定性影響與採購標準。",
-    "tutorialSteps": [
-      {
-        "step": "1. 三種開發場景規格對比與瓶頸分析",
-        "description": "【核心規格指標對比】\n\n• 運算負載類型：\n  - Node-RED：輕量 I/O、事件驅動\n  - C# 開發：多執行緒編譯、容器/資料庫模擬\n  - 落地 LLM：矩陣平行運算、記憶體頻寬吞吐\n\n• CPU 建議：\n  - Node-RED：4 ~ 6 核心（如 Core i3 / R5 / 樹莓派）\n  - C# 開發：8 ~ 16 核心（Core i5 / i7、Ryzen 7）\n  - 落地 LLM：8 ~ 16 核心（單純推論以顯卡為主，量化模型 CPU-offload 需多核心）\n\n• 系統記憶體 (RAM)：\n  - Node-RED：8GB ~ 16GB\n  - C# 開發：32GB ~ 64GB（開 IDE + Docker + DB）\n  - 落地 LLM：32GB ~ 64GB DDR5（Apple 體系需 48GB~128GB 統一記憶體）\n\n• 獨立顯卡 (GPU)：\n  - Node-RED：無需獨立顯卡（內顯即可）\n  - C# 開發：內顯或入門顯卡（遊戲/3D 開發除外）\n  - 落地 LLM：極度依賴顯卡與 VRAM（8B 需 16GB VRAM；70B 需 24GB~48GB+）\n\n• 硬碟容量：\n  - Node-RED：256GB ~ 512GB SSD\n  - C# 開發：1TB NVMe PCIe 4.0 SSD\n  - 落地 LLM：2TB+ 高速 NVMe SSD（模型權重檔極大）"
-      },
-      {
-        "step": "2. Node-RED 流程開發機（輕量/邊緣物聯網）",
-        "description": "• 硬體重點：Node.js 執行環境開銷極小，著重在低功耗、穩定聯網與基本記憶體。\n• 推薦配置：迷你主機（Mini PC）或入門文書機（Intel N100 / Ryzen 5 + 16GB RAM + 512GB SSD）。\n• 預估預算：約 NT$ 6,000 ~ 12,000"
-      },
-      {
-        "step": "3. C# / .NET 專業開發機（中高效能編譯）",
-        "description": "• 硬體重點：Visual Studio 2022、SQL Server 本地實例、Docker 容器與快速增量編譯，需要充足的 CPU 多核效能與 32GB 以上記憶體。\n• 推薦配置：Intel Core i7-14700 / AMD Ryzen 7 7700X + 32GB~64GB DDR5 + 1TB~2TB Gen4 SSD + RTX 4060（非必要，依專案而定）。\n• 預估預算：約 NT$ 28,000 ~ 45,000"
-      },
-      {
-        "step": "4. 落地型大語言模型運算工作站（高效能 AI 推論）",
-        "description": "• 硬體重點：\n  - 7B ~ 14B 模型（如 Llama 3 8B, Qwen 14B 量化版）：需 16GB VRAM 顯卡（如 RTX 4060 Ti 16GB 或 RTX 4070 Ti Super 16GB）。\n  - 32B ~ 70B 模型（量化版 / 高並發）：需 24GB VRAM 以上（RTX 3090 / 4090 或雙卡並行），或採用 Apple Silicon 高頻寬統一記憶體方案（Mac mini / Studio 64GB+）。\n• 推薦配置：\n  - Windows/Linux PC 方案：Ryzen 7 / i7 + 64GB RAM + NVIDIA RTX 4060 Ti 16GB / RTX 4090 24GB + 1000W 電源。\n  - Mac 方案：Mac mini / Mac Studio (M4 Pro / M2 Ultra, 48GB~64GB+ 統一記憶體)。\n• 預估預算：\n  - 入門 AI 機（16GB VRAM）：約 NT$ 38,000 ~ 55,000\n  - 中高階 AI 工作站（24GB VRAM / Mac 高規）：約 NT$ 75,000 ~ 120,000+\n"
-      }
-    ],
-    "references": [
-      {
-        "title": "PChome 24h - 專業開發兼 AI 筆電 (ASUS TUF R7/32G/RTX5060)",
-        "url": "https://24h.pchome.com.tw/prod/DHABFO-A900IYQLL-000"
-      },
-      {
-        "title": "PChome 24h - 2TB 高速 PCIe Gen4 M.2 SSD (Lexar 雷克沙)",
-        "url": "https://24h.pchome.com.tw/prod/DRAHIS-A900J94T3-000"
-      },
-      {
-        "title": "欣亞數位 - DIY 電腦估價與零組件",
-        "url": "https://www.sinya.com.tw/"
-      },
-      {
-        "title": "原價屋 線上估價系統",
-        "url": "https://coolpc.tw/evaluate.php"
-      },
-      {
-        "title": "Apple 台灣官方商店 - Mac mini / Mac Studio 配置",
-        "url": "https://www.apple.com/tw/shop/buy-mac/mac-mini"
-      }
-    ]
-  },
-  {
-    "id": "sup-02",
-    "supNumber": "02",
     "title": "Node.js 與 npm 安裝狀態確認",
     "date": "2026-07-09",
     "category": "環境建置",
@@ -93,8 +43,8 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-03",
-    "supNumber": "03",
+    "id": "sup-02",
+    "supNumber": "02",
     "title": "JavaScript 資料型態與 Node-RED 節點對應",
     "date": "2026-07-14",
     "category": "JavaScript 基礎",
@@ -131,8 +81,8 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-04",
-    "supNumber": "04",
+    "id": "sup-03",
+    "supNumber": "03",
     "title": "JSON 語法結構與 key-value pairs 對應",
     "date": "2026-07-14",
     "category": "JSON 語法",
@@ -173,8 +123,8 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-05",
-    "supNumber": "05",
+    "id": "sup-04",
+    "supNumber": "04",
     "title": "ISO 流程對應 Node-RED 概念",
     "date": "2026-08-09",
     "category": "ISO 流程與控制",
@@ -214,8 +164,8 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-06",
-    "supNumber": "06",
+    "id": "sup-05",
+    "supNumber": "05",
     "title": "ISO 14064-1 與 ISO 14067 流程對應 Node-RED 概念",
     "date": "2026-08-11",
     "category": "ESG 碳盤查",
@@ -256,8 +206,8 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-07",
-    "supNumber": "07",
+    "id": "sup-06",
+    "supNumber": "06",
     "title": "HTTP 通訊協定與 Node-RED 網頁爬蟲實作",
     "date": "2026-08-14",
     "category": "網路協定",
@@ -298,8 +248,8 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-08",
-    "supNumber": "08",
+    "id": "sup-07",
+    "supNumber": "07",
     "title": "利用三口二位電磁閥比喻 if-else 關係",
     "date": "2026-08-28",
     "category": "機電整合與程式思維",
@@ -332,8 +282,8 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-09",
-    "supNumber": "09",
+    "id": "sup-08",
+    "supNumber": "08",
     "title": "利用梭動閥與雙壓閥比喻 OR 和 AND 邏輯",
     "date": "2026-08-28",
     "category": "機電整合與程式思維",
@@ -366,8 +316,8 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-10",
-    "supNumber": "10",
+    "id": "sup-09",
+    "supNumber": "09",
     "title": "利用 PLC 階梯圖模擬 if-else 關係",
     "date": "2026-08-28",
     "category": "機電整合與程式思維",
@@ -400,8 +350,8 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-11",
-    "number": "11",
+    "id": "sup-10",
+    "number": "10",
     "title": "利用機丙第一圖動作模擬 \"and\"和\"or\"",
     "category": "PLC 階梯圖與機電整合",
     "date": "2026-09-03",
@@ -460,16 +410,16 @@ var INITIAL_SUPPLEMENTS_DATA = [
         "url": "https://www.wdasec.gov.tw/"
       }
     ],
-    "supNumber": "11",
+    "supNumber": "10",
     "image": "images_src/ok/20260903_mechatronics_c_ladder_sfc_combo.png",
     "images": [
       "images_src/ok/20260903_mechatronics_c_ladder_sfc_combo.png"
     ]
   },
   {
-    "id": "sup-12",
-    "number": "12",
-    "supNumber": "12",
+    "id": "sup-11",
+    "number": "11",
+    "supNumber": "11",
     "title": "JavaScript 變數深度解析：比較 var、let 與 const 差異",
     "category": "JavaScript 核心概念",
     "date": "2026-09-03",
@@ -538,9 +488,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-13",
-    "number": "13",
-    "supNumber": "13",
+    "id": "sup-12",
+    "number": "12",
+    "supNumber": "12",
     "title": "JavaScript 與 Node-RED 跳脫字元 (Escape Character) 與路徑斜線全面解析",
     "category": "JavaScript 核心概念",
     "date": "2026-09-08",
@@ -607,9 +557,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-14",
-    "number": "14",
-    "supNumber": "14",
+    "id": "sup-13",
+    "number": "13",
+    "supNumber": "13",
     "title": "XAMPP 整合開發環境安裝、歡迎儀表板 (Dashboard) 與 MySQL/htdocs 實務指南",
     "category": "資料庫與後端整合",
     "date": "2026-09-08",
@@ -686,9 +636,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-15",
-    "number": "15",
-    "supNumber": "15",
+    "id": "sup-14",
+    "number": "14",
+    "supNumber": "14",
     "title": "OpenCart 開源電子商務平台安裝與工控 ERP 派工整合指南",
     "category": "資料庫與後端整合",
     "date": "2026-09-08",
@@ -755,9 +705,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-16",
-    "number": "16",
-    "supNumber": "16",
+    "id": "sup-15",
+    "number": "15",
+    "supNumber": "15",
     "title": "Node-RED Dashboard 2.0: Chart 各類圖表型態選型與工控視覺化全指南",
     "category": "Dashboard 視覺化與 SCADA",
     "date": "2026-10-01",
@@ -842,9 +792,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-17",
-    "number": "17",
-    "supNumber": "17",
+    "id": "sup-16",
+    "number": "16",
+    "supNumber": "16",
     "title": "Node-RED Dashboard 2.0: Gauge 各類儀表型態人因讀數與工控監控指南",
     "category": "Dashboard 視覺化與 SCADA",
     "date": "2026-10-01",
@@ -925,9 +875,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-18",
-    "number": "18",
-    "supNumber": "18",
+    "id": "sup-17",
+    "number": "17",
+    "supNumber": "17",
     "title": "品質製程數據分析與直方圖指南：數值分箱 (Bins) 與白夜班製程異常洞察",
     "category": "Dashboard 視覺化與 SCADA",
     "date": "2026-10-01",
@@ -996,9 +946,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-19",
-    "number": "19",
-    "supNumber": "19",
+    "id": "sup-18",
+    "number": "18",
+    "supNumber": "18",
     "title": "財報與工控視覺化指南：四大長條圖 (Bar Chart) 呈現方式深度解析",
     "category": "Dashboard 視覺化與 SCADA",
     "date": "2026-10-01",
@@ -1067,9 +1017,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-20",
-    "number": "20",
-    "supNumber": "20",
+    "id": "sup-19",
+    "number": "19",
+    "supNumber": "19",
     "title": "財報與工控視覺化指南：Pie 圓餅圖 vs Doughnut 環形圖多層結構解析",
     "category": "Dashboard 視覺化與 SCADA",
     "date": "2026-10-01",
@@ -1138,9 +1088,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-21",
-    "number": "21",
-    "supNumber": "21",
+    "id": "sup-20",
+    "number": "20",
+    "supNumber": "20",
     "title": "股票分析圖表架構指南：基本面、技術面與籌碼面 7 大核心圖表選型與戰情室佈局",
     "category": "Dashboard 視覺化與 SCADA",
     "date": "2026-10-09",
@@ -1225,9 +1175,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-22",
-    "number": "22",
-    "supNumber": "22",
+    "id": "sup-21",
+    "number": "21",
+    "supNumber": "21",
     "title": "更改 Button 按鈕元件的外觀與圖示 (Dashboard v2・Material Design Icons)",
     "category": "Dashboard 視覺化與 SCADA",
     "date": "2026-10-21",
@@ -1298,9 +1248,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-23",
-    "number": "23",
-    "supNumber": "23",
+    "id": "sup-22",
+    "number": "22",
+    "supNumber": "22",
     "title": "更改 Button 按鈕元件的顏色 (Dashboard v2・HTML Color Picker)",
     "category": "Dashboard 視覺化與 SCADA",
     "date": "2026-10-21",
@@ -1386,9 +1336,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-24",
-    "number": "24",
-    "supNumber": "24",
+    "id": "sup-23",
+    "number": "23",
+    "supNumber": "23",
     "title": "Base64 編碼原理與工控物聯網實務 - 為什麼要使用 Base64？",
     "category": "資料通訊與格式",
     "date": "2026-10-22",
@@ -1465,9 +1415,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-25",
-    "number": "25",
-    "supNumber": "25",
+    "id": "sup-24",
+    "number": "24",
+    "supNumber": "24",
     "title": "Node-RED Dashboard 2.0: ui-template 萬能自訂節點完整指南 (Vue 3・CSS・雙向通訊)",
     "category": "Dashboard 視覺化與 SCADA",
     "date": "2026-10-22",
@@ -1543,9 +1493,9 @@ var INITIAL_SUPPLEMENTS_DATA = [
     ]
   },
   {
-    "id": "sup-26",
-    "number": "26",
-    "supNumber": "26",
+    "id": "sup-25",
+    "number": "25",
+    "supNumber": "25",
     "title": "Node-RED Dashboard 2.0 (Vue 3) 核心架構、三劍客角色與主題模擬器",
     "category": "Dashboard 視覺化與 SCADA",
     "date": "2026-10-22",
