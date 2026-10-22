@@ -2594,6 +2594,80 @@ var INITIAL_NODERED_PROJECTS_DATA = [
         "url": "https://ai.google.dev/"
       }
     ]
+  },
+  {
+    "id": "nr-proj-23",
+    "projNumber": "專題 23",
+    "title": "專題 23: 颱風消息與警報 - 熱帶氣旋路徑 (中央氣象署開放資料平臺 W-C0034-005 與 Worldmap 地圖動態追蹤)",
+    "category": "物聯網與地理資訊",
+    "date": "2026-10-22",
+    "slideRange": "投影片 280 ~ 284",
+    "flowImage": "images_src/nodered_projects/slide_280.png",
+    "resultImage": "images_src/nodered_projects/slide_283.png",
+    "allSlides": [
+      "images_src/nodered_projects/slide_280.png",
+      "images_src/nodered_projects/slide_281.png",
+      "images_src/nodered_projects/slide_282.png",
+      "images_src/nodered_projects/slide_283.png",
+      "images_src/nodered_projects/slide_284.png"
+    ],
+    "summary": "本專題深入探討如何透過 Node-RED 串接交通部中央氣象署（CWA）開放資料平臺的熱帶氣旋 API（資料集編號：W-C0034-005）。相較於僅在台灣發布海陸警報時才有資料的舊版 W-C0034-001，W-C0034-005 完整涵蓋整個西北太平洋與南海所有活躍中熱帶氣旋（包含熱帶性低氣壓與颱風）的過去路徑、即時中心位置、氣壓、最大風速與未來預報資訊。結合 node-red-contrib-web-worldmap 地圖套件，將颱風動態軌跡、中心風暴標記與暴風圈半徑即時視覺化呈現於 GIS 地圖上，打造智慧防災防汛戰情室。",
+    "objective": "1. 掌握中央氣象署開放資料平台 (CWA OpenData API) 的授權碼 (Authorization Token) 申請與 Swagger 線上測試流程。\n2. 深刻理解 W-C0034-005（全域熱帶氣旋動態）與舊版 W-C0034-001 的資料維度與常態性監控優勢。\n3. 使用 Node-RED http request 節點帶入 API Key 定時獲取西北太平洋所有熱帶性低氣壓與颱風之 JSON 氣象封包。\n4. 撰寫 JavaScript Function 節點解析經緯度座標 (CoordinateLongitude, CoordinateLatitude)、中心氣壓、最大陣風與移動向量。\n5. 整合 node-red-contrib-web-worldmap 地圖套件，動態繪製颱風中心標記 (Marker)、移動路徑折線 (Polyline) 及七級暴風圈半徑 (Circle)。\n6. 應用於港口海事船舶防颱避碰、高科技廠區防汛防災指揮、太陽能/離岸風電綠能案場即時加固預警。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 開啟中央氣象署開放資料平臺並取得授權碼",
+        "description": "前往中央氣象署開放資料平臺 (https://opendata.cwa.gov.tw/) 註冊登入，在個人會員專區取得專屬 API 授權碼（如投影片示範之 CWA-B9310A5B-EB7A-477F-ABBE-D26A5E9C2E96）。"
+      },
+      {
+        "step": "步驟 2: 檢索 W-C0034-005 資料集（颱風消息與警報-熱帶氣旋路徑）",
+        "description": "在資料平臺搜尋「熱帶氣旋路徑」，定位到資料集編號「W-C0034-005」。投影片特別提示：舊版 W-C0034-001 僅在台灣本島發布海陸警報時才有資料，而 W-C0034-005 則常態性涵蓋整個西北太平洋與南海的所有熱帶氣旋，涵蓋率更廣、監控更全面。"
+      },
+      {
+        "step": "步驟 3: 在 Swagger API 介面測試 GET 呼叫與驗證 JSON",
+        "description": "進入 API 互動測試介面（Swagger），點擊「Try it out」，在 Authorization 欄位填入授權碼，format 選擇「JSON」，點擊 Execute 執行。成功回傳 200 OK，取得包含颱風編號、中英文名稱（如 CHAMPI 薔琵）、時間點經緯度、氣壓 (Pressure) 與最大風速 (MaxWindSpeed) 的 JSON 結構。"
+      },
+      {
+        "step": "步驟 4: 在 Node-RED 建立定時擷取與路徑解析流程",
+        "description": "新增 inject 節點設定每小時定時觸發；接續 http request 節點發送 GET 請求至 CWA API 網址並設定輸出為「經過剖析的 JSON 物件」；接著串接 Function 節點，提取 Fix 觀測歷程資料，轉換為 Worldmap 支援的 lat、lon、line（路徑軌跡）與 radius（暴風圈半徑）。"
+      },
+      {
+        "step": "步驟 5: 部署並開啟 Worldmap 地圖進行即時動態追蹤",
+        "description": "串接 node-red-contrib-web-worldmap 節點，將地圖中心點設為台灣周邊海域（經緯度 23.5, 125.0，縮放層級 Zoom 5）。點擊 Deploy 後開啟 http://localhost:1880/worldmap，地圖上即刻呈現西北太平洋活躍中颱風的行徑路線與暴風警戒圈。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "智慧港口與海事船舶防颱避碰指揮系統",
+        "icon": "fa-solid fa-ship",
+        "description": "即時將中央氣象署颱風移動預測路徑與 AIS 船舶即時航跡（專題 17）進行疊圖比對，精準計算船舶與颱風暴風圈交會時間，提前發出避風進港警報。"
+      },
+      {
+        "scenario": "科學園區高科技廠防汛應變與自動防颱預警",
+        "icon": "fa-solid fa-industry",
+        "description": "監控暴風半徑進入廠區警戒範圍時，自動聯動工控 SCADA 啟動防水閘門、檢查抽水機備援電力並通報防災應變小組。"
+      },
+      {
+        "scenario": "離岸風場與太陽能光電站安全防禦決策",
+        "icon": "fa-solid fa-wind",
+        "description": "根據颱風中心最大陣風與行徑向量，提前將風力發電機葉片轉為順風停機羽化姿態（Feathering），並將追日型太陽能板放平鎖定以防強風損壞。"
+      }
+    ],
+    "aiPrompt": "幫我生成一個APP，“颱風消息與警報-熱帶氣旋路徑”，就可以產生相對的node-red程式。\n1. 串接中央氣象署開放資料平台 ( CWA OpenData API )\n2. 地圖顯示。是用node-red-contrib-web-worldmap\n\n取得資料方式：\nhttps://opendata.cwa.gov.tw/api/v1/rest/datastore/W-C0034-005?Authorization=CWA-XXXXXXXX-XXXX-XXXX-XXXX-D26A5E9C2E96&format=JSON\n\n回傳json：\n[{\"Year\":\"2026\",\"TyphoonName\":\"CHAMPI\",\"CwaTyphoonName\":\"薔琵\",\"CwaTdNo\":\"33\",\"CwaTyNo\":\"29\",\"AnalysisData\":{\"Fix\":[{\"DateTime\":\"2026-10-14T08:00:00+08:00\",\"CoordinateLongitude\":\"160.3\",\"CoordinateLatitude\":\"9.5\",\"MaxWindSpeed\":\"12\",\"MaxGustSpeed\":\"20\",\"Pressure\":\"1004\",\"MovingSpeed\":\"4\",\"MovingDirection\":\"W\"}]}}]\n\n【請產出】\n1. 完整的 Node-RED Flow 一鍵匯入 JSON，包含 inject、http request、function 與 worldmap 節點。\n2. Function 節點內部將 CWA Fix 陣列座標轉為 Worldmap 軌跡線 (line) 與暴風圈半徑 (radius) 的 JavaScript 代碼。\n3. 說明如何排程定時抓取與更新地圖圖層。",
+    "nodeRedJson": "[\n  {\n    \"id\": \"tab_cwa_typhoon_tracker\",\n    \"type\": \"tab\",\n    \"label\": \"專題 23: 颱風消息與路徑追蹤\",\n    \"disabled\": false,\n    \"info\": \"中央氣象署 CWA W-C0034-005 熱帶氣旋路徑 API 與 Worldmap 地圖動態繪製\"\n  },\n  {\n    \"id\": \"inject_cwa_typhoon_timer\",\n    \"type\": \"inject\",\n    \"z\": \"tab_cwa_typhoon_tracker\",\n    \"name\": \"每小時抓取一次\",\n    \"props\": [\n      {\n        \"p\": \"payload\"\n      }\n    ],\n    \"repeat\": \"3600\",\n    \"crontab\": \"\",\n    \"once\": true,\n    \"onceDelay\": 0.5,\n    \"topic\": \"\",\n    \"payload\": \"\",\n    \"payloadType\": \"date\",\n    \"x\": 160,\n    \"y\": 120,\n    \"wires\": [\n      [\n        \"http_req_cwa_typhoon\"\n      ]\n    ]\n  },\n  {\n    \"id\": \"http_req_cwa_typhoon\",\n    \"type\": \"http request\",\n    \"z\": \"tab_cwa_typhoon_tracker\",\n    \"name\": \"GET W-C0034-005 (CWA API)\",\n    \"method\": \"GET\",\n    \"ret\": \"obj\",\n    \"paytoqs\": \"ignore\",\n    \"url\": \"https://opendata.cwa.gov.tw/api/v1/rest/datastore/W-C0034-005?Authorization=CWA-B9310A5B-EB7A-477F-ABBE-D26A5E9C2E96&format=JSON\",\n    \"tls\": \"\",\n    \"persist\": false,\n    \"proxy\": \"\",\n    \"insecureHTTPParser\": false,\n    \"authType\": \"\",\n    \"senderr\": false,\n    \"headers\": [],\n    \"x\": 390,\n    \"y\": 120,\n    \"wires\": [\n      [\n        \"func_parse_typhoon_worldmap\"\n      ]\n    ]\n  },\n  {\n    \"id\": \"func_parse_typhoon_worldmap\",\n    \"type\": \"function\",\n    \"z\": \"tab_cwa_typhoon_tracker\",\n    \"name\": \"解析氣旋路徑與暴風半徑\",\n    \"func\": \"// 解析 CWA W-C0034-005 熱帶氣旋資料\\nconst records = msg.payload?.records?.tropicalCyclones?.tropicalCyclone || [];\\nif (!records || records.length === 0) {\\n    node.warn('目前西北太平洋及南海無活動中熱帶氣旋');\\n    return null;\\n}\\n\\nlet msgs = [];\\nrecords.forEach(ty => {\\n    const name = ty.CwaTyphoonName || ty.TyphoonName || '熱帶氣旋';\\n    const fixes = ty.AnalysisData?.Fix || [];\\n    \\n    // 繪製歷史到最新位置軌跡\\n    let pathPoints = [];\\n    fixes.forEach((fix, index) => {\\n        const lat = parseFloat(fix.CoordinateLatitude);\\n        const lon = parseFloat(fix.CoordinateLongitude);\\n        if (!isNaN(lat) && !isNaN(lon)) {\\n            pathPoints.push([lat, lon]);\\n            \\n            // 若為最新一個觀測點，標註颱風眼圖標與資訊\\n            if (index === fixes.length - 1) {\\n                msgs.push({\\n                    payload: {\\n                        name: `🌀 ${name} (${ty.TyphoonName})`,\\n                        lat: lat,\\n                        lon: lon,\\n                        icon: 'bullseye',\\n                        iconColor: '#ef4444',\\n                        layer: '颱風最新中心',\\n                        description: `時間: ${fix.DateTime}<br>氣壓: ${fix.Pressure} hPa<br>最大風速: ${fix.MaxWindSpeed} m/s<br>移速: ${fix.MovingSpeed} km/h 往 ${fix.MovingDirection}`\\n                    }\\n                });\\n                \\n                // 標記 7 級風暴風半徑圓圈\\n                const radiusKm = parseFloat(fix.CircleOf15ms?.Radius || 150);\\n                msgs.push({\\n                    payload: {\\n                        name: `${name} 暴風半徑`,\\n                        lat: lat,\\n                        lon: lon,\\n                        radius: radiusKm * 1000,\\n                        color: '#f97316',\\n                        fillColor: '#fb923c',\\n                        fillOpacity: 0.25,\\n                        layer: '暴風圈範圍'\\n                    }\\n                });\\n            }\\n        }\\n    });\\n    \\n    // 繪製路徑軌跡折線\\n    if (pathPoints.length > 1) {\\n        msgs.push({\\n            payload: {\\n                name: `${name} 行徑路徑`,\\n                line: pathPoints,\\n                color: '#38bdf8',\\n                weight: 3,\\n                layer: '颱風路徑軌跡'\\n            }\\n        });\\n    }\\n});\\n\\nreturn [msgs];\",\n    \"outputs\": 1,\n    \"timeout\": 0,\n    \"noerr\": 0,\n    \"initialize\": \"\",\n    \"finalize\": \"\",\n    \"libs\": [],\n    \"x\": 650,\n    \"y\": 120,\n    \"wires\": [\n      [\n        \"worldmap_typhoon_out\"\n      ]\n    ]\n  },\n  {\n    \"id\": \"worldmap_typhoon_out\",\n    \"type\": \"worldmap\",\n    \"z\": \"tab_cwa_typhoon_tracker\",\n    \"name\": \"Worldmap 氣象地圖\",\n    \"lat\": \"23.5\",\n    \"lon\": \"125.0\",\n    \"zoom\": \"5\",\n    \"layer\": \"OSM\",\n    \"cluster\": \"\",\n    \"maxage\": \"\",\n    \"usermenu\": \"show\",\n    \"layers\": \"show\",\n    \"panit\": \"false\",\n    \"panlock\": \"false\",\n    \"zoomlock\": \"false\",\n    \"hiderightclick\": \"false\",\n    \"coords\": \"none\",\n    \"showgrid\": \"false\",\n    \"showruler\": \"false\",\n    \"allowFileDrop\": \"false\",\n    \"path\": \"/worldmap\",\n    \"x\": 890,\n    \"y\": 120,\n    \"wires\": []\n  }\n]",
+    "references": [
+      {
+        "title": "中央氣象署開放資料平臺 - W-C0034-005 熱帶氣旋路徑",
+        "url": "https://opendata.cwa.gov.tw/dataset/forecast?page=1"
+      },
+      {
+        "title": "node-red-contrib-web-worldmap 官方節點套件",
+        "url": "https://flows.nodered.org/node/node-red-contrib-web-worldmap"
+      },
+      {
+        "title": "交通部中央氣象署開放資料平臺首頁",
+        "url": "https://opendata.cwa.gov.tw/"
+      }
+    ]
   }
 ];
 var noderedProjectsData = INITIAL_NODERED_PROJECTS_DATA;
