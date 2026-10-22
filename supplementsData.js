@@ -1541,6 +1541,90 @@ var INITIAL_SUPPLEMENTS_DATA = [
         "url": "labs.html?id=lab-34"
       }
     ]
+  },
+  {
+    "id": "sup-26",
+    "number": "26",
+    "supNumber": "26",
+    "title": "Node-RED Dashboard 2.0 (Vue 3) 核心架構、三劍客角色與主題模擬器",
+    "category": "Dashboard 視覺化與 SCADA",
+    "date": "2026-10-22",
+    "summary": "全面剖析 Node-RED Dashboard 2.0 的 Vue 3 底層核心架構與 Proxy 響應式機制；詳解 HTML（骨架）、CSS（皮膚）、JavaScript（靈魂）在工業物聯網儀表板中的角色分工；並深度拆解全螢幕背景漸層穿透、Vuetify 3 元件圓角覆蓋技巧，附帶完整互動式主題模擬器與一鍵代碼產生器。",
+    "image": "images_src/ok/20261022_lab34_gradient_color_picker.png",
+    "images": [
+      "images_src/ok/20261022_lab34_gradient_color_picker.png",
+      "images_src/ok/20261022_lab34_button_border_radius.png",
+      "images_src/ok/20261021_lab34_dashboard_theme_config.png",
+      "images_src/ok/20260930_dashboard2_architecture_page_group_widget.png"
+    ],
+    "flowImage": [
+      "images_src/ok/20261022_lab34_gradient_color_picker.png",
+      "images_src/ok/20261022_lab34_button_border_radius.png"
+    ],
+    "objective": "1. 理解 Dashboard 2.0 採用 Vue 3 與 Vuetify 3 的四大核心優勢：Proxy 響應式、虛擬 DOM 與靜態提升、Composition API 與 Material Design 元件庫。\n2. 搞懂網頁三劍客在工控儀表板的職責分工：HTML 建立結構骨架、CSS 雕塑漸層圓角皮膚、JavaScript 注入通訊與控制靈魂。\n3. 精通全域 CSS 覆寫技術：掌握 #app, .v-application 的 linear-gradient 背景穿透與 .v-btn, .v-list-item 的 border-radius: 10px !important; 圓角統一法門。\n4. 體驗並善用「互動式主題模擬器」，即時預覽截圖調色、霓虹賽博朋克、極光等配色風格，並一鍵產出 Node-RED ui-template 專用代碼。\n5. 掌握在 Node-RED 中安裝 @flowfuse/node-red-dashboard 與透過 ui-template 佈署全域樣式的 3 步實戰心法。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 為什麼是 Vue 3？Dashboard 2.0 底層四大核心特性剖析",
+        "description": "舊版 Node-RED Dashboard (v1) 是基於 AngularJS 1.x 建立，已停止維護。新版 Dashboard 2.0 (@flowfuse/node-red-dashboard) 全面升級至 Vue 3 與 Vuetify 3，具備以下四大關鍵優勢：\n\n1. Proxy 響應式系統：Vue 3 全面採用 ES6 Proxy 替代舊版 Object.defineProperty，能毫秒級攔截物件屬性與陣列變更。當 Node-RED 的 msg.payload 抵達時，畫面立即自動同步！\n2. 虛擬 DOM & 靜態提升：工業現場常有一秒數百次的數據更新，Vue 3 的 Virtual DOM 與 Patch Flag 技術只比對真正改變的數字或圖表標記，大幅減少真實 DOM 重繪開銷，介面流暢不卡頓。\n3. Composition API：透過 setup()、ref() 與 computed() 將複雜通訊邏輯與警報邏輯拆分成高複用函數，大幅提升自訂元件維護效率。\n4. Vuetify 3 視覺元件庫：內建 Material Design 元件，所有按鈕、清單、卡片皆可透過標準 Class（如 .v-btn, .v-card）統一全局換膚。\n\n【資料流向架構】：\nNode-RED 後端 (Node.js) ➔ WebSocket 雙向即時長連接 ➔ Vue 3 前端 SPA 響應式渲染"
+      },
+      {
+        "step": "步驟 2: 網頁三劍客角色分工：HTML、CSS、JS 在儀表板中的協同",
+        "description": "在 Node-RED 的 ui-template 節點中，這三者協同合作，構建出兼具結構、美感與互動能力的儀表板：\n\n• HTML（骨架與結構 - Structure）：\n  - 「建築的地基與鋼筋骨架」\n  - 定義網頁語意與層次，告訴瀏覽器哪裡是按鈕、標題、儀表指針或表格容器（提供 <template> 標籤與 v-if, v-for 指令）。\n\n• CSS（外觀與皮膚 - Presentation）：\n  - 「室內裝潢、皮膚與衣著美感」\n  - 掌控所有視覺呈現：漸層色調 (linear-gradient)、元件圓角 (border-radius)、間距、陰影與半透明毛玻璃質感。透過 <style> 標籤注入全局樣式。\n\n• JavaScript（大腦與靈魂 - Behavior）：\n  - 「肌肉反應、神經系統與大腦」\n  - 掌控邏輯與即時互動：監聽按鈕點擊、收發 WebSocket 封包、計算平均值、觸發警報並透過 this.send() 與後端雙向通訊。\n\n💡 一句話總結：\nHTML 畫出按鈕（骨架），CSS 讓按鈕擁有 10px 圓角與炫麗漸層（皮膚），JS 讓按鈕點擊後能啟動馬達（靈魂）！"
+      },
+      {
+        "step": "步驟 3: 核心代碼圖解精講：全域背景漸層穿透與按鈕圓角",
+        "description": "【重點 1：全域背景與漸層穿透 (#app, .v-application)】\n在 Vue 3 / Vuetify 中，畫面最外層根節點為 #app，主題容器為 .v-application：\n```css\n#app, .v-application {\n    background: linear-gradient(135deg, #0f172a 0%, #245aa5 50%, #b800e9 100%) !important;\n    background-attachment: fixed !important;\n}\n```\n• linear-gradient：透過多色標（起點 #0f172a、中間 #245aa5、結尾 #b800e9）營造光影流動感。\n• !important：強制覆寫 Vuetify 3 預設深色/淺色主題背景色。\n• background-attachment: fixed：頁面滾動時背景鎖定固定，維持高品質視覺沉浸感。\n\n【重點 2：元件圓角風格美化 (.v-list-item, .v-btn)】\nVuetify 3 按鈕預設為 4px 微圓角，透過以下 CSS 升級為現代圓潤流線感：\n```css\n.v-list-item, .v-btn {\n    border-radius: 10px !important;\n}\n```\n• .v-btn：涵蓋儀表板中所有普通按鈕。\n• .v-list-item：涵蓋側邊導覽抽屜、下拉選單選取的項目，實現全站風格高度一致。"
+      },
+      {
+        "step": "步驟 4: 互動式主題模擬器與四大預設風格 (Live Studio)",
+        "description": "本課程特別附帶專屬的「Node-RED Dashboard 2.0 互動教學與主題模擬器」（可直接開啟本機檔案 補充/node_red_dashboard_2_0.html）：\n\n【四大經典風格範本】：\n1. 🖼️ 截圖色調 (#245aa5 + #b800e9)：完美復刻 Lab 34 實機效果，135 度高質感工業紫藍漸層。\n2. 🌌 霓虹賽博朋克 (#050515 + #00f2fe + #fe0979)：120 度強烈對比炫彩風。\n3. 🏭 工業深邃沉穩 (#111827 + #1f2937 + #0f766e)：180 度沈穩低調工控墨綠風。\n4. ❄️ 極光星空 (#0a192f + #1e3a8a + #059669)：145 度清新透亮北歐極光感。\n\n模擬器支援：\n• 漸層類型（線性 linear / 放射 radial）與 0~360° 旋轉角度即時微調。\n• 起點、中間、結尾三段 Color Picker 視覺化調色。\n• 按鈕圓角半徑（0px 俐落方形 ~ 10px 現代圓角 ~ 24px+ 膠囊丸狀）。\n• 儀表板卡片半透明毛玻璃透明度滑桿 (0.2 ~ 1.0)。\n• 下方即時生成完整 <style> 代碼並提供一鍵複製！",
+        "customHtml": "\n<div style=\"margin-top: 15px; padding: 16px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(56, 189, 248, 0.15)); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;\">\n  <div>\n    <div style=\"font-weight: bold; color: #38bdf8; font-size: 0.95rem; margin-bottom: 4px;\">\n      <i class=\"fa-solid fa-wand-magic-sparkles\" style=\"color: #34d399; margin-right: 6px;\"></i>\n      即時線上實測：Node-RED Dashboard 2.0 主題模擬器\n    </div>\n    <div style=\"font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;\">\n      即時微調 135° 漸層色彩與按鈕圓角，支援四種經典風格範本與一鍵複製 ui-template 代碼！\n    </div>\n  </div>\n  <a href=\"補充/node_red_dashboard_2_0.html\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; background: linear-gradient(135deg, #10b981, #06b6d4); color: #fff; font-weight: 600; font-size: 0.85rem; border-radius: 8px; text-decoration: none; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.35); transition: transform 0.2s;\">\n    <i class=\"fa-solid fa-up-right-from-square\"></i> 開啟主題模擬器\n  </a>\n</div>\n"
+      },
+      {
+        "step": "步驟 5: 3 步快速上手指南：在 Node-RED 中配置 ui-template",
+        "description": "將自訂主題套用到實際 Node-RED 儀表板的 3 個步驟：\n\n1. 安裝 Dashboard 2.0：\n   進入 Node-RED「節點管理 (Manage Palette)」，搜尋安裝：\n   `@flowfuse/node-red-dashboard`\n\n2. 拉入 ui-template 節點：\n   在左側節點列表找到 dashboard 2.0 分類的 ui-template，拖曳至流程畫布中。\n\n3. 設定全域 CSS 樣式：\n   雙擊 ui-template 節點，將 Type / Scope 設為 `head` 或 `Site`（全域有效），將模擬器產生的 `<style>` 程式碼貼入，點擊右上角 Deploy（部署）按鈕，即可享受絕美現代儀表板！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "全螢幕工控大屏漸層主題 (SCADA Glassmorphism)",
+        "icon": "fa-solid fa-wand-magic-sparkles",
+        "description": "運用 #app 與 .v-application 的 linear-gradient 搭配 fixed 鎖定背景，營造出媲美專業商業軟體的科技感戰情室。"
+      },
+      {
+        "scenario": "統一全站按鈕與導覽選單圓角風格",
+        "icon": "fa-solid fa-shapes",
+        "description": "透過 .v-btn 與 .v-list-item 設定 border-radius: 10px !important;，消除生硬尖角，帶來一致、流線的高質感人機介面。"
+      },
+      {
+        "scenario": "主題模擬器即時調色與快速交付",
+        "icon": "fa-solid fa-sliders",
+        "description": "開啟專屬 HTML 互動模擬器，拖曳滑桿即時預覽外觀並一鍵複製 ui-template 專用代碼，大幅加速客戶客製化 UI 驗收與交付流程。"
+      }
+    ],
+    "aiPrompt": "請擔任 Node-RED Dashboard 2.0 (Vue 3 / Vuetify 3) 的資深前端設計專家。\n我想使用 ui-template 節點為工控監控儀表板建立一套自訂 CSS 全域主題：\n\n【設計要求】\n1. 背景風格：採用 linear-gradient 線性漸層（起點色 #0f172a、中間色 #245aa5、結尾色 #b800e9，旋轉 135 度），並設定 background-attachment: fixed 鎖定滾動。\n2. 元件圓角：將全域按鈕 (.v-btn) 與側邊選單清單項 (.v-list-item) 統一設定 border-radius: 10px !important。\n3. 卡片質感：為 .v-card 增加半透明毛玻璃效果（backdrop-filter: blur(12px) 與細緻邊框）。\n4. 請以 <style> 標籤包裝，確保可直接貼入 ui-template 節點，並詳細說明各 CSS 選擇器的作用原理。",
+    "references": [
+      {
+        "title": "互動教學工具：Node-RED Dashboard 2.0 主題模擬器 (本機網頁)",
+        "url": "補充/node_red_dashboard_2_0.html"
+      },
+      {
+        "title": "FlowFuse Dashboard 2.0 官方說明文件",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-template"
+      },
+      {
+        "title": "Vuetify 3 官方元件庫 (Components)",
+        "url": "https://vuetifyjs.com/en/components/all/"
+      },
+      {
+        "title": "Vue 3 官方中文指南 (Reactivity in Depth)",
+        "url": "https://vuejs.org/guide/extras/reactivity-in-depth.html"
+      },
+      {
+        "title": "課程實作連動：實作 13 Dashboard Themes 自訂 CSS 主題",
+        "url": "labs.html?id=lab-34"
+      }
+    ]
   }
 ];
 
