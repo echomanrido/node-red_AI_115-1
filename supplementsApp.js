@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stepsHtml = sup.tutorialSteps.map(step => `
       <div class="step-card">
         <div class="step-header"><i class="fa-solid fa-circle-chevron-right" style="color: var(--primary); margin-right: 8px;"></i> ${escapeHtml(step.step)}</div>
-        <div class="step-desc">${escapeHtml(step.description)}</div>
+        <div class="step-desc">${step.customHtml ? step.customHtml : escapeHtml(step.description)}</div>
       </div>
     `).join('');
 
