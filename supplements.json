@@ -1462,5 +1462,83 @@
         "url": "labs.html?id=lab-36"
       }
     ]
+  },
+  {
+    "id": "sup-25",
+    "number": "25",
+    "supNumber": "25",
+    "title": "Node-RED Dashboard 2.0: ui-template 萬能自訂節點完整指南 (Vue 3・CSS・雙向通訊)",
+    "category": "Dashboard 視覺化與 SCADA",
+    "date": "2026-10-22",
+    "summary": "深入剖析 Node-RED Dashboard 2.0 (FlowFuse) 中功能最強大、自由度最高的 ui-template 萬能節點。全面掌握 widget（小工具）、head（全域標頭注入）與 page（獨立全頁）三種運作模式；學習 Vue 3 響應式雙向資料綁定、this.send() 前後端即時通訊，以及如何透過 <style> 標籤覆蓋 Vuetify 3 預設樣式，為工業 SCADA 戰情室打造高度客製化的現代人機介面。",
+    "image": "images_src/ok/20261021_lab34_dashboard_theme_config.png",
+    "images": [
+      "images_src/ok/20261021_lab34_dashboard_theme_config.png",
+      "images_src/ok/20261022_lab34_gradient_color_picker.png",
+      "images_src/ok/20261021_lab34_dashboard_theme_node.png"
+    ],
+    "flowImage": [
+      "images_src/ok/20261021_lab34_dashboard_theme_config.png",
+      "images_src/ok/20261022_lab34_gradient_color_picker.png"
+    ],
+    "objective": "1. 理解 Dashboard 2.0 與舊版 Dashboard 1.0 (AngularJS) 的根本架構差異：全新升級為 Vue 3 與 Vuetify 3 現代化框架。\n2. 掌握 ui-template 節點的三種運作模式（Type）：widget（卡片小工具）、head（全域標頭注入）與 page（獨立全頁）。\n3. 學會前後端雙向通訊機制：透過 msg.payload 接收後端即時數據，以及利用 this.send() 將前端使用者操作事件回傳至 Node-RED 流程。\n4. 熟練掌握 CSS 全域主題覆蓋：透過 <style> 標籤重構 #app、.v-btn、.v-card、漸層背景與半透明毛玻璃特效。\n5. 應用於工控 SCADA 客製化 SVG 動態設備（閥門/馬達/管路動畫）、第三方圖表庫整合（ECharts/Chart.js）與 VIP 戰情室高質感 UI。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 什麼是 ui-template？（架構與核心價值）",
+        "description": "• 現代化前端核心：Node-RED Dashboard 2.0（由 FlowFuse 主導開發）徹底揮別舊版 Dashboard 1.0 時代的 AngularJS，全面採用業界主流的 Vue 3 與 Vuetify 3 UI 框架。\n• 萬能自訂瑞士刀：雖然官方提供了 ui-button、ui-chart、ui-gauge、ui-switch 等標準元件，但工控現場所需的 SVG 動態管路、客製化機台外觀、特定調色盤與複雜互動往往超出標準元件範疇。ui-template 允許開發者自由編寫 HTML 標籤、Vue 3 響應式範本、CSS 樣式表與 JavaScript 程式碼，是打造專屬 HMI 介面的核心關鍵！"
+      },
+      {
+        "step": "步驟 2: 三大運作模式 (Template Types) 深度剖析",
+        "description": "雙擊開啟 ui-template 節點，可看見「Type」下拉選單提供三種運作模式：\n\n1. widget (卡片小工具模式 - 預設最常用)\n• 特點：隸屬於指定的 Dashboard Group（群組卡片），可自訂元件寬度與高度（Width/Height）。\n• 適用情境：客製化機台狀態卡片、SVG 閥門/馬達、多狀態複合控制面板。\n\n2. head (全域標頭注入模式)\n• 特點：內容會被直接注入至整份網頁的 <head> 標籤中，不佔用任何卡片版面。\n• 適用情境：引入外部 CDN 字體庫（如 Google Fonts）、載入第三方 JS 函式庫，或注入全域 <style> 覆蓋整站背景色、漸層主題與毛玻璃效果（如課程 Lab 34 實作）。\n\n3. page (獨立全頁模式)\n• 特點：獨立佔據整頁或 Tab，不被卡片邊框限制。\n• 適用情境：全螢幕 GIS 地圖、大尺寸 3D 數位孿生模型展示。"
+      },
+      {
+        "step": "步驟 3: 前後端雙向通訊機制 (Inbound & Outbound)",
+        "description": "【後端傳遞數據至前端 (Inbound Data)】\n當 Node-RED 流程向 ui-template 節點發送訊息時，在 Vue 範本中可直接使用 `msg` 物件：\n• `{{ msg.payload }}`：自動響應式顯示最新數值。\n• `v-if=\"msg.payload > 80\"`：當溫度或數值超標時動態顯示紅色警告燈號。\n• `v-for=\"item in msg.payload\"`：動態渲染產線機台清單。\n\n【前端事件發送至後端 (Outbound Action)】\n當使用者在前端點擊自訂按鈕或觸發事件時，可呼叫內建的 `this.send()` 方法將資料回傳給後端流程：\n```html\n<button @click=\"sendData('RUN')\">啟動機台</button>\n<script>\nexport default {\n  methods: {\n    sendData(status) {\n      this.send({ payload: status, topic: 'control/motor' });\n    }\n  }\n}\n</script>\n```"
+      },
+      {
+        "step": "步驟 4: CSS 樣式自訂與 Vuetify 3 樣式覆蓋",
+        "description": "在 ui-template 中直接加入 `<style>` 區塊，並善用 `!important` 覆蓋 Vuetify 3 預設外觀：\n\n• 全域背景漸層：\n```css\n#app, .v-application {\n    background: linear-gradient(55deg, #009785 0%, #245aa5 50%, #b800e9 100%) !important;\n    background-attachment: fixed !important;\n}\n```\n• 統一按鈕圓角 (去除生硬方角)：\n```css\n.v-list-item, .v-btn {\n    border-radius: 10px !important;\n}\n```\n• 半透明毛玻璃卡片：\n```css\n.v-card, .nr-db-ui-card {\n    background-color: rgba(255, 255, 255, 0.1) !important;\n    backdrop-filter: blur(5px) !important;\n}\n```"
+      },
+      {
+        "step": "步驟 5: 實用工控範例——動態閥門狀態指示卡",
+        "description": "以下是一段結合 Vue 3 與 SVG 的典型 ui-template 完整範本：\n\n```html\n<div class=\"valve-container\">\n  <svg width=\"60\" height=\"60\" viewBox=\"0 0 100 100\">\n    <circle cx=\"50\" cy=\"50\" r=\"40\" :fill=\"msg.payload === 'OPEN' ? '#00ff00' : '#ff0000'\" />\n  </svg>\n  <div class=\"valve-title\">閥門狀態: <strong>{{ msg.payload || '未知' }}</strong></div>\n  <button class=\"ctrl-btn\" @click=\"this.send({ payload: 'TOGGLE' })\">切換閥門</button>\n</div>\n\n<style>\n.valve-container { text-align: center; padding: 12px; }\n.valve-title { margin: 8px 0; font-size: 1.1rem; }\n.ctrl-btn { background: #0284c7; color: white; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; }\n</style>\n```"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "動態 SVG 工業設備圖 (旋轉馬達、液位槽、流向管路)",
+        "icon": "fa-solid fa-gears",
+        "description": "利用 Vue 3 的屬性綁定 (:class, :style)，將 PLC 傳來的馬達轉速與液位高度即時映射至 SVG 向量動畫，打造生動逼真的數位孿生動態畫面。"
+      },
+      {
+        "scenario": "全域主題與深色模式 (Dark Mode) / 漸層風格切換",
+        "icon": "fa-solid fa-wand-magic-sparkles",
+        "description": "使用 Type: head 模式注入全局 CSS 樣式，統一所有群組卡片的毛玻璃質感、邊框倒角與漸層背景，大幅提升 SCADA 儀表板的專業美學。"
+      },
+      {
+        "scenario": "整合第三方高階圖表庫 (Apache ECharts / Chart.js)",
+        "icon": "fa-solid fa-chart-line",
+        "description": "在 ui-template 中引入外部專業圖表庫，繪製雷達圖、熱力圖、儀表板未內建之 3D 拓撲圖與精密品質分佈圖。"
+      }
+    ],
+    "aiPrompt": "請擔任 Node-RED Dashboard 2.0 (Vue 3 / Vuetify 3) 的前端架構專家。\n我想利用 ui-template 節點建立一個客製化工控監控元件：\n\n【需求目標】\n1. 模式選擇：說明適合使用 Type: widget 還是 Type: head。\n2. 前端範本 (Vue 3)：\n   - 接收後端傳來的數值 `msg.payload.temperature` 與 `msg.payload.status`。\n   - 根據溫度高低動態變更背景顏色（高於 65 度顯示警報紅，低於 65 度顯示正常綠）。\n   - 提供一個「緊急停機」按鈕，點擊後透過 `this.send()` 發送控制指令給 Node-RED 流程。\n3. 樣式美化：使用 Scoped 或全域 `<style>`，包含圓角 `border-radius: 10px` 與立體陰影。\n4. 請提供可直接貼入 ui-template 的完整 HTML / Vue 3 / CSS 代碼，並解釋其雙向傳輸機制。",
+    "references": [
+      {
+        "title": "FlowFuse Dashboard 2.0 ui-template 官方文件",
+        "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-template"
+      },
+      {
+        "title": "FlowFuse Dashboard 2.0 GitHub 官方開源專案",
+        "url": "https://github.com/FlowFuse/node-red-dashboard"
+      },
+      {
+        "title": "Vue 3 官方中文指南 (Template Syntax)",
+        "url": "https://vuejs.org/guide/essentials/template-syntax.html"
+      },
+      {
+        "title": "課程實作連動：實作 13 Dashboard Themes 自訂 CSS 主題",
+        "url": "labs.html?id=lab-34"
+      }
+    ]
   }
 ]
