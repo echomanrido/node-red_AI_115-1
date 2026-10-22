@@ -9351,7 +9351,7 @@ var INITIAL_LABS_DATA = [
     "title": "實作 13: Node-RED Dashboard Themes - 自訂 CSS 打造現代高質感漸層儀表板主題",
     "date": "2026-10-21",
     "category": "進階",
-    "summary": "在 Node-RED Dashboard 2.0 (v2) 中，前端採用現代化 Vue 3 與 Vuetify 3 框架進行元件渲染。本實作透過在流程中加入 ui-template 節點注入自訂 CSS，精確覆寫全局漸層背景 (55deg #009785 ➔ #245aa5 ➔ #b800e9)、頂部列透明化、側邊欄毛玻璃特效、群組卡片半透明背景與圓角邊框，將預設簡陋的白色介面徹底蛻變為科技感十足的現代 SCADA 戰情室主題！",
+    "summary": "在 Node-RED Dashboard 2.0 (v2) 中，前端採用現代化的 Vue 3 與 Vuetify 3 架構。本單元重點示範兩大核心樣式自訂技巧：(1) 透過 #app, .v-application 注入 55 度多重線性漸層底色（#009785 ➔ #245aa5 ➔ #b800e9），並善用編輯器內建 Color Picker 調色盤即時微調顏色；(2) 鎖定 .v-list-item 與 .v-btn，設定 border-radius: 10px 實現現代感按鈕與選單圓角外觀，同時搭配毛玻璃半透明卡片與頂部導航透明化，打造高質感的現代 SCADA 儀表板主題。",
     "flowImage": "images_src/ok/20261021_lab34_dashboard_theme_config.png",
     "flowTitle": "ui-template 節點與自訂 CSS 樣式代碼配置",
     "resultImage": "images_src/ok/20261021_lab34_dashboard_theme_result.png",
@@ -9363,36 +9363,46 @@ var INITIAL_LABS_DATA = [
         "icon": "fa-solid fa-cube"
       },
       {
-        "title": "主題套用前：預設白色介面 (Before)",
+        "title": "1. 修改背景顏色漸層：linear-gradient 與編輯器 Color Picker 調色盤",
+        "image": "images_src/ok/20261022_lab34_gradient_color_picker.png",
+        "icon": "fa-solid fa-palette"
+      },
+      {
+        "title": "2. 按鈕與選單圓角：.v-list-item, .v-btn border-radius 10px",
+        "image": "images_src/ok/20261022_lab34_button_border_radius.png",
+        "icon": "fa-solid fa-shapes"
+      },
+      {
+        "title": "主題套用前：預設白色外觀 (Before 對照組)",
         "image": "images_src/ok/20261021_lab34_dashboard_theme_before.png",
         "icon": "fa-solid fa-clock-rotate-left"
       }
     ],
-    "objective": "1. 認識 Node-RED Dashboard 2.0 (v2) 底層基於 Vue 3 與 Vuetify 3 的 DOM 階層與類別命名架構。\n2. 掌握利用 ui-template 節點注入全域 <style> 覆寫前端元件外觀的技巧。\n3. 學習現代視覺排版：linear-gradient 多色漸層背景、backdrop-filter: blur() 微毛玻璃擬態、border-radius: 10px 圓角與透明度運用。\n4. 掌握頂部工具列 (.v-toolbar)、側邊抽屜選單 (.v-navigation-drawer)、群組卡片 (.nr-db-ui-card) 與按鈕 (.v-btn) 的專屬 CSS 選擇器設定。",
+    "objective": "1. 理解 Node-RED Dashboard 2.0 (v2) 底層 Vue 3 與 Vuetify 3 的 DOM 架構與全域樣式覆蓋機制。\n2. 掌握全域背景 55 度線性漸層（linear-gradient）設定，並學會在 Node-RED 內建編輯器中懸停色碼叫出 Color Picker 調色盤微調色彩。\n3. 熟練掌握按鈕與選單圓角美化：透過 .v-list-item 與 .v-btn 設定 border-radius: 10px !important 統一視覺風格。\n4. 掌握頂部導覽列（Top bar）、側邊選單（Sidebar）與群組卡片（Card/Group）的透明化與半透明毛玻璃質感（backdrop-filter: blur(5px)）。\n5. 應用於工業 4.0 現代化戰情室大屏、工控 SCADA 主題切換與專業 HMI 人機介面美學設計。",
     "tutorialSteps": [
       {
         "step": "步驟 1: 新增與配置 ui-template 節點",
-        "description": "從節點面板的 Dashboard 2.0 分類中拖曳一個 ui-template 節點至畫布，連點兩下進入屬性視窗：\n• 名稱 (Name)：設定為『Node-Red Dashboard Custom CSS』。\n• 類型 (Type)：選擇『Widget (Group-Scoped)』。\n• 群組 (Group)：指定目前頁面的既有群組（例如 [115_機電AI班_01期] 民國轉西元）。\n• 尺寸 (Size)：設為 auto。\n• 勾選『Pass through messages from input.』允許訊息穿透傳遞。"
+        "description": "從左側節點面板的 Dashboard 2.0 類別拖曳一個 ui-template 節點至畫布，雙擊開啟設定視窗：Group 選擇目標群組（例如 [115_機電AI班_01期] 民國轉西元），Type 設定為 widget 或 head 模式，節點名稱命名為『Node-Red Dashboard Custom CSS』。"
       },
       {
-        "step": "步驟 2: 注入全局 55 度現代漸層背景",
-        "description": "在 Template 輸入區塊鍵入 <style> 標籤，覆寫全域 Vue 應用容器：\n#app, .v-application {\n    background: linear-gradient(55deg, #009785 0%, #245aa5 50%, #b800e9 100%) !important;\n    background-attachment: fixed !important;\n}\n這段樣式將建立從碧綠翡翠色 (#009785)、科技靛藍 (#245aa5) 到霓虹紫 (#b800e9) 的多層次動態漸層，搭配 fixed 屬性使頁面捲動時背景保持穩定。"
+        "step": "步驟 2: 修改背景顏色漸層 (linear-gradient 與內建調色盤)",
+        "description": "【全域漸層背景設定】\n在 <style> 區塊中鎖定全域容器 #app, .v-application，配置 55 度線性漸層，並設定固定背景避免滾動拉伸：\n\n```css\n/* Main background - 全局漸層背景 */\n#app, .v-application {\n    background: linear-gradient(\n        55deg,\n        #009785 0%,\n        #245aa5 50%,\n        #b800e9 100%\n    ) !important;\n    background-attachment: fixed !important;\n}\n```\n\n【編輯器 Color Picker 即時調色小技巧】\n在 Node-RED 內建程式碼編輯器中，將滑鼠游標懸停在色碼（如 #245aa5）上方，編輯器會自動彈出視覺化調色盤（Color Picker）！工程師可直接拖曳色輪與透明度滑桿（如 #245aa5ff）即時選色，無須另外開網頁查詢色碼！"
       },
       {
-        "step": "步驟 3: 頂部列透明化與側邊欄選單優化",
-        "description": "覆寫頂部工具列與側邊抽屜樣式，消除傳統實心色塊帶來的沉重感：\n• 頂部列透明化：.v-toolbar, .v-card, .nr-db-ui-card { background-color: transparent !important; color: #FFFFFF !important; }\n• 側邊欄背景透明化：.v-navigation-drawer { color: white !important; background-color: rgba(0, 0, 0, 0) !important; }\n• 選取狀態藍色邊框標示：.v-list-item--active { border-right: 4px solid rgb(41, 98, 255) !important; }\n• 側邊欄項目背景半透明化：.v-navigation-drawer .v-list-item { background-color: rgba(40, 85, 165, 0.8) !important; border-radius: 10px !important; margin-bottom: 4px !important; }"
+        "step": "步驟 3: 設定按鈕與選單項目的圓角外觀 (border-radius)",
+        "description": "【按鈕與清單連結圓角化】\n在 CSS 中鎖定 Vuetify 3 核心元件 .v-btn（按鈕）與 .v-list-item（選單清單項目），統一設定 10px 圓角：\n\n```css\n/* Hover selection - 按鈕與連結圓角 */\n.v-list-item, .v-btn {\n    border-radius: 10px !important;\n}\n\n/* Selected - 選取狀態右側條藍色框線 */\n.v-list-item--active {\n    border-right: 4px solid rgb(41, 98, 255) !important;\n}\n```\n此設定能去除傳統工控元件生硬的方正邊角，為按鈕賦予圓潤柔和的現代科技感，提升觸控手感與視覺一致性。"
       },
       {
-        "step": "步驟 4: 卡片半透明化與毛玻璃擬態 (Glassmorphism)",
-        "description": "將所有群組卡片改為高質感半透明玻璃質感：\n.v-card, .nr-db-ui-card, .nr-db-ui-group {\n    background-color: rgba(255, 255, 255, 0.1) !important;\n    border-radius: 10px !important;\n    border: none !important;\n    backdrop-filter: blur(5px); /* 增加微玻璃質感 */\n}\n同時設定標題顏色：.v-card-title, .nr-db-ui-group .v-card-item__title { color: rgba(255, 255, 255, 0.7) !important; }，確保字體具有極佳的層次與閱讀對比。"
+        "step": "步驟 4: 頂部導航列與側邊欄透明化",
+        "description": "將頂部工具列 (.v-toolbar) 與側邊選單抽屜 (.v-navigation-drawer) 的背景色設定為透明 (transparent 或 rgba(0,0,0,0))，文字強制設為白色 (#ffffff !important)，讓底層的 55 度漸層自然透出。"
       },
       {
-        "step": "步驟 5: 按鈕、下拉選單與輸入框圓角透明化",
-        "description": "進一步微調按鈕與互動控制項細節：\n• 按鈕 (.v-btn)：background-color: rgba(255, 255, 255, 0.15) !important; border-radius: 10px !important;\n• 下拉選單 (.v-overlay__content .v-list)：背景設為深海軍藍半透明 rgba(40, 85, 165, 0.95)，Hover 懸停背景設為 #1a3566。\n• 輸入框 (.v-input input)：文字設為白色、背景設為 transparent。\n• 圖片 (.v-card img, .v-img)：統一設置 border-radius: 10px 圓角。"
+        "step": "步驟 5: 卡片與群組半透明毛玻璃質感 (backdrop-filter: blur)",
+        "description": "針對儀表板卡片與群組容器 (.v-card, .nr-db-ui-card, .nr-db-ui-group)，設定半透明白色底色 rgba(255, 255, 255, 0.1) !important，並加入 backdrop-filter: blur(5px); 啟用高階毛玻璃霧化特效，同時為圖片加入圓角，讓數據卡片既具備通透感又保有極佳的閱讀清晰度。"
       },
       {
-        "step": "步驟 6: 部署流程並在 Dashboard 前端檢視主題效果",
-        "description": "點擊右上角『Deploy』完成部署，開啟瀏覽器造訪 Dashboard 2.0 儀表板頁面 (/dashboard)。\n比對套用前與套用後的效果：\n• 套用前：純白刺眼、元件邊界生硬無層次。\n• 套用後：深邃夢幻的 55 度漸層背景，卡片元件輕盈浮現於畫面上，微毛玻璃質感與圓角讓整體 HMI 操作體驗媲美現代高階工業戰情室！"
+        "step": "步驟 6: 部署流程並檢視前後強烈對比",
+        "description": "點擊右上角「Deploy」部署。開啟瀏覽器進入 Dashboard 頁面（如 http://localhost:1880/dashboard）。原本單調生硬的白色預設主題（Before），瞬間蛻變為流光溢彩的 55 度漸層背景、圓角按鈕與晶瑩剔透毛玻璃卡片的頂級 SCADA 介面（After）！"
       }
     ],
     "applications": [
