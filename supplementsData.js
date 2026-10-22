@@ -1367,6 +1367,85 @@ var INITIAL_SUPPLEMENTS_DATA = [
         "url": "https://dashboard.flowfuse.com/nodes/widgets/ui-button.html"
       }
     ]
+  },
+  {
+    "id": "sup-24",
+    "number": "24",
+    "supNumber": "24",
+    "title": "Base64 編碼原理與工控物聯網實務 - 為什麼要使用 Base64？",
+    "category": "資料通訊與格式",
+    "date": "2026-10-22",
+    "summary": "深入解析 Base64 編碼的數學原理與轉換機制，並從工控 SCADA、物聯網傳輸、AI 影像辨識與前後端整合等多重視角，全面回答『為什麼要使用 Base64？』。探討純文字協定安全傳輸、OT 隔離網段防破圖自包含、免架設圖床與 Data URI 內嵌等核心優勢，並搭配線上轉碼工具進行實作示範。",
+    "image": "images_src/ok/20261022_base64_strerr_tool.png",
+    "images": [
+      "images_src/ok/20261022_base64_strerr_tool.png"
+    ],
+    "flowImage": [
+      "images_src/ok/20261022_base64_strerr_tool.png"
+    ],
+    "objective": "1. 理解 Base64 編碼的基本概念：以 64 個可列印 ASCII 字元表示任意二進位資料（Binary Data）的編碼機制。\n2. 深入掌握『為什麼要使用 Base64』的四大核心原因：文字協定傳輸安全、工控 OT 隔離網路防破圖、Data URI 內嵌與跨語言跨平台資料交換。\n3. 熟悉 Data URI 格式標準（data:[<mediatype>][;base64],<data>）及其在 HTML、CSS 與 Node-RED Dashboard 2.0 中的具體寫法。\n4. 熟練使用線上工具（如 strerr.com）將圖片轉為 Base64 字串，並能客觀評估 Base64 帶來約 33% 體積膨脹之效能權衡。\n5. 串聯課程所學：了解 Node-RED 實作 11（圖片轉Base64）、實作 12-2（射出機雙圖）與實作 13-3（Dashboard 離線背景圖）之底層通訊邏輯。",
+    "tutorialSteps": [
+      {
+        "step": "1. 什麼是 Base64？（編碼原理剖析）",
+        "description": "• 定義：Base64 是一種二進位轉文字（Binary-to-Text）的編碼機制，使用 64 個常見且安全的 ASCII 字元：A-Z (26個)、a-z (26個)、0-9 (10個) 以及 '+' 和 '/' (2個)，結尾不足位數則以 '=' 補齊。\n• 轉換原理：電腦中的資料每 1 個 Byte 為 8 位元（bits）。Base64 將每 3 個 Byte（3 × 8 = 24 bits）切分成 4 個單位（每單位 6 bits），每個 6-bit 單位可對應至 0 ~ 63 的數值，再映射到對應的 Base64 字元表。\n• 體積代價：因為 3 位元組變成 4 位元組，編碼後的資料長度固定會增加約 33%（4/3）。"
+      },
+      {
+        "step": "2. 為什麼要使用 Base64？（解決四大關鍵痛點）",
+        "description": "【核心原因一：純文字通訊協定無法直接傳輸二進位資料】\n• 物聯網常用的 JSON、XML、MQTT Payload、RESTful API、HTML、CSS、Email 等格式，其本質全都是「文字串流（Text Streams）」。\n• 若直接將圖片、音訊或 PLC 韌體的 Raw Binary 塞進 JSON，二進位中的特殊位元（如 0x00 Null、0x0A 換行、0x0D 回車、EOF 結束符號）會被通訊閘道或 JSON 解析器當作控制字元，引發嚴重格式錯亂或封包截斷！\n• 解決方案：將二進位轉成保證安全的 ASCII 字串，就能安心放進 msg.payload 或 JSON 中傳輸。\n\n【核心原因二：工控 OT 隔離網路（Air-Gapped）防破圖與零外網依賴】\n• 高科技廠、石化廠、水電關鍵基礎設施的 SCADA 系統通常處於封閉內網，完全無法連線網際網路。\n• 若儀表板背景或設備圖採用外部 URL（如 http://example.com/logo.png），在廠區內會立刻發生 404 破圖或連線逾時。\n• 解決方案：利用 Base64 直接將圖片內嵌在 Flow 或 CSS 中，達成 100% 離線自包含（Self-Contained），免架設伺服器也不怕外部圖床失效。\n\n【核心原因三：Data URI 內嵌，減少 HTTP 連線與免除 CORS 阻擋】\n• 傳統網頁載入每張外部圖片都需要建立一次 HTTP 連線，並可能觸發瀏覽器跨來源資源共享（CORS）安全性阻擋。\n• 解決方案：使用 Data URI 語法（data:image/png;base64,...）將圖片直接內嵌於 HTML <img> 或 CSS background-image，一次傳輸到位，無額外請求。\n\n【核心原因四：邊緣運算與 AI 影像辨識標準介面】\n• 當攝影機擷取即時影像後，Node-RED 轉為 Base64 字串，能直接打包進 JSON API 傳給 Python/Ollama/Gemini/YOLO 進行邊緣辨識，無需在各程式間共用磁碟讀寫權限。"
+      },
+      {
+        "step": "3. 認識 Data URI 語法結構",
+        "description": "標準格式如下：\n  data:[<MIME-type>][;base64],<data>\n\n• data: 協定前綴，告訴瀏覽器或 Node-RED 這不是網址，而是資料本體。\n• MIME-type：檔案類型（如 image/png、image/jpeg、image/svg+xml、application/pdf 等）。\n• ;base64：宣告後方資料採用 Base64 編碼。\n• <data>：實際編碼產生的文字字串。\n\n範例：\n  <img src=\"data:image/png;base64,iVBORw0KGgoAAA...\">\n  background-image: url(data:image/jpeg;base64,/9j/4AAQ...);"
+      },
+      {
+        "step": "4. 線上轉碼工具實作示範 (strerr.com)",
+        "description": "• 推薦工具：https://www.strerr.com/tw/base64_encode_img.html\n• 操作流程：\n  1. 開啟線上「圖片 轉Base64編碼」網頁。\n  2. 點選或拖曳上傳圖片（如範例中的『中華隊.png』隊徽）。\n  3. 網頁會自動轉換並產生包含 data:image/png;base64,... 前綴的完整字串。\n  4. 點擊「複製」按鈕，即可直接貼入 Node-RED 的 template 節點、UI CSS 或 Function 節點中使用。"
+      },
+      {
+        "step": "5. Base64 的使用時機與效能權衡 (何時該用？何時避免？)",
+        "description": "【最佳使用時機 】\n  1. 小型圖標、設備 Status 狀態指示燈、企業 Logo（檔案在 100KB 以內）。\n  2. 封閉廠區/離線展示的 SCADA 儀表板背景圖。\n  3. RESTful API / MQTT 傳送單張感測快照。\n  4. Email 警報信件內嵌警報當下現場快照。\n\n【應避免的情況 ❌】\n  1. 超大型高畫質影片或數十 MB 的原始大檔（Base64 膨脹 33% 會消耗過多頻寬與記憶體）。\n  2. 頻繁變動的大量即時串流影像（應改採 RTSP / WebRTC 或二進位串流協定）。"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "封閉式 OT 工控 SCADA 離線儀表板",
+        "icon": "fa-solid fa-shield-halved",
+        "description": "在無外網環境下，將廠區 3D 平面圖或背景圖以 Base64 內嵌，實現一鍵匯入即可完整展演的自包含儀表板。"
+      },
+      {
+        "scenario": "AI 視覺檢測與瑕疵辨識 API 串接",
+        "icon": "fa-solid fa-robot",
+        "description": "工業相機取像後，Node-RED 將影像轉為 Base64 字串打包進 JSON，直接呼叫雲端或本地 AI 模型進行缺陷檢驗。"
+      },
+      {
+        "scenario": "LINE / Email 設備異常警報即時附圖",
+        "icon": "fa-solid fa-bell",
+        "description": "機台異常警報觸發時，將即時截圖轉為 Base64 Data URI 直接內嵌於 HTML 信件或通訊推播，維護人員隨時掌握現場。"
+      }
+    ],
+    "aiPrompt": "請擔任工控物聯網 (IIoT) 與前端架構專家，向工程師解說 Base64 編碼技術：\n1. 請以最通俗且專業的語言，說明什麼是 Base64，以及它將 3 位元組轉為 4 個 ASCII 字元的數學原理。\n2. 重點深入剖析『為什麼工控物聯網與網頁開發中必須使用 Base64？』：\n   - 純文字通訊協定（JSON、MQTT、RESTful）與二進位檔案的衝突與相容性\n   - 封閉廠區無外網連線（Air-Gapped Network）的防破圖自包含優勢\n   - Data URI 免除 CORS 跨網域阻擋與減少 HTTP Request 的機制\n3. 請展示一段在 Node-RED Function 節點中，將 Buffer 二進位照片轉為 Base64 Data URI 的標準 JavaScript 代碼。\n4. 給出 Base64 的最佳實踐準則：何時該用？何時不該用？如何做好壓縮以避免 33% 膨脹對記憶體的負擔？",
+    "references": [
+      {
+        "title": "線上圖片轉 Base64 編碼工具 (strerr.com)",
+        "url": "https://www.strerr.com/tw/base64_encode_img.html"
+      },
+      {
+        "title": "MDN Web Docs - Base64 原理與說明",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Glossary/Base64"
+      },
+      {
+        "title": "MDN Web Docs - Data URLs (資料 URL)",
+        "url": "https://developer.mozilla.org/zh-TW/docs/Web/HTTP/Basics_of_HTTP/Data_URLs"
+      },
+      {
+        "title": "實作課程連動：實作 11 圖片轉Base64",
+        "url": "labs.html?id=lab-30"
+      },
+      {
+        "title": "實作課程連動：實作 13-3 Dashboard 背景圖修改-Base64",
+        "url": "labs.html?id=lab-36"
+      }
+    ]
   }
 ];
 var supplementsData = INITIAL_SUPPLEMENTS_DATA;

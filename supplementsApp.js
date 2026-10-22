@@ -27,8 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarCloseBtn.addEventListener('click', () => sidebar.classList.remove('open'));
   }
 
-  // 載入補充教材資料 (優先 fetch supplements.json，若 file:// 失敗則使用 window.INITIAL_SUPPLEMENTS_DATA 備援)
+  // 載入補充教材資料 (若為 file:// 協定直接使用本機備援，避免瀏覽器 CORS 阻擋；http/https 則優先 fetch supplements.json)
   function loadData() {
+    const localFallback = (typeof window !== 'undefined' && (window.INITIAL_SUPPLEMENTS_DATA || window.supplementsData)) || 
+                          (typeof INITIAL_SUPPLEMENTS_DATA !== 'undefined' ? INITIAL_SUPPLEMENTS_DATA : null);
+
+    // 如果使用者透過本機檔案協定 (file://) 開啟，直接使用本機注入資料
+    if (window.location.protocol === 'file:' && localFallback && localFallback.length > 0) {
+      console.log('偵測到 file:// 協定，直接使用本機備援資料 INITIAL_SUPPLEMENTS_DATA');
+      initApp(localFallback);
+      return;
+    }
+
     fetch('supplements.json')
       .then(res => {
         if (!res.ok) throw new Error('HTTP error ' + res.status);
@@ -39,7 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch(err => {
         console.warn('fetch supplements.json 失敗，改用本機備援資料 INITIAL_SUPPLEMENTS_DATA:', err);
-        const fallback = window.INITIAL_SUPPLEMENTS_DATA || window.supplementsData;
+        const fallback = (typeof window !== 'undefined' && (window.INITIAL_SUPPLEMENTS_DATA || window.supplementsData)) || 
+                         (typeof INITIAL_SUPPLEMENTS_DATA !== 'undefined' ? INITIAL_SUPPLEMENTS_DATA : null);
         if (fallback && fallback.length > 0) {
           initApp(fallback);
         } else {
