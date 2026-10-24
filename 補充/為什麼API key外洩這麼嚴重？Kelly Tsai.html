@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>白話拆解 API 與金鑰資安實戰手冊</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons for modern tech UI -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+    }
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .gradient-border {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+      padding: 1px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-indigo-500 selection:text-white">
+
+  <!-- 網頁最上方：原片推薦與教學連結橫幅 -->
+  <div class="bg-gradient-to-r from-rose-950/90 via-slate-900 to-indigo-950/90 border-b border-rose-900/40 text-xs py-2.5 px-4 text-center sticky top-0 z-[60] backdrop-blur-md">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-slate-300">
+      <span class="inline-flex items-center gap-1.5 text-rose-400 font-semibold">
+        <i class="ph-fill ph-youtube-logo text-lg text-rose-500"></i> 本教學改編自原創影片：
+      </span>
+      <span class="font-medium text-white truncate max-w-xs sm:max-w-md">《白話拆解API到底是什麼？用AI前一定要搞懂！為什麼API key外洩這麼嚴重？應該怎麼保護？》</span>
+      <a href="https://www.youtube.com/watch?v=PAhpa2wsbeM" target="_blank" rel="noopener noreferrer"
+         class="inline-flex items-center gap-1 bg-rose-600 hover:bg-rose-500 text-white font-semibold px-3 py-1 rounded-full shadow-sm shadow-rose-600/30 transition-all hover:scale-105 ml-1">
+        <span>立即觀看完整原片</span>
+        <i class="ph-bold ph-arrow-square-out text-xs"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- 頂部導航 -->
+  <header class="sticky top-[41px] z-50 backdrop-blur-md bg-slate-950/80 border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+          <i class="ph-bold ph-plugs-connected text-xl"></i>
+        </div>
+        <div>
+          <span class="font-bold text-lg text-white tracking-wide">API Mastery</span>
+          <span class="text-xs text-indigo-400 bg-indigo-950/80 border border-indigo-800/60 px-2 py-0.5 rounded-full ml-2">白話圖解手冊</span>
+        </div>
+      </div>
+      <nav class="hidden md:flex items-center space-x-5 text-sm font-medium text-slate-400">
+        <a href="#concept" class="hover:text-indigo-400 transition-colors">核心概念</a>
+        <a href="#anatomy" class="hover:text-indigo-400 transition-colors">Request 結構</a>
+        <a href="#simulator" class="hover:text-indigo-400 transition-colors">互動模擬器</a>
+        <a href="#security" class="hover:text-rose-400 transition-colors">Key 防洩守則</a>
+        <a href="#gateway" class="hover:text-indigo-400 transition-colors">AI Gateway</a>
+        <a href="#transcript" class="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors flex items-center gap-1">
+          <i class="ph-bold ph-article"></i> 逐字稿模式
+        </a>
+      </nav>
+      <a href="https://www.youtube.com/watch?v=PAhpa2wsbeM" target="_blank" rel="noopener noreferrer" 
+         class="inline-flex items-center gap-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition-all">
+        <i class="ph-fill ph-youtube-logo text-rose-500 text-base"></i>
+        <span class="hidden sm:inline">YouTube 原片</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero 區域 -->
+  <section class="py-16 md:py-24 border-b border-slate-800/60 relative overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(99,102,241,0.18),rgba(255,255,255,0))]"></div>
+    <div class="max-w-5xl mx-auto px-4 relative z-10 text-center">
+      <div class="inline-flex items-center gap-2 bg-indigo-950/60 border border-indigo-800/80 px-4 py-1.5 rounded-full text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-6">
+        <i class="ph-bold ph-shield-warning text-amber-400"></i>
+        AI 時代新手必修課：防止天價帳單爆掉
+      </div>
+      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+        白話搞懂 <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-sky-300 to-violet-400">API 是什麼？</span><br class="hidden sm:inline" />
+        為什麼 API Key 外洩如此致命？
+      </h1>
+      <p class="text-slate-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+        叫 AI 幫你做小網頁、寫自動化，AI 總要你串 API？這份互動教學手冊帶你用「餐廳點餐」輕鬆理解運作機制，並學會科技公司保護金鑰的實戰守則。
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <a href="#simulator" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-semibold text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2">
+          <i class="ph-bold ph-play"></i> 體驗 API 呼叫模擬器
+        </a>
+        <a href="#security" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-medium transition-all flex items-center gap-2">
+          <i class="ph-bold ph-lock-key"></i> 查看防洩指南
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 主內容容器 -->
+  <main class="max-w-6xl mx-auto px-4 py-16 space-y-24">
+
+    <!-- 單元 1：點餐窗口比喻 -->
+    <section id="concept" class="space-y-8 scroll-mt-24">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Chapter 01</span>
+        <h2 class="text-2xl md:text-3xl font-bold text-white mt-1">生活中的 API：就是「點餐窗口」</h2>
+        <p class="text-slate-400 text-sm mt-1">不管是公車到站、天氣預報、還是 ChatGPT，背後都在用同一個機制運作。</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl hover:border-slate-700 transition">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-2xl mb-4">
+            <i class="ph-duotone ph-storefront"></i>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">1. 點餐窗口 (API)</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            你不需要走進廚房，也不必了解廚師怎麼備料煮菜。你只需要來到約定好的窗口，對照菜單點選，窗口就會把做好的料理（資料）端出來。
+          </p>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl hover:border-slate-700 transition">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl mb-4">
+            <i class="ph-duotone ph-book-open"></i>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">2. 菜單 (API 文件)</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            雙方約定好的規則與格式。規定你要講什麼話（英文或代碼）、點餐格式是哪種（如 JSON）。每家餐廳（OpenAI、中央氣象署）的菜單規格都不同。
+          </p>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl hover:border-slate-700 transition">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-2xl mb-4">
+            <i class="ph-duotone ph-credit-card"></i>
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">3. 會員卡 (API Key)</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            這張會員卡直接綁定你的信用卡。窗口<strong>「認卡不認人」</strong>，誰拿這張卡去點餐，所有消費與用量帳單都會無條件記在你頭上！
+          </p>
+        </div>
+      </div>
+
+      <!-- 複合呼叫架構流程圖 (出門小幫手案例) -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 md:p-8">
+        <h4 class="text-base font-semibold text-slate-200 mb-4 flex items-center gap-2">
+          <i class="ph-bold ph-arrows-merge text-indigo-400"></i>
+          影片範例：「出門小幫手」如何串接兩個 API？
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center text-center">
+          <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+            <div class="text-xs text-indigo-400 font-mono mb-1">Step 1：使用者提問</div>
+            <div class="font-medium text-sm text-slate-200">「明天要不要帶傘？」</div>
+          </div>
+          <div class="hidden md:flex justify-center text-slate-500"><i class="ph-bold ph-arrow-right text-xl"></i></div>
+          <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+            <div class="text-xs text-sky-400 font-mono mb-1">Step 2：氣象 API (GET)</div>
+            <div class="font-medium text-sm text-slate-200">取得純數據：<br/><span class="text-slate-400 text-xs">{"rain_prob": 70%}</span></div>
+          </div>
+          <div class="hidden md:flex justify-center text-slate-500"><i class="ph-bold ph-arrow-right text-xl"></i></div>
+          <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+            <div class="text-xs text-purple-400 font-mono mb-1">Step 3：AI API (POST)</div>
+            <div class="font-medium text-sm text-slate-200">翻譯成人話：<br/><span class="text-emerald-400 text-xs">「降雨機率高達70%，出門記得帶傘！」</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 單元 2：Request 的四大核心要素與狀態碼 -->
+    <section id="anatomy" class="space-y-8 scroll-mt-24">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Chapter 02</span>
+        <h2 class="text-2xl md:text-3xl font-bold text-white mt-1">API 請求 (Request) 單據上的 4 件大事</h2>
+        <p class="text-slate-400 text-sm mt-1">每次點餐送出的 JSON 單子，一定包含這 4 種資訊。</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+          <div class="text-xs font-bold text-indigo-400 font-mono mb-1">01. 送到哪裡？</div>
+          <h4 class="text-base font-semibold text-white mb-2">URL / 端點 (Endpoint)</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            跟上網網址一樣。例如氣象局底下有颱風、地震、雨量，各自分屬不同網址，送錯網址就問錯人。
+          </p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+          <div class="text-xs font-bold text-sky-400 font-mono mb-1">02. 做什麼動作？</div>
+          <h4 class="text-base font-semibold text-white mb-2">HTTP Method</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            最常見兩種：<strong class="text-sky-300">GET</strong> 是「拿」（索取資料）；<strong class="text-purple-300">POST</strong> 是「送」（把一包資料送過去請他運算處理）。
+          </p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+          <div class="text-xs font-bold text-emerald-400 font-mono mb-1">03. 要什麼內容？</div>
+          <h4 class="text-base font-semibold text-white mb-2">Params / Body</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            詳細要求。比如地點指定「台北市」、時間指定「明天」，或是請 AI 回答問題時傳送的提示詞 (Prompt)。
+          </p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+          <div class="text-xs font-bold text-rose-400 font-mono mb-1">04. 你是誰？</div>
+          <h4 class="text-base font-semibold text-white mb-2">API Key (授權碼)</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            帶有會員身分識別碼。窗口靠這把 Key 知道要找誰請款、確認每分鐘是否超標呼叫。
+          </p>
+        </div>
+      </div>
+
+      <!-- 常見 HTTP 狀態碼對照速查 -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <i class="ph-bold ph-warning-circle text-amber-400"></i>
+          看懂錯誤碼，不再只會無腦複製問 AI
+        </h3>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono">
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <span class="px-2 py-0.5 rounded bg-blue-900/60 text-blue-300 font-bold">404 Not Found</span>
+            <p class="text-slate-300 font-sans mt-2">地址寫錯了！伺服器根本找不到你指定的窗口網址。</p>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <span class="px-2 py-0.5 rounded bg-rose-900/60 text-rose-300 font-bold">401 / 403 Forbidden</span>
+            <p class="text-slate-300 font-sans mt-2">Key 不對或權限不足！檢查金鑰是否打錯或已被後台撤銷。</p>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <span class="px-2 py-0.5 rounded bg-amber-900/60 text-amber-300 font-bold">429 Rate Limit</span>
+            <p class="text-slate-300 font-sans mt-2">呼叫太快或額度花光了！這是最常見因為餘額不足跳出的錯誤。</p>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <span class="px-2 py-0.5 rounded bg-purple-900/60 text-purple-300 font-bold">500 / 503 Error</span>
+            <p class="text-slate-300 font-sans mt-2">對方的伺服器掛了或過載，稍等片刻通常會自行修復。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 單元 3：動態實戰模擬器 -->
+    <section id="simulator" class="space-y-6 scroll-mt-24">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Interactive Lab</span>
+          <h2 class="text-2xl md:text-3xl font-bold text-white mt-1">互動實驗室：出門小幫手 API 呼叫模擬</h2>
+        </div>
+        <span class="text-xs text-slate-400 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 self-start">
+          <i class="ph-fill ph-circle text-emerald-400 animate-pulse"></i> 虛擬沙盒環境
+        </span>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-6 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 lg:p-8">
+        <!-- 左側：操作控制台 -->
+        <div class="lg:col-span-5 space-y-5">
+          <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <i class="ph-bold ph-sliders"></i> 發出 Request 參數設定
+          </h3>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">選擇查詢城市</label>
+            <select id="sim-city" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="Taipei">臺北市 (Taipei)</option>
+              <option value="Taichung">臺中市 (Taichung)</option>
+              <option value="Kaohsiung">高雄市 (Kaohsiung)</option>
+              <option value="Hualien">花蓮縣 (Hualien)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">模擬 API Key 狀態</label>
+            <select id="sim-key-status" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="valid">✅ 正常有效的 Key (200 OK)</option>
+              <option value="invalid">❌ 錯誤的 Key (401 Unauthorized)</option>
+              <option value="exceeded">⚠️ 額度耗盡 (429 Quota Exceeded)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">轉譯人話 AI 模型 (Gateway 路由)</label>
+            <select id="sim-model" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="gpt-4o-mini">GPT-4o mini (快速平價 $0.15/1M)</option>
+              <option value="claude-3-5-sonnet">Claude 3.5 Sonnet (高推理 $3.0/1M)</option>
+              <option value="deepseek-v3">DeepSeek V3 (極致省錢 $0.14/1M)</option>
+            </select>
+          </div>
+
+          <button id="sim-send-btn" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 font-semibold text-white shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2">
+            <i class="ph-bold ph-paper-plane-tilt"></i> 送出 API 請求
+          </button>
+
+          <div class="text-[11px] text-slate-500 leading-normal border-t border-slate-800/80 pt-4">
+            💡 本模擬器在瀏覽器中完整模擬影片展示的後端架構（氣象 GET $\rightarrow$ AI 封裝 POST $\rightarrow$ 轉譯人話輸出）。
+          </div>
+        </div>
+
+        <!-- 右側：即時 JSON 檢視器與輸出 -->
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="text-xs font-mono text-slate-400 flex items-center gap-2">
+              <i class="ph-bold ph-terminal-window"></i> Console & Network Monitor
+            </span>
+            <span id="sim-status-badge" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">IDLE</span>
+          </div>
+
+          <!-- 程式碼輸出框 -->
+          <div class="bg-slate-950 rounded-2xl border border-slate-800/80 p-4 flex-1 flex flex-col justify-between font-mono text-xs overflow-hidden">
+            <div class="space-y-3 overflow-y-auto max-h-72">
+              <div>
+                <span class="text-slate-500">// 1. 氣象端點 Response (Raw JSON)</span>
+                <pre id="sim-weather-json" class="text-sky-300 mt-1 whitespace-pre-wrap">{ "status": "點擊送出進行測試" }</pre>
+              </div>
+              <div class="border-t border-slate-900 pt-3">
+                <span class="text-slate-500">// 2. AI 轉譯後的人話輸出</span>
+                <div id="sim-ai-result" class="text-slate-300 font-sans text-sm mt-1 bg-slate-900/60 p-3 rounded-xl border border-slate-800/50 min-h-[50px] flex items-center">
+                  等待送出請求中...
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-800/80 pt-3 flex items-center justify-between text-[11px] text-slate-400">
+              <span id="sim-tokens-used">消耗 Token: 0</span>
+              <span id="sim-latency">延遲: 0ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 單元 4：API Key 為什麼重要？外洩三大地雷與防護 -->
+    <section id="security" class="space-y-8 scroll-mt-24">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-widest text-rose-400">Critical Security</span>
+        <h2 class="text-2xl md:text-3xl font-bold text-white mt-1">千萬別讓 Key 裸奔！API Key 外洩三大地雷</h2>
+        <p class="text-slate-400 text-sm mt-1">資安公司統計：光是一年公開的 GitHub 就被掃出破百萬組 AI 密鑰！</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <!-- 地雷 1 -->
+        <div class="bg-rose-950/20 border border-rose-900/40 p-6 rounded-2xl relative overflow-hidden">
+          <div class="absolute -top-3 -right-3 text-6xl text-rose-500/10"><i class="ph-fill ph-bug"></i></div>
+          <span class="text-xs font-mono font-bold text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">致命坑 1</span>
+          <h3 class="text-lg font-bold text-white mt-3 mb-2">直接寫在前端 (HTML/JS)</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            前端程式是發送到別人的瀏覽器上跑的。任何人只要按 <code class="text-rose-300">F12</code> 打開開發者工具，你的 Key 就無所遁形，等同把信用卡卡號貼在公佈欄上！
+          </p>
+        </div>
+
+        <!-- 地雷 2 -->
+        <div class="bg-rose-950/20 border border-rose-900/40 p-6 rounded-2xl relative overflow-hidden">
+          <div class="absolute -top-3 -right-3 text-6xl text-rose-500/10"><i class="ph-fill ph-git-branch"></i></div>
+          <span class="text-xs font-mono font-bold text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">致命坑 2</span>
+          <h3 class="text-lg font-bold text-white mt-3 mb-2">不小心 Push 到 GitHub</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            網路上有成千上萬的機器人爬蟲 24 小時瘋狂掃描公開 Commit。一旦上傳，幾秒內你的 Key 就會被拿去轉賣或批次消耗。
+          </p>
+        </div>
+
+        <!-- 地雷 3 -->
+        <div class="bg-rose-950/20 border border-rose-900/40 p-6 rounded-2xl relative overflow-hidden">
+          <div class="absolute -top-3 -right-3 text-6xl text-rose-500/10"><i class="ph-fill ph-link-break"></i></div>
+          <span class="text-xs font-mono font-bold text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800">致命坑 3</span>
+          <h3 class="text-lg font-bold text-white mt-3 mb-2">填入不明第三方工具</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            有些來路不明的擴充套件或包裝網站要求你貼上 API Key。一旦後台未加密或惡意截取，帳單立刻爆掉。
+          </p>
+        </div>
+      </div>
+
+      <!-- 科技公司的標準防護實踐 -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6">
+        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-shield-check text-emerald-400"></i>
+          業界工程師的 4 道安全防護盾
+        </h3>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div class="flex gap-3">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 text-sm font-bold">1</div>
+              <div>
+                <h4 class="text-sm font-semibold text-white">使用 .env 配合 .gitignore</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                  將金鑰放在獨立的 <code class="text-emerald-300">.env</code> 檔案，並務必在 <code class="text-emerald-300">.gitignore</code> 加入該檔名，防止程式碼上傳時夾帶金鑰。
+                </p>
+              </div>
+            </div>
+
+            <div class="flex gap-3">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 text-sm font-bold">2</div>
+              <div>
+                <h4 class="text-sm font-semibold text-white">前後端分離 (Key 永遠放後端)</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                  前端負責呈現介面，需要花錢的 API 呼叫全部由後端（Node.js / Python 等）發起，前端永遠接觸不到金鑰本體。
+                </p>
+              </div>
+            </div>
+
+            <div class="flex gap-3">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 text-sm font-bold">3</div>
+              <div>
+                <h4 class="text-sm font-semibold text-white">設定嚴格的使用上限 (Spending Limit)</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                  到 OpenAI / Anthropic 後台設定每月的 Soft/Hard Limit（例如每月 10 美金）。就算程式出 Bug 瘋狂循環，到了上限也會自動中斷。
+                </p>
+              </div>
+            </div>
+
+            <div class="flex gap-3">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 text-sm font-bold">4</div>
+              <div>
+                <h4 class="text-sm font-semibold text-white">外洩時：立刻「撤銷 (Revoke)」而非只建新的</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                  光是建立一把新 Key，舊的還是繼續有效！必須進後台將外洩的金鑰按下 <strong>Delete / Revoke</strong>。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 程式碼範例展示 -->
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs font-mono text-slate-300 flex flex-col justify-between">
+            <div>
+              <div class="text-slate-500 mb-2">// 最佳實踐：.env 與後端代理</div>
+              <div class="text-amber-400 mb-1"># .env (絕對不要 commit)</div>
+              <div class="text-slate-400 mb-3">AI_API_KEY="sk-proj-xxxxxxxxxxxxxxxx"</div>
+              
+              <div class="text-indigo-400 mb-1">// server.js (後端代打)</div>
+              <p class="text-slate-300 whitespace-pre leading-relaxed">
+app.post('/api/ask', async (req, res) => {
+  const result = await fetch(API_URL, {
+    headers: {
+      'Authorization': `Bearer ${process.env.AI_API_KEY}`
+    },
+    body: JSON.stringify({ prompt: req.body.prompt })
+  });
+  res.json(await result.json());
+});</p>
+            </div>
+            <div class="text-[11px] text-emerald-400/90 bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-900/60 mt-3">
+              ✨ 前端只需呼叫自己的 <code class="text-white">/api/ask</code>，完全不會暴露任何金鑰！
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 單元 5：什麼是 AI Gateway？ -->
+    <section id="gateway" class="space-y-8 scroll-mt-24">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Chapter 04</span>
+        <h2 class="text-2xl md:text-3xl font-bold text-white mt-1">多模型切換救星：AI Gateway (萬用轉接頭)</h2>
+        <p class="text-slate-400 text-sm mt-1">想同時使用 OpenAI、Claude、Gemini 與平價開源模型？不必管理三倍的麻煩。</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        <div class="space-y-4">
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+            <h4 class="font-bold text-white text-base mb-1 flex items-center gap-2">
+              <i class="ph-bold ph-globe-hemisphere-west text-indigo-400"></i>
+              概念：出國用的萬用轉接頭
+            </h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              每個國家的插座形狀都不同（各家 SDK 傳輸格式都不一樣）。Gateway 站在中間，你永遠只要用一套統一的寫法點餐，它會自動幫你轉譯成每一家看得懂的格式。
+            </p>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+            <h4 class="font-bold text-white text-base mb-1 flex items-center gap-2">
+              <i class="ph-bold ph-chart-line-down text-emerald-400"></i>
+              智慧路由 (Smart Routing) 省錢 20~40%
+            </h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              依據任務複雜度自動派工：簡單的翻譯與整理丟給每百萬 Token 只要 4 美金以內的平價模型（如 DeepSeek/GLM）；高難度邏輯再交給 Opus 或 GPT-4o。
+            </p>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+            <h4 class="font-bold text-white text-base mb-1 flex items-center gap-2">
+              <i class="ph-bold ph-key text-amber-400"></i>
+              只需管理一把 Key
+            </h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              更換底層模型只要改程式裡的一個字串名稱與 <code class="text-indigo-300">baseURL</code>，不需要逐一到三五個平台各自綁卡、儲值與更換金鑰。
+            </p>
+          </div>
+        </div>
+
+        <!-- 比較圖表 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6">
+          <div class="text-xs font-mono text-slate-400 mb-4 font-bold flex items-center justify-between">
+            <span>傳統方式 vs Gateway 模式</span>
+          </div>
+
+          <div class="space-y-4 text-xs">
+            <div class="p-3.5 rounded-xl bg-rose-950/20 border border-rose-900/30">
+              <div class="font-bold text-rose-300 mb-1 flex items-center gap-1.5">
+                <i class="ph-bold ph-x-circle"></i> 傳統手動串接
+              </div>
+              <ul class="text-slate-400 space-y-1 list-disc list-inside">
+                <li>要註冊 OpenAI、Anthropic、Google 三個帳號</li>
+                <li>分開綁定 3 張信用卡、管理 3 份用量帳單</li>
+                <li>程式碼需要安裝並維護 3 套各自特有的 SDK</li>
+              </ul>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-900/30">
+              <div class="font-bold text-emerald-300 mb-1 flex items-center gap-1.5">
+                <i class="ph-bold ph-check-circle"></i> 採用 AI Gateway
+              </div>
+              <ul class="text-slate-400 space-y-1 list-disc list-inside">
+                <li>單一帳戶、單一金鑰存取數百種模型</li>
+                <li>切換模型只要改 <code class="text-emerald-300">model: "claude-3-5-sonnet"</code></li>
+                <li>支援自動備援（Fallback）與智慧動態分流</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 底部總結清單 -->
+    <section class="bg-gradient-to-br from-indigo-950/50 via-slate-900 to-slate-950 border border-indigo-900/40 rounded-3xl p-8 md:p-10 text-center space-y-6">
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl">
+        <i class="ph-bold ph-check-circle"></i>
+      </div>
+      <h2 class="text-2xl md:text-3xl font-extrabold text-white">課後回顧：串接 API 的黃金三定律</h2>
+      <div class="grid sm:grid-cols-3 gap-4 text-left max-w-4xl mx-auto pt-2">
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-indigo-900/30">
+          <div class="text-indigo-400 font-mono text-xs font-bold mb-1">Rule 01</div>
+          <div class="text-white text-sm font-semibold mb-1">Key 不進前端、不進 Git</div>
+          <p class="text-xs text-slate-400">永遠放後端環境變數，有專案做完就立即撤銷廢棄金鑰。</p>
+        </div>
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-indigo-900/30">
+          <div class="text-indigo-400 font-mono text-xs font-bold mb-1">Rule 02</div>
+          <div class="text-white text-sm font-semibold mb-1">一定要設定消費上限</div>
+          <p class="text-xs text-slate-400">無論是練習還是正式專案，都設定硬性月額度（如 $5 ~ $20）。</p>
+        </div>
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-indigo-900/30">
+          <div class="text-indigo-400 font-mono text-xs font-bold mb-1">Rule 03</div>
+          <div class="text-white text-sm font-semibold mb-1">記住 API 本身沒有記憶</div>
+          <p class="text-xs text-slate-400">對話越長，送出的歷史 Token 越多，費用隨之遞增，注意 Token 掌控。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 單元 6：全片逐字稿模式 (Interactive Transcript Mode) -->
+    <section id="transcript" class="space-y-6 scroll-mt-28">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-800 pb-5">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-800/60 text-indigo-400 text-xs font-mono font-bold mb-2">
+            <i class="ph-bold ph-chats-circle"></i> VIDEO TRANSCRIPT & VISUAL LABS
+          </div>
+          <h2 class="text-2xl md:text-3xl font-bold text-white">逐字稿圖文教學模式</h2>
+          <p class="text-slate-400 text-sm mt-1">完整收錄影片章節，並搭配專屬原創 SVG 結構圖解與微型互動實驗器。點擊時間戳記可直接在 YouTube 定位播放。</p>
+        </div>
+
+        <!-- 逐字稿搜尋欄 -->
+        <div class="relative w-full md:w-80">
+          <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+          <input type="text" id="transcript-search" placeholder="搜尋關鍵字（如：8萬美元、401、.env、Gateway）..."
+                 class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+        </div>
+      </div>
+
+      <!-- 逐字稿卡片容器 -->
+      <div id="transcript-list" class="space-y-8 font-sans">
+        
+        <!-- 區段 1：天價帳單事件 (附 SVG 災難示意圖 + 迴圈失控計算機) -->
+        <div class="transcript-item bg-slate-900/80 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <span class="text-xs font-bold text-rose-400 flex items-center gap-1.5 uppercase tracking-wide">
+              <i class="ph-bold ph-warning-octagon text-rose-500 text-sm"></i> Chapter 01｜天價帳單事件：20天刷掉250萬台幣
+            </span>
+            <a href="https://www.youtube.com/watch?v=PAhpa2wsbeM&t=0s" target="_blank" rel="noopener noreferrer"
+               class="text-xs font-mono bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+              <i class="ph-fill ph-youtube-logo text-rose-500 text-sm"></i> 00:00 - 00:32
+            </a>
+          </div>
+
+          <div class="grid lg:grid-cols-12 gap-6 items-start">
+            <div class="lg:col-span-7 space-y-4">
+              <blockquote class="border-l-2 border-rose-500/60 pl-3.5 text-xs text-slate-400 italic">
+                原音重點：「所有工程師每天在跟 API 打交道……9月底一家 AI 公司的 CTO 在 Hacker News 上公開說，他用 Codex 跑一個檢查任務，自動衍生出 826 個子任務，20天刷了將近 8 萬美元，差不多台幣 250 萬！如果拿著你的 Key 去點餐的人根本不是你自己呢？」
+              </blockquote>
+              <p class="text-slate-300 leading-relaxed text-xs sm:text-sm">
+                自動化 Agent 若失去安全邊界，遞迴呼叫將在短時間內吞噬信用額度。沒有設定硬性花費上限（Hard Limit）的 API Key，就像一張未設限額的空白支票，即使是資深技術長稍有不慎也會蒙受重大損失。
+              </p>
+
+              <!-- 微型互動：失控任務消耗試算 -->
+              <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800/80 space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-slate-400 font-medium flex items-center gap-1">
+                    <i class="ph-bold ph-calculator text-rose-400"></i> 子任務失控試算體驗：
+                  </span>
+                  <span id="task-count-label" class="font-mono text-rose-400 font-bold">826 個任務</span>
+                </div>
+                <input id="task-slider" type="range" min="10" max="1500" value="826" step="10" 
+                       class="w-full accent-rose-500 cursor-pointer h-1.5 bg-slate-800 rounded-lg">
+                <div class="flex items-center justify-between text-xs pt-1">
+                  <span class="text-slate-500">預估帳單累計：</span>
+                  <span id="task-cost-label" class="font-mono font-bold text-rose-300 text-sm">$79,296 美元 (~NT$ 2,537,472)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- SVG 視覺化圖表：遞迴失控結構圖 -->
+            <div class="lg:col-span-5 bg-slate-950 p-4 rounded-xl border border-slate-800/90 flex flex-col items-center">
+              <div class="text-[11px] font-mono text-slate-400 mb-2 self-start flex items-center gap-1">
+                <i class="ph-bold ph-tree-structure text-rose-400"></i> 遞迴子任務失控模型 (Agent Loop)
+              </div>
+              <svg viewBox="0 0 340 180" class="w-full h-auto max-w-[320px]">
+                <defs>
+                  <linearGradient id="roseGlow" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.8"/>
+                    <stop offset="100%" stop-color="#be123c" stop-opacity="0.2"/>
+                  </linearGradient>
+                </defs>
+                <!-- Root Task -->
+                <rect x="110" y="10" width="120" height="30" rx="8" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="170" y="29" fill="#e0e7ff" font-size="11" font-weight="600" text-anchor="middle">主任務: 代碼審查</text>
+                <!-- Connectors -->
+                <path d="M170 40 L80 75 M170 40 L170 75 M170 40 L260 75" stroke="#475569" stroke-width="1.5" stroke-dasharray="3,3"/>
+                <!-- Sub Tasks Tier 1 -->
+                <rect x="30" y="75" width="90" height="26" rx="6" fill="#1e293b" stroke="#94a3b8" stroke-width="1"/>
+                <text x="75" y="92" fill="#cbd5e1" font-size="10" text-anchor="middle">子任務 1</text>
+                <rect x="130" y="75" width="80" height="26" rx="6" fill="#1e293b" stroke="#94a3b8" stroke-width="1"/>
+                <text x="170" y="92" fill="#cbd5e1" font-size="10" text-anchor="middle">子任務 2</text>
+                <rect x="220" y="75" width="90" height="26" rx="6" fill="#1e293b" stroke="#94a3b8" stroke-width="1"/>
+                <text x="265" y="92" fill="#cbd5e1" font-size="10" text-anchor="middle">子任務 3</text>
+                <!-- Recursive Loop -->
+                <path d="M75 101 L40 135 M265 101 L300 135 M170 101 L170 135" stroke="#f43f5e" stroke-width="1.5"/>
+                <rect x="20" y="135" width="300" height="32" rx="8" fill="url(#roseGlow)" stroke="#f43f5e" stroke-width="1.5"/>
+                <text x="170" y="155" fill="#ffe4e6" font-size="11" font-weight="bold" text-anchor="middle">🔥 無限遞迴產生 826+ 個子任務 (NT$250萬)</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 區段 2：生活中的點餐窗口比喻 (附 SVG 三元點餐圖 + 角色切換) -->
+        <div class="transcript-item bg-slate-900/80 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <span class="text-xs font-bold text-sky-400 flex items-center gap-1.5 uppercase tracking-wide">
+              <i class="ph-bold ph-storefront text-sky-400 text-sm"></i> Chapter 02｜生活中的 API 比喻：餐廳點餐窗口
+            </span>
+            <a href="https://www.youtube.com/watch?v=PAhpa2wsbeM&t=120s" target="_blank" rel="noopener noreferrer"
+               class="text-xs font-mono bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+              <i class="ph-fill ph-youtube-logo text-rose-500 text-sm"></i> 02:00 - 04:04
+            </a>
+          </div>
+
+          <div class="grid lg:grid-cols-12 gap-6 items-start">
+            <div class="lg:col-span-7 space-y-4">
+              <blockquote class="border-l-2 border-sky-500/60 pl-3.5 text-xs text-slate-400 italic">
+                原音重點：「API 白話講就是一個程式跟另一個程式要資料、或請他幫忙做事的窗口……就像餐廳點餐窗口，你不用走進廚房、也不用知道菜怎麼煮，只要對照菜單點，餐點就端出來。那張菜單就是 API 說明文件。」
+              </blockquote>
+              <p class="text-slate-300 leading-relaxed text-xs sm:text-sm">
+                軟體系統互通的核心哲學是「黑箱與介面分離」：使用者（Client）只需專注於送出合格的請求，後台（Server）專注於高效率烹煮與返回資料，兩者各司其職。
+              </p>
+
+              <!-- 互動比喻點擊卡 -->
+              <div class="grid grid-cols-3 gap-2 pt-1 text-xs">
+                <button onclick="inspectAnalogy('window')" class="analogy-btn p-2.5 rounded-xl border border-sky-500/40 bg-sky-950/30 text-sky-300 text-center hover:bg-sky-900/40 transition">
+                  <div class="font-bold">① 點餐窗口</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">API 實體</div>
+                </button>
+                <button onclick="inspectAnalogy('menu')" class="analogy-btn p-2.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 text-center hover:bg-slate-800 transition">
+                  <div class="font-bold">② 餐廳菜單</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">API 文件 (Docs)</div>
+                </button>
+                <button onclick="inspectAnalogy('card')" class="analogy-btn p-2.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 text-center hover:bg-slate-800 transition">
+                  <div class="font-bold">③ 記帳會員卡</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">API Key (金鑰)</div>
+                </button>
+              </div>
+              <div id="analogy-desc-box" class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-300">
+                <span class="text-sky-400 font-bold">點餐窗口 (API)：</span> 提供外部呼叫的具體管道與端點。你無需接觸廚房內部繁複的資料庫與演算法細節。
+              </div>
+            </div>
+
+            <!-- SVG 視覺化圖表：餐廳比喻示意圖 -->
+            <div class="lg:col-span-5 bg-slate-950 p-4 rounded-xl border border-slate-800/90 flex flex-col items-center">
+              <div class="text-[11px] font-mono text-slate-400 mb-2 self-start flex items-center gap-1">
+                <i class="ph-bold ph-chalkboard-simple text-sky-400"></i> API 餐廳點餐窗口三元架構
+              </div>
+              <svg viewBox="0 0 340 180" class="w-full h-auto max-w-[320px]">
+                <!-- Client -->
+                <circle cx="50" cy="90" r="26" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                <text x="50" y="93" fill="#bae6fd" font-size="11" font-weight="bold" text-anchor="middle">顧客</text>
+                <text x="50" y="106" fill="#94a3b8" font-size="8" text-anchor="middle">(Client/App)</text>
+                <!-- Window (API) -->
+                <rect x="135" y="35" width="70" height="110" rx="8" fill="#0f172a" stroke="#818cf8" stroke-width="2"/>
+                <rect x="145" y="50" width="50" height="40" rx="4" fill="#1e1b4b" stroke="#a5b4fc" stroke-width="1"/>
+                <text x="170" y="74" fill="#c7d2fe" font-size="11" font-weight="bold" text-anchor="middle">點餐窗口</text>
+                <text x="170" y="115" fill="#a5b4fc" font-size="9" text-anchor="middle">規格與合約</text>
+                <text x="170" y="128" fill="#38bdf8" font-size="8" font-family="monospace" text-anchor="middle">REST API</text>
+                <!-- Kitchen (Server) -->
+                <rect x="245" y="45" width="80" height="90" rx="8" fill="#1e293b" stroke="#34d399" stroke-width="2"/>
+                <text x="285" y="85" fill="#a7f3d0" font-size="11" font-weight="bold" text-anchor="middle">餐廳廚房</text>
+                <text x="285" y="102" fill="#94a3b8" font-size="8" text-anchor="middle">(後台資料庫/AI)</text>
+                <!-- Arrows -->
+                <path d="M78 80 L133 80" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+                <text x="105" y="74" fill="#38bdf8" font-size="8" text-anchor="middle">Request</text>
+                <path d="M133 100 L78 100" stroke="#34d399" stroke-width="2"/>
+                <text x="105" y="112" fill="#34d399" font-size="8" text-anchor="middle">Response</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 區段 3：Request 四要素與狀態碼 (附 SVG 封包圖解 + 狀態碼速查) -->
+        <div class="transcript-item bg-slate-900/80 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wide">
+              <i class="ph-bold ph-cube text-amber-400 text-sm"></i> Chapter 03｜Request 4 大要素、狀態碼與「無記憶性」
+            </span>
+            <a href="https://www.youtube.com/watch?v=PAhpa2wsbeM&t=244s" target="_blank" rel="noopener noreferrer"
+               class="text-xs font-mono bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+              <i class="ph-fill ph-youtube-logo text-rose-500 text-sm"></i> 04:04 - 07:00
+            </a>
+          </div>
+
+          <div class="grid lg:grid-cols-12 gap-6 items-start">
+            <div class="lg:col-span-7 space-y-4">
+              <blockquote class="border-l-2 border-amber-500/60 pl-3.5 text-xs text-slate-400 italic">
+                原音重點：「每次發出的 JSON 單子有 4 個資訊：1. 送到哪裡（URL 網址）、2. 做什麼動作（GET 是拿、POST 是送）、3. 要什麼內容（Params/Body）、4. 你是誰（API Key 授權碼）……另外窗口是不認得你的（Stateless）！每一張單對它都是全新的。」
+              </blockquote>
+              <p class="text-slate-300 leading-relaxed text-xs sm:text-sm">
+                理解狀態碼是 Debug 的第一步：404 是尋址錯誤、401 是認證失敗、429 是額度或流速被拒。另外由於 RESTful 架構的「無狀態（Stateless）」特性，伺服器不保存上次的上下文，AI 記憶功能必須靠每次傳輸歷史紀錄來重現。
+              </p>
+
+              <!-- 即時狀態碼測試器 -->
+              <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs space-y-2">
+                <div class="text-slate-400 font-semibold flex items-center justify-between">
+                  <span>💡 點選狀態碼查看伺服器內心話：</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button onclick="inspectCode('401')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 font-mono text-rose-300 border border-rose-900/50">401</button>
+                  <button onclick="inspectCode('404')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 font-mono text-blue-300 border border-blue-900/50">404</button>
+                  <button onclick="inspectCode('429')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 font-mono text-amber-300 border border-amber-900/50">429</button>
+                  <button onclick="inspectCode('500')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 font-mono text-purple-300 border border-purple-900/50">500</button>
+                  <button onclick="inspectCode('200')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 font-mono text-emerald-300 border border-emerald-900/50">200 OK</button>
+                </div>
+                <div id="code-result-box" class="p-2.5 rounded bg-slate-900/90 text-slate-300 border border-slate-800 font-mono text-[11px]">
+                  點擊上方按鈕測試...
+                </div>
+              </div>
+            </div>
+
+            <!-- SVG 視覺化圖表：Request 單據剖析圖 -->
+            <div class="lg:col-span-5 bg-slate-950 p-4 rounded-xl border border-slate-800/90 flex flex-col items-center">
+              <div class="text-[11px] font-mono text-slate-400 mb-2 self-start flex items-center gap-1">
+                <i class="ph-bold ph-receipt text-amber-400"></i> Request JSON 封包解構圖
+              </div>
+              <svg viewBox="0 0 340 180" class="w-full h-auto max-w-[320px]">
+                <rect x="15" y="10" width="310" height="160" rx="10" fill="#090d16" stroke="#334155" stroke-width="1.5"/>
+                <!-- Section 1 URL -->
+                <rect x="25" y="20" width="290" height="28" rx="6" fill="#1e293b" stroke="#6366f1" stroke-width="1"/>
+                <text x="35" y="38" fill="#818cf8" font-size="9" font-family="monospace">01. URL:</text>
+                <text x="85" y="38" fill="#e2e8f0" font-size="9" font-family="monospace">https://api.cwa.gov.tw/weather</text>
+                <!-- Section 2 Method -->
+                <rect x="25" y="54" width="140" height="28" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-width="1"/>
+                <text x="35" y="72" fill="#38bdf8" font-size="9" font-family="monospace">02. Method:</text>
+                <text x="105" y="72" fill="#38bdf8" font-weight="bold" font-size="10" font-family="monospace">GET</text>
+                <!-- Section 4 Key -->
+                <rect x="175" y="54" width="140" height="28" rx="6" fill="#1e293b" stroke="#fb7185" stroke-width="1"/>
+                <text x="185" y="72" fill="#fb7185" font-size="9" font-family="monospace">04. Key:</text>
+                <text x="235" y="72" fill="#cbd5e1" font-size="9" font-family="monospace">sk-live-***</text>
+                <!-- Section 3 Body/Params -->
+                <rect x="25" y="88" width="290" height="72" rx="6" fill="#0f172a" stroke="#34d399" stroke-width="1"/>
+                <text x="35" y="104" fill="#34d399" font-size="9" font-family="monospace">03. Params / Body (JSON Payload):</text>
+                <text x="45" y="122" fill="#94a3b8" font-size="8.5" font-family="monospace">{ "location": "Taipei", "time": "tomorrow",</text>
+                <text x="45" y="136" fill="#94a3b8" font-size="8.5" font-family="monospace">  "elements": ["rain_prob", "temp"] }</text>
+                <text x="45" y="150" fill="#34d399" font-size="8" font-family="monospace">→ 無狀態傳輸：每次都要完整宣告</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 區段 4：Token 計算與無記憶性成本 (附 SVG 雪球圖 + Token 疊加計費器) -->
+        <div class="transcript-item bg-slate-900/80 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <span class="text-xs font-bold text-violet-400 flex items-center gap-1.5 uppercase tracking-wide">
+              <i class="ph-bold ph-coins text-violet-400 text-sm"></i> Chapter 04｜AI API 計費陷阱：Token 累積與雙錢包制度
+            </span>
+            <a href="https://www.youtube.com/watch?v=PAhpa2wsbeM&t=420s" target="_blank" rel="noopener noreferrer"
+               class="text-xs font-mono bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+              <i class="ph-fill ph-youtube-logo text-rose-500 text-sm"></i> 07:00 - 08:40
+            </a>
+          </div>
+
+          <div class="grid lg:grid-cols-12 gap-6 items-start">
+            <div class="lg:col-span-7 space-y-4">
+              <blockquote class="border-l-2 border-violet-500/60 pl-3.5 text-xs text-slate-400 italic">
+                原音重點：「AI 是按 Token 來收費的……第二個因為 API 沒有記憶，你想要它記得對話歷史，每次呼叫都得把前面的對話全部打包再送一次，聊越久每一句就越貴；第三，ChatGPT Plus 每月 20 美元跟 API 是兩個不同的錢包！」
+              </blockquote>
+              <p class="text-slate-300 leading-relaxed text-xs sm:text-sm">
+                許多新手最常納悶「我明明買了 ChatGPT Plus，為什麼寫程式呼叫 API 會報額度不足？」因為訂閱制吃到飽與開發者按量計費是兩個完全分開的帳戶錢包。另外歷史對話每次重送如同「滾雪球」，第 10 輪對話消耗的費用遠大於第 1 輪。
+              </p>
+
+              <!-- 互動小工具：對話輪次雪球成本體驗 -->
+              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400">目前對話輪次 (每輪疊加上下文)：</span>
+                  <span id="turns-label" class="font-mono text-violet-400 font-bold">第 5 輪</span>
+                </div>
+                <input id="turns-slider" type="range" min="1" max="20" value="5" 
+                       class="w-full accent-violet-500 cursor-pointer h-1.5 bg-slate-800 rounded-lg">
+                <div class="grid grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+                  <div class="p-2 rounded bg-slate-900 border border-slate-800 text-slate-300">
+                    單次傳輸 Token: <span id="token-accum" class="text-violet-400 font-bold">2,500</span>
+                  </div>
+                  <div class="p-2 rounded bg-slate-900 border border-slate-800 text-slate-300">
+                    累計 Token 總花費: <span id="token-cost-mult" class="text-emerald-400 font-bold">7.5x</span> 倍率
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SVG 視覺化圖表：對話滾雪球疊加效應 -->
+            <div class="lg:col-span-5 bg-slate-950 p-4 rounded-xl border border-slate-800/90 flex flex-col items-center">
+              <div class="text-[11px] font-mono text-slate-400 mb-2 self-start flex items-center gap-1">
+                <i class="ph-bold ph-chart-bar text-violet-400"></i> 對話歷史 Token「滾雪球」遞增模型
+              </div>
+              <svg viewBox="0 0 340 180" class="w-full h-auto max-w-[320px]">
+                <!-- Turn 1 -->
+                <rect x="20" y="20" width="50" height="24" rx="4" fill="#6366f1" opacity="0.9"/>
+                <text x="45" y="36" fill="#fff" font-size="9" text-anchor="middle">問答 1</text>
+                <text x="80" y="36" fill="#94a3b8" font-size="9">300 Tokens</text>
+
+                <!-- Turn 2 -->
+                <rect x="20" y="52" width="50" height="24" rx="4" fill="#6366f1" opacity="0.9"/>
+                <rect x="74" y="52" width="50" height="24" rx="4" fill="#8b5cf6" opacity="0.9"/>
+                <text x="99" y="68" fill="#fff" font-size="9" text-anchor="middle">問答 2</text>
+                <text x="135" y="68" fill="#94a3b8" font-size="9">700 Tokens</text>
+
+                <!-- Turn 3 -->
+                <rect x="20" y="84" width="50" height="24" rx="4" fill="#6366f1" opacity="0.9"/>
+                <rect x="74" y="84" width="50" height="24" rx="4" fill="#8b5cf6" opacity="0.9"/>
+                <rect x="128" y="84" width="60" height="24" rx="4" fill="#a855f7" opacity="0.9"/>
+                <text x="158" y="100" fill="#fff" font-size="9" text-anchor="middle">問答 3</text>
+                <text x="200" y="100" fill="#94a3b8" font-size="9">1,300 Tokens</text>
+
+                <!-- Turn 4 (Huge) -->
+                <rect x="20" y="116" width="50" height="24" rx="4" fill="#6366f1" opacity="0.9"/>
+                <rect x="74" y="116" width="50" height="24" rx="4" fill="#8b5cf6" opacity="0.9"/>
+                <rect x="128" y="116" width="60" height="24" rx="4" fill="#a855f7" opacity="0.9"/>
+                <rect x="192" y="116" width="70" height="24" rx="4" fill="#ec4899" opacity="0.9"/>
+                <text x="227" y="132" fill="#fff" font-size="9" text-anchor="middle">問答 4...</text>
+                <text x="272" y="132" fill="#f43f5e" font-weight="bold" font-size="9">2,100 Tokens</text>
+
+                <text x="20" y="165" fill="#f43f5e" font-size="9.5" font-weight="bold">⚠️ 結論：第 4 句呼叫要為前 3 句的歷史重複買單！</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 區段 5：金鑰外洩防護 (附 SVG 前後端防護盾 + 假代碼 F12 檢測器) -->
+        <div class="transcript-item bg-slate-900/80 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5 uppercase tracking-wide">
+              <i class="ph-bold ph-shield-check text-emerald-400 text-sm"></i> Chapter 05｜金鑰防洩守則：前端絕不可見
+            </span>
+            <a href="https://www.youtube.com/watch?v=PAhpa2wsbeM&t=521s" target="_blank" rel="noopener noreferrer"
+               class="text-xs font-mono bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+              <i class="ph-fill ph-youtube-logo text-rose-500 text-sm"></i> 08:41 - 10:50
+            </a>
+          </div>
+
+          <div class="grid lg:grid-cols-12 gap-6 items-start">
+            <div class="lg:col-span-7 space-y-4">
+              <blockquote class="border-l-2 border-emerald-500/60 pl-3.5 text-xs text-slate-400 italic">
+                原音重點：「程式在哪裡跑就決定了安不安全。前端是寄到每個打開網頁的人的瀏覽器裡跑的……只要按 F12 打開開發者工具就看得清清楚楚。所以花錢的 key 原則上永遠放後端！一旦發現外洩，第一件事是進後台『撤銷 (Revoke)』。」
+              </blockquote>
+              <p class="text-slate-300 leading-relaxed text-xs sm:text-sm">
+                資安業界鐵律：不要相信任何客戶端程式。即使你用混淆程式碼壓縮，前端依然可以直接在 Network 面板截取帶有 Authorization 標頭的金鑰。唯有使用後端伺服器作為代理（Proxy），配合環境變數與嚴格 Spending Limit，才能完全杜絕資安漏洞。
+              </p>
+
+              <!-- 互動防護盾切換驗證 -->
+              <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">點擊模擬兩種架構下的 F12 檢視結果：</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <button onclick="toggleF12Inspection('bad')" id="f12-bad-btn" class="p-2 rounded-lg bg-rose-950/40 border border-rose-800/80 text-rose-300 font-bold hover:bg-rose-900/40">
+                    ❌ 錯誤：Key 放前端
+                  </button>
+                  <button onclick="toggleF12Inspection('good')" id="f12-good-btn" class="p-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-emerald-300 hover:bg-slate-800">
+                    ✅ 正確：Key 封裝在後端
+                  </button>
+                </div>
+                <div id="f12-preview" class="p-3 bg-slate-900 rounded-lg border border-slate-800 font-mono text-[11px] text-rose-300">
+                  ⚠️ 警告！按下 F12 在 script.js 發現：const API_KEY = "sk-proj-984920491820491"; 所有人都能拿去狂刷！
+                </div>
+              </div>
+            </div>
+
+            <!-- SVG 視覺化圖表：前後端安全邊界架構 -->
+            <div class="lg:col-span-5 bg-slate-950 p-4 rounded-xl border border-slate-800/90 flex flex-col items-center">
+              <div class="text-[11px] font-mono text-slate-400 mb-2 self-start flex items-center gap-1">
+                <i class="ph-bold ph-lock-key text-emerald-400"></i> 前後端金鑰隔離防火牆架構
+              </div>
+              <svg viewBox="0 0 340 180" class="w-full h-auto max-w-[320px]">
+                <!-- Frontend Zone -->
+                <rect x="15" y="20" width="120" height="140" rx="8" fill="#1e293b" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="4,4"/>
+                <text x="75" y="40" fill="#fca5a5" font-size="11" font-weight="bold" text-anchor="middle">前端 (瀏覽器)</text>
+                <text x="75" y="55" fill="#94a3b8" font-size="8.5" text-anchor="middle">使用者可按 F12 檢視</text>
+                <rect x="25" y="75" width="100" height="30" rx="4" fill="#0f172a" stroke="#f43f5e" stroke-width="1"/>
+                <text x="75" y="94" fill="#f87171" font-size="9" text-anchor="middle">⛔ 絕對禁放 Key</text>
+
+                <!-- Secure Firewall -->
+                <line x1="155" y1="10" x2="155" y2="170" stroke="#10b981" stroke-width="2"/>
+                <text x="155" y="95" fill="#34d399" font-size="8" font-weight="bold" text-anchor="middle" transform="rotate(-90 155 95)">安全邊界 (Firewall)</text>
+
+                <!-- Backend Zone -->
+                <rect x="175" y="20" width="150" height="140" rx="8" fill="#064e3b" stroke="#10b981" stroke-width="1.5"/>
+                <text x="250" y="40" fill="#a7f3d0" font-size="11" font-weight="bold" text-anchor="middle">後端伺服器 (Node/Python)</text>
+                <rect x="185" y="55" width="130" height="30" rx="4" fill="#022c22" stroke="#34d399" stroke-width="1"/>
+                <text x="250" y="74" fill="#6ee7b7" font-size="9" font-family="monospace" text-anchor="middle">.env: AI_KEY=sk-***</text>
+                <!-- Proxy Arrow to OpenAI -->
+                <path d="M250 95 L250 120" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow)"/>
+                <rect x="195" y="125" width="110" height="24" rx="4" fill="#0f172a" stroke="#818cf8" stroke-width="1"/>
+                <text x="250" y="141" fill="#c7d2fe" font-size="8.5" text-anchor="middle">向 OpenAI 發起點餐</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 區段 6：AI Gateway 與智慧路由 (附 SVG 轉接頭圖 + 路由切換器) -->
+        <div class="transcript-item bg-slate-900/80 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <span class="text-xs font-bold text-indigo-400 flex items-center gap-1.5 uppercase tracking-wide">
+              <i class="ph-bold ph-git-fork text-indigo-400 text-sm"></i> Chapter 06｜多模型切換救星：AI Gateway 與智慧路由
+            </span>
+            <a href="https://www.youtube.com/watch?v=PAhpa2wsbeM&t=651s" target="_blank" rel="noopener noreferrer"
+               class="text-xs font-mono bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+              <i class="ph-fill ph-youtube-logo text-rose-500 text-sm"></i> 10:51 - 18:10
+            </a>
+          </div>
+
+          <div class="grid lg:grid-cols-12 gap-6 items-start">
+            <div class="lg:col-span-7 space-y-4">
+              <blockquote class="border-l-2 border-indigo-500/60 pl-3.5 text-xs text-slate-400 italic">
+                原音重點：「如果想同時用三家 AI 就等於要顧三倍的麻煩……所以出現了 Gateway 服務，就像出國用的萬用轉接頭！你永遠用同一個寫法點餐，它會幫你轉譯成每一家看得懂的格式。切換模型只要改一個名字，智慧路由還能自動幫你省錢 20~40%。」
+              </blockquote>
+              <p class="text-slate-300 leading-relaxed text-xs sm:text-sm">
+                AI Gateway 解決了現代 AI 開發的碎片化難題：不需要向 OpenAI、Anthropic、Google 逐一註冊信用卡，只要設定一組 `baseURL` 與統一金鑰。複雜任務由強大模型處理，一般分類整理則派發給每百萬 Token 不到 0.2 美元的開源模型。
+              </p>
+
+              <!-- 互動路由切換展示 -->
+              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <div class="text-slate-400 font-semibold">智慧路由 (Smart Routing) 自動派工試驗：</div>
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="testRoute('simple')" class="route-btn p-2 rounded-lg bg-indigo-950 border border-indigo-700 text-indigo-300 font-bold hover:bg-indigo-900/60">
+                    簡易整理/翻譯
+                  </button>
+                  <button onclick="testRoute('medium')" class="route-btn p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:bg-slate-800">
+                    邏輯對話
+                  </button>
+                  <button onclick="testRoute('hard')" class="route-btn p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:bg-slate-800">
+                    複雜代碼架構
+                  </button>
+                </div>
+                <div id="route-result-box" class="p-2.5 rounded bg-slate-900 border border-slate-800 text-slate-300 text-[11px] font-mono">
+                  ⚡ 智慧路由判斷：任務極為輕量 $\rightarrow$ 自動派遣 <span class="text-emerald-400 font-bold">DeepSeek V3</span> ($0.14/1M)，花費降低 95%！
+                </div>
+              </div>
+            </div>
+
+            <!-- SVG 視覺化圖表：AI Gateway 萬用轉接模型 -->
+            <div class="lg:col-span-5 bg-slate-950 p-4 rounded-xl border border-slate-800/90 flex flex-col items-center">
+              <div class="text-[11px] font-mono text-slate-400 mb-2 self-start flex items-center gap-1">
+                <i class="ph-bold ph-plugs-connected text-indigo-400"></i> AI Gateway 萬用轉接頭與動態分流圖
+              </div>
+              <svg viewBox="0 0 340 180" class="w-full h-auto max-w-[320px]">
+                <!-- Your App -->
+                <rect x="15" y="65" width="85" height="50" rx="8" fill="#1e1b4b" stroke="#818cf8" stroke-width="2"/>
+                <text x="57" y="88" fill="#e0e7ff" font-size="10" font-weight="bold" text-anchor="middle">你的應用程式</text>
+                <text x="57" y="103" fill="#94a3b8" font-size="8" font-family="monospace" text-anchor="middle">單一 SDK & Key</text>
+
+                <!-- Arrow -->
+                <path d="M102 90 L138 90" stroke="#818cf8" stroke-width="2"/>
+
+                <!-- Gateway -->
+                <rect x="140" y="30" width="75" height="120" rx="10" fill="#0f172a" stroke="#6366f1" stroke-width="2"/>
+                <text x="177" y="65" fill="#a5b4fc" font-size="11" font-weight="bold" text-anchor="middle">AI</text>
+                <text x="177" y="80" fill="#a5b4fc" font-size="11" font-weight="bold" text-anchor="middle">Gateway</text>
+                <text x="177" y="105" fill="#34d399" font-size="7.5" font-weight="bold" text-anchor="middle">萬用轉接頭</text>
+                <text x="177" y="125" fill="#cbd5e1" font-size="7" font-family="monospace" text-anchor="middle">Smart Router</text>
+
+                <!-- Model Targets -->
+                <path d="M217 60 L248 35" stroke="#38bdf8" stroke-width="1.5"/>
+                <rect x="250" y="20" width="75" height="26" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="1"/>
+                <text x="287" y="36" fill="#7dd3fc" font-size="8.5" text-anchor="middle">OpenAI GPT-4o</text>
+
+                <path d="M217 90 L248 90" stroke="#a855f7" stroke-width="1.5"/>
+                <rect x="250" y="77" width="75" height="26" rx="5" fill="#1e293b" stroke="#a855f7" stroke-width="1"/>
+                <text x="287" y="93" fill="#d8b4fe" font-size="8.5" text-anchor="middle">Claude 3.5</text>
+
+                <path d="M217 120 L248 145" stroke="#34d399" stroke-width="1.5"/>
+                <rect x="250" y="134" width="75" height="26" rx="5" fill="#1e293b" stroke="#34d399" stroke-width="1"/>
+                <text x="287" y="150" fill="#86efac" font-size="8.5" text-anchor="middle">DeepSeek (平價)</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁尾 -->
+  <footer class="border-t border-slate-900 py-8 text-center text-xs text-slate-500">
+    <p>改編自 Kelly Tsai 原創教學影片《白話拆解API到底是什麼？用AI前一定要搞懂！》</p>
+    <p class="mt-1">由 AI 輔助生成的互動式網頁教材</p>
+  </footer>
+
+  <!-- 模擬器邏輯 -->
+  <script>
+    // 逐字稿即時關鍵字搜尋過濾功能
+    const transcriptSearch = document.getElementById('transcript-search');
+    const transcriptItems = document.querySelectorAll('.transcript-item');
+
+    if (transcriptSearch) {
+      transcriptSearch.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        transcriptItems.forEach(item => {
+          const text = item.textContent.toLowerCase();
+          if (!query || text.includes(query)) {
+            item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // 逐字稿章節專屬微型互動邏輯：
+    // 1. 失控任務計算
+    const taskSlider = document.getElementById('task-slider');
+    const taskCountLabel = document.getElementById('task-count-label');
+    const taskCostLabel = document.getElementById('task-cost-label');
+    if (taskSlider) {
+      taskSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value);
+        taskCountLabel.textContent = `${val} 個任務`;
+        const costUSD = Math.round(val * 96);
+        const costTWD = Math.round(costUSD * 32);
+        taskCostLabel.textContent = `$${costUSD.toLocaleString()} 美元 (~NT$ ${costTWD.toLocaleString()})`;
+      });
+    }
+
+    // 2. 餐廳點餐窗口比喻切換
+    function inspectAnalogy(type) {
+      const box = document.getElementById('analogy-desc-box');
+      if (type === 'window') {
+        box.innerHTML = '<span class="text-sky-400 font-bold">① 點餐窗口 (API)：</span> 提供外部呼叫的具體端點管道。呼叫方不需要知道資料庫在哪或演算法如何執行，只需把點餐請求遞給窗口。';
+      } else if (type === 'menu') {
+        box.innerHTML = '<span class="text-emerald-400 font-bold">② 餐廳菜單 (API 文件)：</span> 雙方白紙黑字約定好的規則與格式。規定要用 GET 還是 POST、要傳遞台北市還是高雄市，如果格式錯誤窗口就會退單。';
+      } else if (type === 'card') {
+        box.innerHTML = '<span class="text-amber-400 font-bold">③ 記帳會員卡 (API Key)：</span> 直接綁定信用卡的授權證明。窗口完全「認卡不認人」，只要任何人出示這張會員卡，消費與呼叫量帳單全部計在你的頭上！';
+      }
+    }
+
+    // 3. 狀態碼速查測試
+    function inspectCode(code) {
+      const box = document.getElementById('code-result-box');
+      if (code === '401') {
+        box.innerHTML = '<span class="text-rose-400 font-bold">401 Unauthorized：</span> 「你的會員卡是假的或過期了！」請檢查 API Key 是否有錯字或已被後台 Revoke。';
+      } else if (code === '404') {
+        box.innerHTML = '<span class="text-blue-400 font-bold">404 Not Found：</span> 「地址寫錯了！」伺服器沒有這個 API 路徑，請檢查 URL 拼字。';
+      } else if (code === '429') {
+        box.innerHTML = '<span class="text-amber-400 font-bold">429 Too Many Requests：</span> 「你點太快了或錢包沒錢了！」達到 Rate Limit 或帳戶額度耗盡。';
+      } else if (code === '500') {
+        box.innerHTML = '<span class="text-purple-400 font-bold">500 Internal Server Error：</span> 「我們廚房自己失火了！」對方的伺服器當機或拋出未處理例外。';
+      } else if (code === '200') {
+        box.innerHTML = '<span class="text-emerald-400 font-bold">200 OK：</span> 「交易成功！」順利收到要求的 JSON 資料回傳。';
+      }
+    }
+
+    // 4. Token 滾雪球疊加試算
+    const turnsSlider = document.getElementById('turns-slider');
+    const turnsLabel = document.getElementById('turns-label');
+    const tokenAccum = document.getElementById('token-accum');
+    const tokenCostMult = document.getElementById('token-cost-mult');
+    if (turnsSlider) {
+      turnsSlider.addEventListener('input', (e) => {
+        const turns = parseInt(e.target.value);
+        turnsLabel.textContent = `第 ${turns} 輪`;
+        const singleToken = 300 + (turns - 1) * 450;
+        const totalAccumRatio = (1 + (turns * 0.8)).toFixed(1);
+        tokenAccum.textContent = singleToken.toLocaleString();
+        tokenCostMult.textContent = `${totalAccumRatio}x`;
+      });
+    }
+
+    // 5. 前後端 F12 檢驗切換
+    function toggleF12Inspection(type) {
+      const box = document.getElementById('f12-preview');
+      const badBtn = document.getElementById('f12-bad-btn');
+      const goodBtn = document.getElementById('f12-good-btn');
+      if (type === 'bad') {
+        badBtn.className = 'p-2 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 font-bold';
+        goodBtn.className = 'p-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-400';
+        box.innerHTML = '⚠️ <span class="text-rose-400 font-bold">漏洞曝光！</span>按下 F12 在 script.js 發現：<br/><code class="text-rose-200">const API_KEY = "sk-proj-8491820491820491";</code><br/>任何人打開瀏覽器都能拷貝並盜刷你的信用卡！';
+      } else {
+        goodBtn.className = 'p-2 rounded-lg bg-emerald-950/60 border border-emerald-800 text-emerald-300 font-bold';
+        badBtn.className = 'p-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-400';
+        box.innerHTML = '🛡️ <span class="text-emerald-400 font-bold">安全無虞！</span>前端 F12 只能看到：<br/><code class="text-emerald-200">fetch("/api/chat", { body: JSON.stringify({ prompt }) })</code><br/>真正的 API Key 封印在後端環境變數中，完全無法窺探！';
+      }
+    }
+
+    // 6. 智慧路由分流試驗
+    function testRoute(level) {
+      const box = document.getElementById('route-result-box');
+      if (level === 'simple') {
+        box.innerHTML = '⚡ 智慧路由判斷：任務極為輕量 $\\rightarrow$ 自動派遣 <span class="text-emerald-400 font-bold">DeepSeek V3 / GLM</span> ($0.14/1M)，花費節省高達 95%！';
+      } else if (level === 'medium') {
+        box.innerHTML = '🎯 智慧路由判斷：一般摘要與邏輯分析 $\\rightarrow$ 自動派遣 <span class="text-sky-400 font-bold">GPT-4o mini</span> ($0.15/1M)，性價比最平衡！';
+      } else if (level === 'hard') {
+        box.innerHTML = '🧠 智慧路由判斷：超複雜架構推理與代碼除錯 $\\rightarrow$ 自動派遣 <span class="text-purple-400 font-bold">Claude 3.5 Sonnet / Opus</span> ($3.00/1M)，確保頂級產出！';
+      }
+    }
+
+    const weatherData = {
+      Taipei: { rain_prob: 80, temp: 21, condition: "陰有短暫陣雨" },
+      Taichung: { rain_prob: 10, temp: 27, condition: "晴時多雲" },
+      Kaohsiung: { rain_prob: 5, temp: 29, condition: "晴朗炎熱" },
+      Hualien: { rain_prob: 60, temp: 23, condition: "多雲轉局部陣雨" }
+    };
+
+    const sendBtn = document.getElementById('sim-send-btn');
+    const citySelect = document.getElementById('sim-city');
+    const keyStatusSelect = document.getElementById('sim-key-status');
+    const modelSelect = document.getElementById('sim-model');
+
+    const statusBadge = document.getElementById('sim-status-badge');
+    const weatherJsonPre = document.getElementById('sim-weather-json');
+    const aiResultDiv = document.getElementById('sim-ai-result');
+    const tokensUsedSpan = document.getElementById('sim-tokens-used');
+    const latencySpan = document.getElementById('sim-latency');
+
+    sendBtn.addEventListener('click', () => {
+      const city = citySelect.value;
+      const keyStatus = keyStatusSelect.value;
+      const model = modelSelect.value;
+
+      // 模擬加載中
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> 請求處理中...';
+      statusBadge.textContent = 'CONNECTING...';
+      statusBadge.className = 'text-xs font-mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-400 border border-indigo-800';
+
+      const startTime = performance.now();
+
+      setTimeout(() => {
+        const endTime = performance.now();
+        const duration = Math.round(endTime - startTime) + Math.floor(Math.random() * 120 + 80);
+        latencySpan.textContent = `延遲: ${duration}ms`;
+
+        if (keyStatus === 'invalid') {
+          statusBadge.textContent = '401 UNAUTHORIZED';
+          statusBadge.className = 'text-xs font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800';
+          weatherJsonPre.textContent = JSON.stringify({
+            error: {
+              code: 401,
+              message: "Invalid API Key provided. Verify your authorization header."
+            }
+          }, null, 2);
+          aiResultDiv.innerHTML = '<span class="text-rose-400 font-semibold">❌ 呼叫失敗 (401)：金鑰無效或打錯！請至服務後台檢查 API Key 是否正確。</span>';
+          tokensUsedSpan.textContent = '消耗 Token: 0';
+        } else if (keyStatus === 'exceeded') {
+          statusBadge.textContent = '429 TOO MANY REQUESTS';
+          statusBadge.className = 'text-xs font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800';
+          weatherJsonPre.textContent = JSON.stringify({
+            error: {
+              code: 429,
+              message: "Quota exceeded or rate limit reached. Please check your billing dashboard."
+            }
+          }, null, 2);
+          aiResultDiv.innerHTML = '<span class="text-amber-400 font-semibold">⚠️ 呼叫失敗 (429)：額度已達上限或用量超標！請至後台確認扣款與用量限額。</span>';
+          tokensUsedSpan.textContent = '消耗 Token: 0';
+        } else {
+          // 成功 200 OK
+          statusBadge.textContent = '200 OK';
+          statusBadge.className = 'text-xs font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800';
+
+          const data = weatherData[city];
+          const rawResponse = {
+            location: city,
+            forecast_time: "Tomorrow",
+            precipitation_probability: `${data.rain_prob}%`,
+            temperature: `${data.temp}°C`,
+            summary: data.condition
+          };
+          weatherJsonPre.textContent = JSON.stringify(rawResponse, null, 2);
+
+          let advice = "";
+          if (data.rain_prob >= 50) {
+            advice = `明天${city}降雨機率高達 ${data.rain_prob}% (${data.condition})，出門務必記得隨身攜帶雨傘或雨衣！氣溫約 ${data.temp}°C。`;
+          } else {
+            advice = `明天${city}天氣相當不錯 (${data.condition})，降雨機率僅 ${data.rain_prob}%，出門不用帶傘，氣溫舒服約 ${data.temp}°C！`;
+          }
+
+          aiResultDiv.innerHTML = `<span class="text-emerald-300 font-medium">💬 [${model}] 人話轉譯：</span><br/>${advice}`;
+          
+          const simulatedTokens = Math.floor(Math.random() * 40 + 75);
+          tokensUsedSpan.textContent = `消耗 Token: ${simulatedTokens}`;
+        }
+
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<i class="ph-bold ph-paper-plane-tilt"></i> 送出 API 請求';
+      }, 500);
+    });
+  </script>
+</body>
+</html>

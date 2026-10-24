@@ -186,6 +186,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const turboStep = tool.tutorialSteps ? tool.tutorialSteps.find(s => s.step && (s.step.includes('Turbo Mode') || s.step.includes('Always Proceed'))) : null;
     const turboImgUrl = 'images_src/ok/20261006_antigravity_settings_turbo_mode.png';
 
+    // 檢查是否有獨立的 Remote Control 設定步驟
+    const remoteControlStep = tool.tutorialSteps ? tool.tutorialSteps.find(s => s.step && (s.step.includes('Remote Control') || s.step.includes('遠端遙控'))) : null;
+    const remoteControlImgUrl = 'images_src/ok/20261023_antigravity_remote_control.png';
+
     // 檢查是否有獨立的 Models & Usage 設定步驟
     const usageStep = tool.tutorialSteps ? tool.tutorialSteps.find(s => s.step && (s.step.includes('Models & Usage') || s.step.includes('模型額度'))) : null;
     const usageImgUrl = 'images_src/ok/20261006_antigravity_settings_models_usage.png';
@@ -252,6 +256,69 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     
+    
+    let remoteControlHighlightHtml = '';
+    if (remoteControlStep) {
+      remoteControlHighlightHtml = `
+        <!-- (2.55) 核心特寫：配置 Remote Control (跨裝置遠端遙控) 獨立專區 -->
+        <section class="section-card" style="border: 2px solid #8b5cf6; background: linear-gradient(145deg, rgba(139, 92, 246, 0.08), rgba(15, 23, 42, 0.6)); border-radius: 14px; padding: 22px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.2);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px dashed rgba(139, 92, 246, 0.4); padding-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <h3 class="section-title" style="margin-bottom: 0; border-bottom: none; color: #a78bfa; font-size: 1.15rem; display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-tower-broadcast" style="color: #a78bfa; font-size: 1.2rem;"></i>
+              <span>配置 Remote Control (跨裝置遠端遙控) 與行動協同</span>
+            </h3>
+            <span style="font-size: 0.75rem; background: rgba(139, 92, 246, 0.2); color: #c4b5fd; padding: 4px 12px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(139, 92, 246, 0.4);">
+              <i class="fa-solid fa-mobile-screen-button"></i> 跨裝置行動端即時連線中樞
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: center;">
+            <!-- 獨立圖片框 -->
+            <div style="border-radius: 10px; overflow: hidden; border: 1.5px solid rgba(139, 92, 246, 0.4); background: #0b0f19; box-shadow: 0 6px 16px rgba(0,0,0,0.3);">
+              <img src="${remoteControlImgUrl}" alt="啟用 Remote Control 跨裝置遠端遙控介面截圖" class="zoomable-img" style="width: 100%; display: block; cursor: zoom-in;" onerror="this.src='https://via.placeholder.com/600x300?text=Remote+Control+Settings'" />
+              <div style="padding: 8px 12px; font-size: 0.75rem; color: #94a3b8; text-align: center; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.06);">
+                <i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大檢視 Antigravity Remote Control 設定面板截圖
+              </div>
+            </div>
+
+            <!-- 獨立說明框 -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(139, 92, 246, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #8b5cf6;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-toggle-on" style="color: #a78bfa;"></i>
+                  <span>Enable Remote Control (開關啟用)</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  切換右側開關為 <strong style="color: #a78bfa; font-size: 0.95rem;">「開啟 (ON)」</strong>（顯示 <em>Work with local agents from another device</em>）：啟動本機專屬遠端代理安全通道，允許經由驗證的外部行動設備（手機、平板或遠端筆電）存取並接管本地 Agent。
+                </div>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #06b6d4;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-fingerprint" style="color: #06b6d4;"></i>
+                  <span>Device Name (裝置名稱識別與安全綁定)</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  顯示當前主機的唯一識別名稱（例如 <code style="background: rgba(0,0,0,0.4); padding: 2px 6px; border-radius: 4px; color: #67e8f9;">[masked]-planet</code>）：確保在工廠、實驗室或多工作站環境下，行動裝置能精確鎖定目標主機，防範遠端指令誤派。
+                </div>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #10b981;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-qrcode" style="color: #10b981;"></i>
+                  <span>QR Code 掃碼直連 & copy link 加密分享</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  • <strong style="color: #10b981;">QR Code 掃碼直連</strong>：使用手機或平板相機直接掃描右側條碼，免去手動輸入 IP 或 Token 的繁瑣流程，一秒開啟行動控制台。<br>
+                  • <strong style="color: #10b981;">copy link 安全連結</strong>：點擊複製專屬加密網址，可透過通訊軟體傳送給遠端協同開發者，隨時隨地監控 Agent 執行進度與下達提示詞。
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
     let geminiModelsHighlightHtml = '';
     if (tool.id === 'tool-gemini-models-thinking') {
       geminiModelsHighlightHtml = `
@@ -543,7 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tool.flowImage) {
       const rawImages = Array.isArray(tool.flowImage) ? tool.flowImage : [tool.flowImage];
       // 若已有獨立展示 Turbo Mode 與 Models & Usage 圖片，則在頂部通用畫廊中過濾掉，避免重複
-      const images = rawImages.filter(url => !url.includes('antigravity_settings_turbo_mode') && !url.includes('antigravity_settings_models_usage'));
+      const images = rawImages.filter(url => !url.includes('antigravity_settings_turbo_mode') && !url.includes('antigravity_settings_models_usage') && !url.includes('antigravity_remote_control'));
 
       const imgCardsHtml = images.map((imgUrl, index) => `
         <div class="image-wrapper" style="flex: 1; min-width: 280px; max-width: 100%;">
@@ -596,6 +663,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       <!-- (2.5) 獨立設定專區框框：Turbo Mode -->
       ${turboHighlightHtml}
+
+      <!-- (2.55) 獨立設定專區框框：Remote Control -->
+      ${remoteControlHighlightHtml}
 
       <!-- (2.6) 獨立設定專區框框：Models & Usage -->
       ${usageHighlightHtml}

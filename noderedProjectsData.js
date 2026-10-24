@@ -1,4 +1,4 @@
-// Node-RED 專題專區資料庫
+// Node-RED 實務專題離線快照資料庫 (自動產生)
 var INITIAL_NODERED_PROJECTS_DATA = [
   {
     "id": "nr-proj-01",
@@ -616,6 +616,18 @@ var INITIAL_NODERED_PROJECTS_DATA = [
       {
         "title": "MDN Web Docs - String.prototype.substr()",
         "url": "https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Global_Objects/String/substr"
+      },
+      {
+        "title": "資安必修指南：為什麼 API Key 外洩這麼嚴重？白話拆解與防護守則 (Kelly Tsai)",
+        "url": "supplements.html?id=sup-26"
+      },
+      {
+        "title": "互動手冊：白話拆解 API 與金鑰資安實戰手冊 (本機網頁)",
+        "url": "補充/為什麼API key外洩這麼嚴重？Kelly Tsai.html"
+      },
+      {
+        "title": "YouTube 原創影片：白話拆解 API 與 API Key 防洩指南 (Kelly Tsai)",
+        "url": "https://www.youtube.com/watch?v=PAhpa2wsbeM"
       }
     ]
   },
@@ -688,6 +700,18 @@ var INITIAL_NODERED_PROJECTS_DATA = [
       {
         "title": "交通部中央氣象署開放資料平臺首頁",
         "url": "https://opendata.cwa.gov.tw/"
+      },
+      {
+        "title": "資安必修指南：為什麼 API Key 外洩這麼嚴重？白話拆解與防護守則 (Kelly Tsai)",
+        "url": "supplements.html?id=sup-26"
+      },
+      {
+        "title": "互動手冊：白話拆解 API 與金鑰資安實戰手冊 (本機網頁)",
+        "url": "補充/為什麼API key外洩這麼嚴重？Kelly Tsai.html"
+      },
+      {
+        "title": "YouTube 原創影片：白話拆解 API 與 API Key 防洩指南 (Kelly Tsai)",
+        "url": "https://www.youtube.com/watch?v=PAhpa2wsbeM"
       }
     ]
   },
@@ -2668,13 +2692,8 @@ var INITIAL_NODERED_PROJECTS_DATA = [
     ]
   }
 ];
-var noderedProjectsData = INITIAL_NODERED_PROJECTS_DATA;
 
 if (typeof window !== 'undefined') {
-    window.INITIAL_NODERED_PROJECTS_DATA = INITIAL_NODERED_PROJECTS_DATA;
-    window.noderedProjectsData = INITIAL_NODERED_PROJECTS_DATA;
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = INITIAL_NODERED_PROJECTS_DATA;
+  window.INITIAL_NODERED_PROJECTS_DATA = INITIAL_NODERED_PROJECTS_DATA;
+  window.noderedProjectsData = INITIAL_NODERED_PROJECTS_DATA;
 }
