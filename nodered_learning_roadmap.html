@@ -953,6 +953,172 @@
       height: auto;
     }
 
+  
+    /* ========== Mermaid 縮放與檢視控制樣式 ========== */
+    .roadmap-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #f1f5f9;
+      transition: all 0.2s ease;
+      user-select: none;
+      text-decoration: none;
+    }
+
+    .tool-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: rgba(56, 189, 248, 0.6);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .tool-btn:active {
+      transform: translateY(1px);
+    }
+
+    .tool-btn.zoom-in-btn {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(234, 88, 12, 0.35));
+      border-color: rgba(245, 158, 11, 0.7);
+      color: #fbbf24;
+      box-shadow: 0 2px 10px rgba(245, 158, 11, 0.25);
+    }
+
+    .tool-btn.zoom-in-btn:hover {
+      background: linear-gradient(135deg, #d97706, #ea580c);
+      color: #fff;
+    }
+
+    .tool-btn.fullscreen-btn {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(2, 132, 199, 0.3));
+      border-color: rgba(6, 182, 212, 0.7);
+      color: #38bdf8;
+    }
+
+    .tool-btn.fullscreen-btn:hover {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: #fff;
+    }
+
+    .zoom-pct-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #38bdf8;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 6px 12px;
+      border-radius: 8px;
+      min-width: 62px;
+      text-align: center;
+      display: inline-block;
+    }
+
+    /* 滾動畫布容器 */
+    .mindmap-scroll-viewport {
+      width: 100%;
+      min-height: 580px;
+      max-height: 720px;
+      overflow: auto;
+      background: #070c18;
+      border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.7);
+      position: relative;
+      cursor: grab;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(56, 189, 248, 0.4) rgba(15, 23, 42, 0.8);
+    }
+
+    .mindmap-scroll-viewport.is-dragging {
+      cursor: grabbing !important;
+    }
+
+    .mindmap-scroll-viewport::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    .mindmap-scroll-viewport::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 6px;
+    }
+    .mindmap-scroll-viewport::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.35);
+      border-radius: 6px;
+    }
+    .mindmap-scroll-viewport::-webkit-scrollbar-thumb:hover {
+      background: rgba(56, 189, 248, 0.6);
+    }
+
+    /* Mermaid SVG 渲染容器 */
+    #roadmap-mermaid {
+      display: inline-block;
+      min-width: 100%;
+      text-align: center;
+      transition: width 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    #roadmap-mermaid svg {
+      margin: 0 auto;
+      display: block;
+      transition: width 0.2s cubic-bezier(0.2, 0, 0, 1), transform 0.2s ease;
+    }
+
+    /* 全螢幕模式 (Modal Lightbox) */
+    .mindmap-lightbox-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(4, 7, 15, 0.96);
+      backdrop-filter: blur(12px);
+      z-index: 999999;
+      padding: 20px;
+      box-sizing: border-box;
+      flex-direction: column;
+    }
+
+    .mindmap-lightbox-modal.is-active {
+      display: flex;
+    }
+
+    .lightbox-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: rgba(13, 21, 39, 0.95);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .lightbox-body {
+      flex: 1;
+      overflow: auto;
+      background: #070c18;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+    }
+
   </style>
 </head>
 <body>
@@ -1043,46 +1209,48 @@
           </div>
         </div>
 
-        <div>
-          <button onclick="copyMermaidRoadmap()" class="nav-btn" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);">
-            <i class="fa-solid fa-copy"></i> 複製修煉代碼
+        <!-- 縮放與操作工具列 (直接置頂於標題右側) -->
+        <div class="roadmap-toolbar">
+          <button onclick="zoomMermaidStep(0.25)" class="tool-btn zoom-in-btn" title="放大尺寸 (+25%)">
+            <i class="fa-solid fa-magnifying-glass-plus"></i> 放大
+          </button>
+          <button onclick="zoomMermaidStep(-0.25)" class="tool-btn" title="縮小尺寸 (-25%)">
+            <i class="fa-solid fa-magnifying-glass-minus"></i> 縮小
+          </button>
+          <span class="zoom-pct-tag" id="zoomPercentTag">100%</span>
+          <button onclick="setZoomRatio(1.0)" class="tool-btn" title="還原 100% 標準比例">
+            <i class="fa-solid fa-rotate-right"></i> 100%
+          </button>
+          <button onclick="setZoomRatio(1.5)" class="tool-btn" style="color: #67e8f9; border-color: rgba(6, 182, 212, 0.4);" title="放大至 150% 清楚大字模式">
+            <i class="fa-solid fa-font"></i> 150%大字
+          </button>
+          <button onclick="setZoomRatio(2.0)" class="tool-btn" style="color: #a7f3d0; border-color: rgba(16, 185, 129, 0.4);" title="放大至 200% 超特寫模式">
+            <i class="fa-solid fa-maximize"></i> 200%特大
+          </button>
+          <button onclick="openRoadmapLightbox()" class="tool-btn fullscreen-btn" title="以沉浸式全螢幕大燈箱檢視">
+            <i class="fa-solid fa-expand"></i> 全螢幕檢視
+          </button>
+          <button onclick="copyMermaidRoadmap()" class="tool-btn" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);">
+            <i class="fa-solid fa-copy"></i> 複製代碼
           </button>
         </div>
       </div>
 
-      <!-- Mermaid 繪製 (含 Pan & Zoom 縮放與全螢幕視口) -->
-      <div class="mindmap-outer-container" id="mindmapOuter">
-        <!-- 縮放控制按鈕列 -->
-        <div class="mindmap-controls-bar">
-          <div class="zoom-hint-badge">
-            <i class="fa-solid fa-arrows-up-down-left-right text-cyan-400"></i>
-            <span>滑鼠操作：<span class="key-pill">滾輪</span>自由放大縮小 • <span class="key-pill">按住左鍵</span>平移拖曳</span>
-          </div>
-
-          <div class="zoom-btn-group">
-            <button class="zoom-btn" onclick="zoomInMermaid()" title="放大 (+25%)">
-              <i class="fa-solid fa-magnifying-glass-plus"></i> 放大
-            </button>
-            <button class="zoom-btn" onclick="zoomOutMermaid()" title="縮小 (-25%)">
-              <i class="fa-solid fa-magnifying-glass-minus"></i> 縮小
-            </button>
-            <span class="zoom-level-text" id="zoomLevelDisplay">100%</span>
-            <button class="zoom-btn" onclick="zoomResetMermaid()" title="重置為原始 100%">
-              <i class="fa-solid fa-rotate-right"></i> 100%
-            </button>
-            <button class="zoom-btn" onclick="zoomFitWidth()" title="調整為最適寬度">
-              <i class="fa-solid fa-arrows-to-dot"></i> 最適大小
-            </button>
-            <button class="zoom-btn highlight" id="fullscreenToggleBtn" onclick="toggleFullscreenMermaid()" title="進入全螢幕沉浸模式">
-              <i class="fa-solid fa-expand"></i> 全螢幕
-            </button>
-          </div>
+      <!-- 操作提示列 -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; margin-bottom: 12px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; font-size: 0.84rem; color: #94a3b8; flex-wrap: wrap; gap: 8px;">
+        <div>
+          <i class="fa-solid fa-circle-info text-cyan-400"></i>
+          <span>圖形瀏覽技巧：可點擊上方<strong>「放大 / 150% / 200%」</strong>自由擴展，並可<strong>在框內以滑鼠滾輪滾動、按住滑鼠左鍵任意拖曳</strong>！</span>
         </div>
+        <div style="color: #cbd5e1;">
+          <span style="display: inline-block; width: 8px; height: 8px; background: #10b981; border-radius: 50%; margin-right: 4px;"></span>
+          點擊圖中節點可直接跳轉單元
+        </div>
+      </div>
 
-        <!-- 視口 Viewport 與平移縮放變形層 -->
-        <div class="mindmap-viewport" id="mindmapViewport">
-          <div class="mindmap-transform-layer" id="mindmapLayer">
-            <div class="mermaid" id="roadmap-mermaid">
+      <!-- 滾動檢視視口 (可滾動、可拖曳平移) -->
+      <div class="mindmap-scroll-viewport" id="roadmapScrollViewport">
+        <div class="mermaid" id="roadmap-mermaid">
 flowchart TD
     Start(["🌱 新手起點：機電工程師 / 軟體初學者"]):::startStyle
 
@@ -1137,11 +1305,34 @@ flowchart TD
     classDef s4Style fill:#78350f,stroke:#f59e0b,stroke-width:2px,color:#fde68a,font-weight:bold;
     classDef s5Style fill:#881337,stroke:#ef4444,stroke-width:2px,color:#fecdd3,font-weight:bold;
     classDef s6Style fill:#7c2d12,stroke:#ea580c,stroke-width:3px,color:#ffedd5,font-weight:bold;
-            </div>
-          </div>
         </div>
       </div>
     </section>
+
+    <!-- 全螢幕大燈箱彈窗 (Lightbox Modal) -->
+    <div class="mindmap-lightbox-modal" id="roadmapLightboxModal">
+      <div class="lightbox-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 1.2rem; font-weight: 800; color: #fff;">
+            <i class="fa-solid fa-expand text-cyan-400"></i> 修煉進階路徑圖 - 全螢幕沉浸檢視
+          </div>
+          <span class="zoom-pct-tag" id="lightboxZoomTag">150%</span>
+        </div>
+        <div class="roadmap-toolbar">
+          <button onclick="lightboxZoomStep(0.25)" class="tool-btn zoom-in-btn"><i class="fa-solid fa-magnifying-glass-plus"></i> 放大</button>
+          <button onclick="lightboxZoomStep(-0.25)" class="tool-btn"><i class="fa-solid fa-magnifying-glass-minus"></i> 縮小</button>
+          <button onclick="setLightboxScale(1.0)" class="tool-btn">100%</button>
+          <button onclick="setLightboxScale(1.5)" class="tool-btn">150%</button>
+          <button onclick="setLightboxScale(2.0)" class="tool-btn">200%</button>
+          <button onclick="closeRoadmapLightbox()" class="tool-btn" style="background: rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.6); color: #fca5a5; font-size: 0.92rem; padding: 7px 16px;">
+            <i class="fa-solid fa-xmark"></i> 關閉全螢幕 (ESC)
+          </button>
+        </div>
+      </div>
+      <div class="lightbox-body" id="lightboxBody">
+        <div id="lightboxMermaidContent"></div>
+      </div>
+    </div>
 
     <!-- 區塊二：六維能力雷達對比 (新手 vs 老手) -->
     <section class="section-box">
@@ -1982,224 +2173,170 @@ flowchart TD
   </footer>
 
   <script>
-    // 初始化 Mermaid (關閉 useMaxWidth，以提供向量高解析度無損縮放)
+        // ==================== Mermaid 初始化與向量縮放引擎 ====================
+    let currentZoomRatio = 1.0;
+    let baseSvgWidth = 0;
+
     mermaid.initialize({
       startOnLoad: true,
       theme: 'dark',
       securityLevel: 'loose',
       flowchart: {
-        useMaxWidth: false,
+        useMaxWidth: false, // 關鍵：解除 Mermaid 預設 max-width 壓縮
         htmlLabels: true,
         curve: 'basis'
       }
     });
 
-    // ==================== Pan & Zoom 縮放平移引擎 ====================
-    let zoomScale = 1.0;
-    let panX = 40;
-    let panY = 20;
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
-    let hasMoved = false;
-
-    const viewport = document.getElementById('mindmapViewport');
-    const layer = document.getElementById('mindmapLayer');
-    const zoomText = document.getElementById('zoomLevelDisplay');
-    const outerBox = document.getElementById('mindmapOuter');
-
-    function updateTransform(useTransition = true) {
-      if (useTransition) {
-        layer.style.transition = 'transform 0.18s cubic-bezier(0.2, 0, 0, 1)';
-      } else {
-        layer.style.transition = 'none';
-      }
-      layer.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomScale})`;
-      if (zoomText) {
-        zoomText.textContent = Math.round(zoomScale * 100) + '%';
-      }
-    }
-
-    // 放大
-    function zoomInMermaid() {
-      if (zoomScale < 3.0) {
-        zoomScale = Math.min(3.0, +(zoomScale + 0.2).toFixed(2));
-        updateTransform(true);
-      }
-    }
-
-    // 縮小
-    function zoomOutMermaid() {
-      if (zoomScale > 0.35) {
-        zoomScale = Math.max(0.35, +(zoomScale - 0.2).toFixed(2));
-        updateTransform(true);
-      }
-    }
-
-    // 重置 100%
-    function zoomResetMermaid() {
-      zoomScale = 1.0;
-      panX = 40;
-      panY = 20;
-      updateTransform(true);
-    }
-
-    // 最適寬度
-    function zoomFitWidth() {
+    // 取得或初始化 SVG 基準寬度
+    function initSvgWidth() {
       const svg = document.querySelector('#roadmap-mermaid svg');
-      if (svg && viewport) {
-        const svgWidth = svg.getBoundingClientRect().width / zoomScale;
-        const vpWidth = viewport.clientWidth - 80;
-        if (svgWidth > 0 && vpWidth > 0) {
-          zoomScale = Math.max(0.4, Math.min(1.8, +(vpWidth / svgWidth).toFixed(2)));
-          panX = Math.max(20, Math.round((viewport.clientWidth - svgWidth * zoomScale) / 2));
-          panY = 20;
-          updateTransform(true);
+      if (svg) {
+        svg.style.maxWidth = 'none';
+        svg.style.height = 'auto';
+        if (!baseSvgWidth || baseSvgWidth < 300) {
+          const rect = svg.getBoundingClientRect();
+          baseSvgWidth = rect.width > 0 ? rect.width : 1100;
         }
-      } else {
-        zoomResetMermaid();
       }
     }
 
-    // 全螢幕切換
-    function toggleFullscreenMermaid() {
-      const btn = document.getElementById('fullscreenToggleBtn');
-      if (!outerBox) return;
+    // 核心縮放函式：直接動態設定 SVG 物理像素寬度，達成 100% 銳利向量放大！
+    function applyRoadmapZoom(scale) {
+      initSvgWidth();
+      const svg = document.querySelector('#roadmap-mermaid svg');
+      const tag = document.getElementById('zoomPercentTag');
+      if (!svg || !baseSvgWidth) return;
 
-      if (!outerBox.classList.contains('is-fullscreen')) {
-        outerBox.classList.add('is-fullscreen');
-        if (btn) btn.innerHTML = '<i class="fa-solid fa-compress"></i> 退出全螢幕';
-        document.body.style.overflow = 'hidden';
-      } else {
-        outerBox.classList.remove('is-fullscreen');
-        if (btn) btn.innerHTML = '<i class="fa-solid fa-expand"></i> 全螢幕';
-        document.body.style.overflow = '';
+      currentZoomRatio = Math.max(0.4, Math.min(3.0, +scale.toFixed(2)));
+      const newWidth = Math.round(baseSvgWidth * currentZoomRatio);
+      
+      svg.style.maxWidth = 'none';
+      svg.style.width = newWidth + 'px';
+      svg.style.height = 'auto';
+
+      if (tag) {
+        tag.textContent = Math.round(currentZoomRatio * 100) + '%';
       }
-      setTimeout(zoomFitWidth, 120);
     }
 
-    // ESC 鍵退出全螢幕
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && outerBox && outerBox.classList.contains('is-fullscreen')) {
-        toggleFullscreenMermaid();
-      }
-    });
+    // 步進縮放 (+ / -)
+    function zoomMermaidStep(delta) {
+      applyRoadmapZoom(currentZoomRatio + delta);
+    }
 
-    // 滑鼠拖曳 (Drag to Pan)
+    // 指定倍率 (1.0, 1.5, 2.0)
+    function setZoomRatio(ratio) {
+      applyRoadmapZoom(ratio);
+    }
+
+    // ==================== 滑鼠按住拖曳平移 (Pan) ====================
+    const viewport = document.getElementById('roadmapScrollViewport');
     if (viewport) {
+      let isDown = false;
+      let startX, startY, scrollLeft, scrollTop;
+      let movedDistance = 0;
+
       viewport.addEventListener('mousedown', (e) => {
-        // 如果點擊的是按鈕或選取項目，不觸發拖曳
-        if (e.target.closest('button') || e.target.closest('.mindmap-controls-bar')) return;
-        isDragging = true;
-        hasMoved = false;
-        startX = e.clientX - panX;
-        startY = e.clientY - panY;
-        viewport.classList.add('grabbing');
-        updateTransform(false);
+        // 若點擊的是超連結文字，不啟動拖曳
+        if (e.target.closest('a')) return;
+        isDown = true;
+        movedDistance = 0;
+        viewport.classList.add('is-dragging');
+        startX = e.pageX - viewport.offsetLeft;
+        startY = e.pageY - viewport.offsetTop;
+        scrollLeft = viewport.scrollLeft;
+        scrollTop = viewport.scrollTop;
       });
 
       window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        const currentPanX = e.clientX - startX;
-        const currentPanY = e.clientY - startY;
-
-        // 如果移動超過 5px 算拖曳，避免誤觸節點連結
-        if (Math.abs(currentPanX - panX) > 5 || Math.abs(currentPanY - panY) > 5) {
-          hasMoved = true;
-        }
-        panX = currentPanX;
-        panY = currentPanY;
-        updateTransform(false);
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - viewport.offsetLeft;
+        const y = e.pageY - viewport.offsetTop;
+        const walkX = (x - startX) * 1.5;
+        const walkY = (y - startY) * 1.5;
+        movedDistance += Math.abs(walkX) + Math.abs(walkY);
+        viewport.scrollLeft = scrollLeft - walkX;
+        viewport.scrollTop = scrollTop - walkY;
       });
 
       window.addEventListener('mouseup', () => {
-        if (isDragging) {
-          isDragging = false;
-          if (viewport) viewport.classList.remove('grabbing');
+        if (isDown) {
+          isDown = false;
+          if (viewport) viewport.classList.remove('is-dragging');
         }
       });
 
-      // 攔截拖曳時的點擊事件，避免跳轉
+      // 避免拖曳時誤觸發超連結跳轉
       viewport.addEventListener('click', (e) => {
-        if (hasMoved) {
+        if (movedDistance > 10) {
           e.preventDefault();
           e.stopPropagation();
-          hasMoved = false;
         }
       }, true);
 
-      // 滑鼠滾輪縮放 (Zoom at mouse position)
+      // 支援滑鼠滾輪在 Ctrl 下或 Shift 下縮放，或直接滾輪縮放
       viewport.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        const rect = viewport.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        const delta = e.deltaY < 0 ? 0.15 : -0.15;
-        const newScale = Math.min(3.0, Math.max(0.35, +(zoomScale + delta).toFixed(2)));
-
-        if (newScale !== zoomScale) {
-          // 以滑鼠為中心縮放
-          panX = mouseX - (mouseX - panX) * (newScale / zoomScale);
-          panY = mouseY - (mouseY - panY) * (newScale / zoomScale);
-          zoomScale = newScale;
-          updateTransform(true);
+        if (e.ctrlKey) {
+          e.preventDefault();
+          const delta = e.deltaY < 0 ? 0.15 : -0.15;
+          applyRoadmapZoom(currentZoomRatio + delta);
         }
       }, { passive: false });
-
-      // 行動端雙指縮放與拖曳觸控支援
-      let touchStartX = 0;
-      let touchStartY = 0;
-      let initialDist = 0;
-      let initialScale = 1;
-
-      viewport.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 1) {
-          isDragging = true;
-          hasMoved = false;
-          touchStartX = e.touches[0].clientX - panX;
-          touchStartY = e.touches[0].clientY - panY;
-        } else if (e.touches.length === 2) {
-          isDragging = false;
-          initialDist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
-          initialScale = zoomScale;
-        }
-      }, { passive: true });
-
-      viewport.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 1 && isDragging) {
-          panX = e.touches[0].clientX - touchStartX;
-          panY = e.touches[0].clientY - touchStartY;
-          hasMoved = true;
-          updateTransform(false);
-        } else if (e.touches.length === 2 && initialDist > 0) {
-          const currentDist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
-          const factor = currentDist / initialDist;
-          zoomScale = Math.min(3.0, Math.max(0.35, +(initialScale * factor).toFixed(2)));
-          updateTransform(false);
-        }
-      }, { passive: true });
-
-      viewport.addEventListener('touchend', () => {
-        isDragging = false;
-        initialDist = 0;
-      }, { passive: true });
     }
 
-    // 當 Mermaid 繪製完成後，自動執行一次最適縮放
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        zoomFitWidth();
-      }, 400);
+    // ==================== 全螢幕大燈箱 (Lightbox Modal) ====================
+    let lightboxScale = 1.5;
+
+    function openRoadmapLightbox() {
+      const modal = document.getElementById('roadmapLightboxModal');
+      const content = document.getElementById('lightboxMermaidContent');
+      const originSvg = document.querySelector('#roadmap-mermaid svg');
+
+      if (!modal || !content || !originSvg) return;
+
+      // 複製一份 SVG 到燈箱
+      content.innerHTML = originSvg.outerHTML;
+      modal.classList.add('is-active');
+      document.body.style.overflow = 'hidden';
+
+      setLightboxScale(1.5);
+    }
+
+    function closeRoadmapLightbox() {
+      const modal = document.getElementById('roadmapLightboxModal');
+      if (modal) {
+        modal.classList.remove('is-active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function setLightboxScale(scale) {
+      const svg = document.querySelector('#lightboxMermaidContent svg');
+      const tag = document.getElementById('lightboxZoomTag');
+      if (!svg || !baseSvgWidth) return;
+
+      lightboxScale = Math.max(0.5, Math.min(3.5, +scale.toFixed(2)));
+      svg.style.maxWidth = 'none';
+      svg.style.width = Math.round(baseSvgWidth * lightboxScale) + 'px';
+      svg.style.height = 'auto';
+
+      if (tag) tag.textContent = Math.round(lightboxScale * 100) + '%';
+    }
+
+    function lightboxZoomStep(delta) {
+      setLightboxScale(lightboxScale + delta);
+    }
+
+    // ESC 鍵關閉燈箱
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeRoadmapLightbox();
+      }
     });
 
-    // 複製 Mermaid 代碼功能
+    // 複製代碼
     function copyMermaidRoadmap() {
       const code = `flowchart TD
     Start(["🌱 新手起點：機電工程師 / 軟體初學者"])
@@ -2217,106 +2354,19 @@ flowchart TD
       });
     }
 
-    // 計算自測檢定儀分數與段位稱號
-    function calcCombatPower() {
-      const checkboxes = document.querySelectorAll('.audit-cb');
-      let checked = 0;
-      checkboxes.forEach(cb => {
-        if (cb.checked) checked++;
-      });
-
-      // 總分 100 分 (每題約 4.166 分)
-      const score = Math.round((checked / checkboxes.length) * 100);
-      const pct = Math.round((checked / checkboxes.length) * 100);
-
-      document.getElementById('combat-score').textContent = score;
-      document.getElementById('checked-count').textContent = checked;
-      document.getElementById('progress-pct').textContent = pct + '%';
-
-      // 判定段位稱號
-      const rankTitle = document.getElementById('combat-rank-name');
-      const rankBadge = document.getElementById('combat-rank-badge');
-
-      if (score === 0) {
-        rankTitle.textContent = '工控初探者 (Novice)';
-        rankBadge.innerHTML = '<i class="fa-solid fa-seedling"></i> 修為評級：Level 1 啟蒙階段';
-        rankBadge.style.background = 'rgba(100, 116, 139, 0.2)';
-        rankBadge.style.color = '#cbd5e1';
-      } else if (score <= 20) {
-        rankTitle.textContent = '流程入門學徒 (Apprentice)';
-        rankBadge.innerHTML = '<i class="fa-solid fa-leaf"></i> 修為評級：Level 1 破除心魔';
-        rankBadge.style.background = 'rgba(16, 185, 129, 0.2)';
-        rankBadge.style.color = '#34d399';
-      } else if (score <= 40) {
-        rankTitle.textContent = '現場通訊行者 (OT Specialist)';
-        rankBadge.innerHTML = '<i class="fa-solid fa-wrench"></i> 修為評級：Level 2 現場感知';
-        rankBadge.style.background = 'rgba(6, 182, 212, 0.2)';
-        rankBadge.style.color = '#38bdf8';
-      } else if (score <= 65) {
-        rankTitle.textContent = '戰情數據工匠 (Dashboard Craftsman)';
-        rankBadge.innerHTML = '<i class="fa-solid fa-chart-pie"></i> 修為評級：Level 3 數據沉澱';
-        rankBadge.style.background = 'rgba(168, 85, 247, 0.2)';
-        rankBadge.style.color = '#c084fc';
-      } else if (score <= 85) {
-        rankTitle.textContent = '雲端資安專家 (Cloud & Sec Expert)';
-        rankBadge.innerHTML = '<i class="fa-solid fa-shield-halved"></i> 修為評級：Level 4 跨網互聯';
-        rankBadge.style.background = 'rgba(245, 158, 11, 0.2)';
-        rankBadge.style.color = '#fbbf24';
-      } else if (score < 100) {
-        rankTitle.textContent = '智慧邊緣架構師 (Edge AI Architect)';
-        rankBadge.innerHTML = '<i class="fa-solid fa-robot"></i> 修為評級：Level 5 神經賦能';
-        rankBadge.style.background = 'rgba(239, 68, 68, 0.2)';
-        rankBadge.style.color = '#f87171';
-      } else {
-        rankTitle.textContent = '👑 傳奇工控大師 (Grandmaster)';
-        rankBadge.innerHTML = '<i class="fa-solid fa-crown"></i> 終極評級：Level 6 萬物閉環・工控大師！';
-        rankBadge.style.background = 'linear-gradient(135deg, #ea580c, #dc2626)';
-        rankBadge.style.color = '#fff';
-      }
-
-      // 保存進度至 localStorage
-      saveAuditProgress();
-    }
-
-    // 保存勾選進度
-    function saveAuditProgress() {
-      const cbs = document.querySelectorAll('.audit-cb');
-      const states = Array.from(cbs).map(cb => cb.checked);
-      try {
-        localStorage.setItem('nodered_learning_roadmap_audit', JSON.stringify(states));
-      } catch (e) {}
-    }
-
-    // 載入勾選進度
-    function loadAuditProgress() {
-      try {
-        const saved = localStorage.getItem('nodered_learning_roadmap_audit');
-        if (saved) {
-          const states = JSON.parse(saved);
-          const cbs = document.querySelectorAll('.audit-cb');
-          cbs.forEach((cb, idx) => {
-            if (states[idx] !== undefined) cb.checked = states[idx];
-          });
-          calcCombatPower();
+    // 頁面加載後初始化 SVG 寬度與微調
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        initSvgWidth();
+        // 預設給予最適寬度
+        const vp = document.getElementById('roadmapScrollViewport');
+        if (vp && baseSvgWidth) {
+          const fitRatio = Math.max(0.65, Math.min(1.2, +( (vp.clientWidth - 50) / baseSvgWidth ).toFixed(2)));
+          applyRoadmapZoom(fitRatio);
         }
-      } catch (e) {}
-    }
-
-    // 重置所有勾選
-    function resetAuditCheckboxes() {
-      if (confirm('確定要重置所有自測檢定項目的勾選進度嗎？')) {
-        document.querySelectorAll('.audit-cb').forEach(cb => cb.checked = false);
-        calcCombatPower();
-        try {
-          localStorage.removeItem('nodered_learning_roadmap_audit');
-        } catch (e) {}
-      }
-    }
-
-    // 頁面載入時自動還原進度
-    document.addEventListener('DOMContentLoaded', () => {
-      loadAuditProgress();
+      }, 350);
     });
-  </script>
+
+</script>
 </body>
 </html>

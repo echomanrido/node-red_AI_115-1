@@ -803,6 +803,110 @@
       height: auto;
     }
 
+  
+    /* ========== 心智圖縮放工具列 ========== */
+    .mindmap-header-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #f1f5f9;
+      transition: all 0.2s ease;
+      user-select: none;
+      text-decoration: none;
+    }
+
+    .tool-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: rgba(56, 189, 248, 0.6);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .tool-btn.zoom-in-btn {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.35), rgba(2, 132, 199, 0.35));
+      border-color: rgba(6, 182, 212, 0.7);
+      color: #38bdf8;
+    }
+
+    .tool-btn.zoom-in-btn:hover {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: #fff;
+    }
+
+    .zoom-pct-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #38bdf8;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 6px 12px;
+      border-radius: 8px;
+      min-width: 62px;
+      text-align: center;
+      display: inline-block;
+    }
+
+    .mindmap-scroll-viewport {
+      width: 100%;
+      min-height: 560px;
+      max-height: 720px;
+      overflow: auto;
+      background: #070c18;
+      border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.7);
+      position: relative;
+      cursor: grab;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(56, 189, 248, 0.4) rgba(15, 23, 42, 0.8);
+    }
+
+    .mindmap-scroll-viewport.is-dragging {
+      cursor: grabbing !important;
+    }
+
+    #mindmap-mermaid svg {
+      margin: 0 auto;
+      display: block;
+      transition: width 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    /* 燈箱 Modal */
+    .mindmap-lightbox-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(4, 7, 15, 0.96);
+      backdrop-filter: blur(12px);
+      z-index: 999999;
+      padding: 20px;
+      box-sizing: border-box;
+      flex-direction: column;
+    }
+
+    .mindmap-lightbox-modal.is-active {
+      display: flex;
+    }
+
   </style>
 </head>
 <body>
@@ -869,9 +973,29 @@
           </div>
         </div>
 
-        <div style="display: flex; gap: 10px;">
-          <button id="copy-mermaid-btn" onclick="copyMermaidCode()" class="nav-btn" style="background: rgba(6, 182, 212, 0.2); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);">
-            <i class="fa-solid fa-copy"></i> <span>複製 Mermaid 代碼</span>
+        <!-- 縮放與操作工具列 -->
+        <div class="mindmap-header-tools">
+          <button onclick="zoomMindmapStep(0.25)" class="tool-btn zoom-in-btn" title="放大尺寸 (+25%)">
+            <i class="fa-solid fa-magnifying-glass-plus"></i> 放大
+          </button>
+          <button onclick="zoomMindmapStep(-0.25)" class="tool-btn" title="縮小尺寸 (-25%)">
+            <i class="fa-solid fa-magnifying-glass-minus"></i> 縮小
+          </button>
+          <span class="zoom-pct-tag" id="mmZoomTag">100%</span>
+          <button onclick="setMindmapRatio(1.0)" class="tool-btn" title="還原 100% 標準比例">
+            <i class="fa-solid fa-rotate-right"></i> 100%
+          </button>
+          <button onclick="setMindmapRatio(1.5)" class="tool-btn" style="color: #67e8f9; border-color: rgba(6, 182, 212, 0.4);" title="放大至 150% 清楚大字模式">
+            <i class="fa-solid fa-font"></i> 150%大字
+          </button>
+          <button onclick="setMindmapRatio(2.0)" class="tool-btn" style="color: #a7f3d0; border-color: rgba(16, 185, 129, 0.4);" title="放大至 200% 超特寫模式">
+            <i class="fa-solid fa-maximize"></i> 200%特大
+          </button>
+          <button onclick="openMindmapLightbox()" class="tool-btn" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(2, 132, 199, 0.3)); border-color: rgba(6, 182, 212, 0.7); color: #38bdf8;" title="以沉浸式全螢幕大燈箱檢視">
+            <i class="fa-solid fa-expand"></i> 全螢幕檢視
+          </button>
+          <button id="copy-mermaid-btn" onclick="copyMermaidCode()" class="tool-btn" style="background: rgba(6, 182, 212, 0.2); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);">
+            <i class="fa-solid fa-copy"></i> <span>複製代碼</span>
           </button>
         </div>
       </div>
@@ -880,9 +1004,9 @@
       <div class="mindmap-toolbar">
         <div class="legend-row">
           <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 4px 12px; border-radius: 6px; font-weight: 800; font-size: 0.8rem; border: 1px solid rgba(16, 185, 129, 0.45); display: inline-flex; align-items: center; gap: 6px;">
-            <i class="fa-solid fa-hand-pointer animate-bounce"></i> 互動提示：點擊下方心智圖任一節點，即可直接跳轉對應單元！
+            <i class="fa-solid fa-hand-pointer"></i> 提示：點擊右上角「放大/150%/200%」可自由縮放，在框內按住滑鼠左鍵可任意拖曳畫布，點擊節點直達單元！
           </span>
-          <span style="color: #cbd5e1; font-weight: 700;">架構色標：</span>
+          <span style="color: #cbd5e1; font-weight: 700;">色標：</span>
           <div class="legend-item"><span class="legend-dot" style="background: #0284c7;"></span> 核心樞紐 (Root)</div>
           <div class="legend-item"><span class="legend-dot" style="background: #06b6d4;"></span> 實驗實作 (Labs)</div>
           <div class="legend-item"><span class="legend-dot" style="background: #38bdf8;"></span> 補充教材 (Guide)</div>
@@ -892,39 +1016,9 @@
         </div>
       </div>
 
-      <!-- Mermaid 繪製區 (含 Pan & Zoom 縮放與全螢幕視口) -->
-      <div class="mindmap-outer-container" id="mindmapOuter">
-        <!-- 縮放控制列 -->
-        <div class="mindmap-controls-bar">
-          <div class="zoom-hint-badge">
-            <i class="fa-solid fa-arrows-up-down-left-right text-cyan-400"></i>
-            <span>滑鼠操作：<span class="key-pill">滾輪</span>自由放大縮小 • <span class="key-pill">按住左鍵</span>平移拖曳</span>
-          </div>
-
-          <div class="zoom-btn-group">
-            <button class="zoom-btn" onclick="zoomInMermaid()" title="放大 (+25%)">
-              <i class="fa-solid fa-magnifying-glass-plus"></i> 放大
-            </button>
-            <button class="zoom-btn" onclick="zoomOutMermaid()" title="縮小 (-25%)">
-              <i class="fa-solid fa-magnifying-glass-minus"></i> 縮小
-            </button>
-            <span class="zoom-level-text" id="zoomLevelDisplay">100%</span>
-            <button class="zoom-btn" onclick="zoomResetMermaid()" title="重置為 100%">
-              <i class="fa-solid fa-rotate-right"></i> 100%
-            </button>
-            <button class="zoom-btn" onclick="zoomFitWidth()" title="調整為最適大小">
-              <i class="fa-solid fa-arrows-to-dot"></i> 最適大小
-            </button>
-            <button class="zoom-btn highlight" id="fullscreenToggleBtn" onclick="toggleFullscreenMermaid()" title="進入全螢幕沉浸模式">
-              <i class="fa-solid fa-expand"></i> 全螢幕
-            </button>
-          </div>
-        </div>
-
-        <!-- 視口 Viewport 與平移縮放變形層 -->
-        <div class="mindmap-viewport" id="mindmapViewport">
-          <div class="mindmap-transform-layer" id="mindmapLayer">
-            <div class="mermaid" id="mindmap-mermaid">
+      <!-- 滾動檢視視口 (可滾動、可拖曳平移) -->
+      <div class="mindmap-scroll-viewport" id="mmScrollViewport">
+        <div class="mermaid" id="mindmap-mermaid">
 flowchart LR
     Root["Node-RED 智慧控制模組<br/>(物聯網中樞・SCADA戰情室・IT/OT整合)"]:::rootStyle
 
@@ -1002,12 +1096,34 @@ flowchart LR
     click O1 href "project_opencart.html" "XAMPP Apache 與 MariaDB 基礎設施"
     click O2 href "opencart_interactive_lab.html" "OpenCart 26 步互動實驗室與 MES 排程"
     click O3 href "csharp_opencart_mes.html" "C# 串接 OpenCart 電商三大方案"
-
-            </div>
-          </div>
         </div>
       </div>
     </section>
+
+    <!-- 全螢幕大燈箱彈窗 (Lightbox Modal) -->
+    <div class="mindmap-lightbox-modal" id="mmLightboxModal">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(13, 21, 39, 0.95); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 1.2rem; font-weight: 800; color: #fff;">
+            <i class="fa-solid fa-expand text-cyan-400"></i> Node-RED 智慧控制模組 - 全景心智圖全螢幕檢視
+          </div>
+          <span class="zoom-pct-tag" id="mmLightboxZoomTag">150%</span>
+        </div>
+        <div class="mindmap-header-tools">
+          <button onclick="mmLightboxZoomStep(0.25)" class="tool-btn zoom-in-btn"><i class="fa-solid fa-magnifying-glass-plus"></i> 放大</button>
+          <button onclick="mmLightboxZoomStep(-0.25)" class="tool-btn"><i class="fa-solid fa-magnifying-glass-minus"></i> 縮小</button>
+          <button onclick="setMMLightboxScale(1.0)" class="tool-btn">100%</button>
+          <button onclick="setMMLightboxScale(1.5)" class="tool-btn">150%</button>
+          <button onclick="setMMLightboxScale(2.0)" class="tool-btn">200%</button>
+          <button onclick="closeMindmapLightbox()" class="tool-btn" style="background: rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.6); color: #fca5a5; font-size: 0.92rem; padding: 7px 16px;">
+            <i class="fa-solid fa-xmark"></i> 關閉全螢幕 (ESC)
+          </button>
+        </div>
+      </div>
+      <div style="flex: 1; overflow: auto; background: #070c18; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 30px; text-align: center;" id="mmLightboxBody">
+        <div id="mmLightboxMermaidContent"></div>
+      </div>
+    </div>
 
     <!-- 區塊二：五大子系統深度說明與入口跳轉 -->
     <section class="section-box">
@@ -1154,7 +1270,10 @@ flowchart LR
   </footer>
 
   <script>
-    // 初始化 Mermaid.js
+        // ==================== Mermaid 初始化與向量縮放引擎 ====================
+    let mmZoomRatio = 1.0;
+    let mmBaseWidth = 0;
+
     mermaid.initialize({
       startOnLoad: true,
       theme: 'dark',
@@ -1164,6 +1283,141 @@ flowchart LR
         htmlLabels: true,
         curve: 'basis'
       }
+    });
+
+    function initMindmapWidth() {
+      const svg = document.querySelector('#mindmap-mermaid svg');
+      if (svg) {
+        svg.style.maxWidth = 'none';
+        svg.style.height = 'auto';
+        if (!mmBaseWidth || mmBaseWidth < 300) {
+          const rect = svg.getBoundingClientRect();
+          mmBaseWidth = rect.width > 0 ? rect.width : 1150;
+        }
+      }
+    }
+
+    function applyMindmapZoom(scale) {
+      initMindmapWidth();
+      const svg = document.querySelector('#mindmap-mermaid svg');
+      const tag = document.getElementById('mmZoomTag');
+      if (!svg || !mmBaseWidth) return;
+
+      mmZoomRatio = Math.max(0.4, Math.min(3.0, +scale.toFixed(2)));
+      const newWidth = Math.round(mmBaseWidth * mmZoomRatio);
+
+      svg.style.maxWidth = 'none';
+      svg.style.width = newWidth + 'px';
+      svg.style.height = 'auto';
+
+      if (tag) tag.textContent = Math.round(mmZoomRatio * 100) + '%';
+    }
+
+    function zoomMindmapStep(delta) {
+      applyMindmapZoom(mmZoomRatio + delta);
+    }
+
+    function setMindmapRatio(ratio) {
+      applyMindmapZoom(ratio);
+    }
+
+    // 拖曳平移
+    const mmViewport = document.getElementById('mmScrollViewport');
+    if (mmViewport) {
+      let isDown = false;
+      let startX, startY, scrollLeft, scrollTop;
+      let movedDistance = 0;
+
+      mmViewport.addEventListener('mousedown', (e) => {
+        if (e.target.closest('a')) return;
+        isDown = true;
+        movedDistance = 0;
+        mmViewport.classList.add('is-dragging');
+        startX = e.pageX - mmViewport.offsetLeft;
+        startY = e.pageY - mmViewport.offsetTop;
+        scrollLeft = mmViewport.scrollLeft;
+        scrollTop = mmViewport.scrollTop;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - mmViewport.offsetLeft;
+        const y = e.pageY - mmViewport.offsetTop;
+        const walkX = (x - startX) * 1.5;
+        const walkY = (y - startY) * 1.5;
+        movedDistance += Math.abs(walkX) + Math.abs(walkY);
+        mmViewport.scrollLeft = scrollLeft - walkX;
+        mmViewport.scrollTop = scrollTop - walkY;
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isDown) {
+          isDown = false;
+          if (mmViewport) mmViewport.classList.remove('is-dragging');
+        }
+      });
+
+      mmViewport.addEventListener('click', (e) => {
+        if (movedDistance > 10) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }, true);
+    }
+
+    // 全螢幕大燈箱
+    let mmLightboxScale = 1.5;
+    function openMindmapLightbox() {
+      const modal = document.getElementById('mmLightboxModal');
+      const content = document.getElementById('mmLightboxMermaidContent');
+      const originSvg = document.querySelector('#mindmap-mermaid svg');
+      if (!modal || !content || !originSvg) return;
+
+      content.innerHTML = originSvg.outerHTML;
+      modal.classList.add('is-active');
+      document.body.style.overflow = 'hidden';
+      setMMLightboxScale(1.5);
+    }
+
+    function closeMindmapLightbox() {
+      const modal = document.getElementById('mmLightboxModal');
+      if (modal) {
+        modal.classList.remove('is-active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function setMMLightboxScale(scale) {
+      const svg = document.querySelector('#mmLightboxMermaidContent svg');
+      const tag = document.getElementById('mmLightboxZoomTag');
+      if (!svg || !mmBaseWidth) return;
+
+      mmLightboxScale = Math.max(0.5, Math.min(3.5, +scale.toFixed(2)));
+      svg.style.maxWidth = 'none';
+      svg.style.width = Math.round(mmBaseWidth * mmLightboxScale) + 'px';
+      svg.style.height = 'auto';
+
+      if (tag) tag.textContent = Math.round(mmLightboxScale * 100) + '%';
+    }
+
+    function mmLightboxZoomStep(delta) {
+      setMMLightboxScale(mmLightboxScale + delta);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMindmapLightbox();
+    });
+
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        initMindmapWidth();
+        const vp = document.getElementById('mmScrollViewport');
+        if (vp && mmBaseWidth) {
+          const fitRatio = Math.max(0.65, Math.min(1.2, +( (vp.clientWidth - 50) / mmBaseWidth ).toFixed(2)));
+          applyMindmapZoom(fitRatio);
+        }
+      }, 350);
     });
 
     // 複製 Mermaid 程式碼至剪貼簿
