@@ -707,6 +707,15 @@
       transition: all 0.2s ease;
     }
 
+    .audit-item.is-checked {
+      background: rgba(6, 182, 212, 0.12) !important;
+      border-color: rgba(6, 182, 212, 0.5) !important;
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.2) !important;
+    }
+    .audit-item.is-checked strong {
+      color: #67e8f9 !important;
+    }
+
     .audit-item:hover {
       background: rgba(255, 255, 255, 0.05);
       border-color: rgba(56, 189, 248, 0.4);
@@ -2557,7 +2566,135 @@ flowchart TD
       }
     });
 
+    
+    // ==================== 工控戰鬥力自測檢定儀核心邏輯 ====================
+    // 各題修為權重設定 (合計 1000 POWER 滿分)
+    const AUDIT_WEIGHTS = [
+      30, 30, 30, 30,  // Stage 1 (1~4 題)  = 120
+      35, 35, 35, 35,  // Stage 2 (5~8 題)  = 140
+      40, 40, 40, 40,  // Stage 3 (9~12 題) = 160
+      45, 45, 45, 45,  // Stage 4 (13~16 題)= 180
+      50, 50, 50, 50,  // Stage 5 (17~20 題)= 200
+      50, 50, 50, 50   // Stage 6 (21~24 題)= 200
+    ];
+
+    function calcCombatPower() {
+      const cbs = document.querySelectorAll('.audit-cb');
+      let score = 0;
+      let count = 0;
+      const states = [];
+
+      cbs.forEach((cb, idx) => {
+        const item = cb.closest('.audit-item');
+        if (cb.checked) {
+          count++;
+          score += (AUDIT_WEIGHTS[idx] || 40);
+          if (item) item.classList.add('is-checked');
+        } else {
+          if (item) item.classList.remove('is-checked');
+        }
+        states.push(cb.checked);
+      });
+
+      // 儲存至 localStorage，重整頁面不丟失
+      try {
+        localStorage.setItem('nodered_learning_roadmap_audit', JSON.stringify(states));
+      } catch (e) {}
+
+      // 更新介面元素
+      const scoreEl = document.getElementById('combat-score');
+      const countEl = document.getElementById('checked-count');
+      const progressEl = document.getElementById('progress-pct');
+      const rankNameEl = document.getElementById('combat-rank-name');
+      const rankBadgeEl = document.getElementById('combat-rank-badge');
+
+      if (scoreEl) scoreEl.textContent = score;
+      if (countEl) countEl.textContent = count;
+      if (progressEl) progressEl.textContent = Math.round((count / 24) * 100) + '%';
+
+      // 根據達成項目數與分數計算評級與頭銜
+      let rankName = '工控初探者 (Novice)';
+      let badgeHtml = '<i class="fa-solid fa-seedling"></i> 修為評級：Level 1 啟蒙階段';
+      let badgeColor = 'rgba(100, 116, 139, 0.2)';
+      let badgeTextColor = '#94a3b8';
+      let badgeBorder = 'rgba(100, 116, 139, 0.4)';
+
+      if (count >= 22) {
+        rankName = '工控閉環宗師 (Grandmaster)';
+        badgeHtml = '<i class="fa-solid fa-crown text-amber-400"></i> 修為評級：Level 6 萬物閉環・工控大師';
+        badgeColor = 'linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(234, 88, 12, 0.25))';
+        badgeTextColor = '#fbbf24';
+        badgeBorder = 'rgba(245, 158, 11, 0.6)';
+      } else if (count >= 18) {
+        rankName = '邊緣智造先鋒 (AI Specialist)';
+        badgeHtml = '<i class="fa-solid fa-brain"></i> 修為評級：Level 5 神經賦能';
+        badgeColor = 'rgba(239, 68, 68, 0.2)';
+        badgeTextColor = '#f87171';
+        badgeBorder = 'rgba(239, 68, 68, 0.4)';
+      } else if (count >= 13) {
+        rankName = '全域資安整合師 (Engineer)';
+        badgeHtml = '<i class="fa-solid fa-shield-halved"></i> 修為評級：Level 4 跨網互聯';
+        badgeColor = 'rgba(245, 158, 11, 0.2)';
+        badgeTextColor = '#fbbf24';
+        badgeBorder = 'rgba(245, 158, 11, 0.4)';
+      } else if (count >= 9) {
+        rankName = '戰情數據工匠 (Architect)';
+        badgeHtml = '<i class="fa-solid fa-chart-line"></i> 修為評級：Level 3 數據沉澱';
+        badgeColor = 'rgba(168, 85, 247, 0.2)';
+        badgeTextColor = '#c084fc';
+        badgeBorder = 'rgba(168, 85, 247, 0.4)';
+      } else if (count >= 4) {
+        rankName = '現場通訊行者 (Practitioner)';
+        badgeHtml = '<i class="fa-solid fa-network-wired"></i> 修為評級：Level 2 通訊感知';
+        badgeColor = 'rgba(6, 182, 212, 0.2)';
+        badgeTextColor = '#22d3ee';
+        badgeBorder = 'rgba(6, 182, 212, 0.4)';
+      }
+
+      if (rankNameEl) rankNameEl.textContent = rankName;
+      if (rankBadgeEl) {
+        rankBadgeEl.innerHTML = badgeHtml;
+        rankBadgeEl.style.background = badgeColor;
+        rankBadgeEl.style.color = badgeTextColor;
+        rankBadgeEl.style.borderColor = badgeBorder;
+      }
+    }
+
+    // 重置所有勾選
+    function resetAuditCheckboxes() {
+      if (!confirm('確定要重置所有工控修為檢定勾選項目嗎？')) return;
+      const cbs = document.querySelectorAll('.audit-cb');
+      cbs.forEach(cb => {
+        cb.checked = false;
+        const item = cb.closest('.audit-item');
+        if (item) item.classList.remove('is-checked');
+      });
+      try {
+        localStorage.removeItem('nodered_learning_roadmap_audit');
+      } catch (e) {}
+      calcCombatPower();
+    }
+
+    // 還原歷史勾選記錄
+    function restoreAuditCheckboxes() {
+      try {
+        const saved = localStorage.getItem('nodered_learning_roadmap_audit');
+        if (saved) {
+          const states = JSON.parse(saved);
+          const cbs = document.querySelectorAll('.audit-cb');
+          cbs.forEach((cb, idx) => {
+            if (states[idx] !== undefined) {
+              cb.checked = !!states[idx];
+            }
+          });
+        }
+      } catch (e) {}
+      calcCombatPower();
+    }
+
     window.addEventListener('load', () => {
+      restoreAuditCheckboxes();
+      
       setTimeout(() => {
         initSvgWidth();
         applyRoadmapZoom(0.75);
