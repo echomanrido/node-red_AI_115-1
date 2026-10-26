@@ -2271,6 +2271,101 @@ flowchart TD
       applyRoadmapZoom(ratio);
     }
 
+    // ==================== 節點點擊跳轉映射表與導航處理 ====================
+    const ROADMAP_NAV_MAP = {
+      'Start': '#stage-1',
+      'S1': '#stage-1',
+      'S2': '#stage-2',
+      'S3': '#stage-3',
+      'S4': '#stage-4',
+      'S5': '#stage-5',
+      'S6': '#stage-6',
+      'S1_1': 'labs.html',
+      'S1_2': 'supplements.html?id=sup-02',
+      'S2_1': 'nodered_projects.html',
+      'S2_2': 'supplements.html?id=sup-07',
+      'S3_1': 'supplements.html?id=sup-25',
+      'S3_2': 'labs.html?id=lab-30',
+      'S4_1': 'nodered_projects.html',
+      'S4_2': 'supplements.html?id=sup-26',
+      'S5_1': 'nodered_projects.html',
+      'S5_2': 'nodered_projects.html',
+      'S6_1': 'nodered_internals.html',
+      'S6_2': 'project_opencart.html'
+    };
+
+    function navigateRoadmapTarget(targetHref) {
+      if (!targetHref) return;
+      if (targetHref.startsWith('#')) {
+        const targetId = targetHref.substring(1);
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          targetEl.style.transition = 'box-shadow 0.4s ease, border-color 0.4s ease, transform 0.4s ease';
+          targetEl.style.borderColor = '#06b6d4';
+          targetEl.style.boxShadow = '0 0 35px rgba(6, 182, 212, 0.7)';
+          targetEl.style.transform = 'translateY(-4px)';
+          setTimeout(() => {
+            targetEl.style.borderColor = '';
+            targetEl.style.boxShadow = '';
+            targetEl.style.transform = '';
+          }, 2000);
+        }
+      } else {
+        window.location.href = targetHref;
+      }
+    }
+
+    // 解析點擊目標 URL
+    function resolveRoadmapNodeHref(el) {
+      if (!el) return null;
+      // 1. 若本身或祖先為 a 標籤
+      const aTag = el.closest('a');
+      if (aTag) {
+        const href = aTag.getAttribute('href') || aTag.getAttribute('xlink:href');
+        if (href) return href;
+      }
+
+      // 2. 若點擊的是節點容器 .node
+      const nodeTag = el.closest('.node');
+      if (nodeTag) {
+        const innerA = nodeTag.querySelector('a');
+        if (innerA) {
+          const href = innerA.getAttribute('href') || innerA.getAttribute('xlink:href');
+          if (href) return href;
+        }
+
+        // 3. 檢查 node 的 id (例如 flowchart-S1-12, flowchart-Start-0, flowchart-S1_1-4)
+        const id = nodeTag.id || '';
+        for (const [key, val] of Object.entries(ROADMAP_NAV_MAP)) {
+          const pattern = new RegExp('flowchart-' + key + '-\\d+');
+          if (pattern.test(id)) return val;
+        }
+
+        // 4. 以節點文字特徵比對作為備用防線
+        const txt = nodeTag.textContent || '';
+        if (txt.includes('Stage 1') || txt.includes('初見流動') || txt.includes('新手起點')) return '#stage-1';
+        if (txt.includes('Stage 2') || txt.includes('觸碰現場')) return '#stage-2';
+        if (txt.includes('Stage 3') || txt.includes('戰情駕馭')) return '#stage-3';
+        if (txt.includes('Stage 4') || txt.includes('跨網互聯')) return '#stage-4';
+        if (txt.includes('Stage 5') || txt.includes('神經賦能')) return '#stage-5';
+        if (txt.includes('Stage 6') || txt.includes('萬物閉環')) return '#stage-6';
+        if (txt.includes('基礎五大天王')) return 'labs.html';
+        if (txt.includes('JavaScript 語法')) return 'supplements.html?id=sup-02';
+        if (txt.includes('工業通訊三大協定')) return 'nodered_projects.html';
+        if (txt.includes('機電實務比喻邏輯')) return 'supplements.html?id=sup-07';
+        if (txt.includes('Dashboard 2.0')) return 'supplements.html?id=sup-25';
+        if (txt.includes('數據沉澱與資料庫')) return 'labs.html?id=lab-30';
+        if (txt.includes('RESTful API')) return 'nodered_projects.html';
+        if (txt.includes('API Key 救命資安防線')) return 'supplements.html?id=sup-26';
+        if (txt.includes('邊緣視覺與物件定位')) return 'nodered_projects.html';
+        if (txt.includes('地端生成式 AI')) return 'nodered_projects.html';
+        if (txt.includes('底層非阻塞機制')) return 'nodered_internals.html';
+        if (txt.includes('無人化電商 MES')) return 'project_opencart.html';
+      }
+      return null;
+    }
+
     // ==================== 滑鼠按住拖曳平移 (Pan) ====================
     const viewport = document.getElementById('roadmapScrollViewport');
     if (viewport) {
@@ -2279,8 +2374,11 @@ flowchart TD
       let movedDistance = 0;
 
       viewport.addEventListener('mousedown', (e) => {
-        // 若點擊的是超連結文字，不啟動拖曳
-        if (e.target.closest('a')) return;
+        // 若點擊的是 Mermaid 節點或超連結，絕對不啟動拖曳！確保點擊 100% 觸發跳轉！
+        if (e.target.closest('.node') || e.target.closest('a')) {
+          isDown = false;
+          return;
+        }
         isDown = true;
         movedDistance = 0;
         viewport.classList.add('is-dragging');
@@ -2292,12 +2390,14 @@ flowchart TD
 
       window.addEventListener('mousemove', (e) => {
         if (!isDown) return;
-        e.preventDefault();
         const x = e.pageX - viewport.offsetLeft;
         const y = e.pageY - viewport.offsetTop;
         const walkX = (x - startX) * 1.5;
         const walkY = (y - startY) * 1.5;
         movedDistance += Math.abs(walkX) + Math.abs(walkY);
+        if (movedDistance > 5) {
+          e.preventDefault();
+        }
         viewport.scrollLeft = scrollLeft - walkX;
         viewport.scrollTop = scrollTop - walkY;
       });
@@ -2309,13 +2409,22 @@ flowchart TD
         }
       });
 
-      // 避免拖曳時誤觸發超連結跳轉
+      // 監聽畫布點擊委派：點擊節點執行跳轉！
       viewport.addEventListener('click', (e) => {
         if (movedDistance > 10) {
           e.preventDefault();
           e.stopPropagation();
+          movedDistance = 0;
+          return;
         }
-      }, true);
+
+        const targetHref = resolveRoadmapNodeHref(e.target);
+        if (targetHref) {
+          e.preventDefault();
+          e.stopPropagation();
+          navigateRoadmapTarget(targetHref);
+        }
+      });
 
       // 支援滑鼠滾輪在 Ctrl 下或 Shift 下縮放，或直接滾輪縮放
       viewport.addEventListener('wheel', (e) => {
@@ -2351,6 +2460,19 @@ flowchart TD
         modal.classList.remove('is-active');
         document.body.style.overflow = '';
       }
+    }
+
+    const lightboxBody = document.getElementById('lightboxBody');
+    if (lightboxBody) {
+      lightboxBody.addEventListener('click', (e) => {
+        const targetHref = resolveRoadmapNodeHref(e.target);
+        if (targetHref) {
+          e.preventDefault();
+          e.stopPropagation();
+          closeRoadmapLightbox();
+          setTimeout(() => navigateRoadmapTarget(targetHref), 120);
+        }
+      });
     }
 
     function setLightboxScale(scale) {
