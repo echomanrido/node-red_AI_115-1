@@ -1037,12 +1037,22 @@
       background: #070c18;
       border: 1.5px solid rgba(56, 189, 248, 0.35);
       border-radius: 16px;
-      padding: 24px;
+      padding: 30px;
       box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.7);
       position: relative;
       cursor: grab;
       scrollbar-width: thin;
       scrollbar-color: rgba(56, 189, 248, 0.4) rgba(15, 23, 42, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #roadmap-mermaid {
+      margin: 0 auto;
+      display: inline-block;
+      text-align: center;
+      min-width: 0;
     }
 
     .mindmap-scroll-viewport.is-dragging {
@@ -1217,9 +1227,15 @@
           <button onclick="zoomMermaidStep(-0.25)" class="tool-btn" title="縮小尺寸 (-25%)">
             <i class="fa-solid fa-magnifying-glass-minus"></i> 縮小
           </button>
-          <span class="zoom-pct-tag" id="zoomPercentTag">100%</span>
-          <button onclick="setZoomRatio(1.0)" class="tool-btn" title="還原 100% 標準比例">
+          <span class="zoom-pct-tag" id="zoomPercentTag">75%</span>
+          <button onclick="setZoomRatio(0.75)" class="tool-btn" style="border-color: rgba(56, 189, 248, 0.5); color: #38bdf8;" title="還原 75% 預設比例">
+            <i class="fa-solid fa-arrows-to-dot"></i> 75%預設
+          </button>
+          <button onclick="setZoomRatio(1.0)" class="tool-btn" title="切換為 100% 標準比例">
             <i class="fa-solid fa-rotate-right"></i> 100%
+          </button>
+          <button onclick="centerRoadmapViewport()" class="tool-btn" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.45); color: #34d399;" title="置中平移">
+            <i class="fa-solid fa-crosshairs"></i> 置中
           </button>
           <button onclick="setZoomRatio(1.5)" class="tool-btn" style="color: #67e8f9; border-color: rgba(6, 182, 212, 0.4);" title="放大至 150% 清楚大字模式">
             <i class="fa-solid fa-font"></i> 150%大字
@@ -2354,16 +2370,24 @@ flowchart TD
       });
     }
 
-    // 頁面加載後初始化 SVG 寬度與微調
+    function centerRoadmapViewport() {
+      const vp = document.getElementById('roadmapScrollViewport');
+      if (vp) {
+        if (vp.scrollWidth > vp.clientWidth) {
+          vp.scrollLeft = Math.round((vp.scrollWidth - vp.clientWidth) / 2);
+        }
+        if (vp.scrollHeight > vp.clientHeight) {
+          vp.scrollTop = Math.round((vp.scrollHeight - vp.clientHeight) / 2);
+        }
+      }
+    }
+
+    // 頁面加載後初始化 SVG 寬度與預設縮小居中
     window.addEventListener('load', () => {
       setTimeout(() => {
         initSvgWidth();
-        // 預設給予最適寬度
-        const vp = document.getElementById('roadmapScrollViewport');
-        if (vp && baseSvgWidth) {
-          const fitRatio = Math.max(0.65, Math.min(1.2, +( (vp.clientWidth - 50) / baseSvgWidth ).toFixed(2)));
-          applyRoadmapZoom(fitRatio);
-        }
+        applyRoadmapZoom(0.75);
+        setTimeout(centerRoadmapViewport, 150);
       }, 350);
     });
 
