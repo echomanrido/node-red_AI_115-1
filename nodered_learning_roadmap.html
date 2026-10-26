@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node-RED 智慧控制模組 - 從新手變老手的心路歷程學習地圖 | 五股職訓局 機電AI班</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #070b14;
+      --bg-panel: #0d1527;
+      --bg-card: #131f37;
+      --bg-card-hover: #1c2c4c;
+      --border-color: rgba(56, 189, 248, 0.22);
+      --border-glow: rgba(56, 189, 248, 0.5);
+      --primary: #38bdf8;
+      --primary-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-purple: #a855f7;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --accent-orange: #f97316;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Noto Sans TC', 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.65;
+    }
+
+    /* 頂部導覽列 */
+    header.lab-navbar {
+      background: rgba(13, 21, 39, 0.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: white;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.45);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
+
+    .brand-sub {
+      font-size: 0.78rem;
+      color: #fbbf24;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      color: #fff;
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn.primary {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+    }
+
+    .nav-btn.primary:hover {
+      background: linear-gradient(135deg, #0369a1, #0891b2);
+    }
+
+    .nav-btn.gold {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    }
+
+    /* Hero 橫幅 */
+    .hero-section {
+      position: relative;
+      padding: 55px 24px 40px;
+      text-align: center;
+      background: radial-gradient(circle at 50% 15%, rgba(245, 158, 11, 0.15) 0%, rgba(7, 11, 20, 0) 70%),
+                  radial-gradient(circle at 15% 85%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
+                  radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.12) 0%, transparent 60%);
+      border-bottom: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+    }
+
+    .hero-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin-bottom: 14px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, #fbbf24, #f97316, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      max-width: 960px;
+      margin: 0 auto 24px;
+      color: #cbd5e1;
+      font-size: 1.08rem;
+      line-height: 1.75;
+    }
+
+    /* 6 大階梯進度一覽橫條 */
+    .journey-overview-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      max-width: 1200px;
+      margin: 24px auto 0;
+    }
+
+    .stage-pill-link {
+      background: rgba(19, 31, 55, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-decoration: none;
+      color: #cbd5e1;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stage-pill-link:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary);
+      box-shadow: 0 8px 20px rgba(6, 182, 212, 0.25);
+      background: rgba(28, 44, 76, 0.95);
+      color: #fff;
+    }
+
+    .stage-pill-num {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+    }
+
+    .stage-pill-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .stage-pill-level {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* 主容器 */
+    main.content-container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+    }
+
+    /* 區塊卡片共通樣式 */
+    .section-box {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 34px 38px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      position: relative;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 26px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.45rem;
+    }
+
+    .section-h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .section-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* Mermaid 心智圖容器 */
+    .mindmap-wrapper {
+      background: #090f1d;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 14px;
+      padding: 24px;
+      overflow-x: auto;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .mermaid .node {
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+    }
+    .mermaid .node:hover {
+      filter: brightness(1.25) drop-shadow(0 0 10px rgba(56, 189, 248, 0.8)) !important;
+      transform: scale(1.02);
+    }
+    .mermaid a {
+      text-decoration: none !important;
+      cursor: pointer !important;
+    }
+
+    /* 六維能力雷達 / 比較網格 */
+    .radar-overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+    }
+
+    .dimension-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .dimension-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dimension-name {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dimension-growth {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+    }
+
+    .dimension-bar-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .dimension-bar-novice {
+      height: 100%;
+      background: #64748b;
+      position: absolute;
+      left: 0;
+      top: 0;
+      border-radius: 5px;
+      z-index: 1;
+    }
+
+    .dimension-bar-master {
+      height: 100%;
+      background: linear-gradient(90deg, #06b6d4, #10b981);
+      position: absolute;
+      left: 0;
+      top: 0;
+      border-radius: 5px;
+      z-index: 2;
+    }
+
+    .dimension-contrast {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 0.84rem;
+      margin-top: 6px;
+    }
+
+    .contrast-box {
+      padding: 10px 12px;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+
+    .contrast-box.novice {
+      background: rgba(100, 116, 139, 0.12);
+      border: 1px solid rgba(100, 116, 139, 0.25);
+      color: #cbd5e1;
+    }
+
+    .contrast-box.master {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #a7f3d0;
+    }
+
+    /* 六大修煉心境階段垂直時光軸 */
+    .stages-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      position: relative;
+    }
+
+    .stage-card {
+      background: var(--bg-card);
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .stage-card:hover {
+      border-color: var(--border-glow);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+      transform: translateY(-2px);
+    }
+
+    /* 卡片頭部 */
+    .stage-card-header {
+      padding: 22px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .stage-main-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .stage-badge-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .stage-title-text {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .stage-title-sub {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .stage-level-tag {
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    /* 卡片內容主體 */
+    .stage-card-body {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    /* 內心 OS 獨白區 */
+    .monologue-box {
+      background: rgba(15, 23, 42, 0.7);
+      border-left: 4px solid var(--primary-cyan);
+      border-radius: 0 12px 12px 0;
+      padding: 16px 20px;
+      position: relative;
+    }
+
+    .monologue-header {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .monologue-content {
+      font-size: 0.96rem;
+      font-style: italic;
+      color: #e2e8f0;
+      line-height: 1.65;
+    }
+
+    /* 心魔與開悟雙欄 */
+    .stage-split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .pitfall-box {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+
+    .pitfall-title {
+      color: #f87171;
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pitfall-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.86rem;
+      color: #cbd5e1;
+    }
+
+    .pitfall-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .pitfall-list li i {
+      color: #ef4444;
+      margin-top: 4px;
+      font-size: 0.8rem;
+    }
+
+    .breakthrough-box {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+
+    .breakthrough-title {
+      color: #34d399;
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .breakthrough-text {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.65;
+    }
+
+    /* 必經修煉副本清單 */
+    .resource-quest-box {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .quest-header {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .quest-tags-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .quest-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+    }
+
+    .quest-chip:hover {
+      transform: translateY(-2px);
+      color: #fff;
+    }
+
+    .quest-chip.lab {
+      border-color: rgba(6, 182, 212, 0.35);
+      background: rgba(6, 182, 212, 0.12);
+      color: #67e8f9;
+    }
+    .quest-chip.lab:hover {
+      background: rgba(6, 182, 212, 0.25);
+      border-color: #06b6d4;
+    }
+
+    .quest-chip.sup {
+      border-color: rgba(56, 189, 248, 0.35);
+      background: rgba(56, 189, 248, 0.12);
+      color: #7dd3fc;
+    }
+    .quest-chip.sup:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+    }
+
+    .quest-chip.proj {
+      border-color: rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+    }
+    .quest-chip.proj:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #ef4444;
+    }
+
+    .quest-chip.internals {
+      border-color: rgba(20, 184, 166, 0.35);
+      background: rgba(20, 184, 166, 0.12);
+      color: #5eead4;
+    }
+
+    .quest-chip.mes {
+      border-color: rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.12);
+      color: #6ee7b7;
+    }
+
+    /* 自測檢定區 */
+    .audit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .audit-item {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .audit-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .audit-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #06b6d4;
+      margin-top: 3px;
+      cursor: pointer;
+    }
+
+    .audit-text {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .audit-text strong {
+      color: #fff;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* 戰鬥力儀表板看板 */
+    .combat-power-board {
+      background: linear-gradient(135deg, rgba(13, 21, 39, 0.95), rgba(19, 31, 55, 0.95));
+      border: 1.5px solid var(--border-glow);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .power-score-wrap {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .power-score-circle {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 24px rgba(6, 182, 212, 0.5);
+      border: 2px solid #fff;
+    }
+
+    .power-num {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .power-unit {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #bae6fd;
+    }
+
+    .power-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .power-rank-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      margin-top: 4px;
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    /* 響應式優化 */
+    @media (max-width: 900px) {
+      .hero-title { font-size: 2.1rem; }
+      .section-box { padding: 22px 18px; }
+      .stage-card-body { padding: 18px; }
+      .stage-split-grid { grid-template-columns: 1fr; }
+      .combat-power-board { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header class="lab-navbar">
+    <div class="brand-group">
+      <div class="brand-icon">
+        <i class="fa-solid fa-route"></i>
+      </div>
+      <div>
+        <div class="brand-title">Node-RED 智慧控制模組</div>
+        <div class="brand-sub">從新手變老手的心路歷程學習地圖</div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <a href="index.html" class="nav-btn"><i class="fa-solid fa-house"></i> 首頁</a>
+      <a href="nodered_smart_control_mindmap.html" class="nav-btn"><i class="fa-solid fa-sitemap"></i> 全景心智圖</a>
+      <a href="labs.html" class="nav-btn"><i class="fa-solid fa-flask"></i> 36 實驗</a>
+      <a href="supplements.html" class="nav-btn"><i class="fa-solid fa-book"></i> 26 補充教材</a>
+      <a href="nodered_projects.html" class="nav-btn"><i class="fa-solid fa-diagram-project"></i> 23 專題</a>
+      <a href="nodered_internals.html" class="nav-btn"><i class="fa-solid fa-microchip"></i> 底層邏輯</a>
+      <a href="project_opencart.html" class="nav-btn"><i class="fa-solid fa-cart-shopping"></i> OpenCart MES</a>
+      <a href="sitemap.html" class="nav-btn gold"><i class="fa-solid fa-map-location-dot"></i> 全站地圖</a>
+    </div>
+  </header>
+
+  <!-- Hero 橫幅簡介 -->
+  <section class="hero-section">
+    <div class="hero-badge">
+      <i class="fa-solid fa-trophy"></i> Novice to Master Journey・工控物聯網實戰晉級全手冊
+    </div>
+    <h1 class="hero-title">
+      從新手變老手的 <span class="gradient-text">心路歷程學習地圖</span>
+    </h1>
+    <p class="hero-desc">
+      學習 Node-RED 不是死背節點，而是一場<strong>思維模型的進化旅程</strong>。從一開始對 <code>msg.payload</code> 的迷茫、Modbus 通訊的撞牆崩潰、Vue 3 戰情室視覺化洗禮、跨網 API 與資安天價帳單驚魂，到邊緣 AI 協同，最終參透 V8 引擎與 OpenCart MES 無人化全閉環——這條地圖將記錄每位工控工程師從「小白」蛻變為「架構大師」的真實心路修煉歷程！
+    </p>
+
+    <!-- 6 大修行心境階段快速導航 -->
+    <div class="journey-overview-bar">
+      <a href="#stage-1" class="stage-pill-link">
+        <span class="stage-pill-num" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">Stage 1</span>
+        <span class="stage-pill-title">初見流動</span>
+        <span class="stage-pill-level">🌱 啟蒙幼苗</span>
+      </a>
+      <a href="#stage-2" class="stage-pill-link">
+        <span class="stage-pill-num" style="background: rgba(6, 182, 212, 0.2); color: #38bdf8;">Stage 2</span>
+        <span class="stage-pill-title">觸碰現場</span>
+        <span class="stage-pill-level">🛠️ 工業行者</span>
+      </a>
+      <a href="#stage-3" class="stage-pill-link">
+        <span class="stage-pill-num" style="background: rgba(168, 85, 247, 0.2); color: #c084fc;">Stage 3</span>
+        <span class="stage-pill-title">戰情數據</span>
+        <span class="stage-pill-level">📊 數據工匠</span>
+      </a>
+      <a href="#stage-4" class="stage-pill-link">
+        <span class="stage-pill-num" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">Stage 4</span>
+        <span class="stage-pill-title">雲網資安</span>
+        <span class="stage-pill-level">🌐 雲端專家</span>
+      </a>
+      <a href="#stage-5" class="stage-pill-link">
+        <span class="stage-pill-num" style="background: rgba(239, 68, 68, 0.2); color: #f87171;">Stage 5</span>
+        <span class="stage-pill-title">神經賦能</span>
+        <span class="stage-pill-level">🤖 智慧架構師</span>
+      </a>
+      <a href="#stage-6" class="stage-pill-link">
+        <span class="stage-pill-num" style="background: linear-gradient(135deg, #d97706, #ef4444); color: #fff;">Stage 6</span>
+        <span class="stage-pill-title">萬物閉環</span>
+        <span class="stage-pill-level">👑 工控大師</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- 主內容容器 -->
+  <main class="content-container">
+
+    <!-- 區塊一：學習路徑 Mermaid 心智地圖 -->
+    <section class="section-box" id="roadmap-mindmap">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+            <i class="fa-solid fa-signs-post"></i>
+          </div>
+          <div>
+            <h2 class="section-h2">修煉進階路徑圖 (Learning Path Graph)</h2>
+            <div class="section-subtitle">點擊任一修行節點即可直接跳轉對應 36 實驗、26 補充教材或 23 實務專題！</div>
+          </div>
+        </div>
+
+        <div>
+          <button onclick="copyMermaidRoadmap()" class="nav-btn" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);">
+            <i class="fa-solid fa-copy"></i> 複製修煉代碼
+          </button>
+        </div>
+      </div>
+
+      <!-- Mermaid 繪製 -->
+      <div class="mindmap-wrapper">
+        <div class="mermaid" id="roadmap-mermaid">
+flowchart TD
+    Start(["🌱 新手起點：機電工程師 / 軟體初學者"]):::startStyle
+
+    %% 六大修行階梯
+    Start --> S1["Stage 1: 初見流動・破除心魔<br/>(理解事件驅動與 msg 物件)"]:::s1Style
+    S1 --> S2["Stage 2: 觸碰現場・通訊感知<br/>(Modbus / MQTT / 氣壓邏輯比喻)"]:::s2Style
+    S2 --> S3["Stage 3: 戰情駕馭・數據沉澱<br/>(Dashboard 2.0 Vue 3 / MariaDB 儲存)"]:::s3Style
+    S3 --> S4["Stage 4: 跨網互聯・資安覺醒<br/>(HTTP Request / API Key 防洩守則 / Worldmap)"]:::s4Style
+    S4 --> S5["Stage 5: 神經賦能・邊緣 AI<br/>(Teachable Machine / Ollama / Epson 手臂)"]:::s5Style
+    S5 --> S6["Stage 6: 萬物閉環・工控大師<br/>(V8 Event Loop / OpenCart MES / C# 三方案)"]:::s6Style
+
+    %% S1 細項
+    S1 --> S1_1["基礎五大天王節點<br/>(Inject / Debug / Function / Switch / Change)"]
+    S1 --> S1_2["JavaScript 語法與作用域<br/>(var / let / const / 跳脫字元)"]
+    click S1_1 href "labs.html" "進入基礎實驗 Labs 01~09"
+    click S1_2 href "supplements.html?id=sup-02" "JS 資料型態與變數作用域"
+
+    %% S2 細項
+    S2 --> S2_1["工業通訊三大協定<br/>(Serial Port / MQTT Broker / Modbus TCP)"]
+    S2 --> S2_2["機電實務比喻邏輯<br/>(電磁閥 if-else / 雙壓閥 AND / 梭動閥 OR)"]
+    click S2_1 href "nodered_projects.html" "專題 03/04/09: Serial, MQTT, Modbus"
+    click S2_2 href "supplements.html?id=sup-07" "電磁閥與雙壓閥邏輯比喻"
+
+    %% S3 細項
+    S3 --> S3_1["Dashboard 2.0 Vue 3<br/>(ui-gauge / ui-chart / ui-template / 主題模擬器)"]
+    S3 --> S3_2["數據沉澱與資料庫<br/>(MariaDB / MySQL CRUD / 直方圖分箱)"]
+    click S3_1 href "supplements.html?id=sup-25" "Dashboard 2.0 主題模擬器與三大角色"
+    click S3_2 href "labs.html?id=lab-30" "直方圖品質統計與分箱原理"
+
+    %% S4 細項
+    S4 --> S4_1["RESTful API 與動態地圖<br/>(氣象署預報 / 颱風路徑 / 交通 TDX / AIS 船舶)"]
+    S4 --> S4_2["API Key 救命資安防線<br/>(點餐窗口比喻 / 環境變數隔離 / 警報推播)"]
+    click S4_1 href "nodered_projects.html" "專題 05/06/17/18: 氣象、颱風、公車與船舶"
+    click S4_2 href "supplements.html?id=sup-26" "為什麼 API Key 外洩這麼嚴重？ (Kelly Tsai)"
+
+    %% S5 細項
+    S5 --> S5_1["邊緣視覺與物件定位<br/>(Teachable Machine / COCO-SSD / 文字轉坐標)"]
+    S5 --> S5_2["地端生成式 AI 與手臂<br/>(Ollama 車牌 / AnythingLLM RAG / Epson 4 軸)"]
+    click S5_1 href "nodered_projects.html" "專題 07/08/23: 視覺分類與坐標規劃"
+    click S5_2 href "nodered_projects.html" "專題 11/12/22: Ollama、知識庫與機械手臂"
+
+    %% S6 細項
+    S6 --> S6_1["底層非阻塞機制<br/>(V8 引擎 / libuv 執行緒池 / WebSocket 管線)"]
+    S6 --> S6_2["無人化電商 MES 全閉環<br/>(OpenCart 訂單驅動 / C# 三方案 / OEE 稼動率)"]
+    click S6_1 href "nodered_internals.html" "深入 Node-RED 底層運作邏輯"
+    click S6_2 href "project_opencart.html" "進入 OpenCart 智慧商城與 MES 整合"
+
+    classDef startStyle fill:#334155,stroke:#94a3b8,stroke-width:2px,color:#f8fafc,font-weight:bold;
+    classDef s1Style fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#6ee7b7,font-weight:bold;
+    classDef s2Style fill:#164e63,stroke:#06b6d4,stroke-width:2px,color:#67e8f9,font-weight:bold;
+    classDef s3Style fill:#581c87,stroke:#a855f7,stroke-width:2px,color:#d8b4fe,font-weight:bold;
+    classDef s4Style fill:#78350f,stroke:#f59e0b,stroke-width:2px,color:#fde68a,font-weight:bold;
+    classDef s5Style fill:#881337,stroke:#ef4444,stroke-width:2px,color:#fecdd3,font-weight:bold;
+    classDef s6Style fill:#7c2d12,stroke:#ea580c,stroke-width:3px,color:#ffedd5,font-weight:bold;
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊二：六維能力雷達對比 (新手 vs 老手) -->
+    <section class="section-box">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+            <i class="fa-solid fa-chart-radar"></i>
+          </div>
+          <div>
+            <h2 class="section-h2">新手 vs 老手：六大維度思維蛻變</h2>
+            <div class="section-subtitle">看清每一次進階在思維、技術與架構上的根本轉變</div>
+          </div>
+        </div>
+        <div style="font-size: 0.85rem; color: #94a3b8; display: flex; align-items: center; gap: 14px;">
+          <span><span style="display:inline-block;width:12px;height:12px;background:#64748b;border-radius:3px;margin-right:4px;"></span> 新手起點 (Novice)</span>
+          <span><span style="display:inline-block;width:12px;height:12px;background:#10b981;border-radius:3px;margin-right:4px;"></span> 老手巔峰 (Master)</span>
+        </div>
+      </div>
+
+      <div class="radar-overview-grid">
+        <!-- 維度 1 -->
+        <div class="dimension-card">
+          <div class="dimension-top">
+            <span class="dimension-name"><i class="fa-solid fa-diagram-project text-cyan-400"></i> 1. 流程事件思維 (Event-driven)</span>
+            <span class="dimension-growth" style="background: rgba(6,182,212,0.15); color: #38bdf8;">成長 +85%</span>
+          </div>
+          <div class="dimension-bar-track">
+            <div class="dimension-bar-novice" style="width: 25%;"></div>
+            <div class="dimension-bar-master" style="width: 95%;"></div>
+          </div>
+          <div class="dimension-contrast">
+            <div class="contrast-box novice">
+              <strong>新手階段：</strong> 習慣一行行順序執行，常忘了 Deploy；在 Function 寫了幾十行卻忘記 return msg。
+            </div>
+            <div class="contrast-box master">
+              <strong>老手境界：</strong> 深刻理解「訊息管線」與非同步事件，活用 Change/Switch 節點取代 80% 雜亂代碼。
+            </div>
+          </div>
+        </div>
+
+        <!-- 維度 2 -->
+        <div class="dimension-card">
+          <div class="dimension-top">
+            <span class="dimension-name"><i class="fa-solid fa-network-wired text-sky-400"></i> 2. 工業現場感知 (OT & Protocols)</span>
+            <span class="dimension-growth" style="background: rgba(56,189,248,0.15); color: #38bdf8;">成長 +90%</span>
+          </div>
+          <div class="dimension-bar-track">
+            <div class="dimension-bar-novice" style="width: 15%;"></div>
+            <div class="dimension-bar-master" style="width: 92%;"></div>
+          </div>
+          <div class="dimension-contrast">
+            <div class="contrast-box novice">
+              <strong>新手階段：</strong> 搞不懂 Modbus Register 偏移與 16 進位 Hex；COM 埠被佔用只會手忙腳亂拔插頭。
+            </div>
+            <div class="contrast-box master">
+              <strong>老手境界：</strong> 善用 Wireshark 抓包剖析 MBAP 標頭與 CRC；融會貫通電磁閥、雙壓閥機電控制邏輯。
+            </div>
+          </div>
+        </div>
+
+        <!-- 維度 3 -->
+        <div class="dimension-card">
+          <div class="dimension-top">
+            <span class="dimension-name"><i class="fa-solid fa-gauge-high text-purple-400"></i> 3. 戰情視覺美學 (Dashboard & UI)</span>
+            <span class="dimension-growth" style="background: rgba(168,85,247,0.15); color: #c084fc;">成長 +80%</span>
+          </div>
+          <div class="dimension-bar-track">
+            <div class="dimension-bar-novice" style="width: 20%;"></div>
+            <div class="dimension-bar-master" style="width: 96%;"></div>
+          </div>
+          <div class="dimension-contrast">
+            <div class="contrast-box novice">
+              <strong>新手階段：</strong> 隨意拉幾個未對齊的 Text 節點；圖表類型隨便選，連續品質數據畫成圓餅圖。
+            </div>
+            <div class="contrast-box master">
+              <strong>老手境界：</strong> 精通 Dashboard 2.0 Vue 3 架構、直方圖分箱 (Bins) 品質統計、客製 CSS 主題與 ui-template。
+            </div>
+          </div>
+        </div>
+
+        <!-- 維度 4 -->
+        <div class="dimension-card">
+          <div class="dimension-top">
+            <span class="dimension-name"><i class="fa-solid fa-shield-halved text-amber-400"></i> 4. 雲網串接資安 (Cloud APIs & Security)</span>
+            <span class="dimension-growth" style="background: rgba(245,158,11,0.15); color: #fbbf24;">成長 +95%</span>
+          </div>
+          <div class="dimension-bar-track">
+            <div class="dimension-bar-novice" style="width: 10%;"></div>
+            <div class="dimension-bar-master" style="width: 94%;"></div>
+          </div>
+          <div class="dimension-contrast">
+            <div class="contrast-box novice">
+              <strong>新手階段：</strong> 把 API Key 直接明文貼在節點或公開 GitHub；經緯度反填飛機船隻全落到沙漠。
+            </div>
+            <div class="contrast-box master">
+              <strong>老手境界：</strong> 嚴格落實環境變數防禦四大防線；完美串接氣象預報、颱風追蹤與 LINE Bot 自動推播。
+            </div>
+          </div>
+        </div>
+
+        <!-- 維度 5 -->
+        <div class="dimension-card">
+          <div class="dimension-top">
+            <span class="dimension-name"><i class="fa-solid fa-robot text-rose-400"></i> 5. 邊緣 AI 協同 (Edge AI & Robotics)</span>
+            <span class="dimension-growth" style="background: rgba(239,68,68,0.15); color: #f87171;">成長 +88%</span>
+          </div>
+          <div class="dimension-bar-track">
+            <div class="dimension-bar-novice" style="width: 5%;"></div>
+            <div class="dimension-bar-master" style="width: 90%;"></div>
+          </div>
+          <div class="dimension-contrast">
+            <div class="contrast-box novice">
+              <strong>新手階段：</strong> 覺得 AI 是深不可測的黑盒子；不知道如何在工廠現場整合視覺辨識與機械手臂。
+            </div>
+            <div class="contrast-box master">
+              <strong>老手境界：</strong> 本地部署 Ollama/AnythingLLM 知識庫；整合 COCO-SSD 與文字語意轉 Epson 手臂實體座標。
+            </div>
+          </div>
+        </div>
+
+        <!-- 維度 6 -->
+        <div class="dimension-card">
+          <div class="dimension-top">
+            <span class="dimension-name"><i class="fa-solid fa-industry text-emerald-400"></i> 6. 系統架構閉環 (MES & Core Internals)</span>
+            <span class="dimension-growth" style="background: rgba(16,185,129,0.15); color: #34d399;">成長 +98%</span>
+          </div>
+          <div class="dimension-bar-track">
+            <div class="dimension-bar-novice" style="width: 5%;"></div>
+            <div class="dimension-bar-master" style="width: 98%;"></div>
+          </div>
+          <div class="dimension-contrast">
+            <div class="contrast-box novice">
+              <strong>新手階段：</strong> 只能做單機實驗；遇到高頻資料流阻塞 Event Loop 時毫無頭緒，無法串接企業系統。
+            </div>
+            <div class="contrast-box master">
+              <strong>老手境界：</strong> 洞悉 V8 與 libuv 底層機制；以 OpenCart 電商下單驅動 MES 排程、OEE 稼動率與 C# 串接三大方案。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊三：六大修行心境階梯深度剖析 (The 6 Stages Deep Dive) -->
+    <section class="section-box">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+            <i class="fa-solid fa-stairs"></i>
+          </div>
+          <div>
+            <h2 class="section-h2">六大修行心境階梯深度拆解</h2>
+            <div class="section-subtitle">內心獨白・常見心魔與踩坑・破局開悟時刻・對應 36 Labs 與專題修煉地圖</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stages-timeline">
+
+        <!-- ==================== STAGE 1 ==================== -->
+        <article class="stage-card" id="stage-1">
+          <div class="stage-card-header" style="background: rgba(16, 185, 129, 0.08);">
+            <div class="stage-main-info">
+              <div class="stage-badge-circle" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff;">
+                🌱
+              </div>
+              <div>
+                <div class="stage-title-text">Stage 1：初見流動・破除心魔</div>
+                <div class="stage-title-sub">基礎語法、核心節點、事件驅動與 msg 物件認知</div>
+              </div>
+            </div>
+            <div class="stage-level-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
+              Level 1：啟蒙幼苗
+            </div>
+          </div>
+
+          <div class="stage-card-body">
+            <!-- 內心獨白 -->
+            <div class="monologue-box" style="border-left-color: #10b981;">
+              <div class="monologue-header" style="color: #34d399;">
+                <i class="fa-solid fa-comment-dots"></i> 新手內心 OS (Monologue)
+              </div>
+              <div class="monologue-content">
+                「以前在學校或工廠寫 PLC 階梯圖，或者寫 C 語言都要編譯老半天。Node-RED 只要在網頁上拖拉節點、拉一條線真的就能控制嗎？那個 <code>msg.payload</code> 到底是什麼神秘生物？為什麼我點了 Inject 之後除錯視窗什麼反應都沒有？」
+              </div>
+            </div>
+
+            <!-- 心魔與開悟 -->
+            <div class="stage-split-grid">
+              <div class="pitfall-box">
+                <div class="pitfall-title"><i class="fa-solid fa-triangle-exclamation"></i> 典型心魔與三大踩坑 (Pitfalls)</div>
+                <ul class="pitfall-list">
+                  <li><i class="fa-solid fa-xmark"></i> <strong>忘記 Deploy：</strong> 改了節點參數卻沒按右上角紅色「Deploy (部署)」，一直在原地苦等結果。</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>Debug 節點瞎子摸象：</strong> 只設定印出 <code>msg.payload</code>，看不到整個 <code>msg.topic</code> 或深層屬性，不知道型態是字串還是數字。</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>Function 節點遺漏 return：</strong> 寫了 20 行 JavaScript 判斷式，結尾卻忘了寫 <code>return msg;</code>，資料直接被系統丟入黑洞！</li>
+                </ul>
+              </div>
+
+              <div class="breakthrough-box">
+                <div class="breakthrough-title"><i class="fa-solid fa-lightbulb"></i> 破局開悟時刻 (Breakthrough)</div>
+                <div class="breakthrough-text">
+                  <strong>「一切皆是 JSON，管線永不停歇！」</strong><br>
+                  當你意識到 Node-RED 根本不是傳統由上而下的循序執行代碼，而是<strong>「事件驅動 (Event-driven)」</strong>：每一個節點就像工廠輸送帶上的作業員，吃進一箱零件（一個包含 payload 與 topic 的 JSON 物件），動手加工後再沿著輸送帶推進給下一個人。只要這個觀念建立起來，整個宇宙就豁然開朗！
+                </div>
+              </div>
+            </div>
+
+            <!-- 對應修煉資源清單 -->
+            <div class="resource-quest-box">
+              <div class="quest-header">
+                <span><i class="fa-solid fa-compass text-emerald-400"></i> 本階段推薦必刷修煉副本：</span>
+                <span style="font-size: 0.8rem; color: #94a3b8;">建議由淺入深依序挑戰</span>
+              </div>
+              <div class="quest-tags-wrap">
+                <a href="labs.html" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 01: Inject 與 Debug 節點實作</a>
+                <a href="labs.html?id=lab-04" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 04~08: Function 節點字串與四則運算</a>
+                <a href="labs.html?id=lab-09" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 09: if-else 條件分支判斷</a>
+                <a href="labs.html?id=lab-17" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 17~18: Switch 節點條件過濾與分流</a>
+                <a href="labs.html?id=lab-20" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 20~23: Change 節點搜尋替代與 JSONata</a>
+                <a href="supplements.html?id=sup-01" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 01: Node.js 與 npm 安裝狀態確認</a>
+                <a href="supplements.html?id=sup-02" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 02: JavaScript 資料型態與節點對應</a>
+                <a href="supplements.html?id=sup-03" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 03: JSON 語法結構與 key-value pairs</a>
+                <a href="supplements.html?id=sup-11" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 11: 變數深度解析 (var vs let vs const)</a>
+                <a href="supplements.html?id=sup-12" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 12: 跳脫字元與本機路徑斜線陷阱</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==================== STAGE 2 ==================== -->
+        <article class="stage-card" id="stage-2">
+          <div class="stage-card-header" style="background: rgba(6, 182, 212, 0.08);">
+            <div class="stage-main-info">
+              <div class="stage-badge-circle" style="background: linear-gradient(135deg, #0284c7, #06b6d4); color: #fff;">
+                🛠️
+              </div>
+              <div>
+                <div class="stage-title-text">Stage 2：觸碰現場・通訊感知</div>
+                <div class="stage-title-sub">工業通訊協定、Modbus 暫存器、串列埠與氣壓邏輯實體映射</div>
+              </div>
+            </div>
+            <div class="stage-level-tag" style="background: rgba(6, 182, 212, 0.2); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.4);">
+              Level 2：工業行者
+            </div>
+          </div>
+
+          <div class="stage-card-body">
+            <div class="monologue-box" style="border-left-color: #06b6d4;">
+              <div class="monologue-header" style="color: #38bdf8;">
+                <i class="fa-solid fa-comment-dots"></i> 新手內心 OS (Monologue)
+              </div>
+              <div class="monologue-content">
+                「單純在電腦上做數值運算很簡單，但一接上現場的溫控器、電表跟 PLC，根本就是外星話！Modbus 的 03 Read Holding Registers 跟 06 Write Single Register 到底是什麼？為什麼手冊上寫 40001，在 Node-RED 填 40001 就讀出亂碼？十六進位 Hex 算到頭昏眼花！」
+              </div>
+            </div>
+
+            <div class="stage-split-grid">
+              <div class="pitfall-box">
+                <div class="pitfall-title"><i class="fa-solid fa-triangle-exclamation"></i> 典型心魔與三大踩坑 (Pitfalls)</div>
+                <ul class="pitfall-list">
+                  <li><i class="fa-solid fa-xmark"></i> <strong>Modbus 位址偏移 (Offset) 大陷阱：</strong> 0-based 與 1-based 混淆，將 40001 直接當成位址填入，結果跟實際暫存器全錯開一位！</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>Serial 串列埠衝突 (Port Busy)：</strong> 在打開 Node-RED 讀取 COM3 的同時，背景還開著 PLC 程式或串口助手，導致連線被鎖死丟出 Error。</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>MQTT Topic 訂閱風暴：</strong> 隨便在 Topic 填了 <code>#</code> 萬用字元，結果全廠每秒數千筆感測器資料湧進來，整個前端介面卡死。</li>
+                </ul>
+              </div>
+
+              <div class="breakthrough-box">
+                <div class="breakthrough-title"><i class="fa-solid fa-lightbulb"></i> 破局開悟時刻 (Breakthrough)</div>
+                <div class="breakthrough-text">
+                  <strong>「用機械氣壓閥懂邏輯，用 Wireshark 抓包看透封包！」</strong><br>
+                  不要把工業通訊當作天書。只要打開 Wireshark 抓包工具，親眼看到 Modbus TCP 封包裡的 7 位元組 MBAP Header 與 Function Code，你會發現它比任何教科書都直觀；再利用<strong>「三口二位電磁閥比喻 if-else」、「雙壓閥比喻 AND 邏輯」、「梭動閥比喻 OR 邏輯」</strong>，機電硬體與軟體思維在這一刻徹底相融！
+                </div>
+              </div>
+            </div>
+
+            <div class="resource-quest-box">
+              <div class="quest-header">
+                <span><i class="fa-solid fa-compass text-cyan-400"></i> 本階段推薦必刷修煉副本：</span>
+                <span style="font-size: 0.8rem; color: #94a3b8;">打通硬體與工業協議的神經網絡</span>
+              </div>
+              <div class="quest-tags-wrap">
+                <a href="labs.html?id=lab-10" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 10: 氣壓缸 if-else 邏輯控制</a>
+                <a href="labs.html?id=lab-11" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 11: msg.topic 多來源資料分流</a>
+                <a href="labs.html?id=lab-12" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 12~14: 檔案讀寫與動態路徑檢驗</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 03: Serial Port 串列通訊與 PLC 資料擷取</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 04: MQTT 工業物聯網協議發布與訂閱</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 09: Modbus TCP/RTU 工業通訊與三菱 FX3U PLC</a>
+                <a href="supplements.html?id=sup-07" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 07: 利用三口二位電磁閥比喻 if-else</a>
+                <a href="supplements.html?id=sup-08" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 08: 利用梭動閥與雙壓閥比喻 OR 與 AND</a>
+                <a href="supplements.html?id=sup-09" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 09: 利用 PLC 階梯圖模擬 if-else 關係</a>
+                <a href="supplements.html?id=sup-10" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 10: 機電丙級第一題動作模擬 and 與 or</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==================== STAGE 3 ==================== -->
+        <article class="stage-card" id="stage-3">
+          <div class="stage-card-header" style="background: rgba(168, 85, 247, 0.08);">
+            <div class="stage-main-info">
+              <div class="stage-badge-circle" style="background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff;">
+                📊
+              </div>
+              <div>
+                <div class="stage-title-text">Stage 3：戰情駕馭・數據沉澱</div>
+                <div class="stage-title-sub">Dashboard 2.0 (Vue 3)、直方圖分箱選型、自訂主題與關聯式資料庫</div>
+              </div>
+            </div>
+            <div class="stage-level-tag" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4);">
+              Level 3：數據工匠
+            </div>
+          </div>
+
+          <div class="stage-card-body">
+            <div class="monologue-box" style="border-left-color: #a855f7;">
+              <div class="monologue-header" style="color: #c084fc;">
+                <i class="fa-solid fa-comment-dots"></i> 新手內心 OS (Monologue)
+              </div>
+              <div class="monologue-content">
+                「只有右邊 Debug 視窗的文字輸出，拿去給老闆或現場廠長看一定會被嫌棄！主管要看全螢幕戰情室、大數字指針錶、即時溫度波動折線圖。而且機台一下班關機，記憶體裡的數據全不見了，歷史趨勢根本留不下來！」
+              </div>
+            </div>
+
+            <div class="stage-split-grid">
+              <div class="pitfall-box">
+                <div class="pitfall-title"><i class="fa-solid fa-triangle-exclamation"></i> 典型心魔與三大踩坑 (Pitfalls)</div>
+                <ul class="pitfall-list">
+                  <li><i class="fa-solid fa-xmark"></i> <strong>新舊 Dashboard 混部災難：</strong> 不知道舊版 Dashboard 1.0 與新版 2.0 (Vue 3) 底層完全不相容，兩種套件混裝導致組件打架、排版崩解。</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>資料庫非同步失控：</strong> 執行 SQL SELECT 語法後，下一行代碼立刻嘗試讀取變數，結果因資料庫尚未回傳而拿到 <code>undefined</code>。</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>圖表型態選型錯誤：</strong> 把具有連續分佈特性的工件填充重量硬塞成圓餅圖，結果被品保工程師打槍毫無統計意義！</li>
+                </ul>
+              </div>
+
+              <div class="breakthrough-box">
+                <div class="breakthrough-title"><i class="fa-solid fa-lightbulb"></i> 破局開悟時刻 (Breakthrough)</div>
+                <div class="breakthrough-text">
+                  <strong>「數據需要有歸宿，戰情需要有靈魂！」</strong><br>
+                  全面擁抱 <strong>Dashboard 2.0 (Vue 3 現代化響應式架構)</strong>，掌握 Site ➔ Page ➔ Group ➔ Widget 的四層結構；學會品質工程核心的<strong>「直方圖分箱 (Bins)」</strong>看穿白夜班異常；並結合 XAMPP MariaDB / MySQL 打造標準 CRUD 與歷史時序庫，數據不再隨風而逝，而是轉化為具備商業價值的戰情資產！
+                </div>
+              </div>
+            </div>
+
+            <div class="resource-quest-box">
+              <div class="quest-header">
+                <span><i class="fa-solid fa-compass text-purple-400"></i> 本階段推薦必刷修煉副本：</span>
+                <span style="font-size: 0.8rem; color: #94a3b8;">打造高質感工控視覺化與穩定資料持久層</span>
+              </div>
+              <div class="quest-tags-wrap">
+                <a href="labs.html?id=lab-24" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 24: 多元儀表板 (Slider / Chart / Tank / Gauge)</a>
+                <a href="labs.html?id=lab-26" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 26: msg.topic 多軌趨勢曲線繪製</a>
+                <a href="labs.html?id=lab-27" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 27: Pages、Group 與 URL 階層設定</a>
+                <a href="labs.html?id=lab-29" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 29: 財報多維柱狀圖、圓餅圖與甜甜圈圖</a>
+                <a href="labs.html?id=lab-30" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 30: 直方圖品質統計與常態分佈分箱原理</a>
+                <a href="labs.html?id=lab-32" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 32~33: Base64 機台照片渲染與射出機監控</a>
+                <a href="labs.html?id=lab-34" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 34~36: Dashboard Themes 自訂高質感主題</a>
+                <a href="supplements.html?id=sup-13" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 13: XAMPP 開發環境與 MySQL 部署指南</a>
+                <a href="supplements.html?id=sup-15" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 15: Chart 各類圖表型態選型全指南</a>
+                <a href="supplements.html?id=sup-16" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 16: Gauge 各類儀表型態人因讀數指南</a>
+                <a href="supplements.html?id=sup-17" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 17: 品質數據分析直方圖數值分箱 (Bins)</a>
+                <a href="supplements.html?id=sup-18" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 18: 四大長條圖 (Bar Chart) 呈現深度解析</a>
+                <a href="supplements.html?id=sup-20" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 20: 股票分析戰情室 7 大核心圖表架構</a>
+                <a href="supplements.html?id=sup-24" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 24: ui-template 萬能自訂節點完整指南</a>
+                <a href="supplements.html?id=sup-25" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 25: Dashboard 2.0 Vue 3 三劍客與主題模擬器</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==================== STAGE 4 ==================== -->
+        <article class="stage-card" id="stage-4">
+          <div class="stage-card-header" style="background: rgba(245, 158, 11, 0.08);">
+            <div class="stage-main-info">
+              <div class="stage-badge-circle" style="background: linear-gradient(135deg, #d97706, #f59e0b); color: #fff;">
+                🌐
+              </div>
+              <div>
+                <div class="stage-title-text">Stage 4：跨網互聯・資安覺醒</div>
+                <div class="stage-title-sub">RESTful API 串接、地理圖資定位、LINE 警報推播與 API Key 資安防洩守則</div>
+              </div>
+            </div>
+            <div class="stage-level-tag" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">
+              Level 4：雲端專家
+            </div>
+          </div>
+
+          <div class="stage-card-body">
+            <div class="monologue-box" style="border-left-color: #f59e0b;">
+              <div class="monologue-header" style="color: #fbbf24;">
+                <i class="fa-solid fa-comment-dots"></i> 新手內心 OS (Monologue)
+              </div>
+              <div class="monologue-content">
+                「誰說工控系統只能被關在工廠區網裡？我想連上中央氣象署抓颱風警報、串接交通部 TDX 追蹤公車、甚至把異常警報即時發到我跟主管的手機 LINE！等等……怎麼聽說有人把 API Key 寫在流程上傳到 GitHub，結果隔天收到幾十萬的天價帳單？！」
+              </div>
+            </div>
+
+            <div class="stage-split-grid">
+              <div class="pitfall-box">
+                <div class="pitfall-title"><i class="fa-solid fa-triangle-exclamation"></i> 典型心魔與三大踩坑 (Pitfalls)</div>
+                <ul class="pitfall-list">
+                  <li><i class="fa-solid fa-xmark"></i> <strong>【世紀大慘劇】API Key 明文外洩：</strong> 直接把金鑰 hardcode 在 http request 節點中，一鍵推到公開 GitHub，被爬蟲機器人秒抓盜用。</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>經緯度填反 (Lat/Lon Inverted)：</strong> 地圖節點要求的 <code>lat</code> 與 <code>lon</code> 顛倒，導致台灣海域的船舶航跡全掉在非洲沙漠。</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>HTTP 狀態碼忽視：</strong> 忽略 401 Unauthorized、403 Forbidden 或 429 Too Many Requests，流程遇到錯誤卡死無從查起。</li>
+                </ul>
+              </div>
+
+              <div class="breakthrough-box">
+                <div class="breakthrough-title"><i class="fa-solid fa-lightbulb"></i> 破局開悟時刻 (Breakthrough)</div>
+                <div class="breakthrough-text">
+                  <strong>「點餐窗口有憑有證，四道防線固若金湯！」</strong><br>
+                  把 API 請求想像成<strong>「餐廳點餐窗口」</strong>：URL 是櫃檯、Method 是動作、Body 是加點菜單、Headers 就是你的身分憑證。建立<strong>「環境變數隔離」、「settings.js 注入」、「IP 白名單綁定」與「費用預警」</strong>四大資安防線；掌握 Worldmap 與 LINE Messaging API，正式邁向無疆界的雲地融合專家！
+                </div>
+              </div>
+            </div>
+
+            <div class="resource-quest-box">
+              <div class="quest-header">
+                <span><i class="fa-solid fa-compass text-amber-400"></i> 本階段推薦必刷修煉副本：</span>
+                <span style="font-size: 0.8rem; color: #94a3b8;">打破網域藩籬，兼顧全域感知與頂級資安防禦</span>
+              </div>
+              <div class="quest-tags-wrap">
+                <a href="labs.html?id=lab-02" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 02: http request 網路請求實作</a>
+                <a href="labs.html?id=lab-03" class="quest-chip lab"><i class="fa-solid fa-flask"></i> Lab 03: 台北市公車 API 串接與讀取</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 01: 台灣銀行人民幣匯率爬蟲與數據解析</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 02: LINE 官方帳號與 Messaging API 推播</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 05: 中央氣象署 API 即時天氣預報與溫度看板</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 06: 颱風消息警報與 Worldmap 地圖動態追蹤</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 17: 台北市公車即時動態追蹤 (TDX 運輸平台)</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 18: 臺灣海域船舶 AIS 爬蟲與地理圖資定位</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 19: 新北市垃圾車即時動態路線監控</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 20: 新北市工廠登記名冊地址轉經緯度 (TGOS)</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 21: 台灣證券交易所 (TWSE) 股價本益比 API</a>
+                <a href="supplements.html?id=sup-06" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 06: HTTP 通訊協定與網頁爬蟲實作</a>
+                <a href="supplements.html?id=sup-26" class="quest-chip sup" style="border-color: #ef4444; background: rgba(239, 68, 68, 0.15); color: #fca5a5;"><i class="fa-solid fa-shield-virus"></i> 補充 26: 為什麼 API Key 外洩這麼嚴重？ (資安避坑必讀)</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==================== STAGE 5 ==================== -->
+        <article class="stage-card" id="stage-5">
+          <div class="stage-card-header" style="background: rgba(239, 68, 68, 0.08);">
+            <div class="stage-main-info">
+              <div class="stage-badge-circle" style="background: linear-gradient(135deg, #b91c1c, #ef4444); color: #fff;">
+                🤖
+              </div>
+              <div>
+                <div class="stage-title-text">Stage 5：神經賦能・邊緣 AI</div>
+                <div class="stage-title-sub">機器視覺辨識、本地 LLM (Ollama / RAG)、文字語意轉 Epson 機械手臂座標</div>
+              </div>
+            </div>
+            <div class="stage-level-tag" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">
+              Level 5：智慧架構師
+            </div>
+          </div>
+
+          <div class="stage-card-body">
+            <div class="monologue-box" style="border-left-color: #ef4444;">
+              <div class="monologue-header" style="color: #f87171;">
+                <i class="fa-solid fa-comment-dots"></i> 新手內心 OS (Monologue)
+              </div>
+              <div class="monologue-content">
+                「現在到處都在講 AI，但把雲端 ChatGPT 放在每分鐘生產 60 個零件的高速機台前，2 秒的網路延遲根本來不及踢除瑕疵品！而且廠內機密數據怎麼可能送上外網？到底怎麼在邊緣工控主機上跑視覺與本地大模型，甚至讓機器手臂看懂人話去夾工件？」
+              </div>
+            </div>
+
+            <div class="stage-split-grid">
+              <div class="pitfall-box">
+                <div class="pitfall-title"><i class="fa-solid fa-triangle-exclamation"></i> 典型心魔與三大踩坑 (Pitfalls)</div>
+                <ul class="pitfall-list">
+                  <li><i class="fa-solid fa-xmark"></i> <strong>顯存溢出爆機 (GPU OOM)：</strong> 在工控迷你主機上直接硬跑 70B 大模型，記憶體瞬間被榨乾導致 Node-RED 跟整台作業系統崩潰。</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>圖像維度與色彩格式錯誤：</strong> 將攝影機抓到的 BGR 影像直接塞給需要 RGB / Grayscale 的 TensorFlow 模型，辨識準確率直接掉到零。</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>機器手臂空間座標撞機：</strong> 忽略相機坐標系（像素座標）與 Epson 手臂基底座標系（實體毫米）的轉換矩陣，手臂直接硬撞工作台！</li>
+                </ul>
+              </div>
+
+              <div class="breakthrough-box">
+                <div class="breakthrough-title"><i class="fa-solid fa-lightbulb"></i> 破局開悟時刻 (Breakthrough)</div>
+                <div class="breakthrough-text">
+                  <strong>「輕重分流・端雲兼備・手眼協調！」</strong><br>
+                  建立<strong>分層智慧架構</strong>：高速產線檢測交給本地 TensorFlow.js (COCO-SSD / Teachable Machine)，幾十毫秒完成物件框選；自然語言診斷與圖紙檢索交給地端 Ollama + AnythingLLM RAG；最後利用 GenAI 將非結構化口語指令（「把右邊第三顆紅色螺帽夾到瑕疵盒」）精準轉換為 Epson 4 軸手臂的絕對坐標，賦予自動化產線神經思考與手眼雙全！
+                </div>
+              </div>
+            </div>
+
+            <div class="resource-quest-box">
+              <div class="quest-header">
+                <span><i class="fa-solid fa-compass text-rose-400"></i> 本階段推薦必刷修煉副本：</span>
+                <span style="font-size: 0.8rem; color: #94a3b8;">讓工控設備長出眼睛與大腦的 AI 副本群</span>
+              </div>
+              <div class="quest-tags-wrap">
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 07: Google Teachable Machine 邊緣 AI 影像分類</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 08: TensorFlow.js COCO-SSD 即時物件偵測與邊界框</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 10: Google Gemini 雲端生成式 AI 多模態 API</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 11: 本地端 Ollama + Llama 3.2-Vision 邊緣車牌視覺</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 12: AnythingLLM + RAG 本地廠務專屬知識庫檢索</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 14: LM Studio 地端大語言模型部署與離線對話</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 15: AI LINE Bot 智慧助理 - Webhook 與多模型輪詢</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 22: Epson 4 軸工業機械手臂控制器 API 精密路徑</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 23: 文字語意解析轉實體工件座標 (GenAI 空間抓取)</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==================== STAGE 6 ==================== -->
+        <article class="stage-card" id="stage-6">
+          <div class="stage-card-header" style="background: linear-gradient(135deg, rgba(234, 88, 12, 0.15), rgba(220, 38, 38, 0.15)); border-bottom-color: rgba(234, 88, 12, 0.3);">
+            <div class="stage-main-info">
+              <div class="stage-badge-circle" style="background: linear-gradient(135deg, #d97706, #dc2626); color: #fff; box-shadow: 0 0 20px rgba(234, 88, 12, 0.4);">
+                👑
+              </div>
+              <div>
+                <div class="stage-title-text" style="color: #ffedd5;">Stage 6：萬物閉環・工控大師</div>
+                <div class="stage-title-sub">Node.js V8 底層機制、libuv 事件循環、OpenCart 電商商城與 MES 智慧製造全閉環</div>
+              </div>
+            </div>
+            <div class="stage-level-tag" style="background: linear-gradient(135deg, #ea580c, #dc2626); color: #fff; font-weight: 900; box-shadow: 0 0 12px rgba(234, 88, 12, 0.4);">
+              Level 6：傳奇大師
+            </div>
+          </div>
+
+          <div class="stage-card-body">
+            <div class="monologue-box" style="border-left-color: #ea580c;">
+              <div class="monologue-header" style="color: #fb923c;">
+                <i class="fa-solid fa-comment-dots"></i> 大師內心審視 (Master Monologue)
+              </div>
+              <div class="monologue-content">
+                「真正的老手，眼裡早已沒有單一的節點或畫面，而是<strong>通盤掌握整座工廠的生長週期與數據流向</strong>。從全球客戶在 OpenCart 電商平台下單付款的那一毫秒開始，資料庫自動觸發、Node-RED MES 中樞派工、PLC 產線啟動切削、機械手臂完成裝配、OEE 稼動率即時回寫——這，就是工業 4.0 的終極閉環美學！」
+              </div>
+            </div>
+
+            <div class="stage-split-grid">
+              <div class="pitfall-box">
+                <div class="pitfall-title"><i class="fa-solid fa-triangle-exclamation"></i> 典型架構死穴與排查 (Architecture Pitfalls)</div>
+                <ul class="pitfall-list">
+                  <li><i class="fa-solid fa-xmark"></i> <strong>Event Loop 阻塞死穴：</strong> 在 Function 節點內寫密集迴圈或同步運算，卡死整個 Node.js 單執行緒，導致全廠數百台設備的 WebSocket 同步中斷。</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>IT 與 OT 鴻溝：</strong> 商業電商訂單系統（PHP / Web）與工業底層設備（PLC / Modbus）各說各話，缺乏中介層狀態機防呆與重試機制。</li>
+                  <li><i class="fa-solid fa-xmark"></i> <strong>微服務雪崩無自癒：</strong> 資料庫伺服器偶發斷線時，沒有配置 Polly 斷路器或重試策略，導致連鎖反應癱瘓整條產線。</li>
+                </ul>
+              </div>
+
+              <div class="breakthrough-box">
+                <div class="breakthrough-title"><i class="fa-solid fa-lightbulb"></i> 終極大師境界 (Mastery Zen)</div>
+                <div class="breakthrough-text">
+                  <strong>「洞悉底層 V8 與 libuv，貫通 IT/OT 兩界無阻！」</strong><br>
+                  老手深諳 JavaScript <strong>單執行緒非阻塞 I/O 與 Event Loop 微任務/宏任務隊列</strong>，知道何時將繁重 I/O 託付給 libuv 執行緒池；精通全雙工 WebSocket 實時管線；更能在 <strong>C# 串接 OpenCart 電商三大架構（直連 DB、原生 API、REST Admin API）</strong>間游刃有餘，無論高並發、高可靠度或無人化產線，皆能信手拈來、指揮若定！
+                </div>
+              </div>
+            </div>
+
+            <div class="resource-quest-box">
+              <div class="quest-header">
+                <span><i class="fa-solid fa-crown text-orange-400"></i> 大師級終極通關寶典與全閉環專案：</span>
+                <span style="font-size: 0.8rem; color: #fed7aa;">頂峰對決・工業 4.0 完整落地典範</span>
+              </div>
+              <div class="quest-tags-wrap">
+                <a href="nodered_internals.html" class="quest-chip internals" style="border-color: #14b8a6; background: rgba(20, 184, 166, 0.2); color: #5eead4; font-weight: 700;"><i class="fa-solid fa-microchip"></i> Node-RED 底層運作邏輯全景指南 (V8 / libuv / Event Loop / WebSocket)</a>
+                <a href="project_opencart.html" class="quest-chip mes" style="border-color: #10b981; background: rgba(16, 185, 129, 0.2); color: #6ee7b7; font-weight: 700;"><i class="fa-solid fa-cart-shopping"></i> 大型旗艦：OpenCart 網路商城・資料庫・MES 派工全閉環</a>
+                <a href="opencart_interactive_lab.html" class="quest-chip mes"><i class="fa-solid fa-atom"></i> OpenCart 四大主題 26 步獨立互動實驗室</a>
+                <a href="csharp_opencart_mes.html" class="quest-chip mes"><i class="fa-solid fa-database"></i> C# 串接方案一：直連 MariaDB 資料庫與狀態機</a>
+                <a href="csharp_opencart_native_api.html" class="quest-chip mes"><i class="fa-solid fa-shield-halved"></i> C# 串接方案二：後台原生 API 與白名單</a>
+                <a href="csharp_opencart_rest_admin_api.html" class="quest-chip mes"><i class="fa-solid fa-server"></i> C# 串接方案三：REST Admin API 與 Polly 斷路器</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 13: Gemini AI 協同 OpenCart MySQL 查詢與產能分析</a>
+                <a href="nodered_projects.html" class="quest-chip proj"><i class="fa-solid fa-diagram-project"></i> 專題 16: Google Sheets 自動化記錄與生產報表戰情室</a>
+                <a href="supplements.html?id=sup-04" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 04: ISO 流程對應 Node-RED 核心概念</a>
+                <a href="supplements.html?id=sup-05" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 05: ISO 14064-1 與 ISO 14067 ESG 碳盤查概念</a>
+                <a href="supplements.html?id=sup-14" class="quest-chip sup"><i class="fa-solid fa-book"></i> 補充 14: OpenCart 開源電商平台安裝與工控 ERP 派工</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- 區塊四：老手自測檢定儀 (Mastery Self-Audit Tool) -->
+    <section class="section-box" id="self-audit-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+            <i class="fa-solid fa-list-check"></i>
+          </div>
+          <div>
+            <h2 class="section-h2">「我是老手了嗎？」工控修為自測檢定儀</h2>
+            <div class="section-subtitle">24 項實戰指標隨選即測・即時計算個人工控戰鬥力評級與頭銜！</div>
+          </div>
+        </div>
+
+        <button onclick="resetAuditCheckboxes()" class="nav-btn" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1;">
+          <i class="fa-solid fa-rotate-left"></i> 重置所有勾選
+        </button>
+      </div>
+
+      <!-- 戰鬥力儀表板看板 -->
+      <div class="combat-power-board">
+        <div class="power-score-wrap">
+          <div class="power-score-circle">
+            <span class="power-num" id="combat-score">0</span>
+            <span class="power-unit">POWER</span>
+          </div>
+          <div>
+            <div class="power-title" id="combat-rank-name">工控初探者 (Novice)</div>
+            <div class="power-rank-badge" id="combat-rank-badge">
+              <i class="fa-solid fa-seedling"></i> 修為評級：Level 1 啟蒙階段
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: right; font-size: 0.88rem; color: #94a3b8;">
+          <div>目前已達成修煉項目：<strong style="color: #38bdf8; font-size: 1.2rem;" id="checked-count">0</strong> / 24 項</div>
+          <div style="margin-top: 4px;">通關進度：<strong style="color: #10b981; font-size: 1.1rem;" id="progress-pct">0%</strong></div>
+        </div>
+      </div>
+
+      <!-- 檢定項目網格 (共 24 題，6 階段各 4 題) -->
+      <div class="audit-grid">
+
+        <!-- Stage 1 項目 -->
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>1. 理解事件驅動與 msg 物件結構</strong>
+            能清楚說出 msg.payload、msg.topic 與 msg._msgid 的職責，並能熟練使用 Debug 節點輸出完整物件。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>2. 掌握五大基礎節點 (Inject/Debug/Switch/Change/Function)</strong>
+            能靈活運用 Switch 分流數值區間，以及用 Change 節點搜尋取代字串，不盲目濫用 Function。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>3. JavaScript 變數作用域與跳脫字元</strong>
+            能分辨 var、let、const 的差異，並能在處理 Windows 本機路徑時正確處理反斜線 <code>\\</code>。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>4. 掌握 JSONata 表達式</strong>
+            能使用 JSONata 進行行內條件計算（如華氏轉攝氏）與 toFixed() 小數位數格式化。
+          </div>
+        </label>
+
+        <!-- Stage 2 項目 -->
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>5. Modbus 協定與暫存器偏移定位</strong>
+            能清晰說明 Function Code 03/06/16 意義，並精準計算 0-based 與 1-based 位址偏移。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>6. 串口通訊 (Serial) 與衝突排查</strong>
+            能獨立配置 Baudrate、Data bits、Parity，並排除串口被其他軟體佔用 (Port Busy) 錯誤。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>7. MQTT 主題階層規劃與 QoS 機制</strong>
+            能設計結構清晰的廠房主題（如 <code>factory/line1/temp</code>），並理解萬用字元與 QoS 0/1/2 差別。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>8. 工業抓包與機電比喻邏輯</strong>
+            曾使用 Wireshark 觀察工業封包，並能以雙壓閥 (AND) 與梭動閥 (OR) 概念解讀控制迴路。
+          </div>
+        </label>
+
+        <!-- Stage 3 項目 -->
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>9. Dashboard 2.0 (Vue 3) 階層配置</strong>
+            精通 Site ➔ Page ➔ Group ➔ Widget 架構，能獨立規劃分頁路徑與響應式排版。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>10. 直方圖分箱 (Bins) 品質統計</strong>
+            能在 Chart 節點中運用直方圖分析工件重量分佈，並看出白夜班機台常態分佈差異。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>11. ui-template 萬能節點與客製 CSS</strong>
+            能使用 Vue 3 語法與 CSS 打造高質感按鈕、動態機台照片顯示與即時主題切換。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>12. MariaDB / MySQL 資料庫 CRUD 實作</strong>
+            能在 Node-RED 中編寫非同步 SQL 查詢，完成感測器歷史數據的儲存與多欄位表格查詢。
+          </div>
+        </label>
+
+        <!-- Stage 4 項目 -->
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>13. RESTful API 串接與 JSON 巢狀解析</strong>
+            曾成功串接中央氣象署、台銀匯率或政府交通開放資料 API，並完成複雜多層 JSON 解構。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>14. API Key 資安防禦四大防線</strong>
+            熟記點餐窗口比喻，堅決落實環境變數隔離，杜絕將明文金鑰推至公開 GitHub 倉庫。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>15. LINE Bot 雙向通訊與 Webhook 部署</strong>
+            能申請 LINE Messaging API 並設定 Webhook，實現工控異常警報自動推播到手機。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>16. Worldmap 動態地理軌跡地圖</strong>
+            能將經緯度物件傳送給 Worldmap 節點，實作颱風路徑動態追蹤或海域船舶 AIS 定位。
+          </div>
+        </label>
+
+        <!-- Stage 5 項目 -->
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>17. 邊緣視覺 AI 影像分類與物件偵測</strong>
+            曾整合 Google Teachable Machine 或 TensorFlow.js COCO-SSD 進行實體工件良品/瑕疵判定。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>18. 地端本地 LLM (Ollama / LM Studio) 部署</strong>
+            能在區域網路或本地端架設視覺大模型，完成離線車牌辨識與自動摘要。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>19. 企業知識庫 RAG (AnythingLLM) 整合</strong>
+            能建立工廠維護手冊知識庫，透過 Node-RED 讓現場操作員以自然語言對話查詢 SOP。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>20. Epson 機械手臂空間座標系轉換</strong>
+            能透過 GenAI 解析自然語言指令，並精確計算 Tool 法蘭面坐標，驅動手臂執行抓取任務。
+          </div>
+        </label>
+
+        <!-- Stage 6 項目 -->
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>21. 洞悉 Node.js V8 引擎與 Event Loop 機制</strong>
+            能清晰說明單執行緒非阻塞 I/O、Microtask/Macrotask 隊列，並避免阻塞主執行緒。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>22. 理解 libuv 執行緒池與全雙工 WebSocket</strong>
+            明白檔案、DNS 與加密如何交由底層執行緒池處理，以及戰情室儀表如何實現零延遲推播。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>23. OpenCart 電商商城 ➔ MES 排程生產全閉環</strong>
+            親手走通「商城下單 ➔ 資料庫寫入 ➔ Node-RED 監聽 ➔ MES 排程 ➔ OEE 稼動率回寫」全流程。
+          </div>
+        </label>
+
+        <label class="audit-item">
+          <input type="checkbox" class="audit-cb" onchange="calcCombatPower()">
+          <div class="audit-text">
+            <strong>24. C# 上位機與 OpenCart 串接三大方案</strong>
+            能根據工廠安全性與架構需求，自由切換「直連資料庫」、「原生 API」與「REST Admin API」方案。
+          </div>
+        </label>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁尾 -->
+  <footer class="page-footer">
+    <div style="margin-bottom: 12px; font-weight: 700; color: #94a3b8;">
+      五股職訓局 機電AI班 專業課程教學平台（指導老師：Rido老師）
+    </div>
+    <div style="margin-bottom: 10px;">
+      <a href="index.html">課程首頁</a> •
+      <a href="nodered_smart_control_mindmap.html">全景心智圖</a> •
+      <a href="labs.html">36 實務實驗</a> •
+      <a href="supplements.html">26 精選補充教材</a> •
+      <a href="nodered_projects.html">23 實務專題</a> •
+      <a href="nodered_internals.html">底層運作邏輯</a> •
+      <a href="project_opencart.html">OpenCart MES 智慧商城</a> •
+      <a href="sitemap.html">全站導覽地圖</a>
+    </div>
+    <div style="font-size: 0.78rem; color: #475569;">
+      &copy; 2026 Node-RED 智慧控制模組 | 工業物聯網・SCADA 戰情室・IT/OT 全閉環修煉手冊
+    </div>
+  </footer>
+
+  <script>
+    // 初始化 Mermaid
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+
+    // 複製 Mermaid 代碼功能
+    function copyMermaidRoadmap() {
+      const code = `flowchart TD
+    Start(["🌱 新手起點：機電工程師 / 軟體初學者"])
+    Start --> S1["Stage 1: 初見流動・破除心魔 (事件驅動與 msg 物件)"]
+    S1 --> S2["Stage 2: 觸碰現場・通訊感知 (Modbus / MQTT / 氣壓比喻)"]
+    S2 --> S3["Stage 3: 戰情駕馭・數據沉澱 (Dashboard 2.0 Vue 3 / MariaDB)"]
+    S3 --> S4["Stage 4: 跨網互聯・資安覺醒 (REST API / API Key 防洩 / Worldmap)"]
+    S4 --> S5["Stage 5: 神經賦能・邊緣 AI (Teachable Machine / Ollama / 手臂)"]
+    S5 --> S6["Stage 6: 萬物閉環・工控大師 (V8 Event Loop / OpenCart MES / C#)"]`;
+      
+      navigator.clipboard.writeText(code).then(() => {
+        alert('✅ 修煉路徑 Mermaid 代碼已成功複製至剪貼簿！');
+      }).catch(err => {
+        alert('複製失敗，請手動複製。');
+      });
+    }
+
+    // 計算自測檢定儀分數與段位稱號
+    function calcCombatPower() {
+      const checkboxes = document.querySelectorAll('.audit-cb');
+      let checked = 0;
+      checkboxes.forEach(cb => {
+        if (cb.checked) checked++;
+      });
+
+      // 總分 100 分 (每題約 4.166 分)
+      const score = Math.round((checked / checkboxes.length) * 100);
+      const pct = Math.round((checked / checkboxes.length) * 100);
+
+      document.getElementById('combat-score').textContent = score;
+      document.getElementById('checked-count').textContent = checked;
+      document.getElementById('progress-pct').textContent = pct + '%';
+
+      // 判定段位稱號
+      const rankTitle = document.getElementById('combat-rank-name');
+      const rankBadge = document.getElementById('combat-rank-badge');
+
+      if (score === 0) {
+        rankTitle.textContent = '工控初探者 (Novice)';
+        rankBadge.innerHTML = '<i class="fa-solid fa-seedling"></i> 修為評級：Level 1 啟蒙階段';
+        rankBadge.style.background = 'rgba(100, 116, 139, 0.2)';
+        rankBadge.style.color = '#cbd5e1';
+      } else if (score <= 20) {
+        rankTitle.textContent = '流程入門學徒 (Apprentice)';
+        rankBadge.innerHTML = '<i class="fa-solid fa-leaf"></i> 修為評級：Level 1 破除心魔';
+        rankBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+        rankBadge.style.color = '#34d399';
+      } else if (score <= 40) {
+        rankTitle.textContent = '現場通訊行者 (OT Specialist)';
+        rankBadge.innerHTML = '<i class="fa-solid fa-wrench"></i> 修為評級：Level 2 現場感知';
+        rankBadge.style.background = 'rgba(6, 182, 212, 0.2)';
+        rankBadge.style.color = '#38bdf8';
+      } else if (score <= 65) {
+        rankTitle.textContent = '戰情數據工匠 (Dashboard Craftsman)';
+        rankBadge.innerHTML = '<i class="fa-solid fa-chart-pie"></i> 修為評級：Level 3 數據沉澱';
+        rankBadge.style.background = 'rgba(168, 85, 247, 0.2)';
+        rankBadge.style.color = '#c084fc';
+      } else if (score <= 85) {
+        rankTitle.textContent = '雲端資安專家 (Cloud & Sec Expert)';
+        rankBadge.innerHTML = '<i class="fa-solid fa-shield-halved"></i> 修為評級：Level 4 跨網互聯';
+        rankBadge.style.background = 'rgba(245, 158, 11, 0.2)';
+        rankBadge.style.color = '#fbbf24';
+      } else if (score < 100) {
+        rankTitle.textContent = '智慧邊緣架構師 (Edge AI Architect)';
+        rankBadge.innerHTML = '<i class="fa-solid fa-robot"></i> 修為評級：Level 5 神經賦能';
+        rankBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+        rankBadge.style.color = '#f87171';
+      } else {
+        rankTitle.textContent = '👑 傳奇工控大師 (Grandmaster)';
+        rankBadge.innerHTML = '<i class="fa-solid fa-crown"></i> 終極評級：Level 6 萬物閉環・工控大師！';
+        rankBadge.style.background = 'linear-gradient(135deg, #ea580c, #dc2626)';
+        rankBadge.style.color = '#fff';
+      }
+
+      // 保存進度至 localStorage
+      saveAuditProgress();
+    }
+
+    // 保存勾選進度
+    function saveAuditProgress() {
+      const cbs = document.querySelectorAll('.audit-cb');
+      const states = Array.from(cbs).map(cb => cb.checked);
+      try {
+        localStorage.setItem('nodered_learning_roadmap_audit', JSON.stringify(states));
+      } catch (e) {}
+    }
+
+    // 載入勾選進度
+    function loadAuditProgress() {
+      try {
+        const saved = localStorage.getItem('nodered_learning_roadmap_audit');
+        if (saved) {
+          const states = JSON.parse(saved);
+          const cbs = document.querySelectorAll('.audit-cb');
+          cbs.forEach((cb, idx) => {
+            if (states[idx] !== undefined) cb.checked = states[idx];
+          });
+          calcCombatPower();
+        }
+      } catch (e) {}
+    }
+
+    // 重置所有勾選
+    function resetAuditCheckboxes() {
+      if (confirm('確定要重置所有自測檢定項目的勾選進度嗎？')) {
+        document.querySelectorAll('.audit-cb').forEach(cb => cb.checked = false);
+        calcCombatPower();
+        try {
+          localStorage.removeItem('nodered_learning_roadmap_audit');
+        } catch (e) {}
+      }
+    }
+
+    // 頁面載入時自動還原進度
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAuditProgress();
+    });
+  </script>
+</body>
+</html>
