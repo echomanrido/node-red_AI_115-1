@@ -1129,6 +1129,21 @@
       text-align: center;
     }
 
+  
+    /* 確保所有 Mermaid 節點 (包括有顏色的 Stage 節點) 游標全為手勢並具備光暈效果 */
+    .mermaid .node, .mermaid .node * {
+      cursor: pointer !important;
+    }
+    .mermaid a {
+      cursor: pointer !important;
+      text-decoration: none !important;
+    }
+    .mermaid .node:hover {
+      filter: brightness(1.3) drop-shadow(0 0 16px rgba(56, 189, 248, 0.9)) !important;
+      transform: scale(1.025);
+      transition: all 0.2s ease !important;
+    }
+
   </style>
 </head>
 <body>
@@ -1277,6 +1292,16 @@ flowchart TD
     S3 --> S4["Stage 4: 跨網互聯・資安覺醒<br/>(HTTP Request / API Key 防洩守則 / Worldmap)"]:::s4Style
     S4 --> S5["Stage 5: 神經賦能・邊緣 AI<br/>(Teachable Machine / Ollama / Epson 手臂)"]:::s5Style
     S5 --> S6["Stage 6: 萬物閉環・工控大師<br/>(V8 Event Loop / OpenCart MES / C# 三方案)"]:::s6Style
+
+    %% 六大有顏色主節點點擊跳轉 (跳轉至下方各 Stage 深度拆解卡片)
+    click Start href "#stage-1" "起點：點擊前往 Stage 1 啟蒙幼苗"
+    click S1 href "#stage-1" "Stage 1：初見流動・破除心魔 (點擊查看深度拆解)"
+    click S2 href "#stage-2" "Stage 2：觸碰現場・通訊感知 (點擊查看深度拆解)"
+    click S3 href "#stage-3" "Stage 3：戰情駕馭・數據沉澱 (點擊查看深度拆解)"
+    click S4 href "#stage-4" "Stage 4：跨網互聯・資安覺醒 (點擊查看深度拆解)"
+    click S5 href "#stage-5" "Stage 5：神經賦能・邊緣 AI (點擊查看深度拆解)"
+    click S6 href "#stage-6" "Stage 6：萬物閉環・工控大師 (點擊查看深度拆解)"
+
 
     %% S1 細項
     S1 --> S1_1["基礎五大天王節點<br/>(Inject / Debug / Function / Switch / Change)"]
@@ -2383,6 +2408,33 @@ flowchart TD
     }
 
     // 頁面加載後初始化 SVG 寬度與預設縮小居中
+    
+    // 監聽 SVG 節點與頁面內錨點跳轉，確保平滑滾動至對應 Stage 卡片
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest('a');
+      if (link) {
+        const href = link.getAttribute('href') || link.getAttribute('xlink:href');
+        if (href && href.startsWith('#stage-')) {
+          e.preventDefault();
+          const targetId = href.substring(1);
+          const targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            // 如果是在燈箱裡點擊，先關閉燈箱
+            closeRoadmapLightbox();
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // 高亮震動該卡片提醒
+            targetEl.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
+            targetEl.style.boxShadow = '0 0 35px rgba(56, 189, 248, 0.6)';
+            targetEl.style.borderColor = '#38bdf8';
+            setTimeout(() => {
+              targetEl.style.boxShadow = '';
+              targetEl.style.borderColor = '';
+            }, 1800);
+          }
+        }
+      }
+    });
+
     window.addEventListener('load', () => {
       setTimeout(() => {
         initSvgWidth();
