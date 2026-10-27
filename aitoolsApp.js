@@ -190,6 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const remoteControlStep = tool.tutorialSteps ? tool.tutorialSteps.find(s => s.step && (s.step.includes('Remote Control') || s.step.includes('遠端遙控'))) : null;
     const remoteControlImgUrl = 'images_src/ok/20261023_antigravity_remote_control.png';
 
+    // 檢查是否有獨立的 Manus 資料庫設定步驟 (特別提醒資料庫位置與去識別化)
+    const manusDbStep = tool.id === 'tool-manus-voting-app' || (tool.tutorialSteps && tool.tutorialSteps.find(s => s.step && (s.step.includes('資料庫放在哪邊') || s.step.includes('受管資料庫'))));
+    const manusDbImgUrl = 'images_src/ok/20261027_manus_voting_database_deidentified.png';
+
     // 檢查是否有獨立的 Models & Usage 設定步驟
     const usageStep = tool.tutorialSteps ? tool.tutorialSteps.find(s => s.step && (s.step.includes('Models & Usage') || s.step.includes('模型額度'))) : null;
     const usageImgUrl = 'images_src/ok/20261006_antigravity_settings_models_usage.png';
@@ -311,6 +315,68 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
                   • <strong style="color: #10b981;">QR Code 掃碼直連</strong>：使用手機或平板相機直接掃描右側條碼，免去手動輸入 IP 或 Token 的繁瑣流程，一秒開啟行動控制台。<br>
                   • <strong style="color: #10b981;">copy link 安全連結</strong>：點擊複製專屬加密網址，可透過通訊軟體傳送給遠端協同開發者，隨時隨地監控 Agent 執行進度與下達提示詞。
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    
+    let manusDatabaseHighlightHtml = '';
+    if (manusDbStep) {
+      manusDatabaseHighlightHtml = `
+        <!-- (2.58) 核心特寫：Manus 雲端受管資料庫 (Database) 存放位置與個資去識別化獨立專區 -->
+        <section class="section-card" style="border: 2px solid #10b981; background: linear-gradient(145deg, rgba(16, 185, 129, 0.08), rgba(15, 23, 42, 0.6)); border-radius: 14px; padding: 22px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px dashed rgba(16, 185, 129, 0.4); padding-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <h3 class="section-title" style="margin-bottom: 0; border-bottom: none; color: #34d399; font-size: 1.15rem; display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-database" style="color: #34d399; font-size: 1.2rem;"></i>
+              <span>特別提醒：Manus 雲端受管資料庫 (Database) 存放位置與個資去識別化</span>
+            </h3>
+            <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #6ee7b7; padding: 4px 12px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.4);">
+              <i class="fa-solid fa-shield-halved"></i> 雲端資料庫存取 · 個資去識別化落實
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: center;">
+            <!-- 獨立圖片框 (去識別化照片) -->
+            <div style="border-radius: 10px; overflow: hidden; border: 1.5px solid rgba(16, 185, 129, 0.4); background: #0b0f19; box-shadow: 0 6px 16px rgba(0,0,0,0.3);">
+              <img src="${manusDbImgUrl}" alt="Manus 雲端受管資料庫 votes 表格 (已去識別化)" class="zoomable-img" style="width: 100%; display: block; cursor: zoom-in;" onerror="this.src='https://via.placeholder.com/600x300?text=Manus+Database+Table'" />
+              <div style="padding: 8px 12px; font-size: 0.75rem; color: #94a3b8; text-align: center; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.06);">
+                <i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大檢視 Manus 受管資料庫後台 (姓名欄位已落實去識別化遮蔽)
+              </div>
+            </div>
+
+            <!-- 獨立說明框 -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #10b981;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-folder-tree" style="color: #34d399;"></i>
+                  <span>資料庫存放在哪邊？(Manus 頂部工作區分頁)</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  在 Manus 畫面頂部的標籤列（如「即時投票」、「Manus的電腦」右側），點擊 <code style="background: rgba(0,0,0,0.4); padding: 2px 6px; border-radius: 4px; color: #6ee7b7;">[+]</code> 按鈕 ➔ 選擇 <strong style="color: #34d399;">「資料庫 (Database)」</strong> 分頁（或直接從左側對話區藍圖狀態中點擊 <strong style="color: #34d399;">Database 投票資料庫</strong>），即可立即開啟雲端後端資料表檢視器！
+                </div>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #06b6d4;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-table-list" style="color: #06b6d4;"></i>
+                  <span>votes 資料表結構與即時統計原理</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  Manus 為投票系統自動建立 <strong style="color: #06b6d4;">votes</strong> 表：收錄 <code style="background: rgba(0,0,0,0.4); padding: 1px 4px; border-radius: 3px; color: #67e8f9;">id</code> (序號)、<code style="background: rgba(0,0,0,0.4); padding: 1px 4px; border-radius: 3px; color: #67e8f9;">name</code> (姓名)、<code style="background: rgba(0,0,0,0.4); padding: 1px 4px; border-radius: 3px; color: #67e8f9;">normalizedName</code> (去空標準化)、<code style="background: rgba(0,0,0,0.4); padding: 1px 4px; border-radius: 3px; color: #67e8f9;">choice</code> (選項代號 0/1/2) 與 <code style="background: rgba(0,0,0,0.4); padding: 1px 4px; border-radius: 3px; color: #67e8f9;">submittedAt</code> (UTC 提交時間戳記)，確保各裝置資料一致。
+                </div>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #f59e0b;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-user-shield" style="color: #f59e0b;"></i>
+                  <span>資料庫照片「去識別化 (De-identification)」規範</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  真實投票資料庫包含學員或同仁真實姓名。在公開教材、成果簡報或技術分享截圖時，<strong style="color: #f59e0b;">必須針對姓名欄位進行模糊或馬賽克去識別化</strong>，恪遵個人資料保護法，展現專業資安素養！
                 </div>
               </div>
             </div>
@@ -610,7 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tool.flowImage) {
       const rawImages = Array.isArray(tool.flowImage) ? tool.flowImage : [tool.flowImage];
       // 若已有獨立展示 Turbo Mode 與 Models & Usage 圖片，則在頂部通用畫廊中過濾掉，避免重複
-      const images = rawImages.filter(url => !url.includes('antigravity_settings_turbo_mode') && !url.includes('antigravity_settings_models_usage') && !url.includes('antigravity_remote_control'));
+      const images = rawImages.filter(url => !url.includes('antigravity_settings_turbo_mode') && !url.includes('antigravity_settings_models_usage') && !url.includes('antigravity_remote_control') && !url.includes('manus_voting_database_deidentified'));
 
       const imgCardsHtml = images.map((imgUrl, index) => `
         <div class="image-wrapper" style="flex: 1; min-width: 280px; max-width: 100%;">
@@ -666,6 +732,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       <!-- (2.55) 獨立設定專區框框：Remote Control -->
       ${remoteControlHighlightHtml}
+
+      <!-- (2.58) 獨立設定專區框框：Manus Database -->
+      ${manusDatabaseHighlightHtml}
 
       <!-- (2.6) 獨立設定專區框框：Models & Usage -->
       ${usageHighlightHtml}

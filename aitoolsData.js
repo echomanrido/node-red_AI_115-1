@@ -1551,6 +1551,73 @@ window.INITIAL_AITOOLS_DATA = [
         "url": "https://echomanrido.github.io/node-red_AI_115-1/index.html"
       }
     ]
+  },
+  {
+    "id": "tool-manus-voting-app",
+    "toolNumber": "25",
+    "title": "Manus 2.0 - 全自動即時投票系統網頁生成、QR Code 掃碼分享與雲端受管資料庫 (Database) 實務",
+    "date": "2026-10-27",
+    "category": "Manus AI Agent",
+    "summary": "體驗 Manus 2.0 旗艦級多工具代理（Webdev MCP 與 Managed Full-Stack）實力！透過一句簡單的自然語言 Prompt，Manus 即可在數分鐘內自主初始化全端 Web 專案、建置「即時投票系統 (Real-time Voting App)」、生成手機端自適應介面、即時統計長條圖與專屬 QR Code 邀請掃碼入口。本教學特別詳解 Manus「雲端受管資料庫 (Database)」之存放位置與結構管理，並遵循資安與個資規範進行「姓名去識別化」安全防護，實現即時一致性資料同步。",
+    "webUrl": "https://manus.im",
+    "flowImage": [
+      "images_src/ok/20261027_manus_realtime_voting_app.png",
+      "images_src/ok/20261027_manus_voting_database_deidentified.png"
+    ],
+    "objective": "1. 掌握在 Manus 2.0 中透過精準自然語言 Prompt 下達全端即時互動 Web 應用的建構需求。\n2. 學習 Manus 如何透過 Webdev MCP 工具鏈自動完成專案初始化、前端動態長條圖、每 3 秒自動輪詢/即時資料同步與 QR Code 生成。\n3. 深入理解 Manus 雲端受管資料庫 (Managed Database) 的存放位置、管理面板進入路徑與 votes 資料表綱要 (Schema)。\n4. 掌握個人資料保護與隱私資安規範：在資料庫檢視與對外展示時，落實姓名去識別化 (De-identification) 遮蔽原則。\n5. 結合智慧機電整合、課堂意向調查或產線交接排程，快速打造免伺服器維護的即時行動問卷系統。",
+    "tutorialSteps": [
+      {
+        "step": "1. 下達投票系統建置提示詞 (Prompt Input)",
+        "description": "開啟 Manus 2.0 Lite 介面，在底部對話框直接輸入自然語言指令：\n「產生一個投票的網頁。填入名字，掃QR code。即時更新。有三個選項，1. 早上上課，下午練習。2. 整天練習。3.沒有意見。」"
+      },
+      {
+        "step": "2. Manus 自主架構規劃與 Webdev MCP 工具調度",
+        "description": "Manus 接收需求後展開自主工程編排：\n• 查詢並調用 webdev MCP 工具，初始化具備行動端相容的管理型網站專案架構。\n• 配置即時資料同步服務 (Real-time Data Sync)，設定前端每 3 秒自動向後端輪詢最新投票統計結果。\n• 規劃資料庫藍圖：自動建立「投票資料庫 (Database)」，記錄參與者姓名、選項索引與提交時間戳記。"
+      },
+      {
+        "step": "3. 預覽投票前端介面、即時動態長條圖與 QR Code 入口",
+        "description": "在右側「即時投票預覽」視窗中即可即時操作應用程式：\n• 01 投下你的一票：提供「你的名字」文字輸入欄與 3 個投票選項按鈕，支援相同姓名重新投票時自動更新選項。\n• 02 目前結果 (大家怎麼選？)：顯示總參與票數，並以色彩豐富的動態進度長條圖與百分比即時反饋各選項得票分佈（每 3 秒無感自動更新）。\n• 03 邀請大家加入：自動生成該投票網頁之專屬 QR Code 與「複製投票連結」按鈕，讓現場所有人透過手機直接掃碼秒投！"
+      },
+      {
+        "step": "4. 關鍵亮點：Manus 雲端受管資料庫放在哪邊？(Database Access)",
+        "description": "如何檢視後端儲存的真實投票數據？\n• 尋找資料庫入口：在 Manus 頂部工作區分頁列中（即「即時投票」與「Manus的電腦」旁），點擊「+」新增分頁 ➔ 選擇「資料庫 (Database)」分頁（或由左側對話區藍圖點選「Database 投票資料庫」），即可開啟雲端受管資料庫儀表板！\n• 檢視 votes 資料表：進入後可見「users」與「votes」表格，欄位包含 id、name、normalizedName、choice 與 submittedAt，直觀掌握全體投票紀錄與時間戳記。"
+      },
+      {
+        "step": "5. 資安與隱私防護：資料庫個資去識別化 (De-identification)",
+        "description": "實務教學與專題簡報資安規範：\n• 由於真實資料庫會記錄參與者的真實姓名（name / normalizedName），在對外展示、截圖分享或教學簡報中，必須落實個人資料保護規範。\n• 使用影像模糊 (Gaussian Blur) 或像素化馬賽克 (Pixelate) 將姓名欄位去識別化，確保系統架構展示與隱私法規兩不誤！"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "職訓課程與機電實作教學意向調查 (即時共識凝聚)",
+        "icon": "fa-solid fa-chalkboard-user",
+        "description": "講師於課堂中透過 Manus 5 分鐘秒產投票網頁並投影 QR Code，全班學員手機掃碼即時決定課程進度配比（如「早上上課/下午練習」），大螢幕 3 秒動態刷新呈現透明公信力。"
+      },
+      {
+        "scenario": "智慧工廠機台檢修排程與產線交接班意向投票",
+        "icon": "fa-solid fa-industry",
+        "description": "工控現場主管快速建立無伺服器投票 Web 應用，產線技術員以手持平板掃碼登記換班意願，數據自動寫入雲端資料庫並生成直觀統計條狀圖，免除繁瑣紙本作業。"
+      },
+      {
+        "scenario": "企業內部快速問卷與匿名/實名意見收集 (免後端維護)",
+        "icon": "fa-solid fa-square-poll-vertical",
+        "description": "傳統全端問卷開發需架設 Node/Python 後端與 SQL 資料庫；利用 Manus 管理型網站環境，由 Agent 一條龍完成資料庫初始化、身分驗證與即時報表，開發維運成本近乎為零。"
+      }
+    ],
+    "aiPrompt": "請扮演 Manus AI Agent 架構師，幫我評估並產出一套適用於即時現場活動與課堂教學的「即時投票系統 (Real-time Voting Web App)」提示詞與資料庫管理方案：\n1. 核心需求 Prompt：『產生一個投票的網頁。填入名字，掃QR code。即時更新。有三個選項，1. 早上上課，下午練習。2. 整天練習。3.沒有意見。』\n2. 請說明 Manus 如何調用 webdev MCP 工具鏈初始化前端互動介面與每 3 秒自動輪詢更新機制。\n3. 詳細指導新手使用者如何在 Manus 頂部分頁找到「資料庫 (Database)」面板以查看 votes 資料表結構。\n4. 提供資料庫展示時進行個資去識別化 (De-identification) 的資安最佳實踐建議。",
+    "references": [
+      {
+        "title": "Manus 官方網站",
+        "url": "https://manus.im"
+      },
+      {
+        "title": "Manus - AI Agent 全自動專案建置與管理型網站環境介紹",
+        "url": "https://manus.im"
+      },
+      {
+        "title": "W3C Web 前端動態資料輪詢與即時通訊最佳實踐",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/API"
+      }
+    ]
   }
 ];
-window.INITIAL_TOOLS_DATA = window.INITIAL_AITOOLS_DATA;
