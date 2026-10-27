@@ -11,6 +11,229 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  <!-- 首頁即時智慧搜尋區塊樣式 -->
+  <style>
+    .home-search-section-wrap {
+      max-width: 1080px;
+      margin: 22px auto 26px auto;
+      width: 100%;
+      padding: 0 6px;
+      box-sizing: border-box;
+    }
+    .home-search-container {
+      position: relative;
+    }
+    .home-search-bar {
+      display: flex;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1.5px solid rgba(56, 189, 248, 0.45);
+      border-radius: 14px;
+      padding: 6px 18px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(14, 165, 233, 0.15);
+      backdrop-filter: blur(14px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .home-search-bar:focus-within {
+      border-color: #38bdf8;
+      box-shadow: 0 8px 30px rgba(14, 165, 233, 0.35), 0 0 22px rgba(56, 189, 248, 0.35);
+      transform: translateY(-2px);
+    }
+    .home-search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-size: 1.05rem;
+      padding: 10px 4px;
+      font-family: inherit;
+      min-width: 0;
+    }
+    .home-search-input::placeholder {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+    .home-search-clear-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.15rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .home-search-clear-btn:hover {
+      color: #f87171;
+      transform: scale(1.15);
+    }
+    .home-search-shortcut-hint {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.72rem;
+      color: #94a3b8;
+      margin-left: 8px;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .home-search-shortcut-hint kbd {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 1px 5px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .home-search-hot-tags {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+      padding: 0 4px;
+    }
+    .hot-tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .hot-tag-pill:hover {
+      background: rgba(14, 165, 233, 0.2);
+      border-color: rgba(56, 189, 248, 0.5);
+      color: #38bdf8;
+      transform: translateY(-1px);
+    }
+    .home-search-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(11, 15, 25, 0.98);
+      border: 1.5px solid rgba(56, 189, 248, 0.5);
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(14, 165, 233, 0.25);
+      max-height: 440px;
+      overflow-y: auto;
+      padding: 10px;
+      backdrop-filter: blur(18px);
+    }
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #f1f5f9;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      margin-bottom: 4px;
+    }
+    .search-result-item:hover, .search-result-item.selected {
+      background: rgba(14, 165, 233, 0.15);
+      border-color: rgba(56, 189, 248, 0.35);
+      transform: translateX(4px);
+    }
+    .search-res-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+    .search-res-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .search-res-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+    .search-res-title {
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .search-res-badge {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .search-res-desc {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .search-res-action {
+      color: #64748b;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      transition: transform 0.2s, color 0.2s;
+    }
+    .search-result-item:hover .search-res-action {
+      color: #38bdf8;
+      transform: translateX(3px);
+    }
+    .search-empty-state {
+      padding: 26px 16px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.92rem;
+    }
+    /* 儀表板過濾樣式 */
+    .btn-group-action.search-matched {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.45) !important;
+      transform: translateY(-2px);
+    }
+    .btn-group-action.search-dimmed {
+      opacity: 0.25;
+      filter: grayscale(60%);
+    }
+    @media (max-width: 768px) {
+      .home-search-shortcut-hint {
+        display: none;
+      }
+      .home-search-input {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+
 </head>
 <body>
   <div class="home-container">
@@ -25,6 +248,10 @@
       </div>
       <div class="nav-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
         <!-- 網站地圖與心智圖入口按鈕 (醒目高亮) -->
+        <!-- 頂部快速搜尋按鈕 -->
+        <a href="#homeSearchInput" class="nav-cta-btn secondary-btn" style="background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.35); color: #38bdf8; text-decoration: none;" onclick="focusHomeSearch(event)">
+          <i class="fa-solid fa-magnifying-glass"></i> <span>搜尋</span>
+        </a>
         <a href="sitemap.html" class="nav-cta-btn" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(99, 102, 241, 0.25)); border: 1.5px solid rgba(56, 189, 248, 0.55); color: #38bdf8; font-weight: 700; box-shadow: 0 0 16px rgba(14, 165, 233, 0.35); text-decoration: none;">
           <i class="fa-solid fa-sitemap"></i> <span>網站地圖・心智圖</span>
           <span style="font-size: 0.65rem; background: #0284c7; color: #fff; padding: 1px 6px; border-radius: 999px; margin-left: 3px;">MAP</span>
@@ -437,6 +664,43 @@
           </a>
         </div>
         
+        <!-- 首頁全站即時智慧搜尋區塊 -->
+        <div class="home-search-section-wrap">
+          <div class="home-search-container">
+            <div class="home-search-bar">
+              <i class="fa-solid fa-magnifying-glass" style="font-size: 1.25rem; color: #38bdf8; margin-right: 12px; flex-shrink: 0;"></i>
+              <input type="text" id="homeSearchInput" class="home-search-input" placeholder="搜尋全站課程、單元或關鍵字 (例如: Modbus, PLC, C#, OpenCart, LINE Bot, GitHub, 碳盤查)..." autocomplete="off" />
+              <button id="homeSearchClearBtn" class="home-search-clear-btn" title="清除搜尋">
+                <i class="fa-solid fa-circle-xmark"></i>
+              </button>
+              <div class="home-search-shortcut-hint">
+                <span>快捷</span> <kbd>/</kbd> 或 <kbd>Ctrl+K</kbd>
+              </div>
+            </div>
+
+            <!-- 即時下拉建議搜尋結果彈窗 -->
+            <div id="homeSearchDropdown" class="home-search-dropdown">
+              <!-- 動態渲染搜尋結果 -->
+            </div>
+
+            <!-- 快速探索熱門關鍵字標籤 -->
+            <div class="home-search-hot-tags">
+              <span style="font-size: 0.78rem; color: #64748b; font-weight: 700;"><i class="fa-solid fa-fire" style="color: #f87171;"></i> 熱門探索：</span>
+              <span class="hot-tag-pill" onclick="quickSearch('Modbus')"><i class="fa-solid fa-satellite-dish" style="color: #fbbf24;"></i> Modbus</span>
+              <span class="hot-tag-pill" onclick="quickSearch('PLC')"><i class="fa-solid fa-network-wired" style="color: #38bdf8;"></i> 三菱 PLC FX3U</span>
+              <span class="hot-tag-pill" onclick="quickSearch('Node-RED')"><i class="fa-brands fa-node-js" style="color: #06b6d4;"></i> Node-RED 實驗</span>
+              <span class="hot-tag-pill" onclick="quickSearch('C#')"><i class="fa-brands fa-microsoft" style="color: #c084fc;"></i> C# 工控</span>
+              <span class="hot-tag-pill" onclick="quickSearch('OpenCart')"><i class="fa-solid fa-cart-shopping" style="color: #34d399;"></i> OpenCart 商城</span>
+              <span class="hot-tag-pill" onclick="quickSearch('LINE Bot')"><i class="fa-brands fa-line" style="color: #06c755;"></i> LINE Bot</span>
+              <span class="hot-tag-pill" onclick="quickSearch('Epson')"><i class="fa-solid fa-robot" style="color: #06b6d4;"></i> Epson 手臂</span>
+              <span class="hot-tag-pill" onclick="quickSearch('地端 LLM')"><i class="fa-solid fa-brain" style="color: #10b981;"></i> 地端 LLM</span>
+              <span class="hot-tag-pill" onclick="quickSearch('GitHub')"><i class="fa-brands fa-github" style="color: #4ade80;"></i> GitHub 申請</span>
+              <span class="hot-tag-pill" onclick="quickSearch('硬體採購')"><i class="fa-solid fa-laptop-code" style="color: #f59e0b;"></i> 硬體規格指南</span>
+              <span class="hot-tag-pill" onclick="quickSearch('碳盤查')"><i class="fa-solid fa-leaf" style="color: #34d399;"></i> IPAS 淨零</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 首頁 8 大核心分組導覽儀表板 -->
         <div class="hero-grouped-dashboard">
           
@@ -1831,5 +2095,627 @@
       }
     })();
   </script>
+
+  <!-- 首頁智慧搜尋即時互動邏輯 -->
+  <script>
+    // 全站索引資料庫 (收錄各模組與核心單元)
+    const SEARCH_DATABASE = [
+      // 課程大綱與其他
+      {
+        title: "課程大綱簡報預覽 (Node-RED 10頁 + C# 12頁)",
+        category: "課程大綱",
+        badgeBg: "rgba(56, 189, 248, 0.2)",
+        badgeColor: "#38bdf8",
+        icon: "fa-solid fa-file-pdf",
+        iconBg: "rgba(14, 165, 233, 0.15)",
+        iconColor: "#38bdf8",
+        desc: "官方大綱 PDF 高解析度導出畫面與翻頁播放器",
+        url: "#pdf-preview",
+        keywords: "課程大綱 簡報 pdf 投影片 node-red c# plc 規劃 課綱"
+      },
+      {
+        title: "GitHub 帳號申請與入門全攻略",
+        category: "課程大綱・其他",
+        badgeBg: "rgba(35, 134, 54, 0.2)",
+        badgeColor: "#4ade80",
+        icon: "fa-brands fa-github",
+        iconBg: "rgba(35, 134, 54, 0.18)",
+        iconColor: "#4ade80",
+        desc: "官網註冊、Google 一鍵登入、Too many requests 錯誤排解",
+        url: "github_signup_guide.html",
+        keywords: "github git 帳號申請 註冊 課前準備 too many requests 驗證 copilot 其他"
+      },
+      {
+        title: "電腦硬體規格需求與採購指南 (補充 01)",
+        category: "課程大綱・其他",
+        badgeBg: "rgba(245, 158, 11, 0.2)",
+        badgeColor: "#fbbf24",
+        icon: "fa-solid fa-laptop-code",
+        iconBg: "rgba(245, 158, 11, 0.15)",
+        iconColor: "#fbbf24",
+        desc: "Node-RED / C# / 落地型 LLM 三大場景之 CPU、RAM、顯卡 VRAM 瓶頸與預算配置",
+        url: "supplements.html?id=sup-01",
+        keywords: "電腦 硬體 規格 採購 預算 cpu ram 顯卡 vram gpu local llm 筆電 主機 其他"
+      },
+      {
+        title: "全站網站地圖與教學心智圖 (Sitemap & Mindmap)",
+        category: "全站導航",
+        badgeBg: "rgba(14, 165, 233, 0.2)",
+        badgeColor: "#38bdf8",
+        icon: "fa-solid fa-sitemap",
+        iconBg: "rgba(14, 165, 233, 0.18)",
+        iconColor: "#38bdf8",
+        desc: "全方位 8 大教學模組知識拓撲脈絡，支援雙指縮放、節點拖曳與一鍵跳轉",
+        url: "sitemap.html",
+        keywords: "網站地圖 心智圖 sitemap mindmap 架構 拓撲 導航 目錄"
+      },
+
+      // 次世代實務專題
+      {
+        title: "ESG 智慧工廠 (動態碳足跡閉環)",
+        category: "實務專題",
+        badgeBg: "rgba(16, 185, 129, 0.2)",
+        badgeColor: "#34d399",
+        icon: "fa-solid fa-leaf",
+        iconBg: "rgba(16, 185, 129, 0.15)",
+        iconColor: "#34d399",
+        desc: "機電丙級第二題設備實測、AI 視覺瑕疵檢測、動態碳足跡閉環調度",
+        url: "project.html",
+        keywords: "esg 智慧工廠 碳足跡 碳盤查 淨零 丙級 視覺瑕疵 綠色製造"
+      },
+      {
+        title: "PC-Based 控制三菱 PLC FX3U 專題",
+        category: "實務專題",
+        badgeBg: "rgba(56, 189, 248, 0.2)",
+        badgeColor: "#38bdf8",
+        icon: "fa-solid fa-network-wired",
+        iconBg: "rgba(56, 189, 248, 0.15)",
+        iconColor: "#38bdf8",
+        desc: "RS232 序列通訊、三菱編程口協定、ENQ/ACK、三階段自動化控制",
+        url: "project_plc_fx3u.html",
+        keywords: "plc fx3u 三菱 rs232 序列通訊 pc-based 上位機 enq ack checksum"
+      },
+      {
+        title: "Modbus 通訊協定 (TCP / RTU) 專題",
+        category: "實務專題",
+        badgeBg: "rgba(245, 158, 11, 0.2)",
+        badgeColor: "#fbbf24",
+        icon: "fa-solid fa-satellite-dish",
+        iconBg: "rgba(245, 158, 11, 0.15)",
+        iconColor: "#fbbf24",
+        desc: "工業物聯網標準語彙、MBAP Header、CRC-16 檢校碼演算法與封包剖析",
+        url: "project_modbus.html",
+        keywords: "modbus tcp rtu crc crc-16 mbap 保持暫存器 工業協定 通訊"
+      },
+      {
+        title: "LINE Bot 工業告警與開發者指南",
+        category: "實務專題",
+        badgeBg: "rgba(6, 199, 85, 0.2)",
+        badgeColor: "#06c755",
+        icon: "fa-brands fa-line",
+        iconBg: "rgba(6, 199, 85, 0.15)",
+        iconColor: "#06c755",
+        desc: "Messaging API 發送推播、n8n 工作流自動化、GAS 零成本雲端架設",
+        url: "project_linebot.html",
+        keywords: "line line bot messaging api 告警 推播 通知 n8n gas webhook"
+      },
+      {
+        title: "工業與雲端資料庫全解",
+        category: "實務專題",
+        badgeBg: "rgba(168, 85, 247, 0.2)",
+        badgeColor: "#c084fc",
+        icon: "fa-solid fa-database",
+        iconBg: "rgba(168, 85, 247, 0.15)",
+        iconColor: "#c084fc",
+        desc: "MySQL 關聯資料庫、SQL Server C# 連線、InfluxDB 時序庫、Firebase",
+        url: "project_database.html",
+        keywords: "database 資料庫 mysql sqlserver mssql influxdb firebase 時序 sql"
+      },
+      {
+        title: "Epson 機械手臂整合應用 (SCARA LS3)",
+        category: "實務專題",
+        badgeBg: "rgba(6, 182, 212, 0.2)",
+        badgeColor: "#06b6d4",
+        icon: "fa-solid fa-robot",
+        iconBg: "rgba(6, 182, 212, 0.15)",
+        iconColor: "#06b6d4",
+        desc: "SCARA LS3、SPEL+ 語法、正逆運動學解算、奇點迴避與 C# API 對接",
+        url: "project_epson_robot.html",
+        keywords: "epson 手臂 機械手臂 scara ls3 spel+ 運動學 奇點 c#"
+      },
+      {
+        title: "地端 LLM 與企業私有知識庫 (Ollama + AnythingLLM)",
+        category: "實務專題",
+        badgeBg: "rgba(16, 185, 129, 0.2)",
+        badgeColor: "#10b981",
+        icon: "fa-solid fa-microchip",
+        iconBg: "rgba(16, 185, 129, 0.15)",
+        iconColor: "#10b981",
+        desc: "Ollama、AnythingLLM、LM Studio、RAG 向量知識庫檢索與工控串接",
+        url: "project_local_llm.html",
+        keywords: "llm 地端 ollama anythingllm lm studio rag 本地模型 知識庫 ai"
+      },
+      {
+        title: "運動軸卡與 IO 卡精密控制",
+        category: "實務專題",
+        badgeBg: "rgba(245, 158, 11, 0.2)",
+        badgeColor: "#f59e0b",
+        icon: "fa-solid fa-gamepad",
+        iconBg: "rgba(245, 158, 11, 0.15)",
+        iconColor: "#f59e0b",
+        desc: "大銀微系統 PCI4P、研華 PCI-1756、MCCL 函式庫、四軸同動與插補",
+        url: "project_motion_control.html",
+        keywords: "運動控制 軸卡 pci4p mccl 大銀 研華 io卡 四軸同動 插補 馬達"
+      },
+      {
+        title: "大型專案：網路商城-資料庫應用 (OpenCart + Node-RED)",
+        category: "實務專題",
+        badgeBg: "rgba(239, 68, 68, 0.2)",
+        badgeColor: "#f87171",
+        icon: "fa-solid fa-cart-shopping",
+        iconBg: "rgba(239, 68, 68, 0.15)",
+        iconColor: "#ef4444",
+        desc: "OpenCart 電商商城下單、SQL 資料庫巢狀查詢、Node-RED MES 調度看板",
+        url: "project_opencart.html",
+        keywords: "opencart 商城 電商 資料庫 mes 訂單 xampp 下單 戰情室"
+      },
+      {
+        title: "OpenCart 四大主題獨立互動實驗室",
+        category: "OpenCart 專案",
+        badgeBg: "rgba(56, 189, 248, 0.2)",
+        badgeColor: "#38bdf8",
+        icon: "fa-solid fa-atom",
+        iconBg: "rgba(56, 189, 248, 0.15)",
+        iconColor: "#38bdf8",
+        desc: "全閉環實境演練、虛擬下單、SQL 沙盒、MES 加工儀表",
+        url: "opencart_interactive_lab.html",
+        keywords: "opencart 實驗室 互動 sql沙盒 下單 mes 儀表"
+      },
+      {
+        title: "C# .NET 工業 4.0 MES 戰情室",
+        category: "OpenCart 專案",
+        badgeBg: "rgba(168, 85, 247, 0.2)",
+        badgeColor: "#c084fc",
+        icon: "fa-solid fa-code",
+        iconBg: "rgba(168, 85, 247, 0.15)",
+        iconColor: "#c084fc",
+        desc: "WPF 上位機、Dapper ORM、非同步切削狀態機、SCADA 良率計算",
+        url: "csharp_opencart_mes.html",
+        keywords: "c# mes wpf dapper orm 切削 狀態機 scada 良率 opencart"
+      },
+      {
+        title: "C# 串接 OpenCart 原生 API 實戰 (Native API)",
+        category: "OpenCart 專案",
+        badgeBg: "rgba(56, 189, 248, 0.2)",
+        badgeColor: "#38bdf8",
+        icon: "fa-solid fa-cloud-arrow-down",
+        iconBg: "rgba(56, 189, 248, 0.15)",
+        iconColor: "#38bdf8",
+        desc: "IP 白名單、Session/Token 自動維護、官方標準安全架構",
+        url: "csharp_opencart_native_api.html",
+        keywords: "opencart api native api 白名單 token session c# 後台"
+      },
+      {
+        title: "C# 串接 OpenCart REST Admin API 實戰",
+        category: "OpenCart 專案",
+        badgeBg: "rgba(16, 185, 129, 0.2)",
+        badgeColor: "#34d399",
+        icon: "fa-solid fa-network-wired",
+        iconBg: "rgba(16, 185, 129, 0.15)",
+        iconColor: "#34d399",
+        desc: "RESTful JSON、OAuth2 / Bearer Token 授權、RestSharp 微服務架構",
+        url: "csharp_opencart_rest_admin_api.html",
+        keywords: "rest api opencart restsharp oauth2 jwt 微服務 c#"
+      },
+
+      // Node-RED 模組
+      {
+        title: "Node-RED 課程實驗 (33 Labs)",
+        category: "Node-RED 模組",
+        badgeBg: "rgba(6, 182, 212, 0.2)",
+        badgeColor: "#22d3ee",
+        icon: "fa-solid fa-flask",
+        iconBg: "rgba(6, 182, 212, 0.15)",
+        iconColor: "#06b6d4",
+        desc: "33 個循序漸進實驗：Inject, Debug, Function, MQTT, Dashboard 圖表",
+        url: "labs.html",
+        keywords: "node-red nodered 實驗 labs 課程 inject debug mqtt dashboard flow"
+      },
+      {
+        title: "Node-RED 學習補充教材 (21篇)",
+        category: "Node-RED 模組",
+        badgeBg: "rgba(56, 189, 248, 0.2)",
+        badgeColor: "#7dd3fc",
+        icon: "fa-solid fa-book",
+        iconBg: "rgba(56, 189, 248, 0.15)",
+        iconColor: "#38bdf8",
+        desc: "21 篇深度剖析：XAMPP、OpenCart、架構觀念、資料庫與工業通訊",
+        url: "supplements.html",
+        keywords: "node-red 補充教材 講義 教程 xampp 教學 指南"
+      },
+      {
+        title: "Node-RED 22 大實務專題拆解",
+        category: "Node-RED 模組",
+        badgeBg: "rgba(239, 68, 68, 0.2)",
+        badgeColor: "#fca5a5",
+        icon: "fa-solid fa-diagram-project",
+        iconBg: "rgba(239, 68, 68, 0.15)",
+        iconColor: "#ef4444",
+        desc: "完整 22 個工業專題簡報高清分解與應用解析",
+        url: "nodered_projects.html",
+        keywords: "node-red 實務專題 專題 22 簡報 ppt 投影片"
+      },
+      {
+        title: "Node-RED 底層運作邏輯剖析",
+        category: "Node-RED 模組",
+        badgeBg: "rgba(6, 182, 212, 0.15)",
+        badgeColor: "#67e8f9",
+        icon: "fa-solid fa-microchip",
+        iconBg: "rgba(6, 182, 212, 0.15)",
+        iconColor: "#06b6d4",
+        desc: "深入 V8 引擎、libuv 事件迴圈、訊息傳遞路徑與異步非阻塞核心機制",
+        url: "nodered_internals.html",
+        keywords: "node-red 底層 v8 libuv event loop 事件迴圈 異步 架構 運作"
+      },
+
+      // C# 工控模組
+      {
+        title: "C# 工業控制課程單元 (46單元)",
+        category: "C# 工控模組",
+        badgeBg: "rgba(168, 85, 247, 0.2)",
+        badgeColor: "#d8b4fe",
+        icon: "fa-solid fa-code",
+        iconBg: "rgba(168, 85, 247, 0.15)",
+        iconColor: "#c084fc",
+        desc: "46 個核心單元：WinForms、多執行緒、SerialPort、PLC 通訊與上位機",
+        url: "csharp.html",
+        keywords: "c# csharp 課程 工業控制 pc-based winforms 上位機 serialport"
+      },
+      {
+        title: "C# 學習補充教材 (14篇)",
+        category: "C# 工控模組",
+        badgeBg: "rgba(168, 85, 247, 0.15)",
+        badgeColor: "#c084fc",
+        icon: "fa-solid fa-book-bookmark",
+        iconBg: "rgba(168, 85, 247, 0.15)",
+        iconColor: "#a855f7",
+        desc: "14 篇深度技術解析：通訊排錯、多執行緒同步、記憶體管理",
+        url: "csharp_supplements.html",
+        keywords: "c# 補充教材 csharp 筆記 多執行緒 lock thread"
+      },
+      {
+        title: "網頁版監控 PLC & VS Code Debug 全攻略",
+        category: "C# 工控模組",
+        badgeBg: "rgba(56, 189, 248, 0.2)",
+        badgeColor: "#38bdf8",
+        icon: "fa-solid fa-bug",
+        iconBg: "rgba(56, 189, 248, 0.15)",
+        iconColor: "#38bdf8",
+        desc: "VS Code 斷點調試技巧、跨平台除錯、監控三菱 PLC 暫存器",
+        url: "debug_html_fx3u.html",
+        keywords: "debug vscode 除錯 斷點 plc 監控 調試"
+      },
+
+      // Vibe Coding
+      {
+        title: "Vibe Coding 協同開發專區",
+        category: "Vibe Coding",
+        badgeBg: "rgba(99, 102, 241, 0.2)",
+        badgeColor: "#818cf8",
+        icon: "fa-solid fa-bolt",
+        iconBg: "rgba(99, 102, 241, 0.15)",
+        iconColor: "#818cf8",
+        desc: "AI-Native 軟體工程、Skills 技能擴充、MCP 協議與逆向工程思維",
+        url: "vibecoding.html",
+        keywords: "vibe coding vibecoding ai寫程式 claude cursor mcp skills 軟體工程"
+      },
+
+      // AI 工具與知識
+      {
+        title: "AI 協同工具箱 (24 款精選工具)",
+        category: "AI 專區",
+        badgeBg: "rgba(236, 72, 153, 0.2)",
+        badgeColor: "#f472b6",
+        icon: "fa-solid fa-wand-magic-sparkles",
+        iconBg: "rgba(236, 72, 153, 0.15)",
+        iconColor: "#ec4899",
+        desc: "Suno, Manus, Gemini, Antigravity 2.0, ChatGPT 等 24 款熱門工具",
+        url: "aitools.html",
+        keywords: "ai 工具箱 suno manus gemini antigravity 工具 工業ai"
+      },
+      {
+        title: "AI 核心知識與架構 (提示詞/ReAct)",
+        category: "AI 專區",
+        badgeBg: "rgba(244, 63, 94, 0.2)",
+        badgeColor: "#fda4af",
+        icon: "fa-solid fa-brain",
+        iconBg: "rgba(244, 63, 94, 0.15)",
+        iconColor: "#fb7185",
+        desc: "提示詞工程技巧、ReAct 自主代理架構、多模態視覺辨識實戰",
+        url: "aiknowledge.html",
+        keywords: "ai 知識 prompt 提示詞 react agent 自主代理 視覺辨識 幻覺"
+      },
+
+      // IPAS 國家級認證
+      {
+        title: "IPAS AI 應用規劃師(中級) 考古題系統",
+        category: "IPAS 認證",
+        badgeBg: "rgba(245, 158, 11, 0.2)",
+        badgeColor: "#fde68a",
+        icon: "fa-solid fa-graduation-cap",
+        iconBg: "rgba(245, 158, 11, 0.15)",
+        iconColor: "#fbbf24",
+        desc: "經濟部產發署官方題庫互動刷題、技術百科解析與模擬測驗",
+        url: "https://echomanrido.github.io/ipas-ai-mid-exam/",
+        keywords: "ipas ai 應用規劃師 中級 考古題 證照 題庫 經濟部 產發署 測驗"
+      },
+      {
+        title: "IPAS AI 考照核心精華筆記",
+        category: "IPAS 認證",
+        badgeBg: "rgba(245, 158, 11, 0.2)",
+        badgeColor: "#fde68a",
+        icon: "fa-solid fa-book-open",
+        iconBg: "rgba(245, 158, 11, 0.15)",
+        iconColor: "#fbbf24",
+        desc: "機器學習、深度學習、卷積神經網路、生成式 AI 考照精華整理",
+        url: "https://echomanrido.github.io/ipas-ai-note/",
+        keywords: "ipas 筆記 考照 重點 機器學習 深度學習 考照指南"
+      },
+      {
+        title: "IPAS 淨零碳盤查官方專區",
+        category: "IPAS 認證",
+        badgeBg: "rgba(16, 185, 129, 0.2)",
+        badgeColor: "#6ee7b7",
+        icon: "fa-solid fa-leaf",
+        iconBg: "rgba(16, 185, 129, 0.15)",
+        iconColor: "#34d399",
+        desc: "經濟部低碳人培培訓講義、ISO 14064 溫室氣體盤查、綠領人才必備",
+        url: "ipas_netzero.html",
+        keywords: "ipas 淨零 碳盤查 低碳人培 iso14064 碳中和 溫室氣體 esg"
+      },
+
+      // 互動情境模擬器
+      {
+        title: "OpenCart 網路商城安裝引導模擬器",
+        category: "情境模擬器",
+        badgeBg: "rgba(14, 165, 233, 0.2)",
+        badgeColor: "#38bdf8",
+        icon: "fa-solid fa-cart-shopping",
+        iconBg: "rgba(14, 165, 233, 0.15)",
+        iconColor: "#38bdf8",
+        desc: "電商平台設定、資料庫連線配置、虛擬商城即時建置模擬",
+        url: "opencart_installation_simulator.html",
+        keywords: "opencart 模擬器 安裝 架站 電商 商城"
+      },
+      {
+        title: "XAMPP 伺服器建置模擬器",
+        category: "情境模擬器",
+        badgeBg: "rgba(249, 115, 22, 0.2)",
+        badgeColor: "#fb923c",
+        icon: "fa-solid fa-server",
+        iconBg: "rgba(249, 115, 22, 0.15)",
+        iconColor: "#f97316",
+        desc: "Apache 與 MySQL 服務啟用、Port 衝撞排解與 phpMyAdmin 操作模擬",
+        url: "xampp_installation_simulator.html",
+        keywords: "xampp 模擬器 apache mysql 伺服器 phpmyadmin"
+      },
+      {
+        title: "輸送帶分選與 PLC 階梯圖模擬器",
+        category: "情境模擬器",
+        badgeBg: "rgba(6, 182, 212, 0.2)",
+        badgeColor: "#22d3ee",
+        icon: "fa-solid fa-sliders",
+        iconBg: "rgba(6, 182, 212, 0.15)",
+        iconColor: "#06b6d4",
+        desc: "輸送帶物件感測、氣缸分選動作與階梯圖 rung 逐行連動模擬",
+        url: "conveyor_sorting_ladder_metaphor.html",
+        keywords: "輸送帶 分選 階梯圖 ladder 模擬器 氣缸 感測器 plc"
+      },
+      {
+        title: "閥門與階梯圖 if-else 邏輯隱喻模擬器",
+        category: "情境模擬器",
+        badgeBg: "rgba(56, 189, 248, 0.2)",
+        badgeColor: "#38bdf8",
+        icon: "fa-solid fa-faucet-drip",
+        iconBg: "rgba(56, 189, 248, 0.15)",
+        iconColor: "#38bdf8",
+        desc: "水流閥門開關 vs 階梯圖 a/b 接點與程式 if-else 邏輯可視化對比",
+        url: "valve_ifelse_metaphor.html",
+        keywords: "閥門 階梯圖 if else 邏輯 接點 模擬器 觀念"
+      },
+      {
+        title: "Node-RED Dashboard 圖表類型全比對",
+        category: "情境模擬器",
+        badgeBg: "rgba(168, 85, 247, 0.2)",
+        badgeColor: "#c084fc",
+        icon: "fa-solid fa-chart-line",
+        iconBg: "rgba(168, 85, 247, 0.15)",
+        iconColor: "#c084fc",
+        desc: "Chart, Gauge, Text, Notification 等儀表板節點即時數據視覺化比對",
+        url: "dashboard_chart_types_comparison.html",
+        keywords: "dashboard 圖表 chart gauge 儀表板 數據視覺化比對"
+      }
+    ];
+
+    // 初始化搜尋互動
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('homeSearchInput');
+      const searchClearBtn = document.getElementById('homeSearchClearBtn');
+      const searchDropdown = document.getElementById('homeSearchDropdown');
+      const groupActions = document.querySelectorAll('.hero-grouped-dashboard .btn-group-action');
+
+      if (!searchInput) return;
+
+      // 監聽輸入
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim().toLowerCase();
+        handleSearch(query);
+      });
+
+      // 點擊清除按鈕
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          handleSearch('');
+          searchInput.focus();
+        });
+      }
+
+      // 點擊外部關閉下拉彈窗
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.home-search-container')) {
+          closeDropdown();
+        }
+      });
+
+      // 鍵盤導航與快捷鍵
+      document.addEventListener('keydown', (e) => {
+        // 按 '/' 或 'Ctrl + K' / 'Cmd + K' 快速聚焦搜尋
+        if ((e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) && document.activeElement !== searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+          searchInput.select();
+          // 平滑捲動至搜尋框
+          searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        // 按 Esc 關閉
+        if (e.key === 'Escape') {
+          closeDropdown();
+          searchInput.blur();
+        }
+      });
+
+      // 聚焦搜尋框時，若已有文字則重新展開
+      searchInput.addEventListener('focus', () => {
+        const query = searchInput.value.trim().toLowerCase();
+        if (query) {
+          handleSearch(query);
+        }
+      });
+
+      function handleSearch(query) {
+        if (!query) {
+          if (searchClearBtn) searchClearBtn.style.display = 'none';
+          closeDropdown();
+          resetDashboardFilter();
+          return;
+        }
+
+        if (searchClearBtn) searchClearBtn.style.display = 'block';
+
+        // 1. 匹配搜尋資料庫
+        const results = SEARCH_DATABASE.filter(item => {
+          return item.title.toLowerCase().includes(query) ||
+                 item.category.toLowerCase().includes(query) ||
+                 item.desc.toLowerCase().includes(query) ||
+                 item.keywords.toLowerCase().includes(query);
+        });
+
+        renderDropdownResults(results, query);
+
+        // 2. 過濾下方 8 大分組儀表板按鈕
+        filterDashboardButtons(query);
+      }
+
+      function renderDropdownResults(results, query) {
+        if (results.length === 0) {
+          searchDropdown.innerHTML = `
+            <div class="search-empty-state">
+              <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; color: #475569; margin-bottom: 8px; display: block;"></i>
+              <div>找不到與「<strong style="color: #38bdf8;">${escapeHtml(query)}</strong>」相符的單元</div>
+              <div style="font-size: 0.8rem; color: #64748b; margin-top: 6px;">您可以嘗試簡稱、英文或前往 <a href="sitemap.html" style="color: #38bdf8; text-decoration: underline;">全站網站地圖</a> 瀏覽。</div>
+            </div>
+          `;
+          searchDropdown.style.display = 'block';
+          return;
+        }
+
+        const countHeader = `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 6px; font-size: 0.78rem; color: #94a3b8;">
+            <span>找到 <strong style="color: #38bdf8;">${results.length}</strong> 個相關單元</span>
+            <span style="font-size: 0.72rem; color: #64748b;">按 ESC 關閉</span>
+          </div>
+        `;
+
+        const itemsHtml = results.map(item => {
+          return `
+            <a href="${item.url}" class="search-result-item" ${item.url.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+              <div class="search-res-icon" style="background: ${item.iconBg}; color: ${item.iconColor};">
+                <i class="${item.icon}"></i>
+              </div>
+              <div class="search-res-body">
+                <div class="search-res-title-row">
+                  <span class="search-res-title">${highlightQuery(item.title, query)}</span>
+                  <span class="search-res-badge" style="background: ${item.badgeBg}; color: ${item.badgeColor};">${item.category}</span>
+                </div>
+                <div class="search-res-desc">${highlightQuery(item.desc, query)}</div>
+              </div>
+              <i class="fa-solid fa-arrow-right search-res-action"></i>
+            </a>
+          `;
+        }).join('');
+
+        searchDropdown.innerHTML = countHeader + itemsHtml;
+        searchDropdown.style.display = 'block';
+      }
+
+      function filterDashboardButtons(query) {
+        groupActions.forEach(btn => {
+          const text = btn.innerText.toLowerCase();
+          const href = (btn.getAttribute('href') || '').toLowerCase();
+          const isMatch = text.includes(query) || href.includes(query);
+
+          if (isMatch) {
+            btn.classList.add('search-matched');
+            btn.classList.remove('search-dimmed');
+          } else {
+            btn.classList.remove('search-matched');
+            btn.classList.add('search-dimmed');
+          }
+        });
+      }
+
+      function resetDashboardFilter() {
+        groupActions.forEach(btn => {
+          btn.classList.remove('search-matched');
+          btn.classList.remove('search-dimmed');
+        });
+      }
+
+      function closeDropdown() {
+        if (searchDropdown) {
+          searchDropdown.style.display = 'none';
+        }
+      }
+
+      function escapeHtml(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      function highlightQuery(text, query) {
+        if (!query) return escapeHtml(text);
+        const escaped = escapeHtml(text);
+        const qEsc = escapeHtml(query);
+        const regex = new RegExp(`(${qEsc})`, 'gi');
+        return escaped.replace(regex, '<mark style="background: rgba(56, 189, 248, 0.3); color: #38bdf8; border-radius: 2px; padding: 0 2px;">$1</mark>');
+      }
+
+      // 提供給熱門標籤的快速搜尋函式 (掛載於 window)
+      window.quickSearch = function(tag) {
+        searchInput.value = tag;
+        handleSearch(tag.toLowerCase());
+        searchInput.focus();
+      };
+
+      // 提供給頂部導覽列的聚焦函式
+      window.focusHomeSearch = function(e) {
+        if (e) e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+        searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      };
+    });
+  </script>
+
 </body>
 </html>
