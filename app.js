@@ -27,6 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarCloseBtn.addEventListener('click', () => sidebar.classList.remove('open'));
   }
 
+  // 點擊側邊欄外部空白處自動關閉選單 (提升行動端體驗)
+  document.addEventListener('click', (e) => {
+    if (sidebar && sidebar.classList.contains('open')) {
+      if (!sidebar.contains(e.target) && !sidebarOpenBtn.contains(e.target)) {
+        sidebar.classList.remove('open');
+      }
+    }
+  });
+
   // 載入 Lab 資料 (若為 file:// 協定直接使用本機備援，避免瀏覽器 CORS 阻擋；http/https 則優先 fetch labs.json)
   function loadData() {
     const localFallback = (typeof window !== 'undefined' && (window.INITIAL_LABS_DATA || window.labsData)) || 

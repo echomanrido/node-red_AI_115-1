@@ -27,6 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarCloseBtn.addEventListener('click', () => sidebar.classList.remove('open'));
   }
 
+  // 點擊側邊欄外部空白處自動關閉選單 (提升行動端體驗)
+  document.addEventListener('click', (e) => {
+    if (sidebar && sidebar.classList.contains('open')) {
+      if (!sidebar.contains(e.target) && !sidebarOpenBtn.contains(e.target)) {
+        sidebar.classList.remove('open');
+      }
+    }
+  });
+
   // 載入 C# 課程資料 (優先 fetch csharp.json，若本地 file:// 則使用 window.INITIAL_CSHARP_DATA 備援)
   function loadData() {
     fetch('csharp.json')
