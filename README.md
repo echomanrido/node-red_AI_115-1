@@ -98,7 +98,7 @@ graph TD
 
 ### 模組 2：C# 工業控制模組
 - 課程單元：[csharp.html](https://echomanrido.github.io/node-red_AI_115-1/csharp.html)（46 個單元 Windows Forms、WPF 與工控邏輯）
-- 補充教材：[csharp_supplements.html](https://echomanrido.github.io/node-red_AI_115-1/csharp_supplements.html)（14 篇重點架構解析與除錯）
+- 補充教材：[csharp_supplements.html](https://echomanrido.github.io/node-red_AI_115-1/csharp_supplements.html)（VS 2026 安裝與 Google Antigravity 擴充環境配置）
 - 三菱 FX3U 專題：[project_plc_fx3u.html](https://echomanrido.github.io/node-red_AI_115-1/project_plc_fx3u.html)（RS232 通訊埠、三階段自動化控制、ENQ/ACK 協議握手）
 
 <p align="center">
@@ -181,7 +181,7 @@ node-red_AI_115-1/
 ├── nodered_internals.html       # Node-RED 底層架構與運作邏輯
 │
 ├── csharp.html                  # C# 工業控制 46 單元核心課程
-├── csharp_supplements.html      # C# 14 篇學習補充教材
+├── csharp_supplements.html      # C# 學習補充教材 (2篇)
 ├── project_plc_fx3u.html        # C# 串接三菱 FX3U PLC 專題
 │
 ├── project.html                 # ESG 智慧工廠動態碳足跡期末專題
