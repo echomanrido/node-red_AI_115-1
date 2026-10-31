@@ -82,73 +82,6 @@ def make_svg_diagram(title, subtitle, nodes, loop_label=None, accent="#0ea5e9"):
     encoded = base64.b64encode(svg_str.encode('utf-8')).decode('utf-8')
     return f"data:image/svg+xml;base64,{encoded}"
 
-# 02：Vibe Coding 與新世代 AI 原生軟體工程權威指南
-unit_02_guide = {
-    "id": "vibe-guide",
-    "labNumber": "02",
-    "title": "Vibe Coding 與新世代 AI 原生軟體工程 (AI-Native SDLC 權威指南)",
-    "category": "軟體工程",
-    "date": "2026-09-20",
-    "summary": "從靈感直覺到嚴謹工程！深入剖析 Andrej Karpathy (Tesla 前 AI 總監 / OpenAI 共同創辦人) 提出的 Vibe Coding 革命浪潮與新世代 AI 原生軟體工程 (AI-Native SDLC)。工程師角色從敲碼打字員躍升為系統架構指揮家，以自然語言、規格契約 (Spec) 與自主代理閉環 (Agentic Loops) 重新定義軟體開發全流程。",
-    "flowTitle": "從直覺意圖到嚴謹架構的 Vibe Coding 實踐四角矩陣",
-    "resultTitle": "Vibe Coding 與 AI-Native SDLC 權威指南互動頁面",
-    "flowImage": make_svg_diagram(
-        "Vibe Coding 與 AI-Native SDLC 核心架構",
-        "Natural Language, Agentic Loops, Spec-Driven & Human-in-the-Loop",
-        [
-            {"num": "V-01", "title": "直覺意圖", "sub": "自然語言即編譯器", "tag": "Intent"},
-            {"num": "V-02", "title": "規格約束", "sub": "Spec.md 契約工程", "tag": "Contract"},
-            {"num": "V-03", "title": "代理閉環", "sub": "自治產碼與自愈修復", "tag": "Agent Loop"},
-            {"num": "V-04", "title": "人機驗收", "sub": "架構審查與安全把關", "tag": "Human Gate"}
-        ],
-        loop_label="Karpathy 哲學：以直覺發起，以代理執行，以架構約束，以嚴謹驗收",
-        accent="#6366f1"
-    ),
-    "resultImage": "Vibe Coding/01.軟體工程/vibe_coding_software_engineering_guide.html",
-    "slideUrl": "Vibe Coding/01.軟體工程/vibe_coding_software_engineering_guide.html",
-    "objective": "1. 掌握 Andrej Karpathy 提出之 Vibe Coding 核心哲理與『自然語言即編譯器』的心智模型。\n2. 深刻對比傳統 SDLC 與 AI-Native SDLC 在需求、設計、編碼、測試各階段的範式轉移。\n3. 熟練掌握 Context Engineering (上下文工程) 與 Human-in-the-Loop 驗收標準，打造成熟穩健的工業級軟體。",
-    "tutorialSteps": [
-        {
-            "step": "核心原則一：自然語言即編譯器 (Natural Language as Compiler)",
-            "description": "透過精確的 Prompt、Markdown 規範與上下文注入 (Context Engineering)，自然語言晉身為最高階的高階語言，大幅縮短思想與代碼實現的落差。"
-        },
-        {
-            "step": "核心原則二：自主代理人閉環 (Agentic Loops & Self-Correction)",
-            "description": "AI 不僅提供代碼補全，更能主動調用終端機命令、自動執行單元測試、解析日誌報錯並進行自主迭代修復。"
-        },
-        {
-            "step": "核心原則三：人機迴圈檢驗 (Human-in-the-Loop Verification)",
-            "description": "工程師的精力從繁瑣語法細節移轉至系統安全性、高階架構設計、驗收標準 (Acceptance Criteria) 與業務邏輯的嚴密把關。"
-        },
-        {
-            "step": "核心原則四：規格驅動開發 (Spec-Driven Engineering)",
-            "description": "杜絕盲目瞎猜。在讓 Agent 敲代碼之前，先鎖定資料模型、API 界面、非功能性需求與邊界條件，實現高可靠生產級交付。"
-        }
-    ],
-    "promptTemplate": "你是一位頂尖的 AI 原生軟體工程專家。請根據 Andrej Karpathy 的 Vibe Coding 理念：\n『專注於意圖表達 (Intent)、架構規格 (Specs) 與驗收標準 (Acceptance Criteria)』\n請針對我手上的 Node-RED 工控通訊模組，提出一份符合 AI-Native SDLC 的：\n1. 架構意圖說明 (Intent Specification)\n2. 關鍵上下文工程清單 (Context Checklist)\n3. 自主代理測試驗收計畫 (Acceptance Tests for Agent Loops)",
-    "codeSnippet": {
-        "language": "markdown",
-        "code": "# Vibe Coding Engineering Manifesto\n## 1. Intent over Implementation (意圖先於實作)\n- 我們定義系統要達成什麼目標，而非親手敲擊每一行 for 迴圈。\n\n## 2. Specs as Contracts (規格即契約)\n- 任何大規模 Agent 協同前，先鎖定 spec.md 作為單一真相來源 (Single Source of Truth)。\n\n## 3. Autonomous Verification (自主驗收)\n- 每次代碼生成必須伴隨全自動單元測試與日誌驗證。"
-    },
-    "references": [
-        {
-            "title": "Vibe Coding 與新世代 AI 原生軟體工程 (專屬互動頁面)",
-            "url": "Vibe Coding/01.軟體工程/vibe_coding_software_engineering_guide.html"
-        },
-        {
-            "title": "軟體工程演進全景圖",
-            "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
-        }
-    ],
-    "applications": [
-        {
-            "icon": "fa-solid fa-bolt",
-            "scenario": "新世代工程團隊能力轉型",
-            "description": "幫助工程師擺脫沉重低效的重構與樣板碼書寫，將 80% 時間專注在頂層系統設計與工業核心演算法。"
-        }
-    ]
-}
-
 # 01：軟體工程演進全景圖
 unit_01_evolution = {
     "id": "vibe-01",
@@ -203,6 +136,10 @@ unit_01_evolution = {
             "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
         },
         {
+            "title": "軟體工程經典反模式：隕石墜落型開發 (單元 02)",
+            "url": "Vibe Coding/01.軟體工程/隕石墜落型開發 中文完整重現版.html"
+        },
+        {
             "title": "Anthropic AI-Native SDLC 全週期實戰手冊",
             "url": "Vibe Coding/01.軟體工程/Claude_The AI-Native SDLC playbook/Claude_The_AI-Native_SDLC_playbook_Slides.html"
         }
@@ -221,10 +158,156 @@ unit_01_evolution = {
     ]
 }
 
-# 順延為 03：Anthropic Claude AI-Native SDLC
-unit_03_claude = {
-    "id": "vibe-02",
+# 02：軟體工程經典反模式：隕石墜落型開發（メテオフォール型開発）
+unit_02_meteor_fall = {
+    "id": "vibe-meteor-fall",
+    "labNumber": "02",
+    "title": "軟體工程經典反模式：隕石墜落型開發（メテオフォール型開発）中文完整重現版",
+    "shortTitle": "隕石墜落型開發 (經典反模式)",
+    "category": "軟體工程",
+    "date": "2026-11-01",
+    "summary": "日本軟體業界經典黑色幽默反模式神作！由日本遊戲開發者 EIKI` 所著、heppoko 氏命名的《隕石墜落型開發》（メテオフォール型開発）。深刻剖析傳統瀑布模型與敏捷開發在面對『天界神明（客戶/高層）』隨性降下『毀滅性隕石（全部推翻重做）』時的無奈與崩潰。在下界，現場工程團隊只能徹夜含淚重建焦土。此篇為理解現代 Vibe Coding 與 AI 原生架構護欄 (Spec-Driven & Human-in-the-Loop) 的必讀經典反面教材！",
+    "flowTitle": "隕石墜落型開發五大災厄演進與下界焦土重建流程",
+    "resultTitle": "隕石墜落型開發中文完整重現版專題",
+    "flowImage": make_svg_diagram(
+        "隕石墜落型開發 (Meteor-Fall) 災厄閉環",
+        "Waterfall/Agile -> Divine Revelation -> Meteor Impact -> Rebuilding",
+        [
+            {"num": "MF-01", "title": "天界默示", "sub": "高層客戶片面旨意", "tag": "Revelation"},
+            {"num": "MF-02", "title": "人間苦幹", "sub": "現場團隊搬磚搭建", "tag": "Building"},
+            {"num": "MF-03", "title": "隕石天降", "sub": "全部推翻灰飛煙滅", "tag": "Impact"},
+            {"num": "MF-04", "title": "敏捷碎裂", "sub": "Sprint 與週期無效", "tag": "Break"},
+            {"num": "MF-05", "title": "焦土重建", "sub": "通宵加班痛苦適應", "tag": "Rebuild"}
+        ],
+        loop_label="反模式核心啟示：缺乏架構防護與契約約束時，任何工程方法論在神意面前皆不堪一擊",
+        accent="#f43f5e"
+    ),
+    "resultImage": "Vibe Coding/01.軟體工程/隕石墜落型開發 中文完整重現版.html",
+    "slideUrl": "Vibe Coding/01.軟體工程/隕石墜落型開發 中文完整重現版.html",
+    "objective": "1. 深刻理解日本經典軟體工程反模式『隕石墜落型開發』的成因、型態與現場工程師的真實困境。\n2. 剖析傳統瀑布流與敏捷迭代在面對無約束外部決策（神意翻盤）時失效的根本原因。\n3. 對比 Vibe Coding 與 Spec-Driven SDLC：如何藉由嚴謹規格契約、架構邊界與測試防線，杜絕『隕石滅頂之災』。",
+    "tutorialSteps": [
+        {
+            "step": "第一節：體系的崩解與天啟 (Waterfall to Meteor)",
+            "description": "傳統瀑布流由上游至下游平穩流動，但在隕石模式中，天界之神（客戶/高層）高高在上，下界眾生辛勤構築，最後一顆翻盤隕石讓全部心血灰飛煙滅。"
+        },
+        {
+            "step": "第二節：啟示錄與單向禱告 (Apocalypse & Prayer)",
+            "description": "交期絕不延後、預算維持原樣、規格由天決定。權力屏障阻絕現場回饋，工程師微弱的抗議與祈禱傳達率僅 0.001%。"
+        },
+        {
+            "step": "第三節：諸神型態與神罰災厄 (Types of Gods)",
+            "description": "剖析外部空降之神、無心之神、邪神等型態，以及多神混戰引發的專案『諸神黃昏』與毀滅性神罰。"
+        },
+        {
+            "step": "第四節：應對心態與工程反思 (Spec-Driven Reflection)",
+            "description": "反模式的終極反思：在軟體工程中唯有透過明確的架構護欄、變更契約與規格驅動 (Spec-Driven)，才能抵抗隨興決策造成的滅頂之災。"
+        }
+    ],
+    "promptTemplate": "你是一位精通現代軟體工程與敏捷治理的資深架構師。\n我們團隊目前深受『隕石墜落型開發（客戶/老闆頻繁推翻核心架構與突發新規格）』之苦。\n請根據現代 AI-Native SDLC 與規格驅動 (Spec-Driven) 原則：\n1. 制定一份『抗隕石衝擊防禦指南』，說明如何透過 Spec 鷹架與架構邊界限制非理性變更。\n2. 設計一套『變更代價量化機制』，當神意翻盤時能自動列出工時、重構風險與測試回歸成本。\n3. 說明如何運用 Vibe Coding 與 AI Coding Agent 快速進行衝擊影響評估 (Blast Radius Analysis)。",
+    "codeSnippet": {
+        "language": "markdown",
+        "code": "# Anti-Meteor Engineering Protocol (抗隕石防禦協定)\n## 1. 規格護欄 (Specification Guardrails)\n- 任何規格異動必須提交 RFC (Request for Comments) 與 ADR (Architecture Decision Record)。\n- 實作前需先凍結資料模型與公開介面。\n\n## 2. 變更爆炸半徑分析 (Blast Radius Assessment)\n- 由 Coding Agent 自動掃描依賴關聯圖 (Dependency Graph)。\n- 量化影響之模組、單元測試破壞數量與工期成本。\n\n## 3. 回歸測試門禁 (Automated Regression Gates)\n- 核心業務邏輯必須具備 100% 變異測試防禦力，杜絕黑盒翻盤。"
+    },
+    "references": [
+        {
+            "title": "隕石墜落型開發 中文完整重現版 (專屬專題頁面)",
+            "url": "Vibe Coding/01.軟體工程/隕石墜落型開發 中文完整重現版.html"
+        },
+        {
+            "title": "軟體工程演進全景圖 (單元 01)",
+            "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
+        },
+        {
+            "title": "EIKI` 日文原始文章 (實踐遊戲製作筆記本2)",
+            "url": "https://eiki.hatenablog.jp/entry/meteo_fall"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-meteor",
+            "scenario": "團隊工程文化與反模式辨識",
+            "description": "透過生動黑色幽默的經典反模式，讓團隊成員與管理層共同正視隨意變更需求對架構與工程師心智的毀滅性衝擊。"
+        },
+        {
+            "icon": "fa-solid fa-shield-halved",
+            "scenario": "規格約束與架構防禦落地",
+            "description": "從『祈禱神明別改規格』轉變為主動導入 Spec-Driven 與 CI/CD 門禁防線，建立能抵禦非預期變更的韌性架構。"
+        }
+    ]
+}
+
+# 03：Vibe Coding 與新世代 AI 原生軟體工程權威指南
+unit_03_guide = {
+    "id": "vibe-guide",
     "labNumber": "03",
+    "title": "Vibe Coding 與新世代 AI 原生軟體工程 (AI-Native SDLC 權威指南)",
+    "shortTitle": "Vibe Coding 實戰心法指南",
+    "category": "軟體工程",
+    "date": "2026-09-20",
+    "summary": "從靈感直覺到嚴謹工程！深入剖析 Andrej Karpathy (Tesla 前 AI 總監 / OpenAI 共同創辦人) 提出的 Vibe Coding 革命浪潮與新世代 AI 原生軟體工程 (AI-Native SDLC)。工程師角色從敲碼打字員躍升為系統架構指揮家，以自然語言、規格契約 (Spec) 與自主代理閉環 (Agentic Loops) 重新定義軟體開發全流程。",
+    "flowTitle": "從直覺意圖到嚴謹架構的 Vibe Coding 實踐四角矩陣",
+    "resultTitle": "Vibe Coding 與 AI-Native SDLC 權威指南互動頁面",
+    "flowImage": make_svg_diagram(
+        "Vibe Coding 與 AI-Native SDLC 核心架構",
+        "Natural Language, Agentic Loops, Spec-Driven & Human-in-the-Loop",
+        [
+            {"num": "V-01", "title": "直覺意圖", "sub": "自然語言即編譯器", "tag": "Intent"},
+            {"num": "V-02", "title": "規格約束", "sub": "Spec.md 契約工程", "tag": "Contract"},
+            {"num": "V-03", "title": "代理閉環", "sub": "自治產碼與自愈修復", "tag": "Agent Loop"},
+            {"num": "V-04", "title": "人機驗收", "sub": "架構審查與安全把關", "tag": "Human Gate"}
+        ],
+        loop_label="Karpathy 哲學：以直覺發起，以代理執行，以架構約束，以嚴謹驗收",
+        accent="#6366f1"
+    ),
+    "resultImage": "Vibe Coding/01.軟體工程/vibe_coding_software_engineering_guide.html",
+    "slideUrl": "Vibe Coding/01.軟體工程/vibe_coding_software_engineering_guide.html",
+    "objective": "1. 掌握 Andrej Karpathy 提出之 Vibe Coding 核心哲理與『自然語言即編譯器』的心智模型。\n2. 深刻對比傳統 SDLC 與 AI-Native SDLC 在需求、設計、編碼、測試各階段的範式轉移。\n3. 熟練掌握 Context Engineering (上下文工程) 與 Human-in-the-Loop 驗收標準，打造成熟穩健的工業級軟體。",
+    "tutorialSteps": [
+        {
+            "step": "核心原則一：自然語言即編譯器 (Natural Language as Compiler)",
+            "description": "透過精確的 Prompt、Markdown 規範與上下文注入 (Context Engineering)，自然語言晉身為最高階的高階語言，大幅縮短思想與代碼實現的落差。"
+        },
+        {
+            "step": "核心原則二：自主代理人閉環 (Agentic Loops & Self-Correction)",
+            "description": "AI 不僅提供代碼補全，更能主動調用終端機命令、自動執行單元測試、解析日誌報錯並進行自主迭代修復。"
+        },
+        {
+            "step": "核心原則三：人機迴圈檢驗 (Human-in-the-Loop Verification)",
+            "description": "工程師的精力從繁瑣語法細節移轉至系統安全性、高階架構設計、驗收標準 (Acceptance Criteria) 與業務邏輯的嚴密把關。"
+        },
+        {
+            "step": "核心原則四：規格驅動開發 (Spec-Driven Engineering)",
+            "description": "杜絕盲目瞎猜。在讓 Agent 敲代碼之前，先鎖定資料模型、API 界面、非功能性需求與邊界條件，實現高可靠生產級交付。"
+        }
+    ],
+    "promptTemplate": "你是一位頂尖的 AI 原生軟體工程專家。請根據 Andrej Karpathy 的 Vibe Coding 理念：\n『專注於意圖表達 (Intent)、架構規格 (Specs) 與驗收標準 (Acceptance Criteria)』\n請針對我手上的 Node-RED 工控通訊模組，提出一份符合 AI-Native SDLC 的：\n1. 架構意圖說明 (Intent Specification)\n2. 關鍵上下文工程清單 (Context Checklist)\n3. 自主代理測試驗收計畫 (Acceptance Tests for Agent Loops)",
+    "codeSnippet": {
+        "language": "markdown",
+        "code": "# Vibe Coding Engineering Manifesto\n## 1. Intent over Implementation (意圖先於實作)\n- 我們定義系統要達成什麼目標，而非親手敲擊每一行 for 迴圈。\n\n## 2. Specs as Contracts (規格即契約)\n- 任何大規模 Agent 協同前，先鎖定 spec.md 作為單一真相來源 (Single Source of Truth)。\n\n## 3. Autonomous Verification (自主驗收)\n- 每次代碼生成必須伴隨全自動單元測試與日誌驗證。"
+    },
+    "references": [
+        {
+            "title": "Vibe Coding 與新世代 AI 原生軟體工程 (專屬互動頁面)",
+            "url": "Vibe Coding/01.軟體工程/vibe_coding_software_engineering_guide.html"
+        },
+        {
+            "title": "軟體工程演進全景圖 (單元 01)",
+            "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-bolt",
+            "scenario": "新世代工程團隊能力轉型",
+            "description": "幫助工程師擺脫沉重低效的重構與樣板碼書寫，將 80% 時間專注在頂層系統設計與工業核心演算法。"
+        }
+    ]
+}
+
+# 04：Anthropic Claude AI-Native SDLC
+unit_04_claude = {
+    "id": "vibe-02",
+    "labNumber": "04",
     "title": "Anthropic Claude：AI-Native SDLC 全週期實戰手冊 (Playbook)",
     "category": "軟體工程",
     "date": "2026-08-21",
@@ -605,10 +688,10 @@ google_children = [
     }
 ]
 
-# 順延為 04：Google 5-Day 全系列母群組
-unit_04_google = {
+# 05：Google 5-Day 全系列母群組
+unit_05_google = {
     "id": "vibe-google-course",
-    "labNumber": "04",
+    "labNumber": "05",
     "isGroup": True,
     "groupTitle": "Google 5-Day AI Agents 密集課程 (全五天系列)",
     "title": "Google 5-Day AI Agents 密集課程：完整實戰總覽 (Day 1 ~ Day 5)",
@@ -677,10 +760,10 @@ unit_04_google = {
     "children": google_children
 }
 
-# 05：Vibe Coding × UML (一)：以 UML 藍圖鎖定架構
-unit_05_uml_blueprint = {
+# 06：Vibe Coding × UML (一)：以 UML 藍圖鎖定架構
+unit_06_uml_blueprint = {
     "id": "vibe-uml-blueprint",
-    "labNumber": "05",
+    "labNumber": "06",
     "title": "軟體工程：Vibe Coding × UML (一)：以 UML 藍圖鎖定架構，釋放 AI 創意",
     "shortTitle": "Vibe Coding × UML (一)：藍圖架構",
     "category": "軟體工程",
@@ -755,10 +838,10 @@ unit_05_uml_blueprint = {
     ]
 }
 
-# 06：Vibe Coding × UML (二)：14 種圖表全覽與規範 AI 的程式靈魂
-unit_06_uml_advanced = {
+# 07：Vibe Coding × UML (二)：14 種圖表全覽與規範 AI 的程式靈魂
+unit_07_uml_advanced = {
     "id": "vibe-uml-14-types",
-    "labNumber": "06",
+    "labNumber": "07",
     "title": "軟體工程：Vibe Coding × UML (二)：14 種圖表全覽與規範 AI 的程式靈魂",
     "shortTitle": "Vibe Coding × UML (二)：14種圖表全覽",
     "category": "軟體工程",
@@ -833,10 +916,10 @@ unit_06_uml_advanced = {
     ]
 }
 
-# 07：OpenSpec (opsx) 指南：AI 規格驅動開發
-unit_07_openspec = {
+# 08：OpenSpec (opsx) 指南：AI 規格驅動開發
+unit_08_openspec = {
     "id": "vibe-openspec",
-    "labNumber": "07",
+    "labNumber": "08",
     "title": "OpenSpec (opsx)：AI 規格驅動開發 (Spec-Driven Development) 指南",
     "shortTitle": "OpenSpec 規格驅動開發",
     "category": "Skills(技能)",
@@ -915,10 +998,10 @@ unit_07_openspec = {
     ]
 }
 
-# 08：OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析
-unit_08_opsx_guide = {
+# 09：OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析
+unit_09_opsx_guide = {
     "id": "vibe-opsx-lifecycle",
-    "labNumber": "08",
+    "labNumber": "09",
     "title": "OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析",
     "shortTitle": "OpenSpec 生命週期與檔案全解析",
     "category": "Skills(技能)",
@@ -997,10 +1080,10 @@ unit_08_opsx_guide = {
     ]
 }
 
-# 09：Superpowers 軟體工程 Agent 工作流規範
-unit_09_superpowers = {
+# 10：Superpowers 軟體工程 Agent 工作流規範
+unit_10_superpowers = {
     "id": "vibe-superpowers",
-    "labNumber": "09",
+    "labNumber": "10",
     "title": "Superpowers 軟體工程 Agent 工作流規範：14 大核心 Skills 與 TDD 實戰指南",
     "shortTitle": "Superpowers Agent 工作流規範",
     "category": "Skills(技能)",
@@ -1079,10 +1162,10 @@ unit_09_superpowers = {
     ]
 }
 
-# 10：傳統逆向工程與核心工具解析
-unit_10_reverse_engineering = {
+# 11：傳統逆向工程與核心工具解析
+unit_11_reverse_engineering = {
     "id": "vibe-reverse-engineering-traditional",
-    "labNumber": "10",
+    "labNumber": "11",
     "title": "傳統逆向工程與核心工具解析：Detect It Easy、IDA Pro 與 Ghidra 實戰指南",
     "shortTitle": "傳統逆向工具 (DIE/IDA/Ghidra)",
     "category": "其他",
@@ -1161,10 +1244,10 @@ unit_10_reverse_engineering = {
     ]
 }
 
-# 11：REA (Reverse Engineer Anything)
-unit_11_rea = {
+# 12：REA (Reverse Engineer Anything)
+unit_12_rea = {
     "id": "vibe-reverse-engineering-rea",
-    "labNumber": "11",
+    "labNumber": "12",
     "title": "REA (Reverse Engineer Anything)：AI 智能體逆向工程協議與實戰指南",
     "shortTitle": "REA AI 智能體逆向工程",
     "category": "其他",
@@ -1239,10 +1322,10 @@ unit_11_rea = {
     ]
 }
 
-# 12：AI Coding 新時代的團隊開發：實戰教學指南
-unit_12_team_dev_guide = {
+# 13：AI Coding 新時代的團隊開發：實戰教學指南
+unit_13_team_dev_guide = {
     "id": "vibe-team-dev-guide",
-    "labNumber": "12",
+    "labNumber": "13",
     "title": "AI Coding 新時代的團隊開發：從個人用 AI 到 AI-Native 組織 (實戰教學指南)",
     "shortTitle": "AI Coding 團隊開發實戰教學指南",
     "category": "其他",
@@ -1296,11 +1379,11 @@ unit_12_team_dev_guide = {
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
         },
         {
-            "title": "陳宜昌 YC 演講時間軸與完整逐字稿 (單元 13)",
+            "title": "陳宜昌 YC 演講時間軸與完整逐字稿 (單元 14)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
         },
         {
-            "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 14)",
+            "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 15)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
         },
         {
@@ -1322,10 +1405,10 @@ unit_12_team_dev_guide = {
     ]
 }
 
-# 13：AI Coding 新時代的團隊開發：演講時間軸與完整逐字稿
-unit_13_team_dev_transcript = {
+# 14：AI Coding 新時代的團隊開發：演講時間軸與完整逐字稿
+unit_14_team_dev_transcript = {
     "id": "vibe-team-dev-transcript",
-    "labNumber": "13",
+    "labNumber": "14",
     "title": "AI Coding 新時代的團隊開發：陳宜昌 YC 演講時間軸與完整逐字稿",
     "shortTitle": "團隊開發演講逐字稿時間軸",
     "category": "其他",
@@ -1349,7 +1432,7 @@ unit_13_team_dev_transcript = {
     ),
     "resultImage": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html",
     "slideUrl": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html",
-    "objective": "1. 透過時間軸快速定位陳宜昌 YC 演講中關於 Agentic 工作流、團隊分工與 Spec 實戰的核心片段。\n2. 利用全文檢索功能秒查演講中的關鍵術語、案例與實戰踩坑經驗。\n3. 結合實戰教學指南 (單元 12) 進行深度複習，掌握從理論到落地的完整方法論。",
+    "objective": "1. 透過時間軸快速定位陳宜昌 YC 演講中關於 Agentic 工作流、團隊分工與 Spec 實戰的核心片段。\n2. 利用全文檢索功能秒查演講中的關鍵術語、案例與實戰踩坑經驗。\n3. 結合實戰教學指南 (單元 13) 進行深度複習，掌握從理論到落地的完整方法論。",
     "tutorialSteps": [
         {
             "step": "功能 1: 演講時間軸導航",
@@ -1375,11 +1458,11 @@ unit_13_team_dev_transcript = {
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
         },
         {
-            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 12)",
+            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 13)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
         },
         {
-            "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 14)",
+            "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 15)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
         },
         {
@@ -1401,10 +1484,10 @@ unit_13_team_dev_transcript = {
     ]
 }
 
-# 14：AI Coding 新時代的團隊開發：HWDC 2026 Keynote 完整精校逐字稿與互動解析
-unit_14_team_dev_transcript_interactive = {
+# 15：AI Coding 新時代的團隊開發：HWDC 2026 Keynote 完整精校逐字稿與互動解析
+unit_15_team_dev_transcript_interactive = {
     "id": "vibe-team-dev-transcript-01",
-    "labNumber": "14",
+    "labNumber": "15",
     "title": "AI Coding 新時代的團隊開發：陳宜昌 YC 演講完整精校逐字稿與互動解析",
     "shortTitle": "演講精校逐字稿與互動解析",
     "category": "其他",
@@ -1447,7 +1530,7 @@ unit_14_team_dev_transcript_interactive = {
             "description": "模擬 tmux + TUI 環境下的 Meta Agent 指揮官與 Member Agents 分工、Git Worktree 隔離、變異測試 (Mutation Testing) 及助理匯報機制。"
         }
     ],
-    "promptTemplate": "你是一位專精於 AI-Native 研發團隊轉型的主任架構師。\n請依據陳宜昌 YC 在 HWDC 2026 Keynote 演講精校逐字稿（單元 14）與 Slide 31/33/34 的核心理論：\n1. 針對我們既有 10 人的工控與物聯網軟體團隊，設計一套 Meta + Member 雙層代理人架構。\n2. 制定一份以「鷹架理論」為核心的 GitHub Issue Spec 範本，說明驗證通過後如何拆除鷹架。\n3. 規劃原型期的「三大關卡 (Gates)」，特別是自動化回歸測試與變異測試 (Mutation Testing) 的門禁防線。",
+    "promptTemplate": "你是一位專精於 AI-Native 研發團隊轉型的主任架構師。\n請依據陳宜昌 YC 在 HWDC 2026 Keynote 演講精校逐字稿（單元 15）與 Slide 31/33/34 的核心理論：\n1. 針對我們既有 10 人的工控與物聯網軟體團隊，設計一套 Meta + Member 雙層代理人架構。\n2. 制定一份以「鷹架理論」為核心的 GitHub Issue Spec 範本，說明驗證通過後如何拆除鷹架。\n3. 規劃原型期的「三大關卡 (Gates)」，特別是自動化回歸測試與變異測試 (Mutation Testing) 的門禁防線。",
     "codeSnippet": {
         "language": "bash",
         "code": "# oat-agents CLI Skill 與多代理環境啟動範例\n$ npx @noopher/oat-agents-cli init\n\n# 啟動 Meta Agent 與獨立 Git Worktree 隔離工作流\n$ oat session start --meta --worktree feature/mqtt-offline-buffer\n\n# 注入 DDD 統一詞彙表與架構決策紀錄\n$ /grill-with-docs context.md ADR-001.md"
@@ -1458,11 +1541,11 @@ unit_14_team_dev_transcript_interactive = {
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
         },
         {
-            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 12)",
+            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 13)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
         },
         {
-            "title": "陳宜昌 YC 演講時間軸與精要逐字稿 (單元 13)",
+            "title": "陳宜昌 YC 演講時間軸與精要逐字稿 (單元 14)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
         },
         {
@@ -1486,19 +1569,20 @@ unit_14_team_dev_transcript_interactive = {
 
 vibe_labs = [
     unit_01_evolution,
-    unit_02_guide,
-    unit_03_claude,
-    unit_04_google,
-    unit_05_uml_blueprint,
-    unit_06_uml_advanced,
-    unit_07_openspec,
-    unit_08_opsx_guide,
-    unit_09_superpowers,
-    unit_10_reverse_engineering,
-    unit_11_rea,
-    unit_12_team_dev_guide,
-    unit_13_team_dev_transcript,
-    unit_14_team_dev_transcript_interactive
+    unit_02_meteor_fall,
+    unit_03_guide,
+    unit_04_claude,
+    unit_05_google,
+    unit_06_uml_blueprint,
+    unit_07_uml_advanced,
+    unit_08_openspec,
+    unit_09_opsx_guide,
+    unit_10_superpowers,
+    unit_11_reverse_engineering,
+    unit_12_rea,
+    unit_13_team_dev_guide,
+    unit_14_team_dev_transcript,
+    unit_15_team_dev_transcript_interactive
 ]
 
 # 寫入 vibecoding.json
@@ -1510,6 +1594,6 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功更新資料結構，包含新 12、13 與 14 團隊開發！共保留 {len(vibe_labs)} 個單元。")
+print(f"成功更新資料結構，包含新 02 隕石墜落型開發與 13、14、15 團隊開發！共保留 {len(vibe_labs)} 個單元。")
 
 
