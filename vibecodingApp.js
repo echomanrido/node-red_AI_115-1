@@ -424,13 +424,22 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
 
     // 延伸資源連結
-    const referencesHtml = (lab.references || []).map(ref => `
-      <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="ref-item" style="border-color: rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.05);">
-        <i class="fa-solid fa-laptop-code" style="color: #38bdf8;"></i>
-        <span>${escapeHtml(ref.title)}</span>
-        <i class="fa-solid fa-arrow-up-right-from-square external-icon"></i>
-      </a>
-    `).join('');
+    const referencesHtml = (lab.references || []).map(ref => {
+      const isCustom = !!(ref.bgColor || ref.borderColor || ref.highlight);
+      const bg = ref.bgColor || 'rgba(56, 189, 248, 0.05)';
+      const border = ref.borderColor || 'rgba(56, 189, 248, 0.3)';
+      const textColor = ref.color || '#38bdf8';
+      const icon = ref.icon || 'fa-solid fa-laptop-code';
+      const badgeHtml = ref.badge ? `<span style="margin-left: 8px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: ${textColor}; color: #0f172a; display: inline-block;">${escapeHtml(ref.badge)}</span>` : '';
+      return `
+        <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="ref-item" style="border-color: ${border}; background: ${bg}; transition: all 0.2s ease;">
+          <i class="${icon}" style="color: ${textColor};"></i>
+          <span style="font-weight: ${isCustom ? '600' : 'normal'}; color: ${isCustom ? '#fef08a' : 'inherit'};">${escapeHtml(ref.title)}</span>
+          ${badgeHtml}
+          <i class="fa-solid fa-arrow-up-right-from-square external-icon" style="color: ${textColor};"></i>
+        </a>
+      `;
+    }).join('');
 
     // 實務應用情境
     const appsHtml = (lab.applications || []).map(app => `
