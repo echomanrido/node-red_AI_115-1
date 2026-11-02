@@ -141,13 +141,43 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // 格式化步驟說明（支援 Markdown 超連結並對重要連結提供顯著底色樣式）
+  function formatStepDescription(text) {
+    if (!text) return '';
+    let formatted = escapeHtml(text);
+    
+    // 將轉義後的 Markdown 連結 [文字](網址) 轉為超連結
+    formatted = formatted.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g, (match, title, url) => {
+      const isCopilot = url.includes('github-copilot') || title.includes('GitHub Copilot');
+      const isAntigravity = url.includes('antigravity') || title.includes('Antigravity');
+      const isLocalPilot = url.includes('LocalPilotFSS') || title.includes('LocalPilot');
+      if (isCopilot) {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="copilot-highlight-pill" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, rgba(56, 189, 248, 0.28) 0%, rgba(168, 85, 247, 0.35) 100%); color: #ffffff; border: 1.5px solid #38bdf8; padding: 3px 10px; border-radius: 6px; font-weight: 700; text-decoration: none; box-shadow: 0 0 14px rgba(56, 189, 248, 0.35); margin: 0 4px; vertical-align: middle; transition: all 0.2s ease;"><i class="fa-brands fa-github" style="color: #38bdf8; font-size: 1rem;"></i><span>${title}</span><i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.72rem; color: #38bdf8;"></i></a>`;
+      }
+      if (isAntigravity) {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="antigravity-highlight-pill" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(56, 189, 248, 0.35) 100%); color: #ffffff; border: 1.5px solid #10b981; padding: 3px 10px; border-radius: 6px; font-weight: 700; text-decoration: none; box-shadow: 0 0 14px rgba(16, 185, 129, 0.35); margin: 0 4px; vertical-align: middle; transition: all 0.2s ease;"><i class="fa-solid fa-atom" style="color: #34d399; font-size: 1rem;"></i><span>${title}</span><i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.72rem; color: #34d399;"></i></a>`;
+      }
+      if (isLocalPilot) {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="localpilot-highlight-pill" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, rgba(168, 85, 247, 0.32) 0%, rgba(99, 102, 241, 0.35) 100%); color: #ffffff; border: 1.5px solid #c084fc; padding: 3px 10px; border-radius: 6px; font-weight: 700; text-decoration: none; box-shadow: 0 0 14px rgba(168, 85, 247, 0.4); margin: 0 4px; vertical-align: middle; transition: all 0.2s ease;"><i class="fa-solid fa-bolt" style="color: #c084fc; font-size: 1rem;"></i><span>${title}</span><i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.72rem; color: #c084fc;"></i></a>`;
+      }
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="step-inline-link" style="color: #38bdf8; text-decoration: underline; font-weight: 600; padding: 1px 4px; border-radius: 4px; background: rgba(56, 189, 248, 0.12);">${title} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i></a>`;
+    });
+
+    // 若純文字中直接有 (https://visualstudio.microsoft.com/zh-hant/github-copilot/)
+    formatted = formatted.replace(/\(https:\/\/visualstudio\.microsoft\.com\/zh-hant\/github-copilot\/\)/g, 
+      ` (<a href="https://visualstudio.microsoft.com/zh-hant/github-copilot/" target="_blank" rel="noopener noreferrer" class="copilot-highlight-pill" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, rgba(56, 189, 248, 0.28) 0%, rgba(168, 85, 247, 0.35) 100%); color: #ffffff; border: 1.5px solid #38bdf8; padding: 3px 10px; border-radius: 6px; font-weight: 700; text-decoration: none; box-shadow: 0 0 14px rgba(56, 189, 248, 0.35); margin: 0 4px; vertical-align: middle;"><i class="fa-brands fa-github" style="color: #38bdf8; font-size: 1rem;"></i><span>Visual Studio 中的 GitHub Copilot 功能介紹</span><i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.72rem; color: #38bdf8;"></i></a>)`
+    );
+
+    return formatted;
+  }
+
   // 渲染補充教材詳細內容
   function renderSupplementContent(sup) {
     const numStr = sup.supNumber || '';
     const stepsHtml = sup.tutorialSteps.map(step => `
       <div class="step-card">
         <div class="step-header" style="color: #c084fc;"><i class="fa-solid fa-circle-chevron-right" style="color: #c084fc; margin-right: 8px;"></i> ${escapeHtml(step.step)}</div>
-        <div class="step-desc">${escapeHtml(step.description)}</div>
+        <div class="step-desc" style="line-height: 1.7;">${formatStepDescription(step.description)}</div>
         ${step.image ? `
         <div class="step-image-box" style="margin-top: 14px; border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 8px; overflow: hidden; background: #0b0f19; cursor: zoom-in;" onclick="window.openLightbox('${step.image}', '${escapeHtml(step.imageCaption || step.step)}')">
           <div style="padding: 6px 12px; background: rgba(168, 85, 247, 0.12); border-bottom: 1px solid rgba(168, 85, 247, 0.2); display: flex; justify-content: space-between; align-items: center;">
@@ -162,13 +192,48 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `).join('');
 
-    const referencesHtml = sup.references ? sup.references.map(ref => `
+    const referencesHtml = sup.references ? sup.references.map(ref => {
+      const isCopilot = ref.url.includes('github-copilot') || ref.title.includes('GitHub Copilot 功能介紹');
+      const isAntigravity = ref.url.includes('antigravity') || ref.title.includes('Antigravity');
+      const isLocalPilot = ref.url.includes('LocalPilotFSS') || ref.title.includes('LocalPilot');
+      if (isCopilot) {
+        return `
+        <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="ref-item ref-item-copilot-highlight" style="border-left: 4px solid #38bdf8; background: linear-gradient(90deg, rgba(56, 189, 248, 0.22) 0%, rgba(168, 85, 247, 0.28) 100%); border: 1.5px solid rgba(56, 189, 248, 0.55); box-shadow: 0 0 18px rgba(56, 189, 248, 0.25);">
+          <i class="fa-brands fa-github" style="color: #38bdf8; font-size: 1.15rem;"></i>
+          <span style="color: #ffffff; font-weight: 700; font-size: 0.95rem;">${escapeHtml(ref.title)}</span>
+          <span style="margin-left: auto; margin-right: 8px; font-size: 0.72rem; padding: 3px 10px; border-radius: 6px; background: rgba(56, 189, 248, 0.3); color: #38bdf8; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.6); display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-star"></i> 官方重點推薦</span>
+          <i class="fa-solid fa-arrow-up-right-from-square external-icon" style="color: #38bdf8;"></i>
+        </a>
+        `;
+      }
+      if (isAntigravity) {
+        return `
+        <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="ref-item ref-item-antigravity-highlight" style="border-left: 4px solid #10b981; background: linear-gradient(90deg, rgba(16, 185, 129, 0.22) 0%, rgba(56, 189, 248, 0.25) 100%); border: 1.5px solid rgba(16, 185, 129, 0.55); box-shadow: 0 0 18px rgba(16, 185, 129, 0.25);">
+          <i class="fa-solid fa-atom" style="color: #34d399; font-size: 1.15rem;"></i>
+          <span style="color: #ffffff; font-weight: 700; font-size: 0.95rem;">${escapeHtml(ref.title)}</span>
+          <span style="margin-left: auto; margin-right: 8px; font-size: 0.72rem; padding: 3px 10px; border-radius: 6px; background: rgba(16, 185, 129, 0.3); color: #6ee7b7; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.6); display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-wand-magic-sparkles"></i> 官方重點推薦</span>
+          <i class="fa-solid fa-arrow-up-right-from-square external-icon" style="color: #34d399;"></i>
+        </a>
+        `;
+      }
+      if (isLocalPilot) {
+        return `
+        <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="ref-item ref-item-localpilot-highlight" style="border-left: 4px solid #c084fc; background: linear-gradient(90deg, rgba(168, 85, 247, 0.25) 0%, rgba(99, 102, 241, 0.28) 100%); border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 18px rgba(168, 85, 247, 0.25);">
+          <i class="fa-solid fa-bolt" style="color: #c084fc; font-size: 1.15rem;"></i>
+          <span style="color: #ffffff; font-weight: 700; font-size: 0.95rem;">${escapeHtml(ref.title)}</span>
+          <span style="margin-left: auto; margin-right: 8px; font-size: 0.72rem; padding: 3px 10px; border-radius: 6px; background: rgba(168, 85, 247, 0.3); color: #d8b4fe; font-weight: 700; border: 1px solid rgba(168, 85, 247, 0.6); display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-shield-halved"></i> 100% 離線隱私推薦</span>
+          <i class="fa-solid fa-arrow-up-right-from-square external-icon" style="color: #c084fc;"></i>
+        </a>
+        `;
+      }
+      return `
       <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="ref-item" style="border-left: 3px solid #a855f7;">
         <i class="fa-solid fa-book-bookmark" style="color: #a855f7;"></i>
         <span>${escapeHtml(ref.title)}</span>
         <i class="fa-solid fa-arrow-up-right-from-square external-icon"></i>
       </a>
-    `).join('') : '<p style="color:var(--text-dim);">無延伸連結</p>';
+      `;
+    }).join('') : '<p style="color:var(--text-dim);">無延伸連結</p>';
 
     contentBodyEl.innerHTML = `
       <!-- (1) Supplement Header -->

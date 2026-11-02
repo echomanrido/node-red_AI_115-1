@@ -1,4 +1,4 @@
-// C# 學習補充教材資料庫
+// C# 學習補充教材資料庫 (離線 file:/// 模式備援)
 var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
   {
     "id": "cs-sup-01",
@@ -18,7 +18,7 @@ var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
       },
       {
         "step": "2. GitHub Copilot 現代化 AI 開發功能啟用",
-        "description": "Visual Studio 2026 深度整合免費的 GitHub Copilot (https://visualstudio.microsoft.com/zh-hant/github-copilot/)。引入全新的「Agent 模式」，能在背景協調編程步驟、即時因應問題、自動套用跨檔案變更並逐一排查代碼錯誤，大幅提升工控軟體開發效能。",
+        "description": "Visual Studio 2026 深度整合免費的 [Visual Studio 中的 GitHub Copilot 功能介紹](https://visualstudio.microsoft.com/zh-hant/github-copilot/)。引入全新的「Agent 模式」，能在背景協調編程步驟、即時因應問題、自動套用跨檔案變更並逐一排查代碼錯誤，大幅提升工控軟體開發效能。",
         "image": "images_src/csharp_supplements/vs2026_copilot_free.png",
         "imageCaption": "圖 2：Visual Studio 中免費的 Copilot 功能介紹與 Agent 模式增強"
       },
@@ -82,7 +82,7 @@ var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
     "tutorialSteps": [
       {
         "step": "1. 官方文件導讀與系統先決條件 (Prerequisites)",
-        "description": "前往 Google Antigravity 官方文件（https://antigravity.google/docs/ide/extensions/visual-studio/）。確認先決條件：Windows 10 或 11 上的 Visual Studio 2026（版本 17.8 或更高版本），以及具備 Antigravity 計劃（含免費套裝）或 Gemini Enterprise 權利的有效 Google 帳戶。",
+        "description": "前往 Google Antigravity 官方文件 ([Google Antigravity - Visual Studio Extension 官方文件](https://antigravity.google/docs/ide/extensions/visual-studio/))。確認先決條件：Windows 10 或 11 上的 Visual Studio 2026（版本 17.8 或更高版本），以及具備 Antigravity 計劃（含免費套裝）或 Gemini Enterprise 權利的有效 Google 帳戶。",
         "image": "images_src/csharp_supplements/vs2026_antigravity_docs.png",
         "imageCaption": "圖 1：Google Antigravity 官方 Visual Studio 擴充功能文件與系統要求"
       },
@@ -135,14 +135,70 @@ var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
     ],
     "imageTitle": "Google Antigravity for Visual Studio",
     "imageLink": "https://antigravity.google/docs/ide/extensions/visual-studio/"
+  },
+  {
+    "id": "cs-sup-03",
+    "supNumber": "03",
+    "title": "LocalPilot — AI Coding Assistant (Ollama) 本地端離線 AI 協同開發配置指南",
+    "date": "2026-11-02",
+    "category": "AI 輔助開發",
+    "summary": "專為高度機密工控廠區與內網隔離環境打造的 100% 本地端 AI 協同開發助理。LocalPilot 透過 Visual Studio 深度串接本機 Ollama 運算引擎，不需聯網即可享有類 GitHub Copilot 的行內代碼幽靈補全 (Ghost-text)、LocalPilot Chat 對話視窗、斜線指令 (/explain, /fix, /review, /test) 以及 C# WinForms 視窗程式自動化生成，兼具極致隱私保護與強大生產力。",
+    "image": "images_src/csharp_supplements/vs2026_localpilot_marketplace.png",
+    "objective": "1. 理解 100% 本地端離線 AI 程式助理在工控廠區（機密配方防外流、無外網環境）的核心優勢。\n2. 掌握在 Visual Studio 延伸模組管理員中搜尋並安裝 LocalPilot (Ollama) 的完整步驟。\n3. 熟練使用 LocalPilot Chat 側邊欄面板與 4 大核心斜線指令 (/explain, /fix, /review, /test)。\n4. 實戰演練運用 LocalPilot 在本機一鍵提示生成 C# WinForms 跑馬燈 (Marquee) 視窗元件與 Timer 定時器程式碼。",
+    "tutorialSteps": [
+      {
+        "step": "1. Marketplace 官方擴充套件介紹與 100% 離線隱私特性",
+        "description": "前往 Visual Studio Marketplace 官方頁面 ([LocalPilot — AI Coding Assistant (Ollama)](https://marketplace.visualstudio.com/items?itemName=FutureStackSolution.LocalPilotFSS))。LocalPilot 是 FutureStack Solution 開發的隱私優先 (Privacy-First) 本地 AI 配對工程師，完全透過在地端的 Ollama 執行模型推論，代碼絕不外流至公有雲端，支援 inline ghost-text 幽靈補全、AI Chat 面板、代碼解釋、重構與單元測試生成。",
+        "image": "images_src/csharp_supplements/vs2026_localpilot_marketplace.png",
+        "imageCaption": "圖 1：Visual Studio Marketplace 官方 LocalPilot (Ollama) 套件詳細資訊"
+      },
+      {
+        "step": "2. 在 Visual Studio 延伸模組管理員搜尋並一鍵安裝",
+        "description": "開啟 Visual Studio 2026，點選上方功能表「延伸模組(X)」→「管理延伸模組(M)...」。在延伸模組管理員的「瀏覽」分頁搜尋框輸入 `Ollama`，找到「LocalPilot — AI Coding Assistant (Ollama)」（由 FutureStack Solution 發行），點選「安裝」按鈕進行下載與自動配置。",
+        "image": "images_src/csharp_supplements/vs2026_localpilot_install_ext.png",
+        "imageCaption": "圖 2：Visual Studio 延伸模組管理員搜尋「Ollama」並安裝 LocalPilot 套件"
+      },
+      {
+        "step": "3. 呼叫 LocalPilot Chat 工作面板與 4 大核心斜線指令",
+        "description": "安裝完成後，Visual Studio 側邊工作視窗將新增「LocalPilot Chat」標籤頁（與 Antigravity、GitHub Copilot、方案總管、Git 變更並列）。在對話框中可直接輸入問題，或搭配常用的 4 大斜線快捷指令：\n• `/explain`：深入解釋所選取的 C# 程式碼區塊邏輯\n• `/fix`：自動偵測並修正工控語法與執行階段錯誤\n• `/review`：審查程式碼品質與工業級例外防護\n• `/test`：自動為選取的方法撰寫單元測試 (Unit Test)",
+        "image": "images_src/csharp_supplements/vs2026_localpilot_chat_panel.png",
+        "imageCaption": "圖 3：LocalPilot Chat 側邊欄對話視窗與斜線快捷指令支援"
+      },
+      {
+        "step": "4. 實戰演練：以 LocalPilot Chat 自動生成 C# WinForms 跑馬燈程式",
+        "description": "在 LocalPilot Chat 提示框輸入：「寫一個winforms程式，使用C#。顯示跑馬燈。」。本機 Ollama 模型將即時思考並回傳結構化教學指南：\n1. 【設計介面 (Designer)】：在 Form 上放置 Label (marqueeLabel) 與 Timer (timer1) 元件。\n2. 【設定屬性】：設定 Timer interval 屬性為 30 毫秒、enabled 屬性為 True。\n3. 【C# Code-Behind (`Form1.cs`)】：產生建構子啟動 Timer，並在 Tick 事件中遞減 Label.Left 座標，當小於邊界時重設至右側重新滾動。點選右上角「COPY」即可一鍵貼入專案！",
+        "image": "images_src/csharp_supplements/vs2026_localpilot_csharp_winforms_demo.png",
+        "imageCaption": "圖 4：LocalPilot 實戰對話生成 C# WinForms 跑馬燈元件與定時器控制代碼"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "封閉廠區與內網隔離環境的純離線 AI 協同開發",
+        "description": "在完全拔除實體外網的半導體晶圓廠或機密機電產線工控機上，開發工程師依然能透過本機 Ollama 運算引擎享有即時代碼補全與錯誤排查，徹底消除機密外洩資安風險。",
+        "icon": "fa-solid fa-shield-halved"
+      },
+      {
+        "scenario": "C# WinForms 介面與工控狀態顯示快速生成",
+        "description": "透過 LocalPilot 自然語言對話直接生成跑馬燈、警報指示燈閃爍與定時輪詢 (Timer.Tick) 邏輯，大幅加速工控人機介面開發原型。",
+        "icon": "fa-solid fa-laptop-code"
+      }
+    ],
+    "aiPrompt": "請扮演本機 Ollama C# 工控專家，寫一個 WinForms 產線警報跑馬燈控制類別：\n1. 使用 Label 元件橫向平滑滾動文字 \"產線機台狀態：正常運轉中 (Line 1 RUN)\"。\n2. 使用 Timer 控制滾動速度，當文字移出左側邊界時自動由右側重新進入。\n3. 當滑鼠懸停 (MouseEnter) 於 Label 上時暫停滾動，滑鼠移開 (MouseLeave) 時恢復滾動。\n4. 具備繁體中文註解與資源安全釋放邏輯。",
+    "references": [
+      {
+        "title": "Visual Studio Marketplace - LocalPilot (Ollama) 官方頁面",
+        "url": "https://marketplace.visualstudio.com/items?itemName=FutureStackSolution.LocalPilotFSS"
+      },
+      {
+        "title": "Ollama 官方網站 (本地端大語言模型引擎)",
+        "url": "https://ollama.com/"
+      },
+      {
+        "title": "Microsoft Learn - Timer 類別 (System.Windows.Forms)",
+        "url": "https://learn.microsoft.com/zh-tw/dotnet/api/system.windows.forms.timer"
+      }
+    ],
+    "imageTitle": "LocalPilot — AI Coding Assistant (Ollama) 官方詳細資訊",
+    "imageLink": "https://marketplace.visualstudio.com/items?itemName=FutureStackSolution.LocalPilotFSS"
   }
 ];
-
-// 支援全域掛載與模組化匯出
-if (typeof window !== 'undefined') {
-  window.INITIAL_CSHARP_SUPPLEMENTS_DATA = INITIAL_CSHARP_SUPPLEMENTS_DATA;
-  window.csharpSupplementsData = INITIAL_CSHARP_SUPPLEMENTS_DATA;
-}
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = INITIAL_CSHARP_SUPPLEMENTS_DATA;
-}
