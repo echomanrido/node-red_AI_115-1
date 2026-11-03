@@ -1,4 +1,4 @@
-// C# 學習補充教材資料庫 (離線 file:/// 模式備援)
+// C# 學習補充教材資料庫
 var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
   {
     "id": "cs-sup-01",
@@ -200,5 +200,79 @@ var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
     ],
     "imageTitle": "LocalPilot — AI Coding Assistant (Ollama) 官方詳細資訊",
     "imageLink": "https://marketplace.visualstudio.com/items?itemName=FutureStackSolution.LocalPilotFSS"
+  },
+  {
+    "id": "cs-sup-04",
+    "supNumber": "04",
+    "title": "GitHub Copilot 深度操作指南：Agent 代理程式、三大執行模式與 AI 模型切換實戰",
+    "date": "2026-11-03",
+    "category": "AI 輔助開發",
+    "summary": "深度解析 Visual Studio 2026 內建之 GitHub Copilot 現代化代理架構。本篇完整涵蓋「GitHub Copilot 聊天」視窗工作區配置、八大專屬代理角色（Agent、Ask、Plan、Debugger、Modernize、Profiler、組建）、三大自主執行模式（互動式、旁路、Autopilot 自動駕駛），以及新世代多模型（Claude Haiku 4.5、GPT-5.6/6 Luna、MAI-Code）切換與自訂管理，助您掌握次世代 AI 代理程式開發精髓。",
+    "image": "images_src/csharp_supplements/vs2026_copilot_chat_interface.png",
+    "objective": "1. 掌握 Visual Studio 2026 中 GitHub Copilot 聊天視窗介面佈局與底層工具列功能。\n2. 熟練切換 8 大專屬代理程式（Agent、Plan、Debugger、Modernize、Profiler 等）以應對不同工程階段。\n3. 深入理解「互動式」、「旁路」與「Autopilot 自動駕駛」三種執行自主度控制機制。\n4. 學會自由選用 Claude Haiku 4.5、GPT-5.6 Luna、GPT-6 Luna 等頂級模型，並透過「管理模型」進行偏好設定。",
+    "tutorialSteps": [
+      {
+        "step": "1. GitHub Copilot 聊天主視窗與工作區介面導覽",
+        "description": "開啟 Visual Studio 2026 側邊欄的「GitHub Copilot 聊天」面板（可與 LocalPilot Chat、Antigravity、方案總管及 Git 變更無縫切換）。視窗中心提供「建立新專案」、「請推薦一些我可以用 C# 實現的專案構想」及「您能在 Visual Studio 中提供我什麼協助」等快速提示。底部輸入框整合「+」專案脈絡附加上下文按鈕，並於工具列清晰呈現【代理程式選單】、【執行模式】與【模型選單】三大控制核心。",
+        "image": "images_src/csharp_supplements/vs2026_copilot_chat_interface.png",
+        "imageCaption": "圖 1：GitHub Copilot 聊天工作視窗、提示捷徑與底部三合一控制列"
+      },
+      {
+        "step": "2. 代理程式 (Agent) 角色切換：從 Ask 提問到 Debugger、Plan 與 Profiler",
+        "description": "點擊底部左側的「⚡ Agent」下拉選單，可依據任務需求切換專屬子代理程式：\n• Agent / Agent (預覽)：全自主代理模式，能跨多檔案搜尋代碼、重構架構並自動執行變更。\n• Ask：傳統單純問答模式，不直接改動原始碼，適合作為知識諮詢。\n• Plan：架構規劃模式，在動手編寫前先輸出條理化的步驟綱要與風險評估。\n• Debugger：專注於分析 Visual Studio 呼叫堆疊 (Call Stack)、例外錯誤日誌與變數狀態。\n• Modernize：專案現代化模式，協助將舊版 .NET Framework / WinForms 升級至最新現代化架構。\n• Profiler & 組建 (預覽)：專案效能瓶頸分析與 MSBuild 編譯建置排錯。亦可透過右上角「+」新增自訂代理程式。",
+        "image": "images_src/csharp_supplements/vs2026_copilot_agent_dropdown.png",
+        "imageCaption": "圖 2：GitHub Copilot 代理程式選單（Ask、Plan、Debugger、Modernize、Profiler 等）"
+      },
+      {
+        "step": "3. 三大執行控制模式解析：互動式、旁路與 Autopilot 全自動駕駛",
+        "description": "點擊中間的模式下拉選單，可自由切換 AI 的主動權等級：\n• 互動式 (Interactive)：預設嚴謹模式。每當 Copilot 欲修改檔案、建立新類別或執行終端指令時，均會先暫停並彈出確認視窗，供工程師逐步審核，掌控度最高。\n• 旁路 (Bypass)：旁路模式，自動略過低風險操作的中斷提問，適合已知安全的大批次重複性格式調整。\n• Autopilot (自動駕駛)：極致 Vibe Coding 模式！Copilot 接獲任務後將自動連續探索方案結構、建立多個檔案、調用工具進行建置並自動除錯修復，直到整體功能完備。",
+        "image": "images_src/csharp_supplements/vs2026_copilot_mode_dropdown.png",
+        "imageCaption": "圖 3：三種執行控制模式（互動式、旁路、Autopilot 全自動駕駛）"
+      },
+      {
+        "step": "4. AI 底層大語言模型自由切換與「管理模型」配置",
+        "description": "點擊右側模型切換清單，Visual Studio 2026 深度整合多廠商頂級大語言模型：\n• 自動 (Auto)：由系統智慧判定提問複雜度，動態分配最佳性價比模型。\n• Claude Haiku 4.5：Anthropic 極速輕量模型，具備優異代碼理解與極低延遲響應。\n• GPT-5.6 Luna & GPT-6 Luna：新一代旗艦模型，具備深層架構設計、工控邏輯推理與多檔案關聯重構能力。\n• MAI-Code-1.1-Flash：極致輕巧的高速代碼補全專用模型。\n• 點選下方 ⚙️ 管理模型 可進一步查看各模型訂閱配額、設定組織授權或自訂專屬微調端點。",
+        "image": "images_src/csharp_supplements/vs2026_copilot_models_dropdown.png",
+        "imageCaption": "圖 4：Copilot 模型切換清單（Claude Haiku 4.5、GPT-5.6/6 Luna、MAI-Code）與模型管理"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "複雜工控專案架構規劃與 Autopilot 自動駕駛建置",
+        "description": "透過 Plan 代理預先擬定系統模組劃分，再切換至 Autopilot 自動駕駛模式連續產出多專案 C# 類別庫、介面定義與自動化單元測試，大幅縮短開發週期。",
+        "icon": "fa-solid fa-wand-magic-sparkles"
+      },
+      {
+        "scenario": "工控系統例外排除與即時效能瓶頸分析",
+        "description": "使用 Debugger 代理深度分析 Visual Studio 呼叫堆疊，搭配 Profiler 代理快速定位串列埠通訊鎖死與高頻 GDI+ 繪圖記憶體洩漏問題。",
+        "icon": "fa-solid fa-bug"
+      }
+    ],
+    "aiPrompt": "請扮演 GitHub Copilot 認證架構專家，說明在 Visual Studio 2026 中如何協同運作：\n1. 何時應使用「Plan 代理」先擬定架構，再切換「Agent 模式」執行？\n2. 「Autopilot 自動駕駛」與「互動式」在開發工控 C# WinForms 時的最佳實踐與安全邊界。\n3. 針對高難度演算法與日常代碼維護，如何合理在 Claude Haiku 4.5 與 GPT-6 Luna 之間切換？",
+    "references": [
+      {
+        "title": "GitHub Copilot 官方文件 (Visual Studio 整合)",
+        "url": "https://docs.github.com/zh/copilot/using-github-copilot/using-github-copilot-in-visual-studio"
+      },
+      {
+        "title": "Microsoft Learn - 在 Visual Studio 中使用 GitHub Copilot Chat",
+        "url": "https://learn.microsoft.com/zh-tw/visualstudio/ide/visual-studio-github-copilot-chat"
+      },
+      {
+        "title": "GitHub Copilot Agent 模式官方指南",
+        "url": "https://visualstudio.microsoft.com/zh-hant/github-copilot/"
+      }
+    ],
+    "imageTitle": "GitHub Copilot in Visual Studio 2026",
+    "imageLink": "https://visualstudio.microsoft.com/zh-hant/github-copilot/"
   }
 ];
+
+// 支援全域掛載與模組化匯出
+if (typeof window !== 'undefined') {
+  window.INITIAL_CSHARP_SUPPLEMENTS_DATA = INITIAL_CSHARP_SUPPLEMENTS_DATA;
+  window.csharpSupplementsData = INITIAL_CSHARP_SUPPLEMENTS_DATA;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = INITIAL_CSHARP_SUPPLEMENTS_DATA;
+}
