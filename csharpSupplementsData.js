@@ -277,6 +277,71 @@ var INITIAL_CSHARP_SUPPLEMENTS_DATA = [
     ],
     "imageTitle": "GitHub Copilot in Visual Studio 2026",
     "imageLink": "https://visualstudio.microsoft.com/zh-hant/github-copilot/"
+  },
+  {
+    "id": "cs-sup-05",
+    "supNumber": "05",
+    "title": "Google Antigravity 深度操作指南：多模型調度、專案上下文附加 (Add Context) 與斜線指令實戰",
+    "date": "2026-11-03",
+    "category": "AI 輔助開發",
+    "summary": "深入解析 Google 代理程式工程平台 Google Antigravity 在 Visual Studio 2026 中的進階操作與對話交互技巧。本篇詳解三大操作核心：靈活調度 Gemini 3.8 Flash、Claude Sonnet/Opus 4.6 (Thinking) 與開源 GPT-OSS 120B 大語言模型並檢視用量限制（View Usage）；使用「+ (Add Context)」精準引用 Files 檔案、Folder 目錄、@ Mentions 符號標記與 Actions 執行動作；以及鍵入「/」啟用專屬斜線指令（/plan 規劃模式、/grill-me 深度問答對齊、/teamwork 多代理團隊、/learn 經驗內化、/boost 多代理編排）與工控防資料遺失安全機制，打造全自動化的 C# 現代化代理開發流程。",
+    "image": "images_src/csharp_supplements/vs2026_antigravity_model_menu.png",
+    "objective": "1. 掌握 Antigravity 模型選擇器功能，靈活調度 Gemini 3.8 Flash、Claude 4.6 (Thinking) 與 GPT-OSS 模型，並隨時監控 View Usage 配額。\n2. 熟練使用「+ (Add Context)」上下文選單，精準載入 Files 檔案、Folder 目錄、@ Mentions 程式符號與 Actions 動作。\n3. 掌握 Antigravity 核心斜線指令（/plan、/grill-me、/teamwork、/learn、/boost）以啟動不同自動化代理工作流。\n4. 理解工控專案開發中的 accidental-data-loss-prevention 安全防護機制，確保產線代碼安全。",
+    "tutorialSteps": [
+      {
+        "step": "1. 核心模型調度：Gemini 3.8 Flash、Claude 4.6 Thinking 與 View Usage 用量監控",
+        "description": "點擊底部模型下拉選單，可依據任務性質選擇最合適的 AI 引擎：\n• Gemini 3.8 Flash Medium：Google 官方最新極速高推理模型，適合日常程式碼編寫、除錯與高頻問答。\n• Claude Sonnet 4.6 / Opus 4.6 (Thinking)：Anthropic 深度思維模型，具備強大的 CoT 思維鏈推理，專攻複雜工控演算法與多專案架構規劃。\n• GPT-OSS 120B (Medium)：大型開源開放權重模型，適合特定開源標準比對。\n• View Usage：點擊可展開即時配額面板，查看每週限制 (Weekly limit) 與 5 小時速率限制 (5h limit) 剩餘百分比與重置倒數。",
+        "image": "images_src/csharp_supplements/vs2026_antigravity_model_menu.png",
+        "imageCaption": "圖 1：Antigravity 模型切換選單（Gemini 3.8 Flash、Claude 4.6 Thinking、GPT-OSS）與 View Usage"
+      },
+      {
+        "step": "2. 上下文脈絡附加 (Add Context)：Files、Folder、@ Mentions 與 Actions",
+        "description": "點擊輸入框左側「+」號（Add Context），精準向 Antigravity 提供工作區脈絡：\n• Files：指定專案內任一或多個 C# 原始碼檔案（如 FormMain.cs, SerialPortManager.cs）。\n• Folder：將整個模組或專案資料夾納入上下文，供 Agent 全盤掌握架構。\n• @ Mentions：直接在交談中標記特定的類別、結構、方法、檔案或變數符號（如 @ModbusTcpClient），進行焦點分析。\n• Actions：指定代理執行的具體動作與工具呼叫指令，大幅提高提示詞執行的準確度。",
+        "image": "images_src/csharp_supplements/vs2026_antigravity_add_context.png",
+        "imageCaption": "圖 2：Add Context 上下文選單（Files 檔案、Folder 資料夾、@ Mentions 與 Actions）"
+      },
+      {
+        "step": "3. 斜線指令系統 (Slash Commands)：/plan、/grill-me 與 /teamwork 多代理協作",
+        "description": "在提示輸入框中鍵入「/」斜線，立即喚出 Antigravity 強大的專業工作流指令：\n• /plan：在執行大型任務前先進行縝密規劃，輸出模組架構、依賴關係與逐步實作計畫。\n• /grill-me：啟動互動式訪談模式！AI 會主動向工程師提問關鍵技術細節與邊界條件，對齊設計決策。\n• /teamwork：啟動多代理自主團隊（Team of Agents），分工負責架構設計、核心編碼、單元測試與日誌驗證。\n• /learn：內化反思最近的成功模式或修正錯誤，將實戰經驗沉澱為可重複使用的技能 (Skills) 或規則 (Rules)。\n• /boost：調用高階 Boost 多代理編排器處理高複雜度專案。",
+        "image": "images_src/csharp_supplements/vs2026_antigravity_slash_commands.png",
+        "imageCaption": "圖 3：Antigravity 斜線指令自動完成選單（/plan、/grill-me、/teamwork、/learn、/boost）"
+      },
+      {
+        "step": "4. 工控安全防護與多模態語音/操作整合",
+        "description": "Antigravity 內建嚴謹的資料安全與工控防護機制：\n• accidental-data-loss-prevention：防止意外資料遺失規則，在執行具破壞性的檔案覆蓋、資料庫變更或不可逆命令前，會主動暫停並要求工程師授權確認。\n• 語音與多模態輸入：點擊輸入框右側麥克風圖示可直接進行語音自然語言提示；藍色發送按鈕（→）即可一鍵觸發代理執行，提供流暢的次世代 Vibe Coding 體驗。",
+        "image": "images_src/csharp_supplements/vs2026_antigravity_slash_commands.png",
+        "imageCaption": "圖 4：Antigravity 安全防護機制、語音輸入與代理執行按鈕"
+      }
+    ],
+    "applications": [
+      {
+        "scenario": "複雜工控架構規劃與 /grill-me 需求深度對齊",
+        "description": "利用 /plan 與 /grill-me 先行釐清通訊協定細節，再讓 Agent 自動生成 C# WinForms 通訊模組與人機介面，確保架構滴水不漏。",
+        "icon": "fa-solid fa-comments"
+      },
+      {
+        "scenario": "跨模組多代理協作 (/teamwork) 與經驗學習 (/learn)",
+        "description": "啟動團隊代理同時進行 PLC 通訊類別、UI 資料綁定與異常防護測試，並將調試成果透過 /learn 沉澱為團隊專屬技能庫。",
+        "icon": "fa-solid fa-users-gear"
+      }
+    ],
+    "aiPrompt": "請扮演 Google Antigravity 專家，說明在 Visual Studio 2026 中：\n1. 如何結合 /plan 與 /grill-me 指令，為現有 C# WinForms 專案新增 Modbus TCP 與三菱 FX3U 雙通訊協議模組？\n2. 說明在遇到複雜多專案架構時，如何使用 Add Context 引入 Folder 與 @ Mentions 符號以避免 Context 漂移？\n3. 針對深度思維需求（如複雜工控狀態機設計），為何建議調用 Claude 4.6 (Thinking) 模型？",
+    "references": [
+      {
+        "title": "Google Antigravity 官方文件 - Visual Studio Extension",
+        "url": "https://antigravity.google/docs/ide/extensions/visual-studio/"
+      },
+      {
+        "title": "Google Antigravity 官方首頁與概念導覽",
+        "url": "https://antigravity.google/"
+      },
+      {
+        "title": "Model Context Protocol (MCP) 開放標準架構",
+        "url": "https://modelcontextprotocol.io/"
+      }
+    ],
+    "imageTitle": "Google Antigravity for Visual Studio 2026",
+    "imageLink": "https://antigravity.google/docs/ide/extensions/visual-studio/"
   }
 ];
 
