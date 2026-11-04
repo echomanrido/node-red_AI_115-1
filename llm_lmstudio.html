@@ -72,7 +72,7 @@
                 <span style="color: #64748b;">/</span>
                 <a href="project_local_llm.html" style="color: #34d399; text-decoration: none; font-weight: 700;">專題：地端 LLM 知識庫</a>
                 <span style="color: #64748b;">/</span>
-                <span style="color: #f8fafc; font-weight: 700;">03. LM Studio 本地伺服器</span>
+                <span style="color: #f8fafc; font-weight: 700;">03. LM Studio 本地伺服器與 REST API</span>
             </div>
             <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                 <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 4px;">地端 LLM 系列：</span>
@@ -85,7 +85,7 @@
                 <a href="llm_anythingllm.html" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.1);">
                     02. AnythingLLM
                 </a>
-                <a href="llm_lmstudio.html" style="background: rgba(16, 185, 129, 0.25); color: #34d399; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.5);">
+                <a href="llm_lmstudio.html" style="background: rgba(168, 85, 247, 0.25); color: #c084fc; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 700; border: 1px solid rgba(168, 85, 247, 0.5);">
                     03. LM Studio
                 </a>
             </div>
@@ -113,6 +113,7 @@
         <a href="#chat" class="hover:text-indigo-600 transition-colors">交談推論</a>
         <a href="#server" class="hover:text-indigo-600 transition-colors">Local Server</a>
         <a href="#rest-api" class="hover:text-indigo-600 transition-colors">REST API 規範</a>
+        <a href="#mcp-chat" class="hover:text-indigo-600 transition-colors font-semibold text-indigo-600">Model Server & MCP</a>
         <a href="#quick-test" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-all text-xs font-semibold">快速測試</a>
       </nav>
     </div>
@@ -850,10 +851,215 @@
       </div>
     </article>
 
-    <!-- 步驟 07：程式碼呼叫範例 (cURL / Python / Node.js) -->
-    <article id="quick-test" class="scroll-mt-24 space-y-6">
+    <!-- 步驟 07：Model Server - Chat with a model & MCP 協議整合 (新增圖片說明) -->
+    <article id="mcp-chat" class="scroll-mt-24 space-y-6">
       <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
         <span class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-bold text-sm">07</span>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-2xl font-bold text-slate-900">Model Server 深入解析：Chat with a model & MCP 工具整合</h2>
+            <span class="badge-pill bg-purple-100 text-purple-700">新功能重點</span>
+          </div>
+          <p class="text-xs text-slate-500">端點：<code>POST /api/v1/chat</code> 搭配 Model Context Protocol (MCP) 與多模態輸入</p>
+        </div>
+      </div>
+
+      <!-- 投影片截圖與詳細視覺重現 -->
+      <div class="slide-frame">
+        <div class="bg-slate-100 px-4 py-2 border-b border-slate-200 text-xs font-mono text-slate-500 flex items-center justify-between">
+          <span class="flex items-center gap-1.5"><i data-lucide="cpu" class="w-3.5 h-3.5"></i> 系統文件截圖：Chat with a model API 規格與 MCP 範例</span>
+          <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold">Developer Docs 實機畫面</span>
+        </div>
+        
+        <!-- 擬真 SVG 截圖容器 -->
+        <svg viewBox="0 0 1000 580" class="w-full h-auto block select-none bg-white">
+          <!-- 頂部頂欄 -->
+          <rect width="1000" height="34" fill="#fafafa" stroke="#e5e7eb"/>
+          <text x="18" y="21" font-family="Inter, sans-serif" font-size="11" fill="#64748b">🗖</text>
+          <rect x="36" y="8" width="70" height="20" rx="4" fill="#e2e8f0"/>
+          <text x="44" y="22" font-family="Inter, sans-serif" font-size="10" fill="#475569">✕ Close docs</text>
+          <text x="500" y="22" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#475569">Model Server</text>
+
+          <!-- 最左側主導覽欄 (140px) -->
+          <g transform="translate(0, 34)">
+            <rect width="140" height="546" fill="#ffffff" stroke="#f1f5f9"/>
+            <text x="20" y="24" font-family="Inter, sans-serif" font-size="11" fill="#475569">👾 Chat</text>
+            <rect x="8" y="36" width="124" height="26" rx="4" fill="#e0e7ff"/>
+            <text x="20" y="53" font-family="Inter, sans-serif" font-weight="600" font-size="11" fill="#4338ca">🖧 Model Server</text>
+            <text x="20" y="82" font-family="Inter, sans-serif" font-size="11" fill="#64748b">📖 Library</text>
+            <text x="20" y="110" font-family="Inter, sans-serif" font-size="11" fill="#64748b">🔗 LM Link</text>
+            <text x="20" y="138" font-family="Inter, sans-serif" font-size="11" fill="#64748b">🔍 Model Search</text>
+
+            <!-- Developer 區段 -->
+            <text x="12" y="180" font-family="Inter, sans-serif" font-weight="700" font-size="10.5" fill="#334155">Developer</text>
+            <text x="20" y="206" font-family="Inter, sans-serif" font-size="11" fill="#64748b">🖧 Local Server</text>
+            <rect x="6" y="220" width="128" height="26" rx="4" fill="#4f46e5"/>
+            <text x="18" y="237" font-family="Inter, sans-serif" font-weight="600" font-size="11" fill="#ffffff">📖 Developer Docs</text>
+
+            <text x="12" y="268" font-family="Inter, sans-serif" font-size="9" fill="#94a3b8" letter-spacing="0.5">REST API</text>
+            <text x="16" y="288" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Overview</text>
+            <text x="16" y="308" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Quickstart</text>
+            <text x="16" y="328" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Stateful Chats</text>
+            <text x="16" y="348" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Streaming events</text>
+            
+            <rect x="6" y="358" width="128" height="22" rx="4" fill="#f1f5f9"/>
+            <text x="12" y="373" font-family="Inter, sans-serif" font-weight="600" font-size="10" fill="#1e293b">Chat with a model</text>
+            <rect x="96" y="362" width="32" height="14" rx="2" fill="#dbeafe"/>
+            <text x="112" y="373" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="8" fill="#1d4ed8">POST</text>
+
+            <text x="16" y="398" font-family="Inter, sans-serif" font-size="10" fill="#64748b">List your models</text>
+            <rect x="96" y="388" width="32" height="14" rx="2" fill="#dcfce7"/>
+            <text x="112" y="399" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="8" fill="#15803d">GET</text>
+
+            <text x="16" y="423" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Load a model</text>
+            <text x="16" y="446" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Download a model</text>
+            <text x="16" y="469" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Unload a model</text>
+            <text x="16" y="492" font-family="Inter, sans-serif" font-size="10" fill="#64748b">Get download status</text>
+          </g>
+
+          <!-- 中間內容：文件說明與 Request Body 參數定義 (420px) -->
+          <g transform="translate(160, 48)">
+            <!-- Breadcrumbs -->
+            <text x="0" y="15" font-family="Inter, sans-serif" font-size="10.5" fill="#64748b">developer  ›  rest  ›  chat</text>
+            
+            <!-- 標題 -->
+            <text x="0" y="45" font-family="Inter, sans-serif" font-weight="700" font-size="20" fill="#0f172a">←  →   Chat with a model</text>
+            <text x="0" y="68" font-family="Inter, sans-serif" font-size="12" fill="#64748b">Send a message to a model and receive a response. Supports MCP integration.</text>
+
+            <!-- 方法標籤 -->
+            <rect x="0" y="90" width="130" height="24" rx="4" fill="#f8fafc" stroke="#e2e8f0"/>
+            <text x="10" y="106" font-family="JetBrains Mono, monospace" font-weight="700" font-size="10.5" fill="#1e293b">POST /api/v1/chat</text>
+
+            <!-- Request Body -->
+            <text x="0" y="145" font-family="Inter, sans-serif" font-weight="700" font-size="14" fill="#1e293b">Request body</text>
+
+            <!-- 參數 1: model -->
+            <rect x="0" y="165" width="55" height="18" rx="3" fill="#f1f5f9"/>
+            <text x="7" y="178" font-family="JetBrains Mono, monospace" font-weight="600" font-size="10.5" fill="#334155">model</text>
+            <text x="65" y="178" font-family="Inter, sans-serif" font-size="11" fill="#64748b">: string</text>
+            <text x="0" y="200" font-family="Inter, sans-serif" font-size="11" fill="#64748b">Unique identifier for the model to use.</text>
+
+            <!-- 參數 2: input -->
+            <text x="0" y="235" font-family="Inter, sans-serif" font-size="12" fill="#334155">⌵</text>
+            <rect x="15" y="222" width="50" height="18" rx="3" fill="#f1f5f9"/>
+            <text x="22" y="235" font-family="JetBrains Mono, monospace" font-weight="600" font-size="10.5" fill="#334155">input</text>
+            <text x="75" y="235" font-family="Inter, sans-serif" font-size="11" fill="#64748b">: string | array&lt;object&gt;</text>
+            <text x="15" y="255" font-family="Inter, sans-serif" font-size="11" fill="#64748b">Message to send to the model.</text>
+
+            <!-- 子層 input text -->
+            <text x="35" y="280" font-family="Inter, sans-serif" font-size="11" fill="#334155"><tspan font-weight="600">Input text</tspan> : string</text>
+            <text x="35" y="296" font-family="Inter, sans-serif" font-size="10.5" fill="#64748b">Text content of the message.</text>
+
+            <!-- 子層 Input object -->
+            <text x="20" y="325" font-family="Inter, sans-serif" font-size="12" fill="#334155">⌵</text>
+            <text x="35" y="325" font-family="Inter, sans-serif" font-weight="600" font-size="11" fill="#334155">Input object : <tspan font-weight="400" fill="#64748b">object</tspan></text>
+            <text x="35" y="342" font-family="Inter, sans-serif" font-size="10.5" fill="#64748b">Object representing a message with additional metadata.</text>
+
+            <!-- 第三層 Text Input -->
+            <text x="45" y="370" font-family="Inter, sans-serif" font-size="12" fill="#334155">⌵</text>
+            <text x="60" y="370" font-family="Inter, sans-serif" font-weight="600" font-size="10.5" fill="#334155">Text Input <tspan font-weight="400" fill="#94a3b8">(optional)</tspan> : object</text>
+            <rect x="80" y="390" width="40" height="16" rx="2" fill="#f1f5f9"/>
+            <text x="85" y="402" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#334155">type</text>
+            <text x="130" y="402" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#64748b">: "text"</text>
+
+            <rect x="80" y="415" width="55" height="16" rx="2" fill="#f1f5f9"/>
+            <text x="85" y="427" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#334155">content</text>
+            <text x="145" y="427" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#64748b">: string</text>
+
+            <!-- 第三層 Image Input -->
+            <text x="45" y="455" font-family="Inter, sans-serif" font-size="12" fill="#334155">⌵</text>
+            <text x="60" y="455" font-family="Inter, sans-serif" font-weight="600" font-size="10.5" fill="#334155">Image Input <tspan font-weight="400" fill="#94a3b8">(optional)</tspan> : object</text>
+            <text x="60" y="470" font-family="Inter, sans-serif" font-size="10" fill="#94a3b8">Image input to provide user messages</text>
+          </g>
+
+          <!-- 右側呼叫範本視窗 (bash cURL) (400px) -->
+          <g transform="translate(590, 48)">
+            <!-- 頂部按鈕 -->
+            <rect x="140" y="0" width="120" height="24" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
+            <text x="150" y="16" font-family="Inter, sans-serif" font-size="10" fill="#475569">📄 Copy as Markdown</text>
+            <rect x="270" y="0" width="100" height="24" rx="4" fill="#ffffff" stroke="#e2e8f0"/>
+            <text x="280" y="16" font-family="Inter, sans-serif" font-size="10" fill="#475569">↗ Show on Web</text>
+
+            <!-- cURL 容器 -->
+            <rect x="0" y="40" width="390" height="470" rx="8" fill="#fafafa" stroke="#e5e7eb"/>
+            <rect x="0" y="40" width="390" height="28" rx="8" fill="#f4f4f5"/>
+            <text x="15" y="58" font-family="Inter, sans-serif" font-size="11" fill="#52525b">bash</text>
+            <text x="350" y="58" font-family="Inter, sans-serif" font-size="10.5" fill="#71717a">📋 Copy</text>
+
+            <!-- cURL 程式碼內容 -->
+            <g font-family="JetBrains Mono, monospace" font-size="9" fill="#27272a" transform="translate(15, 80)">
+              <text y="0"><tspan font-weight="700">curl</tspan> http://localhost:1234/api/v1/chat \</text>
+              <text y="15" fill="#15803d">  -H "Authorization: Bearer $LM_API_TOKEN" \</text>
+              <text y="30" fill="#15803d">  -H "Content-Type: application/json" \</text>
+              <text y="45">  -d '{</text>
+              <text y="60">    "model": <tspan fill="#16a34a">"ibm/granite-4-micro"</tspan>,</text>
+              <text y="75">    "input": <tspan fill="#16a34a">"Tell me the top trending model on hugging face</tspan></text>
+              <text y="90" fill="#16a34a">and navigate to https://lmstudio.ai",</text>
+              <text y="105">    "integrations": [</text>
+              <text y="120">      {</text>
+              <text y="135">        "type": <tspan fill="#16a34a">"ephemeral_mcp"</tspan>,</text>
+              <text y="150">        "server_label": <tspan fill="#16a34a">"huggingface"</tspan>,</text>
+              <text y="165">        "server_url": <tspan fill="#16a34a">"https://huggingface.co/mcp"</tspan>,</text>
+              <text y="180">        "allowed_tools": [</text>
+              <text y="195">          <tspan fill="#16a34a">"model_search"</tspan></text>
+              <text y="210">        ]</text>
+              <text y="225">      },</text>
+              <text y="240">      {</text>
+              <text y="255">        "type": <tspan fill="#16a34a">"plugin"</tspan>,</text>
+              <text y="270">        "id": <tspan fill="#16a34a">"mcp/playwright"</tspan>,</text>
+              <text y="285">        "allowed_tools": [</text>
+              <text y="300">          <tspan fill="#16a34a">"browser_navigate"</tspan></text>
+              <text y="315">        ]</text>
+              <text y="330">      }</text>
+              <text y="345">    ],</text>
+              <text y="360">    "context_length": <tspan fill="#2563eb">8000</tspan>,</text>
+              <text y="375">    "temperature": <tspan fill="#2563eb">0</tspan></text>
+              <text y="390">  }'</text>
+            </g>
+          </svg>
+      </div>
+
+      <!-- 圖片架構分析與重點講解 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+        <!-- 說明卡片 1 -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200/90 shadow-sm space-y-2">
+          <div class="flex items-center gap-2 text-indigo-600 font-bold text-sm">
+            <i data-lucide="layers" class="w-4 h-4"></i>
+            <span>彈性的 Input 資料結構</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <code>input</code> 欄位支援純字串（String）或包含多模態物件陣列（<code>array&lt;object&gt;</code>）。除了傳送純文字（<strong>Text Input</strong>）之外，還能直接掛載本機或遠端圖片（<strong>Image Input</strong>），讓視覺模型（如 Gemma 4 Vision）同時進行圖文問答。
+          </p>
+        </div>
+
+        <!-- 說明卡片 2 -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200/90 shadow-sm space-y-2">
+          <div class="flex items-center gap-2 text-purple-600 font-bold text-sm">
+            <i data-lucide="network" class="w-4 h-4"></i>
+            <span>MCP (Model Context Protocol) 整合</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            透過 <code>integrations</code> 陣列可隨請求掛載外部工具。例如宣告 <code>type: "ephemeral_mcp"</code> 並指向 <code>https://huggingface.co/mcp</code>，模型推論時就能自動動態呼叫 <code>model_search</code> 即時搜尋熱門模型。
+          </p>
+        </div>
+
+        <!-- 說明卡片 3 -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200/90 shadow-sm space-y-2">
+          <div class="flex items-center gap-2 text-emerald-600 font-bold text-sm">
+            <i data-lucide="compass" class="w-4 h-4"></i>
+            <span>外掛 Plugin 瀏覽自動化</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            支援宣告本機插件（例如 <code>type: "plugin", id: "mcp/playwright"</code>），允許模型運用 <code>browser_navigate</code> 自動操控無頭瀏覽器，前往指定的網頁抓取即時內容，真正達成「本機 Autonomous Agent」能力。
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 步驟 08：程式碼呼叫範例 (cURL / Python / Node.js) -->
+    <article id="quick-test" class="scroll-mt-24 space-y-6">
+      <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
+        <span class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-bold text-sm">08</span>
         <div>
           <h2 class="text-2xl font-bold text-slate-900">實戰整合範例 (Code Snippets)</h2>
           <p class="text-xs text-slate-500">提供常見呼叫方式，立即在您的專案中介接地端模型</p>
