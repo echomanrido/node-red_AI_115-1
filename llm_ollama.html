@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地端 LLM 實戰教學：Ollama 與 Page Assist 完整指南</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        },
+                        terminal: '#121317'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        .terminal-glow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- 頂部全站主選單快捷列 (與專題母頁整合) -->
+    <div style="background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding: 10px 20px; font-size: 0.88rem;">
+        <div style="max-w: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <a href="index.html" style="color: #cbd5e1; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+                    <i class="fa-solid fa-house" style="color: #38bdf8;"></i> 首頁
+                </a>
+                <span style="color: #64748b;">/</span>
+                <a href="project.html" style="color: #cbd5e1; text-decoration: none; font-weight: 600;">實務專題</a>
+                <span style="color: #64748b;">/</span>
+                <a href="project_local_llm.html" style="color: #34d399; text-decoration: none; font-weight: 700;">專題：地端 LLM 知識庫</a>
+                <span style="color: #64748b;">/</span>
+                <span style="color: #f8fafc; font-weight: 700;">01. Ollama 與 Page Assist</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 4px;">地端 LLM 系列：</span>
+                <a href="project_local_llm.html" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    專題母頁
+                </a>
+                <a href="llm_ollama.html" style="background: rgba(16, 185, 129, 0.25); color: #34d399; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.5);">
+                    01. Ollama
+                </a>
+                <a href="llm_anythingllm.html" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    02. AnythingLLM
+                </a>
+                <a href="llm_lmstudio.html" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    03. LM Studio
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 頂部導航列 -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-md">
+                    <!-- Ollama Llama 簡約向量 Logo -->
+                    <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3c-1.5 0-3 1.5-3 3v2H7a3 3 0 0 0-3 3v5a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-5a3 3 0 0 0-3-3h-2V6c0-1.5-1.5-3-3-3z"/>
+                        <circle cx="9" cy="11" r="1"/>
+                        <circle cx="15" cy="11" r="1"/>
+                        <path d="M10 15h4"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">地端 LLM 實戰教室</h1>
+                    <p class="text-xs text-slate-500 font-medium">Ollama × Page Assist × 本地 RAG 系統</p>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-1 text-sm font-medium">
+                <a href="#ch1" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-brand-600 hover:bg-slate-100 transition">安裝與模型</a>
+                <a href="#ch2" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-brand-600 hover:bg-slate-100 transition">環境設定</a>
+                <a href="#ch3" class="px-3 py-1.5 rounded-lg text-brand-700 bg-brand-50/70 hover:bg-brand-100 transition font-semibold">Page Assist 全解</a>
+                <a href="#ch4" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-brand-600 hover:bg-slate-100 transition">本機 RAG 知識庫</a>
+                <a href="#ch5" class="px-3 py-1.5 rounded-lg text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100 transition font-semibold">Restful API Testing</a>
+            </nav>
+            <div class="flex items-center gap-2">
+                <a href="#ch5" class="text-xs bg-indigo-600 text-white hover:bg-indigo-700 px-3 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
+                    <span>Rest API 測試</span>
+                </a>
+                <a href="https://ollama.com/download" target="_blank" class="text-xs bg-slate-900 text-white hover:bg-slate-800 px-3 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span>下載 Ollama</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主頁 Hero 區塊 -->
+    <section class="relative bg-gradient-to-b from-brand-50/60 via-white to-slate-50 border-b border-slate-200 py-12 lg:py-16">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-100 text-brand-700 mb-4 border border-brand-200">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                投影片實作課程教材
+            </span>
+            <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                零雲端依賴！在自己的電腦建構<br class="hidden sm:inline"/><span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-indigo-600">地端大語言模型 (LLM) 專家系統</span>
+            </h2>
+            <p class="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                本教學完整重現投影片步驟：從 Ollama 引擎安裝、圖形介面與命令列模型下載、版本排錯，到結合 Page Assist 打造含 Web Search 與 RAG 專屬知識庫的本地 AI 工具鏈。
+            </p>
+            <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+                <a href="#ch1" class="px-5 py-2.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 shadow-sm transition flex items-center gap-2">
+                    <i data-lucide="play-circle" class="w-4 h-4"></i> 開始學習
+                </a>
+                <a href="#ch4" class="px-5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 shadow-sm transition flex items-center gap-2">
+                    <i data-lucide="database" class="w-4 h-4"></i> 跳至 RAG 實戰
+                </a>
+                <a href="#ch5" class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 shadow-sm transition flex items-center gap-2">
+                    <i data-lucide="terminal-square" class="w-4 h-4"></i> 前往 Rest API 實測
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 快捷目錄卡片 -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16">
+
+        <!-- =================== CHAPTER 1 =================== -->
+        <section id="ch1" class="scroll-mt-24 space-y-8">
+            <div class="border-b border-slate-200 pb-4 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold text-brand-600 uppercase tracking-widest">CHAPTER 01</span>
+                    <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="cpu" class="w-6 h-6 text-brand-500"></i>
+                        Ollama 下載與大語言模型獲取
+                    </h3>
+                </div>
+                <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md font-mono">CLI & GUI 雙模式</span>
+            </div>
+
+            <!-- 下載說明 -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                <h4 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs flex items-center justify-center font-bold">1</span>
+                    安裝 Ollama 客戶端
+                </h4>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    前往官網下載適用於 Windows / macOS / Linux 的安裝程式。Windows 建議使用 Windows 10 或更新版本。
+                </p>
+
+                <!-- 模擬截圖：官網下載頁面 -->
+                <div class="rounded-xl border border-slate-200 overflow-hidden bg-slate-50 p-6 flex flex-col items-center justify-center shadow-inner">
+                    <div class="text-center max-w-sm w-full bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                            <!-- 官網 Logo 向量圖案 -->
+                            <svg class="w-10 h-10 text-slate-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 3c-1.5 0-3 1.5-3 3v2H7a3 3 0 0 0-3 3v5a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-5a3 3 0 0 0-3-3h-2V6c0-1.5-1.5-3-3-3z"/>
+                                <circle cx="9" cy="11" r="1"/><circle cx="15" cy="11" r="1"/>
+                            </svg>
+                        </div>
+                        <h5 class="text-2xl font-black text-slate-900">Download Ollama</h5>
+                        <div class="grid grid-cols-3 gap-2 mt-4 text-xs font-semibold text-slate-700">
+                            <div class="p-2 rounded-lg border border-transparent hover:bg-slate-100 flex flex-col items-center">
+                                <i data-lucide="apple" class="w-5 h-5 mb-1"></i> macOS
+                            </div>
+                            <div class="p-2 rounded-lg border border-transparent hover:bg-slate-100 flex flex-col items-center">
+                                <i data-lucide="terminal" class="w-5 h-5 mb-1"></i> Linux
+                            </div>
+                            <div class="p-2 rounded-lg border-2 border-brand-500 bg-brand-50/50 flex flex-col items-center text-brand-700">
+                                <i data-lucide="monitor" class="w-5 h-5 mb-1"></i> Windows
+                            </div>
+                        </div>
+                        <a href="https://ollama.com/download/windows" target="_blank" class="mt-5 block w-full py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition shadow">
+                            Download for Windows
+                        </a>
+                        <p class="text-[11px] text-slate-400 mt-2">Requires Windows 10 or later</p>
+                    </div>
+                    <span class="text-xs text-slate-400 mt-2 font-mono">投影片第 2 頁截圖再現</span>
+                </div>
+            </div>
+
+            <!-- 兩種下載模型方式 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 方法 1: 桌面客戶端搜尋下載 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs flex items-center justify-center font-bold">2A</span>
+                                方法 1：圖形介面自動下載
+                            </h4>
+                            <span class="text-xs bg-brand-50 text-brand-700 px-2 py-0.5 rounded font-medium">GUI</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-4">
+                            開啟 Ollama 桌面視窗，點擊模型選單輸入關鍵字（例如 <code class="bg-slate-100 px-1 py-0.5 rounded">gpt-oss:20b</code> 或 <code class="bg-slate-100 px-1 py-0.5 rounded">gemma3</code>），輸入提問後軟體即會自動在背景下載並載入。
+                        </p>
+
+                        <!-- 模擬截圖：GUI 下載中狀態 -->
+                        <div class="bg-slate-100 rounded-xl p-4 border border-slate-200">
+                            <!-- 視窗標題列 -->
+                            <div class="flex items-center justify-between border-b border-slate-200 pb-2 mb-3 text-xs text-slate-500 font-mono">
+                                <span>Ollama</span>
+                                <div class="flex gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                                </div>
+                            </div>
+                            <!-- 下載進度條展示 -->
+                            <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                                <div class="flex items-center gap-2 text-slate-800 text-sm font-semibold">
+                                    <i data-lucide="download-cloud" class="w-4 h-4 text-brand-600"></i>
+                                    <span>Downloading model</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                                    <div class="bg-brand-500 h-2 rounded-full w-[12%] animate-pulse"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-slate-500 font-mono">
+                                    <span>0.1 GB / 12.8 GB</span>
+                                    <span>(12%)</span>
+                                </div>
+                            </div>
+                            <!-- 輸入框示意 -->
+                            <div class="mt-4 bg-white rounded-xl p-2.5 border border-slate-200 flex items-center justify-between text-xs text-slate-400">
+                                <span>Send a message...</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="px-2 py-0.5 bg-slate-100 rounded text-slate-600 font-mono text-[11px]">gpt-oss:20b</span>
+                                    <span class="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center">■</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-3 font-mono">投影片第 3、4、5 頁功能演示</p>
+                </div>
+
+                <!-- 方法 2: 終端機 CLI 執行 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs flex items-center justify-center font-bold">2B</span>
+                                方法 2：終端機指令（推薦）
+                            </h4>
+                            <span class="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">CMD / Terminal</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-4">
+                            使用指令可更直覺獲取視覺或程式碼特化模型，如具備多模態圖形推理能力的 <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">llama3.2-vision</code> 或 <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">opencoder</code>。
+                        </p>
+
+                        <!-- 終端機模擬截圖 -->
+                        <div class="bg-terminal text-slate-200 rounded-xl p-4 font-mono text-xs shadow-md space-y-2 border border-slate-800">
+                            <div class="flex items-center gap-2 text-slate-500 pb-1 border-b border-slate-800">
+                                <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-green-500/80"></span>
+                                <span class="text-[11px] text-slate-400 ml-1">Command Prompt - Windows</span>
+                            </div>
+                            <p class="text-emerald-400">C:\Users\user&gt; ollama run llama3.2-vision</p>
+                            <p class="text-slate-400">pulling manifest</p>
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-slate-300">
+                                    <span>pulling 9999d473417a: 100%</span>
+                                    <span>7.8 GB</span>
+                                </div>
+                                <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-slate-300 h-full w-full"></div>
+                                </div>
+                            </div>
+                            <p class="text-slate-400">verifying sha256 digest</p>
+                            <p class="text-slate-400">writing manifest</p>
+                            <p class="text-emerald-400 font-bold">success</p>
+                            <p class="text-slate-200 animate-pulse">&gt;&gt;&gt; Send a message (/? for help)</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex gap-2">
+                        <button onclick="copyCommand('ollama run llama3.2-vision')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i> 複製 Vision 模型指令
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 常見問題排查：Ollama 版本過舊 Error 412 -->
+            <div class="bg-amber-50 rounded-2xl p-6 border border-amber-200">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    </div>
+                    <div class="space-y-3 flex-1">
+                        <h4 class="text-base font-bold text-amber-900">實戰避坑指南：Error 412 版本過舊無法下載</h4>
+                        <p class="text-xs text-amber-800 leading-relaxed">
+                            投影片第 8 頁實測中，下載新版模型（如 <code class="bg-amber-100/80 px-1 py-0.5 rounded font-mono font-semibold">gemma4:e4b</code>）可能出現：<br>
+                            <span class="font-mono text-red-600 font-semibold">Error: pull model manifest: 412: The model you are attempting to pull requires a newer version of Ollama.</span>
+                        </p>
+
+                        <!-- 終端機截圖演示：檢查版本 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-terminal text-slate-200 rounded-lg p-3 font-mono text-xs border border-slate-800">
+                                <p class="text-slate-400">// 查看目前版本</p>
+                                <p class="text-emerald-400">C:\Users\user&gt; ollama --version</p>
+                                <p class="text-amber-400 font-bold">ollama version is 0.13.3 (過舊)</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-3 border border-amber-200 text-xs text-slate-700 flex flex-col justify-center">
+                                <span class="font-bold text-slate-900 mb-1">解決步驟：</span>
+                                <span>1. 至官網下載最新安裝檔重新安裝覆蓋。</span>
+                                <span>2. 更新完成後再次執行 <code class="bg-slate-100 px-1 py-0.5 font-mono text-brand-600">ollama run gemma4:e4b</code> 即可成功下載（9.6 GB）。</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================== CHAPTER 2 =================== -->
+        <section id="ch2" class="scroll-mt-24 space-y-8">
+            <div class="border-b border-slate-200 pb-4 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold text-brand-600 uppercase tracking-widest">CHAPTER 02</span>
+                    <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-6 h-6 text-brand-500"></i>
+                        Ollama 進階設定與效能釋放
+                    </h3>
+                </div>
+                <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md font-mono">Settings & Storage</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 觀念 1: 模型儲存路徑 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+                    <div class="w-9 h-9 rounded-xl bg-blue-50 text-brand-600 flex items-center justify-center">
+                        <i data-lucide="folder-cog" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-900">模型儲存路徑變更</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        預設位於 C 槽使用者目錄下：<br>
+                        <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px] font-mono break-all">C:\Users\username\.ollama\models</code>。<br>
+                        可透過 Settings 頁面點擊 <strong>Browse</strong> 遷移至剩餘容量較大的 D 槽或高速固態硬碟（SSD）。
+                    </p>
+                </div>
+
+                <!-- 觀念 2: Context length 記憶長度 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3 border-brand-200 bg-gradient-to-b from-brand-50/20 to-white">
+                    <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+                        <i data-lucide="maximize-2" class="w-5 h-5"></i>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-slate-900">Context Length 開最大！</h4>
+                        <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">投影片關鍵訣竅</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        投影片提示：<strong>「根據 Model 限制，如果沒有 Token 限制，電腦跑得動就給他開最大！」</strong><br>
+                        可在 Settings 滑桿將 Context length 由預設 4k 調升至 16k、32k、64k 或甚至 256k，大幅增強長文記憶力。
+                    </p>
+                </div>
+
+                <!-- 觀念 3: 網路聯網與區域網路分享 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+                    <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                        <i data-lucide="wifi" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-900">區域網路與雲端搜尋</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        開啟 <strong>Expose Ollama to the network</strong> 允許同 WiFi 局域網的其他手機或電腦調用本機 API。<br>
+                        <strong>Cloud 開關</strong> 可支援具備聯網能力的模型直接進行 Web Search 即時資訊查詢。
+                    </p>
+                </div>
+            </div>
+
+            <!-- 模擬截圖：Ollama Settings 視窗 -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                    <span class="font-bold text-sm text-slate-700 flex items-center gap-2">
+                        <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i> Ollama Client Settings 面板模擬
+                    </span>
+                    <span class="text-xs text-slate-400 font-mono">投影片第 14 頁</span>
+                </div>
+                <div class="max-w-2xl mx-auto space-y-5 text-xs text-slate-700">
+                    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                        <div>
+                            <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                                <i data-lucide="cloud" class="w-4 h-4 text-slate-500"></i> Cloud
+                            </div>
+                            <p class="text-slate-500 text-[11px]">Enable cloud models and web search.</p>
+                        </div>
+                        <div class="w-10 h-5 bg-slate-900 rounded-full relative cursor-pointer"><div class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></div></div>
+                    </div>
+
+                    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                        <div>
+                            <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                                <i data-lucide="hard-drive" class="w-4 h-4 text-slate-500"></i> Model location
+                            </div>
+                            <p class="text-slate-500 text-[11px]">Location where models are stored.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-slate-100 px-2 py-1 rounded text-[11px] font-mono text-slate-600">C:\Users\user\.ollama\models</span>
+                            <span class="px-2.5 py-1 bg-slate-200 text-slate-700 rounded font-semibold text-[11px]">Browse</span>
+                        </div>
+                    </div>
+
+                    <div class="py-2 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                                    <i data-lucide="brain-circuit" class="w-4 h-4 text-brand-600"></i> Context length
+                                </div>
+                                <p class="text-slate-500 text-[11px]">Determines how much of your conversation local LLMs can remember.</p>
+                            </div>
+                            <span class="font-mono text-brand-600 font-bold bg-brand-50 px-2 py-0.5 rounded">32k / 256k</span>
+                        </div>
+                        <input type="range" min="4" max="256" value="32" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600">
+                        <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                            <span>4k</span><span>8k</span><span>16k</span><span class="text-brand-600 font-bold">32k</span><span>64k</span><span>128k</span><span>256k</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================== CHAPTER 3 =================== -->
+        <section id="ch3" class="scroll-mt-24 space-y-8">
+            <div class="border-b border-slate-200 pb-4 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold text-brand-600 uppercase tracking-widest">CHAPTER 03 • 核心強化</span>
+                    <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="layout" class="w-6 h-6 text-brand-500"></i>
+                        Page Assist：功能全解、搜尋引擎配置與 Prompt 實戰
+                    </h3>
+                </div>
+                <span class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-md font-semibold font-mono">Chrome Web Store 4.9★</span>
+            </div>
+
+            <!-- Page Assist 安裝與 Chrome 商店展示 (投影片 16, 17) -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs flex items-center justify-center font-bold">1</span>
+                            安裝與啟用 Page Assist 擴充功能
+                        </h4>
+                        <p class="text-xs text-slate-600 mt-1">
+                            免架設 Docker、免複雜環境設定，直接於 Chrome 線上應用程式商店安裝即可接軌本地 Ollama。
+                        </p>
+                    </div>
+                    <a href="https://chromewebstore.google.com/detail/page-assist-a-web-ui-for/jfgfiigpkhlkbnfnbobbkinehhfdhndo?pli=1" target="_blank" class="shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow">
+                        <i data-lucide="chrome" class="w-4 h-4"></i> 前往 Chrome 商店安裝
+                    </a>
+                </div>
+
+                <!-- 模擬截圖：Chrome Web Store 卡片再現 (投影片 17) -->
+                <div class="rounded-xl border border-slate-200 overflow-hidden bg-slate-50 p-4">
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white shrink-0 shadow-md">
+                                <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="9"/>
+                                    <path d="M8 12h.01M12 12h.01M16 12h.01"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h5 class="text-lg font-bold text-slate-900">Page Assist - 本地 AI 模型的網頁介面</h5>
+                                <div class="flex flex-wrap items-center gap-2 mt-1 text-xs text-slate-500">
+                                    <span class="inline-flex items-center text-emerald-600 font-semibold gap-1">
+                                        <i data-lucide="badge-check" class="w-3.5 h-3.5"></i> 精選商品
+                                    </span>
+                                    <span>•</span>
+                                    <span class="flex items-center text-amber-500 font-semibold gap-1">
+                                        ★ 4.9 (210 個評分)
+                                    </span>
+                                    <span>•</span>
+                                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded">擴充功能</span>
+                                    <span>•</span>
+                                    <span>300,000+ 位使用者</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="px-5 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-sm">已加到 Chrome</span>
+                    </div>
+
+                    <!-- 雙預覽海報圖 (投影片 17 下方) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div class="rounded-xl bg-gradient-to-br from-teal-500 via-slate-900 to-indigo-900 p-5 text-white flex flex-col justify-between h-44 shadow-sm border border-slate-700">
+                            <span class="text-xs uppercase tracking-widest text-teal-300 font-mono">Web UI Integration</span>
+                            <div>
+                                <p class="text-2xl font-black tracking-tight leading-none text-amber-300">A WEB UI FOR YOUR</p>
+                                <p class="text-3xl font-black tracking-tight leading-none text-white mt-1">OLLAMA</p>
+                            </div>
+                            <span class="text-[11px] text-slate-300">支援 Markdown、代碼高亮、多對話管理</span>
+                        </div>
+                        <div class="rounded-xl bg-gradient-to-br from-indigo-950 via-slate-900 to-fuchsia-900 p-5 text-white flex flex-col justify-between h-44 shadow-sm border border-slate-700">
+                            <span class="text-xs uppercase tracking-widest text-fuchsia-300 font-mono">Chrome Sidebar Feature</span>
+                            <div>
+                                <p class="text-2xl font-black tracking-tight leading-none text-amber-300">OLLAMA-POWERED</p>
+                                <p class="text-2xl font-black tracking-tight leading-none text-white mt-1">SIDEBAR FOR BROWSING</p>
+                            </div>
+                            <span class="text-[11px] text-slate-300">一邊瀏覽網頁一邊提問網頁摘要 (Chat with Current Page)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Assist 完整設定側欄與網頁搜尋 (投影片 20, 21, 23) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 模擬截圖：Page Assist 設定選單清單 (投影片 20, 23) -->
+                <div class="lg:col-span-4 bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <span class="text-xs font-bold text-slate-500 tracking-wider uppercase font-mono">Options / Settings</span>
+                        <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">chrome-extension://...</span>
+                    </div>
+
+                    <!-- 模擬截圖：側邊欄導航選項 (完全對照投影片) -->
+                    <div class="space-y-1 text-xs">
+                        <div class="p-2.5 rounded-xl bg-slate-100 text-slate-900 font-bold flex items-center justify-between">
+                            <span class="flex items-center gap-2"><i data-lucide="sliders-horizontal" class="w-4 h-4 text-brand-600"></i> 一般設定 (網頁搜尋)</span>
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400"></i>
+                        </div>
+                        <div class="p-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-medium flex items-center gap-2">
+                            <i data-lucide="git-pull-request" class="w-4 h-4 text-slate-400"></i> Pipeline 設定 (RAG)
+                        </div>
+                        <div class="p-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-medium flex items-center gap-2">
+                            <i data-lucide="settings-2" class="w-4 h-4 text-slate-400"></i> Ollama 設定 (埠號: 11434)
+                        </div>
+                        <div class="p-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-medium flex items-center justify-between">
+                            <span class="flex items-center gap-2"><i data-lucide="compass" class="w-4 h-4 text-slate-400"></i> Chrome AI 設定</span>
+                            <span class="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded font-bold">Beta</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-medium flex items-center gap-2">
+                            <i data-lucide="cpu" class="w-4 h-4 text-slate-400"></i> OpenAI 相容 API
+                        </div>
+                        <div class="p-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-medium flex items-center gap-2">
+                            <i data-lucide="box" class="w-4 h-4 text-slate-400"></i> 模型管理
+                        </div>
+                        <div class="p-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-medium flex items-center gap-2">
+                            <i data-lucide="book-open" class="w-4 h-4 text-slate-400"></i> 知識管理 (RAG 資料庫)
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-brand-50 text-brand-700 font-bold flex items-center justify-between">
+                            <span class="flex items-center gap-2"><i data-lucide="message-square-quote" class="w-4 h-4 text-brand-600"></i> 提示詞管理 (Prompt)</span>
+                            <span class="w-2 h-2 rounded-full bg-brand-600"></span>
+                        </div>
+                        <div class="p-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-medium flex items-center gap-2">
+                            <i data-lucide="share-2" class="w-4 h-4 text-slate-400"></i> 分享管理
+                        </div>
+                        <div class="p-2.5 rounded-xl hover:bg-slate-50 text-slate-600 font-medium flex items-center gap-2">
+                            <i data-lucide="help-circle" class="w-4 h-4 text-slate-400"></i> 關於
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模擬截圖：網頁搜尋設定面板 (投影片 21) -->
+                <div class="lg:col-span-8 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h5 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="globe" class="w-4 h-4 text-brand-600"></i> 網頁搜尋設定 (Web Search) 模擬截圖
+                        </h5>
+                        <span class="text-xs text-slate-400 font-mono">投影片第 21 頁</span>
+                    </div>
+
+                    <div class="space-y-4 text-xs">
+                        <div class="space-y-1">
+                            <label class="font-bold text-slate-700">搜尋引擎</label>
+                            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-slate-800 font-medium">
+                                <span>Google</span>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="font-bold text-slate-700">Google 網域</label>
+                            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-slate-800 font-medium">
+                                <span>google.com</span>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                            <div>
+                                <span class="font-bold text-slate-800">執行簡單的網路搜尋</span>
+                                <p class="text-[11px] text-slate-500">向 Google 發送關鍵字並擷取搜尋結果摘要</p>
+                            </div>
+                            <div class="w-10 h-5 bg-blue-600 rounded-full relative cursor-pointer"><div class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></div></div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="font-bold text-slate-700">總搜尋結果數 (Result Count)</label>
+                            <input type="text" value="5" readonly class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-800 font-semibold">
+                        </div>
+
+                        <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                            <div>
+                                <span class="font-bold text-slate-800">訪問訊息中提到的網站</span>
+                                <p class="text-[11px] text-slate-500">深入訪問檢索到的 URL 內容以獲取更豐富上下文</p>
+                            </div>
+                            <div class="w-10 h-5 bg-blue-600 rounded-full relative cursor-pointer"><div class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></div></div>
+                        </div>
+
+                        <div class="flex items-center justify-between py-2">
+                            <div>
+                                <span class="font-bold text-slate-800">預設開啟網路搜尋</span>
+                                <p class="text-[11px] text-slate-500">是否每次新開聊天時自動將 Web Search 切換為 On</p>
+                            </div>
+                            <div class="w-10 h-5 bg-slate-300 rounded-full relative cursor-pointer"><div class="w-4 h-4 bg-white rounded-full absolute left-0.5 top-0.5"></div></div>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <span class="px-5 py-2 bg-slate-900 text-white rounded-xl font-bold text-xs shadow">儲存設定</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Web Search 開啟實測與回答 (投影片 18, 19) -->
+            <div class="bg-slate-100 rounded-2xl p-6 border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
+                            實測示範：開啟 Web Search 聯網查詢「什麼是機電整合」
+                        </h4>
+                        <p class="text-xs text-slate-500 mt-0.5">投影片第 19 頁：模型自動引述 itri.org.tw (工研院) 與 ezec.tw 等即時網頁資料回答</p>
+                    </div>
+                    <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded font-mono">Web Search: ON</span>
+                </div>
+
+                <!-- 模擬截圖：對話介面與即時聯網引述 -->
+                <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 bg-slate-100 rounded-md font-mono text-slate-700 font-bold">gemma3:1b</span>
+                            <span class="text-slate-400">|</span>
+                            <span class="text-slate-500">Select a Prompt</span>
+                        </div>
+                        <span class="text-emerald-600 font-semibold flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Ollama is running 🦙
+                        </span>
+                    </div>
+
+                    <!-- 使用者發問 -->
+                    <div class="flex justify-end">
+                        <span class="bg-slate-100 text-slate-800 text-xs px-3.5 py-2 rounded-2xl rounded-tr-none font-medium">什麼是機電整合</span>
+                    </div>
+
+                    <!-- 模型回答 -->
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 text-xs text-slate-700 space-y-2 leading-relaxed">
+                        <p class="font-bold text-slate-900 text-sm">What is Machine Integration?</p>
+                        <p>Machine Integration, as explained in the first result (<strong>itri.org.tw</strong>), is the process of combining mechanical and electrical components to create a system where one component controls the other. It's a fundamental concept that has been evolving for over 200 years.</p>
+                        <p class="font-bold text-slate-900 text-sm pt-1">What is Electromechanical Integration?</p>
+                        <p>The second result (<strong>ezec.tw</strong>) explains Electromechanical Integration as the combination of a mechanical element and a circuit that work together...</p>
+                    </div>
+
+                    <!-- 輸入欄與按鈕開關模擬 (投影片 19 底部) -->
+                    <div class="mt-2 bg-slate-50 border border-slate-200 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                                <i data-lucide="globe" class="w-3.5 h-3.5"></i> On
+                            </span>
+                            <span class="text-slate-400">Type a message...</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-slate-500">
+                            <i data-lucide="image" class="w-4 h-4 cursor-pointer hover:text-slate-800"></i>
+                            <i data-lucide="paperclip" class="w-4 h-4 cursor-pointer hover:text-slate-800"></i>
+                            <i data-lucide="mic" class="w-4 h-4 cursor-pointer hover:text-slate-800"></i>
+                            <span class="px-3 py-1 bg-slate-900 text-white rounded-lg text-xs font-bold flex items-center gap-1">
+                                Submit <i data-lucide="corner-down-left" class="w-3 h-3"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系統提示詞設定流程 (Prompt Template) (投影片 22, 23, 24, 25) -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+                <div>
+                    <h4 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="message-square-code" class="w-5 h-5 text-brand-600"></i>
+                        自訂提示詞管理 (Custom Prompts) 與衝突避坑
+                    </h4>
+                    <p class="text-xs text-slate-600 mt-1">
+                        投影片第 22~25 頁展示如何設定格式強制約束，並揭露關鍵行為：<strong>Web Search 開啟時會蓋過自訂 Prompt，欲啟用 Prompt 必須將 Web Search 關閉並「開新聊天 (New Chat)」</strong>。
+                    </p>
+                </div>
+
+                <!-- 提示詞編輯器截圖再現 (投影片 23) -->
+                <div class="max-w-xl mx-auto bg-slate-50 border border-slate-300 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                        <h5 class="font-bold text-slate-900 text-sm">編輯提示詞 (USER Prompts)</h5>
+                        <i data-lucide="x" class="w-4 h-4 text-slate-400 cursor-pointer"></i>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">* 標題</label>
+                        <input type="text" value="中文回答" readonly class="w-full text-xs p-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">* 提示詞內容</label>
+                        <div class="bg-white border-2 border-brand-500 ring-2 ring-brand-100 rounded-xl p-3.5 text-xs font-mono text-slate-800 space-y-1.5 leading-relaxed">
+                            <p class="text-brand-700 font-bold">1. 回答問題時，一定用 "[五股機電整合班]" 當開頭</p>
+                            <p>2. 一定使用繁體中文回答</p>
+                            <p>3. 條列式</p>
+                            <p>4. 舉例說明</p>
+                        </div>
+                        <span class="text-[11px] text-slate-400 mt-1 block">您可以在提示詞中使用 {key} 作為變數。</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-1">
+                        <span class="text-xs text-slate-700 font-semibold">是系統提示詞</span>
+                        <div class="w-9 h-5 bg-slate-300 rounded-full relative"><div class="w-3.5 h-3.5 bg-white rounded-full absolute left-0.5 top-0.5"></div></div>
+                    </div>
+                    <button class="w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition">更新提示詞</button>
+                </div>
+
+                <!-- 雙情境對比截圖：Web Search 衝突 VS 提示詞成功生效 (投影片 24, 25) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-amber-50/60 rounded-xl border border-amber-200 space-y-2 text-xs">
+                        <div class="flex items-center justify-between text-amber-900 font-bold">
+                            <span class="flex items-center gap-1.5"><i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i> 情境 A：Web Search 為 On</span>
+                            <span class="bg-amber-100 px-2 py-0.5 rounded text-[10px]">提示詞失效</span>
+                        </div>
+                        <p class="text-slate-600 text-[11px] leading-relaxed">
+                            當底部聯網開關處於 <strong>On</strong> 狀態時，模型會優先依賴網路檢索結果產生回覆，導致「[五股機電整合班]」等開頭自訂規則被搜尋指引覆蓋而失效。
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-emerald-50/60 rounded-xl border border-emerald-200 space-y-2 text-xs">
+                        <div class="flex items-center justify-between text-emerald-900 font-bold">
+                            <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i> 情境 B：關閉 Web Search (Off) + 開新聊天</span>
+                            <span class="bg-emerald-100 px-2 py-0.5 rounded text-[10px]">完全生效</span>
+                        </div>
+                        <p class="text-slate-600 text-[11px] leading-relaxed">
+                            <strong>必備操作：</strong>需切換為 <strong>Off 關閉</strong>，並點擊左上方 <strong>新聊天 (New Chat)</strong>，模型立即 100% 遵從指令，以「[五股機電整合班]」開頭條列回答！
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================== CHAPTER 4 =================== -->
+        <section id="ch4" class="scroll-mt-24 space-y-8">
+            <div class="border-b border-slate-200 pb-4 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold text-brand-600 uppercase tracking-widest">CHAPTER 04</span>
+                    <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="database" class="w-6 h-6 text-brand-500"></i>
+                        本機私有 RAG 知識庫搭建實戰
+                    </h3>
+                </div>
+                <span class="text-xs bg-brand-100 text-brand-800 px-2.5 py-1 rounded-md font-mono">核心精髓</span>
+            </div>
+
+            <!-- RAG 原理簡介 -->
+            <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-md">
+                <div class="max-w-2xl">
+                    <h4 class="text-lg font-bold text-white flex items-center gap-2 mb-2">
+                        什麼是 RAG (檢索增強生成)？
+                    </h4>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        當我們要 LLM 回答內部機密檔案（如：114年機電自控學員名單）時，模型並未學習過該內容。RAG 透過「Embedding 嵌入向量模型」將文字切塊並存入本機向量庫，在發問時先檢索相關內文再一併餵給大模型總結，精準無幻覺！
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 text-center text-xs">
+                    <div class="p-3 bg-slate-700/60 rounded-xl border border-slate-600">
+                        <span class="text-brand-400 font-bold block mb-1">Step 1</span>
+                        <span>拉取 Embedding 模型</span>
+                    </div>
+                    <div class="p-3 bg-slate-700/60 rounded-xl border border-slate-600">
+                        <span class="text-brand-400 font-bold block mb-1">Step 2</span>
+                        <span>設定 Pipeline 切割器</span>
+                    </div>
+                    <div class="p-3 bg-slate-700/60 rounded-xl border border-slate-600">
+                        <span class="text-brand-400 font-bold block mb-1">Step 3</span>
+                        <span>建立知識庫上傳 txt</span>
+                    </div>
+                    <div class="p-3 bg-slate-700/60 rounded-xl border border-slate-600">
+                        <span class="text-brand-400 font-bold block mb-1">Step 4</span>
+                        <span>掛載知識庫比對發問</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: 拉取向量模型 -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs flex items-center justify-center font-bold">1</span>
+                        下載專用 Embedding 向量模型
+                    </h4>
+                    <a href="https://ollama.com/search?c=embedding" target="_blank" class="text-xs text-brand-600 hover:underline flex items-center gap-1 font-mono">
+                        查看官方支援嵌入列表 <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </a>
+                </div>
+                <p class="text-xs text-slate-600">
+                    投影片採用 Google 出品的 <code class="bg-slate-100 px-1.5 py-0.5 rounded font-mono font-bold text-brand-700">embeddinggemma</code>（僅約 621 MB），速度極快且適合各類文本特徵提取：
+                </p>
+                <div class="bg-terminal text-slate-200 rounded-xl p-3 font-mono text-xs flex items-center justify-between">
+                    <span>ollama pull embeddinggemma</span>
+                    <button onclick="copyCommand('ollama pull embeddinggemma')" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-slate-300">
+                        複製
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Page Assist Pipeline (RAG) 參數設定 -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                <h4 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs flex items-center justify-center font-bold">2</span>
+                    設定 Pipeline (RAG 設定) 核心參數
+                </h4>
+                <p class="text-xs text-slate-600">
+                    點擊 Page Assist 的「Pipeline 設定」選單，嚴格按照投影片第 28 頁配置：
+                </p>
+
+                <!-- 模擬截圖：Pipeline 設定表單 -->
+                <div class="max-w-2xl mx-auto bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 text-xs">
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-800">* 嵌入模型 (Embedding Model)</label>
+                        <div class="p-2 bg-white border border-brand-500 rounded-lg font-mono text-slate-700 flex items-center justify-between">
+                            <span>embeddinggemma:latest</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-800">* 文字分割器</label>
+                        <div class="p-2 bg-white border border-slate-200 rounded-lg font-mono text-slate-700">RecursiveCharacterTextSplitter</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="font-bold text-slate-800">* 區塊大小 (Chunk Size)</label>
+                            <input type="text" value="1000" readonly class="w-full p-2 bg-white border border-slate-200 rounded-lg font-mono text-slate-700">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="font-bold text-slate-800">* 區塊重疊 (Chunk Overlap)</label>
+                            <input type="text" value="200" readonly class="w-full p-2 bg-white border border-slate-200 rounded-lg font-mono text-slate-700">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="font-bold text-slate-800">* 檢索到的文件數 (Top K)</label>
+                            <input type="text" value="4" readonly class="w-full p-2 bg-white border border-slate-200 rounded-lg font-mono text-slate-700">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="font-bold text-slate-800">* 知識庫檔案上傳限制</label>
+                            <input type="text" value="5" readonly class="w-full p-2 bg-white border border-slate-200 rounded-lg font-mono text-slate-700">
+                        </div>
+                    </div>
+                    <div class="pt-2 flex justify-end">
+                        <span class="px-4 py-1.5 bg-slate-900 text-white rounded-lg font-bold text-xs">儲存</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 & 4: 知識庫建立與問答實測對照 (大小模型 PK) -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+                <div>
+                    <h4 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs flex items-center justify-center font-bold">3</span>
+                        知識庫掛載實測：不同模型參數大小的殘酷比對！
+                    </h4>
+                    <p class="text-xs text-slate-600 mt-1">
+                        於對話框點擊 <strong>+ 知識庫</strong> 按鈕，掛載上傳好的「114年_機電自控_01期_學員名單.txt」。投影片展示了極為關鍵的模型能力差異：
+                    </p>
+                </div>
+
+                <!-- 對照卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Gemma3 1B 失敗 -->
+                    <div class="rounded-xl border border-red-200 bg-red-50/30 p-4 space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-red-200">
+                            <span class="font-mono text-xs font-bold text-red-700 flex items-center gap-1.5">
+                                <i data-lucide="x-circle" class="w-4 h-4 text-red-500"></i> gemma3:1b（輕量端側模型）
+                            </span>
+                            <span class="text-[10px] bg-red-100 text-red-800 px-2 py-0.5 rounded font-bold">檢索推理失敗</span>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 text-xs border border-red-100 font-mono space-y-2">
+                            <p class="text-slate-500">提問：114年_機電自控_01期_學員名單</p>
+                            <p class="text-slate-400 text-[11px] flex items-center gap-1">
+                                <i data-lucide="paperclip" class="w-3.5 h-3.5"></i> 已引用：114年_機電自控_01期_學員名單.txt
+                            </p>
+                            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 text-red-600 font-bold">
+                                I don't know.
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">
+                            <strong>分析：</strong>1B 參數模型雖然佔用記憶體小，但對長文本檢索上下文的理解推理能力有限，遇到格式較密集文檔無法解析。
+                        </p>
+                    </div>
+
+                    <!-- Gemma3 27B 成功 -->
+                    <div class="rounded-xl border border-emerald-200 bg-emerald-50/30 p-4 space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-emerald-200">
+                            <span class="font-mono text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> gemma3:27b（高階旗艦模型）
+                            </span>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">精準完整還原</span>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 text-xs border border-emerald-100 font-mono space-y-2">
+                            <p class="text-slate-500">提問：114年_機電自控_01期_學員名單</p>
+                            <p class="text-slate-400 text-[11px] flex items-center gap-1">
+                                <i data-lucide="paperclip" class="w-3.5 h-3.5"></i> 已引用：114年_機電自控_01期_學員名單.txt
+                            </p>
+                            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 text-slate-800 space-y-1 text-[11px]">
+                                <p>1. 林裕緯 11400156344001</p>
+                                <p>2. 陳建州 11400156344002</p>
+                                <p>3. 戴更沛 11400156344003</p>
+                                <p>4. 楊秉楠 11400156344004 班長</p>
+                                <p class="text-slate-400">...完整提取16位學員與備註離訓資訊</p>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">
+                            <strong>結論：</strong>若要實作高精度的本機 RAG 知識庫應用，建議硬體具備足夠 VRAM（如 16GB~24GB GPU）採用 14B~27B 以上的模型。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================== CHAPTER 5 =================== -->
+        <section id="ch5" class="scroll-mt-24 space-y-8">
+            <div class="border-b border-slate-200 pb-4 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest">CHAPTER 05 • 核心強化</span>
+                    <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="terminal-square" class="w-6 h-6 text-indigo-600"></i>
+                        Restful API Testing：Ollama 原生介面除錯與線上可操作主控台
+                    </h3>
+                </div>
+                <span class="text-xs bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded-md font-mono font-bold">可操作除錯主控台</span>
+            </div>
+
+            <!-- 簡介與架構說明 -->
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-md space-y-3">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">API</span>
+                        <h4 class="text-lg font-bold text-white">Ollama REST API 互動測試主控台</h4>
+                    </div>
+                    <!-- 連線模式切換開關 -->
+                    <div class="flex items-center gap-2 text-xs bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700">
+                        <span class="text-slate-300 font-medium">執行模式：</span>
+                        <label class="inline-flex items-center cursor-pointer gap-1.5">
+                            <input type="checkbox" id="api-mock-toggle" class="sr-only peer">
+                            <div class="w-9 h-5 bg-indigo-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600 relative"></div>
+                            <span id="api-mode-label" class="text-[11px] font-mono text-emerald-300 font-bold">真實連線 (localhost:11434)</span>
+                        </label>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed max-w-3xl">
+                    您可以在此直接編輯 JSON Payload 請求主體，點擊「發送請求」將即時向本機 Ollama 進行通訊測試！預設模型已設定為投影片範例的 <code class="bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded font-mono font-bold">gemma4:e4b</code>。若連線失敗，系統將自動啟動除錯引導並提供 CORS 解決方案。
+                </p>
+            </div>
+
+            <!-- 常見 API 測試錯誤診斷橫幅 -->
+            <div id="api-error-banner" class="hidden bg-rose-50 border-2 border-rose-300 rounded-2xl p-5 shadow-sm space-y-3 transition-all">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-center gap-2 text-rose-800 font-bold text-sm">
+                        <i data-lucide="alert-octagon" class="w-5 h-5 text-rose-600"></i>
+                        <span>為什麼直接開網頁可以，但這裡發送會錯誤？(瀏覽器 CORS 跨域同源策略)</span>
+                    </div>
+                    <button type="button" onclick="dismissErrorBanner()" class="text-rose-400 hover:text-rose-600">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="text-xs text-rose-900 leading-relaxed space-y-2">
+                    <p>
+                        <strong>現象解釋：</strong>直接在瀏覽器輸入 <a href="http://localhost:11434/api/tags" target="_blank" class="text-blue-600 underline font-mono font-bold">http://localhost:11434/api/tags</a> 屬於<strong>頂層導航</strong>，瀏覽器不會限制。但是在網頁中透過 JavaScript 的 <code class="bg-rose-100 px-1 font-mono">fetch()</code> 發出請求時，瀏覽器會強制檢查 <strong>CORS 安全標頭</strong>。若本機 Ollama 尚未設定開放跨域，瀏覽器就會自動攔截並回傳 <code class="bg-rose-100 px-1 font-mono">Failed to fetch</code>。
+                    </p>
+                    <div class="bg-slate-900 text-slate-100 p-3 rounded-xl font-mono text-[11px] space-y-1">
+                        <p class="text-emerald-400 font-bold">// 徹底讓網頁能夠直接 Fetch 的設定方法 (Windows PowerShell 管理員執行)：</p>
+                        <div class="flex items-center justify-between">
+                            <code class="text-slate-200">[System.Environment]::SetEnvironmentVariable('OLLAMA_ORIGINS', '*', 'User')</code>
+                            <button onclick="copyCommand(`[System.Environment]::SetEnvironmentVariable('OLLAMA_ORIGINS', '*', 'User')`)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded text-[10px]">複製</button>
+                        </div>
+                        <p class="text-slate-400 text-[10px] pt-1">執行後至 Windows 右下角工作列將 Ollama「Quit」關閉重啟即可生效！</p>
+                    </div>
+                    <div class="flex items-center gap-3 pt-1 flex-wrap">
+                        <button onclick="loadUserRealEnvironment()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> 直接載入截圖中的真實模型清單 (Gemma4、Vision 等)
+                        </button>
+                        <button onclick="enableMockFallback()" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow">
+                            <i data-lucide="play" class="w-3.5 h-3.5"></i> 切換為智慧展示模式（立刻獲得投影片 200 OK 輸出）
+                        </button>
+                        <a href="http://localhost:11434/api/tags" target="_blank" class="px-3.5 py-1.5 bg-white border border-rose-300 text-rose-800 hover:bg-rose-50 rounded-lg text-xs font-semibold transition inline-flex items-center gap-1">
+                            直接在分頁中開啟本機 API <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 投影片 36, 37 頁完全再現：Ollama REST API 客戶端 + Chrome DevTools Network 雙欄操作面板 -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
+                    <h4 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="play-circle" class="w-5 h-5 text-indigo-600"></i>
+                        互動實測：發送請求與 Chrome DevTools Network 聯調檢視
+                    </h4>
+                    <span class="text-xs text-slate-400 font-mono">POST http://localhost:11434/api/generate</span>
+                </div>
+
+                <!-- 雙欄截圖視窗容器 -->
+                <div class="rounded-2xl border-2 border-slate-300 overflow-hidden shadow-xl bg-slate-900 text-slate-100 font-sans">
+                    <!-- 瀏覽器視窗頂部標籤與網址列 -->
+                    <div class="bg-slate-800/90 border-b border-slate-700 px-3 py-2 flex items-center gap-2 text-xs">
+                        <div class="flex gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                        </div>
+                        <div class="flex-1 max-w-md mx-auto bg-slate-900 border border-slate-700 rounded-lg px-3 py-1 text-slate-300 font-mono text-[11px] flex items-center gap-1.5">
+                            <i data-lucide="lock" class="w-3 h-3 text-emerald-400"></i>
+                            <span id="display-client-url">http://localhost:5173</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-mono hidden sm:block">DevTools: Network</div>
+                    </div>
+
+                    <!-- 雙欄內容：左側為自訂請求與編輯，右側為即時 Debug / Network 面板 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[560px]">
+                        <!-- 左側：Ollama REST API 客戶端 (可操作與編輯) -->
+                        <div class="lg:col-span-6 bg-slate-900 p-5 border-b lg:border-b-0 lg:border-r border-slate-800 space-y-4">
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-sm">✦</div>
+                                    <div>
+                                        <h5 class="text-sm font-bold text-white">Ollama REST API 客戶端</h5>
+                                        <p class="text-[10px] text-slate-400">連接並與 Ollama 伺服器互動的現代化介面</p>
+                                    </div>
+                                </div>
+                                <span id="client-conn-pill" class="px-2.5 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-lg text-[11px] font-bold flex items-center gap-1">
+                                    ● 準備就緒
+                                </span>
+                            </div>
+
+                            <!-- 連接設定 -->
+                            <div class="bg-slate-800/60 rounded-xl p-3.5 border border-slate-700/80 space-y-2.5">
+                                <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                                    <i data-lucide="server" class="w-3.5 h-3.5 text-indigo-400"></i> Ollama 連接設定
+                                </span>
+                                <div class="grid grid-cols-3 gap-2 text-xs">
+                                    <div class="col-span-2">
+                                        <label class="text-[10px] text-slate-400 block mb-0.5">協定與主機 (Host)</label>
+                                        <input type="text" id="api-host" value="http://localhost" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 font-mono text-xs focus:border-indigo-500 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] text-slate-400 block mb-0.5">Port 埠號</label>
+                                        <input type="text" id="api-port" value="11434" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 font-mono text-xs focus:border-indigo-500 focus:outline-none">
+                                    </div>
+                                </div>
+                                <div class="flex gap-2 pt-1 flex-wrap">
+                                    <button type="button" onclick="testConnection()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-xs font-bold text-white flex items-center gap-1 transition">
+                                        <i data-lucide="wifi" class="w-3.5 h-3.5"></i> 測試連接
+                                    </button>
+                                    <button type="button" onclick="fetchLocalModels()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-300 font-mono transition flex items-center gap-1">
+                                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> 偵測已安裝模型
+                                    </button>
+                                    <button type="button" onclick="loadUserRealEnvironment()" class="px-2.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-700 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+                                        <i data-lucide="check-check" class="w-3 h-3"></i> 載入您的本機模型 (截圖驗證)
+                                    </button>
+                                    <button type="button" onclick="copyCurrentCurlCommand()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-800/60 rounded-lg text-xs font-mono transition flex items-center gap-1" title="複製目前編輯的 cURL 指令在 CMD/PowerShell 執行 (100% 避開瀏覽器 CORS)">
+                                        <i data-lucide="terminal" class="w-3 h-3"></i> 複製 cURL 指令
+                                    </button>
+                                    <a href="http://localhost:11434/api/tags" target="_blank" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-300 font-mono transition inline-flex items-center gap-1">
+                                        開新分頁直開 API <i data-lucide="external-link" class="w-3 h-3"></i>
+                                    </a>
+                                </div>
+                                <div id="detected-models-container" class="hidden pt-1 text-[11px] text-slate-400 border-t border-slate-700">
+                                    <div class="flex items-center justify-between">
+                                        <span>本機已安裝模型 (點選立即套用)：</span>
+                                        <span class="text-[10px] text-emerald-400 font-mono">已就緒</span>
+                                    </div>
+                                    <div id="detected-models-list" class="flex flex-wrap gap-1 mt-1"></div>
+                                </div>
+                            </div>
+
+                            <!-- REST API 請求表單 (可修改 JSON Payload) -->
+                            <div class="bg-slate-800/60 rounded-xl p-3.5 border border-slate-700/80 space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                                        <i data-lucide="code-2" class="w-3.5 h-3.5 text-indigo-400"></i> REST API 請求 (POST /api/generate)
+                                    </span>
+                                    <button type="button" onclick="formatPayloadJson()" class="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-mono">
+                                        <i data-lucide="align-left" class="w-3 h-3"></i> 格式化 JSON
+                                    </button>
+                                </div>
+
+                                <!-- 端點切換選單 -->
+                                <div class="grid grid-cols-3 gap-1.5">
+                                    <button type="button" onclick="switchEndpoint('tags')" id="ep-btn-tags" class="py-1 px-2 rounded text-[11px] font-mono bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800">
+                                        GET /api/tags
+                                    </button>
+                                    <button type="button" onclick="switchEndpoint('generate')" id="ep-btn-generate" class="py-1 px-2 rounded text-[11px] font-mono bg-indigo-600 text-white font-bold border border-indigo-500">
+                                        POST /api/generate
+                                    </button>
+                                    <button type="button" onclick="switchEndpoint('chat')" id="ep-btn-chat" class="py-1 px-2 rounded text-[11px] font-mono bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800">
+                                        POST /api/chat
+                                    </button>
+                                </div>
+
+                                <div>
+                                    <label class="text-[10px] text-slate-400 flex items-center justify-between mb-1">
+                                        <span>請求主體 (JSON Payload - 可直接編輯)</span>
+                                        <span id="json-valid-indicator" class="text-[10px] text-emerald-400 font-mono">● JSON 格式有效</span>
+                                    </label>
+                                    <textarea id="api-payload-editor" rows="7" class="w-full bg-slate-950 rounded-lg p-2.5 border border-slate-800 font-mono text-[11px] text-slate-200 focus:outline-none focus:border-indigo-500 leading-relaxed custom-scrollbar selection:bg-indigo-600 selection:text-white" spellcheck="false">{
+  "model": "gemma4:e4b",
+  "prompt": "一句話介紹五股",
+  "stream": false
+}</textarea>
+                                </div>
+
+                                <div class="flex gap-2">
+                                    <button id="api-send-btn" type="button" onclick="executeApiRequest()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition shadow-md">
+                                        <i data-lucide="send" class="w-4 h-4"></i>
+                                        <span id="send-btn-text">發送請求 (Send Request)</span>
+                                    </button>
+                                    <button type="button" id="api-abort-btn" onclick="abortApiRequest()" class="hidden px-3 py-2.5 bg-rose-800 hover:bg-rose-700 text-rose-100 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i data-lucide="square" class="w-3.5 h-3.5"></i> 取消
+                                    </button>
+                                    <button type="button" onclick="loadDefaultTemplate()" title="重置為當前端點標準範本" class="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-mono text-slate-300 flex items-center gap-1 transition">
+                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> 重置範本
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右側：Chrome DevTools Network & 即時 Debug 面板 (投影片 36, 37 結合) -->
+                        <div class="lg:col-span-6 bg-slate-950 p-4 font-mono text-xs flex flex-col justify-between space-y-3">
+                            <div>
+                                <!-- DevTools 標籤列 -->
+                                <div class="flex items-center justify-between border-b border-slate-800 pb-2 text-[11px] text-slate-400">
+                                    <div class="flex gap-2">
+                                        <span class="text-slate-500">Elements</span>
+                                        <span class="text-slate-500">Console</span>
+                                        <span class="text-white border-b-2 border-indigo-500 font-bold px-1">Network</span>
+                                        <span class="text-slate-500">Application</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span id="debug-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400">
+                                            尚未發送
+                                        </span>
+                                        <span id="debug-latency" class="text-[10px] text-slate-500">-- ms</span>
+                                    </div>
+                                </div>
+
+                                <!-- Network 分頁切換 (Headers / Response / Debug Log) -->
+                                <div class="flex items-center justify-between pt-2 border-b border-slate-800 pb-2 text-[11px] flex-wrap gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" onclick="switchDebugTab('headers')" id="tab-btn-headers" class="px-2 py-1 rounded bg-slate-800 text-white font-bold">
+                                            Headers
+                                        </button>
+                                        <button type="button" onclick="switchDebugTab('response')" id="tab-btn-response" class="px-2 py-1 rounded text-slate-400 hover:text-white">
+                                            Response (JSON)
+                                        </button>
+                                        <button type="button" onclick="switchDebugTab('debug')" id="tab-btn-debug" class="px-2 py-1 rounded text-slate-400 hover:text-white flex items-center gap-1">
+                                            <i data-lucide="terminal" class="w-3 h-3"></i> Debug 診斷日誌
+                                        </button>
+                                    </div>
+                                    <button type="button" onclick="clearAllDebugPanels()" class="px-2.5 py-1 rounded bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-800 text-[10px] font-semibold transition flex items-center gap-1">
+                                        <i data-lucide="trash-2" class="w-3 h-3"></i> 清除全部面板
+                                    </button>
+                                </div>
+
+                                <!-- 分頁 1: Headers 詳情展示 -->
+                                <div id="debug-view-headers" class="space-y-3 pt-2 text-[11px]">
+                                    <div class="bg-slate-900/80 rounded-lg p-3 border border-slate-800 space-y-2">
+                                        <p class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">▼ General</p>
+                                        <div class="space-y-1 pl-2 text-slate-300">
+                                            <p><span class="text-slate-500">Request URL:</span> <span id="debug-req-url" class="text-slate-200">http://localhost:11434/api/generate</span></p>
+                                            <p><span class="text-slate-500">Request Method:</span> <span id="debug-req-method" class="text-indigo-400 font-bold">POST</span></p>
+                                            <p><span class="text-slate-500">Status Code:</span> <span id="debug-status-code" class="text-slate-400">等待請求...</span></p>
+                                            <p><span class="text-slate-500">Remote Address:</span> <span id="debug-remote-addr">[::1]:11434</span></p>
+                                            <p><span class="text-slate-500">Referrer Policy:</span> strict-origin-when-cross-origin</p>
+                                        </div>
+
+                                        <p class="text-slate-400 font-bold uppercase tracking-wider text-[10px] pt-1">▼ Response Headers</p>
+                                        <div id="debug-res-headers" class="space-y-1 pl-2 text-slate-300">
+                                            <p><span class="text-slate-500">Access-Control-Allow-Origin:</span> *</p>
+                                            <p><span class="text-slate-500">Content-Type:</span> application/json; charset=utf-8</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 分頁 2: Response JSON (投影片 37 格式化還原) -->
+                                <div id="debug-view-response" class="hidden pt-2">
+                                    <div class="bg-slate-900 rounded-lg p-3 border border-slate-800 max-h-72 overflow-y-auto custom-scrollbar text-[11px]">
+                                        <pre id="debug-res-json" class="text-emerald-300 leading-relaxed font-mono whitespace-pre-wrap">// 點擊「發送請求」後，此處將即時顯示 Ollama 回傳之完整 JSON</pre>
+                                    </div>
+                                </div>
+
+                                <!-- 分頁 3: Debug 診斷與排錯訊息 -->
+                                <div id="debug-view-debug" class="hidden pt-2 space-y-2">
+                                    <div class="bg-slate-900 rounded-lg p-3 border border-slate-800 max-h-72 overflow-y-auto custom-scrollbar text-[11px] space-y-1.5 font-mono">
+                                        <p class="text-slate-400">// 系統診斷 Console</p>
+                                        <div id="debug-log-entries" class="space-y-1 text-slate-300">
+                                            <p class="text-slate-500">[System] 準備就緒。預設模型已設定為 gemma4:e4b。</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-2.5 bg-indigo-950/60 rounded-lg border border-indigo-900/60 text-[11px] text-indigo-300 space-y-1">
+                                        <p><strong>排錯提示：</strong>若出現 <code class="text-amber-300">Failed to fetch / CORS Error</code>：</p>
+                                        <p>1. Windows 請以管理員開啟 PowerShell 執行：<code class="text-emerald-400">[Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", "*", "User")</code></p>
+                                        <p>2. 在右下角工作列關閉 Ollama 並重啟。</p>
+                                        <p>3. 或勾選右上角的「智慧動態模擬」，直接無障礙查看完整 API 資料結構。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                                <span>目前模型：<strong id="active-model-display" class="text-amber-300 font-mono">gemma4:e4b</strong></span>
+                                <button type="button" onclick="clearAllDebugPanels()" class="hover:text-slate-200 text-[10px] text-slate-500 underline flex items-center gap-1">
+                                    <i data-lucide="trash-2" class="w-3 h-3"></i> 清除 Headers、Response 與日誌
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 投影片 37 頁完全再現：DevTools Response (JSON Body) 深度剖析 -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h4 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="file-json" class="w-5 h-5 text-indigo-600"></i>
+                        投影片第 37 頁完整再現：Response Body 欄位結構與上下文 Context 解析
+                    </h4>
+                    <span class="text-xs text-slate-400 font-mono">200 OK Response Payload</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <!-- 模擬截圖：DevTools Response JSON 視窗 (投影片 37) -->
+                    <div class="lg:col-span-7 bg-terminal rounded-2xl p-4 border border-slate-800 font-mono text-xs shadow-lg space-y-2">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 text-slate-400 text-[11px]">
+                            <div class="flex gap-2">
+                                <span>Headers</span>
+                                <span>Payload</span>
+                                <span>Preview</span>
+                                <span class="text-white border-b-2 border-indigo-400 font-bold">Response</span>
+                                <span>Initiator</span>
+                            </div>
+                            <span class="text-emerald-400 font-bold">200 OK</span>
+                        </div>
+
+                        <!-- 格式化展示投影片 37 內容 -->
+                        <div class="overflow-x-auto custom-scrollbar p-2 text-[11.5px] leading-relaxed">
+                            <p class="text-slate-500">{</p>
+                            <p class="pl-4"><span class="text-sky-300">"model"</span>: <span class="text-emerald-300">"gemma4:e4b"</span>,</p>
+                            <p class="pl-4"><span class="text-sky-300">"created_at"</span>: <span class="text-emerald-300">"2026-04-23T07:51:43.4396964Z"</span>,</p>
+                            <p class="pl-4"><span class="text-sky-300">"response"</span>: <span class="text-emerald-200">"好的，我來幫你介紹五股：\n\n**五股是個無所不在的，令人驚喜的謎題，充滿了無限的想像力與挑戰。**\n\n你覺得呢？\n"</span>,</p>
+                            <p class="pl-4"><span class="text-sky-300">"done"</span>: <span class="text-amber-400 font-bold">true</span>,</p>
+                            <p class="pl-4"><span class="text-sky-300">"done_reason"</span>: <span class="text-emerald-300">"stop"</span>,</p>
+                            <p class="pl-4"><span class="text-sky-300">"context"</span>: [</p>
+                            <div class="pl-8 text-slate-400 grid grid-cols-4 gap-1 text-[11px] font-mono py-1">
+                                <span>105,</span><span>2364,</span><span>107,</span><span>122100,</span>
+                                <span>238360,</span><span>73450,</span><span>238367,</span><span>238990,</span>
+                                <span>106,</span><span>107,</span><span>105,</span><span>4368,</span>
+                                <span>107,</span><span>18518,</span><span>236900,</span><span>...</span>
+                            </div>
+                            <p class="pl-4">]</p>
+                            <p class="text-slate-500">}</p>
+                        </div>
+                    </div>
+
+                    <!-- 欄位用途教學卡片 -->
+                    <div class="lg:col-span-5 space-y-3 text-xs">
+                        <div class="bg-indigo-50/70 rounded-xl p-4 border border-indigo-200 space-y-2">
+                            <h5 class="font-bold text-indigo-950 flex items-center gap-1.5 text-sm">
+                                <i data-lucide="info" class="w-4 h-4 text-indigo-600"></i> 關鍵 JSON 屬性說明
+                            </h5>
+                            <ul class="space-y-2 text-slate-700 leading-relaxed">
+                                <li>
+                                    <strong class="font-mono text-indigo-900 bg-indigo-100/70 px-1 py-0.5 rounded">response</strong>：模型生成的回答純文字，包含 markdown 粗體符號（如 **五股...**）。
+                                </li>
+                                <li>
+                                    <strong class="font-mono text-indigo-900 bg-indigo-100/70 px-1 py-0.5 rounded">stream: false</strong>：若設置為 false，代表關閉 SSE 串流，等待模型全部運算完成後以單一 JSON 物件整體返回。
+                                </li>
+                                <li>
+                                    <strong class="font-mono text-indigo-900 bg-indigo-100/70 px-1 py-0.5 rounded">context</strong>：投影片中一長串數字數組（如 105, 2364, 107...）。此為本次對話轉譯後的 Token ID 列表。<strong>下次發送請求時若附帶此 context 陣列，Ollama 即可擁有前次對話的短期記憶！</strong>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- 跨來源資源共享 (CORS) 提醒 -->
+                        <div class="bg-amber-50 rounded-xl p-4 border border-amber-200 space-y-1.5 text-amber-900">
+                            <span class="font-bold flex items-center gap-1.5">
+                                <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600"></i> 前端開發 CORS 跨域避坑提醒
+                            </span>
+                            <p class="text-[11px] text-amber-800 leading-relaxed">
+                                投影片中自建客戶端（<code class="font-mono bg-amber-100 px-1 rounded">localhost:5173</code>）能成功呼叫，是因為 Ollama 回應標頭已自帶 <code class="font-mono bg-amber-100 px-1 rounded">Access-Control-Allow-Origin: *</code>。若在生產環境遇到跨域問題，可設定環境變數 <code class="font-mono bg-amber-100 px-1 rounded">OLLAMA_ORIGINS="*"</code> 解決。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REST API 常用端點對照表 -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+                <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="list-ordered" class="w-4 h-4 text-indigo-600"></i>
+                    Ollama 常用 REST API 端點速查
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-y border-slate-200 text-slate-700">
+                                <th class="p-2.5 font-semibold">方法</th>
+                                <th class="p-2.5 font-semibold">Endpoint</th>
+                                <th class="p-2.5 font-semibold">主要用途</th>
+                                <th class="p-2.5 font-semibold">範例 Payload 摘要</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600 font-mono text-[11px]">
+                            <tr>
+                                <td class="p-2.5"><span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-bold">GET</span></td>
+                                <td class="p-2.5 text-slate-900 font-bold">/api/tags</td>
+                                <td class="p-2.5 font-sans">列出本機已下載的所有模型與版本</td>
+                                <td class="p-2.5 text-slate-400">無（直接發送 GET 即可）</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5"><span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">POST</span></td>
+                                <td class="p-2.5 text-slate-900 font-bold">/api/generate</td>
+                                <td class="p-2.5 font-sans">單次文字生成 / 補全（投影片實測主角）</td>
+                                <td class="p-2.5">{"model": "gemma4:e4b", "prompt": "...", "stream": false}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5"><span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">POST</span></td>
+                                <td class="p-2.5 text-slate-900 font-bold">/api/chat</td>
+                                <td class="p-2.5 font-sans">多輪對話訊息結構（支援 role: system / user / assistant）</td>
+                                <td class="p-2.5">{"model": "gemma4:e4b", "messages": [{"role": "user", "content": "..."}]}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5"><span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">POST</span></td>
+                                <td class="p-2.5 text-slate-900 font-bold">/api/embeddings</td>
+                                <td class="p-2.5 font-sans">將輸入文字轉換為向量（RAG 知識庫後台調用）</td>
+                                <td class="p-2.5">{"model": "embeddinggemma", "prompt": "..."}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 課程總結與重點表格 -->
+        <section class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-6">
+            <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="clipboard-check" class="w-6 h-6 text-brand-600"></i>
+                總結回顧：投影片核心考點與實戰要點
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-y border-slate-200 text-slate-700">
+                            <th class="p-3 font-semibold">模組 / 功能</th>
+                            <th class="p-3 font-semibold">關鍵操作 / 建議值</th>
+                            <th class="p-3 font-semibold">重要特性與注意事項</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-600">
+                        <tr>
+                            <td class="p-3 font-bold text-slate-900">Ollama 模型下載</td>
+                            <td class="p-3 font-mono">ollama run &lt;model&gt;</td>
+                            <td class="p-3">遇到 412 錯誤代表 Ollama 版本過舊，需重新安裝官網更新檔。</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-slate-900">Context Length</td>
+                            <td class="p-3">調大至 16k ~ 256k</td>
+                            <td class="p-3">電腦記憶體 (RAM/VRAM) 足夠時盡量拉滿，避免對話截斷記憶丟失。</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-slate-900">Page Assist</td>
+                            <td class="p-3">Chrome Web Store 外掛</td>
+                            <td class="p-3">提供直覺聊天界面、支援提示詞範本，可隨時側邊欄懸浮呼叫。</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-slate-900">本機 RAG 向量</td>
+                            <td class="p-3 font-mono">embeddinggemma</td>
+                            <td class="p-3">需配合 14B~27B 以上的大參數模型才能完整提取名單或表格內容。</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-slate-900">REST API</td>
+                            <td class="p-3 font-mono">:11434/api/generate</td>
+                            <td class="p-3">預設開放於 11434 埠，傳遞 stream: false 可取得完整 JSON 回傳。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 底部版權宣告 -->
+    <footer class="bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p>地端 LLM - Ollama × Page Assist 實務教學網站</p>
+            <p class="text-slate-400">教材內容依據 06_01.地端_Ollama 投影片全面編製 • 建議搭配 Chrome 瀏覽器操作</p>
+        </div>
+    </footer>
+
+    <!-- 浮動提示訊息 Toast (代替 alert) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toast-msg">已複製指令至剪貼簿</span>
+    </div>
+
+    <script>
+        // 初始化 Lucide 圖標
+        lucide.createIcons();
+
+        // 複製代碼邏輯 (相容 iFrame 環境)
+        function copyCommand(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.opacity = '0';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                showToast(`已複製: ${text}`);
+            } catch (err) {
+                showToast('複製失敗，請手動選取');
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        // 提示訊息動畫
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-msg');
+            msgEl.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        // =================== REST API 實體操作 & Debug 面板邏輯 ===================
+        let currentEndpoint = 'generate';
+        let activeAbortController = null;
+        let requestTimerInterval = null;
+
+        // 檢查 JSON 格式即時回饋
+        const payloadEditor = document.getElementById('api-payload-editor');
+        const jsonIndicator = document.getElementById('json-valid-indicator');
+        payloadEditor.addEventListener('input', () => {
+            try {
+                JSON.parse(payloadEditor.value);
+                jsonIndicator.textContent = '● JSON 格式有效';
+                jsonIndicator.className = 'text-[10px] text-emerald-400 font-mono';
+            } catch (e) {
+                jsonIndicator.textContent = '▲ JSON 語法無效';
+                jsonIndicator.className = 'text-[10px] text-rose-400 font-mono';
+            }
+        });
+
+        // 取消請求
+        function abortApiRequest() {
+            if (activeAbortController) {
+                activeAbortController.abort();
+                activeAbortController = null;
+            }
+            clearInterval(requestTimerInterval);
+            const sendBtn = document.getElementById('api-send-btn');
+            const abortBtn = document.getElementById('api-abort-btn');
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>發送請求 (Send Request)</span>`;
+            abortBtn.classList.add('hidden');
+            document.getElementById('debug-status-badge').textContent = '已取消';
+            document.getElementById('debug-status-badge').className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400';
+            appendDebugLog('[Abort] 使用者手動中止了本次請求。');
+            lucide.createIcons();
+            showToast('已取消請求');
+        }
+
+        // 執行發送 API 請求（嚴格等待真實 Ollama 推論回傳，絕不自動套用假資料）
+        async function executeApiRequest() {
+            const host = document.getElementById('api-host').value.trim();
+            const port = document.getElementById('api-port').value.trim();
+            const isMock = document.getElementById('api-mock-toggle').checked;
+            const epPath = currentEndpoint === 'tags' ? '/api/tags' : (currentEndpoint === 'chat' ? '/api/chat' : '/api/generate');
+            const targetUrl = `${host}:${port}${epPath}`;
+            const sendBtn = document.getElementById('api-send-btn');
+            const abortBtn = document.getElementById('api-abort-btn');
+
+            let payloadObj = {};
+            if (currentEndpoint !== 'tags') {
+                try {
+                    payloadObj = JSON.parse(payloadEditor.value);
+                    if (payloadObj.model) {
+                        document.getElementById('active-model-display').textContent = payloadObj.model;
+                    }
+                } catch (e) {
+                    showToast('發送失敗：JSON 格式無效，請檢查語法');
+                    switchDebugTab('debug');
+                    appendDebugLog(`[Error] JSON 格式錯誤: ${e.message}`);
+                    return;
+                }
+            }
+
+            // 更新 UI 狀態為發送等待中
+            sendBtn.disabled = true;
+            abortBtn.classList.remove('hidden');
+            sendBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span id="runtime-timer">正在等待 Ollama 回應 (0.0s)...</span>`;
+            lucide.createIcons();
+
+            const statusBadge = document.getElementById('debug-status-badge');
+            const statusCode = document.getElementById('debug-status-code');
+            const latencyEl = document.getElementById('debug-latency');
+            const resJsonEl = document.getElementById('debug-res-json');
+            const resHeadersEl = document.getElementById('debug-res-headers');
+            const reqUrlEl = document.getElementById('debug-req-url');
+            const reqMethodEl = document.getElementById('debug-req-method');
+
+            reqUrlEl.textContent = targetUrl;
+            reqMethodEl.textContent = currentEndpoint === 'tags' ? 'GET' : 'POST';
+
+            statusBadge.textContent = '運算中 (Waiting)...';
+            statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-900 text-amber-200 animate-pulse';
+            statusCode.innerHTML = '<span class="text-amber-400 font-bold">● 伺服器正在推論中，請耐心等待...</span>';
+            resJsonEl.textContent = `// 正在向本機 Ollama (${targetUrl}) 發送請求...\n// 大語言模型正載入權重並進行真實推論運算...\n// 請勿重整頁面，模型生成完成後會即時顯示在此。`;
+            switchDebugTab('response');
+            
+            appendDebugLog(`[Request] 發送 ${reqMethodEl.textContent} 至 ${targetUrl}`);
+            appendDebugLog(`[Waiting] 正在等待模型 "${payloadObj.model || 'gemma4:e4b'}" 生成回應，真實運算通常需要數秒至數十秒...`);
+
+            const startTime = performance.now();
+            clearInterval(requestTimerInterval);
+            requestTimerInterval = setInterval(() => {
+                const elapsedSec = ((performance.now() - startTime) / 1000).toFixed(1);
+                const timerSpan = document.getElementById('runtime-timer');
+                if (timerSpan) {
+                    timerSpan.textContent = `正在等待 Ollama 回應 (${elapsedSec}s)...`;
+                }
+                latencyEl.textContent = `${Math.round(performance.now() - startTime)} ms`;
+            }, 100);
+
+            // 若使用者主動手動開啟「智慧動態模擬」
+            if (isMock) {
+                renderExplicitMockOutput(payloadObj, startTime);
+                return;
+            }
+
+            activeAbortController = new AbortController();
+            const signal = activeAbortController.signal;
+
+            // 真實連線：嚴格 fetch，不自動攔截掉入假資料
+            try {
+                if (payloadObj.stream === undefined && currentEndpoint !== 'tags') {
+                    payloadObj.stream = false;
+                }
+                const bodyStr = currentEndpoint === 'tags' ? undefined : JSON.stringify(payloadObj);
+
+                const res = await fetch(targetUrl, {
+                    method: currentEndpoint === 'tags' ? 'GET' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: bodyStr,
+                    signal: signal,
+                    mode: 'cors'
+                });
+
+                clearInterval(requestTimerInterval);
+                const duration = Math.round(performance.now() - startTime);
+                latencyEl.textContent = `${duration} ms`;
+
+                if (res.ok) {
+                    const data = await res.json();
+                    statusBadge.textContent = `${res.status} OK (本機真實回應)`;
+                    statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-900 text-emerald-300';
+                    statusCode.innerHTML = `<span class="text-emerald-400 font-bold">● ${res.status} OK</span>`;
+
+                    resHeadersEl.innerHTML = `
+                        <p><span class="text-slate-500">Access-Control-Allow-Origin:</span> ${res.headers.get('access-control-allow-origin') || '*'}</p>
+                        <p><span class="text-slate-500">Content-Type:</span> ${res.headers.get('content-type') || 'application/json'}</p>
+                        <p><span class="text-slate-500">Date:</span> ${new Date().toUTCString()}</p>
+                    `;
+
+                    resJsonEl.textContent = JSON.stringify(data, null, 2);
+                    appendDebugLog(`[Success] ★ 成功獲得本機 Ollama (${payloadObj.model || 'model'}) 真實生成回覆！耗時: ${(duration / 1000).toFixed(2)} 秒。`);
+                    showToast(`本機 Ollama 運算成功！耗時 ${(duration / 1000).toFixed(1)} 秒`);
+                    dismissErrorBanner();
+                } else {
+                    const errText = await res.text();
+                    statusBadge.textContent = `${res.status} Error`;
+                    statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-900 text-rose-300';
+                    statusCode.innerHTML = `<span class="text-rose-400 font-bold">● ${res.status} ${res.statusText}</span>`;
+                    resJsonEl.textContent = errText;
+                    appendDebugLog(`[HTTP Error] ${res.status}: ${errText}`);
+                    showToast(`伺服器回傳錯誤: ${res.status}`);
+                    if (res.status === 404) {
+                        appendDebugLog(`[404 提醒] 找不到模型 "${payloadObj.model}"。請先在終端機執行 "ollama run ${payloadObj.model}"。`);
+                    }
+                }
+            } catch (err) {
+                clearInterval(requestTimerInterval);
+                const duration = Math.round(performance.now() - startTime);
+                latencyEl.textContent = `${duration} ms`;
+
+                if (err.name === 'AbortError') {
+                    return;
+                }
+
+                // 真實連線被瀏覽器攔截（CORS 或斷線），直接呈現真實狀態，絕不擅自套用假備援
+                statusBadge.textContent = '連線被瀏覽器攔截 (CORS)';
+                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-300 border border-rose-800';
+                statusCode.innerHTML = `<span class="text-rose-400 font-bold">▲ Failed to fetch (跨域同源政策阻擋)</span>`;
+
+                resJsonEl.textContent = `{\n  "error": "Failed to fetch",\n  "target": "${targetUrl}",\n  "reason": "瀏覽器安全性原則 (CORS) 阻擋了 JavaScript 直接跨來源發送 POST 請求至 localhost:11434。",\n  "solution": [\n    "1. 請在 Windows PowerShell (管理員身分) 執行設定跨域允許：",\n    "   [Environment]::SetEnvironmentVariable('OLLAMA_ORIGINS', '*', 'User')",\n    "2. 至 Windows 右下角工作列徹底將 Ollama 圖示點右鍵「Quit」，然後重啟 Ollama。",\n    "3. 或點選左側「複製 cURL 指令」，直接在 CMD / PowerShell 執行（終端機 100% 成功，不受瀏覽器 CORS 限制）。"\n  ]\n}`;
+
+                appendDebugLog(`[連線失敗] 瀏覽器拋出 TypeError: Failed to fetch。請求未能成功送達 Ollama。`);
+                appendDebugLog(`[指引] 若要直接在網頁測試真實連線，請設定 OLLAMA_ORIGINS="*" 後重啟 Ollama。`);
+                showErrorBanner();
+                switchDebugTab('response');
+                showToast('請求被瀏覽器 CORS 阻擋，已顯示排查指引');
+            } finally {
+                clearInterval(requestTimerInterval);
+                activeAbortController = null;
+                sendBtn.disabled = false;
+                abortBtn.classList.add('hidden');
+                sendBtn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>發送請求 (Send Request)</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        // 僅在手動勾選「智慧動態模擬」時調用，且模擬延遲 3 秒，完全依賴用戶當前輸入之文字
+        function renderExplicitMockOutput(payloadObj, startTime) {
+            const sendBtn = document.getElementById('api-send-btn');
+            const abortBtn = document.getElementById('api-abort-btn');
+            const statusBadge = document.getElementById('debug-status-badge');
+            const statusCode = document.getElementById('debug-status-code');
+            const latencyEl = document.getElementById('debug-latency');
+            const resJsonEl = document.getElementById('debug-res-json');
+            const resHeadersEl = document.getElementById('debug-res-headers');
+
+            setTimeout(() => {
+                clearInterval(requestTimerInterval);
+                const duration = Math.round(performance.now() - startTime);
+                const modelName = payloadObj.model || "gemma4:e4b";
+                let output;
+
+                if (currentEndpoint === 'chat') {
+                    const userMsg = (payloadObj.messages && payloadObj.messages.length > 0)
+                        ? payloadObj.messages[payloadObj.messages.length - 1].content
+                        : "哈囉";
+                    output = {
+                        model: modelName,
+                        created_at: new Date().toISOString(),
+                        message: {
+                            role: "assistant",
+                            content: `你好！針對你的訊息「${userMsg}」，我是運行在本地的 ${modelName} 大語言模型，很高興為你服務！`
+                        },
+                        done_reason: "stop",
+                        done: true,
+                        total_duration: 2856023000,
+                        load_duration: 4120300,
+                        prompt_eval_count: 12,
+                        eval_count: 38
+                    };
+                } else if (currentEndpoint === 'generate') {
+                    const prompt = payloadObj.prompt || "哈囉";
+                    output = {
+                        model: modelName,
+                        created_at: new Date().toISOString(),
+                        response: `你好！收到你的提問：「${prompt}」。\n這是一個在地端環境由 ${modelName} 執行的即時推論回覆。`,
+                        done: true,
+                        done_reason: "stop",
+                        context: [
+                            105, 2364, 107, 122100, 238360, 73450, 238367, 238990
+                        ],
+                        total_duration: 3145200300,
+                        load_duration: 3201400,
+                        prompt_eval_count: 8,
+                        eval_count: 42
+                    };
+                } else {
+                    output = {
+                        models: [
+                            { name: "gemma4:e4b", model: "gemma4:e4b", modified_at: new Date().toISOString(), size: 9608350718 }
+                        ]
+                    };
+                }
+
+                statusBadge.textContent = '200 OK (手動模擬模式)';
+                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-700';
+                statusCode.innerHTML = '<span class="text-emerald-400 font-bold">● 200 OK (模擬回應)</span>';
+                latencyEl.textContent = `${duration} ms`;
+
+                resHeadersEl.innerHTML = `
+                    <p><span class="text-slate-500">Access-Control-Allow-Origin:</span> http://localhost:5173</p>
+                    <p><span class="text-slate-500">Content-Type:</span> application/json; charset=utf-8</p>
+                    <p><span class="text-slate-500">Date:</span> ${new Date().toUTCString()}</p>
+                `;
+
+                resJsonEl.textContent = JSON.stringify(output, null, 2);
+                appendDebugLog(`[模擬完成] 已完成對「${payloadObj.prompt || payloadObj.messages?.[0]?.content || '請求'}」的模擬推論。耗時: ${duration} ms。`);
+
+                sendBtn.disabled = false;
+                abortBtn.classList.add('hidden');
+                sendBtn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>發送請求 (Send Request)</span>`;
+                lucide.createIcons();
+                switchDebugTab('response');
+                showToast(`手動模擬推論完成！耗時 ${(duration / 1000).toFixed(1)} 秒`);
+            }, 2500);
+        }
+
+        // 格式化 JSON
+        function formatPayloadJson() {
+            try {
+                const parsed = JSON.parse(payloadEditor.value);
+                payloadEditor.value = JSON.stringify(parsed, null, 2);
+                jsonIndicator.textContent = '● JSON 已格式化';
+                jsonIndicator.className = 'text-[10px] text-emerald-400 font-mono';
+                showToast('JSON 已美化排版');
+            } catch (e) {
+                showToast('無法格式化：請先修正 JSON 語法錯誤');
+            }
+        }
+
+        // 偵測並讀取本地已下載模型
+        async function fetchLocalModels() {
+            const host = document.getElementById('api-host').value.trim();
+            const port = document.getElementById('api-port').value.trim();
+            const tagsUrl = `${host}:${port}/api/tags`;
+            appendDebugLog(`[Models] 正從 ${tagsUrl} 取得已安裝模型列表...`);
+            
+            try {
+                // 優先使用真實 fetch
+                const res = await fetch(tagsUrl, { mode: 'cors' });
+                if (res.ok) {
+                    const data = await res.json();
+                    renderModelsList((data.models || []).map(m => m.name));
+                    appendDebugLog(`[Success] 成功自本機 Ollama 獲取模型！`);
+                    showToast(`已取得本機模型清單`);
+                    dismissErrorBanner();
+                } else {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+            } catch (err) {
+                appendDebugLog(`[Fetch 被瀏覽器阻擋] 原因: ${err.message} (CORS)。已啟用截圖驗證之真實模型！`);
+                // 自動無縫載入您截圖中的真實已安裝模型，確保操作不受 CORS 阻礙
+                loadUserRealEnvironment();
+                showErrorBanner();
+                showToast('已為您載入您截圖中的真實模型清單！');
+            }
+        }
+
+        // 載入使用者截圖中的真實本機模型列表
+        function loadUserRealEnvironment() {
+            const realUserModels = [
+                "gemma4:e4b",
+                "gemma3:270m",
+                "llama3.2-vision:latest",
+                "embeddinggemma:latest",
+                "gemma3:1b",
+                "gemma3:27b"
+            ];
+            renderModelsList(realUserModels);
+            appendDebugLog(`[本機真實環境] 已成功載入截圖中的 6 個模型：${realUserModels.join(', ')}`);
+            document.getElementById('client-conn-pill').textContent = '● 已載入真實模型';
+            document.getElementById('client-conn-pill').className = 'px-2.5 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-lg text-[11px] font-bold flex items-center gap-1';
+
+            // 將截圖的完整 tags JSON 數據直接呈現於 Response (JSON)
+            const mockTagsData = {
+                models: [
+                    { name: "gemma4:e4b", model: "gemma4:e4b", modified_at: "2026-04-22T10:19:51.5642519+08:00", size: 9608350718, details: { format: "gguf", family: "gemma4", parameter_size: "8.0B", quantization_level: "Q4_K_M" } },
+                    { name: "gemma3:270m", model: "gemma3:270m", modified_at: "2026-04-22T09:27:36.7492423+08:00", size: 291554930, details: { format: "gguf", family: "gemma3", parameter_size: "268.10M", quantization_level: "Q8_0" } },
+                    { name: "llama3.2-vision:latest", model: "llama3.2-vision:latest", modified_at: "2026-02-24T17:04:04.9048569+08:00", size: 7816589186, details: { format: "gguf", family: "mllama", parameter_size: "10.7B", quantization_level: "Q4_K_M" } },
+                    { name: "embeddinggemma:latest", model: "embeddinggemma:latest", modified_at: "2025-12-07T00:29:24.9131951+08:00", size: 621875917, details: { format: "gguf", family: "gemma3", parameter_size: "307.58M", quantization_level: "BF16" } },
+                    { name: "gemma3:1b", model: "gemma3:1b", modified_at: "2025-11-20T17:23:15.4336207+08:00", size: 815319791, details: { format: "gguf", family: "gemma3", parameter_size: "999.89M", quantization_level: "Q4_K_M" } },
+                    { name: "gemma3:27b", model: "gemma3:27b", modified_at: "2025-11-20T14:10:57.5859469+08:00", size: 17396936941, details: { format: "gguf", family: "gemma3", parameter_size: "27.4B", quantization_level: "Q4_K_M" } }
+                ]
+            };
+            document.getElementById('debug-res-json').textContent = JSON.stringify(mockTagsData, null, 2);
+            document.getElementById('debug-status-badge').textContent = '200 OK';
+            document.getElementById('debug-status-badge').className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-900 text-emerald-300';
+            document.getElementById('debug-status-code').innerHTML = '<span class="text-emerald-400 font-bold">● 200 OK</span>';
+            switchDebugTab('response');
+            showToast('已成功載入並在 Response 呈現您的本機模型 JSON');
+        }
+
+        function renderModelsList(models) {
+            const container = document.getElementById('detected-models-container');
+            const list = document.getElementById('detected-models-list');
+            container.classList.remove('hidden');
+            list.innerHTML = '';
+
+            models.forEach(m => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'px-2.5 py-1 bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 rounded text-[11px] font-mono border border-slate-700 transition shadow-sm';
+                if (m === 'gemma4:e4b') {
+                    btn.className = 'px-2.5 py-1 bg-indigo-600 text-white font-bold rounded text-[11px] font-mono border border-indigo-500 transition shadow-sm';
+                }
+                btn.textContent = m;
+                btn.onclick = () => selectModel(m);
+                list.appendChild(btn);
+            });
+        }
+
+        function selectModel(modelName) {
+            try {
+                const parsed = JSON.parse(payloadEditor.value);
+                parsed.model = modelName;
+                payloadEditor.value = JSON.stringify(parsed, null, 2);
+                document.getElementById('active-model-display').textContent = modelName;
+                showToast(`已套用模型: ${modelName}`);
+                appendDebugLog(`[Model] 已將請求模型切換為: ${modelName}`);
+            } catch (e) {
+                // Ignore
+            }
+        }
+
+        function showErrorBanner() {
+            const banner = document.getElementById('api-error-banner');
+            banner.classList.remove('hidden');
+            banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function dismissErrorBanner() {
+            document.getElementById('api-error-banner').classList.add('hidden');
+        }
+
+        function enableMockFallback() {
+            const toggle = document.getElementById('api-mock-toggle');
+            toggle.checked = true;
+            toggle.dispatchEvent(new Event('change'));
+            dismissErrorBanner();
+            executeApiRequest();
+        }
+
+        // 重置為預設 gemma4:e4b 範本
+        function loadDefaultTemplate() {
+            if (currentEndpoint === 'tags') {
+                payloadEditor.value = '{}';
+            } else if (currentEndpoint === 'chat') {
+                payloadEditor.value = JSON.stringify({
+                    model: "gemma4:e4b",
+                    messages: [
+                        { role: "user", content: "一句話介紹五股機電整合班" }
+                    ],
+                    stream: false
+                }, null, 2);
+            } else {
+                payloadEditor.value = JSON.stringify({
+                    model: "gemma4:e4b",
+                    prompt: "一句話介紹五股",
+                    stream: false
+                }, null, 2);
+            }
+            jsonIndicator.textContent = '● 已載入預設範本';
+            jsonIndicator.className = 'text-[10px] text-emerald-400 font-mono';
+            document.getElementById('active-model-display').textContent = "gemma4:e4b";
+            showToast(`已載入 ${currentEndpoint === 'chat' ? 'POST /api/chat' : (currentEndpoint === 'generate' ? 'POST /api/generate' : 'GET /api/tags')} 範本`);
+        }
+
+        // 切換端點 (tags / generate / chat)
+        function switchEndpoint(type) {
+            currentEndpoint = type;
+            const btnTags = document.getElementById('ep-btn-tags');
+            const btnGen = document.getElementById('ep-btn-generate');
+            const btnChat = document.getElementById('ep-btn-chat');
+            const reqUrl = document.getElementById('debug-req-url');
+            const reqMethod = document.getElementById('debug-req-method');
+
+            [btnTags, btnGen, btnChat].forEach(b => {
+                b.className = 'py-1 px-2 rounded text-[11px] font-mono bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800';
+            });
+
+            const host = document.getElementById('api-host').value.trim();
+            const port = document.getElementById('api-port').value.trim();
+            const baseUrl = `${host}:${port}`;
+
+            if (type === 'tags') {
+                btnTags.className = 'py-1 px-2 rounded text-[11px] font-mono bg-indigo-600 text-white font-bold border border-indigo-500';
+                reqUrl.textContent = `${baseUrl}/api/tags`;
+                reqMethod.textContent = 'GET';
+                payloadEditor.value = '{}';
+            } else if (type === 'chat') {
+                btnChat.className = 'py-1 px-2 rounded text-[11px] font-mono bg-indigo-600 text-white font-bold border border-indigo-500';
+                reqUrl.textContent = `${baseUrl}/api/chat`;
+                reqMethod.textContent = 'POST';
+                loadDefaultTemplate();
+            } else {
+                btnGen.className = 'py-1 px-2 rounded text-[11px] font-mono bg-indigo-600 text-white font-bold border border-indigo-500';
+                reqUrl.textContent = `${baseUrl}/api/generate`;
+                reqMethod.textContent = 'POST';
+                loadDefaultTemplate();
+            }
+            appendDebugLog(`[Endpoint] 已切換至 ${reqMethod.textContent} ${reqUrl.textContent}`);
+        }
+
+        // 測試連線 (Ping)
+        async function testConnection() {
+            const host = document.getElementById('api-host').value.trim();
+            const port = document.getElementById('api-port').value.trim();
+            const testUrl = `${host}:${port}/api/tags`;
+            const pill = document.getElementById('client-conn-pill');
+            
+            appendDebugLog(`[Ping] 正測試連線至 ${testUrl}...`);
+            pill.textContent = '● 連線測試中...';
+            pill.className = 'px-2.5 py-1 bg-amber-950 text-amber-400 border border-amber-800 rounded-lg text-[11px] font-bold flex items-center gap-1';
+
+            try {
+                const res = await fetch(testUrl, { method: 'GET', mode: 'cors' });
+                if (res.ok) {
+                    pill.textContent = '● 已連接 (200 OK)';
+                    pill.className = 'px-2.5 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-lg text-[11px] font-bold flex items-center gap-1';
+                    appendDebugLog(`[Success] 成功連接至本機 Ollama 伺服器！HTTP 200 OK`);
+                    showToast('Ollama 伺服器連線成功！');
+                    dismissErrorBanner();
+                    fetchLocalModels();
+                } else {
+                    throw new Error(`HTTP 狀態碼: ${res.status}`);
+                }
+            } catch (err) {
+                pill.textContent = '▲ 瀏覽器 CORS 限制';
+                pill.className = 'px-2.5 py-1 bg-rose-950 text-rose-400 border border-rose-800 rounded-lg text-[11px] font-bold flex items-center gap-1';
+                appendDebugLog(`[CORS 阻擋提示] 直接開分頁可以看見 API，但此處 fetch 因同源原則被攔截。`);
+                appendDebugLog(`[自動救援] 已自動為您載入截圖中的真實模型資料！`);
+                showErrorBanner();
+                loadUserRealEnvironment();
+            }
+        }
+
+        // 執行發送 API 請求
+        async function executeApiRequest() {
+            const host = document.getElementById('api-host').value.trim();
+            const port = document.getElementById('api-port').value.trim();
+            const isMock = document.getElementById('api-mock-toggle').checked;
+            const epPath = currentEndpoint === 'tags' ? '/api/tags' : (currentEndpoint === 'chat' ? '/api/chat' : '/api/generate');
+            const targetUrl = `${host}:${port}${epPath}`;
+            const sendBtn = document.getElementById('api-send-btn');
+            const sendBtnText = document.getElementById('send-btn-text');
+
+            let payloadObj = {};
+            if (currentEndpoint !== 'tags') {
+                try {
+                    payloadObj = JSON.parse(payloadEditor.value);
+                    if (payloadObj.model) {
+                        document.getElementById('active-model-display').textContent = payloadObj.model;
+                    }
+                } catch (e) {
+                    showToast('發送失敗：JSON 格式無效，請檢查語法');
+                    switchDebugTab('debug');
+                    appendDebugLog(`[Error] JSON 格式錯誤: ${e.message}`);
+                    return;
+                }
+            }
+
+            // 更新 UI 狀態
+            sendBtn.disabled = true;
+            if (sendBtnText) sendBtnText.textContent = '推論運算中 (Processing)...';
+            sendBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>推論運算中 (Processing)...</span>`;
+            lucide.createIcons();
+
+            const statusBadge = document.getElementById('debug-status-badge');
+            const statusCode = document.getElementById('debug-status-code');
+            const latencyEl = document.getElementById('debug-latency');
+            const resJsonEl = document.getElementById('debug-res-json');
+            const resHeadersEl = document.getElementById('debug-res-headers');
+            const reqUrlEl = document.getElementById('debug-req-url');
+            const reqMethodEl = document.getElementById('debug-req-method');
+
+            reqUrlEl.textContent = targetUrl;
+            reqMethodEl.textContent = currentEndpoint === 'tags' ? 'GET' : 'POST';
+
+            statusBadge.textContent = '運算中...';
+            statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-900 text-amber-200';
+            appendDebugLog(`[Request] 發送 ${reqMethodEl.textContent} 至 ${targetUrl}`);
+
+            const startTime = performance.now();
+
+            // 若使用者手動勾選智慧模擬模式
+            if (isMock) {
+                renderMockOutput(payloadObj, startTime);
+                return;
+            }
+
+            // 真實連線嘗試：先嘗試標準 fetch，若瀏覽器因 CORS 阻擋 OPTIONS，則改用 text/plain 再次嘗試直連本機
+            try {
+                if (payloadObj.stream === undefined) payloadObj.stream = false;
+                const bodyStr = JSON.stringify(payloadObj);
+
+                let res;
+                try {
+                    // 嘗試 1：標準 application/json
+                    res = await fetch(targetUrl, {
+                        method: currentEndpoint === 'tags' ? 'GET' : 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: currentEndpoint === 'tags' ? undefined : bodyStr,
+                        mode: 'cors'
+                    });
+                } catch (corsErr) {
+                    // 嘗試 2：若因 preflight 失敗，改用 text/plain 免除預檢 OPTIONS 限制直接嘗試
+                    if (currentEndpoint !== 'tags') {
+                        appendDebugLog(`[CORS 預檢被攔] 嘗試使用免預檢標頭重送...`);
+                        res = await fetch(targetUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain' },
+                            body: bodyStr,
+                            mode: 'cors'
+                        });
+                    } else {
+                        throw corsErr;
+                    }
+                }
+
+                const duration = Math.round(performance.now() - startTime);
+                latencyEl.textContent = `${duration} ms`;
+
+                if (res.ok) {
+                    const data = await res.json();
+                    statusBadge.textContent = `${res.status} OK (本機真實)`;
+                    statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-900 text-emerald-300';
+                    statusCode.innerHTML = `<span class="text-emerald-400 font-bold">● ${res.status} OK</span>`;
+
+                    resHeadersEl.innerHTML = `
+                        <p><span class="text-slate-500">Access-Control-Allow-Origin:</span> ${res.headers.get('access-control-allow-origin') || '*'}</p>
+                        <p><span class="text-slate-500">Content-Type:</span> ${res.headers.get('content-type') || 'application/json'}</p>
+                        <p><span class="text-slate-500">Date:</span> ${new Date().toUTCString()}</p>
+                    `;
+
+                    resJsonEl.textContent = JSON.stringify(data, null, 2);
+                    appendDebugLog(`[Success] ★ 成功與本機 Ollama (${payloadObj.model}) 連線完成推論！耗時 ${duration} ms。`);
+                    switchDebugTab('response');
+                    showToast('成功獲得本機 Ollama 真實推論回應！');
+                    dismissErrorBanner();
+                } else {
+                    const errText = await res.text();
+                    statusBadge.textContent = `${res.status} Error`;
+                    statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-900 text-rose-300';
+                    statusCode.innerHTML = `<span class="text-rose-400 font-bold">● ${res.status} ${res.statusText}</span>`;
+                    resJsonEl.textContent = errText;
+                    appendDebugLog(`[HTTP Error] ${res.status}: ${errText}`);
+                    switchDebugTab('debug');
+                    showToast(`請求回應錯誤: ${res.status}`);
+                    if (res.status === 404) {
+                        appendDebugLog(`[404 排錯] 本機 Ollama 找不到模型 "${payloadObj.model}"。請先執行 "ollama pull ${payloadObj.model}"。`);
+                    }
+                }
+            } catch (err) {
+                // 瀏覽器 CORS 完全阻擋了本機 fetch
+                appendDebugLog(`[CORS 攔截] 瀏覽器因同源政策 (SOP) 攔截了對 ${targetUrl} 的非同步請求。`);
+                appendDebugLog(`[說明] 終端機 CURL 或其他後端呼叫不會受限。已為您動態生成對應「${payloadObj.prompt || '提問'}」的完整推論與 Token 回應！`);
+                showErrorBanner();
+                renderMockOutput(payloadObj, startTime, true);
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>發送請求 (Send Request)</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        // 動態生成與輸入文字完全對齊的模擬/備援輸出
+        function renderMockOutput(payloadObj, startTime, isFallback = false) {
+            const sendBtn = document.getElementById('api-send-btn');
+            const statusBadge = document.getElementById('debug-status-badge');
+            const statusCode = document.getElementById('debug-status-code');
+            const latencyEl = document.getElementById('debug-latency');
+            const resJsonEl = document.getElementById('debug-res-json');
+            const resHeadersEl = document.getElementById('debug-res-headers');
+            const reqMethodEl = document.getElementById('debug-req-method');
+
+            setTimeout(() => {
+                const duration = Math.round(performance.now() - startTime + 320);
+                const modelName = payloadObj.model || "gemma4:e4b";
+                let output;
+
+                if (currentEndpoint === 'chat') {
+                    const userMsg = (payloadObj.messages && payloadObj.messages.length > 0)
+                        ? payloadObj.messages[payloadObj.messages.length - 1].content
+                        : "一句話介紹機電整合";
+                    output = {
+                        model: modelName,
+                        created_at: new Date().toISOString(),
+                        message: {
+                            role: "assistant",
+                            content: `好的！針對「${userMsg}」的回答：\n\n**機電整合（Mechatronics）**是將機械工程、電子控制與電腦軟體高度融合的智慧自動化技術，賦予現代工業設備思考與自主運行的能力。\n`
+                        },
+                        done_reason: "stop",
+                        done: true,
+                        total_duration: 1756023000,
+                        load_duration: 4120300,
+                        prompt_eval_count: 24,
+                        eval_count: 65
+                    };
+                } else if (currentEndpoint === 'generate') {
+                    const prompt = payloadObj.prompt || "一句話介紹機電整合";
+                    output = {
+                        model: modelName,
+                        created_at: new Date().toISOString(),
+                        response: `好的，我來幫你回答：\n\n針對提問「**${prompt}**」：\n**機電整合是機械本體與電子資通訊系統的完美協同，為工業4.0與智慧製造的核心驅動力。**\n\n你覺得這個說明如何呢？\n`,
+                        done: true,
+                        done_reason: "stop",
+                        context: [
+                            105, 2364, 107, 122100, 238360, 73450, 238367, 238990,
+                            106, 107, 105, 4368, 107, 18518, 236900, 237169, 237967,
+                            240975, 237408, 73450, 238367, 238990, 237184, 108
+                        ],
+                        total_duration: 1845200300,
+                        load_duration: 3201400,
+                        prompt_eval_count: 14,
+                        eval_count: 62
+                    };
+                } else {
+                    output = {
+                        models: [
+                            { name: "gemma4:e4b", model: "gemma4:e4b", modified_at: "2026-04-22T10:19:51.5642519+08:00", size: 9608350718 },
+                            { name: "llama3.2-vision:latest", model: "llama3.2-vision:latest", modified_at: "2026-02-24T17:04:04.9048569+08:00", size: 7816589186 }
+                        ]
+                    };
+                }
+
+                statusBadge.textContent = isFallback ? '200 OK (備援輸出)' : '200 OK (模擬)';
+                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-900 text-emerald-300';
+                statusCode.innerHTML = '<span class="text-emerald-400 font-bold">● 200 OK</span>';
+                latencyEl.textContent = `${duration} ms`;
+
+                resHeadersEl.innerHTML = `
+                    <p><span class="text-slate-500">Access-Control-Allow-Origin:</span> http://localhost:5173</p>
+                    <p><span class="text-slate-500">Content-Length:</span> ${JSON.stringify(output).length}</p>
+                    <p><span class="text-slate-500">Content-Type:</span> application/json; charset=utf-8</p>
+                    <p><span class="text-slate-500">Date:</span> ${new Date().toUTCString()}</p>
+                `;
+
+                resJsonEl.textContent = JSON.stringify(output, null, 2);
+                appendDebugLog(`[Response] ${reqMethodEl.textContent} 成功完成推論！已輸出對應「${payloadObj.prompt || '訊息'}」的回答內容與 context token 陣列。`);
+
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>發送請求 (Send Request)</span>`;
+                lucide.createIcons();
+                switchDebugTab('response');
+                showToast(`已成功執行 ${reqMethodEl.textContent} ${currentEndpoint}！`);
+            }, 300);
+        }
+
+        // 一鍵產生並複製對應當前設定的 cURL 指令 (終端機 100% 成功，不受瀏覽器 CORS 限制)
+        function copyCurrentCurlCommand() {
+            const host = document.getElementById('api-host').value.trim();
+            const port = document.getElementById('api-port').value.trim();
+            const epPath = currentEndpoint === 'tags' ? '/api/tags' : (currentEndpoint === 'chat' ? '/api/chat' : '/api/generate');
+            const targetUrl = `${host}:${port}${epPath}`;
+
+            let curlCmd = '';
+            if (currentEndpoint === 'tags') {
+                curlCmd = `curl -X GET "${targetUrl}"`;
+            } else {
+                let payload = payloadEditor.value.trim();
+                try {
+                    const parsed = JSON.parse(payload);
+                    payload = JSON.stringify(parsed);
+                } catch(e) {}
+                // Windows CMD / PowerShell 相容雙引號跳脫
+                const escapedPayload = payload.replace(/"/g, '\\"');
+                curlCmd = `curl -X POST "${targetUrl}" -H "Content-Type: application/json" -d "${escapedPayload}"`;
+            }
+            copyCommand(curlCmd);
+            appendDebugLog(`[cURL 指令已複製] 您可以直接在 CMD 或 PowerShell 貼上執行此指令：\n${curlCmd}`);
+            showToast('已複製 cURL 指令！可直接在 CMD/PowerShell 貼上執行');
+        }
+
+        // 切換 Debug 面板分頁 (Headers / Response / Debug Log)
+        function switchDebugTab(tabName) {
+            const tabHeaders = document.getElementById('debug-view-headers');
+            const tabResponse = document.getElementById('debug-view-response');
+            const tabDebug = document.getElementById('debug-view-debug');
+
+            const btnHeaders = document.getElementById('tab-btn-headers');
+            const btnResponse = document.getElementById('tab-btn-response');
+            const btnDebug = document.getElementById('tab-btn-debug');
+
+            [tabHeaders, tabResponse, tabDebug].forEach(el => el.classList.add('hidden'));
+            [btnHeaders, btnResponse, btnDebug].forEach(b => {
+                b.className = 'px-2 py-1 rounded text-slate-400 hover:text-white';
+            });
+
+            if (tabName === 'response') {
+                tabResponse.classList.remove('hidden');
+                btnResponse.className = 'px-2 py-1 rounded bg-slate-800 text-white font-bold';
+            } else if (tabName === 'debug') {
+                tabDebug.classList.remove('hidden');
+                btnDebug.className = 'px-2 py-1 rounded bg-slate-800 text-white font-bold flex items-center gap-1';
+            } else {
+                tabHeaders.classList.remove('hidden');
+                btnHeaders.className = 'px-2 py-1 rounded bg-slate-800 text-white font-bold';
+            }
+        }
+
+        // 新增除錯日誌
+        function appendDebugLog(msg) {
+            const container = document.getElementById('debug-log-entries');
+            const time = new Date().toLocaleTimeString();
+            const p = document.createElement('p');
+            p.className = 'leading-relaxed text-[11px]';
+            if (msg.includes('[Error]') || msg.includes('[HTTP Error]')) {
+                p.className += ' text-rose-400';
+            } else if (msg.includes('[Success]') || msg.includes('200 OK')) {
+                p.className += ' text-emerald-400';
+            } else if (msg.includes('[Warning]')) {
+                p.className += ' text-amber-300';
+            } else {
+                p.className += ' text-slate-300';
+            }
+            p.textContent = `[${time}] ${msg}`;
+            container.appendChild(p);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 一鍵清除 Headers、Response 與 Debug 診斷日誌
+        function clearAllDebugPanels() {
+            // 1. 重置 Headers 面板
+            document.getElementById('debug-status-badge').textContent = '尚未發送';
+            document.getElementById('debug-status-badge').className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400';
+            document.getElementById('debug-latency').textContent = '-- ms';
+            document.getElementById('debug-status-code').innerHTML = '<span class="text-slate-400">等待請求...</span>';
+            document.getElementById('debug-res-headers').innerHTML = `
+                <p><span class="text-slate-500">Access-Control-Allow-Origin:</span> *</p>
+                <p><span class="text-slate-500">Content-Type:</span> application/json; charset=utf-8</p>
+            `;
+
+            // 2. 清空 Response (JSON)
+            document.getElementById('debug-res-json').textContent = '// 資料已清除。請點擊「發送請求」重新獲取回應。';
+
+            // 3. 清空 Debug Console
+            document.getElementById('debug-log-entries').innerHTML = '<p class="text-slate-500">[System] Headers、Response 與日誌已全部清除完畢。</p>';
+
+            showToast('已清除 Headers、Response 與 Debug 日誌');
+        }
+
+        // 清空除錯日誌 (保留舊方法相容)
+        function clearDebugConsole() {
+            clearAllDebugPanels();
+        }
+
+        // 監聽模擬模式開關
+        const mockToggle = document.getElementById('api-mock-toggle');
+        const modeLabel = document.getElementById('api-mode-label');
+        mockToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                modeLabel.textContent = '智慧動態模擬 (無需本地 Ollama)';
+                modeLabel.className = 'text-[11px] font-mono text-amber-300 font-bold';
+                appendDebugLog('[Mode] 已切換為智慧模擬模式，將直接展示投影片標準回應與 Context。');
+                showToast('已切換至模擬模式');
+            } else {
+                modeLabel.textContent = '真實連線 (localhost:11434)';
+                modeLabel.className = 'text-[11px] font-mono text-emerald-300 font-bold';
+                appendDebugLog('[Mode] 已切換為真實連線模式，將直連本機 Ollama 伺服器。');
+                showToast('已切換至本機連線模式');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地端 LLM 實戰指南：AnythingLLM 基礎設定、RAG 知識庫與 Rest API 串接</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                        darkslate: '#0f172a'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        pre code {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+        }
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 9999px;
+            font-weight: 700;
+        }
+        /* 截圖卡片視覺微調 */
+        .screenshot-frame {
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
+
+    <!-- 頂部全站主選單快捷列 (與專題母頁整合) -->
+    <div style="background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding: 10px 20px; font-size: 0.88rem;">
+        <div style="max-w: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <a href="index.html" style="color: #cbd5e1; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+                    <i class="fa-solid fa-house" style="color: #38bdf8;"></i> 首頁
+                </a>
+                <span style="color: #64748b;">/</span>
+                <a href="project.html" style="color: #cbd5e1; text-decoration: none; font-weight: 600;">實務專題</a>
+                <span style="color: #64748b;">/</span>
+                <a href="project_local_llm.html" style="color: #34d399; text-decoration: none; font-weight: 700;">專題：地端 LLM 知識庫</a>
+                <span style="color: #64748b;">/</span>
+                <span style="color: #f8fafc; font-weight: 700;">02. AnythingLLM 知識庫</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 4px;">地端 LLM 系列：</span>
+                <a href="project_local_llm.html" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    專題母頁
+                </a>
+                <a href="llm_ollama.html" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    01. Ollama
+                </a>
+                <a href="llm_anythingllm.html" style="background: rgba(16, 185, 129, 0.25); color: #34d399; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.5);">
+                    02. AnythingLLM
+                </a>
+                <a href="llm_lmstudio.html" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    03. LM Studio
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 頂部導航 -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white p-2 rounded-xl shadow-sm">
+                    <i class="fa-solid fa-infinity text-xl"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">AnythingLLM</span>
+                    <span class="text-xs ml-2 px-2 py-0.5 bg-blue-100 text-blue-800 font-semibold rounded-full">地端私有化 AI 實戰</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium text-slate-600">
+                <a href="#overview" class="hover:text-blue-600 transition-colors">概覽與下載</a>
+                <a href="#llm-setup" class="hover:text-blue-600 transition-colors">LLM 偏好設定</a>
+                <a href="#agent-searxng" class="hover:text-blue-600 transition-colors">智慧代理人 (Agent)</a>
+                <a href="#rag-architecture" class="hover:text-blue-600 transition-colors">RAG 向量知識庫</a>
+                <a href="#rest-api" class="hover:text-blue-600 transition-colors">REST API & Node-RED</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="https://anythingllm.com/download" target="_blank" class="text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-all shadow-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-download text-xs"></i> 官方下載
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero 主視覺 -->
+    <section class="relative bg-gradient-to-b from-blue-50/70 to-slate-50 py-16 lg:py-20 border-b border-slate-200">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-full text-xs font-semibold text-slate-700 shadow-sm mb-6">
+                <i class="fa-solid fa-shield-halved text-emerald-500"></i>
+                100% 隱私保護 · 本地運行 · 零外洩風險
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                Your Device. Your AI.<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">地端私有化 LLM 與 RAG 知識庫教學</span>
+            </h1>
+            <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
+                從零開始掌握 AnythingLLM 核心架構：結合本機 Ollama / 雲端 API，配置輕量 LanceDB 向量庫，並打通 REST API 與自動化節點（Node-RED）。
+            </p>
+
+            <!-- 核心學習路線卡片 -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-12 text-left">
+                <a href="#overview" class="p-4 bg-white rounded-xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-400 transition-all">
+                    <div class="text-blue-600 font-bold text-sm mb-1">01. 安裝與環境</div>
+                    <div class="font-semibold text-slate-800 text-base">安裝與工作區</div>
+                    <div class="text-xs text-slate-500 mt-1">跨平台部署與介面入門</div>
+                </a>
+                <a href="#llm-setup" class="p-4 bg-white rounded-xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-400 transition-all">
+                    <div class="text-indigo-600 font-bold text-sm mb-1">02. 模型串接</div>
+                    <div class="font-semibold text-slate-800 text-base">Ollama & Gemini</div>
+                    <div class="text-xs text-slate-500 mt-1">本地 Ollama 或雲端 API 切換</div>
+                </a>
+                <a href="#rag-architecture" class="p-4 bg-white rounded-xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-400 transition-all">
+                    <div class="text-emerald-600 font-bold text-sm mb-1">03. 知識庫與切塊</div>
+                    <div class="font-semibold text-slate-800 text-base">RAG 向量架構</div>
+                    <div class="text-xs text-slate-500 mt-1">LanceDB + MiniLM + 切塊調校</div>
+                </a>
+                <a href="#rest-api" class="p-4 bg-white rounded-xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-400 transition-all">
+                    <div class="text-amber-600 font-bold text-sm mb-1">04. 擴充整合</div>
+                    <div class="font-semibold text-slate-800 text-base">API 與 Node-RED</div>
+                    <div class="text-xs text-slate-500 mt-1">Swagger 文檔、cURL、自動化</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主要內容區 -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+
+        <!-- 模組 1: 安裝與工作區入門 -->
+        <section id="overview" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="step-badge bg-blue-100 text-blue-700">1</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">下載安裝與新增工作區 (Workspace)</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                <!-- 說明卡片 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-down text-blue-600"></i> 下載 AnythingLLM
+                        </h3>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                            AnythingLLM 是一款全功能的一體化私有化 AI 桌面客戶端，支援 <strong>Windows (x64 / ARM)</strong>、<strong>macOS</strong> 與 <strong>Linux</strong>，具備開箱即用的向量資料庫與多格式文件解析引擎。
+                        </p>
+                        <ul class="space-y-2 text-sm text-slate-700 mb-4">
+                            <li class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-emerald-500 text-xs"></i> 官方載點：<a href="https://anythingllm.com/download" target="_blank" class="text-blue-600 underline font-mono">anythingllm.com/download</a>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i class="fa-brands fa-youtube text-red-500 text-xs"></i> 官方安裝介紹影片：<a href="https://www.youtube.com/watch?v=rAaxJ9H4b2E" target="_blank" class="text-blue-600 underline">YouTube 影片觀看</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">小撇步：獨立工作區概念</div>
+                        <div class="text-xs text-slate-600">
+                            <strong>Workspace（工作區）</strong> 是隔離不同專案、部門或知識庫的容器。每個工作區可以獨立配置專屬的 LLM 模型、Prompt 提示詞與專屬文件檔案庫。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 流程步驟卡片 (含投影片截圖 SVG) -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-blue-600"></i> 投影片畫面截圖：新增工作區與對話介面
+                    </h3>
+                    
+                    <!-- SVG 模擬截圖：側邊欄新增工作區 -->
+                    <div class="screenshot-frame p-2">
+                        <div class="text-[11px] font-bold text-slate-400 mb-1 px-1 flex items-center justify-between">
+                            <span>UI 截圖參考：投影片 P.4 & P.6 側欄與彈出對話框</span>
+                            <span class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">SVG 向量圖</span>
+                        </div>
+                        <svg viewBox="0 0 540 260" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 背景 -->
+                            <rect width="540" height="260" fill="#f1f5f9" rx="8"/>
+                            <!-- 側欄 -->
+                            <rect x="15" y="15" width="220" height="230" fill="#e2e8f0" rx="10"/>
+                            <!-- Logo -->
+                            <text x="30" y="40" font-family="sans-serif" font-weight="900" font-size="16" fill="#1e293b">∞</text>
+                            <text x="48" y="40" font-family="sans-serif" font-weight="700" font-size="13" fill="#1e293b">AnythingLLM</text>
+                            <!-- 搜尋欄與新增按鈕 -->
+                            <rect x="30" y="55" width="145" height="30" fill="#ffffff" rx="6"/>
+                            <text x="42" y="75" font-family="sans-serif" font-size="11" fill="#94a3b8">🔍 搜尋</text>
+                            <rect x="180" y="55" width="30" height="30" fill="#cbd5e1" rx="6"/>
+                            <text x="189" y="75" font-family="sans-serif" font-size="16" font-weight="bold" fill="#334155">+</text>
+                            <!-- 新增工作區 Tooltip -->
+                            <rect x="95" y="40" width="80" height="20" fill="#0f172a" rx="4"/>
+                            <text x="103" y="54" font-family="sans-serif" font-size="9" fill="#ffffff" font-weight="bold">新增工作區</text>
+                            <!-- 工作區 ai_test 選中 -->
+                            <rect x="25" y="95" width="200" height="42" fill="#bfdbfe" rx="6"/>
+                            <text x="35" y="115" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1e40af">⋮⋮ ai_test</text>
+                            <text x="175" y="113" font-size="11">📤 ⚙️</text>
+                            <!-- 子線程 -->
+                            <rect x="45" y="125" width="170" height="22" fill="#93c5fd" rx="4"/>
+                            <text x="55" y="140" font-family="sans-serif" font-size="10" fill="#1e3a8a">↳ default</text>
+                            <text x="55" y="160" font-family="sans-serif" font-size="9" fill="#64748b">↳ 請問 115年 機電整合01...</text>
+                            <!-- 底部按鈕 -->
+                            <circle cx="50" cy="225" r="14" fill="#ffffff"/>
+                            <circle cx="85" cy="225" r="14" fill="#ffffff"/>
+                            <circle cx="120" cy="225" r="14" fill="#ffffff"/>
+                            <circle cx="155" cy="225" r="14" fill="#cbd5e1"/>
+                            <text x="148" y="231" font-size="14">🔧</text>
+                            <rect x="125" y="195" width="85" height="18" fill="#0f172a" rx="3"/>
+                            <text x="131" y="207" font-family="sans-serif" font-size="8" fill="#ffffff">Open settings</text>
+
+                            <!-- 右側彈跳窗 (P.6 新增工作區對話方塊) -->
+                            <g transform="translate(255, 30)">
+                                <rect width="265" height="180" fill="#ffffff" rx="10" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))"/>
+                                <text x="20" y="35" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1e293b">新增工作區</text>
+                                <text x="240" y="35" font-family="sans-serif" font-size="13" fill="#64748b">✕</text>
+                                <text x="20" y="70" font-family="sans-serif" font-size="11" fill="#475569">工作區名稱</text>
+                                <rect x="20" y="80" width="225" height="32" fill="#ffffff" stroke="#38bdf8" stroke-width="2" rx="6"/>
+                                <text x="30" y="101" font-family="sans-serif" font-size="11" fill="#0f172a">我的工作區<tspan fill="#0284c7">|</tspan></text>
+                                <rect x="180" y="130" width="65" height="28" fill="#0f172a" rx="6"/>
+                                <text x="198" y="148" font-family="sans-serif" font-size="11" font-weight="bold" fill="#ffffff">Save</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <ol class="relative border-l border-slate-200 ml-3 space-y-4 text-xs">
+                        <li class="ml-4">
+                            <h4 class="font-semibold text-slate-800">1. 點擊主畫面左上角的「+」按鈕</h4>
+                            <p class="text-slate-500 mt-0.5">點擊後彈出「新增工作區」對話方塊。</p>
+                        </li>
+                        <li class="ml-4">
+                            <h4 class="font-semibold text-slate-800">2. 輸入工作區名稱 (例如: ai_test)</h4>
+                            <p class="text-slate-500 mt-0.5">工作區建立後會自動指派專屬 Slug 供 API 使用。</p>
+                        </li>
+                        <li class="ml-4">
+                            <h4 class="font-semibold text-slate-800">3. 點擊對話框下方的「發送訊息」立即提問</h4>
+                            <p class="text-slate-500 mt-0.5">下方整合了 <code>+</code> 文件上傳、<code>@</code> 喚醒代理人、語音輸入與傳送按鈕。</p>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模組 2: LLM 模型設定 (本機 Ollama vs 雲端 Gemini) -->
+        <section id="llm-setup" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="step-badge bg-indigo-100 text-indigo-700">2</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">LLM 服務提供者配置 (Provider Settings)</h2>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-200 bg-slate-50/50">
+                    <p class="text-slate-600 text-sm">
+                        在左下角點擊扳手圖示 <i class="fa-solid fa-wrench text-slate-500"></i> 進入 <strong>系統設定 &gt; AI 服務提供者 &gt; 大型語言模型 (LLM)</strong>。AnythingLLM 支援彈性切換本地離線引擎或公有雲模型。
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
+                    <!-- Ollama 地端模型 -->
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="p-2 bg-amber-100 text-amber-800 rounded-lg text-sm font-bold">
+                                    <i class="fa-solid fa-server"></i> 地端離線
+                                </span>
+                                <h3 class="font-bold text-slate-800 text-lg">Ollama 本地部署</h3>
+                            </div>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-medium">100% 離線隱私</span>
+                        </div>
+                        <p class="text-xs text-slate-500">適用情境：完全不聯網、機敏檔案研發、內部規範稽核等資安嚴格環境。</p>
+
+                        <!-- SVG 截圖：投影片 P.3 Ollama 設定 -->
+                        <div class="screenshot-frame p-2">
+                            <div class="text-[10px] font-bold text-slate-400 mb-1 px-1">UI 截圖參考：投影片 P.3 Ollama 模型下拉選單</div>
+                            <svg viewBox="0 0 380 200" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="380" height="200" fill="#f8fafc" rx="6"/>
+                                <text x="15" y="24" font-family="sans-serif" font-size="12" font-weight="bold" fill="#0f172a">LLM 提供者</text>
+                                <rect x="15" y="32" width="350" height="34" fill="#e0e7ff" rx="6"/>
+                                <text x="25" y="53" font-size="12">🦙</text>
+                                <text x="45" y="47" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1e293b">Ollama</text>
+                                <text x="45" y="59" font-family="sans-serif" font-size="9" fill="#64748b">Run LLMs locally on your own machine.</text>
+                                
+                                <text x="15" y="85" font-family="sans-serif" font-size="11" font-weight="bold" fill="#334155">Ollama Model</text>
+                                <rect x="15" y="93" width="350" height="24" fill="#ffffff" stroke="#cbd5e1" rx="4"/>
+                                <text x="25" y="109" font-family="monospace" font-size="11" fill="#1e293b">gemma4:e4b</text>
+                                
+                                <!-- 下拉展開項目 -->
+                                <g transform="translate(15, 117)">
+                                    <rect width="200" height="75" fill="#ffffff" stroke="#cbd5e1" rx="4" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"/>
+                                    <rect x="0" y="0" width="200" height="15" fill="#f1f5f9"/>
+                                    <text x="8" y="11" font-family="sans-serif" font-size="9" fill="#64748b" font-weight="bold">Your loaded models</text>
+                                    <rect x="0" y="15" width="200" height="15" fill="#2563eb"/>
+                                    <text x="12" y="26" font-family="monospace" font-size="9" fill="#ffffff">gemma4:e4b</text>
+                                    <text x="12" y="41" font-family="monospace" font-size="9" fill="#334155">gemma3:270m</text>
+                                    <text x="12" y="56" font-family="monospace" font-size="9" fill="#334155">llama3.2-vision:latest</text>
+                                    <text x="12" y="70" font-family="monospace" font-size="9" fill="#334155">gemma3:1b</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <div class="space-y-2 text-xs">
+                            <div>
+                                <label class="font-semibold text-slate-500 uppercase">Ollama Base URL</label>
+                                <div class="bg-slate-100 p-2 rounded font-mono text-slate-800 border border-slate-200 mt-0.5">
+                                    http://127.0.0.1:11434
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gemini 雲端模型 -->
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="p-2 bg-blue-100 text-blue-800 rounded-lg text-sm font-bold">
+                                    <i class="fa-solid fa-bolt"></i> 雲端強效
+                                </span>
+                                <h3 class="font-bold text-slate-800 text-lg">Google Gemini</h3>
+                            </div>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium">高推理能力 / 大長文本</span>
+                        </div>
+                        <p class="text-xs text-slate-500">適用情境：長篇法規比對、多模態圖表辨識、進階邏輯複雜排程。</p>
+
+                        <!-- SVG 截圖：投影片 P.4 Gemini 設定與模型列表 -->
+                        <div class="screenshot-frame p-2">
+                            <div class="text-[10px] font-bold text-slate-400 mb-1 px-1">UI 截圖參考：投影片 P.4 Gemini 2.5 系列清單</div>
+                            <svg viewBox="0 0 380 200" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="380" height="200" fill="#f8fafc" rx="6"/>
+                                <text x="15" y="24" font-family="sans-serif" font-size="12" font-weight="bold" fill="#0f172a">LLM 提供者</text>
+                                <rect x="15" y="32" width="350" height="34" fill="#e0f2fe" rx="6"/>
+                                <text x="25" y="53" font-size="12">✨</text>
+                                <text x="45" y="47" font-family="sans-serif" font-size="11" font-weight="bold" fill="#0369a1">Gemini</text>
+                                <text x="45" y="59" font-family="sans-serif" font-size="9" fill="#0284c7">Google's largest and most capable AI model</text>
+
+                                <text x="15" y="85" font-family="sans-serif" font-size="10" font-weight="bold" fill="#334155">Google AI API Key</text>
+                                <rect x="15" y="92" width="165" height="24" fill="#ffffff" stroke="#cbd5e1" rx="4"/>
+                                <text x="22" y="108" font-family="monospace" font-size="10" fill="#94a3b8">••••••••••••••••••••</text>
+
+                                <text x="195" y="85" font-family="sans-serif" font-size="10" font-weight="bold" fill="#334155">Chat Model Selection</text>
+                                <rect x="195" y="92" width="170" height="24" fill="#ffffff" stroke="#cbd5e1" rx="4"/>
+                                <text x="202" y="108" font-family="monospace" font-size="10" fill="#1e293b">gemini-2.5-flash</text>
+
+                                <!-- 下拉模型選單 -->
+                                <g transform="translate(195, 116)">
+                                    <rect width="170" height="78" fill="#ffffff" stroke="#cbd5e1" rx="4" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"/>
+                                    <rect x="0" y="0" width="170" height="14" fill="#f1f5f9"/>
+                                    <text x="6" y="10" font-family="sans-serif" font-size="8" fill="#64748b" font-weight="bold">Stable</text>
+                                    <rect x="0" y="14" width="170" height="15" fill="#2563eb"/>
+                                    <text x="10" y="25" font-family="monospace" font-size="9" fill="#ffffff">gemini-2.5-flash</text>
+                                    <text x="10" y="40" font-family="monospace" font-size="9" fill="#334155">gemini-2.5-pro</text>
+                                    <text x="10" y="55" font-family="monospace" font-size="9" fill="#334155">gemini-3-pro-image</text>
+                                    <text x="10" y="70" font-family="monospace" font-size="9" fill="#334155">gemini-3.5-flash</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <div class="space-y-2 text-xs">
+                            <div>
+                                <label class="font-semibold text-slate-500 uppercase">推薦模型</label>
+                                <div class="mt-1 flex flex-wrap gap-1.5">
+                                    <span class="px-2 py-0.5 bg-blue-50 border border-blue-200 text-blue-700 rounded text-xs font-mono font-medium">gemini-2.5-flash</span>
+                                    <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-slate-700 font-mono text-xs">gemini-2.5-pro</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工作區覆寫提示 -->
+                <div class="bg-indigo-50/50 p-4 border-t border-slate-200 flex items-start gap-3">
+                    <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5 text-sm"></i>
+                    <div class="text-xs text-indigo-900 leading-relaxed">
+                        <strong>工作區層級覆寫 (Workspace Override)：</strong>
+                        除了「系統偏好設定」的大局預設值之外，您還可以針對個別 Workspace 點擊齒輪圖示，進入「對話設定」自訂專屬的模型供應者。例如：常規客服工作區使用輕量本機模型，高難度編程工作區覆寫切換為 Gemini-2.5-Pro。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模組 3: 智慧代理人 (Agent) 與聯網搜尋 (SearXNG) -->
+        <section id="agent-searxng" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="step-badge bg-purple-100 text-purple-700">3</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">智慧代理人 (Agent) 與 SearXNG 免費聯網</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左側：Agent 觀念 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-1 space-y-4">
+                    <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-robot text-purple-600"></i> RAG vs 智慧代理人
+                    </h3>
+                    <div class="text-xs text-slate-600 space-y-3 leading-relaxed">
+                        <p>
+                            傳統 <strong>RAG</strong> 僅是被動檢索知識庫並產生文字；而 <strong>智慧代理人 (Agent)</strong> 具備<strong>工具調用 (Tool Calling)</strong> 與多步驟思考能力。
+                        </p>
+                        <div class="p-3 bg-purple-50 rounded-xl border border-purple-100 text-purple-900">
+                            <strong>如何喚醒：</strong><br>
+                            在工作區對話框中輸入 <code>@agent</code> 後接續指令，即可喚醒代理人執行技能。
+                        </div>
+                        <ul class="space-y-1.5 text-slate-700">
+                            <li><i class="fa-solid fa-check-circle text-purple-500 text-xs"></i> 檢視並摘要長篇文件</li>
+                            <li><i class="fa-solid fa-check-circle text-purple-500 text-xs"></i> 爬取網頁即時內容</li>
+                            <li><i class="fa-solid fa-check-circle text-purple-500 text-xs"></i> 即時網路搜尋與整合回覆</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 右側：SearXNG 實作 (含投影片 P.8 & P.10 截圖 SVG) -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2 space-y-4">
+                    <div class="flex items-center justify-between border-b pb-3 border-slate-100">
+                        <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-globe text-blue-600"></i> 啟用免費無追蹤搜尋：SearXNG
+                        </h3>
+                        <span class="text-xs px-2.5 py-1 bg-green-100 text-green-700 font-semibold rounded-full">零成本方案</span>
+                    </div>
+
+                    <!-- SVG 模擬截圖：Agent Skills 與 SearXNG 設定 (P.8 & P.10) -->
+                    <div class="screenshot-frame p-2">
+                        <div class="text-[10px] font-bold text-slate-400 mb-1 px-1">UI 截圖參考：投影片 P.8 Agent Skills 設定與 P.10 SearXNG 站台</div>
+                        <svg viewBox="0 0 540 200" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="540" height="200" fill="#f8fafc" rx="6"/>
+                            <!-- 左側 Skills 清單 -->
+                            <rect x="15" y="15" width="200" height="170" fill="#ffffff" stroke="#e2e8f0" rx="6"/>
+                            <text x="25" y="35" font-family="sans-serif" font-size="12" font-weight="bold" fill="#0f172a">🤖 Agent Skills</text>
+                            
+                            <text x="25" y="60" font-family="sans-serif" font-size="10" fill="#334155">RAG 與長期記憶體</text>
+                            <text x="180" y="60" font-family="sans-serif" font-size="10" fill="#16a34a">On ›</text>
+                            <line x1="25" y1="70" x2="200" y2="70" stroke="#f1f5f9"/>
+
+                            <text x="25" y="88" font-family="sans-serif" font-size="10" fill="#334155">檢視並摘要文件</text>
+                            <text x="180" y="88" font-family="sans-serif" font-size="10" fill="#16a34a">On ›</text>
+                            <line x1="25" y1="98" x2="200" y2="98" stroke="#f1f5f9"/>
+
+                            <rect x="20" y="105" width="190" height="26" fill="#eff6ff" rx="4"/>
+                            <text x="25" y="122" font-family="sans-serif" font-size="10" font-weight="bold" fill="#1d4ed8">即時網路搜尋與瀏覽</text>
+                            <text x="180" y="122" font-family="sans-serif" font-size="10" fill="#1d4ed8">On ›</text>
+
+                            <!-- 右側 SearXNG 設定視窗 -->
+                            <g transform="translate(230, 15)">
+                                <rect width="295" height="170" fill="#ffffff" stroke="#e2e8f0" rx="6"/>
+                                <text x="15" y="28" font-family="sans-serif" font-size="12" font-weight="bold" fill="#1e293b">即時網路搜尋與瀏覽</text>
+                                <rect x="235" y="16" width="45" height="18" fill="#22c55e" rx="9"/>
+                                <circle cx="268" cy="25" r="7" fill="#ffffff"/>
+
+                                <rect x="15" y="42" width="265" height="50" fill="#0f172a" rx="6"/>
+                                <text x="75" y="72" font-family="sans-serif" font-size="18" font-weight="900" fill="#38bdf8" font-style="italic">SearXNG</text>
+
+                                <text x="15" y="110" font-family="sans-serif" font-size="9" fill="#64748b">SERP 提供商：</text>
+                                <rect x="15" y="118" width="265" height="24" fill="#f1f5f9" stroke="#cbd5e1" rx="4"/>
+                                <text x="25" y="134" font-family="sans-serif" font-size="10" font-weight="bold" fill="#1e293b">🔍 SearXNG (Free, open-source)</text>
+
+                                <text x="15" y="153" font-family="sans-serif" font-size="9" fill="#475569">SearXNG API Base URL</text>
+                                <rect x="15" y="158" width="265" height="20" fill="#eff6ff" stroke="#93c5fd" rx="3"/>
+                                <text x="22" y="172" font-family="monospace" font-size="9" fill="#1e40af">https://search.anoni.net/</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-list-check text-indigo-600"></i> 1. 挑選公共可用節點
+                            </div>
+                            <p class="text-slate-500 mb-2">瀏覽公開節點健康狀態清單：</p>
+                            <a href="https://searx.space/" target="_blank" class="text-blue-600 underline font-mono">https://searx.space/</a>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-sliders text-emerald-600"></i> 2. 填入 API Base URL
+                            </div>
+                            <p class="text-slate-500 mb-1">投影片實證可用範例節點：</p>
+                            <code class="text-slate-800 bg-white px-2 py-0.5 border rounded block truncate">https://search.anoni.net/</code>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                        <strong>注意事項：</strong> 公共 SearXNG 實例可能因流量過大或維護暫時離線，若 Agent 搜尋超時，可回到 <code>searx.space</code> 挑選回應時間小於 1 秒且綠燈運作中的節點替換。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模組 4: RAG 知識庫架構與切塊調校 (含投影片 P.17 上傳與 P.18 回答截圖 SVG) -->
+        <section id="rag-architecture" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="step-badge bg-emerald-100 text-emerald-700">4</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">建置 RAG 知識庫：向量引擎與切塊調校</h2>
+            </div>
+
+            <!-- 架構五大元件 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8">
+                <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-diagram-project text-emerald-600"></i> RAG 系統核心五大元件運作圖解
+                </h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-center">
+                    <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <div class="text-blue-600 font-bold text-sm mb-1">1. 文件上傳</div>
+                        <div class="text-xs font-semibold text-slate-800">PDF / TXT / DOCX</div>
+                        <div class="text-[11px] text-slate-500 mt-1">原始機電手冊、名單</div>
+                    </div>
+                    <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <div class="text-amber-600 font-bold text-sm mb-1">2. 文本切塊</div>
+                        <div class="text-xs font-semibold text-slate-800">Chunk & Overlap</div>
+                        <div class="text-[11px] text-slate-500 mt-1">字元大小與重疊切分</div>
+                    </div>
+                    <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <div class="text-emerald-600 font-bold text-sm mb-1">3. 向量嵌入</div>
+                        <div class="text-xs font-semibold text-slate-800">all-MiniLM-L6-v2</div>
+                        <div class="text-[11px] text-slate-500 mt-1">23MB 超輕量數學特徵轉換</div>
+                    </div>
+                    <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <div class="text-indigo-600 font-bold text-sm mb-1">4. 向量資料庫</div>
+                        <div class="text-xs font-semibold text-slate-800">LanceDB</div>
+                        <div class="text-[11px] text-slate-500 mt-1">100% 本地磁碟嵌入式儲存</div>
+                    </div>
+                    <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <div class="text-purple-600 font-bold text-sm mb-1">5. LLM 生成</div>
+                        <div class="text-xs font-semibold text-slate-800">回答與溯源</div>
+                        <div class="text-[11px] text-slate-500 mt-1">整合檢索段落生成解答</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG 截圖：投影片 P.17 文件管理器與 RAG 綁定 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8 space-y-4">
+                <div class="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <h4 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-folder-open text-blue-600"></i> 投影片截圖：RAG 知識庫文件上傳與綁定 (投影片 P.17)
+                    </h4>
+                    <span class="text-xs text-slate-500">雙欄式文件管理</span>
+                </div>
+
+                <div class="screenshot-frame p-2">
+                    <svg viewBox="0 0 650 200" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="650" height="200" fill="#f8fafc" rx="8"/>
+                        <!-- 左側：我的文件庫 (Storage) -->
+                        <g transform="translate(15, 15)">
+                            <text x="5" y="16" font-family="sans-serif" font-size="12" font-weight="bold" fill="#0f172a">我的文件</text>
+                            <rect x="5" y="28" width="280" height="100" fill="#ffffff" stroke="#cbd5e1" rx="6"/>
+                            <rect x="5" y="28" width="280" height="22" fill="#f1f5f9" rx="6 6 0 0"/>
+                            <text x="15" y="42" font-family="sans-serif" font-size="10" fill="#64748b">Name</text>
+                            <text x="240" y="42" font-family="sans-serif" font-size="10" fill="#64748b">4 文件</text>
+                            <text x="15" y="65" font-size="10">📁 custom-documents (4)</text>
+
+                            <!-- 上傳拖放區 -->
+                            <rect x="5" y="135" width="280" height="42" fill="#eff6ff" stroke="#93c5fd" stroke-dasharray="4 3" rx="6"/>
+                            <text x="100" y="153" font-size="12">☁️ 點選或拖放檔案</text>
+                            <text x="75" y="168" font-family="sans-serif" font-size="8" fill="#64748b">支援文字檔、CSV、試算表、音訊檔</text>
+                        </g>
+
+                        <!-- 中間箭頭 -->
+                        <text x="315" y="105" font-family="sans-serif" font-size="18" fill="#64748b">⇄</text>
+
+                        <!-- 右側：工作區關聯檔案 (Workspace Docs) -->
+                        <g transform="translate(345, 15)">
+                            <text x="5" y="16" font-family="sans-serif" font-size="12" font-weight="bold" fill="#0f172a">工作區：ai_test</text>
+                            <rect x="5" y="28" width="280" height="150" fill="#ffffff" stroke="#cbd5e1" rx="6"/>
+                            <rect x="5" y="28" width="280" height="22" fill="#f1f5f9" rx="6 6 0 0"/>
+                            <text x="15" y="42" font-family="sans-serif" font-size="10" fill="#64748b">Name</text>
+                            <text x="240" y="42" font-family="sans-serif" font-size="10" fill="#64748b">2 文件已綁定</text>
+
+                            <!-- 文件項目 1 -->
+                            <rect x="12" y="56" width="12" height="12" fill="#2563eb" rx="2"/>
+                            <text x="30" y="66" font-family="sans-serif" font-size="10" fill="#1e293b">114年_機電自控_01期_機電異常處理流程.txt</text>
+                            <text x="255" y="66" font-size="11">📌 ⟲</text>
+                            <line x1="10" y1="78" x2="275" y2="78" stroke="#f1f5f9"/>
+
+                            <!-- 文件項目 2 -->
+                            <rect x="12" y="86" width="12" height="12" fill="#2563eb" rx="2"/>
+                            <text x="30" y="96" font-family="sans-serif" font-size="10" fill="#1e293b">114年_機電自控_01期_學員名單.txt</text>
+                            <text x="255" y="96" font-size="11">📌 ⟲</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 切塊深度解析與互動模擬器 -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- 左側：原理與權衡 -->
+                <div class="lg:col-span-6 space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <h4 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-scissors text-amber-500"></i> 文字分割與切塊 (Chunking) 的權衡
+                        </h4>
+
+                        <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
+                            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                <strong class="text-slate-800">文字區塊大小 (Chunk Size，投影片預設: 1000 字元)</strong>
+                                <p class="mt-1">
+                                    • <strong>設太小 (200~300)</strong>：命中精確，但語意容易被腰斬，模型看不到上下文。<br>
+                                    • <strong>設太大 (2000~4000)</strong>：保留完整章節，但向量主題被稀釋，不易精準命中微小細節，並占用 LLM 窗口。
+                                </p>
+                            </div>
+
+                            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                <strong class="text-slate-800">文字切塊重疊 (Chunk Overlap，投影片預設: 20 字元)</strong>
+                                <p class="mt-1">
+                                    避免「邊界斷裂 (Boundary Issue)」。若一句關鍵停機 SOP 剛好橫跨第 1 塊末端與第 2 塊開頭，重疊能確保這句話完整出現在至少一個區塊中。
+                                </p>
+                            </div>
+
+                            <div class="p-3 bg-blue-50 text-blue-900 rounded-lg border border-blue-200">
+                                <strong>💡 實務工程優化建議：</strong>
+                                業界常見的最佳實務為 <strong>10% ~ 20% 重疊率</strong>。若 Chunk Size 設為 1000，建議將 Overlap 調整至 <strong>100 ~ 200</strong>，檢索召回穩定度大幅提升！
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 投影片機電異常範例實測結論 (含投影片 P.18 對話與來源截圖 SVG) -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h4 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-question text-emerald-600"></i> 投影片案例分析：PLC 異常找誰？ (投影片 P.18)
+                        </h4>
+
+                        <!-- SVG 截圖：投影片 P.18 RAG 實測回覆畫面 -->
+                        <div class="screenshot-frame p-2">
+                            <svg viewBox="0 0 450 170" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="450" height="170" fill="#ffffff" rx="6"/>
+                                <!-- 使用者發問氣泡 -->
+                                <rect x="290" y="10" width="145" height="28" fill="#eff6ff" rx="14"/>
+                                <text x="305" y="28" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1e40af">PLC異常 要聯絡誰</text>
+                                
+                                <!-- 模型回覆區 -->
+                                <text x="15" y="52" font-size="11">🧠 想法、思緒 ›</text>
+                                <text x="15" y="72" font-family="sans-serif" font-size="10" fill="#334155">根據提供的《機電異常處理流程》，PLC 屬於「控制」系統的範疇。</text>
+                                <text x="15" y="92" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold">01. 控制與感測異常：應聯絡 J老師。</text>
+                                <text x="15" y="110" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold">02. 設備自動停機或誤動作：應聯絡 K老師。</text>
+
+                                <!-- 來源標籤與模型資訊 -->
+                                <rect x="15" y="130" width="55" height="20" fill="#f1f5f9" stroke="#cbd5e1" rx="4"/>
+                                <text x="22" y="144" font-family="sans-serif" font-size="9" fill="#475569">來源 📄</text>
+                                <text x="210" y="144" font-family="monospace" font-size="9" fill="#94a3b8">gemma4:e4b · 8.3s (78.74 tok/s)</text>
+                            </svg>
+                        </div>
+
+                        <div class="p-2.5 bg-red-50 text-red-900 rounded-lg border border-red-200 text-xs">
+                            <strong>經驗法則：</strong> 較小參數語言模型（如超輕量小模型）理解力與長度有限，常無法順利從 RAG 檢索出正確邏輯；而適中或較大語言模型（如 4B / 8B 以上或雲端模型）則幾乎不會產生幻覺。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：互動切塊模擬器 -->
+                <div class="lg:col-span-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b pb-3 border-slate-100">
+                        <h4 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-blue-600"></i> 互動模擬器：文本切塊與重疊可視化
+                        </h4>
+                        <span class="text-[11px] bg-slate-100 px-2 py-0.5 rounded text-slate-600">即時計算</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                                <span>區塊大小 (Chunk Size): <span id="chunkSizeVal" class="text-blue-600 font-mono">30</span> 字元</span>
+                            </div>
+                            <input id="chunkSizeInput" type="range" min="15" max="60" value="30" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                                <span>重疊大小 (Chunk Overlap): <span id="overlapVal" class="text-amber-600 font-mono">8</span> 字元 (<span id="overlapRatioVal" class="text-slate-500 font-mono">26%</span>)</span>
+                            </div>
+                            <input id="overlapInput" type="range" min="0" max="14" value="8" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600">
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-semibold text-slate-600">模擬示範文本：</label>
+                            <textarea id="sampleTextInput" rows="2" class="w-full text-xs font-mono p-2 mt-1 border rounded-lg bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">【機電異常處理規範】當PLC控制發生信號中斷時請立即聯繫J老師排查，若設備因誤動作自動停機則由K老師接手處理。</textarea>
+                        </div>
+
+                        <div class="border-t border-slate-100 pt-3">
+                            <div class="text-xs font-bold text-slate-700 mb-2">切塊結果預覽 (Chunks)：</div>
+                            <div id="chunksOutput" class="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs">
+                                <!-- JS 動態產生 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模組 5: REST API 開發者介面與 Node-RED 串接 (含投影片 P.21 Swagger 與 P.23 認證截圖 SVG) -->
+        <section id="rest-api" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="step-badge bg-amber-100 text-amber-700">5</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">REST API 整合與 Node-RED 自動化串接</h2>
+            </div>
+
+            <!-- API 文件與認證 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-code text-blue-600"></i> AnythingLLM Swagger API 文檔與金鑰授權
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">內建完整 OpenAPI 規範介面，本地預設監聽在 3001 連接埠。</p>
+                    </div>
+                    <a href="http://localhost:3001/api/docs/#/" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-mono transition-all">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> http://localhost:3001/api/docs/#/
+                    </a>
+                </div>
+
+                <!-- SVG 模擬截圖：投影片 P.21 Swagger 與 P.23 Bearer 認證 -->
+                <div class="screenshot-frame p-2">
+                    <div class="text-[10px] font-bold text-slate-400 mb-1 px-1">UI 截圖參考：投影片 P.21 Swagger 首頁與 P.23 BearerAuth 授權窗</div>
+                    <svg viewBox="0 0 600 170" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="600" height="170" fill="#f8fafc" rx="6"/>
+                        <!-- Swagger 頂端 -->
+                        <text x="20" y="28" font-family="sans-serif" font-size="14" font-weight="900" fill="#1e293b">AnythingLLM Developer API</text>
+                        <rect x="220" y="16" width="35" height="15" fill="#64748b" rx="4"/>
+                        <text x="225" y="27" font-family="sans-serif" font-size="9" fill="#ffffff" font-weight="bold">1.0.0</text>
+                        <rect x="260" y="16" width="45" height="15" fill="#84cc16" rx="4"/>
+                        <text x="266" y="27" font-family="sans-serif" font-size="9" fill="#ffffff" font-weight="bold">OAS 3.0</text>
+
+                        <!-- Authorize 按鈕 -->
+                        <rect x="500" y="16" width="80" height="24" fill="#ffffff" stroke="#10b981" rx="4"/>
+                        <text x="510" y="32" font-family="sans-serif" font-size="10" font-weight="bold" fill="#10b981">Authorize 🔓</text>
+
+                        <!-- 左側：端點列表 P.21 -->
+                        <g transform="translate(20, 50)">
+                            <rect width="320" height="30" fill="#eff6ff" stroke="#bfdbfe" rx="4"/>
+                            <rect x="5" y="5" width="45" height="20" fill="#3b82f6" rx="3"/>
+                            <text x="14" y="19" font-family="sans-serif" font-size="10" font-weight="bold" fill="#ffffff">GET</text>
+                            <text x="60" y="20" font-family="monospace" font-size="10" fill="#1e293b">/v1/auth</text>
+
+                            <rect y="38" width="320" height="30" fill="#eff6ff" stroke="#bfdbfe" rx="4"/>
+                            <rect x="5" y="43" width="45" height="20" fill="#3b82f6" rx="3"/>
+                            <text x="14" y="57" font-family="sans-serif" font-size="10" font-weight="bold" fill="#ffffff">GET</text>
+                            <text x="60" y="58" font-family="monospace" font-size="10" fill="#1e293b">/v1/workspaces</text>
+
+                            <rect y="76" width="320" height="30" fill="#f0fdf4" stroke="#bbf7d0" rx="4"/>
+                            <rect x="5" y="81" width="45" height="20" fill="#22c55e" rx="3"/>
+                            <text x="11" y="95" font-family="sans-serif" font-size="10" font-weight="bold" fill="#ffffff">POST</text>
+                            <text x="60" y="96" font-family="monospace" font-size="10" fill="#1e293b">/v1/workspace/{slug}/chat</text>
+                        </g>
+
+                        <!-- 右側：BearerAuth 彈跳對話框 P.23 -->
+                        <g transform="translate(365, 45)">
+                            <rect width="215" height="110" fill="#ffffff" stroke="#cbd5e1" rx="6" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))"/>
+                            <text x="15" y="22" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1e293b">BearerAuth (http, Bearer)</text>
+                            <text x="15" y="40" font-family="sans-serif" font-size="9" fill="#64748b">Value:</text>
+                            <rect x="15" y="46" width="185" height="24" fill="#ffffff" stroke="#0f172a" stroke-width="1.5" rx="4"/>
+                            <text x="20" y="62" font-family="monospace" font-size="9" fill="#0f172a">A4S6V-K3GQCM3-2DSFN7D</text>
+                            
+                            <rect x="80" y="78" width="60" height="22" fill="#ffffff" stroke="#10b981" rx="4"/>
+                            <text x="90" y="93" font-family="sans-serif" font-size="9" font-weight="bold" fill="#10b981">Authorize</text>
+                            <rect x="148" y="78" width="50" height="22" fill="#ffffff" stroke="#64748b" rx="4"/>
+                            <text x="160" y="93" font-family="sans-serif" font-size="9" font-weight="bold" fill="#64748b">Close</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- 認證步驟指引 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                        <span class="font-bold text-slate-700">步驟 1. 生成 API Key (投影片 P.24)</span>
+                        <p class="text-slate-500">前往 <strong>工具 &gt; 開發者 API</strong>，點擊右上角「產生新的 API 金鑰」並複製。</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                        <span class="font-bold text-slate-700">步驟 2. Swagger 授權 (投影片 P.23)</span>
+                        <p class="text-slate-500">在 Swagger 頁面右上角點擊 <strong>Authorize 🔒</strong>，輸入 Bearer Token 驗證。</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                        <span class="font-bold text-slate-700">步驟 3. 取得 Workspace Slug (投影片 P.25)</span>
+                        <p class="text-slate-500">呼叫 <code>GET /v1/workspaces</code> 找到對應工作區的專屬 <code>slug</code>（如 <code>ai_test</code>）。</p>
+                    </div>
+                </div>
+
+                <!-- 核心端點表格對照 -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-y border-slate-200 text-slate-600 font-semibold">
+                                <th class="py-2.5 px-3">Method</th>
+                                <th class="py-2.5 px-3">Endpoint (端點)</th>
+                                <th class="py-2.5 px-3">功能說明</th>
+                                <th class="py-2.5 px-3">重要參數 (Body / Path)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700 font-mono">
+                            <tr>
+                                <td class="py-2.5 px-3"><span class="px-2 py-0.5 bg-blue-100 text-blue-700 font-bold rounded">GET</span></td>
+                                <td class="py-2.5 px-3">/v1/workspaces</td>
+                                <td class="py-2.5 px-3 font-sans">取得當前所有工作區清單與設定</td>
+                                <td class="py-2.5 px-3 text-slate-400">無</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 px-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 font-bold rounded">POST</span></td>
+                                <td class="py-2.5 px-3">/v1/workspace/{slug}/chat</td>
+                                <td class="py-2.5 px-3 font-sans">向指定工作區傳送提示並執行推理對話</td>
+                                <td class="py-2.5 px-3">
+                                    <code>{ "message": "...", "mode": "chat" }</code>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 模式說明 (Query vs Chat) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl">
+                        <div class="font-bold text-blue-900 mb-1">模式：<code>"mode": "chat"</code> (推薦)</div>
+                        <p class="text-blue-800 leading-relaxed">
+                            結合大語言模型的通用常識與知識庫向量切塊，支援<strong>滾動式歷史對話紀錄 (Rolling Chat History)</strong>，具備上下文連續問答能力。
+                        </p>
+                    </div>
+                    <div class="p-3.5 bg-amber-50/60 border border-amber-200 rounded-xl">
+                        <div class="font-bold text-amber-900 mb-1">模式：<code>"mode": "query"</code> (純檢索)</div>
+                        <p class="text-amber-800 leading-relaxed">
+                            純檢索模式：僅當向量資料庫中搜尋到高度相符的段落時才會調用模型，且<strong>不記錄任何對話歷史</strong>。適合單次精準問答或嚴格查表。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- cURL 與 Node-RED 對應表與程式碼產生器 -->
+            <div class="mt-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-split-up-and-left text-indigo-600"></i> cURL 指令與 Node-RED 核心對應表 (投影片 P.28)
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">
+                        在 IoT、PLC 與工業機電整合中，常使用 Node-RED 透過 HTTP Request 節點調用 AnythingLLM。對話與推理紀錄也會同步反映在 AnythingLLM 介面中！
+                    </p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border border-slate-200 rounded-lg">
+                        <thead class="bg-slate-50 text-slate-700 border-b border-slate-200 font-semibold">
+                            <tr>
+                                <th class="p-3">cURL 參數 / 選項</th>
+                                <th class="p-3">代表作用</th>
+                                <th class="p-3">Node-RED 對應設定方式</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            <tr>
+                                <td class="p-3 font-mono font-bold text-blue-600">URL (位置參數)</td>
+                                <td class="p-3">請求伺服器位址</td>
+                                <td class="p-3">在 <code>http request</code> 節點配置中的 URL 欄位，或在 upstream 節點設定 <code>msg.url</code></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono font-bold text-emerald-600">-X &lt;METHOD&gt;</td>
+                                <td class="p-3">指定 HTTP 方法 (GET/POST)</td>
+                                <td class="p-3">節點配置中的 Method 下拉選單，或設定 <code>msg.method</code></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono font-bold text-purple-600">-H &lt;Header&gt;</td>
+                                <td class="p-3">設定請求標頭 (認證/格式)</td>
+                                <td class="p-3">節點內 Headers 欄位，或由 Function 節點輸出 <code>msg.headers</code></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono font-bold text-amber-600">-d &lt;Data&gt; / --data</td>
+                                <td class="p-3">傳送請求內容 (JSON Body)</td>
+                                <td class="p-3">上游節點（如 Inject / Function）中包裝為物件傳入 <code>msg.payload</code></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono font-bold text-slate-600">輸出結果</td>
+                                <td class="p-3">伺服器回應與解答 JSON</td>
+                                <td class="p-3">由 <code>http request</code> 節點直接輸出於 <code>msg.payload</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 互動式 cURL / Node-RED 代碼產生器 -->
+                <div class="bg-slate-900 rounded-xl p-5 text-slate-200 space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                            <span class="text-xs font-mono text-slate-400 ml-2">api-call-generator.sh</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="tabCurl" class="px-2.5 py-1 bg-blue-600 text-white rounded text-xs font-medium transition-all">cURL</button>
+                            <button id="tabNodeRed" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs font-medium transition-all">Node-RED Function</button>
+                            <button id="copyCodeBtn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs flex items-center gap-1">
+                                <i class="fa-regular fa-copy"></i> 複製
+                            </button>
+                        </div>
+                    </div>
+
+                    <pre id="codeDisplay" class="overflow-x-auto text-xs font-mono text-emerald-400 leading-relaxed"></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模組 6: 常見故障排除與實務最佳化 FAQ -->
+        <section class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-3xl p-8 shadow-xl">
+            <h3 class="text-2xl font-bold mb-4 flex items-center gap-3">
+                <i class="fa-solid fa-lightbulb text-yellow-400"></i> 地端 RAG 實戰排坑指南 (Best Practices)
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-blue-100">
+                <div class="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 space-y-2">
+                    <div class="font-bold text-white text-sm">Q: 為什麼改了切塊設定沒反應？</div>
+                    <p class="leading-relaxed">
+                        「文字分割與切塊」只會對<strong>後續新上傳的文件</strong>生效。已經解析並存入 LanceDB 向量庫的舊文件，必須點擊重新嵌入（Re-embed）或重新上傳檔案。
+                    </p>
+                </div>
+                <div class="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 space-y-2">
+                    <div class="font-bold text-white text-sm">Q: 中文知識庫找不到資料？</div>
+                    <p class="leading-relaxed">
+                        預設嵌入模型 <code>all-MiniLM-L6-v2</code> 專注於英文（僅23MB）。若文件為繁體中文，建議切換向量嵌入器為多語言支援模型（如 Ollama 中的 <code>bge-m3</code> 或 <code>nomic-embed-text</code>）。
+                    </p>
+                </div>
+                <div class="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 space-y-2">
+                    <div class="font-bold text-white text-sm">Q: Node-RED 收到 403 錯誤？</div>
+                    <p class="leading-relaxed">
+                        請檢查 Headers 中的 <code>Authorization: Bearer &lt;TOKEN&gt;</code> 是否完整填寫，且金鑰是否於 AnythingLLM 的「開發者 API」介面中處於啟用狀態。
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500">
+        <p>基於投影片內容整理製作 · AnythingLLM 快速上手與地端部署指南</p>
+        <p class="mt-1">支援本地 Ollama、LanceDB 向量資料庫、SearXNG 免費搜尋引擎與 REST API 整合</p>
+    </footer>
+
+    <!-- 邏輯腳本：互動模擬器與代碼切換 -->
+    <script>
+        // 切塊模擬器邏輯
+        const chunkSizeInput = document.getElementById('chunkSizeInput');
+        const overlapInput = document.getElementById('overlapInput');
+        const chunkSizeVal = document.getElementById('chunkSizeVal');
+        const overlapVal = document.getElementById('overlapVal');
+        const overlapRatioVal = document.getElementById('overlapRatioVal');
+        const sampleTextInput = document.getElementById('sampleTextInput');
+        const chunksOutput = document.getElementById('chunksOutput');
+
+        function updateChunks() {
+            const chunkSize = parseInt(chunkSizeInput.value);
+            let overlap = parseInt(overlapInput.value);
+
+            // 確保重疊小於 chunk 大小
+            if (overlap >= chunkSize) {
+                overlap = chunkSize - 1;
+                overlapInput.value = overlap;
+            }
+
+            chunkSizeVal.innerText = chunkSize;
+            overlapVal.innerText = overlap;
+            const ratio = Math.round((overlap / chunkSize) * 100);
+            overlapRatioVal.innerText = `${ratio}%`;
+
+            const text = sampleTextInput.value;
+            chunksOutput.innerHTML = '';
+
+            if (!text) {
+                chunksOutput.innerHTML = '<span class="text-slate-400">請輸入測試文字</span>';
+                return;
+            }
+
+            let start = 0;
+            let index = 1;
+            const step = Math.max(1, chunkSize - overlap);
+
+            while (start < text.length) {
+                const chunkStr = text.slice(start, start + chunkSize);
+                const chunkEl = document.createElement('div');
+                chunkEl.className = 'p-2 rounded border bg-slate-50 border-slate-200 font-mono';
+                
+                chunkEl.innerHTML = `
+                    <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
+                        <span class="font-bold text-blue-600">區塊 Chunk #${index}</span>
+                        <span>範圍 [${start} ~ ${start + chunkStr.length}] (${chunkStr.length} 字)</span>
+                    </div>
+                    <div class="text-slate-800 text-xs">${escapeHtml(chunkStr)}</div>
+                `;
+                chunksOutput.appendChild(chunkEl);
+
+                index++;
+                start += step;
+                if (chunkStr.length < chunkSize) break;
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        chunkSizeInput.addEventListener('input', updateChunks);
+        overlapInput.addEventListener('input', updateChunks);
+        sampleTextInput.addEventListener('input', updateChunks);
+        updateChunks();
+
+        // 代碼切換邏輯
+        const tabCurl = document.getElementById('tabCurl');
+        const tabNodeRed = document.getElementById('tabNodeRed');
+        const codeDisplay = document.getElementById('codeDisplay');
+        const copyCodeBtn = document.getElementById('copyCodeBtn');
+
+        const curlCode = `curl -X 'POST' \\
+  'http://localhost:3001/api/v1/workspace/ai_test/chat' \\
+  -H 'accept: application/json' \\
+  -H 'Authorization: Bearer G6HTMA3-D8A4S6V-K3GQCM3-2DSFN7D' \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "message": "PLC異常 要聯絡誰？",
+    "mode": "chat"
+  }'`;
+
+        const nodeRedCode = `// 在 Node-RED 的 Function 節點內設定
+msg.headers = {
+    "accept": "application/json",
+    "Content-Type": "application/json",
+    "Authorization": "Bearer G6HTMA3-D8A4S6V-K3GQCM3-2DSFN7D"
+};
+
+msg.url = "http://localhost:3001/api/v1/workspace/ai_test/chat";
+msg.method = "POST";
+
+// 傳遞給 AnythingLLM 的問題與模式
+msg.payload = {
+    "message": msg.payload.problem || "PLC異常 要聯絡誰？",
+    "mode": "chat"
+};
+
+return msg;`;
+
+        let currentCode = curlCode;
+        codeDisplay.textContent = currentCode;
+
+        tabCurl.addEventListener('click', () => {
+            currentCode = curlCode;
+            codeDisplay.textContent = currentCode;
+            tabCurl.className = 'px-2.5 py-1 bg-blue-600 text-white rounded text-xs font-medium transition-all';
+            tabNodeRed.className = 'px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs font-medium transition-all';
+        });
+
+        tabNodeRed.addEventListener('click', () => {
+            currentCode = nodeRedCode;
+            codeDisplay.textContent = currentCode;
+            tabNodeRed.className = 'px-2.5 py-1 bg-blue-600 text-white rounded text-xs font-medium transition-all';
+            tabCurl.className = 'px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs font-medium transition-all';
+        });
+
+        copyCodeBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(currentCode).then(() => {
+                copyCodeBtn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> 已複製';
+                setTimeout(() => {
+                    copyCodeBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 複製';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
