@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Teachable Machine AI 影像辨識與跨平台整合全攻略</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            googleBlue: '#1a73e8',
+            googleRed: '#ea4335',
+            googleYellow: '#fbbc04',
+            googleGreen: '#34a853',
+            brandDark: '#1e293b',
+            brandLight: '#f8fafc'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      scroll-behavior: smooth;
+    }
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* 仿系統截圖視窗陰影與風格 */
+    .mockup-window {
+      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.15), 0 0 1px 1px rgba(0, 0, 0, 0.05);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      background: white;
+    }
+    .mockup-header {
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .dot-red { background-color: #ff5f56; }
+    .dot-yellow { background-color: #ffbd2e; }
+    .dot-green { background-color: #27c93f; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-100 selection:text-blue-700">
+
+  <!-- 頂部導航列 -->
+  <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+          <i class="fa-solid fa-brain text-xl"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-lg tracking-tight text-slate-900">Teachable Machine</span>
+          <span class="text-xs ml-1.5 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-semibold">完整教學手冊</span>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center space-x-1 text-sm font-medium text-slate-600">
+        <a href="../index.html" class="px-3 py-2 rounded-lg text-slate-700 hover:text-blue-600 hover:bg-slate-100 transition font-bold flex items-center gap-1.5"><i class="fa-solid fa-house"></i> 回課程首頁</a>
+        <a href="#intro" class="px-3 py-2 rounded-lg hover:text-blue-600 hover:bg-slate-50 transition">概覽與擬合理論</a>
+        <a href="#quickstart" class="px-3 py-2 rounded-lg hover:text-blue-600 hover:bg-slate-50 transition">基礎操作</a>
+        <a href="#webcam" class="px-3 py-2 rounded-lg hover:text-blue-600 hover:bg-slate-50 transition">手機視訊整合</a>
+        <a href="#tuning" class="px-3 py-2 rounded-lg hover:text-blue-600 hover:bg-slate-50 transition">參數與混淆矩陣</a>
+        <a href="#deployment" class="px-3 py-2 rounded-lg hover:text-blue-600 hover:bg-slate-50 transition">跨平台落地應用</a>
+        <a href="#screenshots-gallery" class="px-3 py-2 rounded-lg hover:text-blue-600 hover:bg-slate-50 transition text-indigo-600 font-bold"><i class="fa-solid fa-images mr-1"></i>實戰截圖全集</a>
+      </div>
+      <a href="https://teachablemachine.withgoogle.com/" target="_blank" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow shadow-blue-600/30 transition">
+        <span>開啟官方平台</span>
+        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Header -->
+  <header class="relative overflow-hidden bg-gradient-to-b from-white via-blue-50/30 to-slate-50 py-16 lg:py-24 border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-semibold uppercase tracking-wider mb-6">
+        <i class="fa-solid fa-graduation-cap"></i> 授課講師：張世學
+      </div>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-tight">
+        Google Teachable Machine<br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500">模型訓練、評估與跨平台工程實戰</span>
+      </h1>
+      <p class="mt-6 text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+        從免寫程式快速訓練 AI 辨識模型，到混淆矩陣/損失曲線深度解讀，再到 C# (WinForms/WPF) 攝影機整合與 Python Colab Keras 3 相容修復，一站式掌握 AI 邊緣落地技術。
+      </p>
+
+      <!-- 快速統計卡片 -->
+      <div class="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200 text-left">
+          <div class="text-blue-600 font-bold text-2xl flex items-center gap-2">
+            <i class="fa-solid fa-camera-retro text-lg"></i> 12+ 截圖
+          </div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">全向量還原軟體與除錯視窗</div>
+        </div>
+        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200 text-left">
+          <div class="text-indigo-600 font-bold text-2xl flex items-center gap-2">
+            <i class="fa-solid fa-mobile-screen-button text-lg"></i> 手機轉視訊
+          </div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">iVCam / DroidCam 介面還原</div>
+        </div>
+        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200 text-left">
+          <div class="text-amber-600 font-bold text-2xl flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-lg"></i> 參數調校面板
+          </div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">完整 Advanced / Under the hood</div>
+        </div>
+        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200 text-left">
+          <div class="text-emerald-600 font-bold text-2xl flex items-center gap-2">
+            <i class="fa-solid fa-terminal text-lg"></i> VS & Colab
+          </div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">CMD / 檔案樹 / 報錯 Traceback</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主內容區 -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-12 space-y-20">
+
+    <!-- 單元一：核心概念與模型擬合理論 -->
+    <section id="intro" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600 text-white font-bold text-sm">1</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">機器學習核心：模型複雜度與預測誤差曲線</h2>
+      </div>
+      <p class="text-slate-600 mb-8 leading-relaxed">
+        在進入 Teachable Machine 實作之前，必須先理解「訓練集 (Training Set)」與「測試集/驗證集 (Test Set)」在不同模型複雜度下的行為差異，這是後續分析訓練成敗的理論核心。
+      </p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <!-- SVG 模型複雜度曲線截圖圖解 -->
+        <div class="lg:col-span-7">
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="text-xs font-semibold text-slate-500 mb-2 flex items-center justify-between">
+              <span><i class="fa-solid fa-chart-area mr-1"></i> 模型複雜度與誤差變化圖 (參考馬維銘教授講義模型)</span>
+              <span class="text-emerald-600 font-bold">最佳平衡點：乙區</span>
+            </div>
+            <!-- 精緻向量圖表 -->
+            <svg viewBox="0 0 540 320" class="w-full h-auto drop-shadow-sm select-none" xmlns="http://www.w3.org/2000/svg">
+              <!-- 背景網格 -->
+              <line x1="50" y1="20" x2="50" y2="270" stroke="#cbd5e1" stroke-width="2"/>
+              <line x1="50" y1="270" x2="520" y2="270" stroke="#cbd5e1" stroke-width="2"/>
+              <line x1="50" y1="200" x2="520" y2="200" stroke="#e2e8f0" stroke-dasharray="4"/>
+              <line x1="50" y1="120" x2="520" y2="120" stroke="#e2e8f0" stroke-dasharray="4"/>
+
+              <!-- 坐標軸標籤 -->
+              <text x="35" y="30" font-size="12" fill="#64748b" text-anchor="end" font-weight="bold">High</text>
+              <text x="35" y="270" font-size="12" fill="#64748b" text-anchor="end" font-weight="bold">Low</text>
+              <text x="25" y="150" font-size="13" fill="#334155" font-weight="bold" transform="rotate(-90 25,150)">預測誤差 (Error)</text>
+              
+              <text x="60" y="295" font-size="12" fill="#64748b" font-weight="bold">Low (線性)</text>
+              <text x="490" y="295" font-size="12" fill="#64748b" text-anchor="end" font-weight="bold">High (非線性/衍生變數)</text>
+              <text x="280" y="310" font-size="13" fill="#334155" text-anchor="middle" font-weight="bold">模型複雜度 (Model Complexity) →</text>
+
+              <!-- 區域標註底色 -->
+              <rect x="50" y="30" width="130" height="240" fill="#fee2e2" fill-opacity="0.35"/>
+              <rect x="180" y="30" width="140" height="240" fill="#dcfce7" fill-opacity="0.45"/>
+              <rect x="320" y="30" width="195" height="240" fill="#fef3c7" fill-opacity="0.35"/>
+
+              <!-- 分區文字 -->
+              <text x="115" y="55" font-size="14" fill="#dc2626" font-weight="bold" text-anchor="middle">甲: 配適不足</text>
+              <text x="115" y="73" font-size="11" fill="#b91c1c" text-anchor="middle">(Underfitting 丙)</text>
+
+              <text x="250" y="55" font-size="14" fill="#15803d" font-weight="bold" text-anchor="middle">乙: 較佳複雜度</text>
+              <text x="250" y="73" font-size="11" fill="#166534" text-anchor="middle">(最佳泛化能力 丁)</text>
+
+              <text x="415" y="55" font-size="14" fill="#d97706" font-weight="bold" text-anchor="middle">戊: 過度配適</text>
+              <text x="415" y="73" font-size="11" fill="#b45309" text-anchor="middle">(Overfitting)</text>
+
+              <!-- 訓練集曲線 (紅色) 隨複雜度持續下降 -->
+              <path d="M 60 230 C 130 180, 240 100, 500 50" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round"/>
+              <text x="460" y="40" font-size="12" fill="#ef4444" font-weight="bold">訓練集誤差</text>
+
+              <!-- 測試集曲線 (藍色 U 型曲線) -->
+              <path d="M 60 240 C 140 170, 220 95, 250 95 C 290 95, 370 170, 500 235" fill="none" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round"/>
+              <text x="470" y="225" font-size="12" fill="#2563eb" font-weight="bold">測試集誤差</text>
+
+              <!-- 最佳甜蜜點虛線 -->
+              <line x1="250" y1="95" x2="250" y2="270" stroke="#16a34a" stroke-width="2" stroke-dasharray="3,3"/>
+              <circle cx="250" cy="95" r="5" fill="#16a34a"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 說明文字卡片 -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="p-4 rounded-xl border border-red-200 bg-red-50/70">
+            <h4 class="font-bold text-red-900 flex items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation text-red-600"></i> 甲區：配適不足 (Underfitting)
+            </h4>
+            <p class="text-sm text-red-800 mt-1">模型過於單純，特徵提取能力太差。特徵是<strong>訓練集與測試集誤差皆偏高</strong>，無論丟什麼圖片都無法有效區分。</p>
+          </div>
+
+          <div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/70">
+            <h4 class="font-bold text-emerald-900 flex items-center gap-2">
+              <i class="fa-solid fa-circle-check text-emerald-600"></i> 乙區：理想平衡 (Best Generalization)
+            </h4>
+            <p class="text-sm text-emerald-800 mt-1">測試集誤差降至最低谷，模型學會了真實世界的共用規律（泛化能力強），而非單純死記硬背。</p>
+          </div>
+
+          <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/70">
+            <h4 class="font-bold text-amber-900 flex items-center gap-2">
+              <i class="fa-solid fa-bomb text-amber-600"></i> 戊區：過度配適 (Overfitting)
+            </h4>
+            <p class="text-sm text-amber-800 mt-1">模型死記訓練集背景雜訊，訓練集誤差趨近 0，但遇到未見過的<strong>測試集誤差大幅回升</strong>，無法於實務上使用。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 單元二：Teachable Machine 介面與基本操作流程 -->
+    <section id="quickstart" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600 text-white font-bold text-sm">2</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Teachable Machine 完整實作流程</h2>
+      </div>
+      <p class="text-slate-600 mb-8 leading-relaxed">
+        Google Teachable Machine 是一套能在瀏覽器端利用 WebGL 加速的遷移學習 (Transfer Learning) 工具。我們以「剪刀、石頭、布」手勢與幾何圖形辨識為例。
+      </p>
+
+      <!-- 操作四步流程圖卡 -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative">
+          <div class="text-xs font-bold text-blue-600 uppercase mb-2">Step 1</div>
+          <h3 class="font-bold text-slate-900 text-lg mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-folder-plus text-blue-500"></i> 建立專案
+          </h3>
+          <p class="text-xs text-slate-500 leading-normal">選擇 Standard (224x224 彩色) 或 Embedded (96x96 微控制器) 專案類型。</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative">
+          <div class="text-xs font-bold text-blue-600 uppercase mb-2">Step 2</div>
+          <h3 class="font-bold text-slate-900 text-lg mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-images text-blue-500"></i> 收集樣本
+          </h3>
+          <p class="text-xs text-slate-500 leading-normal">透過 Webcam 連拍、雲端硬碟匯入或本機上傳各分類影像（如布/石頭/剪刀）。</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative">
+          <div class="text-xs font-bold text-blue-600 uppercase mb-2">Step 3</div>
+          <h3 class="font-bold text-slate-900 text-lg mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-gears text-blue-500"></i> 模型訓練
+          </h3>
+          <p class="text-xs text-slate-500 leading-normal">點擊 Train Model，瀏覽器本地透過 MobileNet 權重特徵提取進行訓練。</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative">
+          <div class="text-xs font-bold text-blue-600 uppercase mb-2">Step 4</div>
+          <h3 class="font-bold text-slate-900 text-lg mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up text-blue-500"></i> 預覽與匯出
+          </h3>
+          <p class="text-xs text-slate-500 leading-normal">即時測試信心分數，上傳雲端取得公開模型連結或下載 Keras / TF.js 檔。</p>
+        </div>
+      </div>
+
+      <!-- 介面高擬真 SVG 截圖：Teachable Machine Workspace -->
+      <div class="mockup-window mb-8">
+        <div class="mockup-header">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span class="text-xs text-slate-500 font-mono ml-2">https://teachablemachine.withgoogle.com/train/image</span>
+        </div>
+        <div class="p-6 bg-slate-100/80">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            
+            <!-- 類別樣本區 (7 columns) -->
+            <div class="lg:col-span-6 space-y-4">
+              <!-- 剪刀類別卡片 -->
+              <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <span class="font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-pen text-xs text-slate-400"></i> 剪刀 (Scissors)
+                  </span>
+                  <span class="text-xs font-mono text-slate-400">12 Samples</span>
+                </div>
+                <div class="mt-3 flex gap-2">
+                  <div class="w-16 h-16 rounded-lg bg-blue-50 border border-blue-200 flex flex-col items-center justify-center text-blue-600 hover:bg-blue-100 cursor-pointer text-xs">
+                    <i class="fa-solid fa-video mb-1 text-sm"></i> 視訊
+                  </div>
+                  <div class="w-16 h-16 rounded-lg bg-slate-50 border border-slate-200 flex flex-col items-center justify-center text-slate-600 hover:bg-slate-100 cursor-pointer text-xs">
+                    <i class="fa-solid fa-upload mb-1 text-sm"></i> 上傳
+                  </div>
+                  <!-- 樣本預覽方塊 -->
+                  <div class="w-16 h-16 rounded-lg bg-slate-200 flex items-center justify-center text-2xl border border-slate-300">✌️</div>
+                  <div class="w-16 h-16 rounded-lg bg-slate-200 flex items-center justify-center text-2xl border border-slate-300">✌🏻</div>
+                </div>
+              </div>
+
+              <!-- 石頭類別卡片 -->
+              <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <span class="font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-pen text-xs text-slate-400"></i> 石頭 (Rock)
+                  </span>
+                  <span class="text-xs font-mono text-slate-400">15 Samples</span>
+                </div>
+                <div class="mt-3 flex gap-2">
+                  <div class="w-16 h-16 rounded-lg bg-blue-50 border border-blue-200 flex flex-col items-center justify-center text-blue-600 text-xs">
+                    <i class="fa-solid fa-video mb-1 text-sm"></i> 視訊
+                  </div>
+                  <div class="w-16 h-16 rounded-lg bg-slate-50 border border-slate-200 flex flex-col items-center justify-center text-slate-600 text-xs">
+                    <i class="fa-solid fa-upload mb-1 text-sm"></i> 上傳
+                  </div>
+                  <div class="w-16 h-16 rounded-lg bg-slate-200 flex items-center justify-center text-2xl border border-slate-300">✊</div>
+                  <div class="w-16 h-16 rounded-lg bg-slate-200 flex items-center justify-center text-2xl border border-slate-300">✊🏽</div>
+                </div>
+              </div>
+
+              <!-- 布類別卡片 -->
+              <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <span class="font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-pen text-xs text-slate-400"></i> 布 (Paper)
+                  </span>
+                  <span class="text-xs font-mono text-slate-400">14 Samples</span>
+                </div>
+                <div class="mt-3 flex gap-2">
+                  <div class="w-16 h-16 rounded-lg bg-blue-50 border border-blue-200 flex flex-col items-center justify-center text-blue-600 text-xs">
+                    <i class="fa-solid fa-video mb-1 text-sm"></i> 視訊
+                  </div>
+                  <div class="w-16 h-16 rounded-lg bg-slate-50 border border-slate-200 flex flex-col items-center justify-center text-slate-600 text-xs">
+                    <i class="fa-solid fa-upload mb-1 text-sm"></i> 上傳
+                  </div>
+                  <div class="w-16 h-16 rounded-lg bg-slate-200 flex items-center justify-center text-2xl border border-slate-300">✋</div>
+                  <div class="w-16 h-16 rounded-lg bg-slate-200 flex items-center justify-center text-2xl border border-slate-300">🖐️</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 訓練按鍵與連接線 (2 columns) -->
+            <div class="lg:col-span-2 flex flex-col items-center justify-center self-center py-6">
+              <div class="w-full bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                <div class="text-xs font-semibold text-slate-500 mb-2">Training</div>
+                <button class="w-full py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow-md shadow-blue-500/20 transition flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-rotate text-xs animate-spin"></i>
+                  <span>Model Trained</span>
+                </button>
+                <div class="mt-3 text-[11px] text-slate-400 font-mono">
+                  Advanced ▾
+                </div>
+              </div>
+            </div>
+
+            <!-- Preview 預覽與輸出 (4 columns) -->
+            <div class="lg:col-span-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <span class="font-bold text-slate-900 text-sm">Preview (即時預測)</span>
+                <button class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold flex items-center gap-1">
+                  <i class="fa-solid fa-arrow-up-from-bracket"></i> Export Model
+                </button>
+              </div>
+
+              <!-- 預覽畫面 -->
+              <div class="mt-3 aspect-square bg-slate-900 rounded-lg overflow-hidden relative flex items-center justify-center text-white">
+                <div class="text-6xl select-none">✊</div>
+                <div class="absolute bottom-2 left-2 bg-black/60 px-2 py-0.5 rounded text-[11px] font-mono text-emerald-400">
+                  ● LIVE 30 FPS
+                </div>
+              </div>
+
+              <!-- 信心長條圖 Output -->
+              <div class="mt-4 space-y-2.5">
+                <div>
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-slate-600">剪刀</span>
+                    <span class="text-slate-500">2%</span>
+                  </div>
+                  <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-amber-500 rounded-full" style="width: 2%"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs font-bold mb-1">
+                    <span class="text-slate-900">石頭</span>
+                    <span class="text-emerald-600 font-bold">96%</span>
+                  </div>
+                  <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500 rounded-full" style="width: 96%"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-slate-600">布</span>
+                    <span class="text-slate-500">2%</span>
+                  </div>
+                  <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-500 rounded-full" style="width: 2%"></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 模型規格對比表 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-blue-50/50 p-5 rounded-xl border border-blue-200">
+          <div class="flex items-center gap-2 text-blue-800 font-bold mb-2">
+            <i class="fa-solid fa-desktop"></i> Standard Image Model (標準影像模型)
+          </div>
+          <ul class="text-xs text-blue-950 space-y-1.5 leading-relaxed">
+            <li>• 輸入解析度：<strong>224 × 224 px 彩色 RGB</strong></li>
+            <li>• 支援匯出格式：TensorFlow.js (網頁), TF Keras (.h5), TFLite</li>
+            <li>• 模型體積大小：約 <strong>5 MB</strong></li>
+            <li>• 適用情境：電腦端 Web 應用、伺服器端推論、高辨識精確度需求</li>
+          </ul>
+        </div>
+        <div class="bg-slate-100 p-5 rounded-xl border border-slate-300">
+          <div class="flex items-center gap-2 text-slate-800 font-bold mb-2">
+            <i class="fa-solid fa-microchip"></i> Embedded Image Model (嵌入式影像模型)
+          </div>
+          <ul class="text-xs text-slate-700 space-y-1.5 leading-relaxed">
+            <li>• 輸入解析度：<strong>96 × 96 px 灰階 Greyscale</strong></li>
+            <li>• 支援匯出格式：TFLite for Microcontrollers, Arduino, Coral</li>
+            <li>• 模型體積大小：約 <strong>500 KB</strong> (極輕量)</li>
+            <li>• 適用情境：Raspberry Pi Pico, ESP32, Arduino Nano 等邊緣微控制器</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 新增截圖：新增專案彈出視窗截圖 -->
+      <div class="mt-8 mockup-window">
+        <div class="mockup-header">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span class="text-xs text-slate-500 font-mono ml-2">Teachable Machine - New Project Modal 選擇視窗截圖</span>
+        </div>
+        <div class="p-6 bg-slate-50">
+          <div class="max-w-2xl mx-auto bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+              <h4 class="text-lg font-bold text-slate-900">New Image Project</h4>
+              <i class="fa-solid fa-xmark text-slate-400 cursor-pointer"></i>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- 選項 1 -->
+              <div class="p-4 rounded-xl border-2 border-blue-500 bg-blue-50/40 relative cursor-pointer shadow-sm">
+                <span class="absolute top-2 right-2 text-blue-600"><i class="fa-solid fa-hand-pointer animate-bounce"></i></span>
+                <div class="text-blue-700 font-bold text-base mb-1">Standard image model</div>
+                <div class="text-xs font-semibold text-blue-900 mb-3">Best for most uses</div>
+                <div class="text-[11px] text-blue-800 space-y-1">
+                  <div>✓ 224x224px color images</div>
+                  <div>✓ Export to TensorFlow, TFLite, and TF.js</div>
+                  <div>✓ Model size: around 5mb</div>
+                </div>
+              </div>
+              <!-- 選項 2 -->
+              <div class="p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition cursor-pointer">
+                <div class="text-slate-800 font-bold text-base mb-1">Embedded image model</div>
+                <div class="text-xs font-semibold text-slate-600 mb-3">Best for microcontrollers</div>
+                <div class="text-[11px] text-slate-500 space-y-1">
+                  <div>• 96x96px greyscale images</div>
+                  <div>• Export to TFLite for Microcontrollers</div>
+                  <div>• Model size: around 500kb</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 單元三：手機轉視訊攝影機 (iVCam / DroidCam) 與瀏覽器設定 -->
+    <section id="webcam" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600 text-white font-bold text-sm">3</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">手機變成電腦高畫質視訊鏡頭</h2>
+      </div>
+      <p class="text-slate-600 mb-8 leading-relaxed">
+        多數筆電內建視訊畫質低落或桌機無配備攝影機時，可藉由手機的高清相機充當電腦視訊裝置，方便靈活捕捉不同角度的訓練樣本。
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- iVCam 方案與截圖 -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-camera text-blue-600"></i> e2eSoft iVCam
+              </h3>
+              <span class="text-xs px-2.5 py-1 bg-blue-100 text-blue-700 font-semibold rounded-full">高畫質首選</span>
+            </div>
+            <p class="text-sm text-slate-600 mb-4">
+              支援 USB 連接線或 Wi-Fi 自動連線，延遲極低、支援 4K 高畫質輸出，安裝完成後會自動虛擬成 Windows DirectShow 攝影機。
+            </p>
+
+            <!-- iVCam 視窗模擬截圖 (投影片原生畫面) -->
+            <div class="mockup-window mb-4 border border-slate-300">
+              <div class="bg-slate-800 text-slate-200 px-3 py-1.5 flex items-center justify-between text-xs font-mono">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-circle-dot text-sky-400"></i> e2eSoft iVCam
+                </div>
+                <div class="flex items-center gap-2 text-slate-400">
+                  <span>─</span> <span>□</span> <span>✕</span>
+                </div>
+              </div>
+              <div class="bg-slate-700 p-6 flex flex-col items-center justify-center min-h-[190px] relative overflow-hidden">
+                <!-- 動態同心圓雷達 -->
+                <div class="w-32 h-32 rounded-full border border-sky-400/30 flex items-center justify-center bg-sky-500/10">
+                  <div class="w-24 h-24 rounded-full border border-sky-400/50 flex items-center justify-center bg-sky-500/20">
+                    <div class="w-14 h-14 rounded-full bg-white shadow-md flex items-center justify-center text-slate-700">
+                      <i class="fa-solid fa-mobile-screen text-xl"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-slate-200 text-xs mt-3 font-medium tracking-wide">
+                  正在等待 iVCam 連接...
+                </div>
+                <!-- 底部工具列 -->
+                <div class="absolute bottom-0 inset-x-0 bg-slate-900/90 px-3 py-1.5 flex justify-between items-center text-[11px] text-slate-400">
+                  <span><i class="fa-solid fa-plug text-red-400 mr-1"></i> 未連接</span>
+                  <div class="flex gap-2">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <i class="fa-solid fa-play"></i>
+                    <i class="fa-solid fa-bars"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-1 mb-4">
+              <p>1. PC 下載安裝 Windows Client 端軟體。</p>
+              <p>2. 手機下載 iVCam App (iOS / Android)。</p>
+              <p>3. 保持同一個區域網路或以 USB 傳輸線相連即完成對接。</p>
+            </div>
+          </div>
+          <a href="https://www.e2esoft.com/ivcam/" target="_blank" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold text-center rounded-lg transition">
+            前往 iVCam 官網下載
+          </a>
+        </div>
+
+        <!-- DroidCam 方案與截圖 -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-brands fa-android text-emerald-600"></i> Dev47Apps DroidCam
+              </h3>
+              <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-700 font-semibold rounded-full">開源相容性高</span>
+            </div>
+            <p class="text-sm text-slate-600 mb-4">
+              廣泛被各類開發工具與 C# USB 函式庫支援。預設提供 <code class="text-emerald-700 font-mono font-bold">DroidCam Source 2</code> 與 <code class="text-emerald-700 font-mono font-bold">DroidCam Source 3</code> 雙通道輸出。
+            </p>
+
+            <!-- DroidCam Client 視窗模擬截圖 (投影片原生畫面) -->
+            <div class="mockup-window mb-4 border border-slate-300">
+              <div class="bg-slate-800 text-slate-200 px-3 py-1.5 flex items-center justify-between text-xs font-mono">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-camera text-emerald-400"></i> DroidCam Client 6.5.2
+                </div>
+                <div class="flex items-center gap-2 text-slate-400">
+                  <span>─</span> <span>□</span> <span>✕</span>
+                </div>
+              </div>
+              <div class="bg-black p-4 flex flex-col justify-between min-h-[190px]">
+                <div class="flex-1 flex items-center justify-center text-slate-700 text-xs font-mono">
+                  [ 視訊鏡頭畫面預覽區塊 ]
+                </div>
+                <!-- DroidCam 控制條 -->
+                <div class="pt-2 border-t border-slate-800 space-y-2">
+                  <div class="flex justify-between items-center text-slate-300 text-xs">
+                    <button class="px-3 py-0.5 bg-slate-800 border border-slate-600 rounded text-[11px] hover:bg-slate-700">Stop</button>
+                    <span class="text-[11px] text-slate-400"><i class="fa-solid fa-battery-half text-emerald-400"></i> 65%</span>
+                    <button class="px-2 py-0.5 bg-slate-800 border border-slate-600 rounded text-[11px]">Mute Preview</button>
+                  </div>
+                  <div class="bg-slate-900 p-1.5 rounded flex items-center justify-around text-slate-400 text-xs">
+                    <i class="fa-solid fa-magnifying-glass-minus hover:text-white cursor-pointer"></i>
+                    <i class="fa-solid fa-magnifying-glass-plus hover:text-white cursor-pointer"></i>
+                    <i class="fa-regular fa-lightbulb hover:text-white cursor-pointer"></i>
+                    <span class="text-[10px] px-1 bg-slate-800 text-slate-300 rounded font-mono">AF</span>
+                    <i class="fa-solid fa-repeat hover:text-white cursor-pointer"></i>
+                    <i class="fa-regular fa-image hover:text-white cursor-pointer"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-1 mb-4">
+              <p>1. 安裝前關閉所有通訊軟體 (Skype, Zoom, Teams)。</p>
+              <p>2. 提供 IP Webcam 模式，在瀏覽器亦可直接存取 RTSP / MJPEG。</p>
+              <p>3. 安裝完成後於裝置管理員中生成虛擬相機端點。</p>
+            </div>
+          </div>
+          <a href="https://www.dev47apps.com/droidcam/windows/" target="_blank" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold text-center rounded-lg transition">
+            前往 DroidCam 官網下載
+          </a>
+        </div>
+      </div>
+
+      <!-- Chrome 攝影機權限設定教學視窗 (仿截圖) -->
+      <div class="mockup-window">
+        <div class="mockup-header">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span class="text-xs text-slate-500 font-mono ml-2">chrome://settings/content/camera</span>
+        </div>
+        <div class="p-6 bg-white">
+          <div class="max-w-2xl mx-auto border border-slate-200 rounded-xl p-5 bg-slate-50/50">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-camera text-blue-600"></i>
+                <span class="font-bold text-sm text-slate-800">攝影機切換與網站權限管理</span>
+              </div>
+              <span class="text-xs text-slate-400">Chrome 設定介面</span>
+            </div>
+
+            <!-- 下拉選單示意 -->
+            <div class="mt-4">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">預設輸入攝影機來源：</label>
+              <div class="relative">
+                <div class="w-full bg-white border-2 border-blue-500 rounded-lg p-2.5 text-xs font-medium text-slate-800 flex justify-between items-center shadow-sm">
+                  <span>e2eSoft iVCam</span>
+                  <i class="fa-solid fa-chevron-down text-slate-400"></i>
+                </div>
+                <!-- 展開選單模擬 -->
+                <div class="mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden text-xs">
+                  <div class="p-2 hover:bg-slate-100 cursor-pointer text-slate-500">USB2.0 HD UVC WebCam (內建鏡頭)</div>
+                  <div class="p-2 bg-blue-600 text-white font-semibold cursor-pointer">e2eSoft iVCam (手機虛擬相機) ✓</div>
+                  <div class="p-2 hover:bg-slate-100 cursor-pointer text-slate-700">DroidCam Source 2</div>
+                  <div class="p-2 hover:bg-slate-100 cursor-pointer text-slate-700">DroidCam Source 3</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+              <i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i>
+              <div>
+                <strong>若在 Teachable Machine 點擊 Webcam 沒有畫面：</strong>
+                請點擊瀏覽器網址列左側的<strong>鎖頭或調校圖示</strong>，確保「攝影機」設為「允許」，並確認沒有其他軟體（如 OBS、Line）正獨佔使用該相機。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 單元四：參數調校與模型評估圖表深度解讀 -->
+    <section id="tuning" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600 text-white font-bold text-sm">4</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">訓練超參數與評估圖表 (混淆矩陣/損失曲線)</h2>
+      </div>
+      <p class="text-slate-600 mb-8 leading-relaxed">
+        在 Teachable Machine 的「Advanced」下拉選單中包含 3 個核心參數。理解其意義並學會看懂評估面板 (Under the hood)，是 AI 調優的基本功。
+      </p>
+
+      <!-- 新增截圖：Teachable Machine Advanced 參數面板真實截圖 -->
+      <div class="mockup-window mb-8 max-w-xl mx-auto">
+        <div class="mockup-header">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span class="text-xs text-slate-500 font-mono ml-2">Training 面板 · Advanced 參數控制項截圖</span>
+        </div>
+        <div class="p-6 bg-slate-50 flex justify-center">
+          <div class="w-72 bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100 text-blue-600 font-bold text-sm">
+              <span>Advanced</span>
+              <i class="fa-solid fa-chevron-up text-xs"></i>
+            </div>
+            <!-- Epochs -->
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-1.5 font-semibold text-slate-700">
+                <span>Epochs:</span>
+                <i class="fa-regular fa-circle-question text-slate-400"></i>
+              </div>
+              <div class="flex items-center border border-blue-500 rounded bg-blue-50/50 px-2 py-1 font-mono font-bold text-blue-700">
+                <span class="mr-2">50</span>
+                <div class="flex flex-col text-[8px] text-blue-600 leading-none">
+                  <span>▲</span>
+                  <span>▼</span>
+                </div>
+              </div>
+            </div>
+            <!-- Batch Size -->
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-1.5 font-semibold text-slate-700">
+                <span>Batch Size:</span>
+                <i class="fa-regular fa-circle-question text-slate-400"></i>
+              </div>
+              <div class="flex items-center border border-blue-500 rounded bg-blue-50/50 px-2 py-1 font-mono font-bold text-blue-700">
+                <span class="mr-3">16</span>
+                <span class="text-[9px]">▼</span>
+              </div>
+            </div>
+            <!-- Learning Rate -->
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-1.5 font-semibold text-slate-700">
+                <span>Learning Rate:</span>
+                <i class="fa-regular fa-circle-question text-slate-400"></i>
+              </div>
+              <div class="flex items-center border border-blue-500 rounded bg-blue-50/50 px-2 py-1 font-mono font-bold text-blue-700">
+                <span class="mr-2">0.001</span>
+                <div class="flex flex-col text-[8px] text-blue-600 leading-none">
+                  <span>▲</span>
+                  <span>▼</span>
+                </div>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 hover:text-slate-600 cursor-pointer">
+              <span>Reset Defaults</span>
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-600 font-semibold pt-1">
+              <span>Under the hood</span>
+              <i class="fa-solid fa-chart-simple text-blue-600"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 三大參數解析表 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold text-blue-600 px-2 py-0.5 rounded bg-blue-50">預設: 50</span>
+            <i class="fa-solid fa-repeat text-slate-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Epochs (訓練週期)</h3>
+          <p class="text-xs font-semibold text-slate-500 mt-0.5">比喻：學生整本課本讀完幾次</p>
+          <p class="text-xs text-slate-600 mt-3 leading-relaxed">
+            所有訓練圖片通過神經網路來回傳遞（一次前向與一次反向傳播）的總遍數。<br>
+            <span class="text-blue-600 font-semibold">• 設太小：</span> 欠擬合，還沒學好。<br>
+            <span class="text-red-600 font-semibold">• 設太大：</span> 過度擬合，死記細節。
+          </p>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold text-blue-600 px-2 py-0.5 rounded bg-blue-50">預設: 16</span>
+            <i class="fa-solid fa-cubes-stacked text-slate-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Batch Size (批次大小)</h3>
+          <p class="text-xs font-semibold text-slate-500 mt-0.5">比喻：一次看幾頁書才寫一次筆記</p>
+          <p class="text-xs text-slate-600 mt-3 leading-relaxed">
+            單次迭代中模型同時計算的一組影像數量。<br>
+            <span class="text-blue-600 font-semibold">• 較大批次：</span> 訓練平穩快速，但吃更多記憶體。<br>
+            <span class="text-emerald-600 font-semibold">• 較小批次：</span> 隨機性強，助於跳脫局部低谷。
+          </p>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold text-blue-600 px-2 py-0.5 rounded bg-blue-50">預設: 0.001</span>
+            <i class="fa-solid fa-shoe-prints text-slate-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Learning Rate (學習率)</h3>
+          <p class="text-xs font-semibold text-slate-500 mt-0.5">比喻：每次訂正錯誤的跨步幅度</p>
+          <p class="text-xs text-slate-600 mt-3 leading-relaxed">
+            梯度下降更新內部權重時的步長幅度。<br>
+            <span class="text-red-600 font-semibold">• 步伐太大：</span> 容易跳過最佳解，震盪發散。<br>
+            <span class="text-blue-600 font-semibold">• 步伐太小：</span> 收斂極其緩慢，時間成本高。
+          </p>
+        </div>
+      </div>
+
+      <!-- 案例對比：完美模型 VS 嚴重失敗模型 (投影片精華解讀) -->
+      <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+        <i class="fa-solid fa-code-compare text-indigo-600"></i> 投影片案例實戰：成敗圖表深度診斷
+      </h3>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- 案例 A: 完美模型 -->
+        <div class="bg-white p-6 rounded-2xl border-2 border-emerald-500 shadow-sm relative">
+          <div class="absolute -top-3.5 right-6 bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+            成功範例：收斂完美
+          </div>
+          <h4 class="font-bold text-lg text-emerald-950 flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-circle-check text-emerald-500"></i> 案例 A：健全學習與零失誤分類
+          </h4>
+
+          <!-- 混淆矩陣 SVG 模擬 -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4">
+            <div class="text-xs font-bold text-slate-600 mb-2">混淆矩陣 (Confusion Matrix)</div>
+            <div class="flex items-center justify-center gap-4">
+              <svg width="180" height="150" viewBox="0 0 180 150">
+                <!-- 網格格狀 -->
+                <rect x="50" y="30" width="50" height="50" fill="#3b82f6" fill-opacity="0.5"/>
+                <text x="75" y="60" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3a8a">2</text>
+                
+                <rect x="100" y="30" width="50" height="50" fill="#f8fafc"/>
+                <text x="125" y="60" text-anchor="middle" font-size="16" fill="#94a3b8">0</text>
+
+                <rect x="50" y="80" width="50" height="50" fill="#f8fafc"/>
+                <text x="75" y="110" text-anchor="middle" font-size="16" fill="#94a3b8">0</text>
+
+                <rect x="100" y="80" width="50" height="50" fill="#2563eb" fill-opacity="0.9"/>
+                <text x="125" y="110" text-anchor="middle" font-size="16" font-weight="bold" fill="white">5</text>
+
+                <!-- 坐標軸標籤 -->
+                <text x="75" y="22" text-anchor="middle" font-size="10" fill="#64748b font-weight=bold">Pred C1</text>
+                <text x="125" y="22" text-anchor="middle" font-size="10" fill="#64748b font-weight=bold">Pred C2</text>
+                <text x="42" y="60" text-anchor="end" font-size="10" fill="#64748b">Act C1</text>
+                <text x="42" y="110" text-anchor="end" font-size="10" fill="#64748b">Act C2</text>
+              </svg>
+              <div class="text-xs text-slate-600 space-y-1">
+                <p>• Class 1 準確率：<strong class="text-emerald-600">1.00 (2/2)</strong></p>
+                <p>• Class 2 準確率：<strong class="text-emerald-600">1.00 (5/5)</strong></p>
+                <p>• 預測對角線集中，無混淆誤判。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 損失下降曲線 SVG -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="text-xs font-bold text-slate-600 mb-2">週期損失 (Loss per epoch) 下降良好</div>
+            <svg viewBox="0 0 320 120" class="w-full h-24">
+              <line x1="30" y1="10" x2="30" y2="100" stroke="#cbd5e1" stroke-width="1.5"/>
+              <line x1="30" y1="100" x2="310" y2="100" stroke="#cbd5e1" stroke-width="1.5"/>
+              <!-- 損失由高迅速掉至 0 -->
+              <path d="M 35 25 Q 55 90 90 96 T 300 98" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+              <path d="M 35 45 Q 60 92 100 97 T 300 98" fill="none" stroke="#f97316" stroke-width="2.5"/>
+              <text x="300" y="85" font-size="10" fill="#16a34a" text-anchor="end" font-weight="bold">Loss ≈ 0.0</text>
+            </svg>
+          </div>
+          <p class="text-xs text-slate-500 mt-4 leading-relaxed">
+            <strong>課堂提醒：</strong>此情況雖指標 100%，但因驗證集樣本僅 7 個，若在現實中面對多樣背景，仍需擴大驗證集以防隱性過度擬合。
+          </p>
+        </div>
+
+        <!-- 案例 B: 嚴重偏見與學習失敗 -->
+        <div class="bg-white p-6 rounded-2xl border-2 border-red-500 shadow-sm relative">
+          <div class="absolute -top-3.5 right-6 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+            失敗範例：走捷徑與嚴重偏誤
+          </div>
+          <h4 class="font-bold text-lg text-red-950 flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-circle-xmark text-red-500"></i> 案例 B：欠配適與全猜同一類別
+          </h4>
+
+          <!-- 混淆矩陣 SVG 模擬 (全壓向 Class 2) -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4">
+            <div class="text-xs font-bold text-slate-600 mb-2">混淆矩陣 (所有預測皆偏向 Class 2)</div>
+            <div class="flex items-center justify-center gap-4">
+              <svg width="180" height="150" viewBox="0 0 180 150">
+                <rect x="50" y="30" width="50" height="50" fill="#f8fafc"/>
+                <text x="75" y="60" text-anchor="middle" font-size="16" fill="#94a3b8">0</text>
+                
+                <rect x="100" y="30" width="50" height="50" fill="#93c5fd"/>
+                <text x="125" y="60" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e3a8a">3</text>
+
+                <rect x="50" y="80" width="50" height="50" fill="#f8fafc"/>
+                <text x="75" y="110" text-anchor="middle" font-size="16" fill="#94a3b8">0</text>
+
+                <rect x="100" y="80" width="50" height="50" fill="#2563eb" fill-opacity="0.8"/>
+                <text x="125" y="110" text-anchor="middle" font-size="16" font-weight="bold" fill="white">4</text>
+
+                <text x="75" y="22" text-anchor="middle" font-size="10" fill="#64748b font-weight=bold">Pred C1</text>
+                <text x="125" y="22" text-anchor="middle" font-size="10" fill="#64748b font-weight=bold">Pred C2</text>
+                <text x="42" y="60" text-anchor="end" font-size="10" fill="#64748b">Act C1</text>
+                <text x="42" y="110" text-anchor="end" font-size="10" fill="#64748b">Act C2</text>
+              </svg>
+              <div class="text-xs text-slate-600 space-y-1">
+                <p>• Class 1 準確率：<strong class="text-red-600">0.00 (0/3 零蛋)</strong></p>
+                <p>• Class 2 準確率：<strong class="text-blue-600">1.00 (4/4)</strong></p>
+                <p>• 整體準確率卡在 57.1% (4 ÷ 7)</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 損失高懸直線曲線 SVG -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="text-xs font-bold text-slate-600 mb-2">損失高居 0.7 降不下來 (平坦完全沒學會)</div>
+            <svg viewBox="0 0 320 120" class="w-full h-24">
+              <line x1="30" y1="10" x2="30" y2="100" stroke="#cbd5e1" stroke-width="1.5"/>
+              <line x1="30" y1="100" x2="310" y2="100" stroke="#cbd5e1" stroke-width="1.5"/>
+              <!-- 損失平躺在 0.7 -->
+              <path d="M 35 45 Q 60 40 80 43 T 300 44" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+              <path d="M 35 38 Q 60 47 80 44 T 300 44" fill="none" stroke="#f97316" stroke-width="2.5"/>
+              <text x="300" y="32" font-size="10" fill="#dc2626" text-anchor="end" font-weight="bold">Loss ≈ 0.70 (居高不下)</text>
+            </svg>
+          </div>
+          <p class="text-xs text-red-700 mt-4 leading-relaxed font-semibold">
+            診斷結果：資料特徵模糊或純黑樣本導致模型「偷懶」。模型發現只要無腦全部猜 Class 2 就能保底 57% 正確率。解決方式為改善 Class 1 影像品質與採光，而不是急著調學習率！
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 新增單元：實戰操作截圖畫廊 (跨工具全視窗截圖) -->
+    <section id="screenshots-gallery" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold text-sm">★</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">開發環境與除錯實戰截圖全集</h2>
+      </div>
+      <p class="text-slate-600 mb-8 leading-relaxed">
+        從 Visual Studio 方案配置、CMD 執行驗證，到 Google Colab 檔案樹與 Keras 3 例外 Traceback 完整圖解。
+      </p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- 截圖 1: Visual Studio 方案總管與 Debug 變數視窗 -->
+        <div class="mockup-window">
+          <div class="mockup-header">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span class="text-xs text-slate-500 font-mono ml-2">Visual Studio - 方案總管與相機設備監看式</span>
+          </div>
+          <div class="p-4 bg-slate-900 text-slate-200 font-mono text-xs space-y-4">
+            <!-- 程式碼斷點行 -->
+            <div class="bg-slate-950 p-2.5 rounded border-l-4 border-amber-500 text-[11px]">
+              <span class="text-slate-500">28</span> var devices = UsbCamera.FindDevices();<br>
+              <span class="text-amber-400 font-bold">29 ▶ if (devices.Length == 0) return;</span>
+            </div>
+
+            <!-- 監看式 1 視窗截圖 -->
+            <div class="border border-slate-700 rounded overflow-hidden">
+              <div class="bg-slate-800 px-3 py-1.5 text-slate-300 font-sans text-xs font-semibold flex justify-between">
+                <span>監看式 1 (Watch 1)</span>
+                <span class="text-slate-400">搜尋 (Ctrl+E)</span>
+              </div>
+              <table class="w-full text-left text-[11px] text-slate-300">
+                <thead class="bg-slate-950 text-slate-500 border-b border-slate-800">
+                  <tr>
+                    <th class="p-1.5">名稱</th>
+                    <th class="p-1.5">值</th>
+                    <th class="p-1.5">類型</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+                  <tr class="bg-blue-950/40 text-blue-300">
+                    <td class="p-1.5">◢ devices</td>
+                    <td class="p-1.5">{string[5]}</td>
+                    <td class="p-1.5">string[]</td>
+                  </tr>
+                  <tr>
+                    <td class="p-1.5 pl-5 text-slate-400">[0]</td>
+                    <td class="p-1.5 text-emerald-400">"USB2.0 HD UVC WebCam"</td>
+                    <td class="p-1.5 text-slate-500">string</td>
+                  </tr>
+                  <tr>
+                    <td class="p-1.5 pl-5 text-slate-400">[1]</td>
+                    <td class="p-1.5 text-emerald-400">"e2eSoft iVCam"</td>
+                    <td class="p-1.5 text-slate-500">string</td>
+                  </tr>
+                  <tr>
+                    <td class="p-1.5 pl-5 text-slate-400">[2]</td>
+                    <td class="p-1.5 text-emerald-400">"DroidCam Source 3"</td>
+                    <td class="p-1.5 text-slate-500">string</td>
+                  </tr>
+                  <tr>
+                    <td class="p-1.5 pl-5 text-slate-400">[3]</td>
+                    <td class="p-1.5 text-emerald-400">"General camera"</td>
+                    <td class="p-1.5 text-slate-500">string</td>
+                  </tr>
+                  <tr>
+                    <td class="p-1.5 pl-5 text-slate-400">[4]</td>
+                    <td class="p-1.5 text-emerald-400">"DroidCam Source 2"</td>
+                    <td class="p-1.5 text-slate-500">string</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="text-[11px] text-slate-400">
+              ✓ 驗證 iVCam 與 DroidCam 是否已順利被 C# 底層 DirectShow API 辨識。
+            </div>
+          </div>
+        </div>
+
+        <!-- 截圖 2: CMD 提示字元執行 Evaluate.exe 畫面 -->
+        <div class="mockup-window">
+          <div class="mockup-header">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span class="text-xs text-slate-500 font-mono ml-2">cmd.exe - 命令提示字元執行模型推論</span>
+          </div>
+          <div class="p-4 bg-black text-slate-100 font-mono text-xs space-y-3 min-h-[260px]">
+            <div class="text-slate-400">Microsoft Windows [版本 10.0.19045.3803]<br>(c) Microsoft Corporation. 著作權所有，並保留一切權利。</div>
+            
+            <div class="text-emerald-400">
+              D:\Lab\Camera\RidoCamera\bin\Debug&gt;Evaluate.exe https://teachablemachine.withgoogle.com/models/xMP4C-s1K/ 1.jpg
+            </div>
+
+            <div class="text-slate-500 text-[11px] border-y border-slate-800 py-1">
+              ============================<br>
+              Hi there 👋. Looks like you are running TensorFlow.js in Node.js.<br>
+              ============================
+            </div>
+
+            <!-- JSON 輸出結果 -->
+            <div class="text-yellow-300 text-[11px] leading-relaxed bg-slate-900 p-2 rounded border border-slate-800">
+              [<br>
+              &nbsp;&nbsp;{"class": "紅色圓形", "score": 0.9997121691703796},<br>
+              &nbsp;&nbsp;{"class": "黑色圓型", "score": 0.0002819732762873173},<br>
+              &nbsp;&nbsp;{"class": "其他", "score": 0.000005865757884748746}<br>
+              ]
+            </div>
+
+            <div class="text-emerald-400">
+              D:\Lab\Camera\RidoCamera\bin\Debug&gt;<span class="inline-block w-2 h-4 bg-white animate-pulse"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- 截圖 3: Google Colab 檔案結構樹與右鍵「複製路徑」截圖 -->
+        <div class="mockup-window">
+          <div class="mockup-header">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span class="text-xs text-slate-500 font-mono ml-2">Google Colab - 側邊欄檔案樹與路徑複製</span>
+          </div>
+          <div class="p-4 bg-white flex">
+            <!-- 檔案樹視圖 -->
+            <div class="w-64 border-r border-slate-200 pr-3 text-xs space-y-2 font-mono">
+              <div class="flex items-center gap-1.5 font-bold text-slate-800">
+                <i class="fa-solid fa-folder-tree text-amber-500"></i>
+                <span>檔案目錄</span>
+              </div>
+              <div class="pl-2 space-y-1.5 text-slate-600">
+                <div class="flex items-center gap-1.5"><i class="fa-solid fa-folder text-slate-400"></i> sample_data</div>
+                <div class="flex items-center gap-1.5 font-bold text-slate-800"><i class="fa-solid fa-folder-open text-amber-500"></i> teachableMachine</div>
+                <div class="pl-4 space-y-1">
+                  <div class="flex items-center justify-between p-1 bg-blue-50 text-blue-700 rounded font-semibold">
+                    <span><i class="fa-regular fa-file-code mr-1"></i> keras_model.h5</span>
+                    <i class="fa-solid fa-ellipsis-vertical text-slate-400"></i>
+                  </div>
+                  <div class="flex items-center gap-1.5 text-slate-500 p-1"><i class="fa-regular fa-file-lines mr-1"></i> labels.txt</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右鍵功能選單截圖 -->
+            <div class="flex-1 pl-4 flex flex-col justify-center">
+              <div class="w-48 bg-white border border-slate-200 rounded-lg shadow-xl py-1 text-xs text-slate-700">
+                <div class="px-3 py-1.5 hover:bg-slate-100 cursor-pointer">下載</div>
+                <div class="px-3 py-1.5 hover:bg-slate-100 cursor-pointer">重新命名檔案</div>
+                <div class="px-3 py-1.5 hover:bg-slate-100 cursor-pointer text-red-600">刪除檔案</div>
+                <div class="my-1 border-t border-slate-100"></div>
+                <div class="px-3 py-1.5 bg-blue-600 text-white font-bold flex items-center justify-between cursor-pointer">
+                  <span>複製路徑</span>
+                  <i class="fa-regular fa-copy"></i>
+                </div>
+                <div class="px-3 py-1.5 hover:bg-slate-100 cursor-pointer">重新整理</div>
+              </div>
+              <div class="mt-3 text-[11px] text-slate-500">
+                取得絕對路徑：<br>
+                <code class="text-blue-600 font-bold">/content/teachableMachine/keras_model.h5</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 截圖 4: Keras 3 版本報錯 Traceback 與修復成功對照截圖 -->
+        <div class="mockup-window">
+          <div class="mockup-header">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span class="text-xs text-slate-500 font-mono ml-2">Colab Output - Keras 3 錯誤 Traceback 截圖與修復成果</span>
+          </div>
+          <div class="p-4 bg-slate-950 text-slate-200 font-mono text-xs space-y-3">
+            <!-- 報錯區塊 (紅色) -->
+            <div class="p-3 bg-red-950/40 border border-red-800 rounded text-red-300 text-[11px] space-y-1">
+              <div class="text-red-400 font-bold flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-xmark"></i> TypeError: Error when deserializing class 'DepthwiseConv2D'
+              </div>
+              <div class="text-slate-400">
+                ValueError: Unrecognized keyword arguments passed to DepthwiseConv2D: {'groups': 1}
+              </div>
+            </div>
+
+            <!-- 修復後執行成果 (綠色) -->
+            <div class="p-3 bg-emerald-950/40 border border-emerald-800 rounded text-emerald-300 text-[11px] space-y-1.5">
+              <div class="text-emerald-400 font-bold flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-check"></i> CustomDepthwiseConv2D 修復成功執行
+              </div>
+              <div class="text-slate-300">
+                1/1 ━━━━━━━━━━━━━━━━━━━━ 2s 2s/step
+              </div>
+              <div class="font-bold text-white text-xs">
+                Class: BlackCircle<br>
+                Confidence Score: 0.9994618
+              </div>
+            </div>
+
+            <div class="text-[11px] text-slate-400">
+              透過注入 <code class="text-amber-400">CustomDepthwiseConv2D</code> 即可在 Python 3.12 與最新 TensorFlow 下無痛載入。
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 單元五：跨平台部署實戰 (Web / C# / Python Colab) -->
+    <section id="deployment" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600 text-white font-bold text-sm">5</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">跨平台工程落地部署實戰</h2>
+      </div>
+      <p class="text-slate-600 mb-8 leading-relaxed">
+        訓練完模型後，點擊「Export Model」可將其輸出給不同平台使用。以下整理投影片中三大核心落地管道：
+      </p>
+
+      <!-- 頁籤式程式碼與整合指引 -->
+      <div class="space-y-12">
+        
+        <!-- 管道 1: 網頁 HTML & TensorFlow.js -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          <div class="p-6 bg-slate-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="p-2 rounded bg-amber-500/20 text-amber-400 font-bold text-sm">Web</span>
+              <h3 class="text-lg font-bold">1. 網頁端執行：純 HTML + JS 即時攝影辨識</h3>
+            </div>
+            <span class="text-xs text-slate-400 font-mono">teachablemachine.html</span>
+          </div>
+          <div class="p-6">
+            <p class="text-sm text-slate-600 mb-4">
+              直接引用 CDN 中的 <code class="text-blue-600">tf.min.js</code> 與 <code class="text-blue-600">teachablemachine-image.min.js</code>，透過瀏覽器直接抓取視訊串流推論：
+            </p>
+            <pre class="bg-slate-900 text-slate-200 p-4 rounded-xl text-xs overflow-x-auto leading-relaxed font-mono"><code>&lt;div&gt;Teachable Machine Image Model&lt;/div&gt;
+&lt;button type="button" onclick="init()" class="btn"&gt;Start&lt;/button&gt;
+&lt;div id="webcam-container"&gt;&lt;/div&gt;
+&lt;div id="label-container"&gt;&lt;/div&gt;
+
+&lt;script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+  const URL = "https://teachablemachine.withgoogle.com/models/8PXy27q_0/"; // 你的模型分享網址
+  let model, webcam, labelContainer, maxPredictions;
+
+  async function init() {
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
+    model = await tmImage.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
+
+    webcam = new tmImage.Webcam(200, 200, true);
+    await webcam.setup();
+    await webcam.play();
+    window.requestAnimationFrame(loop);
+
+    document.getElementById("webcam-container").appendChild(webcam.canvas);
+    labelContainer = document.getElementById("label-container");
+    for (let i = 0; i &lt; maxPredictions; i++) {
+      labelContainer.appendChild(document.createElement("div"));
+    }
+  }
+
+  async function loop() {
+    webcam.update();
+    await predict();
+    window.requestAnimationFrame(loop);
+  }
+
+  async function predict() {
+    const prediction = await model.predict(webcam.canvas);
+    for (let i = 0; i &lt; maxPredictions; i++) {
+      const classPrediction = prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+      labelContainer.childNodes[i].innerHTML = classPrediction;
+    }
+  }
+&lt;/script&gt;</code></pre>
+          </div>
+        </div>
+
+        <!-- 管道 2: C# WinForms / WPF 整合 -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          <div class="p-6 bg-slate-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="p-2 rounded bg-purple-500/20 text-purple-400 font-bold text-sm">C#</span>
+              <h3 class="text-lg font-bold">2. C# 整合：UsbCamera + TeachableMachine NuGet 套件</h3>
+            </div>
+            <span class="text-xs text-slate-400 font-mono">WinForms / WPF (.NET 4.7.2)</span>
+          </div>
+          <div class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center gap-2">
+                  <i class="fa-solid fa-download text-purple-600"></i> NuGet 安裝步驟
+                </h4>
+                <p class="text-xs text-slate-600 mb-2">於 Visual Studio 封裝管理員搜尋安裝：</p>
+                <div class="bg-slate-900 text-emerald-400 p-2.5 rounded font-mono text-xs">
+                  Install-Package TeachableMachine -Version 1.0.6
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2">
+                  * 專案內會自動引入 <code class="font-mono text-purple-700">Evaluate.exe</code>，務必於屬性面板將「複製到輸出目錄」設為<strong>「有更新時才複製 (Copy if newer)」</strong>。
+                </p>
+              </div>
+
+              <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center gap-2">
+                  <i class="fa-solid fa-terminal text-purple-600"></i> CMD 獨立測試指令
+                </h4>
+                <p class="text-xs text-slate-600 mb-2">可直接利用命令提示字元執行模型推論：</p>
+                <div class="bg-slate-900 text-slate-300 p-2.5 rounded font-mono text-xs overflow-x-auto">
+                  Evaluate.exe https://teachablemachine.withgoogle.com/models/xMP4C-s1K/ 1.jpg
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2">回傳 JSON 格式之分類結果與 score 信心指數。</p>
+              </div>
+            </div>
+
+            <!-- 常見問題除錯：ComboBox 與 NonComVisibleBaseClass 例外 -->
+            <div class="p-4 bg-red-50/70 border border-red-200 rounded-xl">
+              <h4 class="font-bold text-red-900 text-sm flex items-center gap-2 mb-2">
+                <i class="fa-solid fa-bug text-red-600"></i> 必解問題：ComboBox 選取發生 NonComVisibleBaseClass 例外中斷
+              </h4>
+              <p class="text-xs text-red-800 mb-3 leading-relaxed">
+                在 WinForms 使用下拉選單 (ComboBox) 切換攝影機時，Visual Studio 常會彈出受控偵錯助理 (MDA) <code>NonComVisibleBaseClass</code> 例外，導致程式除錯中斷。
+              </p>
+              <div class="bg-white p-3 rounded-lg border border-red-200 text-xs text-slate-700 space-y-1">
+                <p class="font-bold text-slate-900">解決步驟：</p>
+                <p>1. 點擊 Visual Studio 頂部選單 <strong>「偵錯 (Debug)」 → 「視窗 (Windows)」 → 「例外狀況設定 (Exception Settings)」(Ctrl+Alt+E)</strong>。</p>
+                <p>2. 展開 <strong>Managed Debugging Assistants (受控偵錯助理)</strong>。</p>
+                <p>3. 找到 <strong><code class="text-red-600 font-mono">NonComVisibleBaseClass</code></strong>，將其<strong>取消勾選</strong>即可正常執行。</p>
+              </div>
+            </div>
+
+            <!-- C# 程式碼範例 -->
+            <div>
+              <div class="text-xs font-bold text-slate-700 mb-2">C# 列舉視訊與免跳脫字元字串寫法：</div>
+              <pre class="bg-slate-900 text-slate-200 p-4 rounded-xl text-xs overflow-x-auto font-mono"><code>// 1. 列舉系統所有視訊鏡頭裝置 (使用 secile UsbCamera)
+var devices = UsbCamera.FindDevices();
+if (devices.Length == 0) return; // 無可用相機
+
+// 2. C# 字串前綴 @ 免除斜線跳脫字元
+string path1 = "c:\\temp\\test.jpg"; // 原生需雙斜線
+string path2 = @"c:\temp\test.jpg";  // 加 @ 符號更直覺易讀</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 管道 3: Python & Google Colab Keras 整合與 Bug 修復 -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          <div class="p-6 bg-slate-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="p-2 rounded bg-emerald-500/20 text-emerald-400 font-bold text-sm">Python</span>
+              <h3 class="text-lg font-bold">3. Google Colab 整合：修復 Keras 3 的 DepthwiseConv2D 錯誤</h3>
+            </div>
+            <span class="text-xs text-slate-400 font-mono">keras_model.h5 + Colab</span>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
+              <strong class="text-amber-950 font-bold">錯誤剖析：</strong>
+              Teachable Machine 導出的 <code class="font-mono">keras_model.h5</code> 是基於較舊版的 Keras 構建。當在現代 Google Colab (預設升級至 Keras 3 / TensorFlow 2.16+) 中載入時，會噴出經典報錯：
+              <div class="mt-2 bg-slate-900 text-red-400 p-2 rounded font-mono">
+                ValueError: Unrecognized keyword arguments passed to DepthwiseConv2D: {'groups': 1}
+              </div>
+              <div class="mt-2">
+                解決方案是透過自定義 <code>CustomDepthwiseConv2D</code> 繼承類別，在 <code>__init__</code> 時移除 <code>groups</code> 參數，並使用 <code>custom_object_scope</code> 包裹載入。
+              </div>
+            </div>
+
+            <div class="text-xs font-bold text-slate-700">可直接於 Colab 運行的完美相容程式碼：</div>
+            <pre class="bg-slate-900 text-slate-200 p-4 rounded-xl text-xs overflow-x-auto leading-relaxed font-mono"><code>import tensorflow as tf
+from keras.models import load_model
+from PIL import Image, ImageOps
+import numpy as np
+
+# 關閉科學記號以利易讀
+np.set_printoptions(suppress=True)
+
+# 解決 Keras 3 / TF 最新版中 DepthwiseConv2D 不支援 groups 參數的相容性錯誤
+class CustomDepthwiseConv2D(tf.keras.layers.DepthwiseConv2D):
+    def __init__(self, **kwargs):
+        if 'groups' in kwargs:
+            del kwargs['groups']  # 移除衝突的 groups 參數
+        super().__init__(**kwargs)
+
+# 使用 custom_object_scope 載入 Teachable Machine 匯出的 h5 模型
+model_path = "/content/teachableMachine/keras_model.h5"
+labels_path = "/content/teachableMachine/labels.txt"
+
+with tf.keras.utils.custom_object_scope({'DepthwiseConv2D': CustomDepthwiseConv2D}):
+    model = load_model(model_path, compile=False)
+
+# 讀取分類標籤
+class_names = open(labels_path, "r", encoding="utf-8").readlines()
+
+# 影像預處理：轉為 224x224 RGB 並做色彩正規化 [-1, 1]
+data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
+image = Image.open("/content/test_image.jpg").convert("RGB")
+size = (224, 224)
+image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
+image_array = np.asarray(image)
+normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
+data[0] = normalized_image_array
+
+# 執行預測推論
+prediction = model.predict(data)
+index = np.argmax(prediction)
+class_name = class_names[index].strip()
+confidence_score = prediction[0][index]
+
+print(f"🎯 預測類別: {class_name[2:]}")
+print(f"📊 信心指數: {confidence_score:.4f}")</code></pre>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 底部常用資源連結庫 -->
+    <section class="bg-slate-900 text-white p-8 rounded-2xl shadow-xl">
+      <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-link text-blue-400"></i> 教材相關常用資源庫與公開模型清單
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-mono">
+        <a href="https://teachablemachine.withgoogle.com/" target="_blank" class="p-3 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 flex items-center justify-between transition">
+          <span class="text-blue-300">Google Teachable Machine 官方入口</span>
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+        <a href="https://pixabay.com/" target="_blank" class="p-3 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 flex items-center justify-between transition">
+          <span class="text-emerald-300">Pixabay 免費高品質圖庫 (收集素材)</span>
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+        <a href="https://github.com/secile/UsbCamera" target="_blank" class="p-3 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 flex items-center justify-between transition">
+          <span class="text-purple-300">GitHub: secile/UsbCamera (C# 單檔相機)</span>
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+        <a href="https://www.nuget.org/packages/TeachableMachine" target="_blank" class="p-3 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 flex items-center justify-between transition">
+          <span class="text-amber-300">NuGet: TeachableMachine 1.0.6 (C#)</span>
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+        <a href="https://teachablemachine.withgoogle.com/models/xMP4C-s1K/" target="_blank" class="p-3 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 flex items-center justify-between transition">
+          <span class="text-sky-300">線上模型範例: 紅圓/黑圓/其他</span>
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+        <a href="https://teachablemachine.withgoogle.com/models/isWFIM_3_/" target="_blank" class="p-3 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 flex items-center justify-between transition">
+          <span class="text-rose-300">線上模型範例: 幾何圖形辨識</span>
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁尾 -->
+  <footer class="bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500">
+    <p>Google Teachable Machine 實戰教學講義 · 整理自張世學老師教材投影片</p>
+    <p class="mt-1">圖文並茂響應式單頁網頁 · 包含向量模擬截圖與完整跨平台工程代碼</p>
+  </footer>
+
+</body>
+</html>
