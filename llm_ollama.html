@@ -1305,6 +1305,115 @@
                 </div>
             </div>
 
+            <!-- 知識庫關鍵避坑：文件編碼對照實測（UTF-8 正常 vs ANSI 亂碼導致 I don't know） -->
+            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 rounded-2xl p-6 text-white border border-slate-700 shadow-xl space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-700/80 pb-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold text-sm">
+                                <i data-lucide="file-warning" class="w-4 h-4"></i>
+                            </span>
+                            <h4 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                                RAG 實戰致命避坑：文件編碼對照實測（UTF-8 正常 vs ANSI 亂碼導致檢索失敗）
+                            </h4>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            文件編碼是地端 RAG 最常踩的隱形地雷！透過實機測試深刻比對：正確 UTF-8 如何精準召回，以及 ANSI/Big5 亂碼如何讓旗艦模型直接回覆 <span class="text-rose-400 font-mono font-bold">I don't know</span>。
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-[11px] font-mono bg-rose-500/20 text-rose-300 border border-rose-400/30 px-2.5 py-1 rounded-lg flex items-center gap-1.5 font-semibold">
+                            <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+                            必避隱形地雷
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 雙圖實測對比展示 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 正常案例 (UTF-8) -->
+                    <div class="rounded-xl border border-emerald-500/40 bg-slate-950/80 shadow-2xl p-4 flex flex-col space-y-3 group hover:border-emerald-400 transition">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                                <h5 class="text-sm font-bold text-emerald-400 font-mono">成功範例：正常 (UTF-8 編碼)</h5>
+                            </div>
+                            <span class="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded font-bold">
+                                檢索命中 • 完美回答
+                            </span>
+                        </div>
+                        <div class="rounded-lg overflow-hidden border border-slate-800 bg-slate-900/60 p-1 flex items-center justify-center">
+                            <img src="images_src/ollama/pageassist_rag_encoding_normal.jpg" alt="正常案例：UTF-8 文件正確引用與回答" class="w-full h-auto rounded object-contain cursor-zoom-in transition-transform duration-300 group-hover:scale-[1.01]" onclick="window.open(this.src)" title="點擊放大檢視完整高解析截圖">
+                        </div>
+                        <div class="space-y-2 text-xs text-slate-300 pt-1">
+                            <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                                <span>問：Motor or Equipment Overheating...</span>
+                                <span class="text-emerald-400 font-bold">思考 10s • 生成排錯 3 步驟</span>
+                            </div>
+                            <p class="leading-relaxed text-[11px]">
+                                <strong>解析：</strong>文本採用標準 <strong>UTF-8</strong> 編碼，點開右側引用彈窗內容結構清晰無亂碼。向量嵌入（Embedding）特徵完全吻合，模型（gemma4:e4b）順利提取散熱、電壓電流與軸承排查三步驟。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 異常案例 (ANSI / 亂碼) -->
+                    <div class="rounded-xl border border-rose-500/40 bg-slate-950/80 shadow-2xl p-4 flex flex-col space-y-3 group hover:border-rose-400 transition">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+                                <h5 class="text-sm font-bold text-rose-400 font-mono">失敗案例：異常 (ANSI/Big5 亂碼)</h5>
+                            </div>
+                            <span class="text-[10px] font-mono bg-rose-500/20 text-rose-300 border border-rose-400/30 px-2 py-0.5 rounded font-bold">
+                                菱形問號 • I don't know
+                            </span>
+                        </div>
+                        <div class="rounded-lg overflow-hidden border border-slate-800 bg-slate-900/60 p-1 flex items-center justify-center">
+                            <img src="images_src/ollama/pageassist_rag_encoding_corrupt.jpg" alt="異常案例：ANSI 編碼導致知識庫亂碼與回答失敗" class="w-full h-auto rounded object-contain cursor-zoom-in transition-transform duration-300 group-hover:scale-[1.01]" onclick="window.open(this.src)" title="點擊放大檢視完整高解析截圖">
+                        </div>
+                        <div class="space-y-2 text-xs text-slate-300 pt-1">
+                            <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                                <span>問：馬達/設備運行時溫度過高 (過熱)</span>
+                                <span class="text-rose-400 font-bold">回覆：I don't know</span>
+                            </div>
+                            <p class="leading-relaxed text-[11px]">
+                                <strong>解析：</strong>文件以傳統 Windows <strong>ANSI (Big5)</strong> 儲存，被 Page Assist 以 UTF-8 讀取時整篇化為「菱形問號亂碼（Mojibake）」。特徵失真導致語意完全破壞，模型即便思考 10 秒也只能無奈回覆「I don't know」。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 避坑指南與標準解法 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                    <div class="bg-slate-800/90 rounded-xl p-4 border border-slate-700">
+                        <div class="flex items-center gap-2 mb-2 text-rose-400 font-bold text-xs uppercase tracking-wider font-mono">
+                            <i data-lucide="help-circle" class="w-4 h-4"></i> 1. 亂碼成因分析
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Windows 記事本歷史版本常將中文字預設為 ANSI (CP950) 編碼，但現代 Web UI 與地端 LLM 向量資料庫一律只支援 <strong>UTF-8</strong> 解碼。
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-800/90 rounded-xl p-4 border border-slate-700">
+                        <div class="flex items-center gap-2 mb-2 text-amber-400 font-bold text-xs uppercase tracking-wider font-mono">
+                            <i data-lucide="cpu" class="w-4 h-4"></i> 2. 向量檢索鏈路崩潰
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            文件一旦變成亂碼符號，文字分塊（Chunking）與 Embedding 產生的向量全然失去語意，模型就算強行讀取段落也看不懂，因而判定無法回答。
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-800/90 rounded-xl p-4 border border-slate-700 border-emerald-500/40 bg-emerald-950/20">
+                        <div class="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-xs uppercase tracking-wider font-mono">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i> 3. 標準解決 SOP
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            上傳前務必在 VS Code 或文字編輯器中檢查右下角編碼，並選擇<strong>「以 UTF-8 編碼儲存 (Save with Encoding ➔ UTF-8)」</strong>，即可百分之百避免亂碼！
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
         </section>
 
         <!-- =================== CHAPTER 5 =================== -->
