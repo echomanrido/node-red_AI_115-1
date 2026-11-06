@@ -1,8 +1,85 @@
 // Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能)、其他三大主題，支援 Google 課程群組與子群組)
 window.INITIAL_VIBE_DATA = [
   {
-    "id": "vibe-sdd-bdd-tdd",
+    "id": "vibe-grill-me",
     "labNumber": "01",
+    "title": "Vibe Coding × Grill Me Skill：Windows & Google Antigravity 實戰指南",
+    "shortTitle": "Grill Me 技能實戰指南",
+    "category": "Skills(技能)",
+    "date": "2026-11-06",
+    "summary": "用 Vibe Coding 釋放直覺，用 Grill Me 守護品質！深度解構 Google Antigravity 2.0 與 Windows 環境下官方開源的 /grill-me 技能。Vibe Coding 是踩滿油門的直覺開發，而 Grill Me 則是主動將提問權交給 AI，以資深架構師與資安專家視角多輪嚴苛面試（Grill），逼出架構盲點、邊界漏洞與資安死角。涵蓋 Windows PowerShell 安裝除錯、運作流程圖、模擬對練室與防雷檢核清單。",
+    "flowTitle": "Grill Me 控制反轉 (IoC) 審問式架構演繹五步流水線",
+    "resultTitle": "Grill Me 技能實戰指南互動專題",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmNDNmNWUiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjZjQzZjVlIi8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+R3JpbGwgTWUg5o6n5Yi25Y+N6L2JIChJb0MpIOWvqeWVj+a1geawtOe3mjwvdGV4dD4KICA8dGV4dCB4PSIzOCIgeT0iNjAiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iMTEiPlZpYmUgSW50ZW50IC0mZ3Q7IEdyaWxsIEludGVydmlldyAtJmd0OyBTdHJlc3MgVGVzdCAtJmd0OyBTcGVjICZhbXA7IEFEUiAtJmd0OyBTYWZlIENvZGluZzwvdGV4dD4KICA8cmVjdCB4PSIyNSIgeT0iODAiIHdpZHRoPSI2NzAiIGhlaWdodD0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA4KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzQiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIzNCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjZjQzZjVlIi8+CiAgICA8Y2lyY2xlIGN4PSI1NiIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjZjQzZjVlIiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU2IiB5PSIxNDAiIGZpbGw9IiNmNDNmNWUiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HTS0xPC90ZXh0PgogICAgPHJlY3QgeD0iMTAyIiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjEyMyIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SW50ZW50PC90ZXh0PgogICAgPHRleHQgeD0iNDYiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuebtOimuueZvOi1tzwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ2IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij7mi4vlh7rmqKHns4rmp4vmg7PoiIfpgornlYw8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMTUzIDE2MCBMIDE2NSAxNjAiIHN0cm9rZT0iI2Y0M2Y1ZSIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iI2Y0M2Y1ZSIvPgogICAgPGNpcmNsZSBjeD0iMTkwIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiNmNDNmNWUiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMTkwIiB5PSIxNDAiIGZpbGw9IiNmNDNmNWUiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HTS0yPC90ZXh0PgogICAgPHJlY3QgeD0iMjM2IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjI1NyIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R3JpbGwgTG9vcDwvdGV4dD4KICAgIDx0ZXh0IHg9IjE4MCIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+5a+p5ZWP5Y+N6L2JPC90ZXh0PgogICAgPHRleHQgeD0iMTgwIiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5BSSDkuLvli5XnmbzotbfmioDooZPpnaLoqaY8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMjg3IDE2MCBMIDI5OSAxNjAiIHN0cm9rZT0iI2Y0M2Y1ZSIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIzMDIiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIzMDIiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iI2Y0M2Y1ZSIvPgogICAgPGNpcmNsZSBjeD0iMzI0IiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiNmNDNmNWUiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMzI0IiB5PSIxNDAiIGZpbGw9IiNmNDNmNWUiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HTS0zPC90ZXh0PgogICAgPHJlY3QgeD0iMzcwIiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjM5MSIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+U3RyZXNzIFRlc3Q8L3RleHQ+CiAgICA8dGV4dCB4PSIzMTQiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuebsum7nuaTiuegtDwvdGV4dD4KICAgIDx0ZXh0IHg9IjMxNCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+6YC85Ye65L2155m844CB5pa357ea6IiH5q276KeSPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDQyMSAxNjAgTCA0MzMgMTYwIiBzdHJva2U9IiNmNDNmNWUiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iNDM2IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iNDM2IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiNmNDNmNWUiLz4KICAgIDxjaXJjbGUgY3g9IjQ1OCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjZjQzZjVlIiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjQ1OCIgeT0iMTQwIiBmaWxsPSIjZjQzZjVlIiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R00tNDwvdGV4dD4KICAgIDxyZWN0IHg9IjUwNCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSI1MjUiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlNwZWMgQ29udHJhY3Q8L3RleHQ+CiAgICA8dGV4dCB4PSI0NDgiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuimj+agvOWbuuWMljwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ0OCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+55Sf5oiQIFNQRUMubWQg6IiHIEE8L3RleHQ+CiAgICA8dGV4dCB4PSI0NDgiIHk9IjIwMCIgZmlsbD0iIzY0NzQ4YiIgZm9udC1zaXplPSI4LjUiPkRSPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDU1NSAxNjAgTCA1NjcgMTYwIiBzdHJva2U9IiNmNDNmNWUiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iNTcwIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iNTcwIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiNmNDNmNWUiLz4KICAgIDxjaXJjbGUgY3g9IjU5MiIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjZjQzZjVlIiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU5MiIgeT0iMTQwIiBmaWxsPSIjZjQzZjVlIiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R00tNTwvdGV4dD4KICAgIDxyZWN0IHg9IjYzOCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSI2NTkiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlNhZmUgQ29kaW5nPC90ZXh0PgogICAgPHRleHQgeD0iNTgyIiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7lronlhajnlKLnorw8L3RleHQ+CiAgICA8dGV4dCB4PSI1ODIiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPue2oOeHiOaUvuihjOiIh+WatOagvOWvpuePvjwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA2MjggMjE4IEMgNjI4IDI2NSwgOTIgMjY1LCA5MiAyMTgiIHN0cm9rZT0iI2Y0M2Y1ZSIgc3Ryb2tlLXdpZHRoPSIxLjIiIHN0cm9rZS1kYXNoYXJyYXk9IjUsNCIgZmlsbD0ibm9uZSIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8dGV4dCB4PSIzNjAiIHk9IjI2MCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjUwMCI+5o6n5Yi25Y+N6L2J5b+D5rOV77ya5YGc5q2i6L+O5ZCI5oiR77yB5YOP5pyA5Zq05qC855qE5Li75p625qeL5bir5LiA5qij5ou35ZWP5oiR77yM5Zyo5a+r5Luj56K85YmN5Ym36ZmkIDkwJSDpmrHmgqM8L3RleHQ+Cjwvc3ZnPg==",
+    "resultImage": "Vibe Coding/02.Skills(技能)/vibe_coding_grill_me.html",
+    "slideUrl": "Vibe Coding/02.Skills(技能)/vibe_coding_grill_me.html",
+    "objective": "1. 掌握 Grill Me 的「控制反轉 (IoC)」核心心法：讓 AI 扮演嚴苛審問官主動提出質疑，破除過度樂觀的架構盲點。\n2. 熟練 Windows 10/11 PowerShell 環境下 Google Antigravity 全域 (Global) 與專案級 (Workspace) 的 Skill 安裝與路徑配置。\n3. 學會將 Grill Me 面試結果沉澱為高價值專案工件（SPEC.md 規格合約、ADR 架構決策紀錄），建立高韌性 AI 原生工作流。",
+    "tutorialSteps": [
+      {
+        "step": "第一節：核心哲學 — Vibe Coding（油門）遇上 Grill Me（煞車與方向盤）",
+        "description": "剖析直覺創作心流與工程品質護欄的辯證統一，理解為何把提問權交給 AI 才能在開工前消除 90% 隱患。"
+      },
+      {
+        "step": "第二節：Windows & Google Antigravity 安裝與指令指南",
+        "description": "詳述在 Windows PowerShell 環境下配置全域 (%USERPROFILE%\\.agents\\skills) 與專案級 (Workspace) 的 SKILL.md 規格與權限。"
+      },
+      {
+        "step": "第三節：運作流程圖與控制反轉推演",
+        "description": "解構 5 步審問流水線（Intent -> Grill -> Stress -> Spec -> Code），掌握 AI 追問邊界條件與併發競態的具體模式。"
+      },
+      {
+        "step": "第四節：互動模擬對練室與 Prompt 模組工坊",
+        "description": "提供即時模擬體驗與可直接複製之結構化 Prompt 樣板，在 Antigravity、Claude Code 或 Cursor 中一鍵啟動嚴格面試。"
+      }
+    ],
+    "promptTemplate": "請扮演一位最挑剔、經驗最豐富的 Google Antigravity 首席系統架構師與資安長。\n我即將開發一個「[專案/功能名稱]」。\n在允許我寫下一行代碼之前，請對我進行嚴格的 /grill-me 拷問：\n1. 每次只問我 1 到 2 個最關鍵的問題，不要一次拋出一大堆問題。\n2. 重點拷問：系統邊界、併發競態、離線重連、硬體故障與資安驗證機制。\n3. 根據我的回答持續追問，直到所有架構模糊點完全釐清為止。\n4. 最終幫我產出結構化的 SPEC.md 規格檔案與 ADR 架構決策記錄。",
+    "codeSnippet": {
+      "language": "powershell",
+      "code": "# Windows PowerShell 全域安裝 Grill Me Skill\n$p = Join-Path $env:USERPROFILE '.agents\\skills\\grill-me'\nNew-Item -ItemType Directory -Force -Path $p\nInvoke-WebRequest -Uri 'https://raw.githubusercontent.com/mattpocock/skills/main/skills/grill-me/SKILL.md' -OutFile (Join-Path $p 'SKILL.md')\n\n# 啟動 Google Antigravity 終端對話\n# 輸入：/grill-me 規劃 Industrial IoT 邊緣網關離線緩存架構"
+    },
+    "references": [
+      {
+        "title": "Grill Me 技能實戰指南 (專屬專題互動工作台)",
+        "url": "Vibe Coding/02.Skills(技能)/vibe_coding_grill_me.html",
+        "bgColor": "rgba(244, 63, 94, 0.15)",
+        "borderColor": "rgba(244, 63, 94, 0.6)",
+        "color": "#fb7185",
+        "icon": "fa-solid fa-fire-burner",
+        "badge": "本單元專題"
+      },
+      {
+        "title": "Matt Pocock / skills 官方開源庫 (GitHub)",
+        "url": "https://github.com/mattpocock/skills/blob/main/docs/productivity/grill-me.md"
+      },
+      {
+        "title": "RobMitt / grill-me-skill 技能庫 (GitHub)",
+        "url": "https://github.com/robmitt/grill-me-skill"
+      },
+      {
+        "title": "當 Vibe Coding 遇上嚴謹工程學：SDD vs BDD vs TDD (單元 02)",
+        "url": "Vibe Coding/02.Skills(技能)/vibe_coding_sdd_vs_bdd_vs_tdd.html"
+      },
+      {
+        "title": "OpenSpec 規格驅動開發：完整指南與實踐 (單元 10)",
+        "url": "Vibe Coding/02.Skills(技能)/01.openspec.html"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-fire",
+        "scenario": "關鍵系統架構壓力測試與盲點排查",
+        "description": "在動手產碼前由 AI 發起深度審問，快速逼出併發衝突、異常重試與安全邊界漏洞，節省數週重構成本。"
+      },
+      {
+        "icon": "fa-solid fa-file-contract",
+        "scenario": "SPEC.md 規格合約與 ADR 架構決策自動固化",
+        "description": "將殘酷面試問答過程自動沉澱為結構化架構文件與任務清單，使後續 AI Agent 能完全依照規範穩健實作。"
+      }
+    ]
+  },
+  {
+    "id": "vibe-sdd-bdd-tdd",
+    "labNumber": "02",
     "title": "當 Vibe Coding 遇上嚴謹工程學：SDD vs BDD vs TDD（架構矩陣與 AI Skills 生態）",
     "shortTitle": "SDD vs BDD vs TDD 現代開發架構",
     "category": "Skills(技能)",
@@ -56,11 +133,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "https://github.com/obra/superpowers"
       },
       {
-        "title": "軟體工程演進全景圖 (單元 02)",
+        "title": "軟體工程演進全景圖 (單元 03)",
         "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
       },
       {
-        "title": "OpenSpec 規格驅動開發：完整指南與實踐 (單元 09)",
+        "title": "OpenSpec 規格驅動開發：完整指南與實踐 (單元 10)",
         "url": "Vibe Coding/02.Skills(技能)/01.openspec.html"
       }
     ],
@@ -79,7 +156,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-01",
-    "labNumber": "02",
+    "labNumber": "03",
     "title": "軟體工程演進全景圖：從混沌、瀑布、敏捷到 Vibe Coding",
     "category": "軟體工程",
     "date": "2026-09-18",
@@ -142,7 +219,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-meteor-fall",
-    "labNumber": "03",
+    "labNumber": "04",
     "title": "軟體工程經典反模式：隕石墜落型開發（メテオフォール型開発）中文完整重現版",
     "shortTitle": "隕石墜落型開發 (經典反模式)",
     "category": "軟體工程",
@@ -192,7 +269,7 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/01.軟體工程/隕石墜落型開發 中文完整重現版.html"
       },
       {
-        "title": "軟體工程演進全景圖 (單元 02)",
+        "title": "軟體工程演進全景圖 (單元 03)",
         "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
       },
       {
@@ -215,7 +292,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-guide",
-    "labNumber": "04",
+    "labNumber": "05",
     "title": "Vibe Coding 與新世代 AI 原生軟體工程 (AI-Native SDLC 權威指南)",
     "shortTitle": "Vibe Coding 實戰心法指南",
     "category": "軟體工程",
@@ -270,7 +347,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-02",
-    "labNumber": "05",
+    "labNumber": "06",
     "title": "Anthropic Claude：AI-Native SDLC 全週期實戰手冊 (Playbook)",
     "category": "軟體工程",
     "date": "2026-08-21",
@@ -333,7 +410,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-google-course",
-    "labNumber": "06",
+    "labNumber": "07",
     "isGroup": true,
     "groupTitle": "Google 5-Day AI Agents 密集課程 (全五天系列)",
     "title": "Google 5-Day AI Agents 密集課程：完整實戰總覽 (Day 1 ~ Day 5)",
@@ -640,7 +717,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-uml-blueprint",
-    "labNumber": "07",
+    "labNumber": "08",
     "title": "軟體工程：Vibe Coding × UML (一)：以 UML 藍圖鎖定架構，釋放 AI 創意",
     "shortTitle": "Vibe Coding × UML (一)：藍圖架構",
     "category": "軟體工程",
@@ -705,7 +782,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-uml-14-types",
-    "labNumber": "08",
+    "labNumber": "09",
     "title": "軟體工程：Vibe Coding × UML (二)：14 種圖表全覽與規範 AI 的程式靈魂",
     "shortTitle": "Vibe Coding × UML (二)：14種圖表全覽",
     "category": "軟體工程",
@@ -770,7 +847,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-openspec",
-    "labNumber": "09",
+    "labNumber": "10",
     "title": "OpenSpec (opsx)：AI 規格驅動開發 (Spec-Driven Development) 指南",
     "shortTitle": "OpenSpec 規格驅動開發",
     "category": "Skills(技能)",
@@ -838,7 +915,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-opsx-lifecycle",
-    "labNumber": "10",
+    "labNumber": "11",
     "title": "OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析",
     "shortTitle": "OpenSpec 生命週期與檔案全解析",
     "category": "Skills(技能)",
@@ -906,7 +983,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-superpowers",
-    "labNumber": "11",
+    "labNumber": "12",
     "title": "Superpowers 軟體工程 Agent 工作流規範：14 大核心 Skills 與 TDD 實戰指南",
     "shortTitle": "Superpowers Agent 工作流規範",
     "category": "Skills(技能)",
@@ -974,7 +1051,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-reverse-engineering-traditional",
-    "labNumber": "12",
+    "labNumber": "13",
     "title": "傳統逆向工程與核心工具解析：Detect It Easy、IDA Pro 與 Ghidra 實戰指南",
     "shortTitle": "傳統逆向工具 (DIE/IDA/Ghidra)",
     "category": "其他",
@@ -1043,7 +1120,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-reverse-engineering-rea",
-    "labNumber": "13",
+    "labNumber": "14",
     "title": "REA (Reverse Engineer Anything)：AI 智能體逆向工程協議與實戰指南",
     "shortTitle": "REA AI 智能體逆向工程",
     "category": "其他",
@@ -1108,7 +1185,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-team-dev-guide",
-    "labNumber": "14",
+    "labNumber": "15",
     "title": "AI Coding 新時代的團隊開發：從個人用 AI 到 AI-Native 組織 (實戰教學指南)",
     "shortTitle": "AI Coding 團隊開發實戰教學指南",
     "category": "其他",
@@ -1150,11 +1227,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
       },
       {
-        "title": "陳宜昌 YC 演講時間軸與完整逐字稿 (單元 15)",
+        "title": "陳宜昌 YC 演講時間軸與完整逐字稿 (單元 16)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
       },
       {
-        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 16)",
+        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 17)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
       },
       {
@@ -1177,7 +1254,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-team-dev-transcript",
-    "labNumber": "15",
+    "labNumber": "16",
     "title": "AI Coding 新時代的團隊開發：陳宜昌 YC 演講時間軸與完整逐字稿",
     "shortTitle": "團隊開發演講逐字稿時間軸",
     "category": "其他",
@@ -1215,11 +1292,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
       },
       {
-        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 14)",
+        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 15)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
       },
       {
-        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 16)",
+        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 17)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
       },
       {
@@ -1242,7 +1319,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-team-dev-transcript-01",
-    "labNumber": "16",
+    "labNumber": "17",
     "title": "AI Coding 新時代的團隊開發：陳宜昌 YC 演講完整精校逐字稿與互動解析",
     "shortTitle": "演講精校逐字稿與互動解析",
     "category": "其他",
@@ -1284,11 +1361,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
       },
       {
-        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 14)",
+        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 15)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
       },
       {
-        "title": "陳宜昌 YC 演講時間軸與精要逐字稿 (單元 15)",
+        "title": "陳宜昌 YC 演講時間軸與精要逐字稿 (單元 16)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
       },
       {
