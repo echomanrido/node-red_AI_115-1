@@ -1385,5 +1385,74 @@ window.INITIAL_VIBE_DATA = [
         "description": "透過 oat-agents 終端模擬器理解 Meta/Member 分工與 Worktree 隔離，評估導入多代理協同開發工具。"
       }
     ]
+  },
+  {
+    "id": "vibe-ost-canvas",
+    "labNumber": "18",
+    "title": "不再迷航於 AI 代碼海：用 OST (機會解決方案樹) 定舵，以 Vibe Coding 揚帆",
+    "shortTitle": "OST 定舵 × Vibe Coding 揚帆",
+    "category": "其他",
+    "subCategory": "機會解決方案樹 (OST)",
+    "date": "2026-10-18",
+    "summary": "終結 AI 輔助開發中「寫得越快、錯得越多」的致命痛點！深度結合 Teresa Torres 的機會解決方案樹 (Opportunity Solution Tree, OST) 與 Vibe Coding 開發範式。以「成果 (Outcome) -> 機會 (Opportunity) -> 解法 (Solution) -> 實驗 (Experiment)」四層架構為 AI 提示詞精準定舵，搭配雙環工作流與 PLC 工控實戰圖譜，兼顧「建造正確之物 (Build the Right Thing)」與「極速建造 (Build Thing Fast)」。",
+    "flowTitle": "OST 機會解決方案樹架構定舵 × Vibe Coding 雙環閉環實踐工作流",
+    "resultTitle": "OST 互動式決策樹畫布、提示詞產生器與 PLC 工控實戰案例",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM4YjVjZjYiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjOGI1Y2Y2Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+T1NUIOaetuani+WumuiItSDDlyBWaWJlIENvZGluZyDmpbXpgJ/ov63ku6Ppm5nnkrDlt6XkvZzmtYE8L3RleHQ+CiAgPHRleHQgeD0iMzgiIHk9IjYwIiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjExIj5PdXRjb21lIEZvY3VzIC0mZ3Q7IE9wcG9ydHVuaXR5IERpc2NvdmVyeSAtJmd0OyBTb2x1dGlvbiBCcmFpbnN0b3JtIC0mZ3Q7IFZpYmUgQ29kaW5nIEV4cGVyaW1lbnQ8L3RleHQ+CiAgPHJlY3QgeD0iMjUiIHk9IjgwIiB3aWR0aD0iNjcwIiBoZWlnaHQ9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wOCkiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjM0IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMzQiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzhiNWNmNiIvPgogICAgPGNpcmNsZSBjeD0iNTYiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzhiNWNmNiIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSI1NiIgeT0iMTQwIiBmaWxsPSIjOGI1Y2Y2IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+T1NULTE8L3RleHQ+CiAgICA8cmVjdCB4PSIxMDIiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iMTIzIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5PdXRjb21lPC90ZXh0PgogICAgPHRleHQgeD0iNDYiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPumOluWumuaIkOaenDwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ2IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij7lrprnvqnnlKLlk4Hph4/ljJbllYbmpa3mjIfmqJk8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMTUzIDE2MCBMIDE2NSAxNjAiIHN0cm9rZT0iIzhiNWNmNiIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzhiNWNmNiIvPgogICAgPGNpcmNsZSBjeD0iMTkwIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMTkwIiB5PSIxNDAiIGZpbGw9IiM4YjVjZjYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5PU1QtMjwvdGV4dD4KICAgIDxyZWN0IHg9IjIzNiIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIyNTciIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkRpc2NvdmVyeTwvdGV4dD4KICAgIDx0ZXh0IHg9IjE4MCIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+5o6i5YuY5qmf5pyDPC90ZXh0PgogICAgPHRleHQgeD0iMTgwIiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij7mjJbmjpjlrqLmiLbmnKrooqvmu7/otrPnmoTnl5vpu548L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMjg3IDE2MCBMIDI5OSAxNjAiIHN0cm9rZT0iIzhiNWNmNiIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIzMDIiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIzMDIiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzhiNWNmNiIvPgogICAgPGNpcmNsZSBjeD0iMzI0IiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMzI0IiB5PSIxNDAiIGZpbGw9IiM4YjVjZjYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5PU1QtMzwvdGV4dD4KICAgIDxyZWN0IHg9IjM3MCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIzOTEiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlNvbHV0aW9uPC90ZXh0PgogICAgPHRleHQgeD0iMzE0IiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7nmbzmlaPop6Pms5U8L3RleHQ+CiAgICA8dGV4dCB4PSIzMTQiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPuWwjeavlOWkmueoruaKgOihk+i3r+W+keiIh+asiuihoTwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA0MjEgMTYwIEwgNDMzIDE2MCIgc3Ryb2tlPSIjOGI1Y2Y2IiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjQzNiIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjQzNiIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjOGI1Y2Y2Ii8+CiAgICA8Y2lyY2xlIGN4PSI0NTgiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzhiNWNmNiIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSI0NTgiIHk9IjE0MCIgZmlsbD0iIzhiNWNmNiIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk9TVC00PC90ZXh0PgogICAgPHJlY3QgeD0iNTA0IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjUyNSIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QnVpbGQ8L3RleHQ+CiAgICA8dGV4dCB4PSI0NDgiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPualtemAn+W7uumAoDwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ0OCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+VmliZSBDb2Rpbmcg5pWP5o23PC90ZXh0PgogICAgPHRleHQgeD0iNDQ4IiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij7ljp/lnovlr6bkvZw8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gNTU1IDE2MCBMIDU2NyAxNjAiIHN0cm9rZT0iIzhiNWNmNiIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSI1NzAiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSI1NzAiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzhiNWNmNiIvPgogICAgPGNpcmNsZSBjeD0iNTkyIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iNTkyIiB5PSIxNDAiIGZpbGw9IiM4YjVjZjYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5PU1QtNTwvdGV4dD4KICAgIDxyZWN0IHg9IjYzOCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSI2NTkiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlZlcmlmeTwvdGV4dD4KICAgIDx0ZXh0IHg9IjU4MiIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+5YGH6Kit5qqi6amXPC90ZXh0PgogICAgPHRleHQgeD0iNTgyIiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij7lv6vpgJ/lm57ppYvpqZforYnllYbmpa3lgYfoqqo8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gNjI4IDIxOCBDIDYyOCAyNjUsIDkyIDI2NSwgOTIgMjE4IiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtZGFzaGFycmF5PSI1LDQiIGZpbGw9Im5vbmUiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPHRleHQgeD0iMzYwIiB5PSIyNjAiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI1MDAiPumbmeeSsOmWieeSsO+8muWklueSsOaOoue0ouOAjuW7uumAoOato+eiuuS5i+eJqeOAj++8jOWFp+eSsCBWaWJlIENvZGluZ+OAjualtemAn+W7uumAoOato+eiuuS5i+eJqeOAjzwvdGV4dD4KPC9zdmc+",
+    "resultImage": "Vibe Coding/03.其他/不再迷航於 AI 代碼海：用 OST 定舵，以 Vibe Coding 揚帆.html",
+    "slideUrl": "Vibe Coding/03.其他/不再迷航於 AI 代碼海：用 OST 定舵，以 Vibe Coding 揚帆.html",
+    "objective": "1. 理解 Vibe Coding 與機會解決方案樹 (OST) 的互補價值：用 OST 避免「極速建造垃圾」，用 Vibe Coding 降低「實驗驗證成本」。\n2. 掌握四層 OST 架構：期望成果 (Outcome)、痛點機會 (Opportunity)、解法候選 (Solution) 與假設實驗 (Experiment)。\n3. 實作雙環閉環工作流與專屬提示詞範本，並參考 PLC 工控異常排查實戰案例，打造高成效的 AI 敏捷開發流程。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 從「功能甘特圖」切換為「成效決策樹」",
+        "description": "跳脫以產出 (Output) 為導向的傳統思維，轉為以商業與使用者成效 (Outcome) 為錨點，建立多路徑展開的動態決策樹。"
+      },
+      {
+        "step": "步驟 2: 探索工控 PLC 異常診斷實例圖譜",
+        "description": "以工控領域「產線停機診斷」為真實案例，對比傳統 Modbus 輪詢與邊緣 AI 異常檢測方案，觀察 OST 如何引導技術選型。"
+      },
+      {
+        "step": "步驟 3: 操作互動式 OST 畫布與決策生成",
+        "description": "在可互動畫布中動態切換痛點分支，直觀視覺化評估多種解決方案的影響力、技術可行性與假設風險。"
+      },
+      {
+        "step": "步驟 4: 注入專為 OST 定制之 Vibe Coding 提示詞",
+        "description": "運用「角色 + OST 背景 + 實驗邊界 + 嚴禁自嗨」架構向 AI 下達指令，一鍵生成聚焦核心假說的原型代碼。"
+      }
+    ],
+    "promptTemplate": "你是一位頂尖的 AI-Native 產品架構師與全棧工程師。\n我們目前正在運用「機會解決方案樹 (OST)」指導 Vibe Coding 開發：\n\n【OST 錨定背景】\n- 期望成效 (Outcome)：工控邊緣網關數據採集延遲由 250ms 降至 50ms 以內\n- 鎖定機會 (Opportunity)：現場維護工程師反映傳統循序 Modbus 輪詢造成高頻告警遺失\n- 候選解法 (Solution)：實作以 RxJS / 異步事件驅動為核心的並行輪詢緩衝佇列模組\n\n【Vibe Coding 任務目標】\n請依據此解法，撰寫一份專注於「最小可行假說驗證 (MVP Experiment)」的 Node.js 原型：\n1. 實作並行隊列與背壓 (Backpressure) 控制機制。\n2. 加入模擬 100 個暫存器高頻壓測腳本。\n3. 請勿過度設計無關的 UI 或資料庫儲存，優先驗證延遲指標是否達標。",
+    "codeSnippet": {
+      "language": "javascript",
+      "code": "// OST 實驗原型：RxJS 異步並行 Modbus 採集隊列 (最小可行假說驗證)\nimport { from, mergeMap, bufferTime, filter } from 'rxjs';\n\nconst registers = Array.from({ length: 100 }, (_, i) => ({ address: 40001 + i }));\n\n// 模擬並行採集與微批次聚合緩衝\nfrom(registers).pipe(\n  mergeMap(async (reg) => {\n    const start = performance.now();\n    const val = await readModbusAsync(reg.address);\n    return { addr: reg.address, val, latency: performance.now() - start };\n  }, 10), // 並行度限制 10\n  bufferTime(50), // 50ms 聚合推播\n  filter(batch => batch.length > 0)\n).subscribe(batch => {\n  console.log(`[OST 驗證] 批次推送 ${batch.length} 筆暫存器資料，平均延遲: ${calcAvgLatency(batch)}ms`);\n});"
+    },
+    "references": [
+      {
+        "title": "不再迷航於 AI 代碼海：用 OST 定舵，以 Vibe Coding 揚帆 (專屬互動全景頁面)",
+        "url": "Vibe Coding/03.其他/不再迷航於 AI 代碼海：用 OST 定舵，以 Vibe Coding 揚帆.html"
+      },
+      {
+        "title": "Continuous Discovery Habits (Teresa Torres OST 官方理論著作)",
+        "url": "https://www.producttalk.org/opportunity-solution-tree/"
+      },
+      {
+        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 15)",
+        "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
+      },
+      {
+        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 17)",
+        "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-compass",
+        "scenario": "新產品敏捷探索與 MVP 原型決策",
+        "description": "避免團隊陷入「AI 產碼很快但做出來沒人用」的產出陷阱，先以 OST 鎖定商業價值再啟動 Vibe Coding。"
+      },
+      {
+        "icon": "fa-solid fa-industry",
+        "scenario": "智慧製造與工控邊緣系統架構演進",
+        "description": "在傳統 PLC/SCADA 改造升級時，依痛點分枝快速驗證邊緣計算、通訊協定轉換與預測維護之技術可行性。"
+      }
+    ]
   }
 ];

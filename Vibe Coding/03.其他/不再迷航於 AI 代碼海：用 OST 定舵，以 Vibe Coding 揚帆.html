@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibe Coding × 機會解決方案樹 (OST) 實戰教學</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              900: '#4c1d95',
+            },
+            accent: {
+              emerald: '#10b981',
+              amber: '#f59e0b',
+              sky: '#0284c7',
+              rose: '#f43f5e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glow-purple {
+      box-shadow: 0 0 40px -10px rgba(124, 58, 237, 0.3);
+    }
+    /* OST 原版配色樣式定義 */
+    .ost-outcome-box {
+      background-color: #ee786c;
+      color: #ffffff;
+      border: 2px solid #e26154;
+      box-shadow: 0 4px 12px rgba(238, 120, 108, 0.25);
+    }
+    .ost-opp-box {
+      background-color: #f3b455;
+      color: #3b280a;
+      border: 2px solid #df9c33;
+      box-shadow: 0 4px 10px rgba(243, 180, 85, 0.2);
+    }
+    .ost-sol-box {
+      background-color: #6cb8b4;
+      color: #ffffff;
+      border: 2px solid #54a39f;
+      box-shadow: 0 3px 8px rgba(108, 184, 180, 0.25);
+    }
+    .ost-exp-circle {
+      background-color: #464e8c;
+      color: #ffffff;
+      border: 2px solid #363d74;
+      box-shadow: 0 3px 8px rgba(70, 78, 140, 0.3);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-brand-500 selection:text-white">
+
+  <!-- 全螢幕燈箱 (Modal Lightbox) 用於放大兩張圖 -->
+  <div id="image-modal" class="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-md hidden flex flex-col justify-center items-center p-4 sm:p-8">
+    <div class="w-full max-w-6xl max-h-[92vh] flex flex-col bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl">
+      <div class="px-6 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+        <div class="flex items-center gap-2">
+          <i data-lucide="maximize-2" class="w-4 h-4 text-brand-400"></i>
+          <span id="modal-title" class="font-bold text-sm text-white">圖表檢視</span>
+        </div>
+        <button onclick="closeModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="modal-content" class="p-6 overflow-auto flex-1 flex items-center justify-center bg-white text-slate-900">
+        <!-- 放大後的內容將動態複製至此 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 頂部導航 -->
+  <header class="sticky top-0 z-50 glass-card border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-brand-500/30">
+          <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-400 bg-clip-text text-transparent">
+            Vibe Coding × OST
+          </span>
+          <span class="text-xs text-slate-400 block -mt-1 font-mono">架構驅動 × AI 敏捷共舞</span>
+        </div>
+      </div>
+      <nav class="hidden md:flex items-center space-x-1 font-medium text-sm text-slate-300">
+        <a href="#concept" class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition">核心理念</a>
+        <a href="#roadmap-evolution" class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition">路線圖演進</a>
+        <a href="#plc-case-study" class="px-3 py-1.5 rounded-lg text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/40 transition font-semibold">PLC 實戰案例</a>
+        <a href="#ost-canvas" class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition">互動 OST 畫布</a>
+        <a href="#workflow" class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition">雙環工作流</a>
+        <a href="#prompts" class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/60 transition">提示詞錦囊</a>
+      </nav>
+      <div class="flex items-center space-x-3">
+        <a href="../../vibecoding.html?id=vibe-ost-canvas" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/40 transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>返回 Vibe Coding</span>
+        </a>
+        <button onclick="scrollToSection('plc-case-study')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-md shadow-emerald-600/30 flex items-center gap-1.5">
+          <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+          看 PLC 實例圖譜
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero 區域 -->
+  <section class="relative overflow-hidden py-20 lg:py-28 px-4 sm:px-6 lg:px-8 border-b border-slate-800/60">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(124,58,237,0.15),transparent_60%)] pointer-events-none"></div>
+    <div class="max-w-5xl mx-auto text-center relative z-10">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-900/60 border border-purple-400/50 text-purple-200 text-xs font-semibold mb-6 shadow-lg shadow-purple-950/40">
+        <i data-lucide="cpu" class="w-3.5 h-3.5 text-purple-300"></i>
+        新世代軟體建構範式
+      </div>
+      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+        不再迷航於 AI 代碼海：<br>
+        用 <span class="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(251,191,36,0.35)]">OST 定舵</span>，以 <span class="bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(52,211,153,0.35)]">Vibe Coding 揚帆</span>
+      </h1>
+      <p class="text-base sm:text-lg text-slate-200 max-w-3xl mx-auto font-normal leading-relaxed mb-10">
+        <strong class="text-white">Vibe Coding</strong> 讓你用自然語言與直覺光速產出代碼；<strong class="text-white">機會解決方案樹 (OST)</strong> 確保你建造的是真正能達成商業成果的解法。兩者結合，兼顧「建造正確之物」與「極速建造」。
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="#ost-canvas" class="px-6 py-3.5 rounded-xl text-sm font-semibold bg-white text-slate-900 hover:bg-slate-100 transition shadow-lg flex items-center gap-2">
+          <i data-lucide="git-branch" class="w-4 h-4 text-brand-600"></i>
+          進入互動式樹狀圖
+        </a>
+        <a href="#why-combine" class="px-6 py-3.5 rounded-xl text-sm font-semibold glass-card text-white hover:bg-slate-800 transition flex items-center gap-2">
+          <i data-lucide="book-open" class="w-4 h-4 text-slate-400"></i>
+          閱讀設計思維框架
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 兩者概念拆解 -->
+  <section id="concept" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-xs uppercase tracking-widest text-brand-400 font-bold mb-2">Fundamental Concepts</h2>
+      <h3 class="text-3xl font-bold text-white tracking-tight">雙輪驅動的兩大核心引擎</h3>
+      <p class="text-slate-400 mt-3 text-sm">單靠 AI 容易淪為「精美卻沒人要的玩具」；單靠 OST 若沒有 AI 速度，則探索成本過高。</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Vibe Coding 卡片 -->
+      <div class="glass-card rounded-2xl p-8 border border-slate-800 hover:border-brand-500/40 transition duration-300 relative group glow-purple">
+        <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-6">
+          <i data-lucide="terminal" class="w-6 h-6"></i>
+        </div>
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="text-2xl font-bold text-white">Vibe Coding</h4>
+          <span class="text-xs px-2.5 py-1 bg-purple-500/20 text-purple-300 rounded-md font-mono">速度與直覺</span>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed mb-6">
+          由 Andrej Karpathy 等人推廣的新世代編程哲學：開發者不再逐行敲打代碼，而是透過人機協同、意圖引導（Prompting）、審查即時結果與微調，在「心流（Vibe）」中極速落實想法。
+        </p>
+        <div class="space-y-3 border-t border-slate-800/80 pt-4 text-xs text-slate-300">
+          <div class="flex items-start gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i>
+            <span><strong>優勢：</strong> 邊際開發成本趨近於零，數分鐘內立體化 Demo。</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+            <span><strong>陷阱：</strong> 易陷入「代碼膨脹」、「忘記為誰而做」的局部最佳解。</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- OST 卡片 -->
+      <div class="glass-card rounded-2xl p-8 border border-slate-800 hover:border-sky-500/40 transition duration-300 relative group">
+        <div class="w-12 h-12 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-6">
+          <i data-lucide="network" class="w-6 h-6"></i>
+        </div>
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="text-2xl font-bold text-white">Opportunity Solution Tree</h4>
+          <span class="text-xs px-2.5 py-1 bg-sky-500/20 text-sky-300 rounded-md font-mono">方向與驗證</span>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed mb-6">
+          由產品探索名師 Teresa Torres 提出。四層結構：<strong>Outcome (商業成效) → Opportunities (客戶痛點/機會) → Solutions (可能解法) → Experiments (假設驗證)</strong>。
+        </p>
+        <div class="space-y-3 border-t border-slate-800/80 pt-4 text-xs text-slate-300">
+          <div class="flex items-start gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4 text-sky-400 shrink-0 mt-0.5"></i>
+            <span><strong>優勢：</strong> 避免「愛上第一個想法」，以嚴謹邏輯對齊目標與多樣解法。</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+            <span><strong>傳統瓶頸：</strong> 傳統開發中，驗證每個解法的 Prototype 耗時費力。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 經典兩圖轉中文展示與演進 (改為上下堆疊，可點擊放大，原圖配色) -->
+  <section id="roadmap-evolution" class="py-20 bg-slate-900/60 border-y border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs uppercase tracking-widest text-brand-400 font-bold mb-2 block">Methodology Transformation</span>
+        <h3 class="text-3xl font-bold text-white tracking-tight">從「功能甘特圖」到「成效決策樹」的演進</h3>
+        <p class="text-slate-400 mt-3 text-sm leading-relaxed">
+          過去產品團隊常將<strong>「按時間交付的功能清單」</strong>誤當作戰略；現代敏捷產品管理則將路線圖升級為<strong>「以成效為中心、以 OST 驅動探索、以 Vibe Coding 快速交付」</strong>的動態系統。
+        </p>
+      </div>
+
+      <!-- 兩大經典圖表：上下堆疊展示（不併排，全寬更清楚，具備放大功能） -->
+      <div class="space-y-12 mb-16">
+        
+        <!-- 圖1：產品路線圖 (中文結構還原，甘特圖配色原樣) -->
+        <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-800 flex flex-col">
+          <div class="flex flex-wrap items-center justify-between pb-4 border-b border-slate-800 mb-6 gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full bg-[#f87171]"></span>
+              <div>
+                <h4 class="font-bold text-white text-lg">圖一：經典產品路線圖 (Product Roadmap)</h4>
+                <p class="text-slate-400 text-xs mt-0.5">以季別 (Q3~Q2) 與維度劃分的功能排程甘特圖，著重於「在何時發布什麼功能」。</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-mono">時間軸排程型</span>
+              <button onclick="openModal('roadmap-diagram-src', '圖一：經典產品路線圖 (全螢幕高解析檢視)')" class="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
+                <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i>
+                點擊放大檢視
+              </button>
+            </div>
+          </div>
+
+          <!-- 中文化甘特圖視覺模擬 (原圖配色、白底、圓角條形) -->
+          <div id="roadmap-diagram-src" class="bg-white rounded-xl p-6 text-slate-800 shadow-xl overflow-x-auto min-w-[760px]">
+            <!-- 時間軸標題欄 -->
+            <div class="grid grid-cols-12 border-b-2 border-slate-200 pb-3 font-bold text-center text-slate-700 text-xs sm:text-sm">
+              <div class="col-span-2 text-left font-mono pl-2 text-slate-400">CATEGORY</div>
+              <div class="col-span-2 border-l border-slate-200">第 3 季 (Q3)</div>
+              <div class="col-span-3 border-l border-slate-200">第 4 季 (Q4)</div>
+              <div class="col-span-2 border-l border-slate-200">第 1 季 (Q1)</div>
+              <div class="col-span-3 border-l border-slate-200">第 2 季 (Q2)</div>
+            </div>
+
+            <!-- 1. 里程碑 MILESTONES (對齊 OST 頂層：珊瑚粉紅 #ee786c) -->
+            <div class="grid grid-cols-12 items-center py-4 border-b border-slate-100 text-xs">
+              <div class="col-span-2 pr-3">
+                <div class="bg-[#ee786c] text-white font-bold py-3 px-2 rounded-lg text-center tracking-wide shadow-sm text-xs border border-[#e26154]">
+                  關鍵里程碑<br><span class="text-[10px] font-normal opacity-90">MILESTONES</span>
+                </div>
+              </div>
+              <div class="col-span-2 relative flex justify-center">
+                <span class="inline-flex items-center gap-1 bg-[#ee786c]/10 text-[#d9534f] border border-[#ee786c]/30 px-3 py-1.5 rounded-md font-medium text-xs shadow-sm">
+                  🚩 Beta 版發布 (Beta Launch)
+                </span>
+              </div>
+              <div class="col-span-3"></div>
+              <div class="col-span-2 relative flex justify-center">
+                <span class="inline-flex items-center gap-1 bg-[#f3b455]/15 text-[#b47a18] border border-[#f3b455]/40 px-2.5 py-1.5 rounded-md font-medium text-xs shadow-sm">
+                  ⚠️ 首波 100 DAUs
+                </span>
+              </div>
+              <div class="col-span-3 relative flex justify-center">
+                <span class="inline-flex items-center gap-1 bg-[#f3b455]/15 text-[#b47a18] border border-[#f3b455]/40 px-2.5 py-1.5 rounded-md font-medium text-xs shadow-sm">
+                  ⚠️ 突破 1000 DAUs
+                </span>
+              </div>
+            </div>
+
+            <!-- 2. 一般用戶增長 CONSUMER GROWTH (對齊 OST Solution：湖水藍綠 #6cb8b4) -->
+            <div class="grid grid-cols-12 items-center py-4 border-b border-slate-100 text-xs">
+              <div class="col-span-2 pr-3">
+                <div class="bg-[#6cb8b4] text-white font-bold py-5 px-2 rounded-lg text-center tracking-wide shadow-sm text-xs border border-[#54a39f]">
+                  一般用戶增長<br><span class="text-[10px] font-normal opacity-90">CONSUMER GROWTH</span>
+                </div>
+              </div>
+              <div class="col-span-10 space-y-2.5">
+                <div class="grid grid-cols-10 gap-2 items-center">
+                  <div class="col-span-2 bg-[#6cb8b4] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#54a39f]">自動存檔 (Auto Save)</div>
+                  <div class="col-span-5 bg-[#6cb8b4] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#54a39f]">跨裝置自動同步 (Auto Sync)</div>
+                  <div class="col-span-3 bg-[#6cb8b4] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#54a39f]">全站選單配置 (Menu Wide Options)</div>
+                </div>
+                <div class="grid grid-cols-10 gap-2 items-center">
+                  <div class="col-span-2 bg-[#6cb8b4] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#54a39f]">轉換追蹤 (Conversion)</div>
+                  <div class="col-span-4 bg-[#6cb8b4] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#54a39f]">即時鏡像預覽 (Real Time Mirroring)</div>
+                  <div class="col-span-4"></div>
+                </div>
+                <div class="grid grid-cols-10 gap-2 items-center">
+                  <div class="col-span-1"></div>
+                  <div class="col-span-5 bg-[#54a39f] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#448c89]">Google 單一簽入整合 (Google SSO)</div>
+                  <div class="col-span-4"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. 企業級增長 ENTERPRISE GROWTH (對齊 OST Experiment：深藍紫 #464e8c) -->
+            <div class="grid grid-cols-12 items-center py-4 border-b border-slate-100 text-xs">
+              <div class="col-span-2 pr-3">
+                <div class="bg-[#464e8c] text-white font-bold py-5 px-2 rounded-lg text-center tracking-wide shadow-sm text-xs border border-[#363d74]">
+                  企業級增長<br><span class="text-[10px] font-normal opacity-90">ENTERPRISE GROWTH</span>
+                </div>
+              </div>
+              <div class="col-span-10 space-y-2.5">
+                <div class="grid grid-cols-10 gap-2 items-center">
+                  <div class="col-span-3 bg-[#464e8c] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#363d74]">多國語言化 (Multi Language)</div>
+                  <div class="col-span-3 bg-[#464e8c] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#363d74]">CRM 系統對接 (CRM Integration)</div>
+                  <div class="col-span-4 bg-[#363d74] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#272c57]">SQL 支援 (SQL Support)</div>
+                </div>
+                <div class="grid grid-cols-10 gap-2 items-center">
+                  <div class="col-span-3 bg-[#464e8c] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#363d74]">工作夥伴邀請 (Coworker Invitations)</div>
+                  <div class="col-span-4 bg-[#464e8c] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#363d74]">高階主管專屬視圖 (Executive View)</div>
+                  <div class="col-span-3 bg-[#363d74] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#272c57]">利害關係人批註 (Stakeholder)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. 系統擴展性 SCALABILITY (對齊 OST Opportunity：薑黃橙色 #f3b455，深色字體) -->
+            <div class="grid grid-cols-12 items-center py-4 border-b border-slate-100 text-xs">
+              <div class="col-span-2 pr-3">
+                <div class="bg-[#f3b455] text-[#3b280a] font-bold py-5 px-2 rounded-lg text-center tracking-wide shadow-sm text-xs border border-[#df9c33]">
+                  系統擴展性<br><span class="text-[10px] font-normal opacity-90">SCALABILITY</span>
+                </div>
+              </div>
+              <div class="col-span-10 space-y-2.5">
+                <div class="grid grid-cols-10 gap-2 items-center">
+                  <div class="col-span-3 bg-[#f3b455] text-[#3b280a] text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#df9c33]">多區域地理定位節點 (Geo-Locations)</div>
+                  <div class="col-span-5 bg-[#f3b455] text-[#3b280a] text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#df9c33]">巨量資料集高吞吐架構 (Larger Data Sets)</div>
+                  <div class="col-span-2 bg-[#f3b455] text-[#3b280a] text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#df9c33]">功能優先級追蹤</div>
+                </div>
+                <div class="grid grid-cols-10 gap-2 items-center">
+                  <div class="col-span-4 bg-[#f3b455] text-[#3b280a] text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#df9c33]">離線操作模式 (Offline Support)</div>
+                  <div class="col-span-5 bg-[#f3b455] text-[#3b280a] text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#df9c33]">系統問題拓撲圖 (Issue Map)</div>
+                  <div class="col-span-1"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. 降低用戶流失 DECREASE CHURN (對齊 OST 輔助湖水靛色 #56919c) -->
+            <div class="grid grid-cols-12 items-center py-4 text-xs">
+              <div class="col-span-2 pr-3">
+                <div class="bg-[#56919c] text-white font-bold py-5 px-2 rounded-lg text-center tracking-wide shadow-sm text-xs border border-[#427983]">
+                  降低用戶流失<br><span class="text-[10px] font-normal opacity-90">DECREASE CHURN</span>
+                </div>
+              </div>
+              <div class="col-span-10 space-y-2.5">
+                <div class="grid grid-cols-10 gap-2 items-center">
+                  <div class="col-span-3 bg-[#56919c] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#427983]">進階互動手勢 (Advanced Interactions)</div>
+                  <div class="col-span-3 bg-[#56919c] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#427983]">一鍵社群分享 (Sharing)</div>
+                  <div class="col-span-4"></div>
+                </div>
+                <div class="grid grid-cols-10 gap-2 items-center">
+                  <div class="col-span-3 bg-[#56919c] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#427983]">最新按讚與互動通知 (New Like)</div>
+                  <div class="col-span-2"></div>
+                  <div class="col-span-4 bg-[#56919c] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#427983]">客製化主題配色 (Custom Colors)</div>
+                  <div class="col-span-1"></div>
+                </div>
+                <div class="grid grid-cols-10 gap-2 items-center">
+                  <div class="col-span-9 bg-[#56919c] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#427983]">全站極致性能優化 (Performance Improvements)</div>
+                  <div class="col-span-1"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="mt-4 text-xs text-slate-400 flex items-center justify-between">
+            <span class="flex items-center gap-1.5 text-rose-300">
+              <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+              盲點警示：傳統功能路線圖只約束「做完功能」，無法保證上線後是否真能帶來商業轉換。
+            </span>
+            <span class="text-slate-500 font-mono text-[11px]">按時間軸 Output 交付模式</span>
+          </div>
+        </div>
+
+        <!-- 圖2：機會解決方案樹 (OST 架構) - 完全還原原圖配色與幾何形態 -->
+        <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-800 flex flex-col">
+          <div class="flex flex-wrap items-center justify-between pb-4 border-b border-slate-800 mb-6 gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full bg-[#ee786c]"></span>
+              <div>
+                <h4 class="font-bold text-white text-lg">圖二：機會解決方案樹 (Opportunity Solution Tree, OST)</h4>
+                <p class="text-slate-400 text-xs mt-0.5">以預期成效 (Outcome) 為根基，往下分岔為痛點機會、複數候選解法與驗證實驗。</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-mono">假設驗證樹狀圖</span>
+              <button onclick="openModal('ost-diagram-src', '圖二：機會解決方案樹 (全螢幕高解析檢視)')" class="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
+                <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i>
+                點擊放大檢視
+              </button>
+            </div>
+          </div>
+
+          <!-- 原圖色彩風格還原區 (米白色乾淨畫布、原圖紅黃綠藍配色、實體正方形/正圓形、清晰直角分岔箭頭) -->
+          <div id="ost-diagram-src" class="bg-[#fafbfc] rounded-xl p-8 text-slate-800 shadow-xl overflow-x-auto min-w-[860px] flex flex-col items-center">
+            
+            <!-- 品牌裝飾圖標 (右上角小徽章，還原原圖) -->
+            <div class="w-full flex justify-end mb-2 pr-4">
+              <div class="flex items-center gap-1.5 text-right">
+                <div class="flex items-center gap-1">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#464e8c]"></span>
+                  <span class="w-2.5 h-2.5 bg-[#ee786c] rotate-45 transform"></span>
+                  <span class="w-2.5 h-2.5 rounded-sm bg-[#f3b455]"></span>
+                </div>
+                <span class="text-[10px] font-bold text-slate-500 font-mono tracking-tight ml-1">3PM LAB 產品三眼怪製圖</span>
+              </div>
+            </div>
+
+            <!-- 1. 頂層：Desired Outcome (珊瑚紅 #ee786c，內部兩側虛線裝飾) -->
+            <div class="ost-outcome-box w-[420px] py-4 px-6 rounded-md text-center relative">
+              <div class="absolute left-2.5 top-2.5 bottom-2.5 w-0.5 bg-white/40"></div>
+              <div class="absolute right-2.5 top-2.5 bottom-2.5 w-0.5 bg-white/40"></div>
+              <div class="text-base font-bold tracking-wide">Desired Outcome (預期成效)</div>
+              <div class="text-xs text-white/90 font-medium mt-0.5">提升產品核心指標 / 商業成果</div>
+            </div>
+
+            <!-- 第一層向下分岔箭頭 (SVG 繪製清晰直角分支) -->
+            <div class="w-full max-w-[800px] h-12 flex justify-center items-center my-0">
+              <svg class="w-full h-12" viewBox="0 0 800 48" fill="none">
+                <!-- 垂直中線從頂層延伸 -->
+                <path d="M 400 0 L 400 24" stroke="#94a3b8" stroke-width="2" />
+                <!-- 水平分岔主幹 (連往 3 個 Opportunity) -->
+                <path d="M 140 24 L 660 24" stroke="#94a3b8" stroke-width="2" />
+                <!-- 往下箭頭 1 -->
+                <path d="M 140 24 L 140 44" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="136,42 144,42 140,48" fill="#94a3b8" />
+                <!-- 往下箭頭 2 -->
+                <path d="M 400 24 L 400 44" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="396,42 404,42 400,48" fill="#94a3b8" />
+                <!-- 往下箭頭 3 -->
+                <path d="M 660 24 L 660 44" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="656,42 664,42 660,48" fill="#94a3b8" />
+              </svg>
+            </div>
+
+            <!-- 2. 第二層：Opportunities (橙黃色 #f3b455，三個痛點方塊) -->
+            <div class="grid grid-cols-12 gap-5 w-full max-w-[820px]">
+              
+              <!-- Opportunity 1 (左) -->
+              <div class="col-span-4 ost-opp-box py-5 px-3 rounded-md text-center flex flex-col justify-center min-h-[90px]">
+                <div class="font-bold text-sm tracking-tight">Opportunity 01</div>
+                <div class="text-xs text-slate-800 font-medium mt-1">未滿足的用戶痛點 A</div>
+              </div>
+
+              <!-- Opportunity 2 (中，原圖寬度較寬) -->
+              <div class="col-span-4 ost-opp-box py-5 px-3 rounded-md text-center flex flex-col justify-center min-h-[90px]">
+                <div class="font-bold text-sm tracking-tight">Opportunity 02</div>
+                <div class="text-xs text-slate-800 font-medium mt-1">體驗卡點與障礙 B</div>
+              </div>
+
+              <!-- Opportunity 3 (右) -->
+              <div class="col-span-4 ost-opp-box py-5 px-3 rounded-md text-center flex flex-col justify-center min-h-[90px]">
+                <div class="font-bold text-sm tracking-tight">Opportunity 03</div>
+                <div class="text-xs text-slate-800 font-medium mt-1">新興工作流渴望 C</div>
+              </div>
+
+            </div>
+
+            <!-- 第二層向下分岔箭頭 (連往 7 個 Solution 正方形) -->
+            <div class="w-full max-w-[820px] h-12 flex justify-center items-center my-0">
+              <svg class="w-full h-12" viewBox="0 0 820 48" fill="none">
+                <!-- 左側分支 (連往 2 個 Solution) -->
+                <path d="M 136 0 L 136 20" stroke="#94a3b8" stroke-width="2" />
+                <path d="M 60 20 L 180 20" stroke="#94a3b8" stroke-width="2" />
+                <path d="M 60 20 L 60 42" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="56,40 64,40 60,46" fill="#94a3b8" />
+                <path d="M 180 20 L 180 42" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="176,40 184,40 180,46" fill="#94a3b8" />
+
+                <!-- 中間分支 (連往 3 個 Solution) -->
+                <path d="M 410 0 L 410 20" stroke="#94a3b8" stroke-width="2" />
+                <path d="M 300 20 L 520 20" stroke="#94a3b8" stroke-width="2" />
+                <path d="M 300 20 L 300 42" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="296,40 304,40 300,46" fill="#94a3b8" />
+                <path d="M 410 20 L 410 42" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="406,40 414,40 410,46" fill="#94a3b8" />
+                <path d="M 520 20 L 520 42" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="516,40 524,40 520,46" fill="#94a3b8" />
+
+                <!-- 右側分支 (連往 2 個 Solution) -->
+                <path d="M 684 0 L 684 20" stroke="#94a3b8" stroke-width="2" />
+                <path d="M 640 20 L 760 20" stroke="#94a3b8" stroke-width="2" />
+                <path d="M 640 20 L 640 42" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="636,40 644,40 640,46" fill="#94a3b8" />
+                <path d="M 760 20 L 760 42" stroke="#94a3b8" stroke-width="2" />
+                <polygon points="756,40 764,40 760,46" fill="#94a3b8" />
+              </svg>
+            </div>
+
+            <!-- 3. 第三層：Solutions (湖水綠 #6cb8b4 正方形，7 個解法方塊，中間附帶原圖雙向水平虛線) -->
+            <div class="grid grid-cols-7 gap-3 w-full max-w-[820px] relative">
+              
+              <!-- Solution 1 -->
+              <div class="ost-sol-box h-20 rounded-md flex flex-col justify-center items-center text-center p-1">
+                <span class="text-xs font-bold">Solution 1</span>
+                <span class="text-[10px] text-teal-100 mt-0.5">解法 A1</span>
+              </div>
+
+              <!-- Solution 2 (與 Solution 3 之間有原圖的雙向水平箭頭) -->
+              <div class="ost-sol-box h-20 rounded-md flex flex-col justify-center items-center text-center p-1 relative">
+                <span class="text-xs font-bold">Solution 2</span>
+                <span class="text-[10px] text-teal-100 mt-0.5">解法 A2</span>
+                
+                <!-- 雙向關聯箭頭 (原圖中 Solution 2 <--> Solution 3 橫向連線) -->
+                <div class="absolute -right-3 top-1/2 -translate-y-1/2 z-10 flex items-center text-slate-400 font-bold text-xs">
+                  ⟷
+                </div>
+              </div>
+
+              <!-- Solution 3 -->
+              <div class="ost-sol-box h-20 rounded-md flex flex-col justify-center items-center text-center p-1">
+                <span class="text-xs font-bold">Solution 3</span>
+                <span class="text-[10px] text-teal-100 mt-0.5">解法 B1</span>
+              </div>
+
+              <!-- Solution 4 -->
+              <div class="ost-sol-box h-20 rounded-md flex flex-col justify-center items-center text-center p-1">
+                <span class="text-xs font-bold">Solution 4</span>
+                <span class="text-[10px] text-teal-100 mt-0.5">解法 B2</span>
+              </div>
+
+              <!-- Solution 5 -->
+              <div class="ost-sol-box h-20 rounded-md flex flex-col justify-center items-center text-center p-1">
+                <span class="text-xs font-bold">Solution 5</span>
+                <span class="text-[10px] text-teal-100 mt-0.5">解法 B3</span>
+              </div>
+
+              <!-- Solution 6 -->
+              <div class="ost-sol-box h-20 rounded-md flex flex-col justify-center items-center text-center p-1">
+                <span class="text-xs font-bold">Solution 6</span>
+                <span class="text-[10px] text-teal-100 mt-0.5">解法 C1</span>
+              </div>
+
+              <!-- Solution 7 -->
+              <div class="ost-sol-box h-20 rounded-md flex flex-col justify-center items-center text-center p-1">
+                <span class="text-xs font-bold">Solution 7</span>
+                <span class="text-[10px] text-teal-100 mt-0.5">解法 C2</span>
+              </div>
+
+            </div>
+
+            <!-- 第三層向下箭頭 (連往第四層圓形 Experiments) -->
+            <div class="w-full max-w-[820px] h-8 flex justify-center items-center my-0">
+              <svg class="w-full h-8" viewBox="0 0 820 32" fill="none">
+                <g stroke="#94a3b8" stroke-width="2">
+                  <path d="M 60 0 L 60 26" /><polygon points="56,24 64,24 60,30" fill="#94a3b8" />
+                  <path d="M 180 0 L 180 26" /><polygon points="176,24 184,24 180,30" fill="#94a3b8" />
+                  <path d="M 300 0 L 300 26" /><polygon points="296,24 304,24 300,30" fill="#94a3b8" />
+                  <path d="M 410 0 L 410 26" /><polygon points="406,24 414,24 410,30" fill="#94a3b8" />
+                  <path d="M 520 0 L 520 26" /><polygon points="516,24 524,24 520,30" fill="#94a3b8" />
+                  <path d="M 640 0 L 640 26" /><polygon points="636,24 644,24 640,30" fill="#94a3b8" />
+                  <path d="M 760 0 L 760 26" /><polygon points="756,24 764,24 760,30" fill="#94a3b8" />
+                </g>
+              </svg>
+            </div>
+
+            <!-- 4. 第四層：Experiments (深藍紫 #464e8c 正圓形，完整重現原圖的上下雙層分佈) -->
+            <div class="grid grid-cols-7 gap-3 w-full max-w-[820px] items-start">
+              
+              <!-- 欄 1: 兩個圓形 -->
+              <div class="flex flex-col items-center gap-3">
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>A1-1
+                </div>
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>A1-2
+                </div>
+              </div>
+
+              <!-- 欄 2: 一個圓形 -->
+              <div class="flex flex-col items-center gap-3">
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>A2-1
+                </div>
+              </div>
+
+              <!-- 欄 3: 兩個圓形 -->
+              <div class="flex flex-col items-center gap-3">
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>B1-1
+                </div>
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>B1-2
+                </div>
+              </div>
+
+              <!-- 欄 4: 兩個圓形 -->
+              <div class="flex flex-col items-center gap-3">
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>B2-1
+                </div>
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>B2-2
+                </div>
+              </div>
+
+              <!-- 欄 5: 兩個圓形 -->
+              <div class="flex flex-col items-center gap-3">
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>B3-1
+                </div>
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>B3-2
+                </div>
+              </div>
+
+              <!-- 欄 6: 兩個圓形 -->
+              <div class="flex flex-col items-center gap-3">
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>C1-1
+                </div>
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>C1-2
+                </div>
+              </div>
+
+              <!-- 欄 7: 一個圓形 -->
+              <div class="flex flex-col items-center gap-3">
+                <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[10px] font-medium leading-tight">
+                  Experiment<br>C2-1
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="mt-4 text-xs text-slate-400 flex items-center justify-between">
+            <span class="flex items-center gap-1.5 text-emerald-300">
+              <i data-lucide="check-circle" class="w-4 h-4"></i>
+              核心價值：不鎖死特定解法，隨時依據最底層的原子化實驗（Vibe Prototype）修剪枝條。
+            </span>
+            <span class="text-slate-500 font-mono text-[11px]">按成效驅動 Outcome 決策模式</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 路線圖演進剖析：從輸出到成效 -->
+      <div class="glass-card rounded-2xl p-8 border border-slate-800">
+        <h4 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <i data-lucide="git-merge" class="w-5 h-5 text-brand-400"></i>
+          產品路線圖如何演進？（從「產出導向 Output」到「成效導向 Outcome」）
+        </h4>
+        <div class="grid md:grid-cols-3 gap-6 text-xs text-slate-300">
+          <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-800">
+            <span class="text-rose-400 font-mono font-bold block mb-1.5 text-sm">第一代：功能清單甘特圖 (圖一)</span>
+            <p class="text-slate-400 leading-relaxed">
+              承諾在 Q3 上線「自動同步」、Q4 上線「CRM 整合」。問題在於一旦市場變化或假設錯誤，團隊無法停止開發，造成巨大工程浪費。
+            </p>
+          </div>
+          <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-800">
+            <span class="text-amber-400 font-mono font-bold block mb-1.5 text-sm">第二代：OST 機會驅動圖譜 (圖二)</span>
+            <p class="text-slate-400 leading-relaxed">
+              路線圖不再寫滿死板的功能名稱，而是寫上「要解決的用戶機會點」與「欲達成的核心指標」。多個 Solution 是並行假設，誰能達成指標就上線誰。
+            </p>
+          </div>
+          <div class="bg-slate-900/80 p-5 rounded-xl border border-brand-500/40 glow-purple">
+            <span class="text-emerald-400 font-mono font-bold block mb-1.5 text-sm">第三代：OST + Vibe Coding 敏捷共舞</span>
+            <p class="text-slate-200 leading-relaxed">
+              在現代 AI 時代，路線圖的每個「實驗 (Experiment)」都能用 Vibe Coding 於半天內長出活體原型。高階路線圖保持戰略穩定，底層解法以 AI 光速輪轉迭代！
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 具體實例：智慧 PLC 程式生成 APP 深度拆解 -->
+  <section id="plc-case-study" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="max-w-4xl mx-auto text-center mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-semibold mb-4">
+        <i data-lucide="check-check" class="w-4 h-4"></i>
+        端到端實戰案例
+      </div>
+      <h3 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        實例應用：工業自動化「智慧 PLC 程式碼生成 APP」
+      </h3>
+      <p class="text-slate-400 text-sm sm:text-base mt-3 leading-relaxed">
+        <strong>核心規格：</strong> 用戶輸入自然語言提示詞（Prompt），APP 即時輸出標準 <strong>PLC IL (指令表)</strong>、<strong>PLC ST (結構化文字)</strong> 與 <strong>動作流程圖 (SFC / 循序功能圖)</strong>。
+      </p>
+    </div>
+
+    <!-- 步驟 1：實例的產品路線圖 (Roadmap) -->
+    <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-800 mb-12">
+      <div class="flex flex-wrap items-center justify-between mb-6 pb-4 border-b border-slate-800 gap-3">
+        <div>
+          <span class="text-xs font-mono text-emerald-400 uppercase font-bold">Step 1. 路線圖定位</span>
+          <h4 class="text-xl font-bold text-white mt-1">智慧 PLC 生成 APP 的產品路線圖規劃 (甘特圖視覺樣式)</h4>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full font-mono">Q1 ~ Q3 滾動迭代</span>
+          <button onclick="openModal('plc-roadmap-diagram-src', '智慧 PLC 生成 APP：產品路線圖甘特圖 (全螢幕高解析檢視)')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i>
+            放大檢視
+          </button>
+        </div>
+      </div>
+
+      <!-- PLC APP 產品路線圖：完全參考圖一甘特圖樣式（白底、左側色塊、膠囊長條、時間軸） -->
+      <div id="plc-roadmap-diagram-src" class="bg-white rounded-xl p-6 text-slate-800 shadow-xl overflow-x-auto min-w-[820px]">
+        
+        <!-- 時間軸標題欄 (Q1 / Q2 / Q3) -->
+        <div class="grid grid-cols-12 border-b-2 border-slate-200 pb-3 font-bold text-center text-slate-700 text-xs sm:text-sm">
+          <div class="col-span-3 text-left font-mono pl-2 text-slate-400">DIMENSION / STAGE</div>
+          <div class="col-span-3 border-l border-slate-200">
+            第 1 階段 (Q1)<br>
+            <span class="text-[11px] font-normal text-slate-500">單機驗證與語法精準</span>
+          </div>
+          <div class="col-span-3 border-l border-slate-200">
+            第 2 階段 (Q2)<br>
+            <span class="text-[11px] font-normal text-slate-500">多廠牌相容與可視化</span>
+          </div>
+          <div class="col-span-3 border-l border-slate-200">
+            第 3 階段 (Q3)<br>
+            <span class="text-[11px] font-normal text-slate-500">工業邊緣部署與數位分身</span>
+          </div>
+        </div>
+
+        <!-- 1. 目標成效與里程碑 (粉紅 #ee786c) -->
+        <div class="grid grid-cols-12 items-center py-4 border-b border-slate-100 text-xs">
+          <div class="col-span-3 pr-3">
+            <div class="bg-[#ee786c] text-white font-bold py-3.5 px-2 rounded-lg text-center tracking-wide shadow-sm text-xs border border-[#e26154]">
+              目標成效與里程碑<br><span class="text-[10px] font-normal opacity-90">OUTCOME MILESTONES</span>
+            </div>
+          </div>
+          <div class="col-span-3 relative flex justify-center px-1">
+            <span class="w-full text-center inline-flex items-center justify-center gap-1 bg-[#ee786c]/10 text-[#d9534f] border border-[#ee786c]/30 py-2 px-1 rounded-md font-medium text-[11px] shadow-sm">
+              🚩 首波 50 位工程師 (每週 >200 次)
+            </span>
+          </div>
+          <div class="col-span-3 relative flex justify-center px-1">
+            <span class="w-full text-center inline-flex items-center justify-center gap-1 bg-[#f3b455]/15 text-[#b47a18] border border-[#f3b455]/40 py-2 px-1 rounded-md font-medium text-[11px] shadow-sm">
+              ⚠️ PLC 語法 0 報錯率達 95%
+            </span>
+          </div>
+          <div class="col-span-3 relative flex justify-center px-1">
+            <span class="w-full text-center inline-flex items-center justify-center gap-1 bg-[#464e8c]/15 text-[#363d74] border border-[#464e8c]/40 py-2 px-1 rounded-md font-medium text-[11px] shadow-sm">
+              🚀 產線調機時間平均縮減 60%
+            </span>
+          </div>
+        </div>
+
+        <!-- 2. 輸入自然語言處理 (湖水綠 #6cb8b4) -->
+        <div class="grid grid-cols-12 items-center py-4 border-b border-slate-100 text-xs">
+          <div class="col-span-3 pr-3">
+            <div class="bg-[#6cb8b4] text-white font-bold py-4 px-2 rounded-lg text-center tracking-wide shadow-sm text-xs border border-[#54a39f]">
+              自然語言處理<br><span class="text-[10px] font-normal opacity-90">INPUT PROCESSING</span>
+            </div>
+          </div>
+          <div class="col-span-9 space-y-2">
+            <div class="grid grid-cols-9 gap-2 items-center">
+              <div class="col-span-3 bg-[#6cb8b4] text-white text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#54a39f]">
+                單一氣壓缸 / 馬達動作描述
+              </div>
+              <div class="col-span-3 bg-[#6cb8b4] text-white text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#54a39f]">
+                複雜連鎖安全迴路與警報描述
+              </div>
+              <div class="col-span-3 bg-[#6cb8b4] text-white text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#54a39f]">
+                整廠站 MES 串聯需求自然語句
+              </div>
+            </div>
+            <div class="grid grid-cols-9 gap-2 items-center">
+              <div class="col-span-5 bg-[#54a39f] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#448c89]">
+                I/O 定址自動推論與補全表單 (X/Y 自動 mapping)
+              </div>
+              <div class="col-span-4"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. 核心輸出能力 (深藍紫 #464e8c) -->
+        <div class="grid grid-cols-12 items-center py-4 border-b border-slate-100 text-xs">
+          <div class="col-span-3 pr-3">
+            <div class="bg-[#464e8c] text-white font-bold py-4 px-2 rounded-lg text-center tracking-wide shadow-sm text-xs border border-[#363d74]">
+              核心輸出能力<br><span class="text-[10px] font-normal opacity-90">OUTPUT CAPABILITY</span>
+            </div>
+          </div>
+          <div class="col-span-9 space-y-2">
+            <div class="grid grid-cols-9 gap-2 items-center">
+              <div class="col-span-3 bg-[#464e8c] text-white text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#363d74]">
+                ST 結構化文字 + IL 指令表
+              </div>
+              <div class="col-span-3 bg-[#464e8c] text-white text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#363d74]">
+                Mermaid 動作流程圖 (SFC)
+              </div>
+              <div class="col-span-3 bg-[#363d74] text-white text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#272c57]">
+                IEC 61131-3 格式直出 (TwinCAT)
+              </div>
+            </div>
+            <div class="grid grid-cols-9 gap-2 items-center">
+              <div class="col-span-2"></div>
+              <div class="col-span-4 bg-[#363d74] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#272c57]">
+                西門子 (TIA Portal) / 三菱 (GX Works) 語法切換
+              </div>
+              <div class="col-span-3"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Vibe Coding 角色與原型 (薑黃橙色 #f3b455，深色字體) -->
+        <div class="grid grid-cols-12 items-center py-4 border-b border-slate-100 text-xs">
+          <div class="col-span-3 pr-3">
+            <div class="bg-[#f3b455] text-[#3b280a] font-bold py-4 px-2 rounded-lg text-center tracking-wide shadow-sm text-xs border border-[#df9c33]">
+              Vibe Coding 角色<br><span class="text-[10px] font-normal opacity-90">RAPID PROTOTYPE</span>
+            </div>
+          </div>
+          <div class="col-span-9 space-y-2">
+            <div class="grid grid-cols-9 gap-2 items-center">
+              <div class="col-span-3 bg-[#f3b455] text-[#3b280a] text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#df9c33]">
+                3小時純前端 Prompt 雙欄預覽原型
+              </div>
+              <div class="col-span-3 bg-[#f3b455] text-[#3b280a] text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#df9c33]">
+                整合 Mermaid.js 渲染動作時序流程圖
+              </div>
+              <div class="col-span-3 bg-[#f3b455] text-[#3b280a] text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#df9c33]">
+                虛擬 I/O 訊號點亮之互動 Demo
+              </div>
+            </div>
+            <div class="grid grid-cols-9 gap-2 items-center">
+              <div class="col-span-1"></div>
+              <div class="col-span-5 bg-[#df9c33] text-white text-center py-1.5 rounded-full font-medium shadow-sm truncate px-2 border border-[#c78422]">
+                以 Claude 極速迭代急停 Guardrail 安全攔截規則
+              </div>
+              <div class="col-span-3"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. 擴展與工業落地 (青藍色 #56919c) -->
+        <div class="grid grid-cols-12 items-center py-4 text-xs">
+          <div class="col-span-3 pr-3">
+            <div class="bg-[#56919c] text-white font-bold py-4 px-2 rounded-lg text-center tracking-wide shadow-sm text-xs border border-[#427983]">
+              工業相容與擴展<br><span class="text-[10px] font-normal opacity-90">DEPLOYMENT</span>
+            </div>
+          </div>
+          <div class="col-span-9 space-y-2">
+            <div class="grid grid-cols-9 gap-2 items-center">
+              <div class="col-span-3 bg-[#56919c] text-white text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#427983]">
+                單機離線編譯驗證
+              </div>
+              <div class="col-span-4 bg-[#56919c] text-white text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#427983]">
+                工業現場邊緣閘道器 (Edge Gateway) 整合
+              </div>
+              <div class="col-span-2 bg-[#56919c] text-white text-center py-2 rounded-full font-medium shadow-sm truncate px-2 border border-[#427983]">
+                產線數位分身
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-4 text-xs text-slate-400 flex items-center justify-between">
+        <span class="flex items-center gap-1.5 text-emerald-300">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          已完美對齊「圖一」經典甘特圖樣式：具備 Q1~Q3 維度橫軸、左側分類彩色方塊與長條膠囊進度條。
+        </span>
+        <span class="text-slate-500 font-mono text-[11px]">甘特圖可點擊全螢幕放大檢視</span>
+      </div>
+    </div>
+
+    <!-- 步驟 2：實例的機會決策樹 (OST) - 原圖配色與箭頭還原 -->
+    <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-800 mb-12">
+      <div class="flex flex-wrap items-center justify-between mb-6 pb-4 border-b border-slate-800 gap-3">
+        <div>
+          <span class="text-xs font-mono text-amber-400 uppercase font-bold">Step 2. 機會決策樹 (OST)</span>
+          <h4 class="text-xl font-bold text-white mt-1">智慧 PLC 生成 APP 的 OST 完整樹狀圖 (標準配色)</h4>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs px-2.5 py-1 bg-amber-500/20 text-amber-300 rounded font-mono">四層結構對齊</span>
+          <button onclick="openModal('plc-ost-tree-diagram', '智慧 PLC 生成 APP：OST 決策樹')" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i>
+            放大檢視
+          </button>
+        </div>
+      </div>
+
+      <!-- PLC APP 決策樹 (採用原圖珊瑚粉紅、橙黃、湖水綠、深藍紫) -->
+      <div id="plc-ost-tree-diagram" class="bg-[#fafbfc] rounded-xl p-8 text-slate-800 shadow-xl overflow-x-auto min-w-[860px] flex flex-col items-center">
+        
+        <!-- 頂層：成效指標 (Coral #ee786c) -->
+        <div class="ost-outcome-box w-[500px] py-4 px-6 rounded-md text-center relative">
+          <div class="absolute left-2.5 top-2.5 bottom-2.5 w-0.5 bg-white/40"></div>
+          <div class="absolute right-2.5 top-2.5 bottom-2.5 w-0.5 bg-white/40"></div>
+          <div class="text-[11px] font-mono uppercase text-white/90 font-bold tracking-wider">Desired Outcome (頂層成效指標)</div>
+          <div class="text-sm sm:text-base font-bold text-white mt-0.5">大幅降低 PLC 編程門檻，初版程式生成速度提升 80% 且語法相容率 95%</div>
+        </div>
+
+        <!-- 箭頭 1: Outcome -> 3 Opportunities -->
+        <div class="w-full max-w-[800px] h-12 flex justify-center items-center my-0">
+          <svg class="w-full h-12" viewBox="0 0 800 48" fill="none">
+            <path d="M 400 0 L 400 24" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 140 24 L 660 24" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 140 24 L 140 44" stroke="#94a3b8" stroke-width="2" /><polygon points="136,42 144,42 140,48" fill="#94a3b8" />
+            <path d="M 400 24 L 400 44" stroke="#94a3b8" stroke-width="2" /><polygon points="396,42 404,42 400,48" fill="#94a3b8" />
+            <path d="M 660 24 L 660 44" stroke="#94a3b8" stroke-width="2" /><polygon points="656,42 664,42 660,48" fill="#94a3b8" />
+          </svg>
+        </div>
+
+        <!-- 第二層：3 個 Opportunities (Mustard Yellow #f3b455) -->
+        <div class="grid grid-cols-3 gap-6 w-full max-w-[820px]">
+          <div class="ost-opp-box p-4 rounded-md text-center">
+            <div class="text-xs font-bold uppercase tracking-wider text-amber-900">Opportunity 01</div>
+            <div class="text-xs font-bold text-slate-900 mt-1">資深依賴特定語法，新手不熟 IL/ST 互轉</div>
+          </div>
+          <div class="ost-opp-box p-4 rounded-md text-center">
+            <div class="text-xs font-bold uppercase tracking-wider text-amber-900">Opportunity 02</div>
+            <div class="text-xs font-bold text-slate-900 mt-1">純文字程式碼無法直觀確認動作時序是否撞機</div>
+          </div>
+          <div class="ost-opp-box p-4 rounded-md text-center">
+            <div class="text-xs font-bold uppercase tracking-wider text-amber-900">Opportunity 03</div>
+            <div class="text-xs font-bold text-slate-900 mt-1">自然語言過於隨意，缺漏 I/O 定址與極限保護</div>
+          </div>
+        </div>
+
+        <!-- 箭頭 2: Opportunities -> 6 Solutions -->
+        <div class="w-full max-w-[820px] h-12 flex justify-center items-center my-0">
+          <svg class="w-full h-12" viewBox="0 0 820 48" fill="none">
+            <!-- 支線 1 -->
+            <path d="M 136 0 L 136 20" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 75 20 L 200 20" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 75 20 L 75 42" stroke="#94a3b8" stroke-width="2" /><polygon points="71,40 79,40 75,46" fill="#94a3b8" />
+            <path d="M 200 20 L 200 42" stroke="#94a3b8" stroke-width="2" /><polygon points="196,40 204,40 200,46" fill="#94a3b8" />
+
+            <!-- 支線 2 -->
+            <path d="M 410 0 L 410 20" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 345 20 L 475 20" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 345 20 L 345 42" stroke="#94a3b8" stroke-width="2" /><polygon points="341,40 349,40 345,46" fill="#94a3b8" />
+            <path d="M 475 20 L 475 42" stroke="#94a3b8" stroke-width="2" /><polygon points="471,40 479,40 475,46" fill="#94a3b8" />
+
+            <!-- 支線 3 -->
+            <path d="M 684 0 L 684 20" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 620 20 L 745 20" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 620 20 L 620 42" stroke="#94a3b8" stroke-width="2" /><polygon points="616,40 624,40 620,46" fill="#94a3b8" />
+            <path d="M 745 20 L 745 42" stroke="#94a3b8" stroke-width="2" /><polygon points="741,40 749,40 745,46" fill="#94a3b8" />
+          </svg>
+        </div>
+
+        <!-- 第三層：6 個 Solutions (Teal #6cb8b4) -->
+        <div class="grid grid-cols-6 gap-3 w-full max-w-[820px]">
+          <div class="ost-sol-box p-3 rounded-md text-center flex flex-col justify-center h-24">
+            <span class="text-[11px] font-bold">解法 1A</span>
+            <span class="text-[10px] text-teal-100 mt-1">雙欄雙向語法同步編輯器</span>
+          </div>
+          <div class="ost-sol-box p-3 rounded-md text-center flex flex-col justify-center h-24">
+            <span class="text-[11px] font-bold">解法 1B</span>
+            <span class="text-[10px] text-teal-100 mt-1">多廠牌語法轉譯開關 (西門子/三菱)</span>
+          </div>
+          <div class="ost-sol-box p-3 rounded-md text-center flex flex-col justify-center h-24">
+            <span class="text-[11px] font-bold">解法 2A</span>
+            <span class="text-[10px] text-teal-100 mt-1">SFC 動作時序流程圖直出</span>
+          </div>
+          <div class="ost-sol-box p-3 rounded-md text-center flex flex-col justify-center h-24">
+            <span class="text-[11px] font-bold">解法 2B</span>
+            <span class="text-[10px] text-teal-100 mt-1">動態狀態機點亮模擬器</span>
+          </div>
+          <div class="ost-sol-box p-3 rounded-md text-center flex flex-col justify-center h-24">
+            <span class="text-[11px] font-bold">解法 3A</span>
+            <span class="text-[10px] text-teal-100 mt-1">I/O 填空輔助精靈 (X/Y)</span>
+          </div>
+          <div class="ost-sol-box p-3 rounded-md text-center flex flex-col justify-center h-24">
+            <span class="text-[11px] font-bold">解法 3B</span>
+            <span class="text-[10px] text-teal-100 mt-1">工業安全自動防禦檢查 (急停/限位)</span>
+          </div>
+        </div>
+
+        <!-- 箭頭 3: Solutions -> 6 Experiments -->
+        <div class="w-full max-w-[820px] h-8 flex justify-center items-center my-0">
+          <svg class="w-full h-8" viewBox="0 0 820 32" fill="none">
+            <g stroke="#94a3b8" stroke-width="2">
+              <path d="M 75 0 L 75 26" /><polygon points="71,24 79,24 75,30" fill="#94a3b8" />
+              <path d="M 200 0 L 200 26" /><polygon points="196,24 204,24 200,30" fill="#94a3b8" />
+              <path d="M 345 0 L 345 26" /><polygon points="341,24 349,24 345,30" fill="#94a3b8" />
+              <path d="M 475 0 L 475 26" /><polygon points="471,24 479,24 475,30" fill="#94a3b8" />
+              <path d="M 620 0 L 620 26" /><polygon points="616,24 624,24 620,30" fill="#94a3b8" />
+              <path d="M 745 0 L 745 26" /><polygon points="741,24 749,24 745,30" fill="#94a3b8" />
+            </g>
+          </svg>
+        </div>
+
+        <!-- 第四層：6 個 Experiments (Deep Blue-Purple #464e8c 正圓形) -->
+        <div class="grid grid-cols-6 gap-3 w-full max-w-[820px] items-center">
+          <div class="flex justify-center">
+            <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[9px] font-medium p-1">
+              Vibe 實驗：<br>ST/IL 雙對照
+            </div>
+          </div>
+          <div class="flex justify-center">
+            <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[9px] font-medium p-1">
+              Vibe 實驗：<br>廠牌切換器
+            </div>
+          </div>
+          <div class="flex justify-center">
+            <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[9px] font-medium p-1">
+              Vibe 實驗：<br>Mermaid SFC
+            </div>
+          </div>
+          <div class="flex justify-center">
+            <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[9px] font-medium p-1">
+              Vibe 實驗：<br>節點步進模擬
+            </div>
+          </div>
+          <div class="flex justify-center">
+            <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[9px] font-medium p-1">
+              Vibe 實驗：<br>提示詞補完單
+            </div>
+          </div>
+          <div class="flex justify-center">
+            <div class="ost-exp-circle w-16 h-16 rounded-full flex items-center justify-center text-center text-[9px] font-medium p-1">
+              Vibe 實驗：<br>急停 Guardrail
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 步驟 3：Vibe Coding 實機操作原型 (即時體驗區) -->
+    <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-800">
+      <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+        <div>
+          <span class="text-xs font-mono text-sky-400 uppercase font-bold">Step 3. Vibe Coding 實戰調校</span>
+          <h4 class="text-xl font-bold text-white mt-1">智慧 PLC 程式生成器：真實互動體驗雛形</h4>
+        </div>
+        <span class="text-xs px-2.5 py-1 bg-sky-500/20 text-sky-300 rounded font-mono">Live Demo</span>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-6">
+        
+        <!-- 輸入區與提示詞調用 -->
+        <div class="lg:col-span-5 space-y-4">
+          <label class="block text-xs font-mono text-slate-300 uppercase tracking-wider font-bold">
+            1. 輸入自然語言動作描述 (Prompt)
+          </label>
+          <div class="relative">
+            <textarea id="plc-input-prompt" class="w-full h-32 p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs font-mono focus:border-emerald-500 focus:outline-none leading-relaxed resize-none">氣壓缸 A 前進（Y0）至極限開關（X1），夾爪閉合（Y1），等待 2 秒確認壓力到位後，氣壓缸 A 後退（Y2）回原點（X0）。包含急停開關（X2）。</textarea>
+          </div>
+
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="text-slate-400 py-1">常用預設：</span>
+            <button onclick="setPlcPreset('clamp')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">自動夾取氣壓缸</button>
+            <button onclick="setPlcPreset('conveyor')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">輸送帶三段調速</button>
+          </div>
+
+          <button onclick="runPlcVibeGeneration()" id="btn-generate-plc" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            一鍵 Vibe 生成 (ST + IL + 流程圖)
+          </button>
+
+          <!-- 丟給 AI 的原始 Prompt 模板 -->
+          <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs">
+            <div class="flex items-center justify-between text-slate-400 mb-1.5 font-mono text-[11px]">
+              <span>背後注入的 System Prompt</span>
+              <button onclick="copyPlcSystemPrompt()" class="text-brand-400 hover:underline">複製</button>
+            </div>
+            <div class="text-[11px] font-mono text-slate-400 truncate">
+              "你是工業自動化資深架構師，將描述轉為符合 IEC 61131-3 的 ST、IL 與 Mermaid 流程圖..."
+            </div>
+          </div>
+        </div>
+
+        <!-- 輸出預覽區 -->
+        <div class="lg:col-span-7 flex flex-col space-y-3">
+          
+          <!-- 頁籤切換 -->
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center space-x-2">
+              <button onclick="switchPlcTab('st')" id="tab-btn-st" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold">ST (結構化文字)</button>
+              <button onclick="switchPlcTab('il')" id="tab-btn-il" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white text-xs font-semibold">IL (指令表)</button>
+              <button onclick="switchPlcTab('flow')" id="tab-btn-flow" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white text-xs font-semibold">動作流程圖 (SFC)</button>
+            </div>
+            <span class="text-[11px] font-mono text-slate-500" id="plc-status-indicator">模擬就緒</span>
+          </div>
+
+          <!-- ST 程式碼面板 -->
+          <div id="panel-plc-st" class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-emerald-300 h-64 overflow-y-auto leading-relaxed">
+            <pre><code>// ==========================================
+// 產出：IEC 61131-3 結構化文字 (Structured Text)
+// 專案：氣壓缸循序進退與夾爪控制
+// ==========================================
+PROGRAM CylinderSequence
+VAR
+    Step : INT := 0;
+    Timer_2s : TON;
+END_VAR
+
+// 急停安全互鎖 (EMG Check)
+IF NOT X2 THEN
+    Y0 := FALSE;
+    Y1 := FALSE;
+    Y2 := FALSE;
+    Step := 0;
+    RETURN;
+END_IF;
+
+CASE Step OF
+    0: (* 待機狀態：檢查原點 *)
+        IF X0 THEN
+            Step := 10;
+        END_IF;
+
+    10: (* 步驟 1：氣壓缸 A 前進 *)
+        Y0 := TRUE;
+        IF X1 THEN
+            Y0 := FALSE;
+            Step := 20;
+        END_IF;
+
+    20: (* 步驟 2：夾爪閉合 *)
+        Y1 := TRUE;
+        Step := 30;
+
+    30: (* 步驟 3：延時 2 秒確認到位 *)
+        Timer_2s(IN := TRUE, PT := T#2S);
+        IF Timer_2s.Q THEN
+            Timer_2s(IN := FALSE);
+            Step := 40;
+        END_IF;
+
+    40: (* 步驟 4：氣壓缸 A 退回原點 *)
+        Y2 := TRUE;
+        IF X0 THEN
+            Y2 := FALSE;
+            Step := 0; (* 完成循環 *)
+        END_IF;
+END_CASE;</code></pre>
+          </div>
+
+          <!-- IL 程式碼面板 -->
+          <div id="panel-plc-il" class="hidden bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-sky-300 h-64 overflow-y-auto leading-relaxed">
+            <pre><code>; ==========================================
+; 產出：指令表 (Instruction List)
+; 專案：氣壓缸循序進退與夾爪控制
+; ==========================================
+LD    X2            ; 載入急停信號 (常閉接點)
+NOT
+JMPC  EMG_STOP      ; 若急停觸發跳轉停止
+
+LD    Step
+EQ    0
+AND   X0            ; 檢查是否在原點
+JMPC  GOTO_STEP10
+
+STEP10:
+LD    TRUE
+ST    Y0            ; 啟動前進閥門
+LD    X1            ; 前進到位極限開關
+JMPC  GOTO_STEP20
+
+STEP20:
+LD    TRUE
+ST    Y1            ; 夾爪電磁閥閉合
+CAL   TIMER_TON     ; 呼叫計時功能塊
+LD    Timer_Done
+JMPC  GOTO_STEP40
+
+STEP40:
+LD    FALSE
+ST    Y0
+LD    TRUE
+ST    Y2            ; 啟動後退閥門
+LD    X0
+JMPC  GOTO_READY
+
+EMG_STOP:
+LD    FALSE
+ST    Y0
+ST    Y1
+ST    Y2
+RET</code></pre>
+          </div>
+
+          <!-- 動作流程圖面板 (修復無法滾動與截斷問題) -->
+          <div id="panel-plc-flow" class="hidden bg-slate-950 p-4 sm:p-5 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 min-h-[22rem] max-h-[30rem] overflow-y-auto flex flex-col justify-start items-center">
+            <div class="space-y-2.5 w-full max-w-lg text-center py-2">
+              <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-bold shadow-sm">
+                [初始步 00] 原點檢測 (感測器 X0=ON)
+              </div>
+              <div class="text-emerald-400 text-xs font-semibold py-0.5">↓ 轉換條件：按下啟動按鈕 且 急停(X2)=正常</div>
+              <div class="p-2.5 rounded-lg bg-emerald-950/70 border border-emerald-500/60 text-emerald-200 shadow-sm">
+                [步進 10] 氣壓缸 A 前進 (輸出 Y0=ON)
+              </div>
+              <div class="text-emerald-400 text-xs font-semibold py-0.5">↓ 轉換條件：前進極限到位 (X1=ON)</div>
+              <div class="p-2.5 rounded-lg bg-emerald-950/70 border border-emerald-500/60 text-emerald-200 shadow-sm">
+                [步進 20] 夾爪閉合夾取 (輸出 Y1=ON) 並啟動計時器 (T#2S)
+              </div>
+              <div class="text-emerald-400 text-xs font-semibold py-0.5">↓ 轉換條件：Timer.Q 延時時間到達 (2秒)</div>
+              <div class="p-2.5 rounded-lg bg-emerald-950/70 border border-emerald-500/60 text-emerald-200 shadow-sm">
+                [步進 30] 氣壓缸 A 後退 (輸出 Y2=ON, Y0=OFF)
+              </div>
+              <div class="text-emerald-400 text-xs font-semibold py-0.5">↓ 轉換條件：返回原點 (X0=ON)</div>
+              <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 shadow-sm">
+                循環結束回到 [初始步 00]
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心互動體驗：OST + Vibe Coding 沙盒 -->
+  <section id="ost-canvas" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 text-xs font-semibold text-brand-400 uppercase tracking-wider mb-2">
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+          Interactive Studio
+        </div>
+        <h3 class="text-3xl font-bold text-white tracking-tight">互動式 OST 畫布 × Vibe Coding 提示詞產生器</h3>
+        <p class="text-slate-400 text-sm mt-1">點擊樹狀節點，觀察「商業目標」如何逐步轉化為給 AI 的「精準 Vibe Prompt」。</p>
+      </div>
+
+      <!-- 快速情境切換 -->
+      <div class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800 text-xs">
+        <span class="text-slate-400 px-2 font-medium">實戰案例：</span>
+        <button onclick="switchCase('saas')" id="btn-case-saas" class="px-3 py-1.5 rounded-lg bg-brand-600 text-white font-medium transition">SaaS 用戶留存</button>
+        <button onclick="switchCase('ecommerce')" id="btn-case-ecommerce" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">電商結帳轉換率</button>
+      </div>
+    </div>
+
+    <!-- 畫布主體 -->
+    <div class="grid lg:grid-cols-12 gap-6">
+      
+      <!-- 左側：OST 視覺樹 (7 Cols) -->
+      <div class="lg:col-span-7 glass-card rounded-2xl p-6 border border-slate-800 flex flex-col">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
+          <span class="text-xs font-mono uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <i data-lucide="git-commit" class="w-4 h-4 text-brand-400"></i>
+            Tree Structure (點擊節點查看詳情)
+          </span>
+          <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300" id="tree-status-badge">已選取：解法 A</span>
+        </div>
+
+        <div class="space-y-6 flex-grow overflow-y-auto pr-2" id="ost-tree-container">
+          <!-- 動態載入樹節點內容 -->
+        </div>
+      </div>
+
+      <!-- 右側：Vibe Coding 協同面板 (5 Cols) -->
+      <div class="lg:col-span-5 flex flex-col space-y-4">
+        
+        <!-- 當前節點說明與批判性評估 -->
+        <div class="glass-card rounded-2xl p-6 border border-slate-800">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">節點深度洞察</span>
+            <span id="node-type-tag" class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold">Solution</span>
+          </div>
+          <h4 id="node-title" class="text-lg font-bold text-white mb-2">一鍵式範本匯入精靈</h4>
+          <p id="node-desc" class="text-slate-300 text-sm leading-relaxed mb-4">
+            新手缺乏靈感時，提供 3 套預設範本，登入後即可點擊套用，大幅降低初次建構挫折感。
+          </p>
+          <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs text-slate-300 space-y-1.5">
+            <div class="text-slate-400 font-medium">🎯 解決的痛點 (Opportunity)：</div>
+            <div id="node-opportunity-ref" class="text-brand-300 font-mono">新手註冊後不知道第一步該點哪裡</div>
+          </div>
+        </div>
+
+        <!-- 即時生成的 Vibe Coding Prompt -->
+        <div class="glass-card rounded-2xl p-6 border border-slate-800 flex-1 flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="bot" class="w-4 h-4 text-brand-400"></i>
+              <span class="text-xs font-mono text-slate-300 uppercase tracking-wider font-bold">Vibe Coding 提示詞 (Prompt)</span>
+            </div>
+            <button onclick="copyPrompt()" id="copy-btn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>複製 Prompt</span>
+            </button>
+          </div>
+          
+          <div class="relative flex-1">
+            <textarea id="prompt-output" readonly class="w-full h-56 p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 font-mono text-xs text-brand-200 resize-none focus:outline-none focus:border-brand-500 leading-relaxed"></textarea>
+          </div>
+
+          <div class="mt-4 flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-800/80">
+            <span class="flex items-center gap-1">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+              可以直接複製丟給 Claude 3.7 / Cursor
+            </span>
+            <span class="font-mono text-[11px] text-slate-500">Zero-Shot Prototype</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 雙環工作流程解析 -->
+  <section id="workflow" class="py-20 bg-slate-900/40 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-xs uppercase tracking-widest text-brand-400 font-bold mb-2">Standard Operating Procedure</h2>
+        <h3 class="text-3xl font-bold text-white tracking-tight">四步閉環實踐工作流</h3>
+        <p class="text-slate-400 text-sm mt-3">如何在日常迭代中無縫穿梭於架構思考與自然語言編程。</p>
+      </div>
+
+      <div class="grid md:grid-cols-4 gap-6">
+        <!-- Step 1 -->
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 relative">
+          <div class="text-xs font-mono font-bold text-brand-400 mb-2">PHASE 01</div>
+          <h4 class="text-white font-bold text-lg mb-2">成效與痛點錨定</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-4">
+            先不開編輯器。定義單一核心 Outcome（如：D7 留存率提高 15%），並列出從用戶訪談中收斂出的 2~3 個核心 Opportunities。
+          </p>
+          <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded border border-slate-800">
+            產出：明確的樹狀主幹
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 relative">
+          <div class="text-xs font-mono font-bold text-sky-400 mb-2">PHASE 02</div>
+          <h4 class="text-white font-bold text-lg mb-2">發散多重解法</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-4">
+            針對每個痛點，腦力激盪出至少 3 個差異化解決方案（Solutions）。不要先入為主只選自己直覺想做的那一個。
+          </p>
+          <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded border border-slate-800">
+            產出：分岔的解法枝葉
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 relative">
+          <div class="text-xs font-mono font-bold text-emerald-400 mb-2">PHASE 03</div>
+          <h4 class="text-white font-bold text-lg mb-2">Vibe 原型暴擊</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-4">
+            把 Solution 的假設打包成具備 Context 的 Prompt，丟給 AI 在 15 分鐘內生成出「可互動的最小實驗原型 (Experiment Prototype)」。
+          </p>
+          <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded border border-slate-800">
+            產出：可操作的網頁/功能 Demo
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 relative">
+          <div class="text-xs font-mono font-bold text-amber-400 mb-2">PHASE 04</div>
+          <h4 class="text-white font-bold text-lg mb-2">驗證修枝與深化</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-4">
+            將原型帶給 3~5 位真實用戶測試。若假設不成立，果斷剪除該枝條（Pruning），將心力轉向下一個 Solution，完全零情感負擔。
+          </p>
+          <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded border border-slate-800">
+            產出：經過驗證的生產代碼規劃
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 萬用提示詞錦囊庫 -->
+  <section id="prompts" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-14">
+      <h2 class="text-xs uppercase tracking-widest text-brand-400 font-bold mb-2">Prompt Engineering Templates</h2>
+      <h3 class="text-3xl font-bold text-white tracking-tight">專為 OST 設計的 Vibe Coding 提示詞架構</h3>
+      <p class="text-slate-400 text-sm mt-3">告別「幫我做一個登入頁」這種低維度指示，用高維度語境引導 AI 給出最符合商業與痛點架構的代碼。</p>
+    </div>
+
+    <!-- 標籤切換 -->
+    <div class="grid md:grid-cols-3 gap-6">
+      
+      <!-- Template 1 -->
+      <div class="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-mono text-brand-400 uppercase font-bold">範本 01</span>
+            <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">發散解法階段</span>
+          </div>
+          <h4 class="text-lg font-bold text-white mb-2">OST 機會點 → 多解法頭腦風暴</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-4">
+            當你確定了用戶痛點，但希望 AI 同時從 UI、自動化、心理學等維度提供多種技術解法。
+          </p>
+          <div class="bg-slate-950 rounded-xl p-3 border border-slate-800 font-mono text-[11px] text-slate-300 leading-relaxed overflow-x-auto">
+            <p class="text-slate-500">// 提示詞範本</p>
+            我目前的目標 Outcome 是 [填入目標]，發現的用戶痛點 Opportunity 是 [填入痛點]。<br><br>
+            請擔任資深產品架構師，針對此痛點提供 3 種截然不同的前端互動解決方案：<br>
+            1. 低認知負荷型 (極簡引導)<br>
+            2. 高度自動化型 (AI代勞)<br>
+            3. 遊戲化反饋型 (即時獎勵)<br><br>
+            並列出每個方案最脆弱的「核心假設 (Assumption)」。
+          </div>
+        </div>
+        <button onclick="copySnippet(this)" class="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+          <i data-lucide="clipboard" class="w-3.5 h-3.5"></i>
+          複製此範本
+        </button>
+      </div>
+
+      <!-- Template 2 -->
+      <div class="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-mono text-sky-400 uppercase font-bold">範本 02</span>
+            <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">極速建構階段</span>
+          </div>
+          <h4 class="text-lg font-bold text-white mb-2">單一解法 → 活體高傳真原型</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-4">
+            鎖定某個特定解法後，要求 AI 用單一 HTML 或現代前端框架直接生成可點選的驗證原型。
+          </p>
+          <div class="bg-slate-950 rounded-xl p-3 border border-slate-800 font-mono text-[11px] text-slate-300 leading-relaxed overflow-x-auto">
+            <p class="text-slate-500">// 提示詞範本</p>
+            我們要驗證解法：[解法名稱與邏輯]。<br>
+            請以 Vibe Coding 模式，直接在單一 HTML 檔案中產出可運行的極致高傳真原型。<br><br>
+            規格要求：<br>
+            - Tailwind CSS 現代精緻風格 (深色模式)<br>
+            - 必須包含 Mock 互動狀態與轉場動效<br>
+            - 埋入關鍵操作的點擊計數器 (用以驗證假設)<br>
+            - 不要用假字 (Lorem Ipsum)，全部填入真實模擬情境數據。
+          </div>
+        </div>
+        <button onclick="copySnippet(this)" class="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+          <i data-lucide="clipboard" class="w-3.5 h-3.5"></i>
+          複製此範本
+        </button>
+      </div>
+
+      <!-- Template 3 -->
+      <div class="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-mono text-emerald-400 uppercase font-bold">範本 03</span>
+            <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">驗證修枝階段</span>
+          </div>
+          <h4 class="text-lg font-bold text-white mb-2">原型測試回饋 → 程式碼重構修枝</h4>
+          <p class="text-slate-400 text-xs leading-relaxed mb-4">
+            收集到用戶真實反應後，以批判性視角要求 AI 分析為什麼成效不彰，並在原代碼上快速重構。
+          </p>
+          <div class="bg-slate-950 rounded-xl p-3 border border-slate-800 font-mono text-[11px] text-slate-300 leading-relaxed overflow-x-auto">
+            <p class="text-slate-500">// 提示詞範本</p>
+            我們在用戶測試中觀察到：[測試反饋，例：用戶在第 2 步因為字太多直接跳出]。<br><br>
+            這代表我們先前的假設 [原假設] 失敗了。<br>
+            請針對這段代碼進行敏捷重構：<br>
+            1. 將文字指引改為微視覺動效提示<br>
+            2. 將步驟從 3 步壓縮為 1 步點擊<br>
+            3. 保留原有數據追蹤邏輯，輸出修改後的乾淨代碼。
+          </div>
+        </div>
+        <button onclick="copySnippet(this)" class="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+          <i data-lucide="clipboard" class="w-3.5 h-3.5"></i>
+          複製此範本
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 常見陷阱與最佳實踐 -->
+  <section class="py-16 bg-slate-900/30 border-t border-slate-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h3 class="text-2xl font-bold text-white text-center mb-10 tracking-tight">避免 Vibe Coding 的五大「自嗨陷阱」</h3>
+      <div class="space-y-4">
+        
+        <div class="p-4 rounded-xl glass-card flex items-start gap-4">
+          <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 font-bold text-sm">✕</div>
+          <div>
+            <h5 class="text-white text-sm font-semibold">陷阱 1：沉迷於微調絢麗動畫，忽略根本沒人要用</h5>
+            <p class="text-slate-400 text-xs mt-1">對照 OST：檢查這個動畫到底是為了解決哪個 Opportunity？如果只是滿足工程師的審美樂趣，請立刻停手。</p>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl glass-card flex items-start gap-4">
+          <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 font-bold text-sm">✕</div>
+          <div>
+            <h5 class="text-white text-sm font-semibold">陷阱 2：生成了 10 個小功能，但主流程支離破碎</h5>
+            <p class="text-slate-400 text-xs mt-1">對照 OST：樹狀圖要求單一 Outcome。每一個功能都必須能追溯回頂層指標，否則會讓產品淪為「功能怪獸」。</p>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl glass-card flex items-start gap-4">
+          <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 font-bold text-sm">✕</div>
+          <div>
+            <h5 class="text-white text-sm font-semibold">陷阱 3：捨不得刪除 AI 寫得很好的代碼 (沉沒成本謬誤)</h5>
+            <p class="text-slate-400 text-xs mt-1">對照 OST：記住，AI 寫代碼的邊際成本為零。只要驗證未達標，請豪邁按下 Delete，修剪樹枝才是產品負責人的真本事。</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 頁尾 -->
+  <footer class="border-t border-slate-800 py-12 text-center text-slate-500 text-xs">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2 text-slate-400">
+        <i data-lucide="sparkles" class="w-4 h-4 text-brand-500"></i>
+        <span>Vibe Coding × OST 實踐手冊</span>
+      </div>
+      <div>
+        以思考架構定綱領，以人工智慧賦能速度。
+      </div>
+    </div>
+  </footer>
+
+  <!-- 互動腳本與資料 -->
+  <script>
+    // 燈箱放大功能
+    function openModal(sourceElementId, title) {
+      const sourceEl = document.getElementById(sourceElementId);
+      const modal = document.getElementById('image-modal');
+      const modalContent = document.getElementById('modal-content');
+      const modalTitle = document.getElementById('modal-title');
+
+      if (!sourceEl || !modal || !modalContent) return;
+
+      modalTitle.textContent = title || '圖表檢視';
+      modalContent.innerHTML = sourceEl.outerHTML;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('image-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // 點擊背景關閉燈箱
+    document.getElementById('image-modal')?.addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // ESC 鍵關閉燈箱
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // 案例數據庫
+    const CASE_DATA = {
+      saas: {
+        outcome: {
+          id: 'saas-out',
+          title: '30 天用戶留存率由 18% 提升至 35%',
+          desc: '專注改善註冊第一週的活躍核心行為。'
+        },
+        opportunities: [
+          {
+            id: 'opp-1',
+            title: '痛點 A：新用戶進入後面對空白看板感到不知所措',
+            desc: '訪談顯示 65% 用戶註冊後停留不到 2 分鐘便離開封閉視窗。',
+            solutions: [
+              {
+                id: 'sol-1-1',
+                title: '解法 1：一鍵匯入行業專屬看板範本 (推薦)',
+                badge: '高價值 / 低難度',
+                desc: '註冊成功時彈出 3 選 1 常用情境卡片，點選即生成預載範例專案。',
+                prompt: `你是一位資深前端與產品架構師。我們目前正在驗證 SaaS 新用戶痛點：「面對空白看板不知所措」。
+請在單一 HTML/Tailwind 檔案中，為我建立一個「一鍵式範本選取 Modal」互動原型：
+1. 視覺採用現代深色極簡風格，提供 3 種範本：「敏捷開發 Sprint」、「行銷內容日曆」、「個人 GTD 清單」。
+2. 每個卡片需有動態懸浮效果、預估省下時間標籤，以及點擊「立即套用」後的平滑 Loading 轉場。
+3. 點擊後模擬載入 1.2 秒，直接跳轉到包含 Mock 資料的看板視圖，並出現「範本已載入成功」的 Toast 提示。
+4. 請加上點擊追蹤 Console log，方便我計算使用者在哪些卡片猶豫最久。`
+              },
+              {
+                id: 'sol-1-2',
+                title: '解法 2：AI 互動式問答精靈 (AI Onboarding)',
+                badge: '創新 / 中等難度',
+                desc: '以對話形式詢問用戶：「今天想管理什麼專案？」，自動生成客製結構。',
+                prompt: `請扮演 AI 產品工程師，為我們的專案管理軟體製作「AI 對話式開箱引導」原型：
+1. 進入畫面為全螢幕專注模式，顯示一條輸入框：「告訴我你這週最想完成的一件事」。
+2. 用戶輸入後（例如：籌備新品發表會），模擬 AI 思考動效，並於 2 秒內生出由 4 個階段構成的任務清單。
+3. 包含一個「接受並進入看板」按鈕與「重新微調」按鈕。
+4. 請完全在單一 HTML 檔案完成，使用 Tailwind CSS 與純 JavaScript 模擬對話響應。`
+              }
+            ]
+          },
+          {
+            id: 'opp-2',
+            title: '痛點 B：不知道快捷鍵與進階功能，操作效率低',
+            desc: '許多進階能力藏在二級選單，用戶誤以為功能陽春。',
+            solutions: [
+              {
+                id: 'sol-2-1',
+                title: '解法 3：Command Palette (Cmd+K) 沉浸命令列',
+                badge: '高效 / 經典解法',
+                desc: '隨時按 Cmd+K 叫出全站搜尋與快捷動作，並在介面右下方常駐動態快捷鍵提示。',
+                prompt: `請用純 JavaScript 與 Tailwind CSS 實作一個極度絲滑的 Command Palette (Cmd + K) 彈窗：
+1. 支援鍵盤快速鍵 ⌘K / Ctrl+K 開啟/關閉，以及 ESC 關閉。
+2. 支援上下鍵選取、Enter 執行。包含「搜尋看板」、「邀請團隊成員」、「切換深淺模式」等預設操作。
+3. 在輸入框即時過濾項目，並在底部提示「Pro Tip: 按 ⌘B 可快速收合側邊欄」。
+4. 視覺需具備高質感毛玻璃 (backdrop-blur) 與精緻的陰影高光。`
+              }
+            ]
+          }
+        ]
+      },
+
+      ecommerce: {
+        outcome: {
+          id: 'ecom-out',
+          title: '購物車結帳完成率提升 12%',
+          desc: '減少購物車到完成付款之間的高放棄率。'
+        },
+        opportunities: [
+          {
+            id: 'opp-e1',
+            title: '痛點 A：結帳步驟過多，填寫運送資訊繁瑣',
+            desc: '用戶在手機端填寫地址與發票時流失率最高。',
+            solutions: [
+              {
+                id: 'sol-e1-1',
+                title: '解法 1：一頁式極速結帳 (One-Page Express Checkout)',
+                badge: '核心解法',
+                desc: '將運送、發票、付款方式整合在單一摺疊卡片，支援 Apple Pay / 記憶地址。',
+                prompt: `請為電商網站建立一個「一頁式極速結帳」單一 HTML 互動原型：
+1. 設計自適應手機螢幕的高質感介面，包含：即時商品清單、一鍵填入常用地址按鈕、支付方式快速切換 (Apple Pay / 信用卡)。
+2. 提供即時表單驗證，當卡號填寫正確時，支付按鈕動態由灰變為高亮綠色，並顯示動態安全鎖圖示。
+3. 點擊「立即付款」時呈現處理進度條與成功的彩花動效。`
+              },
+              {
+                id: 'sol-e1-2',
+                title: '解法 2：訪客免註冊先買後付 (Guest Checkout)',
+                badge: '低阻力',
+                desc: '移除強制登入流程，只需填寫 Email 即可結帳，結帳後自動建立帳號。',
+                prompt: `請設計一個「無阻力訪客結帳流程」的前端原型：
+1. 在結帳入口強調「無需密碼，30 秒快速結帳」。
+2. 只需輸入 Email 與手機，自動寄發一次性驗證碼 (OTP) 的模擬互動視窗。
+3. 包含一個清晰的進度步驟條（1. 聯絡資訊 → 2. 付款 → 3. 完成）。`
+              }
+            ]
+          }
+        ]
+      }
+    };
+
+    let currentCaseKey = 'saas';
+    let selectedSolution = null;
+
+    // 初始化渲染
+    function initTree() {
+      const data = CASE_DATA[currentCaseKey];
+      const container = document.getElementById('ost-tree-container');
+      container.innerHTML = '';
+
+      // 1. Outcome 頂層
+      const outcomeEl = document.createElement('div');
+      outcomeEl.className = 'p-4 rounded-xl bg-gradient-to-r from-brand-900/40 via-purple-900/30 to-indigo-900/40 border border-brand-500/40 shadow-sm';
+      outcomeEl.innerHTML = `
+        <div class="flex items-center gap-2 text-xs font-mono text-brand-300 font-semibold mb-1">
+          <span class="w-2 h-2 rounded-full bg-brand-400 animate-ping"></span>
+          OUTCOME (核心成效指標)
+        </div>
+        <div class="text-base font-bold text-white">${data.outcome.title}</div>
+        <div class="text-xs text-slate-400 mt-1">${data.outcome.desc}</div>
+      `;
+      container.appendChild(outcomeEl);
+
+      // 2. Opportunities & Solutions
+      data.opportunities.forEach((opp, oppIndex) => {
+        const oppGroup = document.createElement('div');
+        oppGroup.className = 'ml-4 pl-4 border-l-2 border-slate-800 space-y-4 pt-2';
+
+        // Opportunity 節點
+        const oppNode = document.createElement('div');
+        oppNode.className = 'p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition cursor-pointer';
+        oppNode.innerHTML = `
+          <div class="text-[11px] font-mono text-sky-400 font-bold mb-0.5">OPPORTUNITY 0${oppIndex + 1}</div>
+          <div class="text-sm font-semibold text-slate-200">${opp.title}</div>
+          <div class="text-xs text-slate-400 mt-1">${opp.desc}</div>
+        `;
+        oppGroup.appendChild(oppNode);
+
+        // Solutions 列表
+        const solGroup = document.createElement('div');
+        solGroup.className = 'ml-4 pl-4 border-l-2 border-slate-800/80 space-y-3';
+
+        opp.solutions.forEach((sol, solIndex) => {
+          const solBtn = document.createElement('div');
+          solBtn.id = `node-${sol.id}`;
+          solBtn.className = 'p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-brand-500/50 transition cursor-pointer flex flex-col justify-between group';
+          solBtn.onclick = () => selectSolution(sol, opp);
+
+          solBtn.innerHTML = `
+            <div class="flex items-start justify-between gap-2">
+              <span class="text-xs font-bold text-white group-hover:text-brand-300 transition">${sol.title}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono shrink-0">${sol.badge}</span>
+            </div>
+            <div class="text-xs text-slate-400 mt-1.5 line-clamp-2">${sol.desc}</div>
+            <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+              <span class="flex items-center gap-1 group-hover:text-brand-400 transition">
+                <i data-lucide="code" class="w-3 h-3"></i> 載入 Vibe Prompt
+              </span>
+              <span>驗證實驗</span>
+            </div>
+          `;
+          solGroup.appendChild(solBtn);
+        });
+
+        oppGroup.appendChild(solGroup);
+        container.appendChild(oppGroup);
+      });
+
+      // 預設選中第一個 solution
+      if (data.opportunities[0] && data.opportunities[0].solutions[0]) {
+        selectSolution(data.opportunities[0].solutions[0], data.opportunities[0]);
+      }
+      lucide.createIcons();
+    }
+
+    // 選取 Solution 節點
+    function selectSolution(sol, opp) {
+      selectedSolution = sol;
+      
+      // 更新高亮狀態
+      document.querySelectorAll('[id^="node-"]').forEach(el => {
+        el.classList.remove('border-brand-500', 'bg-brand-950/30');
+      });
+      const activeEl = document.getElementById(`node-${sol.id}`);
+      if (activeEl) {
+        activeEl.classList.add('border-brand-500', 'bg-brand-950/30');
+      }
+
+      // 更新右側面板
+      document.getElementById('tree-status-badge').textContent = `已選取：${sol.title}`;
+      document.getElementById('node-title').textContent = sol.title;
+      document.getElementById('node-desc').textContent = sol.desc;
+      document.getElementById('node-opportunity-ref').textContent = opp.title;
+      document.getElementById('prompt-output').value = sol.prompt;
+
+      lucide.createIcons();
+    }
+
+    // 平滑捲動至指定區塊
+    function scrollToSection(id) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // ==========================================
+    // PLC 實戰案例專用互動邏輯
+    // ==========================================
+    function switchPlcTab(tab) {
+      const tabs = ['st', 'il', 'flow'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const panel = document.getElementById(`panel-plc-${t}`);
+        if (t === tab) {
+          btn.className = 'px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold';
+          panel.classList.remove('hidden');
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white text-xs font-semibold';
+          panel.classList.add('hidden');
+        }
+      });
+    }
+
+    function setPlcPreset(type) {
+      const promptEl = document.getElementById('plc-input-prompt');
+      if (type === 'clamp') {
+        promptEl.value = '氣壓缸 A 前進（Y0）至極限開關（X1），夾爪閉合（Y1），等待 2 秒確認壓力到位後，氣壓缸 A 後退（Y2）回原點（X0）。包含急停開關（X2）。';
+      } else if (type === 'conveyor') {
+        promptEl.value = '主輸送帶馬達啟動（Y0），光電感測器（X1）檢測到工件時減速運轉（Y1），到位檢測（X2）觸發後煞車停止（Y2），蜂鳴器鳴響 1 秒（Y3）。包含熱過載保護（X3）。';
+      }
+    }
+
+    function runPlcVibeGeneration() {
+      const btn = document.getElementById('btn-generate-plc');
+      const indicator = document.getElementById('plc-status-indicator');
+      const originalText = btn.innerHTML;
+
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i><span>AI Vibe 轉譯中...</span>`;
+      indicator.textContent = '編譯生成 ST/IL/SFC 中...';
+      indicator.className = 'text-[11px] font-mono text-amber-400 animate-pulse';
+      lucide.createIcons();
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        indicator.textContent = '✅ 生成完成 (語法通過 IEC 61131-3 檢查)';
+        indicator.className = 'text-[11px] font-mono text-emerald-400 font-semibold';
+        lucide.createIcons();
+      }, 1000);
+    }
+
+    function copyPlcSystemPrompt() {
+      const systemPrompt = `你是一位資深工業自動化架構師與 IEC 61131-3 程式編譯專家。
+請將用戶的自然語言動作邏輯，嚴謹轉換為以下三種格式：
+1. 結構化文字 (Structured Text, ST)：包含完整 VAR 變數宣告、CASE 狀態機架構與安全急停互鎖。
+2. 指令表 (Instruction List, IL)：採用標準三菱/西門子經典累加器邏輯 (LD, AND, ST, JMPC)。
+3. SFC 動作流程時序：文字結構化的步進轉換圖 (Step & Transition)。`;
+
+      const dummy = document.createElement('textarea');
+      dummy.value = systemPrompt;
+      document.body.appendChild(dummy);
+      dummy.select();
+      document.execCommand('copy');
+      document.body.removeChild(dummy);
+
+      const indicator = document.getElementById('plc-status-indicator');
+      indicator.textContent = 'System Prompt 已複製！';
+      setTimeout(() => {
+        indicator.textContent = '模擬就緒';
+      }, 2000);
+    }
+
+    window.onload = function() {
+      initTree();
+      lucide.createIcons();
+    };
+  </script>
+</body>
+</html>

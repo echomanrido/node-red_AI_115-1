@@ -1758,6 +1758,89 @@ unit_17_team_dev_transcript_interactive = {
     ]
 }
 
+# 18：OST (Opportunity Solution Tree) × Vibe Coding
+unit_18_ost_vibe_coding = {
+    "id": "vibe-ost-canvas",
+    "labNumber": "18",
+    "title": "不再迷航於 AI 代碼海：用 OST (機會解決方案樹) 定舵，以 Vibe Coding 揚帆",
+    "shortTitle": "OST 定舵 × Vibe Coding 揚帆",
+    "category": "其他",
+    "subCategory": "機會解決方案樹 (OST)",
+    "date": "2026-10-18",
+    "summary": "終結 AI 輔助開發中「寫得越快、錯得越多」的致命痛點！深度結合 Teresa Torres 的機會解決方案樹 (Opportunity Solution Tree, OST) 與 Vibe Coding 開發範式。以「成果 (Outcome) -> 機會 (Opportunity) -> 解法 (Solution) -> 實驗 (Experiment)」四層架構為 AI 提示詞精準定舵，搭配雙環工作流與 PLC 工控實戰圖譜，兼顧「建造正確之物 (Build the Right Thing)」與「極速建造 (Build Thing Fast)」。",
+    "flowTitle": "OST 機會解決方案樹架構定舵 × Vibe Coding 雙環閉環實踐工作流",
+    "resultTitle": "OST 互動式決策樹畫布、提示詞產生器與 PLC 工控實戰案例",
+    "flowImage": make_svg_diagram(
+        "OST 架構定舵 × Vibe Coding 極速迭代雙環工作流",
+        "Outcome Focus -> Opportunity Discovery -> Solution Brainstorm -> Vibe Coding Experiment",
+        [
+            {"num": "OST-1", "title": "鎖定成果", "sub": "定義產品量化商業指標", "tag": "Outcome"},
+            {"num": "OST-2", "title": "探勘機會", "sub": "挖掘客戶未被滿足的痛點", "tag": "Discovery"},
+            {"num": "OST-3", "title": "發散解法", "sub": "對比多種技術路徑與權衡", "tag": "Solution"},
+            {"num": "OST-4", "title": "極速建造", "sub": "Vibe Coding 敏捷原型實作", "tag": "Build"},
+            {"num": "OST-5", "title": "假設檢驗", "sub": "快速回饋驗證商業假說", "tag": "Verify"}
+        ],
+        loop_label="雙環閉環：外環探索『建造正確之物』，內環 Vibe Coding『極速建造正確之物』",
+        accent="#8b5cf6"
+    ),
+    "resultImage": "Vibe Coding/03.其他/不再迷航於 AI 代碼海：用 OST 定舵，以 Vibe Coding 揚帆.html",
+    "slideUrl": "Vibe Coding/03.其他/不再迷航於 AI 代碼海：用 OST 定舵，以 Vibe Coding 揚帆.html",
+    "objective": "1. 理解 Vibe Coding 與機會解決方案樹 (OST) 的互補價值：用 OST 避免「極速建造垃圾」，用 Vibe Coding 降低「實驗驗證成本」。\n2. 掌握四層 OST 架構：期望成果 (Outcome)、痛點機會 (Opportunity)、解法候選 (Solution) 與假設實驗 (Experiment)。\n3. 實作雙環閉環工作流與專屬提示詞範本，並參考 PLC 工控異常排查實戰案例，打造高成效的 AI 敏捷開發流程。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 從「功能甘特圖」切換為「成效決策樹」",
+            "description": "跳脫以產出 (Output) 為導向的傳統思維，轉為以商業與使用者成效 (Outcome) 為錨點，建立多路徑展開的動態決策樹。"
+        },
+        {
+            "step": "步驟 2: 探索工控 PLC 異常診斷實例圖譜",
+            "description": "以工控領域「產線停機診斷」為真實案例，對比傳統 Modbus 輪詢與邊緣 AI 異常檢測方案，觀察 OST 如何引導技術選型。"
+        },
+        {
+            "step": "步驟 3: 操作互動式 OST 畫布與決策生成",
+            "description": "在可互動畫布中動態切換痛點分支，直觀視覺化評估多種解決方案的影響力、技術可行性與假設風險。"
+        },
+        {
+            "step": "步驟 4: 注入專為 OST 定制之 Vibe Coding 提示詞",
+            "description": "運用「角色 + OST 背景 + 實驗邊界 + 嚴禁自嗨」架構向 AI 下達指令，一鍵生成聚焦核心假說的原型代碼。"
+        }
+    ],
+    "promptTemplate": "你是一位頂尖的 AI-Native 產品架構師與全棧工程師。\n我們目前正在運用「機會解決方案樹 (OST)」指導 Vibe Coding 開發：\n\n【OST 錨定背景】\n- 期望成效 (Outcome)：工控邊緣網關數據採集延遲由 250ms 降至 50ms 以內\n- 鎖定機會 (Opportunity)：現場維護工程師反映傳統循序 Modbus 輪詢造成高頻告警遺失\n- 候選解法 (Solution)：實作以 RxJS / 異步事件驅動為核心的並行輪詢緩衝佇列模組\n\n【Vibe Coding 任務目標】\n請依據此解法，撰寫一份專注於「最小可行假說驗證 (MVP Experiment)」的 Node.js 原型：\n1. 實作並行隊列與背壓 (Backpressure) 控制機制。\n2. 加入模擬 100 個暫存器高頻壓測腳本。\n3. 請勿過度設計無關的 UI 或資料庫儲存，優先驗證延遲指標是否達標。",
+    "codeSnippet": {
+        "language": "javascript",
+        "code": "// OST 實驗原型：RxJS 異步並行 Modbus 採集隊列 (最小可行假說驗證)\nimport { from, mergeMap, bufferTime, filter } from 'rxjs';\n\nconst registers = Array.from({ length: 100 }, (_, i) => ({ address: 40001 + i }));\n\n// 模擬並行採集與微批次聚合緩衝\nfrom(registers).pipe(\n  mergeMap(async (reg) => {\n    const start = performance.now();\n    const val = await readModbusAsync(reg.address);\n    return { addr: reg.address, val, latency: performance.now() - start };\n  }, 10), // 並行度限制 10\n  bufferTime(50), // 50ms 聚合推播\n  filter(batch => batch.length > 0)\n).subscribe(batch => {\n  console.log(`[OST 驗證] 批次推送 ${batch.length} 筆暫存器資料，平均延遲: ${calcAvgLatency(batch)}ms`);\n});"
+    },
+    "references": [
+        {
+            "title": "不再迷航於 AI 代碼海：用 OST 定舵，以 Vibe Coding 揚帆 (專屬互動全景頁面)",
+            "url": "Vibe Coding/03.其他/不再迷航於 AI 代碼海：用 OST 定舵，以 Vibe Coding 揚帆.html"
+        },
+        {
+            "title": "Continuous Discovery Habits (Teresa Torres OST 官方理論著作)",
+            "url": "https://www.producttalk.org/opportunity-solution-tree/"
+        },
+        {
+            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 15)",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
+        },
+        {
+            "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 17)",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-compass",
+            "scenario": "新產品敏捷探索與 MVP 原型決策",
+            "description": "避免團隊陷入「AI 產碼很快但做出來沒人用」的產出陷阱，先以 OST 鎖定商業價值再啟動 Vibe Coding。"
+        },
+        {
+            "icon": "fa-solid fa-industry",
+            "scenario": "智慧製造與工控邊緣系統架構演進",
+            "description": "在傳統 PLC/SCADA 改造升級時，依痛點分枝快速驗證邊緣計算、通訊協定轉換與預測維護之技術可行性。"
+        }
+    ]
+}
+
 vibe_labs = [
     unit_01_grill_me,
     unit_02_sdd_bdd_tdd,
@@ -1775,7 +1858,8 @@ vibe_labs = [
     unit_14_rea,
     unit_15_team_dev_guide,
     unit_16_team_dev_transcript,
-    unit_17_team_dev_transcript_interactive
+    unit_17_team_dev_transcript_interactive,
+    unit_18_ost_vibe_coding
 ]
 
 # 寫入 vibecoding.json
