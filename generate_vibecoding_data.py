@@ -82,10 +82,101 @@ def make_svg_diagram(title, subtitle, nodes, loop_label=None, accent="#0ea5e9"):
     encoded = base64.b64encode(svg_str.encode('utf-8')).decode('utf-8')
     return f"data:image/svg+xml;base64,{encoded}"
 
-# 01：軟體工程演進全景圖
-unit_01_evolution = {
-    "id": "vibe-01",
+# 01：當 Vibe Coding 遇上嚴謹工程學：SDD vs BDD vs TDD（架構矩陣與 AI Skills 生態）
+unit_01_sdd_bdd_tdd = {
+    "id": "vibe-sdd-bdd-tdd",
     "labNumber": "01",
+    "title": "當 Vibe Coding 遇上嚴謹工程學：SDD vs BDD vs TDD（架構矩陣與 AI Skills 生態）",
+    "shortTitle": "SDD vs BDD vs TDD 現代開發架構",
+    "category": "Skills(技能)",
+    "date": "2026-11-06",
+    "summary": "「只要跟 AI 對話就能寫出軟體？」——僅憑直覺與氛圍 (Vibe) 的開發容易引發代碼失控與技術債。本單元深入剖析現代 AI 原生開發三大防護網：規格驅動 (SDD / Spec-Driven)、行為驅動 (BDD / Behavior-Driven) 與測試驅動 (TDD / Test-Driven)。結合當前社群熱門開源 AI Agent Skills 生態庫（OpenSpec、Superpowers、自建 BDD Skill 規範），透過高解析度向量架構圖鑑、維度比較矩陣、互動流程模擬器與實戰 Prompt 模組，助您將自然語言意圖淬煉為商業級穩固代碼。",
+    "flowTitle": "Vibe Coding 結合三重工程防護網（SDD / BDD / TDD）閉環架構",
+    "resultTitle": "SDD vs BDD vs TDD 現代開發架構互動專題",
+    "flowImage": make_svg_diagram(
+        "Vibe Coding 三重工程防護網架構",
+        "Tri-Guardrails: Vibe Intent -> SDD Spec -> BDD Behavior -> TDD Test -> Production",
+        [
+            {"num": "V-01", "title": "Vibe 直覺發想", "sub": "Prompt 意圖驅動", "tag": "Intent"},
+            {"num": "V-02", "title": "SDD 規格約束", "sub": "OpenSpec 契約第一", "tag": "Spec-Driven"},
+            {"num": "V-03", "title": "BDD 行為對齊", "sub": "Gherkin 場景驗收", "tag": "Behavior"},
+            {"num": "V-04", "title": "TDD 測試守門", "sub": "紅綠燈重構閉環", "tag": "Test-Driven"},
+            {"num": "V-05", "title": "商業級交付", "sub": "穩固代碼持續集成", "tag": "Production"}
+        ],
+        loop_label="AI 原生工程閉環：以直覺發起，以規格合約約束，以業務場景對齊，以自動化測試捍衛品質",
+        accent="#d946ef"
+    ),
+    "resultImage": "Vibe Coding/02.Skills(技能)/vibe_coding_sdd_vs_bdd_vs_tdd.html",
+    "slideUrl": "Vibe Coding/02.Skills(技能)/vibe_coding_sdd_vs_bdd_vs_tdd.html",
+    "objective": "1. 掌握 Vibe Coding「直覺發想 (Vibe) 與工程防護 (Guardrails)」的互補本質，破除純靠自然語言產碼的幻覺與技術債陷阱。\n2. 深刻理解現代軟體工程三大模式（SDD 規格驅動、BDD 行為驅動、TDD 測試驅動）之核心定義、生命週期循環與技術選型。\n3. 熟練運用熱門 AI Agent Skills 生態庫（OpenSpec 規格合約、自建 BDD 規範、Superpowers 測試門禁），構建高可靠性的工業級代碼流程。",
+    "tutorialSteps": [
+        {
+            "step": "第一節：Vibe Coding 的迷思與工程學防護網",
+            "description": "剖析 Karpathy 式直覺編程的高效與隱患，解析為何單靠 Prompt 容易產生幽靈代碼與架構發散，確立導入工程防護網的必要性。"
+        },
+        {
+            "step": "第二節：三大現代開發模式深度剖析",
+            "description": "深入對比 SDD（架構規格第一，合約不可退縮）、BDD（以 Gherkin 語法 Given-When-Then 對齊業務場景）與 TDD（Red-Green-Refactor 嚴格紅綠燈測試閉環）。"
+        },
+        {
+            "step": "第三節：開源 AI Agent Skills 工具庫實戰",
+            "description": "實測主流 AI Coding Agent 技能庫：GitHub 70k+ 星的 OpenSpec 規格驅動框架、自建 BDD Gherkin Skill 規範，以及 Superpowers 系統化測試工作流。"
+        },
+        {
+            "step": "第四節：流程模擬器體驗與實戰 Prompt 模組",
+            "description": "透過內建流程模擬器視覺化推演全流程，並直接套用即插即用的結構化 Prompt 樣板，在 Cursor、Claude Code 或 Antigravity 中立即實踐。"
+        }
+    ],
+    "promptTemplate": "你是一位精通 AI 原生軟體工程與現代架構治理的資深首席架構師。\n請為我們的系統開發任務建立完整的「SDD + BDD + TDD 三重防護工程規格」：\n1. 【SDD 規格合約】：定義系統邊界、公開 API 介面、資料 Schema 與不可違背的架構不變量 (Invariants)。在規格獲確認前禁止產生實作代碼。\n2. 【BDD 業務行為】：撰寫標準 Gherkin 語法場景 (Feature / Scenario / Given-When-Then)，覆蓋正常流程、極端邊界與錯誤處理機制。\n3. 【TDD 測試守門】：制定測試先行規格清單（單元測試、整合測試），要求在測試紅燈驗證前不得編寫實作代碼，並在綠燈後執行乾淨重構。",
+    "codeSnippet": {
+        "language": "markdown",
+        "code": "# Vibe Coding 三重工程防護協定 (Tri-Guardrail Protocol)\n## 1. SDD (Spec-Driven Development)\n- 執行 /opsx:propose 生成 proposal.md 與 specs/ 規格檔案\n- 凍結 API 介面與資料模型，未經架構審查前嚴禁產出實作代碼\n\n## 2. BDD (Behavior-Driven Development)\n- 採用標準 Gherkin (Given/When/Then) 描述業務行為場景\n- 確保 AI 生成之實作邏輯與領域專家 (Domain Expert) 意圖精確對齊\n\n## 3. TDD (Test-Driven Development)\n- 遵守 Red-Green-Refactor 嚴格循環\n- 先行編寫單元與整合測試案例，確證測試紅燈後再提示 AI 實現代碼"
+    },
+    "references": [
+        {
+            "title": "SDD vs BDD vs TDD 現代開發架構 (專屬專題互動工作台)",
+            "url": "Vibe Coding/02.Skills(技能)/vibe_coding_sdd_vs_bdd_vs_tdd.html",
+            "bgColor": "rgba(217, 70, 239, 0.15)",
+            "borderColor": "rgba(217, 70, 239, 0.6)",
+            "color": "#e879f9",
+            "icon": "fa-solid fa-wand-magic-sparkles",
+            "badge": "本單元專題"
+        },
+        {
+            "title": "OpenSpec 官方規格驅動開發核心框架",
+            "url": "https://openspec.dev/"
+        },
+        {
+            "title": "Superpowers 軟體工程 Agent 工作流規範 (GitHub)",
+            "url": "https://github.com/obra/superpowers"
+        },
+        {
+            "title": "軟體工程演進全景圖 (單元 02)",
+            "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
+        },
+        {
+            "title": "OpenSpec 規格驅動開發：完整指南與實踐 (單元 09)",
+            "url": "Vibe Coding/02.Skills(技能)/01.openspec.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-shield-halved",
+            "scenario": "AI 原生團隊工程護欄與防禦式規範",
+            "description": "在團隊導入 AI Coding 工具時，建立 SDD/BDD/TDD 三重約束，杜絕 AI 自由發揮導致的代碼幻覺與架構失控。"
+        },
+        {
+            "icon": "fa-solid fa-vial-circle-check",
+            "scenario": "規格契約先行與自動化回歸驗收",
+            "description": "將自然語言直覺快速固化為機器可讀的 Spec 與測試套件，實現高覆蓋率、零發散的敏捷 CI/CD 自動化交付。"
+        }
+    ]
+}
+
+# 02：軟體工程演進全景圖
+unit_02_evolution = {
+    "id": "vibe-01",
+    "labNumber": "02",
     "title": "軟體工程演進全景圖：從混沌、瀑布、敏捷到 Vibe Coding",
     "category": "軟體工程",
     "date": "2026-09-18",
@@ -158,10 +249,10 @@ unit_01_evolution = {
     ]
 }
 
-# 02：軟體工程經典反模式：隕石墜落型開發（メテオフォール型開発）
-unit_02_meteor_fall = {
+# 03：軟體工程經典反模式：隕石墜落型開發（メテオフォール型開発）
+unit_03_meteor_fall = {
     "id": "vibe-meteor-fall",
-    "labNumber": "02",
+    "labNumber": "03",
     "title": "軟體工程經典反模式：隕石墜落型開發（メテオフォール型開発）中文完整重現版",
     "shortTitle": "隕石墜落型開發 (經典反模式)",
     "category": "軟體工程",
@@ -223,7 +314,7 @@ unit_02_meteor_fall = {
             "url": "Vibe Coding/01.軟體工程/隕石墜落型開發 中文完整重現版.html"
         },
         {
-            "title": "軟體工程演進全景圖 (單元 01)",
+            "title": "軟體工程演進全景圖 (單元 02)",
             "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
         },
         {
@@ -245,10 +336,10 @@ unit_02_meteor_fall = {
     ]
 }
 
-# 03：Vibe Coding 與新世代 AI 原生軟體工程權威指南
-unit_03_guide = {
+# 04：Vibe Coding 與新世代 AI 原生軟體工程權威指南
+unit_04_guide = {
     "id": "vibe-guide",
-    "labNumber": "03",
+    "labNumber": "04",
     "title": "Vibe Coding 與新世代 AI 原生軟體工程 (AI-Native SDLC 權威指南)",
     "shortTitle": "Vibe Coding 實戰心法指南",
     "category": "軟體工程",
@@ -313,10 +404,10 @@ unit_03_guide = {
     ]
 }
 
-# 04：Anthropic Claude AI-Native SDLC
-unit_04_claude = {
+# 05：Anthropic Claude AI-Native SDLC
+unit_05_claude = {
     "id": "vibe-02",
-    "labNumber": "04",
+    "labNumber": "05",
     "title": "Anthropic Claude：AI-Native SDLC 全週期實戰手冊 (Playbook)",
     "category": "軟體工程",
     "date": "2026-08-21",
@@ -697,10 +788,10 @@ google_children = [
     }
 ]
 
-# 05：Google 5-Day 全系列母群組
-unit_05_google = {
+# 06：Google 5-Day 全系列母群組
+unit_06_google = {
     "id": "vibe-google-course",
-    "labNumber": "05",
+    "labNumber": "06",
     "isGroup": True,
     "groupTitle": "Google 5-Day AI Agents 密集課程 (全五天系列)",
     "title": "Google 5-Day AI Agents 密集課程：完整實戰總覽 (Day 1 ~ Day 5)",
@@ -769,10 +860,10 @@ unit_05_google = {
     "children": google_children
 }
 
-# 06：Vibe Coding × UML (一)：以 UML 藍圖鎖定架構
-unit_06_uml_blueprint = {
+# 07：Vibe Coding × UML (一)：以 UML 藍圖鎖定架構
+unit_07_uml_blueprint = {
     "id": "vibe-uml-blueprint",
-    "labNumber": "06",
+    "labNumber": "07",
     "title": "軟體工程：Vibe Coding × UML (一)：以 UML 藍圖鎖定架構，釋放 AI 創意",
     "shortTitle": "Vibe Coding × UML (一)：藍圖架構",
     "category": "軟體工程",
@@ -847,10 +938,10 @@ unit_06_uml_blueprint = {
     ]
 }
 
-# 07：Vibe Coding × UML (二)：14 種圖表全覽與規範 AI 的程式靈魂
-unit_07_uml_advanced = {
+# 08：Vibe Coding × UML (二)：14 種圖表全覽與規範 AI 的程式靈魂
+unit_08_uml_advanced = {
     "id": "vibe-uml-14-types",
-    "labNumber": "07",
+    "labNumber": "08",
     "title": "軟體工程：Vibe Coding × UML (二)：14 種圖表全覽與規範 AI 的程式靈魂",
     "shortTitle": "Vibe Coding × UML (二)：14種圖表全覽",
     "category": "軟體工程",
@@ -925,10 +1016,10 @@ unit_07_uml_advanced = {
     ]
 }
 
-# 08：OpenSpec (opsx) 指南：AI 規格驅動開發
-unit_08_openspec = {
+# 09：OpenSpec (opsx) 指南：AI 規格驅動開發
+unit_09_openspec = {
     "id": "vibe-openspec",
-    "labNumber": "08",
+    "labNumber": "09",
     "title": "OpenSpec (opsx)：AI 規格驅動開發 (Spec-Driven Development) 指南",
     "shortTitle": "OpenSpec 規格驅動開發",
     "category": "Skills(技能)",
@@ -1007,10 +1098,10 @@ unit_08_openspec = {
     ]
 }
 
-# 09：OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析
-unit_09_opsx_guide = {
+# 10：OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析
+unit_10_opsx_guide = {
     "id": "vibe-opsx-lifecycle",
-    "labNumber": "09",
+    "labNumber": "10",
     "title": "OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析",
     "shortTitle": "OpenSpec 生命週期與檔案全解析",
     "category": "Skills(技能)",
@@ -1089,10 +1180,10 @@ unit_09_opsx_guide = {
     ]
 }
 
-# 10：Superpowers 軟體工程 Agent 工作流規範
-unit_10_superpowers = {
+# 11：Superpowers 軟體工程 Agent 工作流規範
+unit_11_superpowers = {
     "id": "vibe-superpowers",
-    "labNumber": "10",
+    "labNumber": "11",
     "title": "Superpowers 軟體工程 Agent 工作流規範：14 大核心 Skills 與 TDD 實戰指南",
     "shortTitle": "Superpowers Agent 工作流規範",
     "category": "Skills(技能)",
@@ -1171,10 +1262,10 @@ unit_10_superpowers = {
     ]
 }
 
-# 11：傳統逆向工程與核心工具解析
-unit_11_reverse_engineering = {
+# 12：傳統逆向工程與核心工具解析
+unit_12_reverse_engineering = {
     "id": "vibe-reverse-engineering-traditional",
-    "labNumber": "11",
+    "labNumber": "12",
     "title": "傳統逆向工程與核心工具解析：Detect It Easy、IDA Pro 與 Ghidra 實戰指南",
     "shortTitle": "傳統逆向工具 (DIE/IDA/Ghidra)",
     "category": "其他",
@@ -1253,10 +1344,10 @@ unit_11_reverse_engineering = {
     ]
 }
 
-# 12：REA (Reverse Engineer Anything)
-unit_12_rea = {
+# 13：REA (Reverse Engineer Anything)
+unit_13_rea = {
     "id": "vibe-reverse-engineering-rea",
-    "labNumber": "12",
+    "labNumber": "13",
     "title": "REA (Reverse Engineer Anything)：AI 智能體逆向工程協議與實戰指南",
     "shortTitle": "REA AI 智能體逆向工程",
     "category": "其他",
@@ -1331,10 +1422,10 @@ unit_12_rea = {
     ]
 }
 
-# 13：AI Coding 新時代的團隊開發：實戰教學指南
-unit_13_team_dev_guide = {
+# 14：AI Coding 新時代的團隊開發：實戰教學指南
+unit_14_team_dev_guide = {
     "id": "vibe-team-dev-guide",
-    "labNumber": "13",
+    "labNumber": "14",
     "title": "AI Coding 新時代的團隊開發：從個人用 AI 到 AI-Native 組織 (實戰教學指南)",
     "shortTitle": "AI Coding 團隊開發實戰教學指南",
     "category": "其他",
@@ -1388,11 +1479,11 @@ unit_13_team_dev_guide = {
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
         },
         {
-            "title": "陳宜昌 YC 演講時間軸與完整逐字稿 (單元 14)",
+            "title": "陳宜昌 YC 演講時間軸與完整逐字稿 (單元 15)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
         },
         {
-            "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 15)",
+            "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 16)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
         },
         {
@@ -1414,10 +1505,10 @@ unit_13_team_dev_guide = {
     ]
 }
 
-# 14：AI Coding 新時代的團隊開發：演講時間軸與完整逐字稿
-unit_14_team_dev_transcript = {
+# 15：AI Coding 新時代的團隊開發：演講時間軸與完整逐字稿
+unit_15_team_dev_transcript = {
     "id": "vibe-team-dev-transcript",
-    "labNumber": "14",
+    "labNumber": "15",
     "title": "AI Coding 新時代的團隊開發：陳宜昌 YC 演講時間軸與完整逐字稿",
     "shortTitle": "團隊開發演講逐字稿時間軸",
     "category": "其他",
@@ -1467,11 +1558,11 @@ unit_14_team_dev_transcript = {
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
         },
         {
-            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 13)",
+            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 14)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
         },
         {
-            "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 15)",
+            "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 16)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
         },
         {
@@ -1493,10 +1584,10 @@ unit_14_team_dev_transcript = {
     ]
 }
 
-# 15：AI Coding 新時代的團隊開發：HWDC 2026 Keynote 完整精校逐字稿與互動解析
-unit_15_team_dev_transcript_interactive = {
+# 16：AI Coding 新時代的團隊開發：HWDC 2026 Keynote 完整精校逐字稿與互動解析
+unit_16_team_dev_transcript_interactive = {
     "id": "vibe-team-dev-transcript-01",
-    "labNumber": "15",
+    "labNumber": "16",
     "title": "AI Coding 新時代的團隊開發：陳宜昌 YC 演講完整精校逐字稿與互動解析",
     "shortTitle": "演講精校逐字稿與互動解析",
     "category": "其他",
@@ -1550,11 +1641,11 @@ unit_15_team_dev_transcript_interactive = {
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
         },
         {
-            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 13)",
+            "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 14)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
         },
         {
-            "title": "陳宜昌 YC 演講時間軸與精要逐字稿 (單元 14)",
+            "title": "陳宜昌 YC 演講時間軸與精要逐字稿 (單元 15)",
             "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
         },
         {
@@ -1577,21 +1668,22 @@ unit_15_team_dev_transcript_interactive = {
 }
 
 vibe_labs = [
-    unit_01_evolution,
-    unit_02_meteor_fall,
-    unit_03_guide,
-    unit_04_claude,
-    unit_05_google,
-    unit_06_uml_blueprint,
-    unit_07_uml_advanced,
-    unit_08_openspec,
-    unit_09_opsx_guide,
-    unit_10_superpowers,
-    unit_11_reverse_engineering,
-    unit_12_rea,
-    unit_13_team_dev_guide,
-    unit_14_team_dev_transcript,
-    unit_15_team_dev_transcript_interactive
+    unit_01_sdd_bdd_tdd,
+    unit_02_evolution,
+    unit_03_meteor_fall,
+    unit_04_guide,
+    unit_05_claude,
+    unit_06_google,
+    unit_07_uml_blueprint,
+    unit_08_uml_advanced,
+    unit_09_openspec,
+    unit_10_opsx_guide,
+    unit_11_superpowers,
+    unit_12_reverse_engineering,
+    unit_13_rea,
+    unit_14_team_dev_guide,
+    unit_15_team_dev_transcript,
+    unit_16_team_dev_transcript_interactive
 ]
 
 # 寫入 vibecoding.json
@@ -1603,6 +1695,6 @@ js_content = "// Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能
 with open('vibecodingData.js', 'w', encoding='utf-8') as f:
     f.write(js_content)
 
-print(f"成功更新資料結構，包含新 02 隕石墜落型開發與 13、14、15 團隊開發！共保留 {len(vibe_labs)} 個單元。")
+print(f"成功更新資料結構，包含新單元 01 SDD/BDD/TDD，其餘順延！共保留 {len(vibe_labs)} 個單元。")
 
 

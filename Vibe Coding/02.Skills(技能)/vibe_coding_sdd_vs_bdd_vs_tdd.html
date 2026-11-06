@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibe Coding 與現代開發模式：SDD vs BDD vs TDD</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+            },
+            sdd: { light: '#dbeafe', DEFAULT: '#3b82f6', dark: '#1d4ed8' },
+            bdd: { light: '#dcfce7', DEFAULT: '#10b981', dark: '#047857' },
+            tdd: { light: '#fee2e2', DEFAULT: '#ef4444', dark: '#b91c1c' },
+            vibe: { light: '#fae8ff', DEFAULT: '#d946ef', dark: '#a21caf' },
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .code-preview {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-fuchsia-500 selection:text-white">
+
+  <!-- Top Sticky Navigation -->
+  <nav class="sticky top-0 z-50 backdrop-blur-md bg-slate-900/80 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="scrollToSection('hero')">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-fuchsia-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-fuchsia-500/20">
+            <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+          </div>
+          <div>
+            <span class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-violet-300 to-cyan-400 text-lg sm:text-xl tracking-tight">Vibe Coding DevLab</span>
+            <span class="hidden sm:inline-block ml-2 text-xs uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">SDD vs BDD vs TDD</span>
+          </div>
+        </div>
+
+        <div class="hidden md:flex items-center space-x-1 lg:space-x-2 text-sm font-medium">
+          <a href="../../vibecoding.html?id=vibe-sdd-bdd-tdd" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-fuchsia-600/20 hover:bg-fuchsia-600/40 text-fuchsia-300 border border-fuchsia-500/40 text-xs sm:text-sm font-semibold transition mr-1">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>返回 Vibe Coding</span>
+          </a>
+          <button onclick="scrollToSection('vibe-concept')" class="px-3 py-2 rounded-lg hover:text-fuchsia-400 hover:bg-slate-800/60 transition">什麼是 Vibe Coding?</button>
+          <button onclick="scrollToSection('methodologies')" class="px-3 py-2 rounded-lg hover:text-blue-400 hover:bg-slate-800/60 transition">三大開發架構</button>
+          <button onclick="scrollToSection('skills-ecosystem')" class="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition">AI Skills 生態庫</button>
+          <button onclick="scrollToSection('matrix-comparison')" class="px-3 py-2 rounded-lg hover:text-emerald-400 hover:bg-slate-800/60 transition">矩陣對照表</button>
+          <button onclick="scrollToSection('interactive-workflow')" class="px-3 py-2 rounded-lg hover:text-amber-400 hover:bg-slate-800/60 transition">流程模擬器</button>
+          <button onclick="scrollToSection('prompt-templates')" class="px-3 py-2 rounded-lg hover:text-pink-400 hover:bg-slate-800/60 transition">Prompt 模組</button>
+          <button onclick="scrollToSection('quiz-section')" class="px-3 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow hover:opacity-95 transition">隨堂測驗</button>
+        </div>
+
+        <!-- Mobile Menu Hamburger Button -->
+        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobileMenu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-1 bg-slate-900 border-b border-slate-800 text-sm">
+      <a href="../../vibecoding.html?id=vibe-sdd-bdd-tdd" class="block w-full text-left px-3 py-2 rounded-md bg-fuchsia-600/20 text-fuchsia-300 font-semibold border border-fuchsia-500/40 mb-2">
+        ← 返回 Vibe Coding
+      </a>
+      <button onclick="scrollToSection('vibe-concept'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-slate-200">什麼是 Vibe Coding?</button>
+      <button onclick="scrollToSection('methodologies'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-slate-200">三大開發架構 (SDD/BDD/TDD)</button>
+      <button onclick="scrollToSection('skills-ecosystem'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-cyan-300">開源 Skills 工具生態</button>
+      <button onclick="scrollToSection('flowchart-gallery'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-slate-200">架構視覺圖鑑</button>
+      <button onclick="scrollToSection('matrix-comparison'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-slate-200">維度對照表</button>
+      <button onclick="scrollToSection('interactive-workflow'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-slate-200">互動流程模擬器</button>
+      <button onclick="scrollToSection('prompt-templates'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-slate-200">AI Prompt 模組</button>
+      <button onclick="scrollToSection('quiz-section'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md bg-violet-600/30 text-violet-300">情境挑戰測驗</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero" class="relative overflow-hidden py-16 sm:py-24 border-b border-slate-800/80">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-fuchsia-900/20 via-slate-950 to-slate-950 -z-10"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/80 text-xs sm:text-sm text-fuchsia-300 mb-6">
+        <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span>AI 原生軟體工程新範式 · 2026 最新實務指引</span>
+      </div>
+      
+      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight sm:leading-none">
+        當 <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-indigo-400">Vibe Coding</span> 遇上<br class="hidden sm:inline">
+        嚴謹工程學：<span class="text-blue-400">SDD</span>、<span class="text-emerald-400">BDD</span> 與 <span class="text-rose-400">TDD</span>
+      </h1>
+      
+      <p class="mt-6 text-base sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
+        「只要跟 AI 對話就能寫出軟體？」—— 僅憑直覺與氛圍 (Vibe) 的開發容易引發代碼失控與技術債。
+        本教學帶您掌握如何利用 <strong class="text-white">規格、行為與測試驅動</strong> 的工程護欄，讓 AI 成為百發百中的資深工程師。
+      </p>
+
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <button onclick="scrollToSection('interactive-workflow')" class="px-6 py-3 rounded-xl bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-500 hover:to-violet-500 font-semibold text-white shadow-lg shadow-fuchsia-500/25 transition flex items-center space-x-2">
+          <span>體驗互動流程模擬</span>
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+        <button onclick="scrollToSection('flowchart-gallery')" class="px-6 py-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 font-medium text-slate-200 transition flex items-center space-x-2">
+          <i class="fa-solid fa-diagram-project text-cyan-400"></i>
+          <span>檢視視覺流程圖鑑</span>
+        </button>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-14 max-w-4xl mx-auto text-left">
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur">
+          <div class="text-xs text-slate-400">核心核心優勢</div>
+          <div class="text-lg font-bold text-fuchsia-400 mt-1">10x 原型迭代速度</div>
+          <div class="text-xs text-slate-500 mt-1">降低思維轉換成本</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur">
+          <div class="text-xs text-slate-400">SDD 規格驅動</div>
+          <div class="text-lg font-bold text-blue-400 mt-1">架構與合約第一</div>
+          <div class="text-xs text-slate-500 mt-1">防止 AI 幻覺與結構偏差</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur">
+          <div class="text-xs text-slate-400">BDD 行為驅動</div>
+          <div class="text-lg font-bold text-emerald-400 mt-1">對齊商業真實場景</div>
+          <div class="text-xs text-slate-500 mt-1">Given / When / Then 框架</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur">
+          <div class="text-xs text-slate-400">TDD 測試驅動</div>
+          <div class="text-lg font-bold text-rose-400 mt-1">紅燈 ➔ 綠燈 ➔ 重構</div>
+          <div class="text-xs text-slate-500 mt-1">自動驗證與防退化基石</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW SECTION: Comprehensive Architecture SVG Flowcharts Gallery -->
+  <section id="flowchart-gallery" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <div class="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-800/60 mb-3">
+        <i class="fa-solid fa-diagram-project"></i>
+        <span>視覺工程解構</span>
+      </div>
+      <h2 class="text-3xl font-extrabold text-white tracking-tight">AI 原生開發架構流程圖鑑</h2>
+      <p class="text-slate-400 mt-2 text-sm sm:text-base">
+        透過高解析度 SVG 向量圖解，清晰理解直覺（Vibe）與三大工程防護網（SDD / BDD / TDD）在開發生命週期中的協作關係。
+      </p>
+    </div>
+
+    <!-- Master Architecture SVG: Vibe Coding with 3 Pillars -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8 mb-10 shadow-2xl overflow-hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-800 gap-2">
+        <div>
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-fuchsia-500"></span>
+            全景流程圖：Vibe Coding 結合三重工程防護網
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">直覺驅動的 Prompt 經由規格、行為、測試三重濾網，沉澱為商業級穩固代碼</p>
+        </div>
+        <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 px-2.5 py-1 rounded border border-cyan-800/50 self-start sm:self-auto">Interactive Vector Diagram</span>
+      </div>
+
+      <div class="w-full overflow-x-auto py-2">
+        <svg viewBox="0 0 960 380" class="w-full min-w-[760px] h-auto drop-shadow-lg" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Definitions for gradients, markers, filters -->
+          <defs>
+            <linearGradient id="vibeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ec4899" />
+              <stop offset="100%" stop-color="#8b5cf6" />
+            </linearGradient>
+            <linearGradient id="sddGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#3b82f6" />
+              <stop offset="100%" stop-color="#1d4ed8" />
+            </linearGradient>
+            <linearGradient id="bddGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#10b981" />
+              <stop offset="100%" stop-color="#047857" />
+            </linearGradient>
+            <linearGradient id="tddGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f43f5e" />
+              <stop offset="100%" stop-color="#be123c" />
+            </linearGradient>
+            <linearGradient id="codeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#06b6d4" />
+              <stop offset="100%" stop-color="#0284c7" />
+            </linearGradient>
+            <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 8 5 L 0 9 z" fill="#94a3b8" />
+            </marker>
+            <marker id="arrow-pink" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 8 5 L 0 9 z" fill="#ec4899" />
+            </marker>
+          </defs>
+
+          <!-- Background Canvas Subtle Lines -->
+          <rect x="0" y="0" width="960" height="380" rx="16" fill="#0b1329" />
+          <line x1="20" y1="190" x2="940" y2="190" stroke="#1e293b" stroke-dasharray="4 4" stroke-width="1"/>
+
+          <!-- Step 1: Vibe Input -->
+          <g transform="translate(30, 115)">
+            <rect width="170" height="150" rx="14" fill="#181825" stroke="#a855f7" stroke-width="2" />
+            <rect x="15" y="15" width="140" height="30" rx="6" fill="url(#vibeGrad)" />
+            <text x="85" y="35" fill="#ffffff" font-family="'Inter', sans-serif" font-size="12" font-weight="bold" text-anchor="middle">💡 Vibe Coding 直覺</text>
+            <text x="85" y="70" fill="#e2e8f0" font-family="'Inter', sans-serif" font-size="11" font-weight="600" text-anchor="middle">自然語言提示詞 (Prompt)</text>
+            <text x="85" y="90" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">• 靈感發想 / 視覺雛形</text>
+            <text x="85" y="110" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">• 高階對話流動</text>
+            <text x="85" y="130" fill="#f43f5e" font-family="'Inter', sans-serif" font-size="9" text-anchor="middle">⚠️ 缺點: 易有幻覺與偏移</text>
+          </g>
+
+          <!-- Arrow 1 to Guardrails Bracket -->
+          <path d="M 200 190 L 255 190" stroke="#a855f7" stroke-width="2.5" marker-end="url(#arrow-pink)" />
+
+          <!-- Guardrails Container Box -->
+          <rect x="260" y="25" width="440" height="330" rx="16" fill="#0f172a" stroke="#334155" stroke-width="1.5" stroke-dasharray="6 4" />
+          <text x="280" y="52" fill="#38bdf8" font-family="'Inter', sans-serif" font-size="12" font-weight="800" letter-spacing="1">ENGINEERING GUARDRAILS (工程護欄矩陣)</text>
+
+          <!-- SDD Box -->
+          <g transform="translate(285, 70)">
+            <rect width="390" height="75" rx="10" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5" />
+            <rect x="12" y="12" width="60" height="22" rx="4" fill="url(#sddGrad)" />
+            <text x="42" y="27" fill="#ffffff" font-family="'Inter', sans-serif" font-size="11" font-weight="bold" text-anchor="middle">SDD</text>
+            <text x="85" y="28" fill="#93c5fd" font-family="'Inter', sans-serif" font-size="12" font-weight="bold">規格先行 (Spec-Driven)</text>
+            <text x="85" y="48" fill="#cbd5e1" font-family="'JetBrains Mono', monospace" font-size="10">OpenAPI 3.0 / TypeScript Interface / JSON Schema</text>
+            <text x="85" y="63" fill="#64748b" font-family="'Inter', sans-serif" font-size="10">防護作用：消除欄位臆測，錨定系統契約</text>
+          </g>
+
+          <!-- BDD Box -->
+          <g transform="translate(285, 155)">
+            <rect width="390" height="75" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
+            <rect x="12" y="12" width="60" height="22" rx="4" fill="url(#bddGrad)" />
+            <text x="42" y="27" fill="#ffffff" font-family="'Inter', sans-serif" font-size="11" font-weight="bold" text-anchor="middle">BDD</text>
+            <text x="85" y="28" fill="#6ee7b7" font-family="'Inter', sans-serif" font-size="12" font-weight="bold">行為對齊 (Behavior-Driven)</text>
+            <text x="85" y="48" fill="#cbd5e1" font-family="'JetBrains Mono', monospace" font-size="10">Given (前提) ➔ When (操作) ➔ Then (預期結果)</text>
+            <text x="85" y="63" fill="#64748b" font-family="'Inter', sans-serif" font-size="10">防護作用：確保代碼符合真實使用者需求，非跑偏的假功能</text>
+          </g>
+
+          <!-- TDD Box -->
+          <g transform="translate(285, 240)">
+            <rect width="390" height="75" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="1.5" />
+            <rect x="12" y="12" width="60" height="22" rx="4" fill="url(#tddGrad)" />
+            <text x="42" y="27" fill="#ffffff" font-family="'Inter', sans-serif" font-size="11" font-weight="bold" text-anchor="middle">TDD</text>
+            <text x="85" y="28" fill="#fca5a5" font-family="'Inter', sans-serif" font-size="12" font-weight="bold">自動化閉環 (Test-Driven)</text>
+            <text x="85" y="48" fill="#cbd5e1" font-family="'JetBrains Mono', monospace" font-size="10">Red (紅燈) ➔ Green (綠燈) ➔ Refactor (重構)</text>
+            <text x="85" y="63" fill="#64748b" font-family="'Inter', sans-serif" font-size="10">防護作用：提供 Agent 自動除錯日誌，確保代碼抗退化</text>
+          </g>
+
+          <!-- Arrow 2 to Production Code -->
+          <path d="M 700 190 L 755 190" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrow)" />
+
+          <!-- Final Delivery Artifact -->
+          <g transform="translate(760, 105)">
+            <rect width="170" height="170" rx="14" fill="#181825" stroke="#06b6d4" stroke-width="2" />
+            <rect x="15" y="15" width="140" height="30" rx="6" fill="url(#codeGrad)" />
+            <text x="85" y="35" fill="#ffffff" font-family="'Inter', sans-serif" font-size="12" font-weight="bold" text-anchor="middle">🚀 商業級產物</text>
+            <text x="85" y="70" fill="#38bdf8" font-family="'Inter', sans-serif" font-size="11" font-weight="600" text-anchor="middle">可靠穩固的微服務/App</text>
+            <text x="85" y="95" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">✓ 100% 型別精確</text>
+            <text x="85" y="115" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">✓ E2E 全面驗收通過</text>
+            <text x="85" y="135" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">✓ 具備自我修復測試集</text>
+            <text x="85" y="155" fill="#4ade80" font-family="'Inter', sans-serif" font-size="9" font-weight="bold" text-anchor="middle">可長期維護、零技術債</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 3 Detailed Methodology Flowcharts Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Flowchart 1: SDD Pipeline -->
+      <div class="bg-slate-900 border border-blue-900/40 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+        <div>
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+            <span class="text-xs font-bold text-blue-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-code-commit"></i> SDD 嚴格規格管線
+            </span>
+            <span class="text-[10px] bg-blue-950 px-2 py-0.5 rounded text-blue-300 border border-blue-800">Spec First</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-4">先定義 Schema 與 OpenAPI，由規格自動編譯出型別並迫使 AI 遵守邊界。</p>
+          
+          <div class="w-full flex justify-center py-2">
+            <svg viewBox="0 0 280 290" class="w-full max-w-[280px] h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="280" height="290" rx="10" fill="#0b1120"/>
+              
+              <!-- Step 1 -->
+              <rect x="30" y="20" width="220" height="42" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+              <text x="140" y="46" fill="#93c5fd" font-size="11" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">1. 制定 API Spec (YAML/Schema)</text>
+              
+              <!-- Arrow -->
+              <path d="M 140 62 L 140 85" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arrow)"/>
+              
+              <!-- Step 2 -->
+              <rect x="30" y="85" width="220" height="42" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+              <text x="140" y="111" fill="#bae6fd" font-size="11" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">2. 編譯生成 TypeScript Types</text>
+              
+              <!-- Arrow -->
+              <path d="M 140 127 L 140 150" stroke="#38bdf8" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+              <!-- Step 3 (AI Generation) -->
+              <rect x="30" y="150" width="220" height="42" rx="8" fill="#1e293b" stroke="#818cf8" stroke-width="1.5"/>
+              <text x="140" y="176" fill="#c7d2fe" font-size="11" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">3. AI 生成 Controller 實作</text>
+
+              <!-- Arrow -->
+              <path d="M 140 192 L 140 215" stroke="#818cf8" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+              <!-- Step 4 Validation -->
+              <rect x="30" y="215" width="220" height="50" rx="8" fill="#172554" stroke="#60a5fa" stroke-width="1.5"/>
+              <text x="140" y="237" fill="#60a5fa" font-size="11" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">4. 自動型別校驗 (tsc / linter)</text>
+              <text x="140" y="254" fill="#93c5fd" font-size="9" font-family="'Inter', sans-serif" text-anchor="middle">零欄位臆測、前後端 100% 契約吻合</text>
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+          <strong>核心價值：</strong> 阻斷 AI 隨意更改資料結構引發的靜態型別錯誤。
+        </div>
+      </div>
+
+      <!-- Flowchart 2: BDD Pipeline -->
+      <div class="bg-slate-900 border border-emerald-900/40 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+        <div>
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-users-viewfinder"></i> BDD 行為轉譯管線
+            </span>
+            <span class="text-[10px] bg-emerald-950 px-2 py-0.5 rounded text-emerald-300 border border-emerald-800">Story First</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-4">將 PM 與使用者的自然語言情境，透過三段式結構精準注入 AI 與 E2E 腳本。</p>
+          
+          <div class="w-full flex justify-center py-2">
+            <svg viewBox="0 0 280 290" class="w-full max-w-[280px] h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="280" height="290" rx="10" fill="#061c14"/>
+              
+              <!-- Step 1 -->
+              <rect x="30" y="20" width="220" height="42" rx="8" fill="#064e3b" stroke="#10b981" stroke-width="1.5"/>
+              <text x="140" y="46" fill="#a7f3d0" font-size="11" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">1. PM 業務情境 (User Story)</text>
+              
+              <!-- Arrow -->
+              <path d="M 140 62 L 140 85" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow)"/>
+              
+              <!-- Step 2 -->
+              <rect x="30" y="85" width="220" height="42" rx="8" fill="#022c22" stroke="#34d399" stroke-width="1.5"/>
+              <text x="140" y="111" fill="#6ee7b7" font-size="11" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">2. Gherkin (Given-When-Then)</text>
+              
+              <!-- Arrow -->
+              <path d="M 140 127 L 140 150" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+              <!-- Step 3 (AI Code) -->
+              <rect x="30" y="150" width="220" height="42" rx="8" fill="#064e3b" stroke="#6ee7b7" stroke-width="1.5"/>
+              <text x="140" y="176" fill="#d1fae5" font-size="11" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">3. AI 生成 Playwright 測試與代碼</text>
+
+              <!-- Arrow -->
+              <path d="M 140 192 L 140 215" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+              <!-- Step 4 Validation -->
+              <rect x="30" y="215" width="220" height="50" rx="8" fill="#022c22" stroke="#10b981" stroke-width="1.5"/>
+              <text x="140" y="237" fill="#34d399" font-size="11" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">4. 驗收完成 (Living Spec)</text>
+              <text x="140" y="254" fill="#a7f3d0" font-size="9" font-family="'Inter', sans-serif" text-anchor="middle">技術代碼忠實兌現商業利益</text>
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+          <strong>核心價值：</strong> 消除 PM 與工程師、AI 之間的語意失真與理解偏差。
+        </div>
+      </div>
+
+      <!-- Flowchart 3: TDD Agentic Self-Healing Loop -->
+      <div class="bg-slate-900 border border-rose-900/40 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+        <div>
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+            <span class="text-xs font-bold text-rose-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-arrows-spin"></i> TDD 自修反饋閉環
+            </span>
+            <span class="text-[10px] bg-rose-950 px-2 py-0.5 rounded text-rose-300 border border-rose-800">Agentic Loop</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-4">AI 讀取測試紅燈報錯，在無人干預下自主修復實作代碼，直至綠燈全亮。</p>
+          
+          <div class="w-full flex justify-center py-2">
+            <svg viewBox="0 0 280 290" class="w-full max-w-[280px] h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="280" height="290" rx="10" fill="#1c070b"/>
+              
+              <!-- Red Step -->
+              <rect x="25" y="20" width="105" height="55" rx="8" fill="#4c0519" stroke="#f43f5e" stroke-width="1.5"/>
+              <text x="77" y="44" fill="#fecdd3" font-size="11" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">🔴 RED (紅燈)</text>
+              <text x="77" y="60" fill="#fda4af" font-size="8" font-family="'Inter', sans-serif" text-anchor="middle">先寫失敗的測試</text>
+
+              <!-- Arrow right to Green -->
+              <path d="M 130 47 L 145 47" stroke="#f43f5e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+              <!-- Green Step -->
+              <rect x="150" y="20" width="105" height="55" rx="8" fill="#064e3b" stroke="#10b981" stroke-width="1.5"/>
+              <text x="202" y="44" fill="#a7f3d0" font-size="11" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">🟢 GREEN (綠燈)</text>
+              <text x="202" y="60" fill="#6ee7b7" font-size="8" font-family="'Inter', sans-serif" text-anchor="middle">AI 寫最小實現</text>
+
+              <!-- Arrow down to Self Healing Evaluation -->
+              <path d="M 202 75 L 202 110" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+              <!-- Decision diamond / Node -->
+              <rect x="60" y="115" width="160" height="50" rx="8" fill="#31131c" stroke="#fb7185" stroke-width="1.5"/>
+              <text x="140" y="136" fill="#fff" font-size="10" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">Terminal 測試是否全數通過?</text>
+              <text x="140" y="152" fill="#fda4af" font-size="9" font-family="'Inter', sans-serif" text-anchor="middle">失敗 ➔ 餵入報錯 ➔ AI 自動重寫</text>
+
+              <!-- Loop back arrow on failure -->
+              <path d="M 60 140 Q 20 140 20 90 Q 20 47 25 47" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="3 3"/>
+
+              <!-- Success arrow down to Refactor -->
+              <path d="M 140 165 L 140 195" stroke="#38bdf8" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+              <!-- Refactor Step -->
+              <rect x="30" y="200" width="220" height="60" rx="8" fill="#0c4a6e" stroke="#38bdf8" stroke-width="1.5"/>
+              <text x="140" y="224" fill="#e0f2fe" font-size="11" font-weight="bold" font-family="'Inter', sans-serif" text-anchor="middle">🔵 REFACTOR (重構優化)</text>
+              <text x="140" y="244" fill="#7dd3fc" font-size="9" font-family="'Inter', sans-serif" text-anchor="middle">在 100% 綠燈保護網下，讓 AI 整理架構效能</text>
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+          <strong>核心價值：</strong> 最適合 Cursor / Claude Code 自動執行任務的閉環基石。
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 2: Deep Dive into Methodologies (SDD, BDD, TDD) -->
+  <section id="methodologies" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <h2 class="text-3xl font-extrabold text-white tracking-tight">三大驅動開發模式全剖析</h2>
+      <p class="text-slate-400 mt-3 text-sm sm:text-base">
+        理解規格 (SDD)、行為 (BDD) 與測試 (TDD) 的定位，打造駕馭 AI 的防護網。
+      </p>
+    </div>
+
+    <!-- Methodology Tabs -->
+    <div class="flex justify-center mb-8">
+      <div class="inline-flex p-1.5 rounded-xl bg-slate-900 border border-slate-800" role="tablist">
+        <button id="tab-sdd" onclick="switchMethodologyTab('sdd')" class="px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold transition bg-blue-600 text-white shadow">
+          SDD (規格驅動)
+        </button>
+        <button id="tab-bdd" onclick="switchMethodologyTab('bdd')" class="px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold transition text-slate-400 hover:text-white">
+          BDD (行為驅動)
+        </button>
+        <button id="tab-tdd" onclick="switchMethodologyTab('tdd')" class="px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold transition text-slate-400 hover:text-white">
+          TDD (測試驅動)
+        </button>
+      </div>
+    </div>
+
+    <!-- Method Content: SDD -->
+    <div id="content-sdd" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div class="lg:col-span-6 space-y-4">
+        <div class="flex items-center space-x-3">
+          <span class="px-3 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/40 text-xs font-bold uppercase">Spec-Driven Development</span>
+          <span class="text-xs text-slate-400">系統結構與合約基石</span>
+        </div>
+        <h3 class="text-2xl font-bold text-white">規格驅動開發：用 Contract 先行束縛 AI 幻覺</h3>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          SDD 強調在寫下任何實作代碼之前，先定義嚴格、具體的規格協議。這通常包括 OpenAPI (Swagger) 規範、TypeScript 介面型別、Protobuf 或 JSON Schema。
+        </p>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
+          <div class="font-semibold text-blue-300">在 Vibe Coding 時代的角色：</div>
+          <p class="text-slate-400">AI 擁有極強的推導能力，但容易自行發明欄位名稱（例如有時用 `user_id`，下一次提示卻用 `accountId`）。提供 SDD 規格就像給予 AI 軌道，禁止其越界。</p>
+        </div>
+
+        <div class="space-y-2 pt-2">
+          <div class="flex items-center text-xs text-slate-300">
+            <i class="fa-solid fa-check text-blue-400 mr-2"></i>
+            <span><strong>典型產物：</strong> openapi.yaml, types.d.ts, schema.prisma, GraphQL SDL</span>
+          </div>
+          <div class="flex items-center text-xs text-slate-300">
+            <i class="fa-solid fa-check text-blue-400 mr-2"></i>
+            <span><strong>關鍵受益者：</strong> 前後端分離團隊、多 AI Agent 協同系統</span>
+          </div>
+          <div class="flex items-center text-xs text-slate-300">
+            <i class="fa-solid fa-check text-blue-400 mr-2"></i>
+            <span><strong>AI 協同指令：</strong>「嚴格根據下方 OpenAPI 結構，只生成 handler 邏輯」</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-6 bg-slate-900 rounded-xl border border-blue-900/40 p-4 overflow-hidden flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs text-slate-400">
+            <span class="font-mono text-blue-400 flex items-center gap-1.5"><i class="fa-solid fa-file-code"></i> OpenAPI / Type Spec Example</span>
+            <span class="bg-slate-800 px-2 py-0.5 rounded text-[11px]">YAML / TypeScript</span>
+          </div>
+          <pre class="mt-3 text-xs code-preview text-slate-300 overflow-x-auto p-2 bg-slate-950 rounded-lg"><code><span class="text-blue-400">components:</span>
+  <span class="text-blue-400">schemas:</span>
+    <span class="text-amber-300">PaymentOrder:</span>
+      <span class="text-blue-400">type:</span> object
+      <span class="text-blue-400">required:</span> [orderId, amount, currency, status]
+      <span class="text-blue-400">properties:</span>
+        <span class="text-sky-300">orderId:</span> { type: string, format: uuid }
+        <span class="text-sky-300">amount:</span> { type: integer, minimum: 1 }
+        <span class="text-sky-300">currency:</span> { type: string, enum: [TWD, USD, JPY] }
+        <span class="text-sky-300">status:</span> { type: string, enum: [PENDING, PAID, FAILED] }
+
+<span class="text-slate-500"># AI 任務：依此 spec 自動產生 DB Migration 與 Controller</span></code></pre>
+        </div>
+        <div class="mt-4 p-3 bg-blue-950/30 rounded-lg border border-blue-800/40 text-xs text-blue-200">
+          💡 <strong>SDD 訣竅：</strong> 要求 AI 先審閱並輸出 Spec，經人類確認後，再下令「依據此規格進行代碼實現」。
+        </div>
+      </div>
+    </div>
+
+    <!-- Method Content: BDD -->
+    <div id="content-bdd" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div class="lg:col-span-6 space-y-4">
+        <div class="flex items-center space-x-3">
+          <span class="px-3 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold uppercase">Behavior-Driven Development</span>
+          <span class="text-xs text-slate-400">業務價值與場景故事</span>
+        </div>
+        <h3 class="text-2xl font-bold text-white">行為驅動開發：跨越商業語言與代碼的鴻溝</h3>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          BDD 衍生自 TDD，但採用領域特定語言（例如 Gherkin 語法：Given-When-Then）來描述系統對使用者外顯的行為表現。BDD 的核心在於確保技術產出真正滿足商業意圖。
+        </p>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
+          <div class="font-semibold text-emerald-300">在 Vibe Coding 時代的角色：</div>
+          <p class="text-slate-400">Vibe Coding 很容易做出看似很炫、但根本不符合特定商業流程的玩具功能。Given-When-Then 是極具條理的 Prompt 範本，可精準告訴 AI 使用者情境與邊界條件。</p>
+        </div>
+
+        <div class="space-y-2 pt-2">
+          <div class="flex items-center text-xs text-slate-300">
+            <i class="fa-solid fa-check text-emerald-400 mr-2"></i>
+            <span><strong>典型產物：</strong> feature files (Cucumber / Behave), E2E Cypress/Playwright specs</span>
+          </div>
+          <div class="flex items-center text-xs text-slate-300">
+            <i class="fa-solid fa-check text-emerald-400 mr-2"></i>
+            <span><strong>關鍵受益者：</strong> 產品經理 (PM)、QA 團隊、終端客戶與 AI Agent</span>
+          </div>
+          <div class="flex items-center text-xs text-slate-300">
+            <i class="fa-solid fa-check text-emerald-400 mr-2"></i>
+            <span><strong>語法公式：</strong> Given (前提) ➔ When (觸發事件) ➔ Then (預期結果)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-6 bg-slate-900 rounded-xl border border-emerald-900/40 p-4 overflow-hidden flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs text-slate-400">
+            <span class="font-mono text-emerald-400 flex items-center gap-1.5"><i class="fa-solid fa-file-lines"></i> Gherkin Scenario Example</span>
+            <span class="bg-slate-800 px-2 py-0.5 rounded text-[11px]">.feature 檔案</span>
+          </div>
+          <pre class="mt-3 text-xs code-preview text-slate-300 overflow-x-auto p-2 bg-slate-950 rounded-lg"><code><span class="text-emerald-400">Feature:</span> VIP 會員生日結帳折扣
+
+  <span class="text-amber-300">Scenario:</span> VIP 會員在生日當月消費滿額獲得折扣
+    <span class="text-purple-400">Given</span> 使用者為已登入的 "VIP" 會員
+    <span class="text-purple-400">And</span> 當前月份為該會員的出生月份
+    <span class="text-purple-400">And</span> 購物車總額為 1200 元
+    <span class="text-purple-400">When</span> 使用者點擊進入「確認結帳」頁面
+    <span class="text-purple-400">Then</span> 系統應套用 "生日 8 折" 優惠碼
+    <span class="text-purple-400">And</span> 最終應付金額應顯示為 960 元
+    <span class="text-purple-400">And</span> 發送「祝您生日快樂」推播通知</code></pre>
+        </div>
+        <div class="mt-4 p-3 bg-emerald-950/30 rounded-lg border border-emerald-800/40 text-xs text-emerald-200">
+          💡 <strong>BDD 訣竅：</strong> 把 Gherkin 腳本直接貼給 AI，要求它以 Playwright 或 Cypress 寫出可執行的端到端測試代碼。
+        </div>
+      </div>
+    </div>
+
+    <!-- Method Content: TDD -->
+    <div id="content-tdd" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div class="lg:col-span-6 space-y-4">
+        <div class="flex items-center space-x-3">
+          <span class="px-3 py-1 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40 text-xs font-bold uppercase">Test-Driven Development</span>
+          <span class="text-xs text-slate-400">代碼品質與持續重構</span>
+        </div>
+        <h3 class="text-2xl font-bold text-white">測試驅動開發：打造 AI 最強的「自我修正反饋環」</h3>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          TDD 依循嚴格的<strong>「紅燈 (Red) ➔ 綠燈 (Green) ➔ 重構 (Refactor)」</strong>微循環。先寫失敗的單元測試，再寫剛好能通過測試的極簡代碼，最後在測試保護下優化架構。
+        </p>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
+          <div class="font-semibold text-rose-300">在 Vibe Coding 時代的超能力：</div>
+          <p class="text-slate-400">大語言模型天生具備「依據錯誤訊息修正代碼」的超強能力。當我們擁有自動化測試時，AI 可以在終端機內自跑測試、看報錯、自修代碼，形成無人值守的高效閉環！</p>
+        </div>
+
+        <div class="space-y-2 pt-2">
+          <div class="flex items-center text-xs text-slate-300">
+            <i class="fa-solid fa-check text-rose-400 mr-2"></i>
+            <span><strong>典型產物：</strong> Jest, Vitest, PyTest, Go Test 測試套件</span>
+          </div>
+          <div class="flex items-center text-xs text-slate-300">
+            <i class="fa-solid fa-check text-rose-400 mr-2"></i>
+            <span><strong>關鍵受益者：</strong> 模組架構師、重構人員、自主修復型 AI (Agentic Loop)</span>
+          </div>
+          <div class="flex items-center text-xs text-slate-300">
+            <i class="fa-solid fa-check text-rose-400 mr-2"></i>
+            <span><strong>核心精神：</strong> 「未經測試的代碼即是有罪的 (Guilty until proven innocent)」</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-6 bg-slate-900 rounded-xl border border-rose-900/40 p-4 overflow-hidden flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs text-slate-400">
+            <span class="font-mono text-rose-400 flex items-center gap-1.5"><i class="fa-solid fa-vial"></i> Vitest / Jest Unit Test</span>
+            <span class="bg-slate-800 px-2 py-0.5 rounded text-[11px]">TypeScript</span>
+          </div>
+          <pre class="mt-3 text-xs code-preview text-slate-300 overflow-x-auto p-2 bg-slate-950 rounded-lg"><code><span class="text-slate-500">// 步驟 1: 先寫單元測試 (此時 calculateTax 甚至還不存在)</span>
+<span class="text-blue-400">import</span> { describe, it, expect } <span class="text-blue-400">from</span> <span class="text-emerald-300">'vitest'</span>;
+<span class="text-blue-400">import</span> { calculateTax } <span class="text-blue-400">from</span> <span class="text-emerald-300">'./taxCalculator'</span>;
+
+<span class="text-yellow-300">describe</span>(<span class="text-emerald-300">'calculateTax()'</span>, () => {
+  <span class="text-yellow-300">it</span>(<span class="text-emerald-300">'當輸入小於或等於 0 時應拋出 InvalidAmountError'</span>, () => {
+    <span class="text-yellow-300">expect</span>(() => <span class="text-cyan-300">calculateTax</span>(-<span class="text-orange-400">50</span>)).<span class="text-yellow-300">toThrow</span>(<span class="text-emerald-300">'InvalidAmount'</span>);
+  });
+
+  <span class="text-yellow-300">it</span>(<span class="text-emerald-300">'在台灣境內稅率 5% 應四捨五入到整數'</span>, () => {
+    <span class="text-yellow-300">expect</span>(<span class="text-cyan-300">calculateTax</span>(<span class="text-orange-400">105</span>, <span class="text-emerald-300">'TW'</span>)).<span class="text-yellow-300">toBe</span>(<span class="text-orange-400">5</span>);
+  });
+});</code></pre>
+        </div>
+        <div class="mt-4 p-3 bg-rose-950/30 rounded-lg border border-rose-800/40 text-xs text-rose-200">
+          💡 <strong>TDD 訣竅：</strong> 命令 AI：「請只編寫通過上述測試的最小實作代碼，嚴禁添加任何多餘邏輯。」
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW SECTION: Skills Ecosystem for SDD, BDD, TDD (OpenSpec, Superpowers, etc.) -->
+  <section id="skills-ecosystem" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <div class="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-800/60 mb-3">
+        <i class="fa-solid fa-fire text-amber-400"></i>
+        <span>社群最熱門 AI Agent Skills</span>
+      </div>
+      <h2 class="text-3xl font-extrabold text-white tracking-tight">三大模式最熱門 Skills 精選與官方連結</h2>
+      <p class="text-slate-400 mt-2 text-sm sm:text-base">
+        去除冗餘工具，直接對齊當前 GitHub 上最具代表性的 AI Agent 開源技能庫與自建 BDD Skill 規格。點擊即可直達官方 Repo。
+      </p>
+    </div>
+
+    <!-- 3 Columns for Top Skills with Direct Links & Dedicated SVG Flowcharts -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- SDD Skill: OpenSpec -->
+      <div class="bg-slate-900/90 border border-blue-500/40 rounded-2xl p-6 flex flex-col justify-between shadow-xl relative overflow-hidden group hover:border-blue-500 transition">
+        <div class="absolute -right-8 -top-8 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div>
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <span class="px-2.5 py-1 rounded bg-blue-500/20 text-blue-400 text-xs font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-code"></i> SDD 榜首 Skill
+            </span>
+            <span class="text-xs text-amber-400 font-mono flex items-center gap-1 font-bold">
+              <i class="fa-solid fa-star text-[10px]"></i> 70k+ Stars
+            </span>
+          </div>
+
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                OpenSpec
+              </h3>
+              <span class="text-xs text-blue-400 font-mono">Fission-AI / openspec</span>
+            </div>
+            <a href="https://github.com/Fission-AI/openspec" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-blue-600 transition text-sm flex items-center gap-1.5 shadow" title="造訪 GitHub 專案">
+              <i class="fa-brands fa-github text-base"></i>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+          </div>
+
+          <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+            為 AI 編程助手量身打造的<strong>規格驅動開發 (SDD) 核心框架</strong>。透過 Markdown 結構化提案、規格與變更檔案，強制 AI 「先核准規格才准動手寫代碼」。
+          </p>
+
+          <!-- SDD OpenSpec SVG Flowchart -->
+          <div class="mb-4 bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <div class="text-[10px] font-bold text-blue-400 mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-diagram-project"></i> OpenSpec 工作流程表
+            </div>
+            <svg viewBox="0 0 320 160" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="sdd-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M 0 1 L 8 5 L 0 9 z" fill="#3b82f6" />
+                </marker>
+              </defs>
+              <!-- Step 1 -->
+              <rect x="5" y="10" width="95" height="40" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1.2"/>
+              <text x="52" y="27" fill="#60a5fa" font-size="9" font-weight="bold" text-anchor="middle" font-family="'JetBrains Mono', monospace">/opsx:explore</text>
+              <text x="52" y="42" fill="#94a3b8" font-size="8" text-anchor="middle">代碼與架構盤點</text>
+
+              <path d="M 100 30 L 115 30" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#sdd-arrow)"/>
+
+              <!-- Step 2 -->
+              <rect x="115" y="10" width="95" height="40" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1.2"/>
+              <text x="162" y="27" fill="#60a5fa" font-size="9" font-weight="bold" text-anchor="middle" font-family="'JetBrains Mono', monospace">/opsx:propose</text>
+              <text x="162" y="42" fill="#94a3b8" font-size="8" text-anchor="middle">生成 Proposal 規格</text>
+
+              <path d="M 210 30 L 225 30" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#sdd-arrow)"/>
+
+              <!-- Step 3: Human Review -->
+              <rect x="225" y="10" width="90" height="40" rx="6" fill="#1e3a5f" stroke="#38bdf8" stroke-width="1.2"/>
+              <text x="270" y="27" fill="#7dd3fc" font-size="9" font-weight="bold" text-anchor="middle">人類審閱</text>
+              <text x="270" y="42" fill="#bae6fd" font-size="8" text-anchor="middle">確認或修改 Spec</text>
+
+              <!-- Turn down -->
+              <path d="M 270 50 L 270 85 L 220 85" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#sdd-arrow)"/>
+
+              <!-- Step 4 -->
+              <rect x="110" y="65" width="105" height="40" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1.2"/>
+              <text x="162" y="82" fill="#60a5fa" font-size="9" font-weight="bold" text-anchor="middle" font-family="'JetBrains Mono', monospace">/opsx:apply</text>
+              <text x="162" y="97" fill="#94a3b8" font-size="8" text-anchor="middle">嚴格依 Spec 產代碼</text>
+
+              <path d="M 110 85 L 75 85" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#sdd-arrow)"/>
+
+              <!-- Step 5 -->
+              <rect x="5" y="65" width="65" height="40" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1.2"/>
+              <text x="37" y="82" fill="#34d399" font-size="8.5" font-weight="bold" text-anchor="middle" font-family="'JetBrains Mono', monospace">/archive</text>
+              <text x="37" y="97" fill="#6ee7b7" font-size="8" text-anchor="middle">驗收封存</text>
+
+              <!-- Status note -->
+              <rect x="5" y="118" width="310" height="32" rx="4" fill="#0f172a" stroke="#334155" stroke-dasharray="3 2"/>
+              <text x="160" y="138" fill="#93c5fd" font-size="8.5" text-anchor="middle">🛡️ 護欄保證：規格未經確認前，AI 絕對不寫一行實作代碼</text>
+            </svg>
+          </div>
+
+          <!-- Core Skills / Commands -->
+          <div class="space-y-3">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div class="text-[11px] font-bold text-slate-400 mb-1 flex items-center justify-between">
+                <span>專屬 Agent 指令 (Slash Commands)</span>
+                <span class="text-[10px] text-blue-400 font-mono">npm i -g @fission-ai/openspec</span>
+              </div>
+              <div class="text-[11px] font-mono text-cyan-300 space-y-1.5">
+                <div><span class="text-fuchsia-400">/opsx:explore</span> <span class="text-slate-400"># 分析架構與邊界</span></div>
+                <div><span class="text-fuchsia-400">/opsx:propose</span> <span class="text-slate-400"># 產出 proposal.md 與 specs/</span></div>
+                <div><span class="text-fuchsia-400">/opsx:apply</span>   <span class="text-slate-400"># 依規格嚴格實現 tasks</span></div>
+                <div><span class="text-fuchsia-400">/opsx:archive</span> <span class="text-slate-400"># 完成並封存變更</span></div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-blue-950/20 border border-blue-900/50 text-[11px] text-slate-300 space-y-1">
+              <div class="font-bold text-blue-300 flex items-center gap-1">
+                <i class="fa-solid fa-shield"></i> 核心防護機制：
+              </div>
+              <p class="text-slate-400">
+                將 Spec 當作不可退縮的合約，防止 AI 隨意竄改欄位名稱或發明幽靈 API，適合大型 Monorepo 與跨模組開發。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between">
+          <a href="https://openspec.dev/" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium">
+            <span>檢視 OpenSpec 官方文件</span>
+            <i class="fa-solid fa-angle-right text-[10px]"></i>
+          </a>
+          <span class="text-[10px] bg-blue-900/60 text-blue-300 px-2 py-0.5 rounded">Contract Guard</span>
+        </div>
+      </div>
+
+      <!-- BDD Skill: Custom Built BDD Skill (Direct Content & Flowchart) -->
+      <div class="bg-slate-900/90 border border-emerald-500/40 rounded-2xl p-6 flex flex-col justify-between shadow-xl relative overflow-hidden group hover:border-emerald-500 transition">
+        <div class="absolute -right-8 -top-8 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div>
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <span class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-sliders"></i> 自建 BDD Skill
+            </span>
+            <span class="text-xs text-emerald-300 font-mono flex items-center gap-1 font-semibold">
+              <i class="fa-solid fa-code text-[10px]"></i> Custom Protocol
+            </span>
+          </div>
+
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                Custom BDD Skill
+              </h3>
+              <span class="text-xs text-emerald-400 font-mono">.cursorrules / CLAUDE.md / Agent Skill</span>
+            </div>
+            <button onclick="copyPrompt('custom-bdd-skill-full')" class="p-2 rounded-lg bg-emerald-950/80 text-emerald-300 hover:bg-emerald-600 hover:text-white transition text-xs font-mono border border-emerald-800/80 flex items-center gap-1 shadow" title="複製完整 Skill 定義">
+              <i class="fa-regular fa-copy"></i>
+              <span>複製 Skill</span>
+            </button>
+          </div>
+
+          <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+            為團隊量身打造的<strong>專屬 BDD 開發規範 Skill</strong>。透過標準 Slash 指令集，將混亂需求嚴格收斂為驗收規格與可執行測試。
+          </p>
+
+          <!-- BDD Custom Skill SVG Flowchart -->
+          <div class="mb-4 bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <div class="text-[10px] font-bold text-emerald-400 mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-diagram-project"></i> 自建 BDD Skill 流程表
+            </div>
+            <svg viewBox="0 0 320 160" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="bdd-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M 0 1 L 8 5 L 0 9 z" fill="#10b981" />
+                </marker>
+              </defs>
+              <!-- Step 1 -->
+              <rect x="5" y="10" width="95" height="40" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1.2"/>
+              <text x="52" y="27" fill="#6ee7b7" font-size="9" font-weight="bold" text-anchor="middle" font-family="'JetBrains Mono', monospace">/specify [需求]</text>
+              <text x="52" y="42" fill="#a7f3d0" font-size="8" text-anchor="middle">僅產 G/W/T 禁寫碼</text>
+
+              <path d="M 100 30 L 115 30" stroke="#10b981" stroke-width="1.5" marker-end="url(#bdd-arrow)"/>
+
+              <!-- Step 2 -->
+              <rect x="115" y="10" width="95" height="40" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1.2"/>
+              <text x="162" y="27" fill="#6ee7b7" font-size="9" font-weight="bold" text-anchor="middle" font-family="'JetBrains Mono', monospace">/bdd:scenario</text>
+              <text x="162" y="42" fill="#a7f3d0" font-size="8" text-anchor="middle">補齊正向與極端邊界</text>
+
+              <path d="M 210 30 L 225 30" stroke="#10b981" stroke-width="1.5" marker-end="url(#bdd-arrow)"/>
+
+              <!-- Step 3 -->
+              <rect x="225" y="10" width="90" height="40" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1.2"/>
+              <text x="270" y="27" fill="#6ee7b7" font-size="9" font-weight="bold" text-anchor="middle" font-family="'JetBrains Mono', monospace">/bdd:test</text>
+              <text x="270" y="42" fill="#a7f3d0" font-size="8" text-anchor="middle">轉 Playwright 腳本</text>
+
+              <!-- Turn down to implement -->
+              <path d="M 270 50 L 270 75 L 205 75" stroke="#10b981" stroke-width="1.5" marker-end="url(#bdd-arrow)"/>
+
+              <!-- Step 4 -->
+              <rect x="80" y="58" width="120" height="36" rx="6" fill="#022c22" stroke="#34d399" stroke-width="1.2"/>
+              <text x="140" y="74" fill="#a7f3d0" font-size="9" font-weight="bold" text-anchor="middle" font-family="'JetBrains Mono', monospace">/implement</text>
+              <text x="140" y="87" fill="#6ee7b7" font-size="8" text-anchor="middle">實作代碼直到測試亮綠燈</text>
+
+              <path d="M 80 75 L 45 75" stroke="#10b981" stroke-width="1.5" marker-end="url(#bdd-arrow)"/>
+
+              <!-- Step 5 -->
+              <rect x="5" y="58" width="35" height="36" rx="6" fill="#065f46" stroke="#34d399" stroke-width="1.2"/>
+              <text x="22" y="80" fill="#ecfdf5" font-size="11" text-anchor="middle">🟢</text>
+
+              <!-- Note -->
+              <rect x="5" y="106" width="310" height="44" rx="4" fill="#0b1a13" stroke="#065f46" stroke-dasharray="3 2"/>
+              <text x="160" y="123" fill="#6ee7b7" font-size="8.5" text-anchor="middle">階段隔離原則：嚴禁在 /specify 與 /bdd:scenario 階段預先寫代碼</text>
+              <text x="160" y="139" fill="#a7f3d0" font-size="8" text-anchor="middle">所有行為由 Living Spec 驅動，確保完全兌現業務價值</text>
+            </svg>
+          </div>
+
+          <!-- Direct Skill Definition Content -->
+          <div class="space-y-3">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div class="text-[11px] font-bold text-slate-400 mb-1 flex items-center justify-between">
+                <span>Skill 內容定義 (直接配置於 Agent 設定)</span>
+                <span class="text-[10px] text-emerald-400 font-mono">Markdown Format</span>
+              </div>
+              <div class="bg-slate-900/90 rounded-lg p-2.5 max-h-48 overflow-y-auto border border-slate-800 font-mono text-[10.5px] leading-relaxed text-slate-300">
+                <pre id="custom-bdd-skill-full" class="whitespace-pre-wrap"><code><span class="text-emerald-400"># Custom BDD Skill for AI Agents</span>
+<span class="text-slate-400">你是一個遵循嚴格 BDD (行為驅動開發) 的專家，依據指令執行相應模式：</span>
+
+<span class="text-cyan-300">## 指令集 (Commands)</span>
+- <span class="text-amber-300">`/specify [需求]`</span>:
+  - 僅產出 Given/When/Then (Gherkin 格式) 驗收規格。
+  - **嚴禁編寫任何實作程式碼**。
+- <span class="text-amber-300">`/bdd:scenario`</span>:
+  - 補齊正向路徑 (Happy Path)、極端邊界與錯誤處理。
+- <span class="text-amber-300">`/bdd:test`</span>:
+  - 將上述情境轉換為可自動執行的測試腳本 (Playwright / Vitest)。
+- <span class="text-amber-300">`/implement`</span>:
+  - 進行代碼實作，直到所有測試通過亮綠燈為止。</code></pre>
+              </div>
+            </div>
+
+            <!-- Commands Table -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 overflow-x-auto">
+              <table class="w-full text-left text-[11px] font-mono border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-800 text-slate-400 text-[10px]">
+                    <th class="pb-1.5 font-semibold text-emerald-400">指令</th>
+                    <th class="pb-1.5 font-semibold text-slate-300">作用</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                  <tr>
+                    <td class="py-1 text-cyan-300 font-semibold whitespace-nowrap pr-2">/specify [需求]</td>
+                    <td class="py-1 text-slate-400 font-sans">要求 AI 只生成包含 <code>Given/When/Then</code> 的驗收規格，不寫程式碼</td>
+                  </tr>
+                  <tr>
+                    <td class="py-1 text-cyan-300 font-semibold whitespace-nowrap pr-2">/bdd:scenario</td>
+                    <td class="py-1 text-slate-400 font-sans">針對既有功能補充正向與邊界條件的 Gherkin 場景</td>
+                  </tr>
+                  <tr>
+                    <td class="py-1 text-cyan-300 font-semibold whitespace-nowrap pr-2">/bdd:test</td>
+                    <td class="py-1 text-slate-400 font-sans">將上一步的 <code>Given/When/Then</code> 轉化為自動化測試腳本</td>
+                  </tr>
+                  <tr>
+                    <td class="py-1 text-cyan-300 font-semibold whitespace-nowrap pr-2">/implement</td>
+                    <td class="py-1 text-slate-400 font-sans">執行測試驅動開發，直到所有 Scenarios 亮綠燈</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between">
+          <span class="text-xs text-emerald-400 flex items-center gap-1 font-mono">
+            <span>支援 Cursor / Claude Code / Copilot</span>
+          </span>
+          <span class="text-[10px] bg-emerald-900/60 text-emerald-300 px-2 py-0.5 rounded">Living Spec Guard</span>
+        </div>
+      </div>
+
+      <!-- TDD Skill: obra/superpowers -->
+      <div class="bg-slate-900/90 border border-rose-500/40 rounded-2xl p-6 flex flex-col justify-between shadow-xl relative overflow-hidden group hover:border-rose-500 transition">
+        <div class="absolute -right-8 -top-8 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div>
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <span class="px-2.5 py-1 rounded bg-rose-500/20 text-rose-400 text-xs font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-arrows-spin"></i> TDD 榜首 Skill
+            </span>
+            <span class="text-xs text-amber-400 font-mono flex items-center gap-1 font-bold">
+              <i class="fa-solid fa-chart-line text-[10px]"></i> Trending #1
+            </span>
+          </div>
+
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                Superpowers
+              </h3>
+              <span class="text-xs text-rose-400 font-mono">obra / superpowers</span>
+            </div>
+            <a href="https://github.com/obra/superpowers" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-rose-600 transition text-sm flex items-center gap-1.5 shadow" title="造訪 GitHub 專案">
+              <i class="fa-brands fa-github text-base"></i>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+          </div>
+
+          <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+            近期 GitHub 最爆紅的<strong>編程 Agent 技能框架與軟體工程方法論</strong>（支援 Claude Code、Cursor、Codex）。專門懲罰「寫測試前偷寫實現」的 AI。
+          </p>
+
+          <!-- TDD Superpowers SVG Flowchart -->
+          <div class="mb-4 bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <div class="text-[10px] font-bold text-rose-400 mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-diagram-project"></i> Superpowers 執行流程表
+            </div>
+            <svg viewBox="0 0 320 160" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="tdd-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M 0 1 L 8 5 L 0 9 z" fill="#f43f5e" />
+                </marker>
+              </defs>
+              <!-- Step 1 -->
+              <rect x="5" y="10" width="95" height="40" rx="6" fill="#1e293b" stroke="#f43f5e" stroke-width="1.2"/>
+              <text x="52" y="27" fill="#fda4af" font-size="9" font-weight="bold" text-anchor="middle" font-family="'JetBrains Mono', monospace">brainstorming</text>
+              <text x="52" y="42" fill="#94a3b8" font-size="8" text-anchor="middle">反覆詰問意圖邊界</text>
+
+              <path d="M 100 30 L 115 30" stroke="#f43f5e" stroke-width="1.5" marker-end="url(#tdd-arrow)"/>
+
+              <!-- Step 2 -->
+              <rect x="115" y="10" width="95" height="40" rx="6" fill="#1e293b" stroke="#f43f5e" stroke-width="1.2"/>
+              <text x="162" y="27" fill="#fda4af" font-size="9" font-weight="bold" text-anchor="middle" font-family="'JetBrains Mono', monospace">writing-plans</text>
+              <text x="162" y="42" fill="#94a3b8" font-size="8" text-anchor="middle">拆解2-5分微型任務</text>
+
+              <path d="M 210 30 L 225 30" stroke="#f43f5e" stroke-width="1.5" marker-end="url(#tdd-arrow)"/>
+
+              <!-- Step 3: Red Test -->
+              <rect x="225" y="10" width="90" height="40" rx="6" fill="#4c0519" stroke="#f43f5e" stroke-width="1.2"/>
+              <text x="270" y="27" fill="#fecdd3" font-size="9" font-weight="bold" text-anchor="middle">🔴 RED</text>
+              <text x="270" y="42" fill="#fda4af" font-size="8" text-anchor="middle">先寫失敗測試</text>
+
+              <!-- Turn down -->
+              <path d="M 270 50 L 270 75 L 225 75" stroke="#f43f5e" stroke-width="1.5" marker-end="url(#tdd-arrow)"/>
+
+              <!-- Step 4: Green Implementation -->
+              <rect x="115" y="58" width="105" height="36" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1.2"/>
+              <text x="167" y="74" fill="#a7f3d0" font-size="9" font-weight="bold" text-anchor="middle">🟢 GREEN</text>
+              <text x="167" y="87" fill="#6ee7b7" font-size="8" text-anchor="middle">寫剛好過測的最小代碼</text>
+
+              <!-- Turn to Refactor -->
+              <path d="M 115 75 L 75 75" stroke="#10b981" stroke-width="1.5" marker-end="url(#tdd-arrow)"/>
+
+              <!-- Step 5: Refactor -->
+              <rect x="5" y="58" width="65" height="36" rx="6" fill="#0c4a6e" stroke="#38bdf8" stroke-width="1.2"/>
+              <text x="37" y="74" fill="#7dd3fc" font-size="8.5" font-weight="bold" text-anchor="middle">🔵 REFACTOR</text>
+              <text x="37" y="87" fill="#bae6fd" font-size="8" text-anchor="middle">安全重構</text>
+
+              <!-- Failure loop -->
+              <path d="M 167 94 C 167 110 270 110 270 55" stroke="#f43f5e" stroke-width="1" stroke-dasharray="3 2"/>
+
+              <!-- Note -->
+              <rect x="5" y="118" width="310" height="32" rx="4" fill="#1c070b" stroke="#881337" stroke-dasharray="3 2"/>
+              <text x="160" y="138" fill="#fda4af" font-size="8.5" text-anchor="middle">🚨 鐵律：若 AI 偷寫實作而沒有失敗測試，直接強制刪除代碼！</text>
+            </svg>
+          </div>
+
+          <!-- Core Skills / Commands -->
+          <div class="space-y-3">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div class="text-[11px] font-bold text-slate-400 mb-1 flex items-center justify-between">
+                <span>核心內建 Skills 群</span>
+                <span class="text-[10px] text-rose-400 font-mono">Claude Code / Cursor Plugin</span>
+              </div>
+              <div class="text-[11px] font-mono text-rose-300 space-y-1.5">
+                <div><span class="text-amber-300">test-driven-development</span> <span class="text-slate-400"># 強制紅綠重構閉環</span></div>
+                <div><span class="text-amber-300">brainstorming</span> <span class="text-slate-400"># 寫代碼前反覆詰問意圖</span></div>
+                <div><span class="text-amber-300">writing-plans</span> <span class="text-slate-400"># 拆解 2-5 分鐘微型驗證任務</span></div>
+                <div><span class="text-amber-300">subagent-driven-dev</span> <span class="text-slate-400"># 獨立 Subagent 巡檢修復</span></div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-rose-950/20 border border-rose-900/50 text-[11px] text-slate-300 space-y-1">
+              <div class="font-bold text-rose-300 flex items-center gap-1">
+                <i class="fa-solid fa-gavel"></i> 核心防護機制：
+              </div>
+              <p class="text-slate-400">
+                「在測試前寫出的代碼一律直接刪除！」強制 AI 必須看到紅燈報錯，才准撰寫剛好能轉綠燈的極簡實作。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between">
+          <a href="https://github.com/obra/superpowers#the-basic-workflow" target="_blank" rel="noopener noreferrer" class="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1 font-medium">
+            <span>檢視 Superpowers TDD 工作流</span>
+            <i class="fa-solid fa-angle-right text-[10px]"></i>
+          </a>
+          <span class="text-[10px] bg-rose-900/60 text-rose-300 px-2 py-0.5 rounded">TDD Enforcer</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 3: Matrix Comparison Table -->
+  <section id="matrix-comparison" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+    <div class="text-center max-w-3xl mx-auto mb-10">
+      <h2 class="text-3xl font-extrabold text-white tracking-tight">全維度深度對照矩陣</h2>
+      <p class="text-slate-400 mt-2 text-sm sm:text-base">
+        從視角、產物、AI 提示方式到故障模式，一覽 SDD、BDD 與 TDD 的本質區別。
+      </p>
+    </div>
+
+    <div class="overflow-x-auto border border-slate-800 rounded-2xl shadow-xl bg-slate-900/60">
+      <table class="w-full text-left text-xs sm:text-sm text-slate-300 border-collapse">
+        <thead class="bg-slate-800/80 text-white uppercase text-[11px] sm:text-xs tracking-wider border-b border-slate-700">
+          <tr>
+            <th class="p-4 font-semibold">評估維度</th>
+            <th class="p-4 font-semibold text-fuchsia-400">Vibe Coding (純直覺模式)</th>
+            <th class="p-4 font-semibold text-blue-400">SDD (規格驅動)</th>
+            <th class="p-4 font-semibold text-emerald-400">BDD (行為驅動)</th>
+            <th class="p-4 font-semibold text-rose-400">TDD (測試驅動)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800">
+          <tr class="hover:bg-slate-800/30 transition">
+            <td class="p-4 font-medium text-white flex items-center gap-1.5"><i class="fa-solid fa-bullseye text-slate-400"></i> 核心關注點</td>
+            <td class="p-4 text-fuchsia-300">快速視覺呈現與體感運作</td>
+            <td class="p-4 text-blue-300">介面合約、型別與系統邊界</td>
+            <td class="p-4 text-emerald-300">業務故事與終端使用者行為</td>
+            <td class="p-4 text-rose-300">函數邏輯正確性與抗退化</td>
+          </tr>
+          <tr class="hover:bg-slate-800/30 transition">
+            <td class="p-4 font-medium text-white flex items-center gap-1.5"><i class="fa-solid fa-file-contract text-slate-400"></i> 主要產出文件</td>
+            <td class="p-4">直接產出功能 code / Prototype</td>
+            <td class="p-4">OpenAPI / JSON Schema / Proto</td>
+            <td class="p-4">Gherkin (.feature) / E2E 腳本</td>
+            <td class="p-4">單元測試 (Unit Tests) / Mock</td>
+          </tr>
+          <tr class="hover:bg-slate-800/30 transition">
+            <td class="p-4 font-medium text-white flex items-center gap-1.5"><i class="fa-solid fa-robot text-slate-400"></i> 給 AI 的關鍵 Prompt</td>
+            <td class="p-4 font-mono text-[11px]">"幫我做一個像 Uber 的計程車地圖"</td>
+            <td class="p-4 font-mono text-[11px]">"根據此 OpenAPI 規格產生 API handler"</td>
+            <td class="p-4 font-mono text-[11px]">"依據 Given/When/Then 編寫驗收邏輯"</td>
+            <td class="p-4 font-mono text-[11px]">"先寫出測邊界失敗的測試，再寫解法"</td>
+          </tr>
+          <tr class="hover:bg-slate-800/30 transition">
+            <td class="p-4 font-medium text-white flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-slate-400"></i> 防範之 AI 弱點</td>
+            <td class="p-4 text-slate-400">無防護（依賴肉眼確認）</td>
+            <td class="p-4">防止 AI 隨機發明欄位與接口</td>
+            <td class="p-4">防止 AI 理解偏離產品核心目的</td>
+            <td class="p-4">防止改 A 壞 B，形成無窮錯誤迴圈</td>
+          </tr>
+          <tr class="hover:bg-slate-800/30 transition">
+            <td class="p-4 font-medium text-white flex items-center gap-1.5"><i class="fa-solid fa-users text-slate-400"></i> 最理想溝通對象</td>
+            <td class="p-4">個人獨立開發者 (Solopreneur)</td>
+            <td class="p-4">微服務架構師、API 對接方</td>
+            <td class="p-4">非技術人員 (PM、行銷、客戶)</td>
+            <td class="p-4">核心模組工程師、演算法人員</td>
+          </tr>
+          <tr class="hover:bg-slate-800/30 transition">
+            <td class="p-4 font-medium text-white flex items-center gap-1.5"><i class="fa-solid fa-bolt text-slate-400"></i> 推薦適用時機</td>
+            <td class="p-4">黑客松、週五 Prototype、靈感驗證</td>
+            <td class="p-4">前後端協同、多系統跨國整合</td>
+            <td class="p-4">複雜業務規則（金融、電商折扣）</td>
+            <td class="p-4">底層運算、資料轉換、高可靠核心</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 4: Interactive Workflow Simulator -->
+  <section id="interactive-workflow" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+    <div class="text-center max-w-3xl mx-auto mb-10">
+      <div class="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-amber-400 bg-amber-950/60 px-3 py-1 rounded-full border border-amber-800/60 mb-3">
+        <i class="fa-solid fa-play"></i>
+        <span>實境模擬體驗</span>
+      </div>
+      <h2 class="text-3xl font-extrabold text-white tracking-tight">Vibe Coding 流程模擬器</h2>
+      <p class="text-slate-400 mt-2 text-sm sm:text-base">
+        點擊下方步驟，觀察在「購物車結帳折扣系統」中，三種開發方式如何引導 AI 高效協作。
+      </p>
+    </div>
+
+    <!-- Simulator Shell -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+      <!-- Simulator Navigation Tabs -->
+      <div class="flex flex-wrap border-b border-slate-800 bg-slate-950/70 p-2 gap-2 text-xs font-medium">
+        <button onclick="setSimStep(1)" id="step-btn-1" class="flex-1 py-2.5 px-3 rounded-lg bg-fuchsia-600 text-white flex items-center justify-center gap-2 transition">
+          <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">1</span>
+          <span>靈感發想 (Vibe)</span>
+        </button>
+        <button onclick="setSimStep(2)" id="step-btn-2" class="flex-1 py-2.5 px-3 rounded-lg bg-slate-800 text-slate-400 flex items-center justify-center gap-2 transition hover:bg-slate-700">
+          <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">2</span>
+          <span>規格定義 (SDD)</span>
+        </button>
+        <button onclick="setSimStep(3)" id="step-btn-3" class="flex-1 py-2.5 px-3 rounded-lg bg-slate-800 text-slate-400 flex items-center justify-center gap-2 transition hover:bg-slate-700">
+          <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">3</span>
+          <span>情境行為 (BDD)</span>
+        </button>
+        <button onclick="setSimStep(4)" id="step-btn-4" class="flex-1 py-2.5 px-3 rounded-lg bg-slate-800 text-slate-400 flex items-center justify-center gap-2 transition hover:bg-slate-700">
+          <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">4</span>
+          <span>紅綠循環 (TDD)</span>
+        </button>
+      </div>
+
+      <!-- Step Content Display -->
+      <div class="p-6 sm:p-8">
+        <div id="sim-content" class="min-h-[260px] flex flex-col justify-between">
+          <!-- Dynamic injected by JS -->
+        </div>
+
+        <!-- Terminal Output View -->
+        <div class="mt-6 border border-slate-800 rounded-xl bg-slate-950 p-4 font-mono text-xs">
+          <div class="flex items-center justify-between text-slate-500 pb-2 border-b border-slate-900 mb-2">
+            <span class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+              <span class="text-slate-400 ml-1">AI 終端反饋與 Agent 執行環境</span>
+            </span>
+            <span id="sim-status" class="text-fuchsia-400 font-sans font-semibold">狀態：創意流動階段</span>
+          </div>
+          <pre id="sim-terminal" class="text-slate-300 leading-relaxed overflow-x-auto whitespace-pre-wrap"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Real-world AI Prompt Templates -->
+  <section id="prompt-templates" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <h2 class="text-3xl font-extrabold text-white tracking-tight">AI 協作 Prompt 模組庫</h2>
+      <p class="text-slate-400 mt-2 text-sm sm:text-base">
+        可直接複製並應用於 Cursor, Windsurf, Claude Code, GitHub Copilot 等工具的標準模板。
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- SDD Prompt Card -->
+      <div class="bg-slate-900/80 rounded-2xl border border-blue-500/30 p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-2.5 py-1 rounded bg-blue-500/20 text-blue-400 text-xs font-bold">SDD Prompt</span>
+            <button onclick="copyPrompt('sdd-prompt-text')" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition">
+              <i class="fa-regular fa-copy"></i> 複製
+            </button>
+          </div>
+          <h3 class="font-bold text-white text-base mb-2">規格至上合約提示詞</h3>
+          <p class="text-xs text-slate-400 mb-4">引導 AI 先行制定嚴格型別介面與 API 定義，確認後再實作邏輯。</p>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-300 overflow-y-auto max-h-56">
+            <pre id="sdd-prompt-text" class="whitespace-pre-wrap">你是一名資深系統架構師。在撰寫任何業務邏輯代碼前，請嚴格執行 SDD 流程：
+
+1. 先輸出此功能所依據的 OpenAPI 3.0 YAML 或 TypeScript Interface 定義。
+2. 列出所有欄位型別、必填狀態、列舉值 (Enums) 與邊界約束（如 min, max）。
+3. 停下來等待我確認。確認無誤後，請嚴格依據該 Interface 生成 Server/Client 實作代碼，不可私自增減欄位。</pre>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-blue-300/80">
+          適合：前後端聯調、資料庫 Schema 變更。
+        </div>
+      </div>
+
+      <!-- BDD Prompt Card -->
+      <div class="bg-slate-900/80 rounded-2xl border border-emerald-500/30 p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold">BDD Prompt</span>
+            <button onclick="copyPrompt('bdd-prompt-text')" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition">
+              <i class="fa-regular fa-copy"></i> 複製
+            </button>
+          </div>
+          <h3 class="font-bold text-white text-base mb-2">場景驗收 Gherkin 提示詞</h3>
+          <p class="text-xs text-slate-400 mb-4">將非技術性商業需求轉換為 Given-When-Then 自動驗收腳本。</p>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-300 overflow-y-auto max-h-56">
+            <pre id="bdd-prompt-text" class="whitespace-pre-wrap">你是一名 BDD 實踐專家。我有一個產品需求，請為我進行以下轉換：
+
+1. 將需求拆解為至少 3 個 Gherkin 格式的驗收情境 (包含正常路徑 Happy Path、極端邊界與錯誤處理)。
+2. 使用 Given / When / Then 語法明確描述上下文。
+3. 為每個情境生成對應的 Playwright / Cypress 端到端測試骨架。
+4. 確保業務人員也能輕易閱讀該情境說明。</pre>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-emerald-300/80">
+          適合：使用者故事 (User Stories)、跨職能團隊驗收。
+        </div>
+      </div>
+
+      <!-- TDD Prompt Card -->
+      <div class="bg-slate-900/80 rounded-2xl border border-rose-500/30 p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-2.5 py-1 rounded bg-rose-500/20 text-rose-400 text-xs font-bold">TDD Prompt</span>
+            <button onclick="copyPrompt('tdd-prompt-text')" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition">
+              <i class="fa-regular fa-copy"></i> 複製
+            </button>
+          </div>
+          <h3 class="font-bold text-white text-base mb-2">紅綠重構自修循環提示詞</h3>
+          <p class="text-xs text-slate-400 mb-4">指示 AI 在終端機自我驗證，完成極致精簡且經過驗證的代碼。</p>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-300 overflow-y-auto max-h-56">
+            <pre id="tdd-prompt-text" class="whitespace-pre-wrap">我們遵循嚴格的 TDD (測試驅動開發)：
+
+第一步 (Red)：請先編寫完整的單元測試檔案（覆蓋正常值、0、負數與空值），此時切勿編寫任何實作代碼。
+第二步 (Green)：編寫最精簡的實作代碼，目的僅為讓上述測試 100% 通過。
+第三步 (Refactor)：在確保所有測試全綠的前提下，重構代碼結構並提高可讀性。若測試失敗，請自我排查日誌直到全數通過。</pre>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-rose-300/80">
+          適合：核心算法、金流計算、Cursor / Claude Code Agent 迴圈。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 6: Interactive Scenario Quiz -->
+  <section id="quiz-section" class="py-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl">
+      <div class="text-center mb-8">
+        <span class="px-3 py-1 rounded-full bg-violet-500/20 text-violet-400 text-xs font-bold uppercase tracking-wider">
+          Decision Mastery
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-2">情境架構師實戰隨堂測驗</h2>
+        <p class="text-slate-400 text-xs sm:text-sm mt-1">
+          面對以下情境，你會採用哪一種開發策略搭配 Vibe Coding？
+        </p>
+      </div>
+
+      <div id="quiz-container">
+        <!-- Question display -->
+        <div class="bg-slate-950/70 p-5 rounded-2xl border border-slate-800 mb-6">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-3">
+            <span id="quiz-progress" class="font-bold text-violet-400">題目 1 / 3</span>
+            <span id="quiz-score" class="text-slate-400">得分：0</span>
+          </div>
+          <h3 id="quiz-question" class="text-base sm:text-lg font-semibold text-white leading-relaxed">
+            <!-- Injected by JS -->
+          </h3>
+        </div>
+
+        <!-- Options Container -->
+        <div id="quiz-options" class="space-y-3">
+          <!-- Injected by JS -->
+        </div>
+
+        <!-- Explanation box -->
+        <div id="quiz-explanation" class="hidden mt-6 p-4 rounded-xl text-xs sm:text-sm leading-relaxed"></div>
+
+        <div class="mt-6 flex justify-between items-center">
+          <button id="quiz-prev-btn" onclick="prevQuiz()" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white text-xs disabled:opacity-30 disabled:cursor-not-allowed">上一題</button>
+          <button id="quiz-next-btn" onclick="nextQuiz()" class="px-5 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-medium text-xs shadow">下一題</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Global Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-950 py-10 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 space-y-3">
+      <div class="flex justify-center space-x-6 text-sm text-slate-400">
+        <span class="hover:text-fuchsia-400 transition cursor-pointer" onclick="scrollToSection('hero')">Vibe Coding</span>
+        <span>•</span>
+        <span class="hover:text-blue-400 transition cursor-pointer" onclick="scrollToSection('methodologies')">SDD</span>
+        <span>•</span>
+        <span class="hover:text-emerald-400 transition cursor-pointer" onclick="scrollToSection('methodologies')">BDD</span>
+        <span>•</span>
+        <span class="hover:text-rose-400 transition cursor-pointer" onclick="scrollToSection('methodologies')">TDD</span>
+      </div>
+      <p>© 2026 Vibe Coding Interactive Guide · Designed for Modern Software Engineering</p>
+      <p class="text-slate-600">讓直覺引領創意，讓規範保證可靠。單檔案整合架構。</p>
+    </div>
+  </footer>
+
+  <!-- Notification Toast Component -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-2xl text-xs flex items-center space-x-2 translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toast-message">已成功複製提示詞！</span>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // Navigation scroll helper
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+    function toggleMobileMenu() {
+      mobileMenu.classList.add('hidden');
+    }
+
+    // Methodology Tab Switcher
+    function switchMethodologyTab(method) {
+      const tabs = ['sdd', 'bdd', 'tdd'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        const content = document.getElementById(`content-${t}`);
+        if (t === method) {
+          content.classList.remove('hidden');
+          btn.classList.add('text-white', 'shadow');
+          btn.classList.remove('text-slate-400');
+          if (t === 'sdd') btn.className = 'px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold transition bg-blue-600 text-white shadow';
+          if (t === 'bdd') btn.className = 'px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white shadow';
+          if (t === 'tdd') btn.className = 'px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold transition bg-rose-600 text-white shadow';
+        } else {
+          content.classList.add('hidden');
+          btn.className = 'px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold transition text-slate-400 hover:text-white';
+        }
+      });
+    }
+
+    // Copy Prompt Helper
+    function copyPrompt(elementId) {
+      const text = document.getElementById(elementId).innerText;
+      
+      // Fallback and modern copy
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = text;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('已複製提示詞至剪貼簿！');
+      } catch (err) {
+        showToast('複製失敗，請手動選取');
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2500);
+    }
+
+    // Interactive Simulator Data
+    const simSteps = {
+      1: {
+        title: "階段 1：純粹靈感探索 (Pure Vibe)",
+        tag: "Vibe Exploration",
+        tagColor: "bg-fuchsia-500/20 text-fuchsia-400 border-fuchsia-500/30",
+        desc: "你想到一個點子：「我想要在購物車加入促銷滿額贈送折扣碼的彈窗」。此時你用最隨性的自然語言告知 AI，快速生成雛形。",
+        userPrompt: "> AI，幫我做一個酷炫的折扣碼彈窗，當結帳超過 1000 元時彈出，要有五彩碎紙特效！",
+        terminal: `$ claude prompt "幫我做一個酷炫的折扣碼彈窗..."
+✔ 生成 CartModal.tsx
+✔ 載入 canvas-confetti 依賴
+⚠️ 警告：AI 自行假定了金額欄位為 'price'，但後端欄位實為 'totalAmountCents'。
+⚠️ 警告：尚未檢查重複領取機制，存在連續領取漏洞。
+[體感進度]: 5 分鐘內看到了漂亮的畫面，但代碼合約脆弱。`,
+        status: "狀態：極速原型誕生，但缺乏安全邊界"
+      },
+      2: {
+        title: "階段 2：規格驅動收斂 (SDD Enforcement)",
+        tag: "SDD Guardrails",
+        tagColor: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+        desc: "為了避免 AI 亂捏造 API 結構，你貼出後端真實的 Schema，並命令 AI 嚴格遵守 TypeScript 介面。",
+        userPrompt: "> AI，請依據這份 DiscountResponse 型別，重構剛才的 CartModal，禁止自行更改屬性名稱！",
+        terminal: `$ tsc --noEmit
+✔ 介面校驗中...
+✔ 修正 CartModal: totalAmountCents 替換 price
+✔ 修正 API 回傳值對齊 DiscountResponse { code: string, discountRate: number, expiresAt: ISOString }
+[結果]: 規格已錨定，前端與後端資料傳遞零偏差。`,
+        status: "狀態：介面合約鎖定，拒絕幻覺欄位"
+      },
+      3: {
+        title: "階段 3：定義商業情境 (BDD Specification)",
+        tag: "BDD Scenarios",
+        tagColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+        desc: "產品經理提出：「若使用者是首購客且滿千，折扣 8 折；若曾購買過，只能折 100 元」。使用 Gherkin 描述並注入測試腳本。",
+        userPrompt: "> Given 使用者為首購客 And 購物車 1000 元 When 開啟彈窗 Then 顯示「首購 8 折」，不可顯示「百元券」。",
+        terminal: `$ npx playwright test e2e/discount.spec.ts
+Running 2 scenarios using 1 worker:
+  ✓ Scenario: 首購客滿千獲得 8 折 (Passed - 420ms)
+  ✓ Scenario: 舊客滿千獲得 100 元券 (Passed - 380ms)
+2 passed (800ms)
+[結果]: 商業目標完全被程式碼忠實實現，跨部門意圖達成一致。`,
+        status: "狀態：業務邏輯與驗收條件完全對齊"
+      },
+      4: {
+        title: "階段 4：測試驅動重構 (TDD Loop & Auto-Fix)",
+        tag: "TDD Auto-Refactor",
+        tagColor: "bg-rose-500/20 text-rose-400 border-rose-500/30",
+        desc: "最後，你針對金額計算邏輯開啟 TDD。寫下負數、浮點數誤差、零元邊界的單元測試，並命令 AI 在終端機自我除錯直至全綠。",
+        userPrompt: "> AI，請針對 calculateDiscount 函數撰寫單元測試，包含浮點數精度保護。並重構該函數使所有測試通過！",
+        terminal: `$ npm test
+FAIL  tests/discountCalculator.test.ts
+  ✕ 處理 0.1 + 0.2 浮點數精度折扣 (Expected 0.3, received 0.30000000000000004)
+
+🤖 AI Agent 偵測到紅燈，自動執行修復代碼...
+✔ 使用 BigNumber 或 Math.round 四捨五入處理
+✔ 重跑測試中...
+
+PASS  tests/discountCalculator.test.ts
+  ✓ 正常折扣運算 (2ms)
+  ✓ 負數金額拋出例外 (1ms)
+  ✓ 浮點數高精密度測試 (1ms)
+Test Suites: 1 passed, 1 total
+[結果]: 代碼極其穩固，未來任何 Vibe 隨性修改都無法打破安全防線！`,
+        status: "狀態：紅燈變綠燈！高強韌度自我修復完成"
+      }
+    };
+
+    function setSimStep(stepNumber) {
+      // update buttons
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`step-btn-${i}`);
+        if (i === stepNumber) {
+          btn.className = "flex-1 py-2.5 px-3 rounded-lg bg-fuchsia-600 text-white flex items-center justify-center gap-2 transition shadow-lg";
+        } else {
+          btn.className = "flex-1 py-2.5 px-3 rounded-lg bg-slate-800 text-slate-400 flex items-center justify-center gap-2 transition hover:bg-slate-700";
+        }
+      }
+
+      const data = simSteps[stepNumber];
+      const contentEl = document.getElementById('sim-content');
+      contentEl.innerHTML = `
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${data.tagColor}">${data.tag}</span>
+            <span class="text-xs text-slate-400 font-mono">Step ${stepNumber} of 4</span>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">${data.title}</h3>
+          <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">${data.desc}</p>
+          
+          <div class="mt-4 p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <div class="text-[11px] font-bold text-slate-400 mb-1 flex items-center gap-1.5">
+              <i class="fa-solid fa-terminal text-fuchsia-400"></i> 你對 AI 的輸入 (Prompt)：
+            </div>
+            <div class="text-xs text-emerald-300 font-mono">${data.userPrompt}</div>
+          </div>
+        </div>
+      `;
+
+      // Update terminal & status
+      document.getElementById('sim-terminal').innerText = data.terminal;
+      document.getElementById('sim-status').innerText = data.status;
+    }
+
+    // Initialize Simulator at step 1
+    setSimStep(1);
+
+    // Quiz Questions Data
+    const quizData = [
+      {
+        question: "情境一：你正在開發一家銀行的「跨國貨幣即時結算微服務」，需要與其他 4 個後端系統對接，且必須確保貨幣代碼與金額精準無誤。此時最不可或缺的開發驅動模式是什麼？",
+        options: [
+          { text: "A. SDD (規格驅動開發) —— 先定義跨系統 protobuf / OpenAPI 與嚴格資料型別", correct: true },
+          { text: "B. 純粹 Vibe Coding —— 邊跟 AI 聊天邊在線上直接修改生產代碼", correct: false },
+          { text: "C. 只做前端 UI 視覺原型驗證", correct: false },
+          { text: "D. BDD (只寫幾句 Given/When/Then 給行銷人員看)", correct: false }
+        ],
+        explanation: "正確答案是 A。跨多系統對接最怕型別不一致與欄位幻覺，必須依靠 SDD (規格驅動) 確立清晰的 Contract / API Schema，防止 AI 隨機捏造命名。"
+      },
+      {
+        question: "情境二：你正在使用 Cursor 或 Claude Code 等具備自動終端機執行能力的 AI Agent，你希望 AI 能自己寫代碼、自己跑驗證、自己修正錯誤，直到完全通過為止。此時最具自我糾錯效果的方法論是？",
+        options: [
+          { text: "A. SDD 規格書閱讀", correct: false },
+          { text: "B. TDD (測試驅動開發) —— 藉由紅燈報錯資訊，讓 AI 形成閉環自動修復代碼", correct: true },
+          { text: "C. 每次報錯都由人類親自手動修改代碼", correct: false },
+          { text: "D. 忽略所有錯誤直接發布", correct: false }
+        ],
+        explanation: "正確答案是 B。大語言模型在讀取單元測試失敗日誌 (Stack Trace) 時，能非常高效地推導出修復方案。TDD 的紅綠循環是 AI Agent 最強的自修反饋迴路！"
+      },
+      {
+        question: "情境三：電商團隊要舉辦雙十一促銷，行銷人員與 PM 定義了極度複雜的多重滿額折抵、優惠券排他條件。為了避免工程師理解偏差，何種方法最能促進非工程師與 AI 的精準溝通？",
+        options: [
+          { text: "A. TDD 單元測試語法 (Assert.AreEqual)", correct: false },
+          { text: "B. 直接叫工程師通宵盲寫", correct: false },
+          { text: "C. BDD (行為驅動開發) —— 使用 Given / When / Then 以人類語言具象化真實購物場景", correct: true },
+          { text: "D. 僅提供二進位編譯規格", correct: false }
+        ],
+        explanation: "正確答案是 C。BDD 的自然語言情境描述 (Gherkin) 讓 PM、行銷與 AI 都能在同一個語言層面溝通，直接杜絕規格認知偏差。"
+      }
+    ];
+
+    let currentQuizIndex = 0;
+    let userScore = 0;
+    let selectedOptionIndex = null;
+
+    function renderQuiz() {
+      const q = quizData[currentQuizIndex];
+      document.getElementById('quiz-progress').innerText = `題目 ${currentQuizIndex + 1} / ${quizData.length}`;
+      document.getElementById('quiz-score').innerText = `得分：${userScore}`;
+      document.getElementById('quiz-question').innerText = q.question;
+
+      const optionsContainer = document.getElementById('quiz-options');
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `w-full text-left p-3.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:bg-slate-800/80 text-xs sm:text-sm text-slate-200 transition flex items-center justify-between group`;
+        btn.innerHTML = `
+          <span>${opt.text}</span>
+          <i class="fa-regular fa-circle text-slate-500 group-hover:text-violet-400"></i>
+        `;
+        btn.onclick = () => selectOption(idx);
+        optionsContainer.appendChild(btn);
+      });
+
+      const explanationEl = document.getElementById('quiz-explanation');
+      explanationEl.className = 'hidden';
+      explanationEl.innerHTML = '';
+
+      // prev button state
+      document.getElementById('quiz-prev-btn').disabled = currentQuizIndex === 0;
+      document.getElementById('quiz-next-btn').innerText = currentQuizIndex === quizData.length - 1 ? '完成測驗' : '下一題';
+      selectedOptionIndex = null;
+    }
+
+    function selectOption(index) {
+      if (selectedOptionIndex !== null) return; // already answered
+      selectedOptionIndex = index;
+      const q = quizData[currentQuizIndex];
+      const isCorrect = q.options[index].correct;
+      const optionButtons = document.getElementById('quiz-options').children;
+
+      if (isCorrect) {
+        userScore += 10;
+        document.getElementById('quiz-score').innerText = `得分：${userScore}`;
+        optionButtons[index].className = 'w-full text-left p-3.5 rounded-xl border border-emerald-500 bg-emerald-950/40 text-xs sm:text-sm text-emerald-200 flex items-center justify-between';
+        optionButtons[index].querySelector('i').className = 'fa-solid fa-circle-check text-emerald-400';
+      } else {
+        optionButtons[index].className = 'w-full text-left p-3.5 rounded-xl border border-rose-500 bg-rose-950/40 text-xs sm:text-sm text-rose-200 flex items-center justify-between';
+        optionButtons[index].querySelector('i').className = 'fa-solid fa-circle-xmark text-rose-400';
+        
+        // highlight correct one
+        q.options.forEach((opt, idx) => {
+          if (opt.correct) {
+            optionButtons[idx].className = 'w-full text-left p-3.5 rounded-xl border border-emerald-500/60 bg-emerald-950/20 text-xs sm:text-sm text-emerald-300 flex items-center justify-between';
+            optionButtons[idx].querySelector('i').className = 'fa-solid fa-circle-check text-emerald-400';
+          }
+        });
+      }
+
+      // show explanation
+      const explanationEl = document.getElementById('quiz-explanation');
+      explanationEl.className = `mt-6 p-4 rounded-xl text-xs sm:text-sm leading-relaxed border ${isCorrect ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-200' : 'bg-slate-900 border-slate-800 text-slate-300'}`;
+      explanationEl.innerHTML = `<strong>解析：</strong> ${q.explanation}`;
+    }
+
+    function nextQuiz() {
+      if (currentQuizIndex < quizData.length - 1) {
+        currentQuizIndex++;
+        renderQuiz();
+      } else {
+        // Complete view
+        const container = document.getElementById('quiz-container');
+        container.innerHTML = `
+          <div class="text-center py-8 space-y-4">
+            <div class="w-16 h-16 bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white rounded-full flex items-center justify-center mx-auto text-2xl shadow-lg">
+              <i class="fa-solid fa-award"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white">恭喜完成架構思維挑戰！</h3>
+            <p class="text-slate-300 text-sm max-w-md mx-auto">
+              你的最終成績是 <span class="text-fuchsia-400 font-bold text-lg">${userScore} / 30</span> 分。<br>
+              你已經具備在 Vibe Coding 時代運用 SDD、BDD 與 TDD 保護系統架構的完整視野！
+            </p>
+            <button onclick="restartQuiz()" class="mt-4 px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs shadow transition">
+              重新測驗
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    function prevQuiz() {
+      if (currentQuizIndex > 0) {
+        currentQuizIndex--;
+        renderQuiz();
+      }
+    }
+
+    function restartQuiz() {
+      currentQuizIndex = 0;
+      userScore = 0;
+      location.reload();
+    }
+
+    // Initialize Quiz
+    renderQuiz();
+  </script>
+</body>
+</html>
