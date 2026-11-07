@@ -265,6 +265,10 @@ var INITIAL_AI_KNOWLEDGE_DATA = [
       {
         "title": "YouTube 評測影片出處：幾根手指多指畸形視覺實測",
         "url": "https://www.youtube.com/watch?v=hMSwh4ZSeHU"
+      },
+      {
+        "title": "Ollama 官方模型庫：wangrongsheng/taiwanllm-7b-v2.1-chat (本地離線運行)",
+        "url": "https://ollama.com/wangrongsheng/taiwanllm-7b-v2.1-chat"
       }
     ],
     "applications": [
