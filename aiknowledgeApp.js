@@ -156,7 +156,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 渲染側邊欄選單
+  // 輔助函式：十六進位顏色轉 RGB 字串
+  function hexToRgb(hex) {
+    hex = hex.replace('#', '');
+    if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    const num = parseInt(hex, 16);
+    return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+  }
+
+  // 渲染側邊欄選單 (依類別自動分組並將多單元圈成同一分類)
   function renderSidebar(items) {
     knowledgeListEl.innerHTML = '';
     if (items.length === 0) {
@@ -164,34 +172,89 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // 依 category 分組
+    const groups = {};
     items.forEach(item => {
-      const el = document.createElement('a');
-      el.className = `lab-item ${item.id === currentItemId ? 'active' : ''}`;
-      el.dataset.id = item.id;
-      el.href = `#${item.id}`;
+      const cat = item.category || '未分類';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(item);
+    });
 
-      el.innerHTML = `
-        <div class="lab-badge" style="background: rgba(244, 63, 94, 0.15); color: #fb7185; border-color: rgba(244, 63, 94, 0.35);">
-          ${escapeHtml(item.itemNumber || 'AI')}
-        </div>
-        <div class="lab-info">
-          <div class="lab-title-text" style="font-weight: 600;">${escapeHtml(item.shortTitle || item.title)}</div>
-          <div class="lab-meta-text">
-            <span class="tag-category-aiknowledge" style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px; display: inline-block;">${escapeHtml(item.category)}</span>
-            <span style="opacity: 0.6; margin-left: 4px;">• ${escapeHtml(item.date || '')}</span>
-          </div>
-        </div>
+    Object.keys(groups).forEach(catName => {
+      const groupItems = groups[catName];
+      const isMulti = groupItems.length > 1; // 多個單元（例如單元03與04）圈在一起
+
+      const container = document.createElement('div');
+      container.className = 'aiknowledge-group-container';
+
+      // 取得對應分類圖示與主題色彩
+      let icon = 'fa-solid fa-folder';
+      let themeColor = '#fb7185';
+      if (catName.includes('本質')) {
+        icon = 'fa-solid fa-brain';
+        themeColor = '#fb7185';
+      } else if (catName.includes('思維')) {
+        icon = 'fa-solid fa-rocket';
+        themeColor = '#a855f7';
+      } else if (catName.includes('評測')) {
+        icon = 'fa-solid fa-chart-simple';
+        themeColor = '#38bdf8';
+      }
+
+      // 分類分組標題
+      const header = document.createElement('div');
+      header.className = 'aiknowledge-group-header';
+      header.style.color = themeColor;
+      header.style.borderLeftColor = themeColor;
+      header.style.background = `rgba(${hexToRgb(themeColor)}, 0.08)`;
+      header.innerHTML = `
+        <span><i class="${icon}" style="margin-right: 6px;"></i>${escapeHtml(catName)}</span>
+        <span class="group-badge" style="background: rgba(${hexToRgb(themeColor)}, 0.2); color: ${themeColor}; border-color: rgba(${hexToRgb(themeColor)}, 0.35);">
+          ${groupItems.length} 個單元
+        </span>
       `;
+      container.appendChild(header);
 
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
-        selectItem(item.id);
-        if (window.innerWidth <= 900 && sidebar.classList.contains('open')) {
-          sidebar.classList.remove('open');
-        }
+      // 若是多單元分組（例如單元 03 和 04），使用圈成一體的容器包裹
+      const itemsBox = document.createElement('div');
+      if (isMulti) {
+        itemsBox.className = 'aiknowledge-group-box';
+        itemsBox.style.borderColor = `rgba(${hexToRgb(themeColor)}, 0.4)`;
+        itemsBox.style.background = `rgba(${hexToRgb(themeColor)}, 0.04)`;
+      }
+
+      groupItems.forEach(item => {
+        const el = document.createElement('a');
+        el.className = `lab-item ${item.id === currentItemId ? 'active' : ''}`;
+        el.dataset.id = item.id;
+        el.href = `#${item.id}`;
+
+        el.innerHTML = `
+          <div class="lab-badge" style="background: rgba(${hexToRgb(themeColor)}, 0.15); color: ${themeColor}; border-color: rgba(${hexToRgb(themeColor)}, 0.35);">
+            ${escapeHtml(item.itemNumber || 'AI')}
+          </div>
+          <div class="lab-info">
+            <div class="lab-title-text" style="font-weight: 600;">${escapeHtml(item.shortTitle || item.title)}</div>
+            <div class="lab-meta-text">
+              <span class="tag-category-aiknowledge" style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px; display: inline-block; background: rgba(${hexToRgb(themeColor)}, 0.15); color: ${themeColor}; border-color: rgba(${hexToRgb(themeColor)}, 0.3);">${escapeHtml(item.category)}</span>
+              <span style="opacity: 0.6; margin-left: 4px;">• ${escapeHtml(item.date || '')}</span>
+            </div>
+          </div>
+        `;
+
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          selectItem(item.id);
+          if (window.innerWidth <= 900 && sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open');
+          }
+        });
+
+        itemsBox.appendChild(el);
       });
 
-      knowledgeListEl.appendChild(el);
+      container.appendChild(itemsBox);
+      knowledgeListEl.appendChild(container);
     });
   }
 
