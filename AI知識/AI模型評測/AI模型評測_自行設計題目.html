@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大語言模型評測與對比教學指南 - 藝術、幾何視覺與邏輯</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+    body {
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- 頂部導航列 -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-md">
+          <i class="fa-solid fa-brain text-lg"></i>
+        </span>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">大語言模型 (LLM) 橫向對比教學</h1>
+          <p class="text-xs text-slate-500">從藝術歷史、幾何視覺、常識推理深度剖析</p>
+        </div>
+      </div>
+      <nav class="hidden md:flex space-x-1 lg:space-x-2 text-sm font-medium">
+        <a href="#llm-directory" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-sky-600 hover:bg-slate-100 transition">主流模型列表</a>
+        <a href="#art-history" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-sky-600 hover:bg-slate-100 transition">案例1：梵谷慣用手</a>
+        <a href="#finger-counter" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-sky-600 hover:bg-slate-100 transition">案例2：手指視覺計數</a>
+        <a href="#clock-reasoning" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-sky-600 hover:bg-slate-100 transition">案例3：六點半時鐘生成</a>
+        <a href="#summary-takeaways" class="px-3 py-1.5 rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition shadow-sm">核心教學結論</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 主視覺看板 Banner -->
+  <section class="bg-gradient-to-b from-sky-100/60 via-slate-50 to-slate-50 py-12 border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-100 text-sky-800 mb-4 border border-sky-200">
+        <i class="fa-solid fa-flask"></i> 實證研究與對比教案
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
+        有 Chat 功能的各大語言模型，究竟誰更厲害？
+      </h2>
+      <p class="text-slate-600 max-w-3xl mx-auto text-base sm:text-lg mb-8 leading-relaxed">
+        本教材依據投影片實驗，透過「藝術歷史（鏡像辨析）」、「幾何數學（多模態幾何推理）」與「地區辨識（地理場景視覺感知）」三大關鍵維度，直擊 AI 幻覺與空間邏輯推導的極限邊界。
+      </p>
+
+      <!-- 快速統計卡片 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
+        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200">
+          <div class="text-sky-600 font-bold text-2xl">14+</div>
+          <div class="text-xs text-slate-500 font-medium">國內外受測主流模型</div>
+        </div>
+        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200">
+          <div class="text-indigo-600 font-bold text-2xl">3 大</div>
+          <div class="text-xs text-slate-500 font-medium">嚴苛刁鑽測試場景</div>
+        </div>
+        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200">
+          <div class="text-emerald-600 font-bold text-2xl">鏡像陷阱</div>
+          <div class="text-xs text-slate-500 font-medium">考驗文獻與自畫像邏輯</div>
+        </div>
+        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-200">
+          <div class="text-amber-600 font-bold text-2xl">先驗偏誤</div>
+          <div class="text-xs text-slate-500 font-medium">常識干擾多模態計數</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 主體內容區塊 -->
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
+
+    <!-- 區塊 1: 主流 LLM 目錄清單 -->
+    <section id="llm-directory" class="scroll-mt-20">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-sky-600"></i> 評測對象：主流 LLM 名冊一覽
+          </h3>
+          <p class="text-sm text-slate-500">投影片中收錄之各大科技巨頭與新創公司對話模型與入口</p>
+        </div>
+        <span class="text-xs bg-slate-200 text-slate-700 px-2.5 py-1 rounded-md font-mono font-semibold">14 家模型矩陣</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="llm-grid">
+        <!-- 動態渲染由 JS 產生 -->
+      </div>
+    </section>
+
+    <!-- 區塊 2: 案例一 - 測試情境 01（藝術歷史、幾何數學、地區辨識） -->
+    <section id="art-history" class="scroll-mt-20 border-t border-slate-200 pt-10">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-sky-600 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">測試情境 01</span>
+        <h3 class="text-2xl font-bold text-slate-900 mt-2 flex items-center gap-2">
+          <i class="fa-solid fa-layer-group text-sky-600"></i> 三大維度實測：藝術歷史、幾何數學、地區分析
+        </h3>
+        <p class="text-slate-600 text-sm mt-1 max-w-4xl">
+          投影片核心提綱：「有 chat 功能的大型語言模型（LLM）哪個好？從<strong>藝術歷史</strong>、<strong>幾何數學</strong>、<strong>地區</strong>去分析」。以下為各維度所採用的真實評測照片與各模型答題表現。
+        </p>
+      </div>
+
+      <!-- 三大維度真實上傳照片展板 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        
+        <!-- 圖片 1: 藝術歷史 -->
+        <div class="bg-white rounded-2xl border border-amber-200 shadow-sm overflow-hidden flex flex-col">
+          <div class="bg-amber-50 px-4 py-2.5 border-b border-amber-150 flex items-center justify-between">
+            <span class="font-bold text-amber-900 text-sm flex items-center gap-1.5">
+              <i class="fa-solid fa-palette text-amber-600"></i> 1. 藝術歷史 (梵谷自畫像)
+            </span>
+            <span class="text-[11px] bg-amber-200/70 text-amber-900 px-2 py-0.5 rounded font-medium">上傳圖片 1</span>
+          </div>
+          <div class="p-4 flex flex-col items-center flex-grow">
+            <div class="w-full h-64 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center relative">
+              <img src="test01_art_vangogh.jpg" 
+                   alt="梵谷包紮耳朵的自畫像" 
+                   class="w-full h-full object-cover hover:scale-105 transition duration-300"
+                   onerror="this.onerror=null; this.parentElement.innerHTML='<svg viewBox=\'0 0 300 380\' class=\'w-full h-full bg-emerald-100\'><rect width=\'300\' height=\'380\' fill=\'#d1fae5\'/><path d=\'M50,380 C50,260 90,220 150,220 C210,220 250,260 250,380 Z\' fill=\'#065f46\'/><circle cx=\'150\' cy=\'170\' r=\'65\' fill=\'#fed7aa\'/><path d=\'M90,135 C90,80 210,80 210,135 Z\' fill=\'#1e3a8a\'/><path d=\'M105,150 Q95,210 135,225 Q135,170 105,150 Z\' fill=\'#f8fafc\' stroke=\'#cbd5e1\' stroke-width=\'3\'/><text x=\'150\' y=\'360\' text-anchor=\'middle\' font-size=\'13\' font-weight=\'bold\' fill=\'#ffffff\'>自畫像：包紮耳朵 (鏡像還原)</text></svg>';">
+            </div>
+            <div class="mt-3 text-xs text-slate-700 space-y-1 w-full">
+              <p class="font-bold text-slate-900">核心提問：梵谷是左撇子還是右撇子？</p>
+              <p class="text-slate-500">考驗自畫像鏡像關係（右耳包紮實為左耳）、書信紀錄與官方權威驗證。</p>
+            </div>
+          </div>
+          <div class="px-4 py-2 bg-slate-50 border-t border-slate-150 text-[11px] text-amber-800 font-medium">
+            <i class="fa-solid fa-circle-check text-emerald-600"></i> 梵谷博物館證實：右撇子
+          </div>
+        </div>
+
+        <!-- 圖片 2: 幾何數學 -->
+        <div class="bg-white rounded-2xl border border-sky-200 shadow-sm overflow-hidden flex flex-col">
+          <div class="bg-sky-50 px-4 py-2.5 border-b border-sky-150 flex items-center justify-between">
+            <span class="font-bold text-sky-900 text-sm flex items-center gap-1.5">
+              <i class="fa-solid fa-shapes text-sky-600"></i> 2. 幾何數學 (長方形面積)
+            </span>
+            <span class="text-[11px] bg-sky-200/70 text-sky-900 px-2 py-0.5 rounded font-medium">上傳圖片 2</span>
+          </div>
+          <div class="p-4 flex flex-col items-center flex-grow">
+            <div class="w-full h-64 rounded-xl overflow-hidden bg-white border border-slate-200 p-2 flex items-center justify-center relative">
+              <img src="test01_math_geometry.jpg" 
+                   alt="幾何數學長方形面積題" 
+                   class="max-w-full max-h-full object-contain hover:scale-105 transition duration-300"
+                   onerror="this.onerror=null; this.parentElement.innerHTML='<svg viewBox=\'0 0 400 300\' class=\'w-full h-full bg-white\'><text x=\'20\' y=\'32\' font-size=\'18\' font-weight=\'bold\' fill=\'#0f172a\'>△BGI=4、△AFG=12，求長方形ABFE面積。</text><rect x=\'40\' y=\'60\' width=\'320\' height=\'200\' fill=\'none\' stroke=\'#64748b\' stroke-width=\'4\'/><line x1=\'40\' y1=\'260\' x2=\'360\' y2=\'60\' stroke=\'#64748b\' stroke-width=\'4\'/><polygon points=\'40,60 190,260 360,260\' fill=\'#fee2e2\' stroke=\'#dc2626\' stroke-width=\'3\'/><polygon points=\'40,260 190,260 143,195\' fill=\'#dbeafe\' stroke=\'#2563eb\' stroke-width=\'3\'/><circle cx=\'40\' cy=\'60\' r=\'6\' fill=\'#0284c7\'/><circle cx=\'40\' cy=\'260\' r=\'6\' fill=\'#0284c7\'/><circle cx=\'190\' cy=\'260\' r=\'6\' fill=\'#0284c7\'/><circle cx=\'360\' cy=\'260\' r=\'6\' fill=\'#0284c7\'/><circle cx=\'360\' cy=\'60\' r=\'6\' fill=\'#0284c7\'/><circle cx=\'143\' cy=\'195\' r=\'6\' fill=\'#475569\'/><text x=\'45\' y=\'52\' font-size=\'16\' font-weight=\'bold\' fill=\'#0284c7\'>A</text><text x=\'45\' y=\'250\' font-size=\'16\' font-weight=\'bold\' fill=\'#0284c7\'>B</text><text x=\'200\' y=\'250\' font-size=\'16\' font-weight=\'bold\' fill=\'#0284c7\'>G</text><text x=\'368\' y=\'250\' font-size=\'16\' font-weight=\'bold\' fill=\'#475569\'>F</text><text x=\'368\' y=\'52\' font-size=\'16\' font-weight=\'bold\' fill=\'#0284c7\'>E</text><text x=\'148\' y=\'185\' font-size=\'16\' font-weight=\'bold\' fill=\'#475569\'>I</text></svg>';">
+            </div>
+            <div class="mt-3 text-xs text-slate-700 space-y-1 w-full">
+              <p class="font-bold text-slate-900">題目：△BGI = 4、△AFG = 12，求長方形 ABFE 面積</p>
+              <p class="text-slate-500">考驗多模態幾何推理、相似三角形比例與輔助線幾何代數解析能力。</p>
+            </div>
+          </div>
+          <div class="px-4 py-2 bg-slate-50 border-t border-slate-150 text-[11px] text-sky-800 font-medium">
+            <i class="fa-solid fa-calculator text-sky-600"></i> 幾何多模態 OCR 與座標推導
+          </div>
+        </div>
+
+        <!-- 圖片 3: 地區辨識 -->
+        <div class="bg-white rounded-2xl border border-emerald-200 shadow-sm overflow-hidden flex flex-col">
+          <div class="bg-emerald-50 px-4 py-2.5 border-b border-emerald-150 flex items-center justify-between">
+            <span class="font-bold text-emerald-900 text-sm flex items-center gap-1.5">
+              <i class="fa-solid fa-map-location-dot text-emerald-600"></i> 3. 地區分析 (地標景點)
+            </span>
+            <span class="text-[11px] bg-emerald-200/70 text-emerald-900 px-2 py-0.5 rounded font-medium">上傳圖片 3</span>
+          </div>
+          <div class="p-4 flex flex-col items-center flex-grow">
+            <div class="w-full h-64 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center relative">
+              <img src="test01_geo_kaohsiung.jpg" 
+                   alt="高雄愛河灣流行音樂中心與巨型充氣偶" 
+                   class="w-full h-full object-cover hover:scale-105 transition duration-300"
+                   onerror="this.onerror=null; this.parentElement.innerHTML='<svg viewBox=\'0 0 400 250\' class=\'w-full h-full bg-sky-200\'><rect width=\'400\' height=\'150\' fill=\'#bae6fd\'/><rect y=\'150\' width=\'400\' height=\'100\' fill=\'#0284c7\'/><polygon points=\'0,20 120,80 100,180 0,160\' fill=\'#f1f5f9\' stroke=\'#334155\' stroke-width=\'2\'/><circle cx=\'220\' cy=\'175\' r=\'35\' fill=\'#ffffff\'/><path d=\'M195,155 Q220,130 245,155 Z\' fill=\'#38bdf8\'/><rect x=\'330\' y=\'65\' width=\'25\' height=\'100\' fill=\'#475569\'/><text x=\'220\' y=\'235\' text-anchor=\'middle\' font-size=\'13\' font-weight=\'bold\' fill=\'#ffffff\'>高雄愛河灣 / 高流音樂中心</text></svg>';">
+            </div>
+            <div class="mt-3 text-xs text-slate-700 space-y-1 w-full">
+              <p class="font-bold text-slate-900">核心提問：辨識圖片中的建築物與發生地點？</p>
+              <p class="text-slate-500">考驗模型對地標建築（高雄流行音樂中心、真愛碼頭、愛河灣聊療漂漂河）的地理想像與多模態地標定位能力。</p>
+            </div>
+          </div>
+          <div class="px-4 py-2 bg-slate-50 border-t border-slate-150 text-[11px] text-emerald-800 font-medium">
+            <i class="fa-solid fa-location-dot text-rose-500"></i> 地點解答：台灣高雄愛河灣 / 高流
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 核心問題背景卡片：深入探討梵谷問題 -->
+      <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-5 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+          <div class="md:col-span-1 bg-white p-3 rounded-xl shadow-sm border border-amber-100 flex flex-col items-center">
+            <!-- 投影片中的自畫像模擬展示 -->
+            <div class="w-full h-56 rounded-lg overflow-hidden bg-slate-900 relative group flex items-center justify-center">
+              <img src="test01_art_vangogh.jpg" 
+                   alt="梵谷包紮耳朵自畫像" 
+                   class="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                   onerror="this.onerror=null; this.parentElement.innerHTML='<svg viewBox=\'0 0 300 380\' class=\'w-full h-full bg-emerald-100\'><rect width=\'300\' height=\'380\' fill=\'#d1fae5\'/><path d=\'M50,380 C50,260 90,220 150,220 C210,220 250,260 250,380 Z\' fill=\'#065f46\'/><circle cx=\'150\' cy=\'170\' r=\'65\' fill=\'#fed7aa\'/><path d=\'M90,135 C90,80 210,80 210,135 Z\' fill=\'#1e3a8a\'/><path d=\'M105,150 Q95,210 135,225 Q135,170 105,150 Z\' fill=\'#f8fafc\' stroke=\'#cbd5e1\' stroke-width=\'3\'/><text x=\'150\' y=\'360\' text-anchor=\'middle\' font-size=\'13\' font-weight=\'bold\' fill=\'#ffffff\'>自畫像：包紮耳朵</text></svg>';">
+              <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 p-2 text-white text-xs text-center">
+                包紮耳朵的自畫像 (鏡像中包紮的是右耳，實為割左耳)
+              </div>
+            </div>
+            <p class="text-xs text-slate-500 mt-2 text-center">投影片 Page 3 / 4 經典案例圖像</p>
+          </div>
+          <div class="md:col-span-2 space-y-3">
+            <h4 class="text-base font-bold text-amber-900 flex items-center gap-2">
+              <i class="fa-solid fa-circle-question text-amber-600"></i> 官方權威解答（梵谷博物館證實）：
+            </h4>
+            <div class="text-sm text-slate-700 leading-relaxed space-y-2 bg-white/80 p-4 rounded-xl border border-amber-150">
+              <p><strong>權威定論：</strong>梵谷是<strong>右撇子 (Right-handed)</strong>。</p>
+              <p><strong>鏡像解釋：</strong>在自畫像中，他看似用右手拿調色盤、左手拿畫筆；但因畫自畫像是<strong>照鏡子所繪</strong>，左右影像顛倒。將鏡像還原後，他實際上是用<strong>左手托調色板，用右手持畫筆作畫</strong>。</p>
+              <p><strong>書信證據：</strong>在給弟弟提奧 (Theo) 的大量信件中，從未提過他是左撇子；在 19 世紀若為左撇子通常會被特別標註。</p>
+            </div>
+            <div class="text-xs text-amber-800 font-medium">
+              <i class="fa-solid fa-link"></i> 官方來源：<a href="https://www.vangoghmuseum.nl/en/art-and-stories/vincent-van-gogh-faq/was-van-gogh-left-or-right-handed" target="_blank" class="underline hover:text-amber-950">Van Gogh Museum FAQ: Was Van Gogh Left or Right-Handed?</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模型截圖模擬比較卡片網格 -->
+      <h4 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-camera text-sky-600"></i> 各模型對談截圖還原與剖析
+      </h4>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- 截圖模擬卡 1: Gemini (Google) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+          <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <i class="fa-brands fa-google text-blue-500"></i> Google Gemini
+            </span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium">評定：中立無定論</span>
+          </div>
+          <!-- 仿 UI 截圖展示 -->
+          <div class="p-4 bg-slate-50 flex-grow font-sans text-xs space-y-3 custom-scrollbar overflow-y-auto max-h-72">
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+              <span class="text-sky-600 font-semibold block mb-1">User:</span>
+              <p class="text-slate-800">梵谷是左撇子還是右撇子？</p>
+            </div>
+            <div class="bg-blue-50/60 p-3 rounded-xl border border-blue-150 text-slate-700 leading-relaxed">
+              <span class="text-indigo-600 font-semibold block mb-1">Gemini:</span>
+              <p class="font-medium text-slate-800 mb-1">「關於梵谷是左撇子還是右撇子的問題，學術界和藝術愛好者之間一直存在著爭議，沒有一個絕對的定論。」</p>
+              <ul class="list-disc pl-4 space-y-1 mt-2 text-slate-600">
+                <li><strong>支持左撇子：</strong>從自畫像外鈕扣、調色盤推斷。</li>
+                <li><strong>支持右撇子：</strong>阿姆斯特丹博物館認為鏡像左右相反，且割耳自畫像受傷是右耳，實割左耳。</li>
+              </ul>
+            </div>
+          </div>
+          <div class="px-4 py-2.5 bg-slate-100/70 border-t border-slate-200 text-xs text-slate-500">
+            <strong>課堂剖析：</strong>模型採取中庸保守策略，列出正反雙方辯點，並點出鏡像理論，但未果斷採用權威結論。
+          </div>
+        </div>
+
+        <!-- 截圖模擬卡 2: ChatGPT (OpenAI) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+          <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-robot text-emerald-600"></i> ChatGPT
+            </span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">評定：正確判斷</span>
+          </div>
+          <div class="p-4 bg-slate-50 flex-grow font-sans text-xs space-y-3 custom-scrollbar overflow-y-auto max-h-72">
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+              <span class="text-sky-600 font-semibold block mb-1">User:</span>
+              <p class="text-slate-800">梵谷是左撇子還是右撇子？</p>
+            </div>
+            <div class="bg-emerald-50/60 p-3 rounded-xl border border-emerald-150 text-slate-700 leading-relaxed">
+              <span class="text-emerald-700 font-semibold block mb-1">ChatGPT:</span>
+              <p class="font-bold text-slate-900 mb-1">「文森·梵谷 (Vincent van Gogh) 是右撇子。」</p>
+              <ol class="list-decimal pl-4 space-y-1 text-slate-600">
+                <li><strong>書信紀錄：</strong>與提奧通信中從未提及是左撇子。</li>
+                <li><strong>畫作觀察：</strong>自畫像多為照鏡子所畫，畫中看似左手持筆，實質為右手。</li>
+                <li><strong>歷史學推論：</strong>藝術史學家普遍認為是右手作畫。</li>
+              </ol>
+            </div>
+          </div>
+          <div class="px-4 py-2.5 bg-slate-100/70 border-t border-slate-200 text-xs text-slate-500">
+            <strong>課堂剖析：</strong>直接給出確鑿答案，精準解碼「鏡像翻轉」，條理清晰。
+          </div>
+        </div>
+
+        <!-- 截圖模擬卡 3: Claude (Anthropic) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+          <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-feather text-amber-700"></i> Claude 3.5 / 3.7
+            </span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">評定：引經據典極佳</span>
+          </div>
+          <div class="p-4 bg-slate-50 flex-grow font-sans text-xs space-y-3 custom-scrollbar overflow-y-auto max-h-72">
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+              <span class="text-sky-600 font-semibold block mb-1">User:</span>
+              <p class="text-slate-800">梵谷是左撇子還是右撇子？</p>
+            </div>
+            <div class="bg-amber-50/50 p-3 rounded-xl border border-amber-200 text-slate-700 leading-relaxed">
+              <span class="text-amber-800 font-semibold block mb-1">Claude (聯網檢索):</span>
+              <div class="bg-white px-2 py-1 rounded border border-slate-200 text-[11px] mb-2 text-slate-500 flex items-center gap-1">
+                <i class="fa-solid fa-magnifying-glass text-xs"></i> 檢索：vangoghmuseum.nl "Was Van Gogh Left or Right-Handed?"
+              </div>
+              <p class="font-bold text-slate-900 mb-1">「根據梵谷博物館官方資料，梵谷是右撇子。」</p>
+              <p class="text-slate-600">
+                對著鏡子作畫需翻轉圖像，實際上他用左手拿調色板，用右手持筆。此外亦補充法醫角度分析。
+              </p>
+            </div>
+          </div>
+          <div class="px-4 py-2.5 bg-slate-100/70 border-t border-slate-200 text-xs text-slate-500">
+            <strong>課堂剖析：</strong>自動調用聯網檢索阿姆斯特丹官方 Museum，論據最具可信度。
+          </div>
+        </div>
+
+        <!-- 截圖模擬卡 4: Perplexity 雙面搖擺 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+          <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-asterisk text-teal-600"></i> Perplexity
+            </span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-medium">評定：嚴重幻覺/誤判</span>
+          </div>
+          <div class="p-4 bg-slate-50 flex-grow font-sans text-xs space-y-3 custom-scrollbar overflow-y-auto max-h-72">
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+              <span class="text-sky-600 font-semibold block mb-1">測試情境 A (問自畫像截圖):</span>
+              <p class="text-slate-800">「這張圖的主角梵谷是右撇子。」(答對)</p>
+            </div>
+            <div class="bg-rose-50/70 p-3 rounded-xl border border-rose-200 text-slate-700 leading-relaxed">
+              <span class="text-rose-700 font-semibold block mb-1">測試情境 B (直接問/詢問博物館):</span>
+              <p class="font-bold text-rose-800 mb-1">「梵谷是左撇子。根據在自畫像中常右手持調色盤，因此推論他用左手作畫...」</p>
+              <p class="text-slate-500 text-[11px] mt-1">來源參雜未經查證的個人部落格 (udn blog)，將鏡像直觀表象當作結論。</p>
+            </div>
+          </div>
+          <div class="px-4 py-2.5 bg-slate-100/70 border-t border-slate-200 text-xs text-slate-500">
+            <strong>課堂剖析：</strong>Perplexity 抓取搜尋引擎快取時，受到網路農場文章干擾，產生了「倒果為因」的顛倒錯誤。
+          </div>
+        </div>
+
+        <!-- 截圖模擬卡 5: Grok (xAI) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+          <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-bolt text-slate-900"></i> xAI Grok
+            </span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-slate-200 text-slate-800 font-medium">評定：不確定</span>
+          </div>
+          <div class="p-4 bg-slate-50 flex-grow font-sans text-xs space-y-3 custom-scrollbar overflow-y-auto max-h-72">
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+              <span class="text-sky-600 font-semibold block mb-1">User:</span>
+              <p class="text-slate-800">梵谷是左撇子還是右撇子？</p>
+            </div>
+            <div class="bg-slate-100 p-3 rounded-xl border border-slate-200 text-slate-700 leading-relaxed">
+              <span class="text-slate-800 font-semibold block mb-1">Grok:</span>
+              <p class="text-slate-800">「沒有確切的歷史記錄或直接證據可以確定。他的繪畫和書信中沒有明確顯示...基於現有資料，無法確認具體是左撇子還是右撇子。」</p>
+            </div>
+          </div>
+          <div class="px-4 py-2.5 bg-slate-100/70 border-t border-slate-200 text-xs text-slate-500">
+            <strong>課堂剖析：</strong>表現保守，未獲取博物館近代深入考證文獻。
+          </div>
+        </div>
+
+        <!-- 截圖模擬卡 6: 中文主流 (DeepSeek / Qwen / 達哥) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+          <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-globe text-blue-600"></i> DeepSeek / Qwen / 達哥
+            </span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">評定：全數回答右撇子</span>
+          </div>
+          <div class="p-4 bg-slate-50 flex-grow font-sans text-xs space-y-3 custom-scrollbar overflow-y-auto max-h-72">
+            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="font-bold text-sky-700">DeepSeek：</span>「梵高是右撇子。信件及筆觸分析表明主要用右手創作，但素描時會靈活運用雙手。」
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="font-bold text-indigo-700">Qwen 3：</span>「右撇子。割傷的是左耳，這也與右撇子相符（右手持刀較容易割到左耳）。」
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="font-bold text-orange-700">聯發科達哥：</span>「是右撇子。根據畫作和書信記錄，主要使用右手作畫和寫字。」
+            </div>
+          </div>
+          <div class="px-4 py-2.5 bg-slate-100/70 border-t border-slate-200 text-xs text-slate-500">
+            <strong>課堂剖析：</strong>東亞模型在歷史文獻整合上表現驚艷，Qwen 甚至提出「割耳生物力學邏輯」作為佐證。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 區塊 3: 案例二 - 視覺多模態與多指畸形計數（幾根手指？） -->
+    <section id="finger-counter" class="scroll-mt-20 border-t border-slate-200 pt-10">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-sky-600 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">測試情境 02</span>
+        <h3 class="text-2xl font-bold text-slate-900 mt-2 flex items-center gap-2">
+          <i class="fa-solid fa-hand text-sky-600"></i> 視覺多模態陷阱：這張照片有幾根手指？
+        </h3>
+        <p class="text-slate-600 text-sm mt-1 max-w-4xl">
+          <strong>測驗目的：</strong>考驗 Vision-Language Models (VLM) 是否會被人類「先入為主的常識偏誤 (Priors)」蒙蔽。這張來自 YouTube 視頻的特定照片，手掌擁有罕見的<strong> 6 根健全手指（多指畸形 Polydactyly）</strong>！
+        </p>
+      </div>
+
+      <!-- 核心視覺對比工作台 -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <!-- 左側：多指影像與真實上傳照片展示 -->
+          <div class="lg:col-span-5 flex flex-col items-center">
+            <div class="relative w-full max-w-xs bg-slate-150 rounded-2xl p-2 border-2 border-dashed border-sky-300 shadow-inner flex flex-col items-center justify-center">
+              <!-- 真實六指照片展示區 (替換為上傳圖片 4) -->
+              <div class="relative rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-sm w-full">
+                <img src="test02_finger_six.jpg" 
+                     alt="六指多指畸形實測照片 (上傳圖片 4)" 
+                     class="w-full h-auto object-cover hover:scale-105 transition duration-300"
+                     onerror="this.onerror=null; this.parentElement.innerHTML='<svg viewBox=\'0 0 300 400\' class=\'w-full h-full bg-slate-100\'><path d=\'M75,390 C65,330 65,280 80,240 C55,200 45,150 60,140 C75,130 95,170 100,200 C110,140 120,60 140,60 C160,60 160,140 165,190 C175,120 185,40 205,40 C225,40 220,120 220,190 C230,130 245,60 265,65 C285,70 270,150 265,200 C275,150 290,100 305,105 C320,110 300,190 280,240 C270,290 250,340 230,390 Z\' fill=\'#fed7aa\' stroke=\'#f97316\' stroke-width=\'3\'/><circle cx=\'65\' cy=\'155\' r=\'12\' fill=\'#0284c7\'/><text x=\'65\' y=\'160\' text-anchor=\'middle\' fill=\'#fff\' font-size=\'11\' font-weight=\'bold\'>1</text><circle cx=\'140\' cy=\'75\' r=\'12\' fill=\'#0284c7\'/><text x=\'140\' y=\'80\' text-anchor=\'middle\' fill=\'#fff\' font-size=\'11\' font-weight=\'bold\'>2</text><circle cx=\'205\' cy=\'55\' r=\'12\' fill=\'#0284c7\'/><text x=\'205\' y=\'60\' text-anchor=\'middle\' fill=\'#fff\' font-size=\'11\' font-weight=\'bold\'>3</text><circle cx=\'265\' cy=\'80\' r=\'12\' fill=\'#0284c7\'/><text x=\'265\' y=\'85\' text-anchor=\'middle\' fill=\'#fff\' font-size=\'11\' font-weight=\'bold\'>4</text><circle cx=\'305\' cy=\'120\' r=\'12\' fill=\'#0284c7\'/><text x=\'305\' y=\'125\' text-anchor=\'middle\' fill=\'#fff\' font-size=\'11\' font-weight=\'bold\'>5</text><circle cx=\'295\' cy=\'185\' r=\'12\' fill=\'#0284c7\'/><text x=\'295\' y=\'190\' text-anchor=\'middle\' fill=\'#fff\' font-size=\'11\' font-weight=\'bold\'>6</text></svg>';">
+                <!-- 手指浮動序號標記 (1 到 6) -->
+                <div class="absolute inset-0 pointer-events-none">
+                  <span class="absolute top-[40%] left-[8%] bg-sky-600 text-white font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 border-white">1</span>
+                  <span class="absolute top-[16%] left-[32%] bg-sky-600 text-white font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 border-white">2</span>
+                  <span class="absolute top-[7%] left-[51%] bg-sky-600 text-white font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 border-white">3</span>
+                  <span class="absolute top-[12%] left-[69%] bg-sky-600 text-white font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 border-white">4</span>
+                  <span class="absolute top-[22%] left-[83%] bg-sky-600 text-white font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 border-white">5</span>
+                  <span class="absolute top-[38%] left-[90%] bg-sky-600 text-white font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 border-white">6</span>
+                </div>
+              </div>
+              <span class="mt-3 text-xs font-bold text-sky-800 bg-sky-100 px-3 py-1 rounded-full flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-info"></i> 真實客觀狀態：實質 6 根健全手指 (上傳圖片 4)
+              </span>
+            </div>
+            <div class="mt-2 text-center text-xs text-slate-500">
+              <a href="https://www.youtube.com/watch?v=hMSwh4ZSeHU" target="_blank" rel="noopener noreferrer" class="hover:text-sky-600 underline flex items-center justify-center gap-1">
+                <i class="fa-brands fa-youtube text-red-500"></i> 投影片出處：幾根手指 YouTube 影片
+              </a>
+            </div>
+          </div>
+
+          <!-- 右側：測試結果大翻車數據表 -->
+          <div class="lg:col-span-7 space-y-4">
+            <h4 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-sky-600"></i> 各家 VLM 計數統計與「常識幻覺」
+            </h4>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              幾乎所有多模態大型模型都「深信」人類手掌只有 5 根手指，因而自動將其腦補歸納為：<code class="bg-slate-100 px-1 py-0.5 rounded text-sky-800 font-mono">大拇指、食指、中指、無名指、小指</code>。
+            </p>
+
+            <!-- 實測對決清單 -->
+            <div class="space-y-2 text-xs">
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 border border-emerald-200">
+                <span class="font-bold text-slate-800 flex items-center gap-2">
+                  <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i> ChatGPT-4o
+                </span>
+                <span class="font-bold text-emerald-700 bg-white px-2.5 py-1 rounded shadow-xs">回答「六根手指」 (唯一正確識別！)</span>
+              </div>
+
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-rose-50 border border-rose-200">
+                <span class="font-bold text-slate-800 flex items-center gap-2">
+                  <i class="fa-solid fa-circle-xmark text-rose-500 text-sm"></i> Gemini 2.5 Pro
+                </span>
+                <span class="font-semibold text-rose-700 bg-white px-2.5 py-1 rounded shadow-xs">回答「5 根手指」 (嚴重常識偏見)</span>
+              </div>
+
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-rose-50 border border-rose-200">
+                <span class="font-bold text-slate-800 flex items-center gap-2">
+                  <i class="fa-solid fa-circle-xmark text-rose-500 text-sm"></i> Qwen 3 (通義千問)
+                </span>
+                <span class="font-semibold text-rose-700 bg-white px-2.5 py-1 rounded shadow-xs">回答「五根手指，分別是大拇指..」</span>
+              </div>
+
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-rose-50 border border-rose-200">
+                <span class="font-bold text-slate-800 flex items-center gap-2">
+                  <i class="fa-solid fa-circle-xmark text-rose-500 text-sm"></i> Claude 3.5 Sonnet
+                </span>
+                <span class="font-semibold text-rose-700 bg-white px-2.5 py-1 rounded shadow-xs">回答「5 根手指」 (未能逐指錨定)</span>
+              </div>
+
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-rose-50 border border-rose-200">
+                <span class="font-bold text-slate-800 flex items-center gap-2">
+                  <i class="fa-solid fa-circle-xmark text-rose-500 text-sm"></i> Microsoft Copilot
+                </span>
+                <span class="font-semibold text-rose-700 bg-white px-2.5 py-1 rounded shadow-xs">回答「5 根手指」</span>
+              </div>
+
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-purple-50 border border-purple-200">
+                <span class="font-bold text-slate-800 flex items-center gap-2">
+                  <i class="fa-solid fa-crosshairs text-purple-600 text-sm"></i> Roboflow YOLO (專用物件偵測)
+                </span>
+                <span class="font-semibold text-purple-700 bg-white px-2.5 py-1 rounded shadow-xs">只抓到 4 隻手指 (門檻信心度不足)</span>
+              </div>
+            </div>
+
+            <div class="p-3 bg-sky-50 rounded-xl border border-sky-150 text-xs text-sky-900 leading-relaxed">
+              <strong>💡 教學核心反思：</strong>
+              這展示了語言模型的<strong>「System 1 快思直覺偏誤」</strong>。當訓練資料中 99.999% 的手都是 5 根手指時，模型的多模態注意力機制容易「忽視實質像素」，直接輸出高機率語言 Token。
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊 4: 案例三 - 幾何時鐘常識（產生一個指針六點半的時鐘圖片） -->
+    <section id="clock-reasoning" class="scroll-mt-20 border-t border-slate-200 pt-10">
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-sky-600 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">測試情境 03</span>
+        <h3 class="text-2xl font-bold text-slate-900 mt-2 flex items-center gap-2">
+          <i class="fa-solid fa-clock text-indigo-600"></i> 常識幾何與物理規律：產生一個「六點半」的時鐘
+        </h3>
+        <p class="text-slate-600 text-sm mt-1 max-w-4xl">
+          <strong>測驗目的：</strong>時鐘在「6:30」時，分針確實指向 6（下方 180°），但<strong>時針絕對不會停留在 6 正中央</strong>！時針在一小時內移動 30 度，走半小時（30分）時，時針必定處於 <strong>6 與 7 的正中間（即 195° 位置）</strong>。
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- 幾何原理互動式 Canvas / SVG 展示 -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+          <h4 class="text-sm font-bold text-slate-800 mb-2 self-start flex items-center gap-1.5">
+            <i class="fa-solid fa-compass-drafting text-sky-600"></i> 物理真實時鐘 vs 典型 AI 錯誤時鐘
+          </h4>
+
+          <div class="flex flex-wrap items-center justify-center gap-6 my-4">
+            <!-- 正確時鐘 (物理常識) -->
+            <div class="flex flex-col items-center">
+              <svg width="180" height="180" viewBox="0 0 200 200" class="drop-shadow-sm">
+                <!-- 鐘盤外框 -->
+                <circle cx="100" cy="100" r="95" fill="#f8fafc" stroke="#1e293b" stroke-width="8"/>
+                <!-- 刻度與數字 -->
+                <text x="100" y="32" text-anchor="middle" font-size="20" font-weight="bold" fill="#0f172a">12</text>
+                <text x="175" y="107" text-anchor="middle" font-size="20" font-weight="bold" fill="#0f172a">3</text>
+                <text x="100" y="180" text-anchor="middle" font-size="20" font-weight="bold" fill="#0f172a">6</text>
+                <text x="25" y="107" text-anchor="middle" font-size="20" font-weight="bold" fill="#0f172a">9</text>
+                
+                <!-- 6:30 分針: 指向 6 (180度) 長針 -->
+                <line x1="100" y1="100" x2="100" y2="170" stroke="#0284c7" stroke-width="5" stroke-linecap="round"/>
+                <!-- 6:30 時針: 6與7正中間 (195度) 短針 -->
+                <line x1="100" y1="100" x2="85" y2="145" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/>
+                <!-- 中心軸心 -->
+                <circle cx="100" cy="100" r="6" fill="#0f172a"/>
+              </svg>
+              <span class="mt-2 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
+                ✓ 真實物理：時針在 6 與 7 中間
+              </span>
+            </div>
+
+            <!-- 錯誤時鐘 (AI 擴散模型翻車) -->
+            <div class="flex flex-col items-center">
+              <svg width="180" height="180" viewBox="0 0 200 200" class="drop-shadow-sm opacity-90">
+                <!-- 鐘盤外框 -->
+                <circle cx="100" cy="100" r="95" fill="#fef2f2" stroke="#dc2626" stroke-width="6"/>
+                <text x="100" y="32" text-anchor="middle" font-size="20" font-weight="bold" fill="#7f1d1d">12</text>
+                <text x="175" y="107" text-anchor="middle" font-size="20" font-weight="bold" fill="#7f1d1d">3</text>
+                <text x="100" y="180" text-anchor="middle" font-size="20" font-weight="bold" fill="#7f1d1d">6</text>
+                <text x="25" y="107" text-anchor="middle" font-size="20" font-weight="bold" fill="#7f1d1d">9</text>
+                
+                <!-- 典型 AI 錯誤 1: 時針與分針疊在 6 成一條線 -->
+                <line x1="100" y1="100" x2="100" y2="170" stroke="#dc2626" stroke-width="6" stroke-linecap="round"/>
+                <!-- 典型 AI 錯誤 2: 指到 10:10 亂碼 (擴散模型常態) -->
+                <line x1="100" y1="100" x2="60" y2="70" stroke="#dc2626" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="100" cy="100" r="6" fill="#7f1d1d"/>
+              </svg>
+              <span class="mt-2 text-xs font-bold text-rose-700 bg-rose-100 px-2.5 py-1 rounded-full">
+                ✕ AI 擴散生圖：兩針重疊或錯亂成 10:10
+              </span>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-500 leading-relaxed text-center">
+            傳統擴散生圖模型（DALL-E 3、Midjourney 等）在訓練集中看過大量「10點10分」的廣告手錶照，因此繪製時鐘常慣性產生 10:10，且難以理解齒輪聯動比率。
+          </p>
+        </div>
+
+        <!-- 評測結果對照分析卡片 -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <h4 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-code-compare text-indigo-600"></i> 投影片實測：不同 AI 架構的解法分歧
+            </h4>
+
+            <div class="space-y-3 text-xs">
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <span class="font-bold text-slate-800 block mb-1">
+                  🖼️ 圖片生成路徑（Gemini 2.5 Pro、ChatGPT、Qwen-Max、Copilot、Grok、文心一言）：
+                </span>
+                <p class="text-slate-600 leading-relaxed">
+                  多數直接給出擬真的時鐘照片，但<strong>指針位置全數錯亂</strong>。有畫成 10 點 30 分、有畫成 10 點 10 分，幾無模型能在純像素生成上把時針停在「6 與 7 之間」。
+                </p>
+              </div>
+
+              <div class="p-3 rounded-xl bg-sky-50 border border-sky-150">
+                <span class="font-bold text-sky-800 block mb-1">
+                  💻 程式碼幾何路徑（Claude 3.5 Artifact / Kimi / Taiwan LLM）：
+                </span>
+                <p class="text-sky-950 leading-relaxed">
+                  <strong>Claude：</strong>使用向量繪製時鐘，但誤解成「時針指向 6，分針指向 6，形成一直線」，依然犯了常識物理錯誤。<br>
+                  <strong>Kimi (HTML Canvas) & Taiwan LLM (SVG)：</strong>巧妙轉為程式碼計算旋轉角度。若 Prompt 給予精確引導（時針角速度為 0.5°/分），程式架構便能精準繪出正確位置！
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900">
+            <strong>重點啟示：</strong>幾何高精度需求任務，應優先使用 <strong>Code Generation (SVG / Python Pillow / Canvas)</strong> 讓 AI 算角度，而非依賴純 Diffusion 像素模型。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 區塊 5: 課堂評測綜合總結表 -->
+    <section id="summary-takeaways" class="scroll-mt-20 border-t border-slate-200 pt-10">
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-wider text-sky-600 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">全貌對照</span>
+          <h3 class="text-2xl font-bold text-slate-900 mt-2 flex items-center gap-2">
+            <i class="fa-solid fa-trophy text-amber-500"></i> 三大測試題總體戰力對比表
+          </h3>
+        </div>
+      </div>
+
+      <!-- 響應式表格 -->
+      <div class="overflow-x-auto bg-white rounded-2xl border border-slate-200 shadow-sm">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+          <thead>
+            <tr class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+              <th class="p-3.5 sm:p-4">模型名稱</th>
+              <th class="p-3.5 sm:p-4">代表公司 / 研發機構</th>
+              <th class="p-3.5 sm:p-4">測試1：梵谷慣用手</th>
+              <th class="p-3.5 sm:p-4">測試2：6指照片計數</th>
+              <th class="p-3.5 sm:p-4">測試3：6點半時鐘生成</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-150 font-normal text-slate-600">
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-3.5 sm:p-4 font-bold text-slate-800">ChatGPT (OpenAI)</td>
+              <td class="p-3.5 sm:p-4">OpenAI (美國)</td>
+              <td class="p-3.5 sm:p-4 text-emerald-600 font-medium"><i class="fa-solid fa-check"></i> 右撇子 (解答鏡像)</td>
+              <td class="p-3.5 sm:p-4 text-emerald-600 font-bold"><i class="fa-solid fa-check"></i> 數出 6 根 (唯一過關)</td>
+              <td class="p-3.5 sm:p-4 text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i> 像素指針錯位</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-3.5 sm:p-4 font-bold text-slate-800">Claude (Anthropic)</td>
+              <td class="p-3.5 sm:p-4">Anthropic (美國)</td>
+              <td class="p-3.5 sm:p-4 text-emerald-600 font-medium"><i class="fa-solid fa-check"></i> 右撇子 (調用博物館)</td>
+              <td class="p-3.5 sm:p-4 text-rose-500"><i class="fa-solid fa-xmark"></i> 答 5 根 (常識偏差)</td>
+              <td class="p-3.5 sm:p-4 text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i> 繪圖兩針重疊直角</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-3.5 sm:p-4 font-bold text-slate-800">Gemini (Google)</td>
+              <td class="p-3.5 sm:p-4">Google (美國)</td>
+              <td class="p-3.5 sm:p-4 text-amber-600"><i class="fa-solid fa-minus"></i> 兩派爭議無定論</td>
+              <td class="p-3.5 sm:p-4 text-rose-500"><i class="fa-solid fa-xmark"></i> 答 5 根 (常識偏差)</td>
+              <td class="p-3.5 sm:p-4 text-rose-500"><i class="fa-solid fa-xmark"></i> 擬真圖指針方向錯亂</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-3.5 sm:p-4 font-bold text-slate-800">Perplexity</td>
+              <td class="p-3.5 sm:p-4">Perplexity (美國)</td>
+              <td class="p-3.5 sm:p-4 text-rose-500"><i class="fa-solid fa-xmark"></i> 遭農場文誤導答左撇</td>
+              <td class="p-3.5 sm:p-4 text-rose-500"><i class="fa-solid fa-xmark"></i> 答 5 根 (常識偏差)</td>
+              <td class="p-3.5 sm:p-4 text-slate-400">未實測純畫圖</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-3.5 sm:p-4 font-bold text-slate-800">Qwen (通義千問)</td>
+              <td class="p-3.5 sm:p-4">阿里巴巴 (中國)</td>
+              <td class="p-3.5 sm:p-4 text-emerald-600 font-medium"><i class="fa-solid fa-check"></i> 右撇子 (推演割耳)</td>
+              <td class="p-3.5 sm:p-4 text-rose-500"><i class="fa-solid fa-xmark"></i> 答 5 根 (列五指名)</td>
+              <td class="p-3.5 sm:p-4 text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i> 復古鐘但指針非6:30</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-3.5 sm:p-4 font-bold text-slate-800">DeepSeek (深度求索)</td>
+              <td class="p-3.5 sm:p-4">DeepSeek (中國)</td>
+              <td class="p-3.5 sm:p-4 text-emerald-600 font-medium"><i class="fa-solid fa-check"></i> 右撇子 (素描佐證)</td>
+              <td class="p-3.5 sm:p-4 text-slate-400">-</td>
+              <td class="p-3.5 sm:p-4 text-slate-400">-</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-3.5 sm:p-4 font-bold text-slate-800">Kimi (月之暗面)</td>
+              <td class="p-3.5 sm:p-4">Moonshot AI (中國)</td>
+              <td class="p-3.5 sm:p-4 text-slate-400">-</td>
+              <td class="p-3.5 sm:p-4 text-slate-400">-</td>
+              <td class="p-3.5 sm:p-4 text-emerald-600 font-medium"><i class="fa-solid fa-code"></i> 透過 HTML Canvas 程式解</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-3.5 sm:p-4 font-bold text-slate-800">Taiwan LLM (ChatUI)</td>
+              <td class="p-3.5 sm:p-4">台灣開源研究團隊</td>
+              <td class="p-3.5 sm:p-4 text-slate-400">-</td>
+              <td class="p-3.5 sm:p-4 text-slate-400">-</td>
+              <td class="p-3.5 sm:p-4 text-emerald-600 font-medium"><i class="fa-solid fa-code"></i> 生成向量 SVG 程式解</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 區塊 6: 隨堂互動測驗 (提升教學頁面互動性) -->
+    <section class="bg-gradient-to-br from-slate-900 to-sky-950 text-white p-6 sm:p-8 rounded-3xl shadow-xl">
+      <div class="max-w-3xl mx-auto">
+        <span class="text-xs uppercase tracking-wider text-sky-400 font-bold bg-sky-900/60 px-3 py-1 rounded-full border border-sky-700/60">
+          課堂反思評量
+        </span>
+        <h3 class="text-xl sm:text-2xl font-bold mt-3 mb-2">學習檢核點：為什麼 AI 模型容易在這些題目栽跟頭？</h3>
+        <p class="text-slate-300 text-xs sm:text-sm mb-6">點擊選項，實時驗證你對 LLM 底層機制（多模態注意力、機率預測）的理解：</p>
+
+        <div class="space-y-4" id="quiz-container">
+          <!-- 測驗 1 -->
+          <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+            <p class="text-sm font-semibold mb-3">1. 為什麼多數多模態模型把「六指照片」認成「五根手指」？</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <button onclick="checkAnswer(this, false)" class="p-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-left transition border border-transparent">
+                A. 照片解析度太低，AI 完全看不清楚
+              </button>
+              <button onclick="checkAnswer(this, true)" class="p-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-left transition border border-transparent">
+                B. 訓練數據中五指比例極高，先驗機率（Prior）壓過了客觀像素感知
+              </button>
+            </div>
+            <div class="feedback text-xs mt-2 hidden"></div>
+          </div>
+
+          <!-- 測驗 2 -->
+          <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+            <p class="text-sm font-semibold mb-3">2. 若要讓 AI 畫出精準的 6:30 時鐘（時針在 6 與 7 正中央），最佳提示詞策略是什麼？</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <button onclick="checkAnswer(this, true)" class="p-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-left transition border border-transparent">
+                A. 要求模型輸出 SVG 或 HTML Canvas 程式碼，並明訂角度公式
+              </button>
+              <button onclick="checkAnswer(this, false)" class="p-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-left transition border border-transparent">
+                B. 直接用純文字生圖，重複寫十次「請千萬畫準六點半」
+              </button>
+            </div>
+            <div class="feedback text-xs mt-2 hidden"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁尾宣告 -->
+  <footer class="bg-white border-t border-slate-200 mt-16 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p>教材依據投影片《01-01.大語言模型比較_自行設計.pptx》實測截圖梳理重構</p>
+      <p class="text-slate-400">涵蓋模型：Gemini, ChatGPT, Copilot, Perplexity, Claude, Grok, DeepSeek, Qwen, Hunyuan, ERNIE, Kimi, 豆包, Manus, Meta AI</p>
+    </div>
+  </footer>
+
+  <!-- 互動腳本 -->
+  <script>
+    // 投影片第 2 頁之 14 家模型清單資料
+    const modelsData = [
+      { name: "Gemini", company: "Google", url: "https://gemini.google.com", icon: "fa-google", color: "text-blue-500", desc: "具備長上下文與原生多模態能力" },
+      { name: "ChatGPT", company: "OpenAI", url: "https://chatgpt.com/", icon: "fa-robot", color: "text-emerald-600", desc: "引領全球生成式 AI 浪潮的代表" },
+      { name: "Copilot", company: "Microsoft", url: "https://copilot.microsoft.com/", icon: "fa-microsoft", color: "text-sky-500", desc: "深度整合微軟生態系與辦公軟體" },
+      { name: "Perplexity", company: "Perplexity", url: "https://www.perplexity.ai/", icon: "fa-asterisk", color: "text-teal-600", desc: "以搜尋對話引文與即時綜整見長" },
+      { name: "Claude", company: "Anthropic", url: "https://claude.ai/", icon: "fa-feather", color: "text-amber-700", desc: "以長文本理解、邏輯與 Artifacts 著稱" },
+      { name: "Grok", company: "馬斯克 (xAI)", url: "https://grok.com/chat", icon: "fa-bolt", color: "text-slate-800", desc: "幽默直率風格，整合 X (Twitter) 數據" },
+      { name: "DeepSeek", company: "深度求索", url: "https://chat.deepseek.com/", icon: "fa-fish", color: "text-blue-600", desc: "開源推理模型之光，極高性價比" },
+      { name: "Qwen (通義千問)", company: "阿里巴巴", url: "https://chat.qwen.ai/", icon: "fa-cube", color: "text-indigo-600", desc: "多語言、數學與 Coding 強大的開源巨頭" },
+      { name: "Hunyuan (混元)", company: "騰訊", url: "https://aistudio.tencent.com/?utm_source=hy", icon: "fa-cloud", color: "text-blue-700", desc: "騰訊全端多模態與中文理解架構" },
+      { name: "ERNIE (文心一言)", company: "百度 (Baidu)", url: "https://yiyan.baidu.com/", icon: "fa-paw", color: "text-red-500", desc: "知識增強大模型，具備豐富中文生態" },
+      { name: "Kimi (月之暗面)", company: "Moonshot AI", url: "https://www.kimi.com/", icon: "fa-moon", color: "text-amber-500", desc: "率先引爆超長上下文 (Lossless Kimi)" },
+      { name: "豆包 (Doubao)", company: "字節跳動", url: "https://www.doubao.com/chat/", icon: "fa-comment-dots", color: "text-blue-400", desc: "多語音音色擬真與高黏著度生活助理" },
+      { name: "Manus", company: "Monica", url: "https://manus.im/app", icon: "fa-wand-magic-sparkles", color: "text-purple-600", desc: "全自主 AI Agent，專注多步驟自動執行" },
+      { name: "Meta AI", company: "Meta", url: "https://www.meta.ai/", icon: "fa-infinity", color: "text-blue-600", desc: "背靠強大 LLaMA 開源家族的通用助手" }
+    ];
+
+    // 動態渲染模型卡片
+    const grid = document.getElementById('llm-grid');
+    modelsData.forEach(m => {
+      const card = document.createElement('div');
+      card.className = "bg-white p-4 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:border-sky-300 transition duration-200 flex flex-col justify-between";
+      card.innerHTML = `
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center ${m.color}">
+              <i class="fa-solid ${m.icon} text-base"></i>
+            </span>
+            <span class="text-[11px] font-medium text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">${m.company}</span>
+          </div>
+          <h4 class="font-bold text-slate-800 text-sm mb-1">${m.name}</h4>
+          <p class="text-xs text-slate-500 leading-normal mb-3">${m.desc}</p>
+        </div>
+        <a href="${m.url}" target="_blank" rel="noopener noreferrer" 
+           class="inline-flex items-center justify-between text-xs font-semibold text-sky-600 hover:text-sky-800 pt-2 border-t border-slate-100 group">
+          <span>開啟對話</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-[10px] transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition"></i>
+        </a>
+      `;
+      grid.appendChild(card);
+    });
+
+    // 互動小測驗判定邏輯
+    function checkAnswer(btn, isCorrect) {
+      const parent = btn.closest('div').parentElement;
+      const feedback = parent.querySelector('.feedback');
+      const allBtns = parent.querySelectorAll('button');
+
+      allBtns.forEach(b => {
+        b.classList.remove('border-emerald-500', 'border-rose-500', 'bg-emerald-500/20', 'bg-rose-500/20');
+      });
+
+      feedback.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+
+      if (isCorrect) {
+        btn.classList.add('border-emerald-500', 'bg-emerald-500/20');
+        feedback.classList.add('text-emerald-400');
+        feedback.innerHTML = '<i class="fa-solid fa-circle-check"></i> 答對了！這正是 AI 系統中「機率生成偏誤」與「以代碼約束幾何」的核心原理。';
+      } else {
+        btn.classList.add('border-rose-500', 'bg-rose-500/20');
+        feedback.classList.add('text-rose-400');
+        feedback.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> 不太正確喔！再觀察一下題目提到的底層原理吧。';
+      }
+    }
+  </script>
+</body>
+</html>
