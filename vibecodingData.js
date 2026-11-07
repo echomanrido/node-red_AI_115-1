@@ -1,8 +1,81 @@
 // Vibe Coding 專區資料庫 (包含軟體工程、Skills(技能)、其他三大主題，支援 Google 課程群組與子群組)
 window.INITIAL_VIBE_DATA = [
   {
-    "id": "vibe-grill-me",
+    "id": "vibe-captain-dev",
     "labNumber": "01",
+    "title": "「機長級」5 階段學習法：AI 時代新手自學指南 (從碼農到掌控系統全局的軟體機長)",
+    "shortTitle": "「機長級」5 階段學習法",
+    "category": "軟體工程",
+    "date": "2026-11-08",
+    "summary": "AI 一秒能寫百行代碼，人類真的不用學寫程式了嗎？精選轉譯自 YouTube 知名教學頻道「P & H」。現代客機 99% 航程由自動駕駛完成，但航空公司仍重金聘請機長，正是因為當暴風雨與警報響起時，只有機長懂得底層儀表並能接管全局！本單元為新手剖析從「初探語法玩具」到「掌控多服務高併發架構」的 5 大進階階段，搭配 Array vs Hash Table 記憶體尋址模擬器、CI/CD 自動化護欄與實戰專題指南，引導你在 AI 時代昇華為不可替代的軟體工程機長。",
+    "flowTitle": "「機長級」5 階段軟體工程師修煉航道與品質防線",
+    "resultTitle": "機長級 5 階段學習法、資料結構視覺化模擬器與 CI/CD 護欄工作台",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMwNmI2ZDQiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjMDZiNmQ0Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+5qmf6ZW357SaIDUg6ZqO5q615a2457+S5ryU6YCy6Iiq6YGT6IiH6K235qyEPC90ZXh0PgogIDx0ZXh0IHg9IjM4IiB5PSI2MCIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSIxMSI+U3ludGF4IFRveXMgLSZndDsgRnVuZGFtZW50YWxzIC0mZ3Q7IENvcmUgSW50ZXJuYWxzIC0mZ3Q7IENJL0NEIEd1YXJkcmFpbHMgLSZndDsgTXVsdGktU2VydmljZXM8L3RleHQ+CiAgPHJlY3QgeD0iMjUiIHk9IjgwIiB3aWR0aD0iNjcwIiBoZWlnaHQ9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wOCkiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjM0IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMzQiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzA2YjZkNCIvPgogICAgPGNpcmNsZSBjeD0iNTYiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzA2YjZkNCIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSI1NiIgeT0iMTQwIiBmaWxsPSIjMDZiNmQ0IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q0FQLTE8L3RleHQ+CiAgICA8cmVjdCB4PSIxMDIiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iMTIzIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Ub3lzPC90ZXh0PgogICAgPHRleHQgeD0iNDYiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuWIneaOouiqnuazlTwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ2IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij7njqnlhbflsIjmoYjmv4Dnmbznm7ToprroiIjotqM8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMTUzIDE2MCBMIDE2NSAxNjAiIHN0cm9rZT0iIzA2YjZkNCIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzA2YjZkNCIvPgogICAgPGNpcmNsZSBjeD0iMTkwIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiMwNmI2ZDQiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMTkwIiB5PSIxNDAiIGZpbGw9IiMwNmI2ZDQiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DQVAtMjwvdGV4dD4KICAgIDxyZWN0IHg9IjIzNiIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIyNTciIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkJhc2ljczwvdGV4dD4KICAgIDx0ZXh0IHg9IjE4MCIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+5Z+656SO5omT5bqVPC90ZXh0PgogICAgPHRleHQgeD0iMTgwIiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij7ntK7lr6bmjozmj6HkuLvmtYHoqp7oqIDoiIflt6Xlhbc8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMjg3IDE2MCBMIDI5OSAxNjAiIHN0cm9rZT0iIzA2YjZkNCIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIzMDIiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIzMDIiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzA2YjZkNCIvPgogICAgPGNpcmNsZSBjeD0iMzI0IiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiMwNmI2ZDQiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMzI0IiB5PSIxNDAiIGZpbGw9IiMwNmI2ZDQiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DQVAtMzwvdGV4dD4KICAgIDxyZWN0IHg9IjM3MCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIzOTEiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkludGVybmFsczwvdGV4dD4KICAgIDx0ZXh0IHg9IjMxNCIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+5qC45b+D5bqV5bGkPC90ZXh0PgogICAgPHRleHQgeD0iMzE0IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij7os4fmlpnntZDmp4voiIfoqJjmhrbpq5TlsIvlnYA8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gNDIxIDE2MCBMIDQzMyAxNjAiIHN0cm9rZT0iIzA2YjZkNCIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSI0MzYiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSI0MzYiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzA2YjZkNCIvPgogICAgPGNpcmNsZSBjeD0iNDU4IiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiMwNmI2ZDQiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iNDU4IiB5PSIxNDAiIGZpbGw9IiMwNmI2ZDQiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DQVAtNDwvdGV4dD4KICAgIDxyZWN0IHg9IjUwNCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSI1MjUiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkd1YXJkcmFpbHM8L3RleHQ+CiAgICA8dGV4dCB4PSI0NDgiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPkNJL0NEIOitt+ashDwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ0OCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+6Ieq5YuV5YyW5ris6Kmm6IiH6Ziy56am566h57eaPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDU1NSAxNjAgTCA1NjcgMTYwIiBzdHJva2U9IiMwNmI2ZDQiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iNTcwIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iNTcwIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiMwNmI2ZDQiLz4KICAgIDxjaXJjbGUgY3g9IjU5MiIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjMDZiNmQ0IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU5MiIgeT0iMTQwIiBmaWxsPSIjMDZiNmQ0IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q0FQLTU8L3RleHQ+CiAgICA8cmVjdCB4PSI2MzgiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iNjU5IiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DYXB0YWluPC90ZXh0PgogICAgPHRleHQgeD0iNTgyIiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7lpJrmnI3li5nmnrbmp4s8L3RleHQ+CiAgICA8dGV4dCB4PSI1ODIiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPuWIhuaVo+W8j+ezu+e1seiIh+WuuemMr+aOpeeuoTwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA2MjggMjE4IEMgNjI4IDI2NSwgOTIgMjY1LCA5MiAyMTgiIHN0cm9rZT0iIzA2YjZkNCIgc3Ryb2tlLXdpZHRoPSIxLjIiIHN0cm9rZS1kYXNoYXJyYXk9IjUsNCIgZmlsbD0ibm9uZSIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8dGV4dCB4PSIzNjAiIHk9IjI2MCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjUwMCI+6Ieq5YuV6aeV6aeb77yIQUkg6LyU5Yqp77yJ6IiH5Lq65bel5o6l566h77yI5bqV5bGk6Zmk6Yyv77yJ6ZuZ6LuM5Lim6KGM77yM6Y2b6YCg54Sh5rOV6KKr5Y+W5Luj55qE5qmf6ZW357Sa5bel56iL5birPC90ZXh0Pgo8L3N2Zz4=",
+    "resultImage": "Vibe Coding/01.軟體工程/「機長級」5 階段學習法！(給新手).html",
+    "slideUrl": "Vibe Coding/01.軟體工程/「機長級」5 階段學習法！(給新手).html",
+    "objective": "1. 深刻理解「機長哲學」：AI 就像客機的自動駕駛，工程師必須掌握底層架構以在關鍵故障時刻手動接管。\n2. 掌握 5 大階段修煉路徑：初探語法玩具 ➔ 基礎打底 ➔ 核心底層 (資料結構/記憶體) ➔ CI/CD 護欄 ➔ 多服務高併發架構。\n3. 操作 Array vs Hash Table 記憶體尋址視覺化模擬器，並建立以解決真實痛點為導向的代表作開發思維。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 建立機長心態 (The Captain Mindset)",
+        "description": "認清 AI 時代的角色蛻變：從機械式敲代碼的碼農，轉型為設計規格、審閱 Diff、監控指標與故障接管的機長。"
+      },
+      {
+        "step": "步驟 2: 穿越 5 大進階修煉階段",
+        "description": "從階梯式路徑成長：玩具專案啟蒙 ➔ 單一語言深化 ➔ 深入作業系統與資料結構底層 ➔ 架設 CI/CD 測試護欄 ➔ 駕馭微服務分散式架構。"
+      },
+      {
+        "step": "步驟 3: 探索資料結構與底層尋址模擬器",
+        "description": "實際操作 Array 循序掃描 (O(n)) 與 Hash Table 雜湊尋址 (O(1)) 的記憶體互動視覺化，理解為何 AI 無法替你思考底層效能瓶頸。"
+      },
+      {
+        "step": "步驟 4: 打造真實痛點作品與 CI/CD 防線",
+        "description": "拒絕平庸的 Todo App！選定自身或社群真實痛點開發系統，並在 GitHub Actions 配置 Linting、測試覆蓋率與自動化部屬護欄。"
+      }
+    ],
+    "promptTemplate": "你是一位具備 15 年大型分散式系統架構經驗的資深主任工程師兼工程教練。\n請依據「機長級 5 階段學習法」理論，針對一位剛學會基礎 Python/JavaScript、經常依賴 AI 生成代碼的工程新人：\n1. 請設計一套為期 8 週的「核心底層與資料結構 (Stage 3)」專題強化訓練計畫。\n2. 請說明如何引導他將一個常見的陽春 Todo List，升級為具備「真實痛點驅動、CI/CD 自動化測試護欄 (Stage 4) 與邊緣容錯機制」的代表作品。\n3. 請給出三個「當 AI 提供的代碼出現幽靈記憶體洩漏或競態條件時，工程師應如何手動接管排查」的實戰心法。",
+    "codeSnippet": {
+      "language": "yaml",
+      "code": "# 機長級 CI/CD 品質護欄範例 (.github/workflows/captain-guardrails.yml)\nname: Captain Quality Guardrails\non: [push, pull_request]\n\njobs:\n  flight-check:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - name: Setup Runtime\n        uses: actions/setup-node@v4\n        with:\n          node-version: '20'\n      - name: Static Security Scan (SonarQube/Trivy)\n        run: npm run security-audit\n      - name: Run Unit & Mutation Tests\n        run: npm test -- --coverage --threshold=85\n      - name: Build & Smoke Test\n        run: npm run build && npm run smoke-test"
+    },
+    "references": [
+      {
+        "title": "「機長級」5 階段學習法：AI 時代新手自學指南 (專屬互動全解析頁面)",
+        "url": "Vibe Coding/01.軟體工程/「機長級」5 階段學習法！(給新手).html",
+        "bgColor": "rgba(6, 182, 212, 0.15)",
+        "borderColor": "rgba(6, 182, 212, 0.6)",
+        "color": "#22d3ee",
+        "icon": "fa-solid fa-plane-up",
+        "badge": "本單元專題"
+      },
+      {
+        "title": "YouTube 官方原片：P & H 教學頻道",
+        "url": "http://www.youtube.com/watch?v=ARydCv7rr0o"
+      },
+      {
+        "title": "Vibe Coding × Grill Me Skill：Windows & Google Antigravity 實戰指南 (單元 02)",
+        "url": "Vibe Coding/02.Skills(技能)/vibe_coding_grill_me.html"
+      },
+      {
+        "title": "軟體工程演進全景圖：從混沌、瀑布、敏捷到 Vibe Coding (單元 04)",
+        "url": "Vibe Coding/01.軟體工程/00_軟體工程演進全景圖.html"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-plane-departure",
+        "scenario": "新手自學技術路徑定錨與避坑",
+        "description": "避免落入「只會抄 AI 代碼卻對底層一無所知」的浮沙陷阱，建立清晰分層的自學地圖與底層基本功。"
+      },
+      {
+        "icon": "fa-solid fa-shield-halved",
+        "scenario": "求職作品集升級與工程素養面試",
+        "description": "將無鑑別度的玩具項目重構為具備 CI/CD 護欄、單元測試、高可用架構與真實痛點落地的殺手級專案。"
+      }
+    ]
+  },
+  {
+    "id": "vibe-grill-me",
+    "labNumber": "02",
     "title": "Vibe Coding × Grill Me Skill：Windows & Google Antigravity 實戰指南",
     "shortTitle": "Grill Me 技能實戰指南",
     "category": "Skills(技能)",
@@ -56,11 +129,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "https://github.com/robmitt/grill-me-skill"
       },
       {
-        "title": "當 Vibe Coding 遇上嚴謹工程學：SDD vs BDD vs TDD (單元 02)",
+        "title": "當 Vibe Coding 遇上嚴謹工程學：SDD vs BDD vs TDD (單元 03)",
         "url": "Vibe Coding/02.Skills(技能)/vibe_coding_sdd_vs_bdd_vs_tdd.html"
       },
       {
-        "title": "OpenSpec 規格驅動開發：完整指南與實踐 (單元 10)",
+        "title": "OpenSpec 規格驅動開發：完整指南與實踐 (單元 11)",
         "url": "Vibe Coding/02.Skills(技能)/01.openspec.html"
       }
     ],
@@ -79,7 +152,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-sdd-bdd-tdd",
-    "labNumber": "02",
+    "labNumber": "03",
     "title": "當 Vibe Coding 遇上嚴謹工程學：SDD vs BDD vs TDD（架構矩陣與 AI Skills 生態）",
     "shortTitle": "SDD vs BDD vs TDD 現代開發架構",
     "category": "Skills(技能)",
@@ -133,11 +206,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "https://github.com/obra/superpowers"
       },
       {
-        "title": "軟體工程演進全景圖 (單元 03)",
+        "title": "軟體工程演進全景圖 (單元 04)",
         "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
       },
       {
-        "title": "OpenSpec 規格驅動開發：完整指南與實踐 (單元 10)",
+        "title": "OpenSpec 規格驅動開發：完整指南與實踐 (單元 11)",
         "url": "Vibe Coding/02.Skills(技能)/01.openspec.html"
       }
     ],
@@ -156,7 +229,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-01",
-    "labNumber": "03",
+    "labNumber": "04",
     "title": "軟體工程演進全景圖：從混沌、瀑布、敏捷到 Vibe Coding",
     "category": "軟體工程",
     "date": "2026-09-18",
@@ -196,7 +269,7 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
       },
       {
-        "title": "軟體工程經典反模式：隕石墜落型開發 (單元 02)",
+        "title": "軟體工程經典反模式：隕石墜落型開發 (單元 05)",
         "url": "Vibe Coding/01.軟體工程/隕石墜落型開發 中文完整重現版.html"
       },
       {
@@ -219,7 +292,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-meteor-fall",
-    "labNumber": "04",
+    "labNumber": "05",
     "title": "軟體工程經典反模式：隕石墜落型開發（メテオフォール型開発）中文完整重現版",
     "shortTitle": "隕石墜落型開發 (經典反模式)",
     "category": "軟體工程",
@@ -269,7 +342,7 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/01.軟體工程/隕石墜落型開發 中文完整重現版.html"
       },
       {
-        "title": "軟體工程演進全景圖 (單元 03)",
+        "title": "軟體工程演進全景圖 (單元 04)",
         "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
       },
       {
@@ -292,7 +365,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-guide",
-    "labNumber": "05",
+    "labNumber": "06",
     "title": "Vibe Coding 與新世代 AI 原生軟體工程 (AI-Native SDLC 權威指南)",
     "shortTitle": "Vibe Coding 實戰心法指南",
     "category": "軟體工程",
@@ -333,7 +406,7 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/01.軟體工程/vibe_coding_software_engineering_guide.html"
       },
       {
-        "title": "軟體工程演進全景圖 (單元 01)",
+        "title": "軟體工程演進全景圖 (單元 04)",
         "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
       }
     ],
@@ -347,7 +420,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-02",
-    "labNumber": "06",
+    "labNumber": "07",
     "title": "Anthropic Claude：AI-Native SDLC 全週期實戰手冊 (Playbook)",
     "category": "軟體工程",
     "date": "2026-08-21",
@@ -410,7 +483,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-google-course",
-    "labNumber": "07",
+    "labNumber": "08",
     "isGroup": true,
     "groupTitle": "Google 5-Day AI Agents 密集課程 (全五天系列)",
     "title": "Google 5-Day AI Agents 密集課程：完整實戰總覽 (Day 1 ~ Day 5)",
@@ -717,7 +790,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-uml-blueprint",
-    "labNumber": "08",
+    "labNumber": "09",
     "title": "軟體工程：Vibe Coding × UML (一)：以 UML 藍圖鎖定架構，釋放 AI 創意",
     "shortTitle": "Vibe Coding × UML (一)：藍圖架構",
     "category": "軟體工程",
@@ -782,7 +855,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-uml-14-types",
-    "labNumber": "09",
+    "labNumber": "10",
     "title": "軟體工程：Vibe Coding × UML (二)：14 種圖表全覽與規範 AI 的程式靈魂",
     "shortTitle": "Vibe Coding × UML (二)：14種圖表全覽",
     "category": "軟體工程",
@@ -847,7 +920,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-openspec",
-    "labNumber": "10",
+    "labNumber": "11",
     "title": "OpenSpec (opsx)：AI 規格驅動開發 (Spec-Driven Development) 指南",
     "shortTitle": "OpenSpec 規格驅動開發",
     "category": "Skills(技能)",
@@ -915,7 +988,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-opsx-lifecycle",
-    "labNumber": "11",
+    "labNumber": "12",
     "title": "OpenSpec SDD 軟體開發生命週期指南：5大核心指令與檔案生成全解析",
     "shortTitle": "OpenSpec 生命週期與檔案全解析",
     "category": "Skills(技能)",
@@ -983,7 +1056,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-superpowers",
-    "labNumber": "12",
+    "labNumber": "13",
     "title": "Superpowers 軟體工程 Agent 工作流規範：14 大核心 Skills 與 TDD 實戰指南",
     "shortTitle": "Superpowers Agent 工作流規範",
     "category": "Skills(技能)",
@@ -1051,7 +1124,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-reverse-engineering-traditional",
-    "labNumber": "13",
+    "labNumber": "14",
     "title": "傳統逆向工程與核心工具解析：Detect It Easy、IDA Pro 與 Ghidra 實戰指南",
     "shortTitle": "傳統逆向工具 (DIE/IDA/Ghidra)",
     "category": "其他",
@@ -1120,7 +1193,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-reverse-engineering-rea",
-    "labNumber": "14",
+    "labNumber": "15",
     "title": "REA (Reverse Engineer Anything)：AI 智能體逆向工程協議與實戰指南",
     "shortTitle": "REA AI 智能體逆向工程",
     "category": "其他",
@@ -1185,7 +1258,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-team-dev-guide",
-    "labNumber": "15",
+    "labNumber": "16",
     "title": "AI Coding 新時代的團隊開發：從個人用 AI 到 AI-Native 組織 (實戰教學指南)",
     "shortTitle": "AI Coding 團隊開發實戰教學指南",
     "category": "其他",
@@ -1227,11 +1300,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
       },
       {
-        "title": "陳宜昌 YC 演講時間軸與完整逐字稿 (單元 16)",
+        "title": "陳宜昌 YC 演講時間軸與完整逐字稿 (單元 17)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
       },
       {
-        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 17)",
+        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 18)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
       },
       {
@@ -1254,7 +1327,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-team-dev-transcript",
-    "labNumber": "16",
+    "labNumber": "17",
     "title": "AI Coding 新時代的團隊開發：陳宜昌 YC 演講時間軸與完整逐字稿",
     "shortTitle": "團隊開發演講逐字稿時間軸",
     "category": "其他",
@@ -1292,11 +1365,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
       },
       {
-        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 15)",
+        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 16)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
       },
       {
-        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 17)",
+        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 18)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
       },
       {
@@ -1319,7 +1392,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-team-dev-transcript-01",
-    "labNumber": "17",
+    "labNumber": "18",
     "title": "AI Coding 新時代的團隊開發：陳宜昌 YC 演講完整精校逐字稿與互動解析",
     "shortTitle": "演講精校逐字稿與互動解析",
     "category": "其他",
@@ -1361,11 +1434,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
       },
       {
-        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 15)",
+        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 16)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
       },
       {
-        "title": "陳宜昌 YC 演講時間軸與精要逐字稿 (單元 16)",
+        "title": "陳宜昌 YC 演講時間軸與精要逐字稿 (單元 17)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿.html"
       },
       {
@@ -1388,7 +1461,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-ost-canvas",
-    "labNumber": "18",
+    "labNumber": "19",
     "title": "不再迷航於 AI 代碼海：用 OST (機會解決方案樹) 定舵，以 Vibe Coding 揚帆",
     "shortTitle": "OST 定舵 × Vibe Coding 揚帆",
     "category": "其他",
@@ -1434,11 +1507,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "https://www.producttalk.org/opportunity-solution-tree/"
       },
       {
-        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 15)",
+        "title": "AI Coding 新時代的團隊開發：實戰教學指南 (單元 16)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
       },
       {
-        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 17)",
+        "title": "HWDC 2026 演講完整精校逐字稿與互動解析 (單元 18)",
         "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發_逐字稿_01.html"
       }
     ],
