@@ -1,4 +1,4 @@
-// AI知識 專區資料庫 (包含本質洞察、思維躍遷等核心專題)
+// AI知識 專區資料庫 (包含本質洞察、思維躍遷、AI模型評測等核心專題)
 var INITIAL_AI_KNOWLEDGE_DATA = [
   {
     "id": "ai-kn-01",
@@ -133,11 +133,88 @@ var INITIAL_AI_KNOWLEDGE_DATA = [
         "description": "將工控報警轉化為「第一時間感知異常並自主阻斷危害」，調用航太容錯設計與極限效能高標，實現智慧化產線監測。"
       }
     ]
+  },
+  {
+    "id": "ai-kn-03",
+    "itemNumber": "03",
+    "title": "大語言模型評測與排名平台全攻略：LMarena · OpenRouter · Artificial Analysis · llm-stats",
+    "shortTitle": "大語言模型評測平台全攻略",
+    "category": "AI模型評測",
+    "subCategory": "四大評測體系與選型決策",
+    "date": "2026-11-07",
+    "summary": "打破官方發表會宣傳迷思！深入拆解業界四大觀測體系：LMarena（主觀盲測投票與真實感官偏好 Elo 分數）、OpenRouter（百萬工程師每週數百兆 Token 真金白銀產線調用量）、Artificial Analysis（獨立實測首字延遲 TTFT、每秒輸出吞吐量 TPS 與帕累托性價比前緣）以及 llm-stats（GPQA、SWE-bench 等權威學術跑分與規格矩陣）。提供工控自動化與 AI 落地最精準的三層漏斗技術選型決策指南！",
+    "flowTitle": "大語言模型四大評測維度與工程選型決策漏斗架構圖",
+    "resultTitle": "大語言模型評測與排名平台全攻略 深度教學工作台",
+    "flowImage": "images_src/ai_knowledge_03_flow.svg",
+    "resultImage": "AI知識/AI模型評測/AI模型評測_網站.html",
+    "slideUrl": "AI知識/AI模型評測/AI模型評測_網站.html",
+    "objective": "1. 深入理解大語言模型評測的四大核心維度：大眾主觀盲測、生產環境真實用量、獨立推論成本效能與學術基準跑分。\n2. 掌握 LMarena 雙盲對戰與 Bradley-Terry 模型評分原理，杜絕資料集污染刷分。\n3. 解讀 OpenRouter 每週逾 200T Tokens 的調用數據，洞悉企業技術選型往 Flash/Mini 輕量模型傾斜的現實。\n4. 熟練運用 Artificial Analysis 帕累托前緣（Pareto Frontier），在質量 (Quality)、延遲 (TTFT) 與價格 (Price) 間取得最佳平衡。\n5. 依據 SWE-bench、AIME、GPQA 等硬核基準，建立工業自動化與邊緣 AI 系統的三層漏斗選型策略。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 平台 1 —— LMarena 人類雙盲對抗與真實感官 Elo 評分",
+        "description": "LMarena (Chatbot Arena) 擁有超過 350 萬次盲測對決，透過隨機給予相同 Prompt 由兩個匿名模型同時回答，用戶投票決定勝負，並以 Bradley-Terry 統計演算法計算動態 Elo 分數。徹底防範傳統靜態測試集被廠商事前「背題刷分」的弊病。"
+      },
+      {
+        "step": "步驟 2: 平台 2 —— OpenRouter 百萬工程師產線「真金白銀」用量",
+        "description": "跑分高不等於有人買單！OpenRouter 聚合全球百萬開發者每週消耗 175T~214T Tokens 的即時產線數據。數據顯示 Google Gemini Flash、DeepSeek 等極致性價比模型用量遠超昂貴旗艦模型，揭露了真實商業世界「降本增效」的嚴酷現實。"
+      },
+      {
+        "step": "步驟 3: 平台 3 —— Artificial Analysis 獨立實測延遲、吞吐與帕累托前緣",
+        "description": "由前麥肯錫顧問團隊創立，獨立監測全球節點的首字延遲 (TTFT)、每秒輸出 Token 數 (TPS) 與任務成本。其「智力 vs 價格」與「智力 vs 速度」帕累托最優邊界圖，是工程架構師評估最佳性價比與互動即時性的終極工具。"
+      },
+      {
+        "step": "步驟 4: 平台 4 —— llm-stats 權威學術基準跑分與透明規格表",
+        "description": "整合 GPQA（專家級科學推理）、SWE-bench（真實 GitHub Issue 修復）、AIME（高難度數學競賽）與 LiveCodeBench 等 400+ 開閉源模型測試跑分，並提供百萬 Token 輸入/輸出價格與上下文視窗長度的權威對照。"
+      },
+      {
+        "step": "步驟 5: 實戰指南 —— 構建工業自動化三層漏斗選型決策樹",
+        "description": "第一層看任務複雜度（決定是否需要 SWE-bench 高分或 o3/Claude 3.7 思考模型）；第二層看互動即時性（TTFT < 800ms 或邊緣部署）；第三層看調用成本與隱私邊界（百萬次成本是否可控、是否需開源私有化）。三層收斂即可得出最優解。"
+      }
+    ],
+    "promptTemplate": "你是一位專精於雲端與邊緣 AI 架構的資深技術選型總監。\n請依據業界四大評測指標（LMarena 主觀盲測、OpenRouter 真實用量、Artificial Analysis 延遲成本矩陣、llm-stats 基準跑分）：\n\n【專案背景】：\n- 業務場景：工業自動化異常監測與 Node-RED 智能流調度\n- 延遲要求：首字延遲 (TTFT) 必須小於 1.0 秒\n- 成本預算：每日調用量約 50 萬次，單月 API 預算小於 50 美元\n- 隱私需求：可接受雲端 API，但需具備最高穩定性\n\n【請給出評估與建議】：\n1. 推薦最符合帕累托性價比前緣的前 2 款模型，並附上其在 OpenRouter 與 Artificial Analysis 的實測指標。\n2. 若日後需轉為地端邊緣離線部署，開源社群中有哪款模型是最佳替代品？",
+    "codeSnippet": {
+      "language": "javascript",
+      "code": "// 模型選型帕累托效益與每月 API 成本預算估算函式\nfunction calculateMonthlyLLMCost({\n  inputPricePerMillion,\n  outputPricePerMillion,\n  dailyRequests,\n  avgInputTokens = 800,\n  avgOutputTokens = 300\n}) {\n  const dailyInputCost = (dailyRequests * avgInputTokens / 1_000_000) * inputPricePerMillion;\n  const dailyOutputCost = (dailyRequests * avgOutputTokens / 1_000_000) * outputPricePerMillion;\n  const monthlyCost = (dailyInputCost + dailyOutputCost) * 30;\n  \n  return {\n    dailyCostUSD: Number((dailyInputCost + dailyOutputCost).toFixed(4)),\n    monthlyCostUSD: Number(monthlyCost.toFixed(2)),\n    isCostEffective: monthlyCost < 100 ? '✅ 成本極具競爭力（推薦用於大量產線）' : '⚠️ 成本偏高（建議僅限關鍵複雜決策）'\n  };\n}"
+    },
+    "references": [
+      {
+        "title": "大語言模型評測與排名平台全攻略 (專屬互動導覽工作台)",
+        "url": "AI知識/AI模型評測/AI模型評測_網站.html"
+      },
+      {
+        "title": "LMSYS Chatbot Arena 官方盲測對戰平台 (lmarena.ai)",
+        "url": "https://lmarena.ai/"
+      },
+      {
+        "title": "OpenRouter 排行榜與產線即時用量 (openrouter.ai/rankings)",
+        "url": "https://openrouter.ai/rankings"
+      },
+      {
+        "title": "Artificial Analysis 獨立效能延遲評測 (artificialanalysis.ai)",
+        "url": "https://artificialanalysis.ai/"
+      },
+      {
+        "title": "llm-stats 綜合模型基準與規格對照表 (llm-stats.com)",
+        "url": "https://llm-stats.com/"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-chart-line",
+        "scenario": "企業與工控產線 AI 模型選型決策",
+        "description": "依據 TTFT、TPS 吞吐量與每百萬 Token 價格，在主流商業模型與開源輕量模型間精準配置，達到效能與成本最優化。"
+      },
+      {
+        "icon": "fa-solid fa-code-compare",
+        "scenario": "Vibe Coding 程式碼生成模型盲測與驗收",
+        "description": "參考 SWE-bench 與 LMarena Coding 分類排行榜，挑選最適合自主修復 Bug 與程式架構生成的 AI 核心。"
+      }
+    ]
   }
 ];
 
 if (typeof window !== "undefined") {
-  window.INITIAL_AI_KNOWLEDGE_DATA = window.INITIAL_AI_KNOWLEDGE_DATA;
+  window.INITIAL_AI_KNOWLEDGE_DATA = INITIAL_AI_KNOWLEDGE_DATA;
 }
 if (typeof module !== "undefined" && module.exports) {
   module.exports = INITIAL_AI_KNOWLEDGE_DATA;

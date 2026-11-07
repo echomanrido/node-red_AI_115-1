@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大語言模型評測與排名平台全攻略教學</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .gradient-border {
+            background: linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82);
+        }
+        .code-font {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+        .tab-btn.active {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            background-color: #ffffff;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- 頂部導航列 -->
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-white/90 border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                    <i data-lucide="compass" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg text-slate-900 tracking-tight flex items-center gap-2">
+                        LLM 評測與排名平台全攻略
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">深度教學版</span>
+                    </h1>
+                    <p class="text-xs text-slate-500">大語言模型選型實戰・四大維度客觀指標與截圖剖析</p>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-1">
+                <a href="#overview" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition">總覽架構</a>
+                <a href="#lmarena" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition">1. LMarena (盲測投票)</a>
+                <a href="#openrouter" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition">2. OpenRouter (真實用量)</a>
+                <a href="#artificial-analysis" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition">3. Artificial Analysis (效能成本)</a>
+                <a href="#llm-stats" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition">4. llm-stats (跑分基準)</a>
+                <a href="#decision-matrix" class="ml-2 px-3.5 py-1.5 text-xs font-semibold bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition">選型決策指南</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主頁 Hero 區塊 -->
+    <section class="relative overflow-hidden bg-gradient-to-b from-indigo-50/70 via-white to-slate-50 py-16 sm:py-20 border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 mb-6">
+                <i data-lucide="layers" class="w-3.5 h-3.5"></i> 依據投影片《大語言模型比較_網站》完整延伸
+            </span>
+            <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight sm:leading-snug">
+                大語言模型排名與評測全解析 <br class="hidden sm:inline"/>
+                <span class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">四大視角打破資訊迷思</span>
+            </h2>
+            <p class="mt-4 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                評估模型不該只看官方單方面的發表會宣傳。本教學網頁深入拆解業界四大觀測體系：
+                <span class="font-bold text-slate-900">「人盲測投票」</span>、<span class="font-bold text-slate-900">「實際生產環境調用量」</span>、<span class="font-bold text-slate-900">「獨立推論速度與成本前緣」</span>以及<span class="font-bold text-slate-900">「權威學術 Benchmark 跑分」</span>，幫助工程師、架構師與產品經理做出最精準的技術選型。
+            </p>
+
+            <!-- 四大平台卡片導航 -->
+            <div id="overview" class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left">
+                <!-- LMarena -->
+                <a href="#lmarena" class="group p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-orange-400 transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center font-bold mb-4 group-hover:scale-105 transition-transform border border-orange-100">
+                            <i data-lucide="vote" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 group-hover:text-orange-600 text-base flex items-center justify-between">
+                            1. LMarena
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </h3>
+                        <p class="text-xs font-semibold text-orange-600 mt-1">主觀盲測・大眾投票</p>
+                        <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                            Prompt. Vote. Advance AI. 透過 350 萬+ 次用戶盲測對抗，反映真實人性感知的 Elo 分數，杜絕模型刷題作弊。
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-slate-400 group-hover:text-orange-600">
+                        查看完整榜單與機制 →
+                    </div>
+                </a>
+
+                <!-- OpenRouter -->
+                <a href="#openrouter" class="group p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-blue-400 transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold mb-4 group-hover:scale-105 transition-transform border border-blue-100">
+                            <i data-lucide="activity" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 group-hover:text-blue-600 text-base flex items-center justify-between">
+                            2. OpenRouter
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </h3>
+                        <p class="text-xs font-semibold text-blue-600 mt-1">產線用量・真金白銀</p>
+                        <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                            追蹤每週 175T~214T Tokens 的即時流向，揭示全球百萬工程師在成本與效能間的真實取捨與 Flash 潮流。
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-slate-400 group-hover:text-blue-600">
+                        查看用量趨勢堆疊圖 →
+                    </div>
+                </a>
+
+                <!-- Artificial Analysis -->
+                <a href="#artificial-analysis" class="group p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-purple-400 transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold mb-4 group-hover:scale-105 transition-transform border border-purple-100">
+                            <i data-lucide="gauge" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 group-hover:text-purple-600 text-base flex items-center justify-between">
+                            3. Artificial Analysis
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </h3>
+                        <p class="text-xs font-semibold text-purple-600 mt-1">工程指標・帕累托前緣</p>
+                        <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                            前麥肯錫顧問創立的獨立第三方。實測全球節點首字延遲(TTFT)、每秒輸出(TPS)、任務成本與智力三維矩陣。
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-slate-400 group-hover:text-purple-600">
+                        探索帕累托邊界圖 →
+                    </div>
+                </a>
+
+                <!-- llm-stats -->
+                <a href="#llm-stats" class="group p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-emerald-400 transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold mb-4 group-hover:scale-105 transition-transform border border-emerald-100">
+                            <i data-lucide="database" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-900 group-hover:text-emerald-600 text-base flex items-center justify-between">
+                            4. llm-stats
+                            <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </h3>
+                        <p class="text-xs font-semibold text-emerald-600 mt-1">權威基準・跑分聚合</p>
+                        <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                            整合 GPQA、SWE-bench、AIME 等 400+ 閉源與開源模型硬核跑分，涵蓋上下文長度與價格透明化規格表。
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-slate-400 group-hover:text-emerald-600">
+                        查看旗艦規格比對表 →
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主要內容區 -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
+
+        <!-- ======================= 1. LMarena 區塊 ======================= -->
+        <section id="lmarena" class="scroll-mt-24">
+            <div class="flex items-center gap-3 border-b border-slate-200 pb-4 mb-8">
+                <div class="p-2.5 bg-orange-100 text-orange-700 rounded-xl">
+                    <i data-lucide="trophy" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-bold text-slate-900">平台 1：LMarena (LMSYS Chatbot Arena)</h2>
+                        <a href="https://lmarena.ai/" target="_blank" class="text-xs text-indigo-600 hover:underline flex items-center gap-0.5">
+                            lmarena.ai <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a>
+                    </div>
+                    <p class="text-sm text-slate-500">主觀感知標竿 —— 人類雙盲對戰（Side by Side Blind Test）與 Elo 評分機制</p>
+                </div>
+            </div>
+
+            <!-- SVG 流程圖：LMarena 盲測機制原理 -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-8">
+                <h3 class="font-bold text-slate-900 text-sm mb-2 flex items-center gap-2">
+                    <i data-lucide="git-merge" class="w-4 h-4 text-orange-600"></i>
+                    LMarena 雙盲對戰運作機制 (Side by Side Workflow)
+                </h3>
+                <p class="text-xs text-slate-500 mb-4">
+                    為解決傳統靜態 Benchmark 資料外洩（Data Contamination）與廠商「針對測試集刷分」的問題，LMarena 採用即時盲測機制：
+                </p>
+                <div class="w-full overflow-x-auto">
+                    <svg viewBox="0 0 920 220" class="w-full min-w-[760px] h-auto text-slate-700 font-sans" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 背景邊框 -->
+                        <rect x="2" y="2" width="916" height="216" rx="16" fill="#fcfcfd" stroke="#e2e8f0" stroke-width="1.5"/>
+
+                        <!-- 步驟 1: 用戶輸入 Prompt -->
+                        <g transform="translate(30, 45)">
+                            <rect width="180" height="130" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                            <circle cx="90" cy="35" r="18" fill="#ffedd5"/>
+                            <text x="90" y="40" font-size="16" text-anchor="middle" fill="#ea580c">👤</text>
+                            <text x="90" y="75" font-size="13" font-weight="bold" text-anchor="middle" fill="#0f172a">用戶輸入 Prompt</text>
+                            <text x="90" y="98" font-size="11" text-anchor="middle" fill="#64748b">任意提問、代碼或指令</text>
+                            <text x="90" y="115" font-size="10" text-anchor="middle" fill="#94a3b8">真實場景・無固定題庫</text>
+                        </g>
+
+                        <!-- 箭頭 1 -->
+                        <path d="M 215 110 L 255 110" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <!-- 步驟 2: 隨機匿名雙模型生成 -->
+                        <g transform="translate(260, 45)">
+                            <rect width="210" height="130" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                            <rect x="15" y="20" width="80" height="40" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-dasharray="2 2"/>
+                            <text x="55" y="44" font-size="11" font-weight="bold" text-anchor="middle" fill="#475569">Model A (?)</text>
+                            <rect x="115" y="20" width="80" height="40" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-dasharray="2 2"/>
+                            <text x="155" y="44" font-size="11" font-weight="bold" text-anchor="middle" fill="#475569">Model B (?)</text>
+                            <text x="105" y="85" font-size="13" font-weight="bold" text-anchor="middle" fill="#0f172a">雙盲即時推論</text>
+                            <text x="105" y="105" font-size="11" text-anchor="middle" fill="#64748b">模型身份完全遮蔽</text>
+                            <text x="105" y="122" font-size="10" text-anchor="middle" fill="#ea580c">防止品牌先入為主偏見</text>
+                        </g>
+
+                        <!-- 箭頭 2 -->
+                        <path d="M 475 110 L 515 110" stroke="#94a3b8" stroke-width="2"/>
+
+                        <!-- 步驟 3: 人類主觀評判 -->
+                        <g transform="translate(520, 45)">
+                            <rect width="170" height="130" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                            <circle cx="85" cy="35" r="18" fill="#e0e7ff"/>
+                            <text x="85" y="40" font-size="16" text-anchor="middle" fill="#4338ca">⚖️</text>
+                            <text x="85" y="75" font-size="13" font-weight="bold" text-anchor="middle" fill="#0f172a">用戶主觀投票</text>
+                            <text x="85" y="98" font-size="11" text-anchor="middle" fill="#64748b">選擇 A 勝 / B 勝</text>
+                            <text x="85" y="115" font-size="10" text-anchor="middle" fill="#64748b">或平手 / 兩者皆差</text>
+                        </g>
+
+                        <!-- 箭頭 3 -->
+                        <path d="M 695 110 L 735 110" stroke="#94a3b8" stroke-width="2"/>
+
+                        <!-- 步驟 4: 計算 Elo 評分 -->
+                        <g transform="translate(740, 45)">
+                            <rect width="150" height="130" rx="12" fill="#fff7ed" stroke="#fdba74" stroke-width="1.5"/>
+                            <circle cx="75" cy="35" r="18" fill="#ffedd5"/>
+                            <text x="75" y="41" font-size="16" text-anchor="middle" fill="#c2410c">🏆</text>
+                            <text x="75" y="75" font-size="13" font-weight="bold" text-anchor="middle" fill="#9a3412">Elo 動態積分</text>
+                            <text x="75" y="98" font-size="11" text-anchor="middle" fill="#c2410c">棋藝競賽等級分制</text>
+                            <text x="75" y="115" font-size="10" text-anchor="middle" fill="#9a3412">產生全球公認天梯榜</text>
+                        </g>
+
+                        <!-- 箭頭標記定義 -->
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1 L 8 5 L 0 9 z" fill="#94a3b8" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- 左側核心知識說明與專訪亮點 -->
+                <div class="lg:col-span-5 space-y-5">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <i data-lucide="info" class="w-4 h-4 text-orange-500"></i> LMarena 核心價值解析
+                        </h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            由 UC Berkeley、UCSD 及 CMU 學者組成的 LMSYS Org 開發。目前累積超過 <strong>350 萬筆以上真實對決數據</strong>，是衡量模型面對「真實人類複雜隨意需求」時的最佳檢驗所。
+                        </p>
+                        <div class="space-y-3 pt-2">
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
+                                <strong class="text-slate-800 block mb-1">為什麼 Elo 比一般 Benchmark 更可信？</strong>
+                                靜態測試集（如 MMLU）容易被爬蟲抓進訓練集，造成「高分低能」的作弊現象；LMarena 的 Prompt 完全由全球匿名網友自發輸入，且雙方生成後才由用戶評價，作弊成本極高。
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
+                                <strong class="text-slate-800 block mb-1">包含多元垂直專業子天梯：</strong>
+                                包含 Text、WebDev（代碼網頁直接渲染評估）、Vision（圖文理解）、Text-to-Image（文生圖）、Image Edit（圖像編輯修圖）與 Search（聯網檢索事實查證）。
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 產業亮點報導卡片 (投影片原貌重現) -->
+                    <div class="bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 border border-amber-300 p-6 rounded-2xl shadow-sm space-y-4">
+                        <div class="flex items-center gap-2 text-amber-900 font-extrabold text-sm tracking-tight">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                            什麼都不賣，只讓你投票：LMArena 靠「AI評比」拿下1億美元募資
+                        </div>
+                        
+                        <!-- 創辦人介紹區塊 (投影片提及 Wei-Lin Chiang) -->
+                        <div class="flex items-center gap-4 bg-white/80 p-3 rounded-xl border border-amber-200/60">
+                            <!-- SVG 肖像/科技領袖符號 -->
+                            <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-white shrink-0 shadow">
+                                <svg viewBox="0 0 40 40" class="w-10 h-10 fill-current">
+                                    <path d="M20 21c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0 4c-5.333 0-16 2.686-16 8v3h32v-3c0-5.314-10.667-8-16-8z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-sm">Wei-Lin Chiang (蔣為霖)</h4>
+                                <p class="text-[11px] text-amber-800 font-medium">LMArena 共同創辦人暨技術長 (CTO)</p>
+                                <p class="text-[11px] text-slate-500 mt-0.5">畢業於國立台灣大學 (NTU) 資訊工程學系，現為 UC Berkeley 博士候選人。</p>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-amber-950/80 leading-relaxed">
+                            LMArena 堅持維持完全獨立公正第三方的定位，不依賴任何單一 AI 大廠的贊助與商業綁定，憑藉中立權威的客觀聲譽，成為矽谷創投與各大模型大廠一致信賴的「AI 界最高榮譽擂台」。
+                        </p>
+                        <div class="text-[11px] text-amber-700/80 font-mono">
+                            報導來源：Meet 創業小聚 (meet.bnext.com.tw)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側實機截圖與排行榜 UI (投影片原貌互動) -->
+                <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-slate-900 px-4 py-3 text-white flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                            <span class="text-xs font-mono text-slate-300 ml-2">lmarena.ai/leaderboard (投影片實測數據完整重現)</span>
+                        </div>
+                        <span class="text-[11px] bg-slate-800 text-amber-300 px-2 py-0.5 rounded font-mono">2025-2026 最新</span>
+                    </div>
+
+                    <!-- 子榜單切換分頁按鈕 -->
+                    <div class="flex border-b border-slate-200 bg-slate-50/80 px-3 pt-2 overflow-x-auto gap-1.5" id="lmarena-tabs">
+                        <button onclick="switchArenaTab('tab-text-latest')" class="arena-tab-btn active px-3 py-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Text (最新榜)
+                        </button>
+                        <button onclick="switchArenaTab('tab-text-history')" class="arena-tab-btn px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i data-lucide="history" class="w-3.5 h-3.5"></i> Text (歷史前期榜)
+                        </button>
+                        <button onclick="switchArenaTab('tab-webdev')" class="arena-tab-btn px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i data-lucide="code" class="w-3.5 h-3.5"></i> WebDev
+                        </button>
+                        <button onclick="switchArenaTab('tab-vision')" class="arena-tab-btn px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i> Vision
+                        </button>
+                        <button onclick="switchArenaTab('tab-image')" class="arena-tab-btn px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i data-lucide="image" class="w-3.5 h-3.5"></i> 生圖 & 編輯
+                        </button>
+                        <button onclick="switchArenaTab('tab-search')" class="arena-tab-btn px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i data-lucide="globe" class="w-3.5 h-3.5"></i> Search
+                        </button>
+                    </div>
+
+                    <!-- 分頁內容區 -->
+                    <div class="p-4">
+                        <!-- 1. Text 最新榜單 (投影片 p.7: 20251121 榜單) -->
+                        <div id="tab-text-latest" class="arena-content space-y-3">
+                            <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+                                <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    Text 綜合排行榜 (投影片 20251121 實拍紀錄)
+                                </span>
+                                <span class="font-mono text-slate-400">Score: Elo (Higher is better)</span>
+                            </div>
+                            <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                                <table class="w-full text-left text-xs font-mono">
+                                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                                        <tr>
+                                            <th class="py-2.5 px-3 w-16">Rank</th>
+                                            <th class="py-2.5 px-3">Model</th>
+                                            <th class="py-2.5 px-3">Score (Elo)</th>
+                                            <th class="py-2.5 px-3 text-right">Votes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr class="hover:bg-slate-50/80 bg-amber-50/30">
+                                            <td class="py-2.5 px-3 font-bold text-amber-600">1</td>
+                                            <td class="py-2.5 px-3 font-sans font-bold flex items-center gap-2 text-slate-900">
+                                                <span class="text-blue-500 font-black">G</span> gemini-3-pro
+                                            </td>
+                                            <td class="py-2.5 px-3 font-bold text-indigo-600">1498</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">3,768</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/80">
+                                            <td class="py-2.5 px-3 font-bold text-slate-700">2</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium flex items-center gap-2 text-slate-800">
+                                                <span class="font-bold">𝕏</span> grok-4.1-thinking
+                                            </td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1483</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">3,467</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/80">
+                                            <td class="py-2.5 px-3 font-bold text-slate-700">3</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium flex items-center gap-2 text-slate-800">
+                                                <span class="font-bold">𝕏</span> grok-4.1
+                                            </td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1464</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">3,588</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/80">
+                                            <td class="py-2.5 px-3 font-bold text-slate-600">4</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium flex items-center gap-2 text-slate-800">
+                                                <span class="text-emerald-700">⛬</span> gpt-5.1-high
+                                            </td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1454</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">3,796</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/80">
+                                            <td class="py-2.5 px-3 font-bold text-slate-600">5</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium flex items-center gap-2 text-slate-800">
+                                                <span class="text-blue-500 font-black">G</span> gemini-2.5-pro
+                                            </td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1451</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">66,734</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="text-[11px] text-slate-400">💡 重點觀察：Gemini 3 Pro 以 1498 高分登頂，xAI Grok-4.1 思維鏈推理模型緊追在後。</p>
+                        </div>
+
+                        <!-- 2. Text 歷史前期榜 (投影片 p.2: GPT-5 時期) -->
+                        <div id="tab-text-history" class="arena-content hidden space-y-3">
+                            <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+                                <span class="font-bold text-slate-800">Text 歷史記錄 (投影片 p.2 記錄)</span>
+                                <span class="font-mono text-slate-400">早期對決歷史檔</span>
+                            </div>
+                            <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                                <table class="w-full text-left text-xs font-mono">
+                                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                                        <tr>
+                                            <th class="py-2.5 px-3 w-16">Rank</th>
+                                            <th class="py-2.5 px-3">Model</th>
+                                            <th class="py-2.5 px-3">Score</th>
+                                            <th class="py-2.5 px-3 text-right">Votes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr>
+                                            <td class="py-2.5 px-3 font-bold text-amber-600">1</td>
+                                            <td class="py-2.5 px-3 font-sans font-bold">gpt-5</td>
+                                            <td class="py-2.5 px-3 font-bold text-indigo-600">1481</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">3,182</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 font-bold text-slate-700">2</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">gemini-2.5-pro</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1460</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">26,703</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 font-bold text-slate-700">2</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">o3-2025-04-16</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1450</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">32,692</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 font-bold text-slate-600">3</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">chatgpt-4o-latest-20250326</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1442</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">31,219</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 text-slate-500">4</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">gpt-4.5-preview-2025-02-27</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1438</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">15,271</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 text-slate-500">5</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">grok-4-0709</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1429</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">13,314</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 3. WebDev 榜單 (投影片 p.3 & p.8) -->
+                        <div id="tab-webdev" class="arena-content hidden space-y-3">
+                            <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+                                <span class="font-bold text-slate-800">WebDev 前端網頁生成對戰 (投影片 p.3 & p.8)</span>
+                                <span class="font-mono text-slate-400">即時程式碼跑版勝率</span>
+                            </div>
+                            <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                                <table class="w-full text-left text-xs font-mono">
+                                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                                        <tr>
+                                            <th class="py-2.5 px-3 w-16">Rank</th>
+                                            <th class="py-2.5 px-3">Model</th>
+                                            <th class="py-2.5 px-3">Score</th>
+                                            <th class="py-2.5 px-3 text-right">Votes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr class="bg-amber-50/30">
+                                            <td class="py-2.5 px-3 font-bold text-amber-600">1</td>
+                                            <td class="py-2.5 px-3 font-sans font-bold">gemini-3-pro (最新更新)</td>
+                                            <td class="py-2.5 px-3 font-bold text-indigo-600">1487</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">1,062</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 font-bold text-slate-700">2</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">gpt-5-medium / GPT-5</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1395 ~ 1479</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">3,333</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 font-bold text-slate-700">3</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">claude-opus-4-1 / DeepSeek-R1</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1394</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">4,515</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 text-slate-500">4</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">claude-sonnet-4-5 / GLM-4.5</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1392</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">2,940</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 text-slate-500">5</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">Qwen3-Coder (阿里巴巴開源)</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1362</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">6,231</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 4. Vision 榜單 (投影片 p.4 & p.9) -->
+                        <div id="tab-vision" class="arena-content hidden space-y-3">
+                            <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+                                <span class="font-bold text-slate-800">Vision 圖像理解對戰 (投影片 p.4 & p.9)</span>
+                                <span class="font-mono text-slate-400">視覺推理與多模態</span>
+                            </div>
+                            <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                                <table class="w-full text-left text-xs font-mono">
+                                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                                        <tr>
+                                            <th class="py-2.5 px-3 w-16">Rank</th>
+                                            <th class="py-2.5 px-3">Model</th>
+                                            <th class="py-2.5 px-3">Score</th>
+                                            <th class="py-2.5 px-3 text-right">Votes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr class="bg-amber-50/30">
+                                            <td class="py-2.5 px-3 font-bold text-amber-600">1</td>
+                                            <td class="py-2.5 px-3 font-sans font-bold">gemini-3-pro</td>
+                                            <td class="py-2.5 px-3 font-bold text-indigo-600">1328</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">2,304</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 font-bold text-slate-700">2</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">gemini-2.5-pro</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1249</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">64,489</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 font-bold text-slate-700">3</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">chatgpt-4o-latest</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1238</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">16,174</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 text-slate-500">4</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">gpt-4.5-preview</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1227</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">2,925</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 text-slate-500">5</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">gemini-2.5-flash-preview</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1224</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">3,689</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 5. 生圖與編輯 (投影片 p.5, 6, 10, 11) -->
+                        <div id="tab-image" class="arena-content hidden space-y-4">
+                            <div class="border border-slate-200 rounded-xl p-3">
+                                <span class="font-bold text-slate-800 text-xs block mb-2">Text-to-Image 文生圖 (投影片 p.10)</span>
+                                <table class="w-full text-left text-xs font-mono">
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr>
+                                            <td class="py-1.5 font-bold text-amber-600 w-12">1</td>
+                                            <td class="py-1.5 font-sans font-bold">hunyuan-image-3.0 (騰訊混元)</td>
+                                            <td class="py-1.5 font-bold text-slate-900">1158</td>
+                                            <td class="py-1.5 text-right text-slate-500">51,573 票</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1.5 font-bold text-slate-600">2</td>
+                                            <td class="py-1.5 font-sans">gemini-2.5-flash-image</td>
+                                            <td class="py-1.5 font-bold text-slate-900">1157</td>
+                                            <td class="py-1.5 text-right text-slate-500">568,829 票</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1.5 font-bold text-slate-600">3</td>
+                                            <td class="py-1.5 font-sans">imagen-4.0-ultra-generate</td>
+                                            <td class="py-1.5 font-bold text-slate-900">1146</td>
+                                            <td class="py-1.5 text-right text-slate-500">474,695 票</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1.5 text-slate-500">4</td>
+                                            <td class="py-1.5 font-sans">seedream-4-2k / flux-1-kontext</td>
+                                            <td class="py-1.5 font-bold text-slate-900">1144</td>
+                                            <td class="py-1.5 text-right text-slate-500">14,537 票</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="border border-slate-200 rounded-xl p-3">
+                                <span class="font-bold text-slate-800 text-xs block mb-2">Image Edit 圖像局部重繪與編輯 (投影片 p.11)</span>
+                                <table class="w-full text-left text-xs font-mono">
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr class="bg-indigo-50/40">
+                                            <td class="py-1.5 font-bold text-indigo-600 w-12">1</td>
+                                            <td class="py-1.5 font-sans font-bold">gemini-2.5-flash-image</td>
+                                            <td class="py-1.5 font-bold text-slate-900">1334</td>
+                                            <td class="py-1.5 text-right text-slate-500 font-bold text-indigo-700">6,034,290 票 (超高人氣)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1.5 font-bold text-slate-600">2</td>
+                                            <td class="py-1.5 font-sans">seedream-4-2k</td>
+                                            <td class="py-1.5 font-bold text-slate-900">1312</td>
+                                            <td class="py-1.5 text-right text-slate-500">219,057 票</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1.5 text-slate-500">3</td>
+                                            <td class="py-1.5 font-sans">gpt-image-1 (早期第1)</td>
+                                            <td class="py-1.5 font-bold text-slate-900">1200</td>
+                                            <td class="py-1.5 text-right text-slate-500">65,579 票</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 6. Search 榜單 (投影片 p.6 & p.12) -->
+                        <div id="tab-search" class="arena-content hidden space-y-3">
+                            <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
+                                <span class="font-bold text-slate-800">Search AI 聯網搜索整合勝率 (投影片 p.6 & p.12)</span>
+                                <span class="font-mono text-slate-400">真實搜尋比對</span>
+                            </div>
+                            <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                                <table class="w-full text-left text-xs font-mono">
+                                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                                        <tr>
+                                            <th class="py-2.5 px-3 w-16">Rank</th>
+                                            <th class="py-2.5 px-3">Model</th>
+                                            <th class="py-2.5 px-3">Score</th>
+                                            <th class="py-2.5 px-3 text-right">Votes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr class="bg-amber-50/30">
+                                            <td class="py-2.5 px-3 font-bold text-amber-600">1</td>
+                                            <td class="py-2.5 px-3 font-sans font-bold">grok-4-fast-search</td>
+                                            <td class="py-2.5 px-3 font-bold text-indigo-600">1166</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">14,957</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 font-bold text-slate-700">2</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">ppl-sonar-pro-high (Perplexity)</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1149</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">18,453</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 font-bold text-slate-700">3</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">gemini-2.5-pro-grounding</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1142</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">19,350</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 text-slate-500">4</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">o3-search (OpenAI)</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1142</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">19,254</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2.5 px-3 text-slate-500">5</td>
+                                            <td class="py-2.5 px-3 font-sans font-medium">grok-4-search</td>
+                                            <td class="py-2.5 px-3 font-bold text-slate-900">1141</td>
+                                            <td class="py-2.5 px-3 text-right text-slate-500">18,132</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ======================= 2. OpenRouter 區塊 ======================= -->
+        <section id="openrouter" class="scroll-mt-24">
+            <div class="flex items-center gap-3 border-b border-slate-200 pb-4 mb-8">
+                <div class="p-2.5 bg-blue-100 text-blue-700 rounded-xl">
+                    <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-bold text-slate-900">平台 2：OpenRouter AI Model Rankings</h2>
+                        <a href="https://openrouter.ai/rankings" target="_blank" class="text-xs text-indigo-600 hover:underline flex items-center gap-0.5">
+                            openrouter.ai/rankings <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a>
+                    </div>
+                    <p class="text-sm text-slate-500">真實使用量標竿 —— 統計百萬工程師每週實際付費跑的 Token 規模與價格佔比</p>
+                </div>
+            </div>
+
+            <!-- SVG 視覺化：OpenRouter 堆疊圖與每週增長剖析 (投影片 p.14 實拍圖表重現) -->
+            <div class="bg-slate-950 text-white rounded-2xl p-6 shadow-xl border border-slate-800 mb-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4 mb-6">
+                    <div>
+                        <span class="text-xs font-mono text-blue-400">📊 OpenRouter Top Models: Weekly usage across OpenRouter</span>
+                        <h3 class="text-lg font-bold text-white mt-1">每週 Token 總吞吐量爆發曲線 (投影片 p.14 數據重構)</h3>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-mono rounded-lg">
+                            Weekly Pace: 214T (+39.2T)
+                        </span>
+                        <span class="px-2 py-1 bg-slate-800 text-slate-300 text-xs rounded font-mono">Nov 2, 2026</span>
+                    </div>
+                </div>
+
+                <div class="w-full overflow-x-auto">
+                    <svg viewBox="0 0 880 260" class="w-full min-w-[700px] h-auto font-sans text-xs" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 座標軸網格線 -->
+                        <line x1="60" y1="30" x2="680" y2="30" stroke="#334155" stroke-dasharray="3 3"/>
+                        <line x1="60" y1="80" x2="680" y2="80" stroke="#334155" stroke-dasharray="3 3"/>
+                        <line x1="60" y1="130" x2="680" y2="130" stroke="#334155" stroke-dasharray="3 3"/>
+                        <line x1="60" y1="180" x2="680" y2="180" stroke="#334155" stroke-dasharray="3 3"/>
+                        <line x1="60" y1="210" x2="680" y2="210" stroke="#64748b" stroke-width="1.5"/>
+
+                        <!-- 刻度數值 -->
+                        <text x="20" y="35" fill="#94a3b8" font-family="monospace">220T</text>
+                        <text x="20" y="85" fill="#94a3b8" font-family="monospace">165T</text>
+                        <text x="20" y="135" fill="#94a3b8" font-family="monospace">110T</text>
+                        <text x="20" y="185" fill="#94a3b8" font-family="monospace">55T</text>
+
+                        <!-- 時間軸刻度 (橫坐標) -->
+                        <text x="80" y="230" fill="#94a3b8" font-size="11">Nov</text>
+                        <text x="180" y="230" fill="#94a3b8" font-size="11">Jan</text>
+                        <text x="280" y="230" fill="#94a3b8" font-size="11">Mar</text>
+                        <text x="380" y="230" fill="#94a3b8" font-size="11">May</text>
+                        <text x="480" y="230" fill="#94a3b8" font-size="11">Jul</text>
+                        <text x="580" y="230" fill="#94a3b8" font-size="11">Sep</text>
+                        <text x="660" y="230" fill="#38bdf8" font-weight="bold" font-size="11">Oct/Nov</text>
+
+                        <!-- 指數增長堆疊柱狀圖 (簡化視覺化呈現) -->
+                        <g fill="#ec4899"> <!-- DeepSeek 系列 -->
+                            <rect x="75" y="200" width="18" height="10" rx="2"/>
+                            <rect x="175" y="195" width="18" height="15" rx="2"/>
+                            <rect x="275" y="188" width="18" height="22" rx="2"/>
+                            <rect x="375" y="178" width="18" height="32" rx="2"/>
+                            <rect x="475" y="160" width="18" height="50" rx="2"/>
+                            <rect x="575" y="125" width="18" height="85" rx="2"/>
+                            <rect x="655" y="50" width="22" height="160" rx="3" fill="#f43f5e"/>
+                        </g>
+
+                        <!-- 右側即時圖例與比例 (還原投影片 p.14 黑色卡片內容) -->
+                        <g transform="translate(710, 20)">
+                            <rect width="160" height="205" rx="10" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
+                            <text x="12" y="22" font-size="11" font-weight="bold" fill="#f8fafc">November 2, 2026</text>
+
+                            <circle cx="18" cy="42" r="4" fill="#a855f7"/>
+                            <text x="28" y="45" font-size="10" fill="#cbd5e1">Others: 66.2T</text>
+
+                            <circle cx="18" cy="62" r="4" fill="#f43f5e"/>
+                            <text x="28" y="65" font-size="10" fill="#f43f5e" font-weight="bold">DeepSeek V4.1: 47.7T</text>
+
+                            <circle cx="18" cy="82" r="4" fill="#fb923c"/>
+                            <text x="28" y="85" font-size="10" fill="#cbd5e1">GLM 5.3 Flash: 11.6T</text>
+
+                            <circle cx="18" cy="102" r="4" fill="#eab308"/>
+                            <text x="28" y="105" font-size="10" fill="#cbd5e1">Hy4 (Tencent): 9.48T</text>
+
+                            <circle cx="18" cy="122" r="4" fill="#22c55e"/>
+                            <text x="28" y="125" font-size="10" fill="#cbd5e1">GPT-6 Luna: 6.11T</text>
+
+                            <circle cx="18" cy="142" r="4" fill="#06b6d4"/>
+                            <text x="28" y="145" font-size="10" fill="#cbd5e1">Step 5 Preview: 6.05T</text>
+
+                            <circle cx="18" cy="162" r="4" fill="#3b82f6"/>
+                            <text x="28" y="165" font-size="10" fill="#cbd5e1">Claude Opus 5.5: 5.75T</text>
+
+                            <line x1="12" y1="175" x2="148" y2="175" stroke="#334155"/>
+                            <text x="12" y="193" font-size="11" font-weight="bold" fill="#38bdf8">Total: 175T Tokens</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 投影片核心功能與指標詳解 (投影片 p.15) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                        <i data-lucide="trending-up" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-sm">1. 依真實用量排序 (Usage)</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        <strong>統計維度：</strong>以週（Weekly）計算實際處理的 Token 數量與增長幅度。可以看出開源模型架構正以幾何級數迅速侵蝕商用 API 的份額。
+                    </p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                        <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-sm">2. 價格與性價比對照</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        <strong>精細計費透明：</strong>標註每百萬 Token 輸入/輸出價格與快取（Prompt Caching）優惠，對比極致小模型與旗艦模型的真實採用成本比。
+                    </p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                        <i data-lucide="maximize" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-sm">3. 模型參數與上下文視窗</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        <strong>Context Window：</strong>提供各模型的最大長度（如 128K、1M 或以上）以及最大輸出長度限制，作為 RAG 與知識庫選型的依據。
+                    </p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+                        <i data-lucide="bot" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-sm">4. 生態系與應用排名</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        <strong>Apps & Agents：</strong>除模型外，OpenRouter 設有前端應用端排行榜（如 Coding Agent、CLI 開發工具、個人助理與遊戲應用等消耗量排行）。
+                    </p>
+                </div>
+            </div>
+
+            <!-- OpenRouter 投影片榜單清單 (投影片 p.14 下方榜單還原) -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm">LLM Leaderboard (Compare the most popular models on OpenRouter)</h4>
+                        <p class="text-xs text-slate-500">投影片第 14 頁完整 10 大熱門模型用量數據</p>
+                    </div>
+                    <span class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-bold">All models · This Week</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-slate-50/60 text-slate-500 border-b border-slate-200 font-semibold">
+                            <tr>
+                                <th class="py-3 px-4 w-12">#</th>
+                                <th class="py-3 px-4">Model Name</th>
+                                <th class="py-3 px-4">Provider / Org</th>
+                                <th class="py-3 px-4">Weekly Tokens</th>
+                                <th class="py-3 px-4 text-right">Trend / Growth</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3 px-4 font-bold text-slate-900">1</td>
+                                <td class="py-3 px-4 font-sans font-bold text-slate-900">DeepSeek V4.1 Flash 1017</td>
+                                <td class="py-3 px-4 text-slate-500">deepseek</td>
+                                <td class="py-3 px-4 font-bold text-slate-800">56.2T tokens</td>
+                                <td class="py-3 px-4 text-right font-bold text-emerald-600">↑ 23%</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3 px-4 font-bold text-slate-900">2</td>
+                                <td class="py-3 px-4 font-sans font-bold text-slate-900">DeepSeek V4.1 Flash</td>
+                                <td class="py-3 px-4 text-slate-500">deepseek</td>
+                                <td class="py-3 px-4 font-bold text-slate-800">17.2T tokens</td>
+                                <td class="py-3 px-4 text-right font-bold text-emerald-600">↑ 13%</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3 px-4 font-bold text-slate-900">3</td>
+                                <td class="py-3 px-4 font-sans font-semibold text-slate-800">GLM 5.3 Flash</td>
+                                <td class="py-3 px-4 text-slate-500">z-ai</td>
+                                <td class="py-3 px-4 font-bold text-slate-800">14.1T tokens</td>
+                                <td class="py-3 px-4 text-right font-bold text-rose-500">↓ 13%</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3 px-4 font-bold text-slate-900">4</td>
+                                <td class="py-3 px-4 font-sans font-semibold text-slate-800">GPT-6 Luna</td>
+                                <td class="py-3 px-4 text-slate-500">openai</td>
+                                <td class="py-3 px-4 font-bold text-slate-800">7.22T tokens</td>
+                                <td class="py-3 px-4 text-right font-bold text-rose-500">↓ 34%</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3 px-4 font-bold text-slate-900">5</td>
+                                <td class="py-3 px-4 font-sans font-semibold text-slate-800">Hy4</td>
+                                <td class="py-3 px-4 text-slate-500">tencent</td>
+                                <td class="py-3 px-4 font-bold text-slate-800">7.05T tokens</td>
+                                <td class="py-3 px-4 text-right"><span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[11px] font-bold">new</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3 px-4 text-slate-600">6</td>
+                                <td class="py-3 px-4 font-sans">Step 5 Preview</td>
+                                <td class="py-3 px-4 text-slate-500">stepfun</td>
+                                <td class="py-3 px-4 text-slate-700">6.83T tokens</td>
+                                <td class="py-3 px-4 text-right font-bold text-emerald-600">↑ 8%</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3 px-4 text-slate-600">7</td>
+                                <td class="py-3 px-4 font-sans">Claude Opus 5.5</td>
+                                <td class="py-3 px-4 text-slate-500">anthropic</td>
+                                <td class="py-3 px-4 text-slate-700">6.59T tokens</td>
+                                <td class="py-3 px-4 text-right font-bold text-rose-500">↓ 10%</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3 px-4 text-slate-600">8</td>
+                                <td class="py-3 px-4 font-sans">MiniMax M3.1 Flash</td>
+                                <td class="py-3 px-4 text-slate-500">minimax</td>
+                                <td class="py-3 px-4 text-slate-700">5.67T tokens</td>
+                                <td class="py-3 px-4 text-right font-bold text-emerald-600">↑ 12%</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3 px-4 text-slate-600">9</td>
+                                <td class="py-3 px-4 font-sans">Hy4 preview</td>
+                                <td class="py-3 px-4 text-slate-500">tencent</td>
+                                <td class="py-3 px-4 text-slate-700">5.11T tokens</td>
+                                <td class="py-3 px-4 text-right font-bold text-rose-500">↓ 45%</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/80">
+                                <td class="py-3 px-4 text-slate-600">10</td>
+                                <td class="py-3 px-4 font-sans">GPT-5.6 Luna</td>
+                                <td class="py-3 px-4 text-slate-500">openai</td>
+                                <td class="py-3 px-4 text-slate-700">4.07T tokens</td>
+                                <td class="py-3 px-4 text-right font-bold text-emerald-600">↑ 31%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ======================= 3. Artificial Analysis 區塊 ======================= -->
+        <section id="artificial-analysis" class="scroll-mt-24">
+            <div class="flex items-center gap-3 border-b border-slate-200 pb-4 mb-8">
+                <div class="p-2.5 bg-purple-100 text-purple-700 rounded-xl">
+                    <i data-lucide="cpu" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-bold text-slate-900">平台 3：Artificial Analysis (AI 基準測試機構)</h2>
+                        <a href="https://artificialanalysis.ai/" target="_blank" class="text-xs text-indigo-600 hover:underline flex items-center gap-0.5">
+                            artificialanalysis.ai <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a>
+                    </div>
+                    <p class="text-sm text-slate-500">獨立量化標竿 —— 智力 (Intelligence)、延遲吞吐速度 (Speed) 與成本前緣 (Pareto Frontier)</p>
+                </div>
+            </div>
+
+            <!-- 背景介紹 (投影片 p.17 & p.18 深度擴充) -->
+            <div class="bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-8 shadow-xl mb-8 space-y-6">
+                <div class="border-b border-purple-800/60 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-mono uppercase tracking-widest text-purple-400 font-bold">The benchmark of AI</span>
+                        <h3 class="text-2xl font-extrabold text-white mt-1">獨立第三方的 AI 全棧基準量化體系</h3>
+                    </div>
+                    <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full text-xs font-semibold">
+                        Founded by Ex-McKinsey 2023
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-300 leading-relaxed">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                            <i data-lucide="building" class="w-4 h-4 text-purple-400"></i>
+                            創立由來與創辦人背景
+                        </h4>
+                        <p>
+                            由 <strong>Micah Hill-Smith</strong> 與 <strong>George Cameron</strong> 於 2023 年創立。兩位創辦人曾任職於全球頂尖管顧公司<strong>麥肯錫 (McKinsey & Company)</strong>。
+                        </p>
+                        <p>
+                            在協助跨國企業導入 AI 系統時，他們發現市場充斥官方誇大的行銷數據，極度缺乏針對推論效能、API 實際首字延遲（TTFT）、每秒輸出（TPS）與實際花費的客觀量化工具，因此自力建構了標準化測試管線。
+                        </p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                            <i data-lucide="git-branch" class="w-4 h-4 text-purple-400"></i>
+                            三大技術架構與方法論
+                        </h4>
+                        <ul class="space-y-2 list-disc list-inside">
+                            <li><strong>獨立測量基礎設施：</strong>伺服器部署在全球主要節點，每分每秒向不同模型與雲端端點發出標準化 Request 實測真實延遲。</li>
+                            <li><strong>帕累托邊界 (Pareto Frontier)：</strong>引入經濟學效率前緣概念，將品質、速度與成本整合成動態選型工具。</li>
+                            <li><strong>統一評測管線：</strong>整合自動化基準與多模態盲測，消除單一雲端巨頭左右數據的可能性。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG 帕累托前緣 (Pareto Frontier) 視覺化圖表 -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-8">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <i data-lucide="scatter-chart" class="w-4 h-4 text-purple-600"></i>
+                            模型效率前緣 (Pareto Frontier: Intelligence vs. Cost)
+                        </h3>
+                        <p class="text-xs text-slate-500">尋找「在預算限制下智商最高」或「在特定智商水準下成本最低」的最優模型解</p>
+                    </div>
+                    <span class="text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded font-mono font-bold">Interactive Chart Model</span>
+                </div>
+
+                <div class="w-full overflow-x-auto">
+                    <svg viewBox="0 0 880 300" class="w-full min-w-[700px] h-auto font-sans text-xs" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="876" height="296" rx="14" fill="#fafafa" stroke="#e2e8f0"/>
+
+                        <!-- 網格與座標軸 -->
+                        <line x1="80" y1="240" x2="820" y2="240" stroke="#64748b" stroke-width="1.5"/>
+                        <line x1="80" y1="30" x2="80" y2="240" stroke="#64748b" stroke-width="1.5"/>
+
+                        <!-- X 軸標籤 (成本 Price: USD per 1M tokens) -->
+                        <text x="450" y="275" font-size="12" font-weight="bold" fill="#475569" text-anchor="middle">價格成本 Price (USD / 1M Tokens) → 越左越便宜</text>
+                        <text x="100" y="255" fill="#94a3b8" font-family="monospace">$0.3</text>
+                        <text x="250" y="255" fill="#94a3b8" font-family="monospace">$1.0</text>
+                        <text x="450" y="255" fill="#94a3b8" font-family="monospace">$3.0</text>
+                        <text x="650" y="255" fill="#94a3b8" font-family="monospace">$6.0</text>
+                        <text x="800" y="255" fill="#94a3b8" font-family="monospace">$10.0</text>
+
+                        <!-- Y 軸標籤 (智商 Intelligence Index) -->
+                        <text x="-135" y="30" font-size="12" font-weight="bold" fill="#475569" text-anchor="middle" transform="rotate(-90)">綜合智力指標 (Intelligence Index) ↑</text>
+                        <text x="60" y="235" fill="#94a3b8" font-family="monospace">40</text>
+                        <text x="60" y="175" fill="#94a3b8" font-family="monospace">50</text>
+                        <text x="60" y="115" fill="#94a3b8" font-family="monospace">60</text>
+                        <text x="60" y="55" fill="#94a3b8" font-family="monospace">70</text>
+
+                        <!-- 帕累托效率邊界曲線 (Pareto Curve) -->
+                        <path d="M 120 120 Q 250 85 460 70 T 780 45" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="4 4"/>
+                        <text x="500" y="55" font-size="11" font-weight="bold" fill="#7c3aed">★ 帕累托最優邊界 (Pareto Frontier)</text>
+
+                        <!-- 模型節點散點分佈 -->
+                        <!-- 1. 極致便宜區 -->
+                        <circle cx="120" cy="120" r="7" fill="#10b981"/>
+                        <text x="135" y="122" font-size="11" font-weight="bold" fill="#0f172a">gpt-oss / Grok-4-Fast ($0.3 | 60)</text>
+
+                        <circle cx="180" cy="135" r="6" fill="#10b981"/>
+                        <text x="195" y="138" font-size="10" fill="#475569">Gemini 2.5 Flash ($0.8 | 54)</text>
+
+                        <!-- 2. 中間高性價比區 -->
+                        <circle cx="280" cy="98" r="7" fill="#3b82f6"/>
+                        <text x="295" y="98" font-size="11" font-weight="bold" fill="#0f172a">Gemini 3.1 Pro ($2.0 | 66)</text>
+
+                        <!-- 3. 高端旗艦區 -->
+                        <circle cx="480" cy="72" r="7" fill="#f59e0b"/>
+                        <text x="495" y="75" font-size="11" font-weight="bold" fill="#0f172a">GPT-5 (medium) ($3.4 | 66)</text>
+
+                        <circle cx="680" cy="65" r="7" fill="#ec4899"/>
+                        <text x="695" y="65" font-size="11" font-weight="bold" fill="#0f172a">Claude 4.5 Sonnet ($6.0 | 63)</text>
+
+                        <!-- 4. 極限智力區 -->
+                        <circle cx="780" cy="45" r="8" fill="#6366f1"/>
+                        <text x="680" y="38" font-size="11" font-weight="bold" fill="#4338ca">GPT-5 / GPT-6 Astra ($10.0 | 68+)</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 投影片 Highlights 三大指標柱狀圖 (投影片 p.16 實拍重現) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+                <!-- 1. INTELLIGENCE (智力) -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[11px] font-bold text-slate-400">HIGHER IS BETTER</span>
+                        <span class="text-[11px] font-mono text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">Index Score</span>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-base mb-1">INTELLIGENCE</h4>
+                    <p class="text-xs text-slate-500 mb-4">綜合推理、知識庫與長程任務</p>
+
+                    <div class="space-y-2 text-xs font-mono">
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>GPT-5 (high)</span><span class="font-bold">68</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-slate-900 h-2 rounded" style="width: 100%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>GPT-5 (medium)</span><span class="font-bold">66</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-slate-800 h-2 rounded" style="width: 97%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>Grok 4</span><span class="font-bold">65</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-purple-600 h-2 rounded" style="width: 95%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>Claude 4.5 Sonnet</span><span class="font-bold">63</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-orange-500 h-2 rounded" style="width: 92%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>MiniMax-M2</span><span class="font-bold">61</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-pink-500 h-2 rounded" style="width: 89%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>Grok 4 Fast / gpt-oss</span><span class="font-bold">60</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-blue-600 h-2 rounded" style="width: 88%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. SPEED (輸出速度 TPS) -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[11px] font-bold text-slate-400">HIGHER IS BETTER</span>
+                        <span class="text-[11px] font-mono text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">Tokens / Sec</span>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-base mb-1">SPEED (Throughput)</h4>
+                    <p class="text-xs text-slate-500 mb-4">即時對話串流與高並發批次生成</p>
+
+                    <div class="space-y-2 text-xs font-mono">
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>gpt-oss-120B</span><span class="font-bold text-emerald-700">362 tps</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-slate-900 h-2 rounded" style="width: 100%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>Gemini 2.5 Flash</span><span class="font-bold text-emerald-700">268 tps</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-emerald-500 h-2 rounded" style="width: 74%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>Grok 4 Fast</span><span class="font-bold text-emerald-700">205 tps</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-indigo-500 h-2 rounded" style="width: 56%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>GPT-5 (high)</span><span class="font-bold">169 tps</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-slate-700 h-2 rounded" style="width: 46%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>Gemini 2.5 Pro</span><span class="font-bold">157 tps</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-blue-500 h-2 rounded" style="width: 43%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>Llama 4 Maverick</span><span class="font-bold">133 tps</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-cyan-500 h-2 rounded" style="width: 36%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. PRICE (定價成本) -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[11px] font-bold text-slate-400">LOWER IS BETTER</span>
+                        <span class="text-[11px] font-mono text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">USD / 1M Tokens</span>
+                    </div>
+                    <h4 class="font-bold text-slate-900 text-base mb-1">PRICE (Cost)</h4>
+                    <p class="text-xs text-slate-500 mb-4">百萬 Token 調用平均花費</p>
+
+                    <div class="space-y-2 text-xs font-mono">
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>gpt-oss / Grok-Fast</span><span class="font-bold text-emerald-600">$0.3</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-emerald-500 h-2 rounded" style="width: 5%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>DeepSeek V3.2 / Llama 4</span><span class="font-bold text-emerald-600">$0.3 ~ 0.4</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-emerald-500 h-2 rounded" style="width: 6%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>Gemini 2.5 Flash</span><span class="font-bold text-emerald-600">$0.8</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-emerald-500 h-2 rounded" style="width: 13%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>Qwen3 235B</span><span class="font-bold text-amber-600">$2.6</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-amber-500 h-2 rounded" style="width: 43%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>GPT-5 (medium/high)</span><span class="font-bold text-amber-600">$3.4</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-amber-500 h-2 rounded" style="width: 56%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-slate-700 mb-0.5 font-sans"><span>Claude 4.5 Sonnet / Grok 4</span><span class="font-bold text-rose-600">$6.0</span></div>
+                            <div class="w-full bg-slate-100 h-2 rounded"><div class="bg-rose-500 h-2 rounded" style="width: 100%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 投影片 p.19 核心工具模組說明 -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 font-bold text-sm text-slate-800">
+                    Artificial Analysis 核心工具與功能詳細說明 (投影片第 19 頁完整對照)
+                </div>
+                <div class="divide-y divide-slate-100 text-xs sm:text-sm">
+                    <div class="p-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-2">
+                        <span class="font-bold text-purple-700">Model Comparisons</span>
+                        <span class="md:col-span-3 text-slate-600">支援最多 5 款模型並排比較智商、延遲、輸出速率與價格帕累托前緣（Pareto Frontier），並可自訂權重。</span>
+                    </div>
+                    <div class="p-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-2">
+                        <span class="font-bold text-purple-700">Provider Benchmarks</span>
+                        <span class="md:col-span-3 text-slate-600">比較同一款開源／權重開放模型（如 Llama 4、DeepSeek R1）在不同 API 服務商（Groq、Together AI、Fireworks、AWS Bedrock、Azure 等）上的實際推論速度與延遲差異。</span>
+                    </div>
+                    <div class="p-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-2">
+                        <span class="font-bold text-purple-700">Agent & Workflow Evals</span>
+                        <span class="md:col-span-3 text-slate-600">針對長程任務、終端指令（Terminal）、軟體工程與資料分析代理進行的專門基準測試，評估工具呼叫成功率。</span>
+                    </div>
+                    <div class="p-4 sm:px-6 grid grid-cols-1 md:grid-cols-4 gap-2">
+                        <span class="font-bold text-purple-700">Media Models Leaderboards</span>
+                        <span class="md:col-span-3 text-slate-600">涵蓋 Text-to-Image、Video、Speech-to-Text、語音合成及音樂生成模型的品質評比與幀率測量。</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ======================= 4. llm-stats 區塊 ======================= -->
+        <section id="llm-stats" class="scroll-mt-24">
+            <div class="flex items-center gap-3 border-b border-slate-200 pb-4 mb-8">
+                <div class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl">
+                    <i data-lucide="binary" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-bold text-slate-900">平台 4：llm-stats (直接跑分與標準基準庫)</h2>
+                        <a href="https://llm-stats.com/" target="_blank" class="text-xs text-indigo-600 hover:underline flex items-center gap-0.5">
+                            llm-stats.com <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a>
+                    </div>
+                    <p class="text-sm text-slate-500">標準化 Benchmark 聚合 —— 匯集 400+ 閉源與開源模型的 GPQA、SWE-bench 等硬核指標</p>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <!-- SVG：各大指標領先模型一覽 (投影片 p.21 視覺化重現) -->
+                <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-xl border border-slate-800">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-sm text-emerald-400 font-mono">🏆 全球頂尖 AI 模型各維度領先霸主 (投影片 p.21 數據整理)</h3>
+                        <span class="text-xs text-slate-400">LLM Stats Composite Score</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                            <div class="flex items-center justify-between text-xs text-purple-400 font-bold mb-1">
+                                <span>FRONTIER REASONING</span>
+                                <span>96.0%</span>
+                            </div>
+                            <h4 class="font-bold text-white text-base">GPT-6 Astra</h4>
+                            <p class="text-xs text-slate-400 mt-1">在 GPQA Diamond 等高難度科學推理基準取得 96.0% 的成績，位居頂峰。</p>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                            <div class="flex items-center justify-between text-xs text-blue-400 font-bold mb-1">
+                                <span>CODING & AGENTS</span>
+                                <span>Top 1</span>
+                            </div>
+                            <h4 class="font-bold text-white text-base">Claude Opus 5 & Sonnet 5.5</h4>
+                            <p class="text-xs text-slate-400 mt-1">在真實代碼對抗（Code Arena）、SWE-bench 與複雜工具調用（Tool Use）表現最突出。</p>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                            <div class="flex items-center justify-between text-xs text-emerald-400 font-bold mb-1">
+                                <span>BEST VALUE</span>
+                                <span>$2.00 / 1M</span>
+                            </div>
+                            <h4 class="font-bold text-white text-base">Gemini 3.1 Pro</h4>
+                            <p class="text-xs text-slate-400 mt-1">在排名前 10 的頂級旗艦模型中成本控制極佳，百萬輸入僅需 $2.00 美元。</p>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                            <div class="flex items-center justify-between text-xs text-amber-400 font-bold mb-1">
+                                <span>CONTEXT WINDOW</span>
+                                <span>2.0M Tokens</span>
+                            </div>
+                            <h4 class="font-bold text-white text-base">Grok-4 Fast Reasoning</h4>
+                            <p class="text-xs text-slate-400 mt-1">原生支援長達 200 萬 Tokens 的超長上下文視窗，適合整本專案代碼分析。</p>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                            <div class="flex items-center justify-between text-xs text-rose-400 font-bold mb-1">
+                                <span>INFERENCE SPEED</span>
+                                <span>325 tokens/s</span>
+                            </div>
+                            <h4 class="font-bold text-white text-base">MiniMax M3</h4>
+                            <p class="text-xs text-slate-400 mt-1">輸出速度超過 325 tokens/s，位居低延遲極致即時回應場景前列。</p>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                            <div class="flex items-center justify-between text-xs text-cyan-400 font-bold mb-1">
+                                <span>OPEN-WEIGHTS</span>
+                                <span>93.5% GPQA</span>
+                            </div>
+                            <h4 class="font-bold text-white text-base">Kimi K3 / GLM-5.2</h4>
+                            <p class="text-xs text-slate-400 mt-1">在開放權重模型中名列前茅，可本地私有化部署且推理能力逼近頂級閉源模型。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 投影片 p.22 競技場盲測與 p.23 標準基準庫說明 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Arenas 競技場 -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                                <i data-lucide="swords" class="w-4 h-4 text-emerald-600"></i>
+                                Arenas（競技場盲測）
+                            </h4>
+                            <span class="text-[11px] bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-mono">Moving to Playground</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            包含對話（Chat）、程式設計（Coding）、網頁生成、SVG／視覺化等多模態領域的真實勝率盲測評比。歷史排行榜與結果作為公開檔案存檔，並逐步遷移至更強大的多輪 Playground。
+                        </p>
+                    </div>
+
+                    <!-- Benchmarks 標準庫 -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                                <i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-600"></i>
+                                Benchmarks（標準基準庫）
+                            </h4>
+                            <span class="text-[11px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-mono">TrueSkill Aggregated</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            匯整 GPQA、MMLU-Pro、AIME、LiveCodeBench、SWE-Bench Verified 等權威測試集的詳細成績，透過保守 TrueSkill 算法綜合出可靠的模型指標（Overall Index）。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 投影片 p.24 實機截圖完整重現：Pricing & Specs (旗艦規格對比表) -->
+                <div class="bg-slate-950 text-white rounded-2xl p-6 border border-slate-800 shadow-xl overflow-hidden">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 pb-4 border-b border-slate-800">
+                        <div>
+                            <span class="text-xs font-mono text-emerald-400 uppercase tracking-widest font-bold">AT A GLANCE</span>
+                            <h3 class="text-lg font-bold text-white mt-0.5">How current flagship models compare (旗艦模型規格比對)</h3>
+                            <p class="text-xs text-slate-400 mt-1">A consistent view of benchmark quality, token pricing, context, speed and license.</p>
+                        </div>
+                        <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded font-mono">llm-stats.com/models/compare</span>
+                    </div>
+
+                    <div class="overflow-x-auto mt-4">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="text-slate-400 border-b border-slate-800 uppercase tracking-wider text-[11px] bg-slate-900/50">
+                                <tr>
+                                    <th class="py-3 px-3">Model</th>
+                                    <th class="py-3 px-3">GPQA</th>
+                                    <th class="py-3 px-3">Input / Output ($/1M)</th>
+                                    <th class="py-3 px-3">Context</th>
+                                    <th class="py-3 px-3">Speed (TTFT)</th>
+                                    <th class="py-3 px-3">Modality</th>
+                                    <th class="py-3 px-3">License</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60 text-slate-200">
+                                <tr class="hover:bg-slate-900/60">
+                                    <td class="py-3 px-3 font-bold text-white flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> GPT-6 Astra
+                                        <span class="text-[10px] text-slate-400 font-normal">OpenAI</span>
+                                    </td>
+                                    <td class="py-3 px-3 text-emerald-400 font-bold">96.0%</td>
+                                    <td class="py-3 px-3">$10.00 / $50.00</td>
+                                    <td class="py-3 px-3">1.05M</td>
+                                    <td class="py-3 px-3 text-slate-300">69 c/s (2.6s)</td>
+                                    <td class="py-3 px-3">Text + vision</td>
+                                    <td class="py-3 px-3 text-slate-400">Proprietary</td>
+                                </tr>
+                                <tr class="hover:bg-slate-900/60">
+                                    <td class="py-3 px-3 font-bold text-white flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-purple-400"></span> Claude Opus 4.7 / 5
+                                        <span class="text-[10px] text-slate-400 font-normal">Anthropic</span>
+                                    </td>
+                                    <td class="py-3 px-3 text-purple-300 font-bold">94.2%</td>
+                                    <td class="py-3 px-3">$5.00 / $25.00</td>
+                                    <td class="py-3 px-3">1.0M</td>
+                                    <td class="py-3 px-3 text-slate-500">—</td>
+                                    <td class="py-3 px-3">Text + vision</td>
+                                    <td class="py-3 px-3 text-slate-400">Proprietary</td>
+                                </tr>
+                                <tr class="hover:bg-slate-900/60">
+                                    <td class="py-3 px-3 font-bold text-white flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-blue-400"></span> Gemini 3.1 Pro
+                                        <span class="text-[10px] text-slate-400 font-normal">Google</span>
+                                    </td>
+                                    <td class="py-3 px-3 text-blue-300 font-bold">94.3%</td>
+                                    <td class="py-3 px-3 text-emerald-400 font-bold">$2.00 / $12.00</td>
+                                    <td class="py-3 px-3">1.05M</td>
+                                    <td class="py-3 px-3 text-slate-500">—</td>
+                                    <td class="py-3 px-3">Text + vision</td>
+                                    <td class="py-3 px-3 text-slate-400">Proprietary</td>
+                                </tr>
+                                <tr class="hover:bg-slate-900/60">
+                                    <td class="py-3 px-3 font-bold text-white flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-slate-300"></span> Grok 4.5
+                                        <span class="text-[10px] text-slate-400 font-normal">xAI</span>
+                                    </td>
+                                    <td class="py-3 px-3 text-slate-200 font-bold">93.0%</td>
+                                    <td class="py-3 px-3 text-emerald-400 font-bold">$2.00 / $6.00</td>
+                                    <td class="py-3 px-3">500K</td>
+                                    <td class="py-3 px-3 text-slate-500">—</td>
+                                    <td class="py-3 px-3">Text + vision</td>
+                                    <td class="py-3 px-3 text-slate-400">Proprietary</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ======================= 5. 選型決策指南 ======================= -->
+        <section id="decision-matrix" class="scroll-mt-24 pt-4">
+            <div class="bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-950 text-white rounded-3xl p-8 shadow-xl">
+                <div class="text-center max-w-2xl mx-auto space-y-3">
+                    <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 rounded-full text-xs font-semibold">
+                        實戰選型決策樹
+                    </span>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold">四個平台如何交叉驗證？</h3>
+                    <p class="text-xs sm:text-sm text-slate-300">
+                        不要單信一個指標。依據業務生命週期採取正確的決策順序，避免預算浪費與效能瓶頸。
+                    </p>
+                </div>
+
+                <!-- 流程引導卡片 -->
+                <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+                    <div class="bg-white/10 p-5 rounded-2xl border border-white/10 backdrop-blur space-y-2">
+                        <div class="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold">1</div>
+                        <h4 class="font-bold text-white text-base">體驗驗證階段</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            <strong>首選 LMarena：</strong>
+                            做對話助理、多模態生圖產品時，先查 LMarena Elo 分數，確保模型的語氣與視覺審美符合目標使用者喜好。
+                        </p>
+                    </div>
+
+                    <div class="bg-white/10 p-5 rounded-2xl border border-white/10 backdrop-blur space-y-2">
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">2</div>
+                        <h4 class="font-bold text-white text-base">產業驗證階段</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            <strong>首選 OpenRouter：</strong>
+                            看全球開發者都在呼叫誰。如果某款 Flash 模型調用量激增，代表其在生產線（Production）已經被驗證具備穩定高性價比。
+                        </p>
+                    </div>
+
+                    <div class="bg-white/10 p-5 rounded-2xl border border-white/10 backdrop-blur space-y-2">
+                        <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">3</div>
+                        <h4 class="font-bold text-white text-base">架構與雲端佈署</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            <strong>首選 Artificial Analysis：</strong>
+                            計算首字延遲(TTFT)是否能在 1 秒內返回、每秒 Token 能否滿足流暢打字效果，並在 Groq/Together/AWS 間選出最低延遲供應商。
+                        </p>
+                    </div>
+
+                    <div class="bg-white/10 p-5 rounded-2xl border border-white/10 backdrop-blur space-y-2">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">4</div>
+                        <h4 class="font-bold text-white text-base">複雜專業任務</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            <strong>首選 llm-stats：</strong>
+                            牽涉數學證明、複雜 Agent 鏈條、軟體工程代碼審查時，直接查詢 GPQA 與 SWE-bench Verified 分數挑選硬實力最強的模型。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 完整四大維度對比速查表 -->
+                <div class="mt-10 overflow-x-auto bg-black/40 rounded-2xl border border-white/10 p-4">
+                    <table class="w-full text-xs text-left">
+                        <thead>
+                            <tr class="text-slate-400 border-b border-white/10 uppercase tracking-wider font-mono">
+                                <th class="pb-3 px-3">評測平台</th>
+                                <th class="pb-3 px-3">核心數據源</th>
+                                <th class="pb-3 px-3">評測核心機制</th>
+                                <th class="pb-3 px-3">代表指標</th>
+                                <th class="pb-3 px-3">最適合讀者角色</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 text-slate-200">
+                            <tr>
+                                <td class="py-3 px-3 font-bold text-orange-400">LMarena</td>
+                                <td class="py-3 px-3">數百萬全球用戶真實提問</td>
+                                <td class="py-3 px-3">雙盲 A/B 匿名投票對決</td>
+                                <td class="py-3 px-3 font-mono">Elo Rating (勝率積分)</td>
+                                <td class="py-3 px-3 text-slate-300">產品經理、UI/UX 設計師</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3 font-bold text-blue-400">OpenRouter</td>
+                                <td class="py-3 px-3">產線環境 API 呼叫真實 Token</td>
+                                <td class="py-3 px-3">每週用量統計與增長率追蹤</td>
+                                <td class="py-3 px-3 font-mono">Tokens/Week, Cached Price</td>
+                                <td class="py-3 px-3 text-slate-300">全端工程師、技術長 (CTO)</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3 font-bold text-purple-400">Artificial Analysis</td>
+                                <td class="py-3 px-3">全球獨立測速伺服器節點</td>
+                                <td class="py-3 px-3">多變量實測與帕累托效率邊界</td>
+                                <td class="py-3 px-3 font-mono">TTFT, TPS, Cost per Task</td>
+                                <td class="py-3 px-3 text-slate-300">雲端架構師、DevOps、系統優化師</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3 font-bold text-emerald-400">llm-stats</td>
+                                <td class="py-3 px-3">權威公認學術測試集</td>
+                                <td class="py-3 px-3">標準題目跑分與規格彙整</td>
+                                <td class="py-3 px-3 font-mono">GPQA, SWE-bench, Context</td>
+                                <td class="py-3 px-3 text-slate-300">AI 研究員、演算法工程師</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 mt-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+            <div class="flex items-center justify-center space-x-2 text-white font-bold text-base">
+                <i data-lucide="compass" class="w-5 h-5 text-indigo-400"></i>
+                <span>大語言模型評測與比較教學指南</span>
+            </div>
+            <p class="text-xs text-slate-500">
+                本網頁完全依據投影片《01-01.大語言模型比較_網站.pptx》內容進行擴充與工程重構，包含 LMarena、OpenRouter、Artificial Analysis、llm-stats 四大核心平台之實拍圖表數據與指標體系。
+            </p>
+        </div>
+    </footer>
+
+    <!-- 互動邏輯 -->
+    <script>
+        // 初始化 Lucide 圖標
+        lucide.createIcons();
+
+        // LMarena Tab 切換功能
+        function switchArenaTab(tabId) {
+            // 隱藏所有 tab 內容
+            const contents = document.querySelectorAll('.arena-content');
+            contents.forEach(content => content.classList.add('hidden'));
+
+            // 移除所有按鈕 active 樣式
+            const buttons = document.querySelectorAll('.arena-tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+
+            // 顯示選中的 tab 內容
+            const activeTab = document.getElementById(tabId);
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+            }
+
+            // 為被點擊的按鈕添加 active 樣式
+            const clickedBtn = event.currentTarget;
+            if (clickedBtn) {
+                clickedBtn.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+                clickedBtn.classList.remove('border-transparent', 'text-slate-500');
+            }
+        }
+    </script>
+</body>
+</html>
