@@ -190,6 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const remoteControlStep = tool.tutorialSteps ? tool.tutorialSteps.find(s => s.step && (s.step.includes('Remote Control') || s.step.includes('遠端遙控'))) : null;
     const remoteControlImgUrl = 'images_src/ok/20261023_antigravity_remote_control.png';
 
+    // 檢查是否有獨立的 Remote Agents 設定步驟
+    const remoteAgentsStep = tool.id === 'tool-antigravity-remote-agents' || (tool.tutorialSteps && tool.tutorialSteps.find(s => s.step && (s.step.includes('Remote Agents') || s.step.includes('遠端代理程式'))));
+    const remoteAgentsImgUrl = 'images_src/ok/20261107_antigravity_remote_agents_arch.png';
+
     // 檢查是否有獨立的 Manus 資料庫設定步驟 (特別提醒資料庫位置與去識別化)
     const manusDbStep = tool.id === 'tool-manus-voting-app' || (tool.tutorialSteps && tool.tutorialSteps.find(s => s.step && (s.step.includes('資料庫放在哪邊') || s.step.includes('受管資料庫'))));
     const manusDbImgUrl = 'images_src/ok/20261027_manus_voting_database_deidentified.png';
@@ -377,6 +381,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
                   真實投票資料庫包含學員或同仁真實姓名。在公開教材、成果簡報或技術分享截圖時，<strong style="color: #f59e0b;">必須針對姓名欄位進行模糊或馬賽克去識別化</strong>，恪遵個人資料保護法，展現專業資安素養！
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    
+    let remoteAgentsHighlightHtml = '';
+    if (remoteAgentsStep) {
+      remoteAgentsHighlightHtml = `
+        <!-- (2.56) 核心特寫：配置 Remote Agents (遠端代理程式) 雲端受管沙箱獨立專區 -->
+        <section class="section-card" style="border: 2px solid #10b981; background: linear-gradient(145deg, rgba(16, 185, 129, 0.08), rgba(15, 23, 42, 0.6)); border-radius: 14px; padding: 22px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px dashed rgba(16, 185, 129, 0.4); padding-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <h3 class="section-title" style="margin-bottom: 0; border-bottom: none; color: #34d399; font-size: 1.15rem; display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-cloud" style="color: #34d399; font-size: 1.2rem;"></i>
+              <span>配置 Remote Agents (遠端代理程式) 雲端受管沙箱與非同步執行中樞</span>
+            </h3>
+            <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #6ee7b7; padding: 4px 12px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.4);">
+              <i class="fa-solid fa-server"></i> Google 雲端受管隔離沙箱 · 脫機非同步運算
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: center;">
+            <!-- 獨立圖片框 -->
+            <div style="border-radius: 10px; overflow: hidden; border: 1.5px solid rgba(16, 185, 129, 0.4); background: #0b0f19; box-shadow: 0 6px 16px rgba(0,0,0,0.3);">
+              <img src="${remoteAgentsImgUrl}" alt="Google Antigravity Remote Agents 雲端架構示意圖" class="zoomable-img" style="width: 100%; display: block; cursor: zoom-in;" onerror="this.src='https://via.placeholder.com/600x300?text=Remote+Agents+Architecture'" />
+              <div style="padding: 8px 12px; font-size: 0.75rem; color: #94a3b8; text-align: center; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.06);">
+                <i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大檢視 Antigravity Remote Agents 雲端受管沙箱架構圖
+              </div>
+            </div>
+
+            <!-- 獨立說明框 -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #10b981;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-cloud-bolt" style="color: #34d399;"></i>
+                  <span>完全脫機運行 (Headless Execution & Cloud Sandbox)</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  不同於 Remote Control 依賴本地開機，Remote Agents 運行於 Google 全受管的雲端獨立虛擬機器。任務派發後，筆電關機或睡眠完全不受影響，雲端持續進行大規模編譯與重構運算。
+                </div>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #06b6d4;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-network-wired" style="color: #06b6d4;"></i>
+                  <span>專案雲端資源深度整合 (GitHub / Drive / Direct Upload)</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  • <strong style="color: #06b6d4;">GitHub OAuth</strong>：自動複製遠端代碼庫並建立專用工作分支。<br>
+                  • <strong style="color: #06b6d4;">Google Drive</strong>：隨需讀取 Docs、Sheets、PDF 設計藍圖規格。<br>
+                  • <strong style="color: #06b6d4;">Direct Upload</strong>：本機檔案可直接暫存上傳至沙箱路徑 <code style="background: rgba(0,0,0,0.4); padding: 1px 4px; border-radius: 3px; color: #67e8f9;">/home/antigravity/upload</code>。
+                </div>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 10px; padding: 14px; border-left: 4px solid #a855f7;">
+                <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-code-pull-request" style="color: #c084fc;"></i>
+                  <span>自動化回歸測試與一鍵 GitHub Pull Request (PR)</span>
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
+                  在雲端全自動執行長達數小時之單元測試與 E2E 測試，若有報錯由 Agent 自主反思修復。測試全數通過後，自動將代碼推送到遠端分支並發起標準 GitHub PR，無縫融入現代 CI/CD 團隊工作流！
                 </div>
               </div>
             </div>
@@ -676,7 +744,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tool.flowImage) {
       const rawImages = Array.isArray(tool.flowImage) ? tool.flowImage : [tool.flowImage];
       // 若已有獨立展示 Turbo Mode 與 Models & Usage 圖片，則在頂部通用畫廊中過濾掉，避免重複
-      const images = rawImages.filter(url => !url.includes('antigravity_settings_turbo_mode') && !url.includes('antigravity_settings_models_usage') && !url.includes('antigravity_remote_control') && !url.includes('manus_voting_database_deidentified'));
+      const images = rawImages.filter(url => !url.includes('antigravity_settings_turbo_mode') && !url.includes('antigravity_settings_models_usage') && !url.endsWith('20261023_antigravity_remote_control.png') && !url.includes('antigravity_remote_agents_arch') && !url.includes('manus_voting_database_deidentified'));
 
       const imgCardsHtml = images.map((imgUrl, index) => `
         <div class="image-wrapper" style="flex: 1; min-width: 280px; max-width: 100%;">
@@ -732,6 +800,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       <!-- (2.55) 獨立設定專區框框：Remote Control -->
       ${remoteControlHighlightHtml}
+
+      <!-- (2.56) 獨立設定專區框框：Remote Agents -->
+      ${remoteAgentsHighlightHtml}
 
       <!-- (2.58) 獨立設定專區框框：Manus Database -->
       ${manusDatabaseHighlightHtml}
