@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama 內部運作機制深度解析</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        ollama: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            800: '#0f172a',
+                            900: '#020617',
+                            accent: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .glow-active {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.4), 0 0 10px -6px rgba(16, 185, 129, 0.2);
+        }
+        .code-gradient {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.95) 100%);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-white min-h-screen">
+
+    <!-- 頂部導航欄 -->
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-slate-950/80 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-xl text-slate-950 shadow-md">
+                    🦙
+                </div>
+                <div>
+                    <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Ollama 內部運作</span>
+                    <span class="hidden sm:inline-block ml-2 px-2 py-0.5 text-xs rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">架構與推論核心解析</span>
+                </div>
+            </div>
+            <nav class="flex items-center gap-2 sm:gap-6 text-sm font-medium">
+                <a href="project_local_llm.html" class="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1"><i class="fa-solid fa-microchip"></i> 回專題總覽</a>
+                <a href="index.html" class="text-slate-400 hover:text-white flex items-center gap-1"><i class="fa-solid fa-house"></i> 首頁</a>
+                <a href="#architecture" class="text-slate-400 hover:text-emerald-400 transition-colors">分層架構</a>
+                <a href="#lifecycle" class="text-slate-400 hover:text-emerald-400 transition-colors">請求生命週期</a>
+                <a href="#offload-sim" class="text-slate-400 hover:text-emerald-400 transition-colors">GPU 切層試算</a>
+                <a href="#core-tech" class="text-slate-400 hover:text-emerald-400 transition-colors">關鍵技術</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero 介紹 -->
+    <section class="relative overflow-hidden py-16 sm:py-24 border-b border-slate-800/80 bg-gradient-to-b from-slate-900/40 to-transparent">
+        <div class="max-w-5xl mx-auto px-4 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-xs text-slate-300 mb-6">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                大語言模型的 Docker 化實踐
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-6">
+                揭秘 Ollama：從 <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Go 協調器</span> 到 <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">llama.cpp</span> 矩陣推論
+            </h1>
+
+            <!-- 開頭幾句話精確講解 Ollama -->
+            <div class="max-w-3xl mx-auto mb-10 p-5 rounded-2xl bg-slate-900/80 border border-slate-700/70 shadow-lg text-left backdrop-blur-sm">
+                <div class="flex items-center gap-2 mb-2 text-emerald-400 font-semibold text-sm">
+                    <i class="fa-solid fa-lightbulb"></i> 一句話看懂 Ollama 是什麼？
+                </div>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                    <strong>Ollama 是一個專為「本地端運行大語言模型」設計的高效能封裝框架。</strong>
+                    它就像是 <em>AI 界的 Docker</em>——將複雜的權重下載、GGUF 格式解析、GPU/CPU 動態顯存切層，以及 OpenAI 兼容的 REST API 全部打包成一個極簡的守護程序，讓一般開發者無需配置繁瑣的 Python/CUDA 環境，只需一條指令即可在本機暢享頂級開源模型。
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-800/80 text-xs text-slate-400">
+                    <div class="flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">●</span> <strong>零環境依賴：</strong>單一二進位執行檔
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-cyan-400 font-bold">●</span> <strong>極致效能：</strong>C++ 底層原生矩陣加速
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-purple-400 font-bold">●</span> <strong>生態兼容：</strong>標準 HTTP/OpenAI 協議
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG 1: Ollama 巨觀資料流示意圖 -->
+            <div class="max-w-4xl mx-auto rounded-2xl border border-slate-800 bg-slate-950/70 p-4 sm:p-6 shadow-2xl">
+                <div class="text-xs font-mono text-slate-400 text-left mb-3 flex items-center justify-between">
+                    <span><i class="fa-solid fa-diagram-project text-cyan-400 mr-1"></i> Ollama 宏觀架構拓撲圖</span>
+                    <span class="text-emerald-400 text-[11px]">Vector SVG Architecture</span>
+                </div>
+                <svg viewBox="0 0 860 180" class="w-full h-auto text-slate-200 select-none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="clientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.2"/>
+                            <stop offset="100%" stop-color="#0284c7" stop-opacity="0.05"/>
+                        </linearGradient>
+                        <linearGradient id="serverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
+                            <stop offset="100%" stop-color="#059669" stop-opacity="0.05"/>
+                        </linearGradient>
+                        <linearGradient id="runnerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.25"/>
+                            <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.05"/>
+                        </linearGradient>
+                        <linearGradient id="hwGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25"/>
+                            <stop offset="100%" stop-color="#d97706" stop-opacity="0.05"/>
+                        </linearGradient>
+                        <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b" />
+                        </marker>
+                        <marker id="arrow-emerald" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
+                        </marker>
+                    </defs>
+
+                    <!-- Client Node -->
+                    <rect x="15" y="30" width="160" height="120" rx="14" fill="url(#clientGrad)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 2"/>
+                    <text x="95" y="62" fill="#38bdf8" font-size="13" font-weight="bold" text-anchor="middle">用戶層 (Client)</text>
+                    <text x="95" y="85" fill="#94a3b8" font-size="10" text-anchor="middle">CLI / OpenWebUI</text>
+                    <text x="95" y="103" fill="#94a3b8" font-size="10" text-anchor="middle">LangChain / REST</text>
+                    <rect x="35" y="118" width="120" height="20" rx="6" fill="#0369a1" fill-opacity="0.3"/>
+                    <text x="95" y="132" fill="#bae6fd" font-size="9" font-family="monospace" text-anchor="middle">:11434 / HTTP</text>
+
+                    <!-- Line 1: Client -> Server -->
+                    <path d="M 175 90 L 225 90" stroke="#10b981" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+                    <text x="200" y="80" fill="#6ee7b7" font-size="9" font-family="monospace" text-anchor="middle">JSON/SSE</text>
+
+                    <!-- Server Node (Go) -->
+                    <rect x="235" y="20" width="180" height="140" rx="14" fill="url(#serverGrad)" stroke="#10b981" stroke-width="2"/>
+                    <text x="325" y="52" fill="#34d399" font-size="14" font-weight="bold" text-anchor="middle">Ollama 守護進程</text>
+                    <text x="325" y="70" fill="#a7f3d0" font-size="10" font-family="monospace" text-anchor="middle">[ Golang Server ]</text>
+                    <line x1="250" y1="80" x2="400" y2="80" stroke="#059669" stroke-opacity="0.4"/>
+                    <text x="325" y="100" fill="#cbd5e1" font-size="10" text-anchor="middle">• 鏡像庫 (Manifest/Blobs)</text>
+                    <text x="325" y="118" fill="#cbd5e1" font-size="10" text-anchor="middle">• 硬體 VRAM 算力偵測</text>
+                    <text x="325" y="136" fill="#cbd5e1" font-size="10" text-anchor="middle">• Runner 排程 & 保活</text>
+
+                    <!-- Line 2: Server -> Runner -->
+                    <path d="M 415 90 L 465 90" stroke="#a855f7" stroke-width="2" marker-end="url(#arrow)"/>
+                    <text x="440" y="80" fill="#c084fc" font-size="9" font-family="monospace" text-anchor="middle">IPC/Pipe</text>
+
+                    <!-- Runner Node (llama.cpp) -->
+                    <rect x="475" y="20" width="180" height="140" rx="14" fill="url(#runnerGrad)" stroke="#a855f7" stroke-width="1.8"/>
+                    <text x="565" y="52" fill="#c084fc" font-size="14" font-weight="bold" text-anchor="middle">推論子進程 (Runner)</text>
+                    <text x="565" y="70" fill="#e9d5ff" font-size="10" font-family="monospace" text-anchor="middle">[ C/C++ llama.cpp ]</text>
+                    <line x1="490" y1="80" x2="640" y2="80" stroke="#7e22ce" stroke-opacity="0.4"/>
+                    <text x="565" y="100" fill="#cbd5e1" font-size="10" text-anchor="middle">• GGUF 權重解析 (mmap)</text>
+                    <text x="565" y="118" fill="#cbd5e1" font-size="10" text-anchor="middle">• GPU 層級切分 (Offload)</text>
+                    <text x="565" y="136" fill="#cbd5e1" font-size="10" text-anchor="middle">• KV Cache & Prefill/Decode</text>
+
+                    <!-- Line 3: Runner -> Hardware -->
+                    <path d="M 655 90 L 705 90" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow)"/>
+
+                    <!-- Hardware Node -->
+                    <rect x="715" y="30" width="130" height="120" rx="14" fill="url(#hwGrad)" stroke="#f59e0b" stroke-width="1.5"/>
+                    <text x="780" y="60" fill="#fbbf24" font-size="13" font-weight="bold" text-anchor="middle">硬體計算加速</text>
+                    <text x="780" y="82" fill="#fde68a" font-size="10" text-anchor="middle">CUDA (NVIDIA)</text>
+                    <text x="780" y="100" fill="#fde68a" font-size="10" text-anchor="middle">Metal (Apple M晶片)</text>
+                    <text x="780" y="118" fill="#fde68a" font-size="10" text-anchor="middle">ROCm (AMD)</text>
+                    <text x="780" y="136" fill="#fde68a" font-size="10" text-anchor="middle">AVX-512 (CPU)</text>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主要內容容器 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
+
+        <!-- 區塊 1: 總體分層架構 -->
+        <section id="architecture" class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-emerald-400"></i>
+                        總體分層架構
+                    </h2>
+                    <p class="text-slate-400 text-sm mt-1">點擊各層查看職責劃分與運作原理</p>
+                </div>
+                <div class="text-xs text-slate-500 mt-2 sm:mt-0">點選架構卡片以即時探索各模組細節</div>
+            </div>
+
+            <!-- SVG 2: Go 守護進程與 Runner 進程隔離架構圖 -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+                <div class="text-xs font-mono text-slate-400 mb-2 flex items-center justify-between">
+                    <span><i class="fa-solid fa-microchip-slash text-emerald-400 mr-1.5"></i> 進程分離與動態排程機制 (Process Isolation SVG)</span>
+                    <span class="text-slate-500 text-[11px]">雙進程架構防禦 CUDA Crash</span>
+                </div>
+                <svg viewBox="0 0 800 120" class="w-full h-auto text-slate-300 select-none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Go Server Box -->
+                    <rect x="10" y="15" width="230" height="90" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+                    <text x="125" y="42" fill="#34d399" font-size="12" font-weight="bold" text-anchor="middle">主守護進程 (Parent Process)</text>
+                    <text x="125" y="62" fill="#94a3b8" font-size="10" text-anchor="middle">PID: 10423 | 常駐運行</text>
+                    <text x="125" y="82" fill="#38bdf8" font-size="9" font-family="monospace" text-anchor="middle">Go Runtime (HTTP :11434)</text>
+
+                    <!-- IPC Arrow -->
+                    <path d="M 240 60 L 320 60" stroke="#64748b" stroke-width="2" stroke-dasharray="3 3"/>
+                    <text x="280" y="52" fill="#94a3b8" font-size="9" font-family="monospace" text-anchor="middle">IPC Pipe</text>
+
+                    <!-- C++ Runner Box -->
+                    <rect x="330" y="15" width="240" height="90" rx="10" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+                    <text x="450" y="42" fill="#a5b4fc" font-size="12" font-weight="bold" text-anchor="middle">推論子進程 (llama.cpp Runner)</text>
+                    <text x="450" y="62" fill="#94a3b8" font-size="10" text-anchor="middle">PID: 10488 | 按需拉起 / Keep-Alive 5m</text>
+                    <text x="450" y="82" fill="#34d399" font-size="9" font-family="monospace" text-anchor="middle">動態掛載 libllama.so / cuda</text>
+
+                    <!-- Barrier Line -->
+                    <line x1="600" y1="15" x2="600" y2="105" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 2"/>
+                    <text x="600" y="115" fill="#f87171" font-size="8" font-family="monospace" text-anchor="middle">崩潰隔離屏障</text>
+
+                    <!-- Fault Safe Box -->
+                    <rect x="620" y="15" width="170" height="90" rx="10" fill="#18181b" stroke="#3f3f46" stroke-width="1"/>
+                    <text x="705" y="42" fill="#e4e4e7" font-size="11" font-weight="bold" text-anchor="middle">高可用保障機制</text>
+                    <text x="705" y="64" fill="#a1a1aa" font-size="9" text-anchor="middle">若 Runner 顯存爆掉 (OOM)</text>
+                    <text x="705" y="80" fill="#34d399" font-size="9" text-anchor="middle">主進程不受影響並自動重啟</text>
+                </svg>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- 左側：架構圖互動展示 (5 cols) -->
+                <div class="lg:col-span-5 space-y-3">
+                    <!-- Layer 1 -->
+                    <div id="arch-layer-client" onclick="selectArchLayer('client')" class="cursor-pointer p-4 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 transition-all">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Layer 1</span>
+                            <span class="text-xs text-emerald-400 font-mono">HTTP / REST / CLI</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white mt-1">用戶端 / 應用層 (Client API)</h3>
+                        <p class="text-xs text-slate-400 mt-1">Ollama CLI, OpenAI 兼容介面 (:11434), LangChain, LlamaIndex</p>
+                    </div>
+
+                    <div class="flex justify-center text-slate-600 my-1"><i class="fa-solid fa-arrow-down"></i></div>
+
+                    <!-- Layer 2 -->
+                    <div id="arch-layer-server" onclick="selectArchLayer('server')" class="cursor-pointer p-4 rounded-xl border-2 border-emerald-500/50 bg-slate-900/90 glow-active transition-all">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Layer 2 (核心指揮官)</span>
+                            <span class="text-xs text-cyan-400 font-mono">Golang Daemon</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white mt-1">Ollama 守護進程 (Server)</h3>
+                        <p class="text-xs text-slate-400 mt-1">模型鏡像管理、硬體偵測、進程生命週期與 Slot 排程</p>
+                    </div>
+
+                    <div class="flex justify-center text-slate-600 my-1"><i class="fa-solid fa-arrow-down"></i></div>
+
+                    <!-- Layer 3 -->
+                    <div id="arch-layer-engine" onclick="selectArchLayer('engine')" class="cursor-pointer p-4 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 transition-all">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Layer 3 (推論核心)</span>
+                            <span class="text-xs text-purple-400 font-mono">C/C++ (llama.cpp)</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white mt-1">推論引擎 (Runner 進程)</h3>
+                        <p class="text-xs text-slate-400 mt-1">GGUF 解析、層級切割 (Offload)、KV Cache、Token Prefill/Decode</p>
+                    </div>
+
+                    <div class="flex justify-center text-slate-600 my-1"><i class="fa-solid fa-arrow-down"></i></div>
+
+                    <!-- Layer 4 -->
+                    <div id="arch-layer-hw" onclick="selectArchLayer('hw')" class="cursor-pointer p-4 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 transition-all">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Layer 4</span>
+                            <span class="text-xs text-amber-400 font-mono">CUDA / Metal / ROCm / AVX</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white mt-1">硬體加速層 (Hardware)</h3>
+                        <p class="text-xs text-slate-400 mt-1">NVIDIA GPU, Apple Silicon, AMD GPU 與 CPU SIMD 指令集</p>
+                    </div>
+                </div>
+
+                <!-- 右側：深度解構說明卡 (7 cols) -->
+                <div class="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8 min-h-[440px] flex flex-col justify-between shadow-xl">
+                    <div id="arch-details-content">
+                        <!-- 動態填充內容 -->
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500">
+                        <span>架構職責隔離設計</span>
+                        <span class="font-mono text-emerald-400">Go IPC ↔ C++ Runner 隔離保護</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 區塊 2: 完整請求生命週期動態互動步進器 -->
+        <section id="lifecycle" class="space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-route text-cyan-400"></i>
+                    請求生命週期 (Request Lifecycle) 步進模擬
+                </h2>
+                <p class="text-slate-400 text-sm mt-1">跟隨一個真實的 API 請求，觀察 Ollama 內部各元件的流轉順序</p>
+            </div>
+
+            <!-- 控制步進按鈕 -->
+            <div class="flex flex-wrap gap-2 items-center justify-between bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+                <div class="flex items-center gap-2">
+                    <button id="btn-prev-step" onclick="changeStep(-1)" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-left mr-1"></i> 上一步
+                    </button>
+                    <button id="btn-next-step" onclick="changeStep(1)" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors">
+                        下一步 <i class="fa-solid fa-chevron-right ml-1"></i>
+                    </button>
+                    <button onclick="resetStep()" class="px-3 py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 text-xs font-medium transition-colors">
+                        重設
+                    </button>
+                </div>
+                <div class="text-xs text-slate-400 font-mono">
+                    目前階段：<span id="step-counter" class="text-emerald-400 font-bold">1 / 5</span>
+                </div>
+            </div>
+
+            <!-- 5 階段視覺條 -->
+            <div class="grid grid-cols-5 gap-2 text-center text-xs">
+                <div id="step-bar-1" class="py-2 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold transition-all">1. 路由校驗</div>
+                <div id="step-bar-2" class="py-2 rounded-lg bg-slate-900 text-slate-500 border border-slate-800 transition-all">2. Runner 排程</div>
+                <div id="step-bar-3" class="py-2 rounded-lg bg-slate-900 text-slate-500 border border-slate-800 transition-all">3. 模板與分詞</div>
+                <div id="step-bar-4" class="py-2 rounded-lg bg-slate-900 text-slate-500 border border-slate-800 transition-all">4. 雙階段推論</div>
+                <div id="step-bar-5" class="py-2 rounded-lg bg-slate-900 text-slate-500 border border-slate-800 transition-all">5. 串流與保活</div>
+            </div>
+
+            <!-- 生命週期主面板 -->
+            <div id="lifecycle-detail-card" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-4">
+                <!-- 內容動態替換 -->
+            </div>
+        </section>
+
+        <!-- 區塊 3: GPU 切層 (Layer Offloading) 試算器 -->
+        <section id="offload-sim" class="space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-microchip text-purple-400"></i>
+                    GPU 切層 (Layer Offload) 原理與互動試算
+                </h2>
+                <p class="text-slate-400 text-sm mt-1">觀察 Ollama 在顯存有限時，如何將 Transformer 網絡層切分在 GPU 與 CPU 之間運作</p>
+            </div>
+
+            <!-- SVG 3: Transformer 層級切分原理示意圖 -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-900/40 border border-slate-800">
+                <div class="text-xs font-mono text-slate-400 mb-2 flex items-center justify-between">
+                    <span><i class="fa-solid fa-arrows-split-up-and-left text-purple-400 mr-1.5"></i> Transformer 網絡層切割分工示意 (VRAM vs System RAM)</span>
+                    <span class="text-cyan-400 text-[11px]">Layer Splitting Concept</span>
+                </div>
+                <svg viewBox="0 0 800 130" class="w-full h-auto select-none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- GPU VRAM Box -->
+                    <rect x="20" y="20" width="420" height="90" rx="12" fill="#064e3b" fill-opacity="0.3" stroke="#10b981" stroke-width="1.5"/>
+                    <text x="35" y="44" fill="#6ee7b7" font-size="12" font-weight="bold">GPU VRAM 顯存空間 (超高頻寬 ~1000 GB/s)</text>
+                    
+                    <!-- GPU layers representation -->
+                    <g transform="translate(35, 55)">
+                        <rect x="0" y="0" width="45" height="40" rx="6" fill="#10b981" fill-opacity="0.8"/>
+                        <text x="22" y="24" fill="#022c22" font-size="9" font-weight="bold" text-anchor="middle">L 0</text>
+                        <rect x="52" y="0" width="45" height="40" rx="6" fill="#10b981" fill-opacity="0.8"/>
+                        <text x="74" y="24" fill="#022c22" font-size="9" font-weight="bold" text-anchor="middle">L 1</text>
+                        <text x="110" y="25" fill="#6ee7b7" font-size="12" font-weight="bold">···</text>
+                        <rect x="125" y="0" width="45" height="40" rx="6" fill="#10b981" fill-opacity="0.8"/>
+                        <text x="147" y="24" fill="#022c22" font-size="9" font-weight="bold" text-anchor="middle">L 22</text>
+                        <!-- KV Cache Box inside GPU -->
+                        <rect x="180" y="0" width="105" height="40" rx="6" fill="#0284c7" fill-opacity="0.8"/>
+                        <text x="232" y="24" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">KV Cache (顯存)</text>
+                        <rect x="295" y="0" width="90" height="40" rx="6" fill="#0f766e" fill-opacity="0.8"/>
+                        <text x="340" y="24" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">CUDA Buffers</text>
+                    </g>
+
+                    <!-- PCIe Bridge -->
+                    <g transform="translate(445, 45)">
+                        <rect x="0" y="0" width="70" height="40" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                        <text x="35" y="18" fill="#fbbf24" font-size="9" font-weight="bold" text-anchor="middle">PCIe 4.0/5.0</text>
+                        <text x="35" y="32" fill="#94a3b8" font-size="8" text-anchor="middle">瓶頸: ~32 GB/s</text>
+                        <path d="M -5 20 L 75 20" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2 2"/>
+                    </g>
+
+                    <!-- CPU RAM Box -->
+                    <rect x="525" y="20" width="255" height="90" rx="12" fill="#78350f" fill-opacity="0.25" stroke="#f59e0b" stroke-width="1.5"/>
+                    <text x="540" y="44" fill="#fcd34d" font-size="12" font-weight="bold">主記憶體 System RAM (CPU 計算)</text>
+                    
+                    <!-- CPU layers -->
+                    <g transform="translate(540, 55)">
+                        <rect x="0" y="0" width="45" height="40" rx="6" fill="#f59e0b" fill-opacity="0.8"/>
+                        <text x="22" y="24" fill="#451a03" font-size="9" font-weight="bold" text-anchor="middle">L 23</text>
+                        <rect x="52" y="0" width="45" height="40" rx="6" fill="#f59e0b" fill-opacity="0.8"/>
+                        <text x="74" y="24" fill="#451a03" font-size="9" font-weight="bold" text-anchor="middle">L 24</text>
+                        <text x="110" y="25" fill="#fcd34d" font-size="12" font-weight="bold">···</text>
+                        <rect x="125" y="0" width="45" height="40" rx="6" fill="#f59e0b" fill-opacity="0.8"/>
+                        <text x="147" y="24" fill="#451a03" font-size="9" font-weight="bold" text-anchor="middle">L 31</text>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- 左側控制面板 (5 cols) -->
+                <div class="lg:col-span-5 bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6">
+                    <div>
+                        <label class="text-sm font-semibold text-slate-300 block mb-2">選擇測試模型</label>
+                        <select id="sim-model-select" onchange="updateSimulation()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="llama3.2-3b">Llama 3.2 3B (28 Layers, Q4_K_M ~2.1 GB)</option>
+                            <option value="llama3-8b" selected>Llama 3 8B (32 Layers, Q4_K_M ~4.8 GB)</option>
+                            <option value="mistral-7b">Mistral 7B (32 Layers, Q4_K_M ~4.4 GB)</option>
+                            <option value="qwen-14b">Qwen 2.5 14B (48 Layers, Q4_K_M ~8.9 GB)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-semibold text-slate-300">可用 GPU 顯示記憶體 (VRAM)</label>
+                            <span id="vram-display" class="font-mono text-emerald-400 text-sm font-bold">4.0 GB</span>
+                        </div>
+                        <input id="vram-slider" type="range" min="1" max="16" step="0.5" value="4" oninput="updateSimulation()" class="w-full accent-emerald-500 cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>1 GB (純切層/CPU為主)</span>
+                            <span>8 GB (常見顯卡)</span>
+                            <span>16 GB (充裕)</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700 text-xs space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">上下文長度 (Context):</span>
+                            <span class="text-slate-200 font-mono">4096 tokens</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">KV Cache 預估占用:</span>
+                            <span id="sim-kv-cache" class="text-cyan-400 font-mono">~0.6 GB</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">CUDA / 計算緩衝固定開銷:</span>
+                            <span class="text-amber-400 font-mono">~0.4 GB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側視覺化結果 (7 cols) -->
+                <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-white">模型層級切割分配圖 (Layer Distribution)</h3>
+                            <span id="offload-status-badge" class="px-2.5 py-1 text-xs rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">混合加速 (CPU+GPU)</span>
+                        </div>
+
+                        <!-- 堆疊圖示 -->
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-xs text-slate-400">
+                                <span>GPU 加速層: <b id="gpu-layers-text" class="text-emerald-400">18</b> 層</span>
+                                <span>CPU 計算層: <b id="cpu-layers-text" class="text-amber-400">14</b> 層</span>
+                            </div>
+                            <div class="h-6 w-full bg-slate-800 rounded-full overflow-hidden flex p-0.5 border border-slate-700">
+                                <div id="gpu-layer-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 rounded-l-full transition-all duration-300" style="width: 56%;"></div>
+                                <div id="cpu-layer-bar" class="bg-gradient-to-r from-amber-600 to-amber-500 rounded-r-full transition-all duration-300" style="width: 44%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- 指標卡 -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div class="p-3 bg-slate-800/40 rounded-xl border border-slate-800">
+                                <div class="text-xs text-slate-400">預估推論速度</div>
+                                <div id="sim-tps" class="text-lg font-bold text-white font-mono mt-0.5">~18 t/s</div>
+                                <div class="text-[10px] text-slate-500">每秒 Token 生成率</div>
+                            </div>
+                            <div class="p-3 bg-slate-800/40 rounded-xl border border-slate-800">
+                                <div class="text-xs text-slate-400">顯存佔用率</div>
+                                <div id="sim-vram-pct" class="text-lg font-bold text-emerald-400 font-mono mt-0.5">92%</div>
+                                <div class="text-[10px] text-slate-500">有效 VRAM 吞吐</div>
+                            </div>
+                            <div class="p-3 bg-slate-800/40 rounded-xl border border-slate-800 col-span-2 sm:col-span-1">
+                                <div class="text-xs text-slate-400">效能瓶頸</div>
+                                <div id="sim-bottleneck" class="text-sm font-semibold text-amber-300 mt-1">PCIe 傳輸延遲</div>
+                                <div class="text-[10px] text-slate-500">主機記憶體↔顯存切換</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-xs text-slate-400 leading-relaxed">
+                        <strong class="text-slate-200">內部原理：</strong> Ollama 呼叫底層 llama.cpp 的 GGUF 解析函式計算每層權重位元組，配合上下文快取需求估算，依據 <code class="text-emerald-400 bg-slate-800 px-1 py-0.5 rounded">n_gpu_layers</code> 決定卸載層數。當無法 100% 裝入 VRAM 時，每一輪 Token 解碼都必須跨越 PCIe 總線傳輸中間特徵向量（Hidden States），造成吞吐量顯著下降。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 區塊 4: 關鍵核心機制深度專題 -->
+        <section id="core-tech" class="space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-cubes text-emerald-400"></i>
+                    三大關鍵機制深入剖析
+                </h2>
+                <p class="text-slate-400 text-sm mt-1">支撐 Ollama 兼具高效能與高穩定性的核心演算法與設計模式</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 卡片 1: Slot 排程 -->
+                <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-network-wired"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Slot-based 併發排程</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed mb-4">
+                            llama.cpp 實作了插槽模型（Slots）。Ollama 透過 <code class="text-cyan-400 font-mono">OLLAMA_NUM_PARALLEL</code> 參數決定開闢多少槽位。
+                        </p>
+                        <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 text-[11px] font-mono text-slate-300 space-y-1">
+                            <div class="text-emerald-400">// 多請求併發共用模型</div>
+                            <div>Slot 0: User A [KV Cache 1]</div>
+                            <div>Slot 1: User B [KV Cache 2]</div>
+                            <div class="text-slate-500">權重 Weight 僅保留一份 (唯讀共享)</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400">
+                        ✨ <strong>好處：</strong>不需重複載入多份數 GB 權重，大幅提升伺服器 QPS。
+                    </div>
+                </div>
+
+                <!-- 卡片 2: KV Cache 復用 -->
+                <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">KV Cache 前綴快取復用</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed mb-4">
+                            在連續對話或包含固定 System Prompt 的場景下，前面對話的 Key/Value 矩陣不需要從第 1 個 Token 重複矩陣相乘。
+                        </p>
+                        <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 text-[11px] font-mono text-slate-300 space-y-1">
+                            <div>對話輪次 1: [系統提示 + 問題一]</div>
+                            <div class="text-emerald-400">對話輪次 2: <span class="line-through text-slate-500">[重算前文]</span> ➔ 重用快取</div>
+                            <div class="text-cyan-300">首字響應延遲 (TTFT) 降低 80%+</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400">
+                        ✨ <strong>好處：</strong>長文本上下文對話時，首個字回傳近乎零延遲。
+                    </div>
+                </div>
+
+                <!-- 卡片 3: 進程隔離與保活 -->
+                <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">進程隔離與 Keep-Alive</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed mb-4">
+                            Go 守護伺服器與 C++ 推論 Runner 獨立為不同進程。即使 CUDA 爆顯存 (OOM) 或產生崩潰，僅會終止該子進程。
+                        </p>
+                        <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 text-[11px] font-mono text-slate-300 space-y-1">
+                            <div>OLLAMA_KEEP_ALIVE=5m (預設)</div>
+                            <div class="text-purple-400">推論結束 ➔ 保持進程與 VRAM 狀態</div>
+                            <div class="text-slate-500">超時 5 分鐘無請求 ➔ 優雅釋放顯存</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400">
+                        ✨ <strong>好處：</strong>守護進程永不中斷，兼顧連續請求效能與記憶體節省。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 區塊 5: GGUF 檔案與記憶體映射 (mmap) 原理解析 -->
+        <section class="bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-10 space-y-6">
+            <div class="max-w-3xl">
+                <span class="text-emerald-400 text-xs font-mono uppercase tracking-wider">底層技術細節</span>
+                <h3 class="text-xl sm:text-2xl font-bold text-white mt-1">為什麼 Ollama 載入大模型幾乎是「秒開」？</h3>
+                <p class="text-slate-400 text-sm mt-2 leading-relaxed">
+                    傳統 Python/PyTorch 載入 70 億參數模型需要幾十秒甚至數分鐘，而 Ollama 在啟動時數百毫秒內就完成準備。這歸功於 GGUF 規範與作業系統的 <code class="text-cyan-400">mmap</code> 機制。
+                </p>
+            </div>
+
+            <!-- SVG 4: mmap 零拷貝映射視覺示意圖 -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-950/80 border border-slate-800/80">
+                <div class="text-xs font-mono text-slate-400 mb-2 flex items-center justify-between">
+                    <span><i class="fa-solid fa-file-contract text-cyan-400 mr-1.5"></i> GGUF 格式與 mmap 零拷貝 (Zero-Copy) 記憶體映射</span>
+                    <span class="text-emerald-400 text-[11px]">Instant Load via OS Page Cache</span>
+                </div>
+                <svg viewBox="0 0 800 130" class="w-full h-auto select-none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- GGUF File on SSD -->
+                    <rect x="20" y="20" width="300" height="90" rx="10" fill="#0f172a" stroke="#0284c7" stroke-width="1.5"/>
+                    <text x="35" y="42" fill="#38bdf8" font-size="11" font-weight="bold">硬碟檔案 (model.gguf on NVMe SSD)</text>
+                    <g transform="translate(35, 52)">
+                        <rect x="0" y="0" width="60" height="42" rx="4" fill="#0284c7" fill-opacity="0.3" stroke="#0284c7"/>
+                        <text x="30" y="24" fill="#bae6fd" font-size="8" text-anchor="middle">Header 清單</text>
+                        <rect x="65" y="0" width="65" height="42" rx="4" fill="#0284c7" fill-opacity="0.3" stroke="#0284c7"/>
+                        <text x="97" y="24" fill="#bae6fd" font-size="8" text-anchor="middle">Tokenizer 表</text>
+                        <rect x="135" y="0" width="135" height="42" rx="4" fill="#0369a1" fill-opacity="0.4" stroke="#38bdf8"/>
+                        <text x="202" y="24" fill="#e0f2fe" font-size="9" font-weight="bold" text-anchor="middle">32-Byte 對齊張量權重</text>
+                    </g>
+
+                    <!-- Mapping Curved Arrows -->
+                    <path d="M 325 50 C 375 50, 395 35, 435 35" stroke="#10b981" stroke-width="2" fill="none" marker-end="url(#arrow-emerald)"/>
+                    <text x="380" y="30" fill="#34d399" font-size="9" font-family="monospace">mmap() 系統呼叫</text>
+
+                    <path d="M 325 85 C 375 85, 395 85, 435 85" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3 3" fill="none"/>
+                    <text x="380" y="100" fill="#94a3b8" font-size="8" font-family="monospace">零反序列化</text>
+
+                    <!-- Virtual Memory Space -->
+                    <rect x="445" y="15" width="335" height="98" rx="10" fill="#022c22" fill-opacity="0.3" stroke="#10b981" stroke-width="1.5"/>
+                    <text x="460" y="38" fill="#6ee7b7" font-size="11" font-weight="bold">虛擬記憶體位址空間 (Virtual Address Space)</text>
+                    <g transform="translate(460, 48)">
+                        <rect x="0" y="0" width="95" height="48" rx="6" fill="#10b981" fill-opacity="0.2" stroke="#10b981"/>
+                        <text x="47" y="22" fill="#a7f3d0" font-size="9" font-weight="bold" text-anchor="middle">虛擬指標指標映射</text>
+                        <text x="47" y="36" fill="#6ee7b7" font-size="8" text-anchor="middle">不耗實體 RAM</text>
+
+                        <rect x="105" y="0" width="100" height="48" rx="6" fill="#10b981" fill-opacity="0.3" stroke="#34d399"/>
+                        <text x="155" y="22" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">按需分頁換入</text>
+                        <text x="155" y="36" fill="#a7f3d0" font-size="8" text-anchor="middle">OS Page Cache</text>
+
+                        <rect x="215" y="0" width="90" height="48" rx="6" fill="#047857" fill-opacity="0.4" stroke="#6ee7b7"/>
+                        <text x="260" y="22" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">DMA 快速送達</text>
+                        <text x="260" y="36" fill="#a7f3d0" font-size="8" text-anchor="middle">Direct to GPU</text>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div class="bg-slate-950/70 p-5 rounded-2xl border border-slate-800/80">
+                    <h4 class="text-sm font-bold text-slate-200 flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-file-code text-cyan-400"></i> GGUF 二進位檔案格式 (由 llama.cpp 制定)
+                    </h4>
+                    <ul class="text-xs text-slate-400 space-y-2 list-disc list-inside">
+                        <li><strong>Header 結構化自包含：</strong>包含模型架構、Tokenizer 分詞表、注意力頭數量、量化型別（如 Q4_K_M）。</li>
+                        <li><strong>嚴格對齊 (Data Alignment)：</strong>張量權重的起始偏移量按照 32-byte 邊界對齊，完美配合 CPU SIMD/GPU DMA 直接讀取，無需反序列化。</li>
+                    </ul>
+                </div>
+
+                <div class="bg-slate-950/70 p-5 rounded-2xl border border-slate-800/80">
+                    <h4 class="text-sm font-bold text-slate-200 flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-memory text-emerald-400"></i> mmap 記憶體映射黑魔法
+                    </h4>
+                    <ul class="text-xs text-slate-400 space-y-2 list-disc list-inside">
+                        <li><strong>非阻塞式載入：</strong>透過系統呼叫建立虛擬記憶體指標，並不立即把整個檔案讀進實體 RAM。</li>
+                        <li><strong>按需分頁換入 (Page Fault)：</strong>只有當 Transformer 計算到該層權重時，作業系統才將對應區塊快取入記憶體；同時利於多進程間共享 Page Cache。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="mt-20 border-t border-slate-800/80 py-8 text-center text-xs text-slate-500">
+        <p>Ollama Internal Architecture Interactive Guide · 依據 Ollama / llama.cpp 實作原理繪製</p>
+    </footer>
+
+    <!-- 核心 JavaScript 互動腳本 -->
+    <script>
+        // 1. 架構圖選擇狀態與內容定義
+        const archData = {
+            client: {
+                title: "Layer 1: 用戶端 / 應用層 (Client API)",
+                badge: "對外介面與生態系",
+                tagColor: "text-slate-300 bg-slate-800",
+                description: "Ollama 提供與 OpenAI 格式高度兼容的 HTTP REST API 以及原生指令列工具。任何支援 OpenAI SDK 的工具（如 LangChain、LlamaIndex、OpenWebUI）都能零修改直接接入。",
+                svgDiagram: `
+                <div class="mb-4 p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                    <div class="text-[11px] font-mono text-cyan-400 mb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-arrows-split-up-and-left mr-1"></i> Client 通訊與串流協定解析 (SVG)</span>
+                        <span class="text-slate-500">HTTP/1.1 Chunked Transfer</span>
+                    </div>
+                    <svg viewBox="0 0 680 130" class="w-full h-auto select-none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Client Side Box -->
+                        <rect x="10" y="20" width="160" height="90" rx="10" fill="#0369a1" fill-opacity="0.15" stroke="#38bdf8" stroke-width="1.5"/>
+                        <text x="90" y="45" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">用戶端應用 (App)</text>
+                        <text x="90" y="65" fill="#94a3b8" font-size="9" text-anchor="middle">CLI / OpenWebUI</text>
+                        <text x="90" y="85" fill="#94a3b8" font-size="9" text-anchor="middle">OpenAI SDK (LangChain)</text>
+
+                        <!-- Request Arrow -->
+                        <path d="M 175 45 L 295 45" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="235" y="38" fill="#bae6fd" font-size="8" font-family="monospace" text-anchor="middle">POST /api/chat</text>
+
+                        <!-- Response Arrow (Stream) -->
+                        <path d="M 295 85 L 175 85" stroke="#10b981" stroke-width="2" stroke-dasharray="4 2" marker-end="url(#arrow-emerald)"/>
+                        <text x="235" y="78" fill="#6ee7b7" font-size="8" font-family="monospace" text-anchor="middle">SSE Token Stream</text>
+
+                        <!-- Server Router Box -->
+                        <rect x="305" y="15" width="180" height="100" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+                        <text x="395" y="40" fill="#34d399" font-size="11" font-weight="bold" text-anchor="middle">Gin HTTP 路由器</text>
+                        <rect x="320" y="55" width="150" height="22" rx="4" fill="#1e293b"/>
+                        <text x="395" y="70" fill="#cbd5e1" font-size="8" font-family="monospace" text-anchor="middle">JSON Body & Options 解析</text>
+                        <rect x="320" y="83" width="150" height="22" rx="4" fill="#064e3b" fill-opacity="0.4"/>
+                        <text x="395" y="98" fill="#a7f3d0" font-size="8" font-family="monospace" text-anchor="middle">/v1/chat/completions 映射</text>
+
+                        <!-- Arrow to Core -->
+                        <path d="M 490 65 L 530 65" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <!-- Downstream Worker -->
+                        <rect x="540" y="20" width="130" height="90" rx="10" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+                        <text x="605" y="45" fill="#a5b4fc" font-size="11" font-weight="bold" text-anchor="middle">調度中樞</text>
+                        <text x="605" y="68" fill="#94a3b8" font-size="9" text-anchor="middle">分發至空閒 Slot</text>
+                        <text x="605" y="88" fill="#818cf8" font-size="8" font-family="monospace" text-anchor="middle">Chan Token 流道</text>
+                    </svg>
+                </div>`,
+                bullets: [
+                    "<b>REST 端點：</b>提供 /api/generate、/api/chat、/api/tags 等核心介面。",
+                    "<b>流式協議：</b>透過 HTTP Chunked Transfer (Server-Sent Events) 即時回傳生成的 Token。",
+                    "<b>跨語言接入：</b>支援 Python, JavaScript, Go 及 CLI 一鍵對話。"
+                ],
+                codeSnippet: `curl http://localhost:11434/api/generate -d '{\n  "model": "llama3.2",\n  "prompt": "Why is the sky blue?",\n  "stream": true\n}'`
+            },
+            server: {
+                title: "Layer 2: Ollama 守護進程 (Go Server)",
+                badge: "核心排程與資源監控",
+                tagColor: "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20",
+                description: "以 Go 語言編寫的高效能後端守護程序。它充當推論引擎與作業系統之間的橋樑，負責模型權重清單管理、硬體算力偵測以及 Runner 生命週期排程。",
+                svgDiagram: `
+                <div class="mb-4 p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                    <div class="text-[11px] font-mono text-emerald-400 mb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-cubes-stacked mr-1"></i> OCI 模型儲存與動態後端排程 (SVG)</span>
+                        <span class="text-slate-500">Blob CAS 存儲機制</span>
+                    </div>
+                    <svg viewBox="0 0 680 130" class="w-full h-auto select-none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Manifest Box -->
+                        <rect x="10" y="20" width="170" height="90" rx="10" fill="#064e3b" fill-opacity="0.2" stroke="#10b981" stroke-width="1.5"/>
+                        <text x="95" y="42" fill="#34d399" font-size="11" font-weight="bold" text-anchor="middle">Manifest (JSON 清單)</text>
+                        <text x="95" y="62" fill="#94a3b8" font-size="8" text-anchor="middle">sha256:4b2a9e... (層指紋)</text>
+                        <line x1="25" y1="72" x2="165" y2="72" stroke="#059669" stroke-opacity="0.3"/>
+                        <text x="95" y="88" fill="#6ee7b7" font-size="8" font-family="monospace" text-anchor="middle">Modelfile / Template</text>
+                        <text x="95" y="100" fill="#6ee7b7" font-size="8" font-family="monospace" text-anchor="middle">Parameters (temp, top_k)</text>
+
+                        <!-- Blob Lookup -->
+                        <path d="M 185 65 L 245 65" stroke="#10b981" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+                        <text x="215" y="58" fill="#a7f3d0" font-size="8" font-family="monospace" text-anchor="middle">SHA256</text>
+
+                        <!-- Blobs Storage -->
+                        <rect x="255" y="20" width="180" height="90" rx="10" fill="#0f172a" stroke="#0284c7" stroke-width="1.5"/>
+                        <text x="345" y="42" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">Blobs (內容定址庫)</text>
+                        <rect x="270" y="52" width="150" height="22" rx="4" fill="#1e293b"/>
+                        <text x="345" y="67" fill="#bae6fd" font-size="8" font-family="monospace" text-anchor="middle">GGUF 權重 (~4.8GB)</text>
+                        <rect x="270" y="80" width="150" height="22" rx="4" fill="#1e293b"/>
+                        <text x="345" y="95" fill="#bae6fd" font-size="8" font-family="monospace" text-anchor="middle">System Prompt 塊</text>
+
+                        <!-- Probe & Dispatch -->
+                        <path d="M 440 65 L 500 65" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="470" y="58" fill="#fbbf24" font-size="8" font-family="monospace" text-anchor="middle">排程調度</text>
+
+                        <!-- Dynamic Library Selection -->
+                        <rect x="510" y="15" width="160" height="100" rx="10" fill="#451a03" fill-opacity="0.3" stroke="#f59e0b" stroke-width="1.5"/>
+                        <text x="590" y="38" fill="#fbbf24" font-size="11" font-weight="bold" text-anchor="middle">動態後端選擇器</text>
+                        <text x="590" y="58" fill="#fde68a" font-size="8" text-anchor="middle">VRAM &gt; 權重: CUDA 啟動</text>
+                        <text x="590" y="75" fill="#fde68a" font-size="8" text-anchor="middle">VRAM 緊張: 啟用 CPU 混算</text>
+                        <rect x="525" y="83" width="130" height="20" rx="4" fill="#78350f" fill-opacity="0.6"/>
+                        <text x="590" y="97" fill="#ffffff" font-size="8" font-family="monospace" text-anchor="middle">選定: libllama_cuda.so</text>
+                    </svg>
+                </div>`,
+                bullets: [
+                    "<b>OCI 模型倉庫：</b>借鑒 Docker 概念，將模型拆分為 Manifest 清單與 Content-Addressable Blobs。",
+                    "<b>動態後端選擇：</b>開機時探測 CUDA/ROCm/Metal/AVX2，按需啟動適配的 C++ 動態函式庫或獨立進程。",
+                    "<b>並發與保活：</b>管理 OLLAMA_KEEP_ALIVE 計時器與 Slot 任務隊列，避免模型重複冷啟動。"
+                ],
+                codeSnippet: `// 守護進程核心職責：\n// 1. 偵測 VRAM: free, total = gpu.GetFreeMemory()\n// 2. 決定計算方案: backend = detectBestBackend()\n// 3. 喚醒推論 Runner: exec.Command("ollama_runner", ...)`
+            },
+            engine: {
+                title: "Layer 3: 推論引擎 (llama.cpp Runner)",
+                badge: "C/C++ 高效能計算核心",
+                tagColor: "text-purple-400 bg-purple-500/10 border border-purple-500/20",
+                description: "Ollama 的推論速度直接來自於深度集成的 llama.cpp。這是一個用純 C/C++ 打造的極致最佳化 LLM 推論核心，去除了 PyTorch 的龐大開銷。",
+                svgDiagram: `
+                <div class="mb-4 p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                    <div class="text-[11px] font-mono text-purple-400 mb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-forward-fast mr-1"></i> 推論雙階段流程與 KV Cache 架構 (SVG)</span>
+                        <span class="text-slate-500">Prefill vs Autoregressive Decode</span>
+                    </div>
+                    <svg viewBox="0 0 680 130" class="w-full h-auto select-none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Phase 1: Prefill -->
+                        <rect x="10" y="15" width="200" height="100" rx="10" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+                        <text x="110" y="38" fill="#c084fc" font-size="11" font-weight="bold" text-anchor="middle">階段 1: Prompt Prefill</text>
+                        <text x="110" y="56" fill="#94a3b8" font-size="8" text-anchor="middle">批次處理全部輸入 Token (N=128)</text>
+                        <rect x="25" y="66" width="170" height="36" rx="6" fill="#312e81"/>
+                        <text x="110" y="82" fill="#e0e7ff" font-size="8" text-anchor="middle">計算 Key/Value Attention 矩陣</text>
+                        <text x="110" y="95" fill="#34d399" font-size="8" font-family="monospace" text-anchor="middle">➔ 填滿初始 KV Cache</text>
+
+                        <!-- Transition Arrow -->
+                        <path d="M 215 65 L 265 65" stroke="#a855f7" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <!-- Central KV Cache -->
+                        <rect x="275" y="20" width="130" height="90" rx="10" fill="#0f172a" stroke="#0284c7" stroke-width="1.5"/>
+                        <text x="340" y="45" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">環形 KV Cache</text>
+                        <rect x="290" y="58" width="100" height="18" rx="3" fill="#0369a1" fill-opacity="0.5"/>
+                        <text x="340" y="71" fill="#bae6fd" font-size="8" font-family="monospace" text-anchor="middle">Key Matrix (fp16)</text>
+                        <rect x="290" y="80" width="100" height="18" rx="3" fill="#0369a1" fill-opacity="0.5"/>
+                        <text x="340" y="93" fill="#bae6fd" font-size="8" font-family="monospace" text-anchor="middle">Val Matrix (fp16)</text>
+
+                        <!-- Transition Arrow 2 -->
+                        <path d="M 410 65 L 460 65" stroke="#a855f7" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <!-- Phase 2: Decode -->
+                        <rect x="470" y="15" width="200" height="100" rx="10" fill="#1e1b4b" stroke="#a855f7" stroke-width="1.5"/>
+                        <text x="570" y="38" fill="#e9d5ff" font-size="11" font-weight="bold" text-anchor="middle">階段 2: Token Decode</text>
+                        <text x="570" y="56" fill="#94a3b8" font-size="8" text-anchor="middle">自回歸單步解碼 (N=1)</text>
+                        <rect x="485" y="66" width="170" height="36" rx="6" fill="#581c87"/>
+                        <text x="570" y="82" fill="#f3e8ff" font-size="8" text-anchor="middle">採樣下一個 Token ID</text>
+                        <text x="570" y="95" fill="#6ee7b7" font-size="8" font-family="monospace" text-anchor="middle">Append 新增 KV ➔ 循環解碼</text>
+                    </svg>
+                </div>`,
+                bullets: [
+                    "<b>GGUF 解析：</b>讀取量化權重並以 mmap 快速映射。",
+                    "<b>層級卸載 (Offloading)：</b>以 Transformer 層為粒度，將矩陣分配至 GPU 顯存與主記憶體。",
+                    "<b>雙階段推論：</b>Prefill (批次處理 Prompt 生成 KV Cache) + Decode (單步自回歸採樣)。"
+                ],
+                codeSnippet: `// llama.cpp 核心流程 (虛擬碼)\nllama_model *model = llama_load_model_from_file("model.gguf", params);\nllama_context *ctx = llama_new_context_with_model(model, ctx_params);\nllama_decode(ctx, llama_batch_get_one(...)); // 自回歸預測`
+            },
+            hw: {
+                title: "Layer 4: 硬體加速與底層指令層",
+                badge: "異質計算架構支援",
+                tagColor: "text-amber-400 bg-amber-500/10 border border-amber-500/20",
+                description: "支援業界主流的各類計算單元，充分利用硬體的低精度矩陣乘法指令（如 Tensor Core、NEON、AMX），讓模型甚至能在普通筆電上流暢運作。",
+                svgDiagram: `
+                <div class="mb-4 p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                    <div class="text-[11px] font-mono text-amber-400 mb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-microchip mr-1"></i> 矩陣運算與硬體加速通道 (SVG)</span>
+                        <span class="text-slate-500">INT4 / FP16 GEMM 硬體加速</span>
+                    </div>
+                    <svg viewBox="0 0 680 130" class="w-full h-auto select-none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- NVIDIA Pipeline -->
+                        <rect x="10" y="15" width="210" height="100" rx="10" fill="#064e3b" fill-opacity="0.25" stroke="#10b981" stroke-width="1.2"/>
+                        <text x="115" y="38" fill="#34d399" font-size="11" font-weight="bold" text-anchor="middle">NVIDIA GPU (CUDA)</text>
+                        <text x="115" y="56" fill="#94a3b8" font-size="8" text-anchor="middle">cuBLAS / Tensor Core</text>
+                        <rect x="25" y="65" width="180" height="38" rx="4" fill="#047857" fill-opacity="0.3"/>
+                        <text x="115" y="80" fill="#a7f3d0" font-size="8" text-anchor="middle">INT4/FP16 矩陣乘法 (GEMM)</text>
+                        <text x="115" y="94" fill="#ffffff" font-size="8" font-family="monospace" text-anchor="middle">超高顯存頻寬 (&gt;1000 GB/s)</text>
+
+                        <!-- Apple Silicon Pipeline -->
+                        <rect x="235" y="15" width="210" height="100" rx="10" fill="#451a03" fill-opacity="0.25" stroke="#f59e0b" stroke-width="1.2"/>
+                        <text x="340" y="38" fill="#fbbf24" font-size="11" font-weight="bold" text-anchor="middle">Apple Silicon (Metal)</text>
+                        <text x="340" y="56" fill="#94a3b8" font-size="8" text-anchor="middle">Metal Performance Shaders</text>
+                        <rect x="250" y="65" width="180" height="38" rx="4" fill="#b45309" fill-opacity="0.3"/>
+                        <text x="340" y="80" fill="#fde68a" font-size="8" text-anchor="middle">統一記憶體 (Unified Memory)</text>
+                        <text x="340" y="94" fill="#ffffff" font-size="8" font-family="monospace" text-anchor="middle">零拷貝 CPU/GPU 共用位址</text>
+
+                        <!-- CPU Pipeline -->
+                        <rect x="460" y="15" width="210" height="100" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="1.2"/>
+                        <text x="565" y="38" fill="#cbd5e1" font-size="11" font-weight="bold" text-anchor="middle">通用 CPU (SIMD)</text>
+                        <text x="565" y="56" fill="#94a3b8" font-size="8" text-anchor="middle">x86 AVX-512 / ARM NEON</text>
+                        <rect x="475" y="65" width="180" height="38" rx="4" fill="#334155" fill-opacity="0.5"/>
+                        <text x="565" y="80" fill="#e2e8f0" font-size="8" text-anchor="middle">多執行緒平行張量點積</text>
+                        <text x="565" y="94" fill="#94a3b8" font-size="8" font-family="monospace" text-anchor="middle">受限於 DDR 記憶體頻寬</text>
+                    </svg>
+                </div>`,
+                bullets: [
+                    "<b>NVIDIA:</b> 呼叫 CUDA Runtime，利用 cuBLAS 進行 FP16 / INT4 GEMM 運算。",
+                    "<b>Apple Silicon:</b> 呼叫 Metal Performance Shaders (MPS)，享有極高頻寬的統一記憶體 (Unified Memory)。",
+                    "<b>CPU:</b> 利用 x86 AVX/AVX2/AVX-512 或 ARM Neon 向量擴展指令集加速 CPU 推論。"
+                ],
+                codeSnippet: `系統偵測範例：\n[Ollama] CUDA GPU 0: NVIDIA GeForce RTX 4090, 24564 MB free\n[Ollama] Using dynamic library: libllama_cuda_v12.so`
+            }
+        };
+
+        function selectArchLayer(layerKey) {
+            // 切換按鈕狀態樣式
+            ['client', 'server', 'engine', 'hw'].forEach(key => {
+                const el = document.getElementById(`arch-layer-${key}`);
+                if (key === layerKey) {
+                    el.className = "cursor-pointer p-4 rounded-xl border-2 border-emerald-500/50 bg-slate-900/90 glow-active transition-all";
+                } else {
+                    el.className = "cursor-pointer p-4 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 transition-all";
+                }
+            });
+
+            // 渲染右側詳細
+            const data = archData[layerKey];
+            const contentEl = document.getElementById('arch-details-content');
+            contentEl.innerHTML = `
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2.5 py-1 rounded-md text-xs font-semibold ${data.tagColor}">${data.badge}</span>
+                        <span class="text-xs text-slate-500 font-mono">模組細節架構</span>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-bold text-white mb-3">${data.title}</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-4">${data.description}</p>
+                    
+                    <!-- 專屬動態 SVG 視覺圖解 -->
+                    ${data.svgDiagram}
+
+                    <ul class="text-xs sm:text-sm text-slate-400 space-y-2 mb-6">
+                        ${data.bullets.map(b => `<li class="flex items-start gap-2"><span class="text-emerald-400">▹</span><span>${b}</span></li>`).join('')}
+                    </ul>
+                </div>
+                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto">
+                    <pre><code>${data.codeSnippet}</code></pre>
+                </div>
+            `;
+        }
+
+        // 2. 請求生命週期步進器邏輯
+        const lifecycleSteps = [
+            {
+                step: 1,
+                title: "1. 驗證與路由解析 (Server Layer)",
+                tag: "進入守護進程",
+                desc: "當收到 HTTP POST /api/generate 請求時，Go 伺服器負責檢查請求的有效性，若本地無對應模型則提示或自動啟動 pull 流程。",
+                details: "伺服器會解析 JSON body，提取 prompt、model、options（如 temperature, num_ctx 等）並配置上下文環境。",
+                log: "[POST /api/chat] -> 驗證模型 llama3.2:latest 存在本地 blob 清單中。"
+            },
+            {
+                step: 2,
+                title: "2. 檢查 Runner 實例狀態 (Runner Management)",
+                tag: "顯存排程與進程調度",
+                desc: "伺服器檢查該模型的 llama.cpp runner 是否已常駐在記憶體中。",
+                details: "• 若已在記憶體中：指派一個空閒 Slot 並繼續。<br>• 若未載入：讀取 GGUF Header，計算 Transformer 層數、KV Cache 與 VRAM 限制，啟動獨立 Runner 子進程進行 mmap 載入並切分 GPU 層數。",
+                log: "[Runner] 檢測到可用 VRAM: 8192 MB，模型共 32 層，計算分配: 32 層全數載入 GPU。"
+            },
+            {
+                step: 3,
+                title: "3. Prompt 模板化與 Tokenization",
+                tag: "格式組裝與分詞",
+                desc: "大語言模型只能接收特定格式的 Token ID 序列，需要透過 Modelfile 內定義的 TEMPLATE 進行組裝。",
+                details: "將使用者的純文字與 System Prompt 包裝為模型特定的聊天格式（例如 ChatML 或 Llama-3 標籤 <|start_header_id|>...），隨後呼叫分詞器轉化為整數向量 [128000, 9906, 11...]。",
+                log: "[Tokenizer] 原始文字轉化完成，產生 Prompt Token 數量: 124 tokens。"
+            },
+            {
+                step: 4,
+                title: "4. 推論執行：Prefill 批次處理與 Decode 單步解碼",
+                tag: "底層核心矩陣運算",
+                desc: "llama.cpp 進行兩階段推論運算。",
+                details: "<b>Prefill 階段：</b>將 124 個 Prompt tokens 一次性吞入模型，計算並建立 KV Cache（若前綴與歷史對話重疊則直接重用快取）。<br><b>Decode 階段：</b>自回歸（Autoregressive）模式開始，每次只計算 1 個 Token，並將其 Key/Value 存入 Cache，循環直至出現 EOS 結束符。",
+                log: "[Prefill] 完成，耗時 18ms (TTFT)。開始解碼下一個 Token..."
+            },
+            {
+                step: 5,
+                title: "5. 串流回應與 Keep-Alive 保活",
+                tag: "Token 串流與資源管理",
+                desc: "每當 Decode 生成一個 Token，就立刻透過 HTTP SSE 串流回傳給前端使用者。",
+                details: "推論結束後，Runner 不會立刻關閉，而是重置保活定時器（預設 5 分鐘）。若 5 分鐘內有新請求，即可零等待直接處理；超時後才會卸載模型釋放 VRAM 給其他程序。",
+                log: "[Stream] 回應完成。Total Tokens: 88, 速率: 42.5 t/s。Runner 進入保活計時。"
+            }
+        ];
+
+        let currentStep = 0;
+
+        function renderLifecycleStep() {
+            const stepData = lifecycleSteps[currentStep];
+            document.getElementById('step-counter').innerText = `${currentStep + 1} / 5`;
+            
+            // 更新進度條
+            for (let i = 1; i <= 5; i++) {
+                const bar = document.getElementById(`step-bar-${i}`);
+                if (i === currentStep + 1) {
+                    bar.className = "py-2 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 font-bold transition-all shadow-sm";
+                } else if (i < currentStep + 1) {
+                    bar.className = "py-2 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 font-medium transition-all";
+                } else {
+                    bar.className = "py-2 rounded-lg bg-slate-900 text-slate-600 border border-slate-800 transition-all";
+                }
+            }
+
+            // 更新按鈕禁用狀態
+            document.getElementById('btn-prev-step').disabled = currentStep === 0;
+            document.getElementById('btn-next-step').disabled = currentStep === 4;
+
+            // 渲染內容
+            const container = document.getElementById('lifecycle-detail-card');
+            container.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                    <h3 class="text-xl font-bold text-white">${stepData.title}</h3>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 w-fit">${stepData.tag}</span>
+                </div>
+                <p class="text-slate-300 text-sm leading-relaxed">${stepData.desc}</p>
+                <div class="p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 text-xs text-slate-400 leading-relaxed">
+                    ${stepData.details}
+                </div>
+                <div class="bg-black/60 p-3 rounded-lg border border-slate-800/80 font-mono text-xs text-emerald-400 flex items-center gap-2">
+                    <span class="text-slate-500">系統即時日誌:</span>
+                    <span class="truncate">${stepData.log}</span>
+                </div>
+            `;
+        }
+
+        function changeStep(delta) {
+            const next = currentStep + delta;
+            if (next >= 0 && next < lifecycleSteps.length) {
+                currentStep = next;
+                renderLifecycleStep();
+            }
+        }
+
+        function resetStep() {
+            currentStep = 0;
+            renderLifecycleStep();
+        }
+
+        // 3. GPU Layer 切層試算器
+        const modelProfiles = {
+            "llama3.2-3b": { totalLayers: 28, weightSize: 2.1, kvSize: 0.35, baseTps: 55 },
+            "llama3-8b": { totalLayers: 32, weightSize: 4.8, kvSize: 0.6, baseTps: 38 },
+            "mistral-7b": { totalLayers: 32, weightSize: 4.4, kvSize: 0.55, baseTps: 40 },
+            "qwen-14b": { totalLayers: 48, weightSize: 8.9, kvSize: 0.9, baseTps: 26 }
+        };
+
+        function updateSimulation() {
+            const modelKey = document.getElementById('sim-model-select').value;
+            const vram = parseFloat(document.getElementById('vram-slider').value);
+            document.getElementById('vram-display').innerText = `${vram.toFixed(1)} GB`;
+
+            const model = modelProfiles[modelKey];
+            document.getElementById('sim-kv-cache').innerText = `~${model.kvSize.toFixed(2)} GB`;
+
+            // 計算開銷：基礎 CUDA overhead (0.4G) + KV cache
+            const overhead = 0.4 + model.kvSize;
+            const availableForWeights = Math.max(0, vram - overhead);
+
+            // 每層權重大小 (GB)
+            const perLayerWeight = model.weightSize / model.totalLayers;
+
+            let gpuLayers = Math.floor(availableForWeights / perLayerWeight);
+            if (gpuLayers > model.totalLayers) gpuLayers = model.totalLayers;
+            if (gpuLayers < 0) gpuLayers = 0;
+
+            const cpuLayers = model.totalLayers - gpuLayers;
+            const gpuPercent = Math.round((gpuLayers / model.totalLayers) * 100);
+            const cpuPercent = 100 - gpuPercent;
+
+            // 更新 UI
+            document.getElementById('gpu-layers-text').innerText = gpuLayers;
+            document.getElementById('cpu-layers-text').innerText = cpuLayers;
+
+            document.getElementById('gpu-layer-bar').style.width = `${gpuPercent}%`;
+            document.getElementById('cpu-layer-bar').style.width = `${cpuPercent}%`;
+
+            const badge = document.getElementById('offload-status-badge');
+            const bottleneck = document.getElementById('sim-bottleneck');
+
+            if (gpuLayers === model.totalLayers) {
+                badge.innerText = "100% GPU 全載入 (最佳效能)";
+                badge.className = "px-2.5 py-1 text-xs rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+                bottleneck.innerText = "GPU 記憶體頻寬";
+                bottleneck.className = "text-sm font-semibold text-emerald-400 mt-1";
+                document.getElementById('sim-tps').innerText = `~${model.baseTps} t/s`;
+            } else if (gpuLayers === 0) {
+                badge.innerText = "全 CPU 推論 (慢速)";
+                badge.className = "px-2.5 py-1 text-xs rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30";
+                bottleneck.innerText = "系統主記憶體頻寬 (RAM)";
+                bottleneck.className = "text-sm font-semibold text-rose-400 mt-1";
+                document.getElementById('sim-tps').innerText = `~${Math.max(2, Math.round(model.baseTps * 0.12))} t/s`;
+            } else {
+                badge.innerText = "混合加速 (CPU + GPU)";
+                badge.className = "px-2.5 py-1 text-xs rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30";
+                bottleneck.innerText = "PCIe 傳輸延遲";
+                bottleneck.className = "text-sm font-semibold text-amber-300 mt-1";
+                // 模擬混合推論速率 (受到 PCIe 與 CPU 拖慢)
+                const ratio = gpuLayers / model.totalLayers;
+                const estimatedTps = Math.round(model.baseTps * (0.15 + 0.85 * Math.pow(ratio, 2)));
+                document.getElementById('sim-tps').innerText = `~${estimatedTps} t/s`;
+            }
+
+            // 顯存佔用百分比
+            const usedVram = Math.min(vram, overhead + (gpuLayers * perLayerWeight));
+            const vramPct = Math.min(100, Math.round((usedVram / vram) * 100));
+            document.getElementById('sim-vram-pct').innerText = `${vramPct}%`;
+        }
+
+        // 初始化
+        window.onload = function() {
+            selectArchLayer('server');
+            renderLifecycleStep();
+            updateSimulation();
+        };
+    </script>
+</body>
+</html>

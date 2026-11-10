@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ollama GPU 硬體支援與生態剖析教學</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons for sleek modern iconography -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            nvidia: {
+              DEFAULT: '#76B900',
+              dark: '#5a8f00',
+              glow: 'rgba(118, 185, 0, 0.15)'
+            },
+            amd: {
+              DEFAULT: '#ED1C24',
+              dark: '#b8141a',
+              glow: 'rgba(237, 28, 36, 0.15)'
+            },
+            brand: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Smooth transitions and custom scrollbar */
+    html {
+      scroll-behavior: smooth;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .code-block {
+      background: #090d16;
+      border: 1px solid #1e293b;
+    }
+  </style>
+</head>
+<body class="bg-brand-950 text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+  <!-- 頂部導航列 -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-brand-950/85 border-b border-slate-800/80 px-4 lg:px-8 py-3.5 transition-all">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-sky-400 to-emerald-400 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i class="ph-bold ph-cpu text-white text-xl"></i>
+        </div>
+        <div>
+          <span class="font-bold text-lg tracking-tight text-white flex items-center gap-2">
+            Ollama <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono border border-slate-700">GPU Guide</span>
+          </span>
+        </div>
+      </div>
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-400">
+        <a href="#why-nvidia" class="hover:text-emerald-400 transition-colors">核心成因分析</a>
+        <a href="#comparison" class="hover:text-sky-400 transition-colors">架構生態對比</a>
+        <a href="#hardware-specs" class="hover:text-amber-400 transition-colors">官方硬體支援規範</a>
+        <a href="#solutions" class="hover:text-rose-400 transition-colors">AMD 救援與最佳化</a>
+      </nav>
+      <div class="flex items-center space-x-2">
+        <a href="../../project_local_llm.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition">
+          <i class="ph-bold ph-cpu"></i> <span>回專題總覽</span>
+        </a>
+        <a href="../../index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+          <i class="ph-bold ph-house"></i> <span>首頁</span>
+        </a>
+        <a href="https://docs.ollama.com/gpu" target="_blank" rel="noopener noreferrer" 
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 shadow-sm shadow-emerald-500/10 transition group">
+          <i class="ph-bold ph-arrow-square-out text-sm group-hover:scale-110 transition-transform"></i>
+          <span>官方文檔 (docs.ollama.com/gpu)</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero 橫幅區 -->
+  <section class="relative overflow-hidden py-16 lg:py-24 border-b border-slate-800/60 bg-gradient-to-b from-brand-900/60 via-brand-950 to-brand-950">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(118,185,0,0.08),transparent_50%),radial-gradient(circle_at_top_left,rgba(237,28,36,0.08),transparent_50%)] pointer-events-none"></div>
+    <div class="max-w-5xl mx-auto px-4 text-center relative z-10">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/80 text-xs font-medium text-slate-300 mb-6 backdrop-blur">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        深度技術解析與除錯指引
+      </div>
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+        為什麼 Ollama 支援 <span class="text-nvidia underline decoration-nvidia/40 decoration-wavy">NVIDIA</span> 多、<br class="hidden sm:inline">
+        <span class="text-amd underline decoration-amd/40 decoration-wavy">AMD</span> 支援較少？
+      </h1>
+      <p class="max-w-3xl mx-auto text-base sm:text-lg text-slate-400 leading-relaxed mb-8">
+        深入探討 <code class="text-slate-200 font-mono bg-slate-800 px-1.5 py-0.5 rounded">CUDA</code> 與 <code class="text-slate-200 font-mono bg-slate-800 px-1.5 py-0.5 rounded">ROCm</code> 的底層架構差異，解密動態庫編譯包袱，並提供針對 AMD 顯示卡的實用覆寫環境變數與加速技巧。
+      </p>
+
+      <!-- 快捷跳轉徽章 -->
+      <div class="flex flex-wrap justify-center gap-3 text-xs font-mono">
+        <span class="px-3 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-800/60 text-emerald-300 flex items-center gap-1.5">
+          <i class="ph-bold ph-check-circle"></i> NVIDIA Compute Capability ≥ 5.0 開箱即用
+        </span>
+        <span class="px-3 py-1.5 rounded-lg bg-rose-950/60 border border-rose-800/60 text-rose-300 flex items-center gap-1.5">
+          <i class="ph-bold ph-warning-circle"></i> AMD 需特定 GFX 架構或 Vulkan 備援
+        </span>
+        <a href="https://docs.ollama.com/gpu" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-sky-950/60 hover:bg-sky-900/60 border border-sky-800/60 text-sky-300 flex items-center gap-1.5 transition">
+          <i class="ph-bold ph-link-simple"></i> 查看官方即時支援清單
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 主要內容區塊 -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20 flex-1">
+
+    <!-- 1. 深度成因剖析 (4大核心關鍵) -->
+    <section id="why-nvidia" class="space-y-8 scroll-mt-20">
+      <div class="border-b border-slate-800 pb-4">
+        <span class="text-indigo-400 font-mono text-xs uppercase tracking-wider font-semibold">Technical Insight</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1 flex items-center gap-2">
+          <i class="ph-bold ph-lightbulb text-amber-400"></i>
+          1. 支援度差異的四個根本原因
+        </h2>
+        <p class="text-slate-400 text-sm mt-1">不是開發團隊偏心，而是歷史累積的運算生態庫、軟體發行與硬體架構包袱所致。</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 卡片 1: 軟體生態發展成熟度 -->
+        <div class="bg-brand-900/50 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition duration-300 relative overflow-hidden group">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+            <i class="ph-bold ph-cube"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">生態成熟度：CUDA 領先近二十年</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            NVIDIA 從 2006 年便深耕 CUDA，其軟體 API、底層編譯器（NVCC）與上層深度學習函式庫（cuBLAS、cuDNN）極度成熟。社群開源核心 <code class="text-xs font-mono bg-slate-800 text-slate-300 px-1 py-0.5 rounded">llama.cpp</code> 的 CUDA 後端開發早、測試最全面，Bug 也最少。
+          </p>
+        </div>
+
+        <!-- 卡片 2: 二進位標靶架構限制 -->
+        <div class="bg-brand-900/50 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition duration-300 relative overflow-hidden group">
+          <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+            <i class="ph-bold ph-cpu"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">AMD LLVM GFX 標靶碎片化</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            AMD ROCm 的 <code class="text-xs font-mono bg-slate-800 text-slate-300 px-1 py-0.5 rounded">rocBLAS</code> 等矩陣核心需針對特定的微架構（如 <code class="text-xs font-mono text-rose-300">gfx1030</code>, <code class="text-xs font-mono text-rose-300">gfx1100</code>）單獨編譯。若某張顯卡的微架構不在預先打包的核心中，就會在啟動時直接 Crash 或退回 CPU。
+          </p>
+        </div>
+
+        <!-- 卡片 3: 打包體積與發行包袱 -->
+        <div class="bg-brand-900/50 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition duration-300 relative overflow-hidden group">
+          <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+            <i class="ph-bold ph-package"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">安裝檔體積爆炸問題</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            NVIDIA 具備良好的二進位前向相容性（PTX / SASS）。相反地，若 Ollama 要在安裝包中預載市面上所有 AMD RX 顯卡、APU 的 ROCm 核心函式庫，安裝檔體積將達到數個 GB 以上，因此官方僅打包主流 RDNA2/RDNA3 架構。
+          </p>
+        </div>
+
+        <!-- 卡片 4: 平台策略傾向 -->
+        <div class="bg-brand-900/50 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition duration-300 relative overflow-hidden group">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+            <i class="ph-bold ph-arrows-split"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">AMD 初期重心偏向伺服器與 Linux</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            AMD ROCm 長期專注於 Linux 伺服器級 GPU（如 Instinct MI 系列），消費級顯卡（Radeon RX）以及 Windows 平台的支援在近年才加速推進，各版本驅動與 API 變動頻繁，適配難度顯著提高。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. NVIDIA vs AMD 深度比較表 -->
+    <section id="comparison" class="space-y-6 scroll-mt-20">
+      <div class="border-b border-slate-800 pb-4">
+        <span class="text-indigo-400 font-mono text-xs uppercase tracking-wider font-semibold">Architecture Comparison</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">運算架構與支援現況對比</h2>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-brand-900/40 backdrop-blur">
+        <table class="w-full text-left text-sm text-slate-300">
+          <thead class="bg-brand-900/90 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+            <tr>
+              <th scope="col" class="px-6 py-4">比較維度</th>
+              <th scope="col" class="px-6 py-4 text-emerald-400 flex items-center gap-1.5">
+                <i class="ph-bold ph-shield-check text-base"></i> NVIDIA (CUDA)
+              </th>
+              <th scope="col" class="px-6 py-4 text-rose-400">
+                <i class="ph-bold ph-shield-warning text-base inline mr-1"></i> AMD Radeon (ROCm / HIP)
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/80">
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="px-6 py-4 font-semibold text-white whitespace-nowrap">硬體相容門檻</td>
+              <td class="px-6 py-4 text-slate-300">
+                <span class="text-emerald-400 font-semibold">Compute Capability ≥ 5.0</span>
+                <p class="text-xs text-slate-500 mt-1">涵蓋 GTX 900、10、20、30、40、50 系列及 Tesla 等</p>
+              </td>
+              <td class="px-6 py-4 text-slate-300">
+                <span class="text-amber-400 font-semibold">限定特定 GFX 架構</span>
+                <p class="text-xs text-slate-500 mt-1">原生推薦 RDNA2 / RDNA3 (如 gfx1030, gfx1100)</p>
+              </td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="px-6 py-4 font-semibold text-white whitespace-nowrap">Windows 支援度</td>
+              <td class="px-6 py-4 text-emerald-300 font-medium">★★★★★ (完全開箱即用，無須配置)</td>
+              <td class="px-6 py-4 text-amber-300 font-medium">★★★☆☆ (支援指定 RX 7000/6000 系列，部分需配置)</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="px-6 py-4 font-semibold text-white whitespace-nowrap">Linux 支援度</td>
+              <td class="px-6 py-4 text-emerald-300 font-medium">★★★★★ (驅動裝好即用，極為穩定)</td>
+              <td class="px-6 py-4 text-sky-300 font-medium">★★★★☆ (支援度較 Windows 廣泛，可用覆寫代碼)</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="px-6 py-4 font-semibold text-white whitespace-nowrap">多卡指定變數</td>
+              <td class="px-6 py-4 font-mono text-xs text-emerald-400 bg-slate-900/40">CUDA_VISIBLE_DEVICES="0,1"</td>
+              <td class="px-6 py-4 font-mono text-xs text-rose-400 bg-slate-900/40">HIP_VISIBLE_DEVICES="0,1" 或 ROCR_VISIBLE_DEVICES</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="px-6 py-4 font-semibold text-white whitespace-nowrap">未列入清單之退路</td>
+              <td class="px-6 py-4 text-slate-400">極少發生（除非顯卡老於 2014 年）</td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-indigo-950 text-indigo-300 border border-indigo-800">
+                  可退回使用 Vulkan 後端加速
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. 官方硬體支援規範詳解 (docs.ollama.com/gpu) -->
+    <section id="hardware-specs" class="space-y-6 scroll-mt-20">
+      <div class="border-b border-slate-800 pb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <span class="text-indigo-400 font-mono text-xs uppercase tracking-wider font-semibold">Hardware Specs</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">官方硬體支援規格指南</h2>
+          <p class="text-slate-400 text-sm mt-1">根據 Ollama 官方文檔標準整理，涵蓋各大主流平台與架構需求。</p>
+        </div>
+        <a href="https://docs.ollama.com/gpu" target="_blank" rel="noopener noreferrer" 
+           class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 transition shrink-0 self-start md:self-auto">
+          <i class="ph-bold ph-book-open-text text-amber-400 text-sm"></i>
+          <span>訪問官方原檔 docs.ollama.com/gpu</span>
+          <i class="ph ph-arrow-up-right text-xs text-slate-400"></i>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- NVIDIA 區塊 -->
+        <div class="bg-gradient-to-b from-brand-900/70 to-brand-950 border border-emerald-900/50 rounded-2xl p-6 shadow-xl relative">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="ph-fill ph-check-circle text-emerald-400 text-xl"></i> NVIDIA GPU
+            </span>
+            <span class="px-2 py-0.5 text-xs font-mono rounded bg-emerald-950 text-emerald-300 border border-emerald-800">CUDA</span>
+          </div>
+          <ul class="space-y-3 text-sm text-slate-300">
+            <li class="flex items-start gap-2">
+              <i class="ph-bold ph-caret-right text-emerald-400 mt-1 shrink-0"></i>
+              <span><strong>運算架構限制：</strong> Compute Capability 5.0 或更高版本。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="ph-bold ph-caret-right text-emerald-400 mt-1 shrink-0"></i>
+              <span><strong>支援世代：</strong> Maxwell、Pascal、Turing、Ampere、Ada Lovelace、Blackwell 全系列。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="ph-bold ph-caret-right text-emerald-400 mt-1 shrink-0"></i>
+              <span><strong>驅動要求：</strong> 需安裝標準 NVIDIA 官方專用驅動程式（支援 WSL2 與原生 Windows/Linux）。</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- AMD 區塊 -->
+        <div class="bg-gradient-to-b from-brand-900/70 to-brand-950 border border-rose-900/50 rounded-2xl p-6 shadow-xl relative">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="ph-fill ph-gear text-rose-400 text-xl"></i> AMD Radeon GPU
+            </span>
+            <span class="px-2 py-0.5 text-xs font-mono rounded bg-rose-950 text-rose-300 border border-rose-800">ROCm</span>
+          </div>
+          <ul class="space-y-3 text-sm text-slate-300">
+            <li class="flex items-start gap-2">
+              <i class="ph-bold ph-caret-right text-rose-400 mt-1 shrink-0"></i>
+              <span><strong>原生開箱支援：</strong> RDNA3 架構（RX 7600/7700/7800/7900 等）與部分 RDNA2 高階卡。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="ph-bold ph-caret-right text-rose-400 mt-1 shrink-0"></i>
+              <span><strong>Linux vs Windows：</strong> Linux 支援較廣泛；Windows 現行版本重點支援官方指定 Radeon 產品。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="ph-bold ph-caret-right text-rose-400 mt-1 shrink-0"></i>
+              <span><strong>非原生卡解決方案：</strong> 透過 GFX 代碼覆寫或採用 Vulkan 後端加速。</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Apple & 其他 區塊 -->
+        <div class="bg-gradient-to-b from-brand-900/70 to-brand-950 border border-sky-900/50 rounded-2xl p-6 shadow-xl relative">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="ph-fill ph-apple-logo text-sky-400 text-xl"></i> Apple Silicon
+            </span>
+            <span class="px-2 py-0.5 text-xs font-mono rounded bg-sky-950 text-sky-300 border border-sky-800">Metal API</span>
+          </div>
+          <ul class="space-y-3 text-sm text-slate-300">
+            <li class="flex items-start gap-2">
+              <i class="ph-bold ph-caret-right text-sky-400 mt-1 shrink-0"></i>
+              <span><strong>架構核心：</strong> 透過 Apple Metal API 提供原生效能加速。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="ph-bold ph-caret-right text-sky-400 mt-1 shrink-0"></i>
+              <span><strong>巨大優勢：</strong> 統一記憶體架構（Unified Memory），Mac mini / Studio / MacBook 可直接運行極大模型。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="ph-bold ph-caret-right text-sky-400 mt-1 shrink-0"></i>
+              <span><strong>晶片覆蓋：</strong> M1、M2、M3、M4 全系列晶片原生開箱即用。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 互動式工具：AMD 相容性查詢 & 覆寫代碼產生器 -->
+    <section class="bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
+      <div class="max-w-3xl">
+        <span class="text-xs font-mono uppercase tracking-wider text-rose-400 font-bold">Interactive Tool</span>
+        <h3 class="text-2xl font-bold text-white mt-1">AMD 顯卡架構查詢與環境設定小工具</h3>
+        <p class="text-slate-400 text-sm mt-1 mb-6">如果您的顯卡未能被 Ollama 自動偵測到，請選擇型號查看對應的 GFX 代號與救援方案。</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div class="space-y-3">
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">選擇您的 AMD GPU 型號：</label>
+          <select id="gpuSelector" onchange="updateGpuDetails()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500 transition">
+            <option value="rx7900">AMD Radeon RX 7900 XTX / XT (RDNA3)</option>
+            <option value="rx7800">AMD Radeon RX 7800 XT / 7700 XT (RDNA3)</option>
+            <option value="rx7600">AMD Radeon RX 7600 (RDNA3)</option>
+            <option value="rx6800">AMD Radeon RX 6800 / 6800 XT / 6900 XT (RDNA2)</option>
+            <option value="rx6700">AMD Radeon RX 6700 XT (RDNA2)</option>
+            <option value="rx6600">AMD Radeon RX 6600 / 6600 XT (RDNA2)</option>
+            <option value="rx5700">AMD Radeon RX 5700 XT (RDNA1 - 舊款)</option>
+            <option value="apu">Ryzen APU 整合內顯 (Radeon 780M / 680M)</option>
+          </select>
+        </div>
+
+        <div class="lg:col-span-2 bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="text-xs text-slate-400">底層 ISA 標靶架構</span>
+            <span id="gpuGfxCode" class="text-xs font-mono font-bold text-rose-400 px-2 py-0.5 rounded bg-rose-950/60 border border-rose-900">gfx1100</span>
+          </div>
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="text-xs text-slate-400">官方原生支援狀態</span>
+            <span id="gpuSupportStatus" class="text-xs font-semibold text-emerald-400">官方開箱即用 (Linux & Windows)</span>
+          </div>
+          <div>
+            <span class="text-xs text-slate-400 block mb-1">建議啟用方式 / 覆寫指令：</span>
+            <div class="relative">
+              <pre id="gpuCommand" class="text-xs font-mono bg-brand-950 p-3 rounded-lg border border-slate-800 text-sky-300 overflow-x-auto"># 預設即可直接執行，無需額外參數&#10;ollama run llama3.2</pre>
+              <button onclick="copyCommand()" class="absolute top-2 right-2 px-2.5 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1">
+                <i class="ph ph-copy"></i>
+                <span id="copyBtnText">複製</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. AMD 實用覆寫與最佳化指南 -->
+    <section id="solutions" class="space-y-6 scroll-mt-20">
+      <div class="border-b border-slate-800 pb-4">
+        <span class="text-indigo-400 font-mono text-xs uppercase tracking-wider font-semibold">Practical Guide</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1 flex items-center gap-2">
+          <i class="ph-bold ph-wrench text-rose-400"></i>
+          AMD 顯卡必備救援與覆寫步驟
+        </h2>
+        <p class="text-slate-400 text-sm mt-1">當您的 AMD 顯卡顯示支援但 Ollama 仍以 CPU 執行時的具體解決方案。</p>
+      </div>
+
+      <div class="space-y-6">
+        <!-- Linux 覆寫指令教學 -->
+        <div class="code-block rounded-2xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="ph ph-terminal-window text-rose-400 text-lg"></i>
+              方案 A：Linux 下使用 HSA_OVERRIDE_GFX_VERSION
+            </span>
+            <span class="text-xs font-mono text-slate-400">Systemd / CLI</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            以 RX 6700 XT 或 RX 6600 等未完全開箱預設相容的顯卡為例，可強制告知 ROCm 執行時將其視為已支援的 <code class="text-amber-300">10.3.0</code> 架構核心：
+          </p>
+          <div class="bg-black/50 p-4 rounded-xl border border-slate-800 font-mono text-xs text-emerald-400 space-y-2">
+            <div class="text-slate-500"># 單次終端機測試啟動</div>
+            <div>export HSA_OVERRIDE_GFX_VERSION=10.3.0</div>
+            <div>ollama serve</div>
+            <div class="text-slate-500 pt-2"># 若為 Systemd 服務，請編輯 /etc/systemd/system/ollama.service</div>
+            <div class="text-slate-300">Environment="HSA_OVERRIDE_GFX_VERSION=10.3.0"</div>
+          </div>
+        </div>
+
+        <!-- Windows 環境變數教學 -->
+        <div class="code-block rounded-2xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="ph ph-windows-logo text-sky-400 text-lg"></i>
+              方案 B：Windows 環境變數設定
+            </span>
+            <span class="text-xs font-mono text-slate-400">Windows 10 / 11</span>
+          </div>
+          <ol class="list-decimal list-inside space-y-2 text-xs text-slate-300 leading-relaxed">
+            <li>在 Windows 搜尋列輸入 <code class="bg-slate-800 text-indigo-300 px-1 py-0.5 rounded font-mono">環境變數</code>，開啟「編輯系統環境變數」。</li>
+            <li>點選「環境變數」按鈕，在「使用者變數」或「系統變數」點選「新增」。</li>
+            <li>變數名稱填入：<code class="bg-slate-800 text-rose-300 px-1.5 py-0.5 rounded font-mono">HSA_OVERRIDE_GFX_VERSION</code></li>
+            <li>變數值填入：<code class="bg-slate-800 text-emerald-300 px-1.5 py-0.5 rounded font-mono">11.0.0</code>（RX 7000 系列相容）或 <code class="bg-slate-800 text-emerald-300 px-1.5 py-0.5 rounded font-mono">10.3.0</code>（RX 6000 系列相容）。</li>
+            <li>完整退出系統匣中的 Ollama 並重新啟動軟體。</li>
+          </ol>
+        </div>
+
+        <!-- Vulkan 備援機制說明 -->
+        <div class="code-block rounded-2xl p-6 space-y-3 border-amber-900/40">
+          <div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+            <i class="ph-bold ph-shield-check text-lg"></i>
+            方案 C：通用 Vulkan 加速備援方案
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            若您的顯卡過舊（例如 RX 580、Vega 56/64）或為 AMD APU 內顯，ROCm 已不再提供官方指令集支援。此時可透過 Vulkan 支援版本進行硬體加速，享受跨廠牌 GPU 推論功能。
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁腳 -->
+  <footer class="border-t border-slate-800/80 bg-brand-950 py-8 px-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <p>參考來源與官方文檔：<a href="https://docs.ollama.com/gpu" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 underline font-mono">https://docs.ollama.com/gpu</a></p>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span>CUDA (NVIDIA)</span>
+        <span>•</span>
+        <span>ROCm / HIP (AMD)</span>
+        <span>•</span>
+        <span>Metal (Apple)</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 互動腳本邏輯 -->
+  <script>
+    // 顯卡資料庫對照表
+    const gpuData = {
+      rx7900: {
+        gfx: "gfx1100",
+        status: "官方開箱即用 (Linux & Windows 官方重點支援)",
+        statusColor: "text-emerald-400",
+        command: "# 開箱即用，無需特殊設定\nollama run llama3.2"
+      },
+      rx7800: {
+        gfx: "gfx1101 / gfx1102",
+        status: "官方原生效能支援 (Windows/Linux 最新版本)",
+        statusColor: "text-emerald-400",
+        command: "# 若未正確抓到，可設定覆寫變數\nexport HSA_OVERRIDE_GFX_VERSION=11.0.0\nollama serve"
+      },
+      rx7600: {
+        gfx: "gfx1102",
+        status: "支援 (主流 RDNA3 消費級顯卡)",
+        statusColor: "text-emerald-400",
+        command: "export HSA_OVERRIDE_GFX_VERSION=11.0.0\nollama serve"
+      },
+      rx6800: {
+        gfx: "gfx1030",
+        status: "Linux 開箱即用 / Windows 建議確認 ROCm 狀態",
+        statusColor: "text-emerald-400",
+        command: "export HSA_OVERRIDE_GFX_VERSION=10.3.0\nollama serve"
+      },
+      rx6700: {
+        gfx: "gfx1031",
+        status: "需覆寫代碼 (以 gfx1030 核心相容執行)",
+        statusColor: "text-amber-400",
+        command: "# 核心指令：偽裝為 10.3.0 架構\nexport HSA_OVERRIDE_GFX_VERSION=10.3.0\nollama serve"
+      },
+      rx6600: {
+        gfx: "gfx1032",
+        status: "需覆寫代碼 (以 gfx1030 核心相容執行)",
+        statusColor: "text-amber-400",
+        command: "export HSA_OVERRIDE_GFX_VERSION=10.3.0\nollama serve"
+      },
+      rx5700: {
+        gfx: "gfx1010 (RDNA1)",
+        status: "ROCm 官方支援有限，強烈建議 Vulkan 模式",
+        statusColor: "text-rose-400",
+        command: "# 嘗試相容模式 (部分系統可能無法載入)\nexport HSA_OVERRIDE_GFX_VERSION=10.1.0\nollama serve"
+      },
+      apu: {
+        gfx: "gfx1103 / gfx1035",
+        status: "內顯記憶體有限，建議指定 Vulkan 或調大 BIOS VRAM",
+        statusColor: "text-amber-400",
+        command: "# 需在 BIOS 中將 UMA Frame Buffer (共享顯存) 調大至 4G~8G 以上"
+      }
+    };
+
+    function updateGpuDetails() {
+      const select = document.getElementById('gpuSelector');
+      const selected = gpuData[select.value];
+      if (!selected) return;
+
+      document.getElementById('gpuGfxCode').textContent = selected.gfx;
+      const statusEl = document.getElementById('gpuSupportStatus');
+      statusEl.textContent = selected.status;
+      statusEl.className = 'text-xs font-semibold ' + selected.statusColor;
+      document.getElementById('gpuCommand').textContent = selected.command;
+      
+      // 重設複製按鈕狀態
+      const btnText = document.getElementById('copyBtnText');
+      btnText.textContent = "複製";
+    }
+
+    function copyCommand() {
+      const textToCopy = document.getElementById('gpuCommand').innerText;
+      
+      // 使用 document.execCommand('copy') 確保相容性與無限制運作
+      const tempTextArea = document.createElement("textarea");
+      tempTextArea.value = textToCopy;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      try {
+        document.execCommand("copy");
+        const btnText = document.getElementById('copyBtnText');
+        btnText.textContent = "已複製！";
+        setTimeout(() => {
+          btnText.textContent = "複製";
+        }, 2000);
+      } catch (err) {
+        console.error("無法複製文字", err);
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    // 初始化呼叫
+    window.onload = function() {
+      updateGpuDetails();
+    };
+  </script>
+</body>
+</html>

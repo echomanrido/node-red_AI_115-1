@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EP460 - 你的電腦能跑什麼 AI？16GB 到 128GB 一次講完</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <!-- KaTeX for Math Equations -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <style>
+    /* Custom scrollbar and smooth UI polish */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .gradient-border {
+      position: relative;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.1), rgba(16, 185, 129, 0.1));
+      padding: 1px;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+    }
+    .pulse-subtle {
+      animation: pulseSubtle 3s infinite ease-in-out;
+    }
+    @keyframes pulseSubtle {
+      0%, 100% { opacity: 0.95; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.008); }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white min-h-screen">
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-microchip text-base"></i>
+        </span>
+        <div>
+          <span class="text-xs font-semibold tracking-wider text-indigo-400 uppercase">AI Local Deployment Guide</span>
+          <h1 class="text-sm font-bold text-slate-100 sm:text-base truncate max-w-[240px] sm:max-w-md">EP460：你的電腦能跑什麼 AI？</h1>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-400">
+        <a href="../../project_local_llm.html" class="text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1"><i class="fa-solid fa-microchip"></i> 回專題總覽</a>
+        <a href="../../index.html" class="text-slate-400 hover:text-white flex items-center gap-1"><i class="fa-solid fa-house"></i> 首頁</a>
+        <a href="#video-hero" class="hover:text-indigo-400 transition-colors">影片精華</a>
+        <a href="#quick-formula" class="hover:text-indigo-400 transition-colors">顯存速算</a>
+        <a href="#context-overflow-svg" class="hover:text-indigo-400 transition-colors">Context爆管圖</a>
+        <a href="#mac-unified-svg" class="hover:text-indigo-400 transition-colors">Mac顯存圖</a>
+        <a href="#interactive-ladder" class="hover:text-indigo-400 transition-colors">記憶體天梯</a>
+        <a href="#moe-visualizer" class="hover:text-indigo-400 transition-colors">Dense vs MoE</a>
+        <a href="#software-stack-svg" class="hover:text-indigo-400 transition-colors">軟體架構</a>
+        <a href="#hybrid-workflow-svg" class="hover:text-indigo-400 transition-colors">雲地協同</a>
+        <a href="#vram-calculator" class="hover:text-indigo-400 transition-colors">算力計算器</a>
+        <a href="#timeline-transcript" class="text-indigo-400 font-bold hover:text-indigo-300 transition-colors flex items-center gap-1.5">
+          <i class="fa-solid fa-lines-leaning"></i>
+          <span>時間軸逐字稿</span>
+        </a>
+      </nav>
+
+      <a href="https://youtu.be/1nomxygMILI?si=tl3QD-EJvDjuqqSf" target="_blank" rel="noopener noreferrer" 
+         class="inline-flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg bg-red-600/90 hover:bg-red-600 text-white shadow-sm transition-all hover:scale-105">
+        <i class="fa-brands fa-youtube text-base"></i>
+        <span>原片連結</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+    <!-- Section 1: Hero & YouTube Embed -->
+    <section id="video-hero" class="relative">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Text intro -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+            <span class="flex h-2 w-2 rounded-full bg-indigo-400 animate-ping"></span>
+            從 16GB 到 128GB 硬體極限大盤點
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            你的電腦能跑什麼 AI？<br>
+            <span class="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">
+              別再怪本地模型笨，是設定給錯了！
+            </span>
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            接上 OpenCode 或 Agent 只打個「Hi」就記憶體爆炸？許多人以為本地模型太鈍，但 Ollama 顯存小於 24GB 時預設 Context 僅配置 4,000 tokens，而 Agent 初始化動輒需要數萬。本篇完整收錄影片核心參數、避坑防線與架構解析。
+          </p>
+
+          <!-- Stat Badges -->
+          <div class="grid grid-cols-3 gap-3 pt-2">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 text-center">
+              <span class="text-xs text-slate-400 block">社群甜蜜點</span>
+              <span class="text-lg font-bold text-emerald-400">32 GB</span>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 text-center">
+              <span class="text-xs text-slate-400 block">主力量化標準</span>
+              <span class="text-lg font-bold text-indigo-400">4-Bit Q4_K_M</span>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 text-center">
+              <span class="text-xs text-slate-400 block">MoE 加速提升</span>
+              <span class="text-lg font-bold text-amber-400">高達 5x</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Player Card -->
+        <div class="lg:col-span-7">
+          <div class="gradient-border shadow-2xl shadow-indigo-950/50">
+            <div class="glass-card rounded-[0.95rem] p-3 sm:p-4 overflow-hidden">
+              <div class="relative w-full aspect-video rounded-lg overflow-hidden bg-slate-900 shadow-inner">
+                <div id="yt-player" class="absolute top-0 left-0 w-full h-full"></div>
+              </div>
+              <div class="mt-3 flex flex-wrap items-center justify-between text-xs text-slate-400 px-1 gap-2">
+                <span class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-circle-play text-red-500"></i> YouTube 原始影片：AI懶人報 EP460
+                </span>
+                <span class="flex items-center gap-1.5 text-indigo-300">
+                  <i class="fa-solid fa-crosshairs"></i> 點選下方逐字稿時間戳即可精準跳轉播放
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEW SECTION: SVG 3 - Context Window Overflow Mechanics -->
+    <section id="context-overflow-svg" class="space-y-6">
+      <div class="border-b border-slate-800 pb-4">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-red-500/10 text-red-400 text-xs font-semibold mb-1">
+          <i class="fa-solid fa-triangle-exclamation"></i> 核心陷阱剖析
+        </div>
+        <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+          Context Window 爆炸原理：為什麼剛說「Hi」模型就開始失憶？
+        </h3>
+        <p class="text-sm text-slate-400 mt-1">
+          Ollama 預設的 4,000 tokens 上下文限制，如何被現代 Coding Agent 的系統提示詞與說明書瞬間塞爆？
+        </p>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4 text-xs">
+          <span class="text-slate-300 font-semibold">兩種設定情境對比（點擊切換查看上下文空間分配）：</span>
+          <div class="flex gap-2">
+            <button onclick="toggleContextView('ollama-default')" id="btn-ctx-default" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-red-600 text-white transition-all">
+              Ollama 預設 (4,000 Tokens)
+            </button>
+            <button onclick="toggleContextView('agent-recommended')" id="btn-ctx-agent" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition-all">
+              手動擴展 (64,000 Tokens 推薦)
+            </button>
+          </div>
+        </div>
+
+        <!-- SVG 3 Visualization -->
+        <svg id="svg-context-overflow" viewBox="0 0 900 280" class="w-full h-auto select-none font-sans">
+          <defs>
+            <pattern id="stripes-danger" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <rect width="10" height="20" fill="#dc2626" />
+              <rect x="10" width="10" height="20" fill="#991b1b" />
+            </pattern>
+          </defs>
+
+          <!-- Outer Context Buffer Bar Container -->
+          <rect x="40" y="50" width="820" height="60" rx="12" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+          <text x="40" y="38" fill="#94a3b8" font-size="12" font-weight="bold">總可用上下文工作緩衝區（Context Window）</text>
+          <text id="txt-ctx-cap" x="860" y="38" fill="#f87171" font-size="13" font-weight="bold" text-anchor="end">容量上限：4,000 Tokens (小於 24GB 顯存設備預設值)</text>
+
+          <!-- Segments -->
+          <!-- System / Agent Prompt (5000 tokens, overflows in 4k mode!) -->
+          <rect id="rect-sys-prompt" x="42" y="52" width="760" height="56" rx="10" fill="#6366f1" opacity="0.85" />
+          <text id="txt-sys-prompt" x="55" y="86" fill="#ffffff" font-size="12" font-weight="bold">
+            Agent 系統說明書 + 初始化提示詞 (~5,000 Tokens)
+          </text>
+
+          <!-- Overflow zone (Visible in 4k mode) -->
+          <rect id="rect-overflow-danger" x="700" y="45" width="170" height="70" rx="8" fill="url(#stripes-danger)" stroke="#f87171" stroke-width="2" />
+          <text id="txt-overflow-label" x="785" y="85" fill="#ffffff" font-size="12" font-weight="extrabold" text-anchor="middle">
+            ⚠ 溢出擠爆！
+          </text>
+
+          <!-- Dynamic Dialogue / Tool Call Section -->
+          <g id="grp-dialogue-space">
+            <rect x="40" y="145" width="820" height="110" rx="12" fill="#090d16" stroke="#1e293b" />
+            
+            <circle cx="70" cy="180" r="14" fill="#ef4444" id="circle-status-icon" />
+            <text x="70" y="185" fill="#ffffff" font-size="13" font-weight="bold" text-anchor="middle" id="txt-status-icon">✕</text>
+
+            <text id="txt-ctx-explanation-title" x="100" y="175" fill="#f87171" font-size="14" font-weight="bold">
+              發生結果：使用者打個「Hi」或傳送第一行程式碼，說明書就被截斷拋棄！
+            </text>
+            <text id="txt-ctx-explanation-body" x="100" y="200" fill="#94a3b8" font-size="12">
+              • 模型立即忘記剛剛閱讀的指令格式、工具呼叫規則與專案目錄結構。
+            </text>
+            <text id="txt-ctx-explanation-footer" x="100" y="222" fill="#cbd5e1" font-size="12">
+              • 症狀表現：模型胡言亂語、重複宣告、回傳「我無法執行此動作」或程式碼半途斷頭。
+            </text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- NEW SECTION: SVG 4 - Mac Unified Memory 75% Division -->
+    <section id="mac-unified-svg" class="space-y-6">
+      <div class="border-b border-slate-800 pb-4">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-400 text-xs font-semibold mb-1">
+          <i class="fa-brands fa-apple"></i> macOS 核心機制
+        </div>
+        <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+          Mac 統一記憶體 75% 佔用機制剖析
+        </h3>
+        <p class="text-sm text-slate-400 mt-1">
+          為什麼 16GB 的 Mac 不能跑 16GB 的模型？看懂 macOS 預設保留 25% 系統防護線的分配原則。
+        </p>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4 text-xs">
+          <span class="text-slate-300 font-semibold">選擇 Mac 機型記憶體容量（點擊即時重算顯存切分）：</span>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="setMacRAM(16)" class="mac-ram-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition-all">
+              16GB (入門)
+            </button>
+            <button onclick="setMacRAM(32)" class="mac-ram-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white shadow-md shadow-purple-950/60 transition-all">
+              32GB (甜蜜點)
+            </button>
+            <button onclick="setMacRAM(64)" class="mac-ram-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition-all">
+              64GB (專業)
+            </button>
+            <button onclick="setMacRAM(128)" class="mac-ram-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition-all">
+              128GB (旗艦)
+            </button>
+          </div>
+        </div>
+
+        <!-- SVG 4 Visualization -->
+        <svg id="svg-mac-ram" viewBox="0 0 900 250" class="w-full h-auto select-none font-sans">
+          <!-- Total RAM base bar -->
+          <rect x="40" y="55" width="820" height="75" rx="12" fill="#0b0f19" stroke="#334155" stroke-width="2" />
+          
+          <!-- System Reserved 25% -->
+          <rect id="rect-mac-sys" x="42" y="57" width="205" height="71" rx="10" fill="#334155" opacity="0.9" />
+          <text id="txt-mac-sys-label" x="144" y="93" fill="#cbd5e1" font-size="12" font-weight="bold" text-anchor="middle">系統保留 25%</text>
+          <text id="txt-mac-sys-val" x="144" y="112" fill="#94a3b8" font-size="11" text-anchor="middle">~8 GB (OS / UI / 其他軟體)</text>
+
+          <!-- GPU / AI Model Usable 75% -->
+          <rect id="rect-mac-gpu" x="250" y="57" width="608" height="71" rx="10" fill="#8b5cf6" opacity="0.9" />
+          <text id="txt-mac-gpu-label" x="554" y="93" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">AI 模型與顯卡可用顯存 (~75%)</text>
+          <text id="txt-mac-gpu-val" x="554" y="113" fill="#e9d5ff" font-size="12" font-weight="bold" text-anchor="middle">實際可用顯存：~24 GB</text>
+
+          <!-- Bracket annotations -->
+          <path d="M 40 40 L 40 32 L 860 32 L 860 40" fill="none" stroke="#64748b" stroke-width="1.5" />
+          <text id="txt-mac-total-title" x="450" y="24" fill="#f8fafc" font-size="13" font-weight="bold" text-anchor="middle">Mac 統一記憶體總量：32 GB</text>
+
+          <!-- Bottom Evaluation Panel -->
+          <rect x="40" y="155" width="820" height="75" rx="10" fill="#090d16" stroke="#1e293b" />
+          <circle cx="65" cy="192" r="10" fill="#10b981" id="circle-mac-status"/>
+          <text id="txt-mac-eval-title" x="90" y="188" fill="#34d399" font-size="13" font-weight="bold">
+            評估結論：完美駕馭 Qwen 3.5 27B 4-bit (17.6GB) + 充足 Context 工作空間！
+          </text>
+          <text id="txt-mac-eval-desc" x="90" y="209" fill="#94a3b8" font-size="11">
+            24GB 顯存容量扣除模型權重後，仍保有約 6.4GB 緩衝，可輕鬆支撐 64,000 tokens 上下文而不會引發 Swap 掉速。
+          </text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- Section 3: Interactive SVG 1 - Memory Tier Ladder -->
+    <section id="interactive-ladder" class="space-y-6">
+      <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-layer-group text-emerald-400"></i>
+            硬體記憶體階級天梯圖（點擊階層深入探索）
+          </h3>
+          <p class="text-sm text-slate-400 mt-1">
+            從 16GB 到 128GB+：每跳一級，你換到的是「更大的模型」還是「更長的上下文」？
+          </p>
+        </div>
+        <div class="text-xs text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 self-start sm:self-auto">
+          <i class="fa-regular fa-hand-pointer text-indigo-400 mr-1"></i> 點選下方按鈕或天梯卡片
+        </div>
+      </div>
+
+      <!-- Quick Filter Buttons -->
+      <div class="flex flex-wrap gap-2">
+        <button onclick="selectTier('16gb')" id="btn-16gb" class="tier-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">
+          入門級 16GB
+        </button>
+        <button onclick="selectTier('32gb')" id="btn-32gb" class="tier-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-emerald-600 text-white shadow-lg shadow-emerald-900/50">
+          ★ 甜蜜點 32GB
+        </button>
+        <button onclick="selectTier('64gb')" id="btn-64gb" class="tier-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">
+          高階長文本 64GB
+        </button>
+        <button onclick="selectTier('128gb')" id="btn-128gb" class="tier-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">
+          百億大旗艦 128GB+
+        </button>
+      </div>
+
+      <!-- SVG Visualization Container -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-6 overflow-x-auto">
+        <svg viewBox="0 0 900 240" class="w-full min-w-[700px] h-auto select-none">
+          <defs>
+            <linearGradient id="grad-16" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#1e293b" stop-opacity="0.8"/>
+            </linearGradient>
+            <linearGradient id="grad-32" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#064e3b" stop-opacity="0.8"/>
+            </linearGradient>
+            <linearGradient id="grad-64" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#2e1065" stop-opacity="0.8"/>
+            </linearGradient>
+            <linearGradient id="grad-128" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ec4899" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#831843" stop-opacity="0.8"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Step 1: 16GB -->
+          <g id="svg-col-16" class="cursor-pointer transition-all duration-300" onclick="selectTier('16gb')">
+            <rect x="20" y="110" width="190" height="110" rx="12" fill="url(#grad-16)" stroke="#3b82f6" stroke-width="1.5" class="hover:stroke-blue-400" />
+            <text x="35" y="140" fill="#93c5fd" font-size="14" font-weight="bold">16GB 入門筆電</text>
+            <text x="35" y="165" fill="#e2e8f0" font-size="12">模型：Gemma 4 14B / Qwen 9B</text>
+            <text x="35" y="185" fill="#94a3b8" font-size="11">實用顯存：~12GB (Mac)</text>
+            <text x="35" y="205" fill="#38bdf8" font-size="11">速度：極快 (>40 tok/s)</text>
+          </g>
+
+          <!-- Step 2: 32GB (Sweet Spot Highlighted) -->
+          <g id="svg-col-32" class="cursor-pointer transition-all duration-300" onclick="selectTier('32gb')">
+            <rect x="235" y="70" width="200" height="150" rx="12" fill="url(#grad-32)" stroke="#10b981" stroke-width="2.5" />
+            <rect x="365" y="80" width="60" height="20" rx="6" fill="#10b981" />
+            <text x="395" y="94" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">SWEET</text>
+            <text x="250" y="105" fill="#6ee7b7" font-size="15" font-weight="bold">32GB 公認甜蜜點</text>
+            <text x="250" y="130" fill="#ffffff" font-size="12">模型：Qwen 3.5 27B / MoE 35B</text>
+            <text x="250" y="152" fill="#a7f3d0" font-size="11">實用顯存：~24GB (Mac)</text>
+            <text x="250" y="172" fill="#34d399" font-size="11">速度：8 ~ 33+ tok/s</text>
+            <text x="250" y="195" fill="#cbd5e1" font-size="11">工作：本地 Coding Agent、資料整理</text>
+          </g>
+
+          <!-- Step 3: 64GB -->
+          <g id="svg-col-64" class="cursor-pointer transition-all duration-300" onclick="selectTier('64gb')">
+            <rect x="460" y="45" width="200" height="175" rx="12" fill="url(#grad-64)" stroke="#8b5cf6" stroke-width="1.5" />
+            <text x="475" y="80" fill="#c4b5fd" font-size="15" font-weight="bold">64GB 超長上下文</text>
+            <text x="475" y="105" fill="#ffffff" font-size="12">模型：Qwen 27B (8-bit) / 35B</text>
+            <text x="475" y="128" fill="#ddd6fe" font-size="11">關鍵利多：Context 直上 256k</text>
+            <text x="475" y="150" fill="#a78bfa" font-size="11">模型等同 32GB，但不再失憶</text>
+            <text x="475" y="175" fill="#94a3b8" font-size="11">工作：超長合約、大型跨檔案分析</text>
+          </g>
+
+          <!-- Step 4: 128GB+ -->
+          <g id="svg-col-128" class="cursor-pointer transition-all duration-300" onclick="selectTier('128gb')">
+            <rect x="685" y="15" width="195" height="205" rx="12" fill="url(#grad-128)" stroke="#ec4899" stroke-width="1.5" />
+            <text x="700" y="50" fill="#f472b6" font-size="15" font-weight="bold">128GB+ 旗艦怪獸</text>
+            <text x="700" y="75" fill="#ffffff" font-size="12">模型：GPT-OSS 120B / 125B</text>
+            <text x="700" y="98" fill="#fbcfe8" font-size="11">百億參數解鎖 (63GB+ 檔)</text>
+            <text x="700" y="120" fill="#f472b6" font-size="11">速度：M4 Max 實測 60~70 tok/s</text>
+            <text x="700" y="145" fill="#cbd5e1" font-size="11">媲美一年前頂級商業雲端模型</text>
+            <text x="700" y="170" fill="#94a3b8" font-size="11">代價：邊際效益遞減，價格高昂</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Detailed dynamic tab panel for chosen tier -->
+      <div id="tier-details" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 transition-all">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Section 4: Architecture Comparison - Dense vs MoE (Interactive SVG 2) -->
+    <section id="moe-visualizer" class="space-y-6">
+      <div class="border-b border-slate-800 pb-4">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-500/20 text-purple-300 text-xs font-semibold mb-2">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> 架構黑魔法
+        </div>
+        <h3 class="text-2xl font-bold text-white">
+          為什麼 35B 大模型反而跑得比 27B 還快？Dense vs MoE 動態圖解
+        </h3>
+        <p class="text-sm text-slate-400 mt-1">
+          速度瓶頸往往不在算力，而在<strong>記憶體頻寬</strong>：每產出一個 token，所有參數都要被讀取一次！
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <!-- Left: Control & Explanation -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+            <h4 class="font-bold text-slate-200 text-sm flex items-center justify-between">
+              <span>模型架構運作模式：</span>
+              <span id="active-mode-badge" class="text-xs px-2.5 py-0.5 rounded-full bg-purple-500/30 text-purple-300 border border-purple-500/40">MoE 模式</span>
+            </h4>
+            <div class="flex gap-2">
+              <button id="btn-mode-dense" onclick="setArchMode('dense')" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-400 hover:text-white">
+                傳統 Dense (稠密)
+              </button>
+              <button id="btn-mode-moe" onclick="setArchMode('moe')" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all bg-purple-600 text-white shadow-md shadow-purple-900/50">
+                MoE (專家混合)
+              </button>
+            </div>
+
+            <div id="arch-explanation" class="text-xs sm:text-sm text-slate-300 space-y-2 pt-2">
+              <!-- Content replaced dynamically -->
+            </div>
+
+            <!-- Caution box inside explanation -->
+            <div class="p-3 bg-amber-950/30 border border-amber-600/40 rounded-xl text-xs text-amber-200">
+              <i class="fa-solid fa-triangle-exclamation mr-1 text-amber-400"></i>
+              <strong>MoE 致命誤區：</strong> 速度變快了，但<strong>顯存一點都沒省</strong>！所有專家還是得常駐在 RAM 裡待命。
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Animated SVG Visualization -->
+        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 overflow-hidden">
+          <div class="flex items-center justify-between mb-3 text-xs text-slate-400">
+            <span>單個 Token 生成過程中的參數搬運（頻寬消耗視覺化）</span>
+            <span id="bandwidth-tag" class="text-emerald-400 font-mono font-bold">動態路由啟用中</span>
+          </div>
+          
+          <svg id="arch-svg" viewBox="0 0 600 320" class="w-full h-auto">
+            <!-- Background grids -->
+            <rect width="600" height="320" fill="#090d16" rx="12" />
+
+            <!-- Input Token Block -->
+            <rect x="25" y="130" width="75" height="50" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+            <text x="62" y="155" fill="#f1f5f9" font-size="11" text-anchor="middle" font-weight="bold">Input</text>
+            <text x="62" y="170" fill="#94a3b8" font-size="10" text-anchor="middle">Token</text>
+
+            <!-- Router / Gate block (Only for MoE) -->
+            <g id="router-block" class="transition-all duration-300">
+              <polygon points="140,115 190,155 140,195" fill="#6366f1" opacity="0.8"/>
+              <text x="155" y="160" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="bold">Router</text>
+            </g>
+
+            <!-- Memory Bus / RAM representation -->
+            <rect x="220" y="25" width="240" height="270" rx="10" fill="#0f172a" stroke="#334155" stroke-dasharray="4"/>
+            <text x="340" y="45" fill="#64748b" font-size="11" text-anchor="middle" font-weight="bold">System RAM / VRAM 權重空間</text>
+
+            <!-- Experts / Layers -->
+            <!-- Layer 1 -->
+            <g id="node-exp-1">
+              <rect x="240" y="60" width="200" height="32" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5" class="transition-all duration-300"/>
+              <text x="340" y="80" fill="#e2e8f0" font-size="10" text-anchor="middle">Expert 1 (語法邏輯 3B)</text>
+            </g>
+            <!-- Layer 2 -->
+            <g id="node-exp-2">
+              <rect x="240" y="105" width="200" height="32" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5" class="transition-all duration-300"/>
+              <text x="340" y="125" fill="#e2e8f0" font-size="10" text-anchor="middle">Expert 2 (數學常識 3B)</text>
+            </g>
+            <!-- Layer 3 -->
+            <g id="node-exp-3">
+              <rect x="240" y="150" width="200" height="32" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5" class="transition-all duration-300"/>
+              <text x="340" y="170" fill="#e2e8f0" font-size="10" text-anchor="middle">Expert 3 (代碼生成 3B)</text>
+            </g>
+            <!-- Layer 4 -->
+            <g id="node-exp-4">
+              <rect x="240" y="195" width="200" height="32" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5" class="transition-all duration-300"/>
+              <text x="340" y="215" fill="#e2e8f0" font-size="10" text-anchor="middle">Expert 4 (中文翻譯 3B)</text>
+            </g>
+            <!-- Layer 5 (Extra) -->
+            <g id="node-exp-5">
+              <rect x="240" y="240" width="200" height="32" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5" class="transition-all duration-300"/>
+              <text x="340" y="260" fill="#e2e8f0" font-size="10" text-anchor="middle">Expert 5 (創意發想 3B)</text>
+            </g>
+
+            <!-- Output Block -->
+            <rect x="495" y="130" width="80" height="50" rx="8" fill="#047857" stroke="#10b981" stroke-width="1.5"/>
+            <text x="535" y="155" fill="#ffffff" font-size="11" text-anchor="middle" font-weight="bold">Output</text>
+            <text x="535" y="170" fill="#a7f3d0" font-size="10" text-anchor="middle">Token</text>
+
+            <!-- Active Connection paths -->
+            <path id="path-active-1" d="M 100 155 L 240 76" stroke="#6366f1" stroke-width="2" fill="none" opacity="0.3"/>
+            <path id="path-active-2" d="M 100 155 L 240 166" stroke="#ec4899" stroke-width="2.5" fill="none"/>
+            <path id="path-active-out" d="M 440 166 L 495 155" stroke="#10b981" stroke-width="2.5" fill="none"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEW SECTION: SVG 5 - Local Software Hierarchy Stack -->
+    <section id="software-stack-svg" class="space-y-6">
+      <div class="border-b border-slate-800 pb-4">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-400 text-xs font-semibold mb-1">
+          <i class="fa-solid fa-layer-group"></i> 生態系全景
+        </div>
+        <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+          本地推論三大軟體架構層級圖（LM Studio · Ollama · llama.cpp）
+        </h3>
+        <p class="text-sm text-slate-400 mt-1">
+          誰是圖形界面？誰負責背景 API？底層是誰在搬運權重？換個軟體速度為什麼能從 8 tok/s 飆到 21 tok/s？
+        </p>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6">
+        <!-- SVG 5 Visualization -->
+        <svg viewBox="0 0 900 320" class="w-full h-auto select-none font-sans">
+          <!-- Top Layer: Clients & Agents -->
+          <g id="layer-agents">
+            <rect x="30" y="25" width="840" height="55" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3" />
+            <text x="50" y="48" fill="#38bdf8" font-size="11" font-weight="bold">使用者客戶端與自主代理 (User Clients & Agent Ecosystem)</text>
+            <g transform="translate(380, 36)">
+              <rect x="0" y="0" width="100" height="28" rx="6" fill="#1e293b" />
+              <text x="50" y="18" fill="#f1f5f9" font-size="11" text-anchor="middle">OpenCode</text>
+            </g>
+            <g transform="translate(490, 36)">
+              <rect x="0" y="0" width="105" height="28" rx="6" fill="#1e293b" />
+              <text x="52" y="18" fill="#f1f5f9" font-size="11" text-anchor="middle">Claude Code</text>
+            </g>
+            <g transform="translate(605, 36)">
+              <rect x="0" y="0" width="115" height="28" rx="6" fill="#1e293b" />
+              <text x="57" y="18" fill="#f1f5f9" font-size="11" text-anchor="middle">Chatbox / Dify</text>
+            </g>
+            <g transform="translate(730, 36)">
+              <rect x="0" y="0" width="125" height="28" rx="6" fill="#1e293b" />
+              <text x="62" y="18" fill="#f1f5f9" font-size="11" text-anchor="middle">自訂 Python 腳本</text>
+            </g>
+          </g>
+
+          <!-- Middle Layer: Middleware & GUI -->
+          <g id="layer-middle" transform="translate(0, 100)">
+            <!-- LM Studio Card -->
+            <rect x="30" y="0" width="405" height="90" rx="12" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5" />
+            <text x="50" y="28" fill="#a5b4fc" font-size="14" font-weight="bold">LM Studio（新手首選 GUI）</text>
+            <text x="50" y="50" fill="#cbd5e1" font-size="11">• 具備搜尋/下載模型 App Store、即時聊天視窗</text>
+            <text x="50" y="68" fill="#cbd5e1" font-size="11">• Mac 支援 Apple 專用 MLX 格式（速度最高暴增 3x！）</text>
+
+            <!-- Ollama Card -->
+            <rect x="465" y="0" width="405" height="90" rx="12" fill="#042f2e" stroke="#14b8a6" stroke-width="1.5" />
+            <text x="485" y="28" fill="#5eead4" font-size="14" font-weight="bold">Ollama（背景服務與 Agent 接駁首選）</text>
+            <text x="485" y="50" fill="#cbd5e1" font-size="11">• 輕量常駐 CLI / 背景守護行程，相容 OpenAI API 規範</text>
+            <text x="485" y="68" fill="#f87171" font-size="11">⚠ 預設 Context 僅 4k，必須手動透過 Modelfile 覆寫</text>
+          </g>
+
+          <!-- Bottom Layer: Core Inference Engine -->
+          <g id="layer-bottom" transform="translate(0, 210)">
+            <rect x="30" y="0" width="840" height="95" rx="12" fill="#090d16" stroke="#475569" stroke-width="2" />
+            <text x="50" y="28" fill="#cbd5e1" font-size="14" font-weight="bold">核心推論引擎：llama.cpp & Apple MLX Framework</text>
+            <text x="50" y="50" fill="#94a3b8" font-size="11">• 純 C/C++ 打造，極致榨乾 CPU / GPU / 統一記憶體頻寬，支援各類 GGUF 量化格式</text>
+            <text x="50" y="70" fill="#38bdf8" font-size="11">實測結果：同一台 32GB Mac mini 跑 Qwen 27B，更換軟體格式由 GGUF 改為 MLX，速度由 8 tok/s 提升至 21 tok/s！</text>
+          </g>
+
+          <!-- Arrows connecting layers -->
+          <path d="M 435 80 L 435 100" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
+          <path d="M 230 190 L 230 210" stroke="#6366f1" stroke-width="2" />
+          <path d="M 670 190 L 670 210" stroke="#14b8a6" stroke-width="2" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- NEW SECTION: SVG 6 - Cloud-Local Hybrid AI Workflow -->
+    <section id="hybrid-workflow-svg" class="space-y-6">
+      <div class="border-b border-slate-800 pb-4">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-400 text-xs font-semibold mb-1">
+          <i class="fa-solid fa-network-wired"></i> 終極實戰策略
+        </div>
+        <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+          雲地混合協作（Hybrid AI Workflow）架構流程圖
+        </h3>
+        <p class="text-sm text-slate-400 mt-1">
+          不要讓弱模型做難事，也不要為簡單任務花昂貴雲端 Token！把難題交給頂級雲端，大量機密與重複任務留給本機。
+        </p>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6">
+        <!-- SVG 6 Visualization -->
+        <svg viewBox="0 0 900 290" class="w-full h-auto select-none font-sans">
+          <!-- Flow Step 1: User Request -->
+          <g transform="translate(30, 95)">
+            <rect width="130" height="90" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="1.5" />
+            <text x="65" y="38" fill="#f8fafc" font-size="13" font-weight="bold" text-anchor="middle">複雜專案任務</text>
+            <text x="65" y="58" fill="#94a3b8" font-size="11" text-anchor="middle">大量私密財務發票</text>
+            <text x="65" y="74" fill="#94a3b8" font-size="11" text-anchor="middle">+ 儀表板開發</text>
+          </g>
+
+          <!-- Arrow 1 -->
+          <path d="M 160 140 L 210 140" stroke="#818cf8" stroke-width="2" marker-end="url(#arrow)" />
+
+          <!-- Flow Step 2: Cloud Brain (Planner) -->
+          <g transform="translate(210, 45)">
+            <rect width="260" height="190" rx="12" fill="#311042" stroke="#c084fc" stroke-width="2" />
+            <rect x="15" y="15" width="90" height="22" rx="4" fill="#a855f7" />
+            <text x="60" y="30" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">雲端頂尖大腦</text>
+            <text x="15" y="60" fill="#f5d0fe" font-size="15" font-weight="bold">Claude 3.7 / GPT-4o</text>
+            <text x="15" y="85" fill="#e9d5ff" font-size="11">• 拆解任務為 5 個批次步驟</text>
+            <text x="15" y="105" fill="#e9d5ff" font-size="11">• 制定嚴格 JSON 擷取規格</text>
+            <text x="15" y="125" fill="#e9d5ff" font-size="11">• 撰寫本地端自動化處理腳本</text>
+            <text x="15" y="155" fill="#f0abfc" font-size="11" font-weight="bold">優勢：絕不卡關、邏輯規劃極度精確</text>
+          </g>
+
+          <!-- Arrow 2 (Plan dispatched to local) -->
+          <path d="M 470 140 L 530 140" stroke="#34d399" stroke-width="2.5" />
+          <polygon points="530,135 540,140 530,145" fill="#34d399" />
+          <text x="500" y="130" fill="#34d399" font-size="10" text-anchor="middle" font-weight="bold">派發工作腳本</text>
+
+          <!-- Flow Step 3: Local Executor (Worker) -->
+          <g transform="translate(540, 45)">
+            <rect width="330" height="190" rx="12" fill="#022c22" stroke="#10b981" stroke-width="2" />
+            <rect x="15" y="15" width="90" height="22" rx="4" fill="#059669" />
+            <text x="60" y="30" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">本機離線執行工蜂</text>
+            <text x="15" y="60" fill="#a7f3d0" font-size="15" font-weight="bold">Qwen 27B / MoE 35B (32GB Mac)</text>
+            <text x="15" y="85" fill="#d1fae5" font-size="11">• 整夜離線跑完 400 張私密病歷與發票</text>
+            <text x="15" y="105" fill="#d1fae5" font-size="11">• 機密資料 0 位元組上傳雲端，資安 100 分</text>
+            <text x="15" y="125" fill="#d1fae5" font-size="11">• 無需支付雲端 API 昂貴 Token 費用</text>
+            <text x="15" y="155" fill="#6ee7b7" font-size="11" font-weight="bold">優勢：0 雲端花費 · 絕不外洩 · 批次吞吐</text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- Section 5: Interactive VRAM & Configuration Calculator -->
+    <section id="vram-calculator" class="space-y-6">
+      <div class="border-b border-slate-800 pb-4">
+        <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-indigo-400"></i>
+          模型記憶體需求即時試算器
+        </h3>
+        <p class="text-sm text-slate-400 mt-1">
+          依照您想運行的模型大小與專案長度，試算需要的 VRAM，並自動評估 Windows 顯卡或 Mac 統整記憶體是否扛得住。
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 lg:p-8">
+        <!-- Input Controls -->
+        <div class="lg:col-span-7 space-y-6">
+          <!-- Parameter Slider -->
+          <div class="space-y-2">
+            <div class="flex justify-between items-center text-sm">
+              <label for="param-size" class="font-semibold text-slate-200">
+                1. 模型參數量 (Parameter Size)：
+              </label>
+              <span id="param-display" class="font-mono text-indigo-400 font-bold text-base">27 B</span>
+            </div>
+            <input type="range" id="param-size" min="7" max="130" step="1" value="27"
+              class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" 
+              oninput="recalcVRAM()" />
+            <div class="flex justify-between text-[11px] text-slate-500 font-mono">
+              <span>7B (迷你)</span>
+              <span>14B</span>
+              <span>27B (主流)</span>
+              <span>35B</span>
+              <span>70B</span>
+              <span>120B+ (旗艦)</span>
+            </div>
+          </div>
+
+          <!-- Quantization Preset -->
+          <div class="space-y-2">
+            <label class="font-semibold text-slate-200 text-sm block">
+              2. 量化位元 (Quantization Level)：
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <button onclick="setQuant(0.48, '3-bit')" class="quant-btn p-3 rounded-xl border border-slate-800 bg-slate-950/60 text-slate-400 text-xs text-left hover:border-slate-700">
+                <span class="block font-bold text-slate-300">3-bit (極度壓縮)</span>
+                <span class="text-[10px] text-red-400 block mt-0.5">易損害 Tool Call</span>
+              </button>
+              <button onclick="setQuant(0.60, '4-bit')" class="quant-btn p-3 rounded-xl border border-indigo-500/60 bg-indigo-950/40 text-indigo-300 text-xs text-left shadow-sm">
+                <span class="block font-bold text-white">4-bit (黃金標準)</span>
+                <span class="text-[10px] text-emerald-400 block mt-0.5">Q4_K_M 平衡最佳</span>
+              </button>
+              <button onclick="setQuant(1.05, '8-bit')" class="quant-btn p-3 rounded-xl border border-slate-800 bg-slate-950/60 text-slate-400 text-xs text-left hover:border-slate-700">
+                <span class="block font-bold text-slate-300">8-bit (高品質)</span>
+                <span class="text-[10px] text-indigo-300 block mt-0.5">需極大顯存空間</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Context Window Selection -->
+          <div class="space-y-2">
+            <div class="flex justify-between items-center text-sm">
+              <label for="context-size" class="font-semibold text-slate-200">
+                3. 上下文長度預估 (Context Window)：
+              </label>
+              <span id="context-display" class="font-mono text-purple-400 font-bold">64,000 tokens (Agent 推薦)</span>
+            </div>
+            <input type="range" id="context-size" min="4000" max="131072" step="4000" value="64000"
+              class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500" 
+              oninput="recalcVRAM()" />
+            <div class="flex justify-between text-[11px] text-slate-500 font-mono">
+              <span>4k (Ollama預設)</span>
+              <span>32k</span>
+              <span>64k (Agent最低限)</span>
+              <span>128k</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator Result Card -->
+        <div class="lg:col-span-5 flex flex-col justify-between bg-slate-950 border border-slate-800/80 rounded-2xl p-6 relative overflow-hidden">
+          <div class="space-y-4">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">評估推算結果</span>
+            
+            <div class="border-b border-slate-800 pb-4">
+              <span class="text-xs text-slate-400">最低預估 VRAM / 顯存需求：</span>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span id="calc-total-vram" class="text-4xl font-extrabold text-indigo-400 font-mono">20.8</span>
+                <span class="text-lg font-semibold text-slate-300">GB</span>
+              </div>
+              <div class="mt-2 text-xs text-slate-400 flex justify-between font-mono">
+                <span>模型純權重：<span id="calc-weight" class="text-slate-200">16.2 GB</span></span>
+                <span>Context 工作緩衝：<span id="calc-ctx" class="text-slate-200">4.6 GB</span></span>
+              </div>
+            </div>
+
+            <!-- Hardware Recommendation status -->
+            <div class="space-y-3 pt-1">
+              <div>
+                <span class="text-xs text-slate-400 block mb-1">Mac 統一記憶體購買建議：</span>
+                <div id="mac-recommendation" class="flex items-center gap-2 text-sm font-bold text-emerald-400 bg-emerald-950/30 border border-emerald-800/40 px-3 py-2 rounded-xl">
+                  <i class="fa-brands fa-apple text-base"></i>
+                  <span>建議配置 32GB 或更高（實際可用 ~24GB）</span>
+                </div>
+              </div>
+
+              <div>
+                <span class="text-xs text-slate-400 block mb-1">Windows / NVIDIA 顯卡建議：</span>
+                <div id="win-recommendation" class="flex items-center gap-2 text-sm font-bold text-indigo-300 bg-indigo-950/30 border border-indigo-800/40 px-3 py-2 rounded-xl">
+                  <i class="fa-solid fa-server text-sm"></i>
+                  <span>建議 RTX 3090 / 4090 (24GB VRAM)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-900 text-[11px] text-slate-500">
+            * 試算已將 Attention KV Cache 與常見激活緩衝列入計算，數值僅供選型參考。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Color-Coded Deep Dives: Calls, Pitfalls, Successes -->
+    <section class="space-y-8">
+      <div class="border-b border-slate-800 pb-4">
+        <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-shapes text-pink-400"></i>
+          實戰核心觀念彩色專題
+        </h3>
+        <p class="text-sm text-slate-400 mt-1">
+          重點色彩標記：警示紅框、概念藍框、成功綠框、架構紫框。
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- RED CALLOUT: Warning & Pitfalls -->
+        <div class="bg-red-950/20 border-l-4 border-red-500 p-6 rounded-r-2xl bg-gradient-to-r from-red-950/30 to-slate-900/40">
+          <div class="flex items-center gap-2 text-red-400 font-bold text-base mb-2">
+            <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+            <span>高危警示：Ollama 預設 Context 4k 陷阱</span>
+          </div>
+          <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-3">
+            Ollama 官方為了確保低配電腦不閃退，當顯存小於 24GB 時，<strong>預設強制將 Context 設在 4,000 tokens</strong>！
+          </p>
+          <div class="bg-slate-950/80 p-3 rounded-xl border border-red-900/50 text-xs text-red-200 space-y-1.5 font-mono">
+            <div>$ \text{Agent 初始說明書} \approx 5,000\,\text{tokens} $</div>
+            <div>$ 4,000 - 5,000 = \text{直接溢出，第 1 次回答即忘光！} $</div>
+          </div>
+          <p class="text-xs text-slate-400 mt-3">
+            <strong>解法：</strong>使用 OpenCode 或其他 Agent 前，務必在 Ollama Modelfile 或啟動參數手動宣告 <code class="text-red-300 bg-red-950/60 px-1.5 py-0.5 rounded">num_ctx 64000</code>。
+          </p>
+        </div>
+
+        <!-- BLUE CALLOUT: Concept & Bandwidth -->
+        <div class="bg-indigo-950/20 border-l-4 border-indigo-500 p-6 rounded-r-2xl bg-gradient-to-r from-indigo-950/30 to-slate-900/40">
+          <div class="flex items-center gap-2 text-indigo-400 font-bold text-base mb-2">
+            <i class="fa-solid fa-bolt-lightning text-lg"></i>
+            <span>關鍵概念：推論速度取決於「記憶體頻寬」</span>
+          </div>
+          <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-3">
+            模型生成每個文字（Token），晶片都必須把<strong>整個模型的數十 GB 參數從記憶體搬進核心一次</strong>。
+          </p>
+          <div class="bg-slate-950/80 p-3 rounded-xl border border-indigo-900/50 text-xs text-indigo-200 space-y-1 font-mono">
+            $$\text{最大推論速度} \approx \frac{\text{記憶體頻寬 (GB/s)}}{\text{模型佔用空間 (GB)}}$$
+          </div>
+          <p class="text-xs text-slate-400 mt-3">
+            這也是為什麼 <strong>M4 Max (400~500GB/s)</strong> 比基礎版 Mac mini (100~150GB/s) 快 3 到 4 倍的原因。
+          </p>
+        </div>
+
+        <!-- GREEN CALLOUT: Real Success Cases -->
+        <div class="bg-emerald-950/20 border-l-4 border-emerald-500 p-6 rounded-r-2xl bg-gradient-to-r from-emerald-950/30 to-slate-900/40">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold text-base mb-2">
+            <i class="fa-solid fa-circle-check text-lg"></i>
+            <span>成功落地實踐：什麼任務適合本地 AI？</span>
+          </div>
+          <ul class="text-xs sm:text-sm text-slate-300 space-y-2 mt-2">
+            <li class="flex items-start gap-2">
+              <i class="fa-solid fa-file-invoice-dollar text-emerald-400 mt-0.5"></i>
+              <span><strong>大量發票離線 OCR：</strong>實測 40 張發票放著跑過夜，正確解析匯出 Excel，無資安疑慮。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fa-solid fa-vault text-emerald-400 mt-0.5"></i>
+              <span><strong>機密財務自動化：</strong>32GB Mac 搭配 Gemma 26B 本地編程分析帳戶金流與繪製儀表板。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fa-solid fa-film text-emerald-400 mt-0.5"></i>
+              <span><strong>本機影片語意標註：</strong>使用輕量視覺模型（~6GB）整夜掃描數千支影片建立標籤。</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- PURPLE CALLOUT: Architecture & Hybrid Strategy -->
+        <div class="bg-purple-950/20 border-l-4 border-purple-500 p-6 rounded-r-2xl bg-gradient-to-r from-purple-950/30 to-slate-900/40">
+          <div class="flex items-center gap-2 text-purple-400 font-bold text-base mb-2">
+            <i class="fa-solid fa-diagram-project text-lg"></i>
+            <span>架構策略：雲地混合協作（最強實用流派）</span>
+          </div>
+          <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+            最聰明的玩法不是單挑！把困難任務拆分成兩層架構：
+          </p>
+          <div class="grid grid-cols-2 gap-2 mt-3">
+            <div class="bg-slate-950/80 p-2.5 rounded-lg border border-purple-900/40 text-xs">
+              <span class="font-bold text-purple-300 block mb-1">雲端頂尖模型</span>
+              <span class="text-slate-400">Claude 3.7 / GPT-4o：負責最高難度架構拆解、流程規劃。</span>
+            </div>
+            <div class="bg-slate-950/80 p-2.5 rounded-lg border border-purple-900/40 text-xs">
+              <span class="font-bold text-indigo-300 block mb-1">本地 27B / MoE</span>
+              <span class="text-slate-400">Qwen / Gemma：負責吞吐大量隱私資料、逐檔執行小任務。</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: NEW Interactive Timeline Transcript (時間軸逐字稿) -->
+    <section id="timeline-transcript" class="space-y-6 pt-4">
+      <div class="border-b border-slate-800 pb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-2">
+            <i class="fa-solid fa-headphones"></i> 影音連動逐字稿
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-3">
+            <i class="fa-regular fa-clock text-cyan-400"></i>
+            時間軸逐字稿 (Interactive Timeline)
+          </h3>
+          <p class="text-sm text-slate-400 mt-1">
+            包含前言、顯存速算、記憶體天梯實測至避坑指南。點擊任何時間戳記，上方播放器將自動秒數跳轉並同步播映！
+          </p>
+        </div>
+
+        <!-- Live Search Bar -->
+        <div class="relative w-full md:w-80">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+          <input 
+            type="text" 
+            id="transcript-search" 
+            oninput="handleTranscriptFilter()" 
+            placeholder="搜尋關鍵字 (如: 64k, MLX, 發票, Ollama)..." 
+            class="w-full bg-slate-900 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2 text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+          />
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="flex flex-wrap items-center gap-2 pt-1" id="category-pills">
+        <button onclick="setTranscriptCategory('all')" class="cat-pill px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-cyan-600 text-white shadow-md shadow-cyan-950/60" data-cat="all">
+          全部區段
+        </button>
+        <button onclick="setTranscriptCategory('intro')" class="cat-pill px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800" data-cat="intro">
+          前言與誤區
+        </button>
+        <button onclick="setTranscriptCategory('calc')" class="cat-pill px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800" data-cat="calc">
+          顯存速算法
+        </button>
+        <button onclick="setTranscriptCategory('tiers')" class="cat-pill px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800" data-cat="tiers">
+          16G~128G 分級
+        </button>
+        <button onclick="setTranscriptCategory('moe')" class="cat-pill px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800" data-cat="moe">
+          Dense vs MoE
+        </button>
+        <button onclick="setTranscriptCategory('software')" class="cat-pill px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800" data-cat="software">
+          軟體挑選
+        </button>
+        <button onclick="setTranscriptCategory('practice')" class="cat-pill px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800" data-cat="practice">
+          實務與陷阱
+        </button>
+      </div>
+
+      <!-- Mini-map Scrubber SVG -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-4 overflow-x-auto">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+          <span class="flex items-center gap-1.5">
+            <i class="fa-solid fa-map-location-dot text-indigo-400"></i> 章節目錄導覽軌道（點選即跳轉影片與展開內容）
+          </span>
+          <span class="font-mono text-slate-500">總時長 16:01</span>
+        </div>
+        <svg viewBox="0 0 960 52" class="w-full min-w-[750px] h-auto select-none font-sans">
+          <!-- Timeline track base -->
+          <rect x="10" y="22" width="940" height="8" rx="4" fill="#1e293b" />
+          
+          <!-- Segment 1: 00:00 - 01:25 -->
+          <rect onclick="seekToSeconds(0)" x="10" y="22" width="85" height="8" rx="4" fill="#6366f1" class="cursor-pointer hover:opacity-80 transition-opacity" />
+          <circle onclick="seekToSeconds(0)" cx="10" cy="26" r="6" fill="#818cf8" stroke="#0f172a" stroke-width="2" class="cursor-pointer" />
+          <text x="10" y="14" fill="#818cf8" font-size="10" font-weight="bold">00:00 前言</text>
+
+          <!-- Segment 2: 01:26 - 02:43 -->
+          <rect onclick="seekToSeconds(86)" x="95" y="22" width="80" height="8" fill="#38bdf8" class="cursor-pointer hover:opacity-80 transition-opacity" />
+          <circle onclick="seekToSeconds(86)" cx="95" cy="26" r="6" fill="#38bdf8" stroke="#0f172a" stroke-width="2" class="cursor-pointer" />
+          <text x="95" y="45" fill="#38bdf8" font-size="10">01:26 速算法則</text>
+
+          <!-- Segment 3: 02:43 - 06:54 -->
+          <rect onclick="seekToSeconds(163)" x="175" y="22" width="245" height="8" fill="#10b981" class="cursor-pointer hover:opacity-80 transition-opacity" />
+          <circle onclick="seekToSeconds(163)" cx="175" cy="26" r="6" fill="#34d399" stroke="#0f172a" stroke-width="2" class="cursor-pointer" />
+          <text x="210" y="14" fill="#34d399" font-size="10" font-weight="bold">02:43 16G~128G 天梯</text>
+
+          <!-- Segment 4: 06:54 - 08:12 -->
+          <rect onclick="seekToSeconds(414)" x="420" y="22" width="80" height="8" fill="#a855f7" class="cursor-pointer hover:opacity-80 transition-opacity" />
+          <circle onclick="seekToSeconds(414)" cx="420" cy="26" r="6" fill="#c084fc" stroke="#0f172a" stroke-width="2" class="cursor-pointer" />
+          <text x="420" y="45" fill="#c084fc" font-size="10">06:54 Dense vs MoE</text>
+
+          <!-- Segment 5: 08:12 - 09:14 -->
+          <rect onclick="seekToSeconds(492)" x="500" y="22" width="60" height="8" fill="#f59e0b" class="cursor-pointer hover:opacity-80 transition-opacity" />
+          <circle onclick="seekToSeconds(492)" cx="500" cy="26" r="6" fill="#fbbf24" stroke="#0f172a" stroke-width="2" class="cursor-pointer" />
+          <text x="500" y="14" fill="#fbbf24" font-size="10">08:12 軟體挑選</text>
+
+          <!-- Segment 6: 09:14 - 11:51 -->
+          <rect onclick="seekToSeconds(554)" x="560" y="22" width="160" height="8" fill="#06b6d4" class="cursor-pointer hover:opacity-80 transition-opacity" />
+          <circle onclick="seekToSeconds(554)" cx="560" cy="26" r="6" fill="#22d3ee" stroke="#0f172a" stroke-width="2" class="cursor-pointer" />
+          <text x="575" y="45" fill="#22d3ee" font-size="10">09:14 實用案例</text>
+
+          <!-- Segment 7: 11:51 - 14:57 -->
+          <rect onclick="seekToSeconds(711)" x="720" y="22" width="180" height="8" fill="#f43f5e" class="cursor-pointer hover:opacity-80 transition-opacity" />
+          <circle onclick="seekToSeconds(711)" cx="720" cy="26" r="6" fill="#fb7185" stroke="#0f172a" stroke-width="2" class="cursor-pointer" />
+          <text x="730" y="14" fill="#fb7185" font-size="10" font-weight="bold">11:51 五大避坑</text>
+
+          <!-- Segment 8: 14:57 - 16:01 -->
+          <rect onclick="seekToSeconds(897)" x="900" y="22" width="50" height="8" rx="4" fill="#eab308" class="cursor-pointer hover:opacity-80 transition-opacity" />
+          <circle onclick="seekToSeconds(897)" cx="900" cy="26" r="6" fill="#fde047" stroke="#0f172a" stroke-width="2" class="cursor-pointer" />
+          <text x="895" y="45" fill="#fde047" font-size="10">14:57 總結</text>
+        </svg>
+      </div>
+
+      <!-- Transcript Container Cards -->
+      <div id="transcript-cards" class="space-y-4">
+        <!-- Rendered dynamically by JS -->
+      </div>
+    </section>
+
+    <!-- Section 8: Beginner Checklist - Pitfalls & Security -->
+    <section id="pitfalls-checklist" class="space-y-6">
+      <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-red-400"></i>
+            新手五大坑與安全防線檢核表
+          </h3>
+          <p class="text-sm text-slate-400 mt-1">
+            資安公司偵測到公網上有超過 <strong>17 萬台 Ollama 裸奔伺服器</strong>！請逐一檢查您的本地環境。
+          </p>
+        </div>
+        <div class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300">
+          防禦完成度：<span id="check-progress" class="text-emerald-400 font-mono font-bold">0 / 5</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Checklist Item 1 -->
+        <label class="check-card flex items-start gap-3 p-4 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 cursor-pointer transition-all">
+          <input type="checkbox" onchange="updateCheckProgress()" class="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500">
+          <div class="space-y-1">
+            <span class="font-semibold text-sm text-slate-200 block">1. 手動拉大 Context 至 64k 以上</span>
+            <p class="text-xs text-slate-400">
+              特別是顯存小於 24GB 的設備，若需接 Coding Agent，絕對不要使用預設的 4k 限制。
+            </p>
+          </div>
+        </label>
+
+        <!-- Checklist Item 2 -->
+        <label class="check-card flex items-start gap-3 p-4 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 cursor-pointer transition-all">
+          <input type="checkbox" onchange="updateCheckProgress()" class="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500">
+          <div class="space-y-1">
+            <span class="font-semibold text-sm text-slate-200 block">2. 確認 Chat Template 完整性</span>
+            <p class="text-xs text-slate-400">
+              勿隨意下載社群不知名 repack 模型，格式缺損會使模型降級套用通用模板，思維直接降智。
+            </p>
+          </div>
+        </label>
+
+        <!-- Checklist Item 3 -->
+        <label class="check-card flex items-start gap-3 p-4 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 cursor-pointer transition-all">
+          <input type="checkbox" onchange="updateCheckProgress()" class="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500">
+          <div class="space-y-1">
+            <span class="font-semibold text-sm text-slate-200 block">3. 勿在 Agent 任務中亂壓 KV Cache</span>
+            <p class="text-xs text-slate-400">
+              為省記憶體將 KV Cache 壓縮為 8-bit，極易引發 Tool Calling 輸出格式崩壞解析失敗。
+            </p>
+          </div>
+        </label>
+
+        <!-- Checklist Item 4 -->
+        <label class="check-card flex items-start gap-3 p-4 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 cursor-pointer transition-all">
+          <input type="checkbox" onchange="updateCheckProgress()" class="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500">
+          <div class="space-y-1">
+            <span class="font-semibold text-sm text-slate-200 block">4. 顯存保留至少 15% 彈性緩衝</span>
+            <p class="text-xs text-slate-400">
+              不要把顯存塞滿到 98%，否則 Prompt Processing 階段將引發記憶體交換（Swap），推論速度暴跌 90%。
+            </p>
+          </div>
+        </label>
+
+        <!-- Checklist Item 5 -->
+        <label class="check-card flex items-start gap-3 p-4 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 cursor-pointer transition-all md:col-span-2">
+          <input type="checkbox" onchange="updateCheckProgress()" class="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500">
+          <div class="space-y-1">
+            <span class="font-semibold text-sm text-red-300 block">5. 嚴禁 Ollama / LM Studio 裸奔暴露公網（0.0.0.0）</span>
+            <p class="text-xs text-slate-400">
+              維持只監聽 <code class="text-indigo-300 bg-slate-950 px-1 py-0.5 rounded">127.0.0.1</code>。若有遠端連線需求請走 Tailscale 虛擬內網，且 Agent 執行目錄內絕不放 <code class="text-amber-300">.env</code> 與明文 API 金鑰！
+            </p>
+          </div>
+        </label>
+      </div>
+    </section>
+
+    <!-- Section 8: Seven Golden Takeaways (Executive Summary) -->
+    <section id="golden-takeaways" class="space-y-6">
+      <div class="border-b border-slate-800 pb-4">
+        <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-award text-amber-400"></i>
+          全篇精華：本地 AI 七字心法外帶卡片
+        </h3>
+        <p class="text-sm text-slate-400 mt-1">
+          記住這七句話，避開 90% 本地部署的陷阱與冤枉錢。
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Card 1 -->
+        <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
+          <span class="text-3xl font-black text-slate-800 absolute right-3 bottom-2 select-none">01</span>
+          <div class="text-indigo-400 font-bold text-sm mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-arrows-left-right-to-line"></i> 上下文優先
+          </div>
+          <p class="text-slate-200 text-xs sm:text-sm font-semibold">接 Agent 前，先把 Context 手動拉到 64,000 以上。</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
+          <span class="text-3xl font-black text-slate-800 absolute right-3 bottom-2 select-none">02</span>
+          <div class="text-indigo-400 font-bold text-sm mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-calculator"></i> 4-bit 顯存速算法
+          </div>
+          <p class="text-slate-200 text-xs sm:text-sm font-semibold">參數量乘以 0.6GB，並額外保留 Context 工作緩衝。</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
+          <span class="text-3xl font-black text-slate-800 absolute right-3 bottom-2 select-none">03</span>
+          <div class="text-purple-400 font-bold text-sm mb-1.5 flex items-center gap-2">
+            <i class="fa-brands fa-apple"></i> Mac 七五折原則
+          </div>
+          <p class="text-slate-200 text-xs sm:text-sm font-semibold">Mac 統一記憶體按四分之三 (75%) 計算實際可用顯存。</p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
+          <span class="text-3xl font-black text-slate-800 absolute right-3 bottom-2 select-none">04</span>
+          <div class="text-emerald-400 font-bold text-sm mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-stairs"></i> 級距分明
+          </div>
+          <p class="text-slate-200 text-xs sm:text-sm font-semibold">16GB 跑小活、32GB 是甜蜜點、64GB 開長文本、128GB 才換大模型。</p>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
+          <span class="text-3xl font-black text-slate-800 absolute right-3 bottom-2 select-none">05</span>
+          <div class="text-amber-400 font-bold text-sm mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-gauge-high"></i> 速度優先選 MoE
+          </div>
+          <p class="text-slate-200 text-xs sm:text-sm font-semibold">推論嫌慢先試 MoE 專家架構，再試 MLX 等專屬優化格式。</p>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
+          <span class="text-3xl font-black text-slate-800 absolute right-3 bottom-2 select-none">06</span>
+          <div class="text-pink-400 font-bold text-sm mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-cloud-bolt"></i> 雲地分工互補
+          </div>
+          <p class="text-slate-200 text-xs sm:text-sm font-semibold">困難架構規劃交給雲端，敏感資料與批次重複跑本地。</p>
+        </div>
+
+        <!-- Card 7 -->
+        <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl relative overflow-hidden sm:col-span-2 lg:col-span-3">
+          <span class="text-3xl font-black text-slate-800 absolute right-3 bottom-2 select-none">07</span>
+          <div class="text-red-400 font-bold text-sm mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-lock"></i> 絕不裸奔公網
+          </div>
+          <p class="text-slate-200 text-xs sm:text-sm font-semibold">維持僅監聽 127.0.0.1，Agent 工作資料夾內絕不放金鑰明文。</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-20 border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p>基於 YouTube《AI懶人報》EP460 內容整理製作 · 互動教學展示</p>
+      <p class="text-slate-600">公式由 KaTeX 即時渲染 · 支援行動裝置與桌面端響應式瀏覽</p>
+    </div>
+  </footer>
+
+  <!-- Interactive JavaScript Logic -->
+  <script>
+    // -------------------------------------------------------------
+    // Data for Memory Tiers
+    // -------------------------------------------------------------
+    const tierData = {
+      '16gb': {
+        title: '16GB 入門筆電 / Mac Mini (預算型配置)',
+        badge: '入門輕量任務',
+        color: 'blue',
+        realVram: '約 12GB (Mac 扣除系統後) / Windows 建議 8~12GB VRAM 顯卡',
+        models: 'Gemma 4 14B (~5GB)、Qwen 3.5 9B (~5.7GB)',
+        speed: '極快！通常可達 30 ~ 50+ tokens/sec',
+        pros: '耗電極低、發熱小、反應迅速，適合文字潤飾、日常中英翻譯、文章摘要、簡單表格產出。',
+        cons: '顯存極度吃緊。不可嘗試運行 GPT-OSS 20B（佔12GB直接塞滿工作緩衝）；不建議拿來做多步驟自主 Agent。'
+      },
+      '32gb': {
+        title: '32GB 公認黃金甜蜜點 (社群一致推薦起點)',
+        badge: '實戰主力首選',
+        color: 'emerald',
+        realVram: '約 24GB (Mac 可用空間) / Windows 建議 RTX 3090 或 4090 (24GB)',
+        models: 'Qwen 3.5 27B (最熱門開源王)、Gemma 4 26B、Qwen 3.5 35B MoE',
+        speed: '稠密 27B 約 8~10 tok/s；Gemma 26B 約 33 tok/s；MoE 35B 可達 70+ tok/s',
+        pros: '能兼顧足夠的思考深度（推理能力大幅超越小模型）與合理的上下文緩衝。適合私人文件問答、財務資料整理、輕量級 Coding Agent。',
+        cons: '注意 24GB 與 32GB 差很多！24GB Mac 扣除系統只剩不到 18GB，跑 27B 會非常勉強。'
+      },
+      '64gb': {
+        title: '64GB 超長上下文與高品質量化 (高階創作)',
+        badge: '長文本 / 防失憶專屬',
+        color: 'purple',
+        realVram: '約 48GB (Mac 統一顯存) / 雙顯卡 24GBx2',
+        models: 'Qwen 3.5 27B (升級至 8-bit 高精度版本)、MoE 35B、Qwen 72B (極致壓縮版)',
+        speed: '維持在 25 ~ 50 tokens/sec 穩定區間',
+        pros: '解決 Agent 容易健忘的死穴！Ollama 48GB+ 自動開啟高達 256k 的超大 Context Window。能塞入一整本合約、上千行專案原始碼而不遺忘。',
+        cons: '能跑的「最大模型」其實跟 32GB 落在同一個世代（因為下一代 70B 4-bit 需接近 70GB），主要效益在於精度與上下文。'
+      },
+      '128gb': {
+        title: '128GB+ 旗艦怪獸級 (頂級工作站)',
+        badge: '頂級千億參數解鎖',
+        color: 'pink',
+        realVram: '約 96GB ~ 107GB 可調用顯存',
+        models: 'GPT-OSS 120B (檔案約 63GB)、Qwen 3.8 FlashN (1250 億參數預覽版)',
+        speed: 'M4 Max 實測約 60 ~ 70 tokens/sec',
+        pros: '正式解鎖 100B+ 千億級參數模型，推理智商達到約一年前主流頂尖雲端商業 API 的表現，全離線本機推論無比流暢。',
+        cons: '邊際效益遞減極其嚴重。價格昂貴，對一般非商業敏感型個人用戶而言，不如採用雲地混合協作更具性價比。'
+      }
+    };
+
+    function selectTier(tierKey) {
+      // Update buttons
+      document.querySelectorAll('.tier-btn').forEach(btn => {
+        btn.className = 'tier-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700';
+      });
+      const activeBtn = document.getElementById(`btn-${tierKey}`);
+      if (activeBtn) {
+        activeBtn.className = 'tier-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-900/50';
+      }
+
+      // Update panel
+      const d = tierData[tierKey];
+      const panel = document.getElementById('tier-details');
+      panel.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="h-3 w-3 rounded-full bg-${d.color}-400"></span>
+            <h4 class="text-lg font-bold text-white">${d.title}</h4>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-${d.color}-500/20 text-${d.color}-300 font-semibold border border-${d.color}-500/30">
+            ${d.badge}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+          <div class="space-y-3">
+            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+              <span class="text-slate-400 block text-xs mb-1 font-mono">實際有效可用顯存：</span>
+              <span class="text-slate-200 font-medium">${d.realVram}</span>
+            </div>
+            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+              <span class="text-slate-400 block text-xs mb-1 font-mono">推薦裝載模型：</span>
+              <span class="text-indigo-300 font-medium">${d.models}</span>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+              <span class="text-slate-400 block text-xs mb-1 font-mono">推論速度預估：</span>
+              <span class="text-emerald-300 font-medium font-mono">${d.speed}</span>
+            </div>
+            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+              <span class="text-slate-400 block text-xs mb-1 font-mono">實用價值與警語：</span>
+              <p class="text-slate-300 mb-1"><span class="text-emerald-400 font-bold">✓ 優勢：</span>${d.pros}</p>
+              <p class="text-slate-400"><span class="text-amber-400 font-bold">⚠ 注意：</span>${d.cons}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // -------------------------------------------------------------
+    // Architecture Visualizer Logic (Dense vs MoE)
+    // -------------------------------------------------------------
+    let currentArchMode = 'moe';
+
+    function setArchMode(mode) {
+      currentArchMode = mode;
+      const btnDense = document.getElementById('btn-mode-dense');
+      const btnMoe = document.getElementById('btn-mode-moe');
+      const badge = document.getElementById('active-mode-badge');
+      const tag = document.getElementById('bandwidth-tag');
+      const router = document.getElementById('router-block');
+      const p1 = document.getElementById('path-active-1');
+      const p2 = document.getElementById('path-active-2');
+      const pout = document.getElementById('path-active-out');
+      const expl = document.getElementById('arch-explanation');
+
+      // Nodes
+      const e1 = document.querySelector('#node-exp-1 rect');
+      const e2 = document.querySelector('#node-exp-2 rect');
+      const e3 = document.querySelector('#node-exp-3 rect');
+      const e4 = document.querySelector('#node-exp-4 rect');
+      const e5 = document.querySelector('#node-exp-5 rect');
+
+      if (mode === 'dense') {
+        btnDense.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-md shadow-indigo-900/50';
+        btnMoe.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-400 hover:text-white';
+        badge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-blue-500/30 text-blue-300 border border-blue-500/40';
+        badge.innerText = 'Dense 稠密全開';
+        tag.className = 'text-amber-400 font-mono font-bold';
+        tag.innerText = '頻寬全力搬運全部 27B 參數 (慢)';
+
+        // Visual states: all experts light up because Dense loads everything
+        [e1, e2, e3, e4, e5].forEach(rect => {
+          rect.setAttribute('fill', '#3b82f6');
+          rect.setAttribute('stroke', '#60a5fa');
+          rect.setAttribute('opacity', '0.9');
+        });
+        router.style.opacity = '0.1';
+        p1.setAttribute('stroke', '#3b82f6');
+        p1.setAttribute('opacity', '0.8');
+        p2.setAttribute('stroke', '#3b82f6');
+        p2.setAttribute('opacity', '0.8');
+
+        expl.innerHTML = `
+          <p><strong>Dense（稠密架構）：</strong> 像 Qwen 27B，在產生每一個字時，電腦必須將這 <strong>270 億個參數全部從 RAM 搬移過晶片一次</strong>。</p>
+          <p class="text-slate-400">當頻寬只有 150GB/s 時，速度最多只能到 8~10 tokens/sec，讀取字的速度就是天花板。</p>
+        `;
+      } else {
+        btnMoe.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all bg-purple-600 text-white shadow-md shadow-purple-900/50';
+        btnDense.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-400 hover:text-white';
+        badge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-purple-500/30 text-purple-300 border border-purple-500/40';
+        badge.innerText = 'MoE 動態專家路由';
+        tag.className = 'text-emerald-400 font-mono font-bold';
+        tag.innerText = '僅活化專屬 3B 參數，極速通過！';
+
+        // Visual states: only 1 or 2 experts light up
+        [e1, e2, e4, e5].forEach(rect => {
+          rect.setAttribute('fill', '#1e293b');
+          rect.setAttribute('stroke', '#475569');
+          rect.setAttribute('opacity', '0.4');
+        });
+        e3.setAttribute('fill', '#9333ea');
+        e3.setAttribute('stroke', '#c084fc');
+        e3.setAttribute('opacity', '1');
+
+        router.style.opacity = '1';
+        p1.setAttribute('stroke', '#6366f1');
+        p1.setAttribute('opacity', '0.2');
+        p2.setAttribute('stroke', '#ec4899');
+        p2.setAttribute('opacity', '1');
+
+        expl.innerHTML = `
+          <p><strong>MoE（專家混合）：</strong> 像 Qwen 3.5 35B A3B，雖然總共有 350 億參數待命，但<strong>每次生成只要叫出 30 億參數的專家</strong>！</p>
+          <p class="text-emerald-400 font-semibold">搬運量減少將近 80%，讓推論速度直接飆高 5 倍（最高達 78 tok/s）！</p>
+        `;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Calculator Logic
+    // -------------------------------------------------------------
+    let currentQuantRatio = 0.60;
+    let currentQuantName = '4-bit';
+
+    function setQuant(ratio, name) {
+      currentQuantRatio = ratio;
+      currentQuantName = name;
+
+      document.querySelectorAll('.quant-btn').forEach(btn => {
+        btn.className = 'quant-btn p-3 rounded-xl border border-slate-800 bg-slate-950/60 text-slate-400 text-xs text-left hover:border-slate-700';
+      });
+      event.currentTarget.className = 'quant-btn p-3 rounded-xl border border-indigo-500/60 bg-indigo-950/40 text-indigo-300 text-xs text-left shadow-sm';
+      recalcVRAM();
+    }
+
+    function recalcVRAM() {
+      const paramSize = parseFloat(document.getElementById('param-size').value);
+      const contextTokens = parseInt(document.getElementById('context-size').value);
+
+      document.getElementById('param-display').innerText = `${paramSize} B`;
+      document.getElementById('context-display').innerText = `${contextTokens.toLocaleString()} tokens`;
+
+      // Weight calculation
+      const weightGB = paramSize * currentQuantRatio;
+      
+      // Context buffer approximation: roughly 1GB per 16,000 tokens for modern 16-bit KV cache on 20B+ models
+      const contextBufferGB = (contextTokens / 16000) * 1.15;
+
+      const totalVRAM = (weightGB + contextBufferGB).toFixed(1);
+
+      document.getElementById('calc-total-vram').innerText = totalVRAM;
+      document.getElementById('calc-weight').innerText = `${weightGB.toFixed(1)} GB`;
+      document.getElementById('calc-ctx').innerText = `${contextBufferGB.toFixed(1)} GB`;
+
+      // Recommendations
+      const macRec = document.getElementById('mac-recommendation');
+      const winRec = document.getElementById('win-recommendation');
+
+      // Mac needs (Total / 0.75) RAM
+      const macNeededRAM = Math.ceil(totalVRAM / 0.75);
+
+      if (macNeededRAM <= 16) {
+        macRec.innerHTML = `<i class="fa-brands fa-apple text-base"></i><span>入門款 16GB 即可流暢運行</span>`;
+        macRec.className = 'flex items-center gap-2 text-sm font-bold text-emerald-400 bg-emerald-950/30 border border-emerald-800/40 px-3 py-2 rounded-xl';
+      } else if (macNeededRAM <= 32) {
+        macRec.innerHTML = `<i class="fa-brands fa-apple text-base"></i><span>建議購買 32GB 統一記憶體（可用約 24GB）</span>`;
+        macRec.className = 'flex items-center gap-2 text-sm font-bold text-emerald-400 bg-emerald-950/30 border border-emerald-800/40 px-3 py-2 rounded-xl';
+      } else if (macNeededRAM <= 64) {
+        macRec.innerHTML = `<i class="fa-brands fa-apple text-base"></i><span>需配備 64GB 記憶體（確保留有 ${macNeededRAM}GB 空間）</span>`;
+        macRec.className = 'flex items-center gap-2 text-sm font-bold text-purple-300 bg-purple-950/30 border border-purple-800/40 px-3 py-2 rounded-xl';
+      } else {
+        macRec.innerHTML = `<i class="fa-brands fa-apple text-base"></i><span>建議直上 128GB+ Mac Studio 旗艦級</span>`;
+        macRec.className = 'flex items-center gap-2 text-sm font-bold text-pink-300 bg-pink-950/30 border border-pink-800/40 px-3 py-2 rounded-xl';
+      }
+
+      // Windows VRAM
+      if (totalVRAM <= 8) {
+        winRec.innerHTML = `<i class="fa-solid fa-server text-sm"></i><span>RTX 3060 / 4060 (8GB~12GB) 即可順跑</span>`;
+      } else if (totalVRAM <= 16) {
+        winRec.innerHTML = `<i class="fa-solid fa-server text-sm"></i><span>RTX 4070 Ti Super / 4080 (16GB VRAM)</span>`;
+      } else if (totalVRAM <= 24) {
+        winRec.innerHTML = `<i class="fa-solid fa-server text-sm"></i><span>RTX 3090 / RTX 4090 (24GB VRAM 必備)</span>`;
+      } else {
+        winRec.innerHTML = `<i class="fa-solid fa-server text-sm"></i><span>需雙顯卡 (24GB x 2) 或專業運算卡 (A6000)</span>`;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Checklist Progress Logic
+    // -------------------------------------------------------------
+    function updateCheckProgress() {
+      const total = 5;
+      const checked = document.querySelectorAll('#pitfalls-checklist input[type="checkbox"]:checked').length;
+      const display = document.getElementById('check-progress');
+      display.innerText = `${checked} / ${total}`;
+      if (checked === total) {
+        display.className = 'text-emerald-400 font-mono font-bold animate-bounce';
+      } else {
+        display.className = 'text-emerald-400 font-mono font-bold';
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Context Overflow SVG 3 Interactive Logic
+    // -------------------------------------------------------------
+    function toggleContextView(mode) {
+      const btnDef = document.getElementById('btn-ctx-default');
+      const btnAgent = document.getElementById('btn-ctx-agent');
+      const capTxt = document.getElementById('txt-ctx-cap');
+      const sysRect = document.getElementById('rect-sys-prompt');
+      const sysTxt = document.getElementById('txt-sys-prompt');
+      const dangerRect = document.getElementById('rect-overflow-danger');
+      const dangerTxt = document.getElementById('txt-overflow-label');
+      const iconCircle = document.getElementById('circle-status-icon');
+      const iconTxt = document.getElementById('txt-status-icon');
+      const explTitle = document.getElementById('txt-ctx-explanation-title');
+      const explBody = document.getElementById('txt-ctx-explanation-body');
+      const explFooter = document.getElementById('txt-ctx-explanation-footer');
+
+      if (mode === 'ollama-default') {
+        btnDef.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-red-600 text-white transition-all';
+        btnAgent.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition-all';
+        capTxt.innerText = '容量上限：4,000 Tokens (小於 24GB 顯存設備預設值)';
+        capTxt.setAttribute('fill', '#f87171');
+        
+        sysRect.setAttribute('width', '760');
+        sysRect.setAttribute('fill', '#6366f1');
+        dangerRect.style.display = 'block';
+        dangerTxt.style.display = 'block';
+        
+        iconCircle.setAttribute('fill', '#ef4444');
+        iconTxt.innerText = '✕';
+        explTitle.innerText = '發生結果：使用者打個「Hi」或傳送第一行程式碼，說明書就被截斷拋棄！';
+        explTitle.setAttribute('fill', '#f87171');
+        explBody.innerText = '• 模型立即忘記剛剛閱讀的指令格式、工具呼叫規則與專案目錄結構。';
+        explFooter.innerText = '• 症狀表現：模型胡言亂語、重複宣告、回傳「我無法執行此動作」或程式碼半途斷頭。';
+      } else {
+        btnAgent.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white transition-all';
+        btnDef.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition-all';
+        capTxt.innerText = '容量上限：64,000 Tokens (已手動配置安全上限)';
+        capTxt.setAttribute('fill', '#34d399');
+
+        sysRect.setAttribute('width', '160'); // 5000 / 64000 = ~8% width
+        sysRect.setAttribute('fill', '#10b981');
+        dangerRect.style.display = 'none';
+        dangerTxt.style.display = 'none';
+
+        iconCircle.setAttribute('fill', '#10b981');
+        iconTxt.innerText = '✓';
+        explTitle.innerText = '發生結果：空間極度寬裕！系統說明書僅佔 8%，留下大量對話與讀檔空間！';
+        explTitle.setAttribute('fill', '#34d399');
+        explBody.innerText = '• 還有 59,000 tokens 供 Agent 讀取專案多個檔案、調用工具、保持長達數十輪的上下文記憶。';
+        explFooter.innerText = '• 症狀改善：程式碼修復完全符合規格，不會邊寫邊忘。';
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Mac Unified Memory SVG 4 Interactive Logic
+    // -------------------------------------------------------------
+    function setMacRAM(ramGB) {
+      document.querySelectorAll('.mac-ram-btn').forEach(b => {
+        b.className = 'mac-ram-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition-all';
+      });
+      event.currentTarget.className = 'mac-ram-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white shadow-md shadow-purple-950/60 transition-all';
+
+      const totalTitle = document.getElementById('txt-mac-total-title');
+      const sysVal = document.getElementById('txt-mac-sys-val');
+      const gpuVal = document.getElementById('txt-mac-gpu-val');
+      const evalTitle = document.getElementById('txt-mac-eval-title');
+      const evalDesc = document.getElementById('txt-mac-eval-desc');
+      const statusCircle = document.getElementById('circle-mac-status');
+
+      const usableVRAM = (ramGB * 0.75).toFixed(0);
+      const sysReserved = (ramGB * 0.25).toFixed(0);
+
+      totalTitle.innerText = `Mac 統一記憶體總量：${ramGB} GB`;
+      sysVal.innerText = `~${sysReserved} GB (OS / UI / 其他軟體)`;
+      gpuVal.innerText = `實際可用顯存：~${usableVRAM} GB`;
+
+      if (ramGB === 16) {
+        statusCircle.setAttribute('fill', '#f59e0b');
+        evalTitle.innerText = '評估結論：~12GB 可用顯存，僅建議運行 5GB~7GB 小型模型 (如 Qwen 9B)。';
+        evalTitle.setAttribute('fill', '#fbbf24');
+        evalDesc.innerText = '若硬塞 GPT-OSS 20B (12GB)，模型權重直接占滿，上下文毫無工作餘裕，容易閃退。';
+      } else if (ramGB === 32) {
+        statusCircle.setAttribute('fill', '#10b981');
+        evalTitle.innerText = '評估結論：公認甜蜜點！~24GB 顯存完美駕馭 Qwen 27B 4-bit (17.6GB) 與 MoE 35B。';
+        evalTitle.setAttribute('fill', '#34d399');
+        evalDesc.innerText = '扣除模型權重後仍有超過 6GB 空間，可安全支撐 64,000 tokens 上下文而不會觸發 Swap 交換。';
+      } else if (ramGB === 64) {
+        statusCircle.setAttribute('fill', '#8b5cf6');
+        evalTitle.innerText = '評估結論：~48GB 顯存，模型雖然仍以 27B/35B 為主，但解鎖 8-bit 高精度與 256k 文本！';
+        evalTitle.setAttribute('fill', '#c084fc');
+        evalDesc.innerText = 'Ollama 自動開啟 256k 上下文，可將整本合約或中大型專案整包塞入模型記憶庫中。';
+      } else if (ramGB === 128) {
+        statusCircle.setAttribute('fill', '#ec4899');
+        evalTitle.innerText = '評估結論：~96GB 顯存，正式解鎖 GPT-OSS 120B 等百億以上頂尖開源旗艦模型！';
+        evalTitle.setAttribute('fill', '#f472b6');
+        evalDesc.innerText = '在 M4 Max 頻寬加持下推論速度可達 60~70 tok/s，表現媲美主流雲端頂尖商業模型。';
+      }
+    }
+
+    // Initialize defaults on window load
+    window.onload = function() {
+      selectTier('32gb');
+      setArchMode('moe');
+      recalcVRAM();
+      renderTranscripts();
+    };
+
+    // -------------------------------------------------------------
+    // YouTube IFrame API Integration
+    // -------------------------------------------------------------
+    let ytPlayer = null;
+
+    function onYouTubeIframeAPIReady() {
+      ytPlayer = new YT.Player('yt-player', {
+        videoId: '1nomxygMILI',
+        playerVars: {
+          playsinline: 1,
+          rel: 0,
+          modestbranding: 1
+        },
+        events: {
+          'onReady': () => {
+            console.log('YouTube Player ready');
+          }
+        }
+      });
+    }
+
+    function seekToSeconds(seconds) {
+      if (ytPlayer && ytPlayer.seekTo) {
+        ytPlayer.seekTo(seconds, true);
+        ytPlayer.playVideo();
+      } else {
+        const iframe = document.querySelector('#yt-player');
+        if (iframe && iframe.tagName === 'IFRAME') {
+          iframe.src = `https://www.youtube.com/embed/1nomxygMILI?start=${seconds}&autoplay=1`;
+        }
+      }
+      // Smooth scroll back to player area
+      document.getElementById('video-hero').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // -------------------------------------------------------------
+    // Timeline Transcript Database & Filter
+    // -------------------------------------------------------------
+    const transcriptData = [
+      {
+        id: 't-1',
+        time: '00:00:00',
+        seconds: 0,
+        category: 'intro',
+        tag: '核心誤區',
+        tagColor: 'red',
+        speaker: 'AI 懶人報',
+        title: '你以為本地模型很笨？其實是 Context 一開始就爆了',
+        text: '很多人第一次把 AI 裝在自己的電腦上，接上 OpenCode 這種 AI 助理，叫他做一件很小的事，結果他一直失敗，講到一半就忘記前面交代過什麼。大部分人的結論是本地模型太笨了，可是很多時候問題不在模型。Ollama 是最多人拿來跑本地模型的軟體，它的官方文件寫，顯示記憶體小於 24GB 的機器，預設的 Context 只有 4,000 個 token。'
+      },
+      {
+        id: 't-2',
+        time: '00:00:20',
+        seconds: 20,
+        category: 'intro',
+        tag: '參數落差',
+        tagColor: 'amber',
+        speaker: 'AI 懶人報',
+        title: '4,000 vs 64,000：16 倍的 Context 鴻溝',
+        text: '可是 OpenCode 的官方文件建議，接本地模型的話，Context 至少要 64,000 個 token，兩邊差了整整 16 倍！先講這兩個詞：Token 是 AI 文字的小單位，你可以先把它想成一個字或半個字；Context 是 AI 一次看得到的內容，你交代的事情、他讀過的檔案、前面的對話全部都要塞在裡面，塞不下的就從最前面開始被擠掉。'
+      },
+      {
+        id: 't-3',
+        time: '00:00:41',
+        seconds: 41,
+        category: 'intro',
+        tag: 'Agent 機制',
+        tagColor: 'indigo',
+        speaker: 'AI 懶人報',
+        title: '打一聲「Hi」就吃掉 5,000 tokens 的真相',
+        text: '而 Agent 工具在你打字之前，就會先放一大段自己的說明書進去。社群上有人量過，在 Agent 工具裡只打一聲「Hi」，就已經用掉大約 5,000 個 token，4,000 的空間一開始就爆了。所以你的本地 AI 不一定是笨，很可能是設定錯了。'
+      },
+      {
+        id: 't-4',
+        time: '00:01:26',
+        seconds: 86,
+        category: 'calc',
+        tag: '速算法則',
+        tagColor: 'cyan',
+        speaker: 'AI 懶人報',
+        title: '模型名稱的「B」與量化（Quantization）本質',
+        text: '要知道一顆模型能不能在你的電腦上跑，只要一條規則，再加上一個 Mac 才有的陷阱。先看模型名字：你在網路上會看到 Qwen 3.5 27B 這種名字，後面那個「27B」意思是這顆模型有 270 億個參數。參數就是模型學到的東西，存成一大串數字；參數越多通常越聰明，檔案也越大。原始的模型檔非常大，所以大家會先把它壓縮，這個叫做量化（Quantization）。你可以把它想成壓縮照片，把每一個數字存得粗一點，檔案變小很多，看起來還是差不多。'
+      },
+      {
+        id: 't-5',
+        time: '00:01:54',
+        seconds: 114,
+        category: 'calc',
+        tag: '公式推導',
+        tagColor: 'emerald',
+        speaker: 'AI 懶人報',
+        title: '4-bit 顯存速算法：參數量 × 0.6GB',
+        text: '現在最常用的是壓成 4-bit（四位元），所以規則是這樣：一顆 4-bit 的模型大約需要參數量乘以 0.6GB 的記憶體。我們拿 Hugging Face 上實際的檔案對一次：9B 的模型大約 5.7GB、27B 大約 17.6GB、35B 大約 22.4GB，跟這條規則都對得上。但這只是模型本身，剛剛講的 Context 也要佔記憶體，對話越長、讀的檔案越多就吃得越多，所以模型放得進去還不夠，要多留一塊空間給它工作。'
+      },
+      {
+        id: 't-6',
+        time: '00:02:19',
+        seconds: 139,
+        category: 'calc',
+        tag: 'Mac 陷阱',
+        tagColor: 'purple',
+        speaker: 'AI 懶人報',
+        title: 'Mac 統一記憶體的「四分之三 (75%)」隱形牆',
+        text: '再來是 Mac 的小陷阱：Mac 的記憶體是 CPU 跟顯示晶片共用的，這是它跑 AI 的優勢；可是社群上很多人實測，macOS 預設只讓顯示晶片用大約 3/4 的記憶體，剩下的留給系統。所以一台 16GB 的 Mac 真正能拿來放模型的大約只有 12GB，32GB 大約是 24GB。Apple 的 MLX 官方文件雖然有一個指令可以把上限調高，但每次重開機就會恢復，新手先照四分之三來算就好。'
+      },
+      {
+        id: 't-7',
+        time: '00:03:11',
+        seconds: 191,
+        category: 'tiers',
+        tag: '8G~16G',
+        tagColor: 'blue',
+        speaker: 'AI 懶人報',
+        title: '第一級（8 到 16GB）：入門文字潤飾與翻譯',
+        text: '大部分的筆電跟入門 Mac 都在這裡。能跑的是小模型：Google 的 Gemma 4 14B 大約 5GB、Qwen 3.5 9B 大約 5.7GB；OpenAI 開源的 GPT-OSS 20B 官方說 16GB 跑得動（檔案約 12GB），但記得剛才的陷阱，16GB Mac 只能給模型約 12GB，放 GPT-OSS 20B 已經很緊，幾乎沒空間留給對話。在 16GB Mac 上比較舒服的是 5GB 左右的那兩顆。速度通常不是問題，小模型都跑很快，問題在聰明程度：很適合改寫文字、翻譯、摘要文章、雜亂資料整理成表格；但要他當 Agent 自己規劃好幾個步驟、呼叫工具就容易出錯。'
+      },
+      {
+        id: 't-8',
+        time: '00:03:53',
+        seconds: 233,
+        category: 'tiers',
+        tag: '32G 甜蜜點',
+        tagColor: 'emerald',
+        speaker: 'AI 懶人報',
+        title: '第二級（24 到 32GB）：社群公認甜蜜點與 Qwen 27B',
+        text: '這是社群公認的甜蜜點，到這一級才開始跑得動真正好用的模型。最有名的像 Qwen 3.5 27B，在 Hugging Face 單月被下載超過 700 萬次；另外兩顆是 Google 的 Gemma 4 26B 跟 Qwen 3.5 35B。有人用 32GB 的 M4 Mac mini 實測跑 27B 每秒大約 8 到 9 個 token；換成 Gemma 4 26B 同一台機器每秒約 33 個，快了好幾倍。這裡要注意：24GB 跟 32GB 差很多，24GB 的 Mac 能給模型不到 20GB，要放 27B 只能用壓縮更小的版本，留給對話的空間很少；想要用得舒服，32GB 才是穩定的起點。適合私人文件問答、整批資料分類整理，甚至接本地 Coding Agent 做範圍明確的小任務。'
+      },
+      {
+        id: 't-9',
+        time: '00:04:50',
+        seconds: 290,
+        category: 'tiers',
+        tag: '64G 級距',
+        tagColor: 'purple',
+        speaker: 'AI 懶人報',
+        title: '第三級（64GB）：同款模型，但換來 256k 超長上下文',
+        text: '很多人以為記憶體加倍就能跑更厲害的模型，可是排出來發現 64GB 能跑的最強模型跟 32GB 是同一顆（還是 Qwen 27B）。因為下一顆更強的模型壓到最小版本也要近 70GB，64GB Mac 放不下。那多出來的空間拿來做什麼？兩件事：第一，換成壓得較少的 8-bit 版本（約 29GB），品質更接近原版；第二，開很長的 Context。Ollama 官方文件寫顯存 48GB 以上的機器預設 Context 直接開到 256,000 token。所以 64GB 買到的是讓同一顆模型讀更長文件、跑更久的 Agent 任務而不健忘。'
+      },
+      {
+        id: 't-10',
+        time: '00:05:32',
+        seconds: 332,
+        category: 'tiers',
+        tag: '128G 旗艦',
+        tagColor: 'pink',
+        speaker: 'AI 懶人報',
+        title: '第四級（128GB+）：千億參數解鎖與雲端級表現',
+        text: '到這裡模型才真正換了一個等級。OpenAI 的 GPT-OSS 120B 檔案約 63GB；Qwen 3.8 FlashN 有 1,250 億個參數。社群用 128GB M4 Max 實測：GPT-OSS 120B 每秒約 60 到 70 token，FlashN 約 70 個，比 32GB 跑 27B 快很多。這級能跑的模型水準大致相當於一年前頂級雲端模型的表現。至於 256GB / 512GB 是 Mac Studio 最高階的等級，能跑更大模型；但公開跑分顯示每往上一階，聰明度只多一點點，邊際效益極小，除非資料完全不能聯網或需要多人同時調用。'
+      },
+      {
+        id: 't-11',
+        time: '00:06:54',
+        seconds: 414,
+        category: 'moe',
+        tag: '架構核心',
+        tagColor: 'purple',
+        speaker: 'AI 懶人報',
+        title: '記憶體頻寬才是速度瓶頸：Dense 與 MoE 架構深度剖析',
+        text: '剛才提到：32GB 機器跑 26B 反而比 27B 快好幾倍，128GB 跑 1,250 億參數也比 27B 快，原因在於 MoE（Mixture of Experts，專家混合）設計。AI 每寫一個 token 都要把模型參數從記憶體搬一次，記憶體每秒能搬多少資料叫做頻寬；模型越大、寫一個字要搬的東西越多就越慢。一般稠密模型（Dense）寫每個字都要動用全部參數；MoE 模型則是把參數分成很多小組專家，每寫一個字只調用其中幾個專家。像 Qwen 3.5 35B A3B，意思就是每次只動用大約 30 億個參數，要搬的資料少，速度就快很多。'
+      },
+      {
+        id: 't-12',
+        time: '00:07:47',
+        seconds: 467,
+        category: 'moe',
+        tag: '避坑注意',
+        tagColor: 'amber',
+        speaker: 'AI 懶人報',
+        title: 'MoE 致命誤區：速度變快，但顯存「完全沒有省」',
+        text: '常見誤解提醒：MoE 只是速度快，記憶體不會比較省！所有專家都必須常駐記憶體待命，35B MoE 依然要佔 22GB 左右空間。「放不放得下看全部參數，速度看每次叫出來的那幾個專家」。MoE 的缺點：社群回報在同等大小下，稠密模型處理長上下文的 Agent 任務穩定性通常較高，MoE 有時容易失手。'
+      },
+      {
+        id: 't-13',
+        time: '00:08:12',
+        seconds: 492,
+        category: 'software',
+        tag: '軟體工具',
+        tagColor: 'blue',
+        speaker: 'AI 懶人報',
+        title: 'LM Studio、Ollama、llama.cpp 軟體選型指南',
+        text: '模型是靜態權重檔，需要軟體驅動。LM Studio 圖形介面完整，就像模型 App Store，搜尋、下載、聊天都在裡面，且會提示電腦是否放得下。Mac 上記得選 MLX 格式；Ollama 主要在背景以服務形式執行，方便讓 OpenCode、Claude Code 這類外部 Agent 工具透過 API 接取；llama.cpp 則是很多軟體底層實際跑模型的引擎，功能最齊全，但需要命令列操作。社群實測同一台 32GB Mac mini、同一顆 Qwen 27B，僅更換推論軟體與檔案格式（如換成 MLX 格式），速度就從每秒約 8 個提升至約 21 個 token，翻了快 3 倍！'
+      },
+      {
+        id: 't-14',
+        time: '00:09:14',
+        seconds: 554,
+        category: 'practice',
+        tag: '實務案例',
+        tagColor: 'emerald',
+        speaker: 'AI 懶人報',
+        title: '本地 AI 成功落地案例：發票 OCR、帳務儀表板與影片庫',
+        text: '成功落地案例包括：私人文件問答（合約、病歷、財務、客戶私密檔案，斷網環境下也能閱讀）；整批重複工作放著跑過夜（實測 40 張發票範例讓本地模型批次讀取並整理成試算表，40 張全數正確解析）；自動化整理帳務（32GB Mac mini 搭配 Gemma 4 26B，讓本地 Coding Agent 寫腳本將銀行明細分類、統計各類支出並產出儀表板圖表，敏感資料完全不出內網）；整理私人影片庫（跑 6GB 左右的視覺模型，整夜替數千支影片片段標註說明文字）。最實用的概念是「雲地混合協作」：雲端頂尖模型負責拆解規劃，本地模型負責大量閱讀資料與執行重複的小任務。'
+      },
+      {
+        id: 't-15',
+        time: '00:10:53',
+        seconds: 653,
+        category: 'practice',
+        tag: '反面教材',
+        tagColor: 'red',
+        speaker: 'AI 懶人報',
+        title: '不建議的三大用法：大專案 Coding Agent、小模型與過度量化',
+        text: '目前不建議的用法：第一，直接讓本地模型在大專案當 Coding Agent。讀取 Prompt 的速度極慢，當整份專案高達數萬 token 時，模型光是把上下文讀完（Prompt Processing）就得跑好幾分鐘，常常卡住沒輸出；第二，拿 9B 等級小模型當複雜 Agent，產生程式碼或調用工具時容易出錯；第三，模型過度量化壓到 4-bit 以下。壓縮到 2-bit 或 3-bit 時，最先損壞的通常是 Tool Calling（工具調用）的格式輸出能力。'
+      },
+      {
+        id: 't-16',
+        time: '00:11:51',
+        seconds: 711,
+        category: 'practice',
+        tag: '避坑指南',
+        tagColor: 'rose',
+        speaker: 'AI 懶人報',
+        title: '新手最常踩的五大坑與公網 17 萬裸奔防範',
+        text: '新手最常踩的五大坑：1. Context 預設太短，接 Agent 務必手動在設定中調高至少 64k；2. Chat Template 遺失，使用非官方打包版本遺漏模板會使模型降智；3. 過度壓縮 KV Cache 為 8-bit 會搞爛工具調用語法；4. 只看模型放不放得下，沒看顯存塞滿到 96% 引發 Swap 掉速；5. 誤以為本地部署就絕對安全，資安公司偵測到公網上有超過 17 萬台 Ollama 伺服器無密碼裸奔對外開放！Ollama 應維持只監聽本機（127.0.0.1），Agent 工作目錄內絕不放密碼或 API 金鑰。'
+      },
+      {
+        id: 't-17',
+        time: '00:14:57',
+        seconds: 897,
+        category: 'practice',
+        tag: '總結心法',
+        tagColor: 'amber',
+        speaker: 'AI 懶人報',
+        title: '結語：七句核心落地原則',
+        text: '核心重點七句話：1. 接 Agent 前先把 Context 拉到 64,000 以上；2. 4-bit 模型記憶體需求估算：參數量乘以 0.6GB，並額外預留空間給 Context；3. Mac 統一記憶體可用顯存先按 3/4 計算；4. 16GB 跑小模型、32GB 是甜蜜點跑 27B、64GB 用於長文本、128GB 才換大模型；5. 想要速度快，先選 MoE 模型，再試著更換適合的推論軟體格式（如 MLX）；6. 困難規劃交給雲端，私密大量重複任務留在本地；7. Ollama 維持僅監聽本機，Agent 工作資料夾內不留密碼金鑰。'
+      }
+    ];
+
+    let currentCategory = 'all';
+    let currentSearchQuery = '';
+
+    function renderTranscripts() {
+      const container = document.getElementById('transcript-cards');
+      const filtered = transcriptData.filter(item => {
+        const matchCat = (currentCategory === 'all' || item.category === currentCategory);
+        const matchSearch = currentSearchQuery === '' || 
+          item.title.toLowerCase().includes(currentSearchQuery) || 
+          item.text.toLowerCase().includes(currentSearchQuery) ||
+          item.tag.toLowerCase().includes(currentSearchQuery);
+        return matchCat && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 bg-slate-900/60 rounded-2xl border border-slate-800">
+            <i class="fa-solid fa-file-circle-xmark text-slate-600 text-3xl mb-3"></i>
+            <p class="text-slate-400 text-sm">找不到符合關鍵字的逐字稿段落</p>
+            <button onclick="resetFilters()" class="mt-3 text-xs text-cyan-400 hover:underline">清除搜尋條件</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        return `
+          <div class="group relative bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 transition-all shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <div class="flex items-center gap-2">
+                <!-- Timestamp button -->
+                <button 
+                  onclick="seekToSeconds(${item.seconds})" 
+                  title="點擊跳轉至影片 ${item.time}"
+                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 font-mono text-xs font-bold transition-all shadow-sm">
+                  <i class="fa-solid fa-play text-[10px]"></i>
+                  <span>${item.time}</span>
+                </button>
+                <span class="text-xs px-2.5 py-0.5 rounded-full bg-${item.tagColor}-500/20 text-${item.tagColor}-300 font-semibold border border-${item.tagColor}-500/30">
+                  ${item.tag}
+                </span>
+                <span class="text-xs text-slate-500 hidden sm:inline">講者：${item.speaker}</span>
+              </div>
+
+              <!-- Copy Quote button -->
+              <button 
+                onclick="copyTranscriptText('${item.id}', this)"
+                class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 bg-slate-950/60 hover:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-800 transition-all">
+                <i class="fa-regular fa-copy"></i>
+                <span class="copy-label">複製本段</span>
+              </button>
+            </div>
+
+            <h4 class="text-base font-bold text-slate-100 group-hover:text-cyan-300 transition-colors mb-2">
+              ${highlightSearch(item.title, currentSearchQuery)}
+            </h4>
+
+            <p id="${item.id}" class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              ${highlightSearch(item.text, currentSearchQuery)}
+            </p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function highlightSearch(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${query})`, 'gi');
+      return text.replace(regex, '<mark class="bg-amber-400/30 text-amber-200 px-1 rounded">$1</mark>');
+    }
+
+    function setTranscriptCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        if (btn.getAttribute('data-cat') === cat) {
+          btn.className = 'cat-pill px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-cyan-600 text-white shadow-md shadow-cyan-950/60';
+        } else {
+          btn.className = 'cat-pill px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800';
+        }
+      });
+      renderTranscripts();
+    }
+
+    function handleTranscriptFilter() {
+      const input = document.getElementById('transcript-search');
+      currentSearchQuery = input.value.trim().toLowerCase();
+      renderTranscripts();
+    }
+
+    function resetFilters() {
+      document.getElementById('transcript-search').value = '';
+      currentSearchQuery = '';
+      setTranscriptCategory('all');
+    }
+
+    function copyTranscriptText(elementId, btnElement) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const textToCopy = el.innerText;
+      
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        const label = btnElement.querySelector('.copy-label');
+        if (label) label.innerText = '已複製！';
+        btnElement.classList.add('text-emerald-400', 'border-emerald-500/40');
+        setTimeout(() => {
+          if (label) label.innerText = '複製本段';
+          btnElement.classList.remove('text-emerald-400', 'border-emerald-500/40');
+        }, 1500);
+      } catch (err) {
+        console.error('Copy failed', err);
+      }
+      document.body.removeChild(textArea);
+    }
+  </script>
+</body>
+</html>
