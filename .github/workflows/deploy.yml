@@ -21,6 +21,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Clean up non-web assets for deployment
+        run: |
+          echo "=== 部署前精簡非網頁大型素材 ==="
+          # 刪除所有投影片、備份檔、Office 檔、臨時檔與 Python 快取
+          find . -type f \( -name "*.pptx" -o -name "*.ppt" -o -name "*.bak" -o -name "*.docx" -o -name "*.tmp" -o -name "*.pyc" \) -delete
+          
+          # 0.原始檔案請問上傳 目錄中僅保留被網頁引用的 JSON 資料檔，其餘非網頁資源移除
+          find "0.原始檔案請問上傳" -type f ! -name "*.json" -delete 2>/dev/null || true
+          
+          # 刪除 Vibe Coding 內未被網頁引用的巨大參考 PDF (節省空間)
+          find "Vibe Coding" -type f -name "*.pdf" -delete 2>/dev/null || true
+          
+          # 移除開發與暫存目錄
+          rm -rf .git .agents scratch .vscode 2>/dev/null || true
+
+          echo "清理後發布目錄大小："
+          du -sh .
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
@@ -34,10 +53,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
-    timeout-minutes: 40
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          timeout: 2400000
