@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ollama 模型深度解析：ollama show 與 Modelfile 單頁式互動教學</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    body { font-family: 'Noto Sans TC', sans-serif; }
+    .font-mono { font-family: 'Fira Code', monospace; }
+    .term-highlight { transition: all 0.2s ease; cursor: pointer; border-left: 3px solid transparent; }
+    .term-highlight:hover, .term-highlight.active {
+      background-color: rgba(56, 189, 248, 0.18);
+      border-left: 3px solid #38bdf8;
+      padding-left: 8px;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #090d16; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    
+    @keyframes pulseFlow {
+      0%, 100% { stroke-dashoffset: 24; }
+      50% { stroke-dashoffset: 0; }
+    }
+    .svg-flow-line {
+      stroke-dasharray: 6 6;
+      animation: pulseFlow 2.5s linear infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen flex flex-col selection:bg-sky-500/30 selection:text-sky-200">
+
+  <!-- Sticky Navigation Bar -->
+  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-sky-500 to-emerald-500 flex items-center justify-center text-slate-950 font-black font-mono text-lg shadow-lg shadow-sky-500/20">
+          O4
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-white font-bold tracking-tight">Ollama 模型深度解剖</span>
+            <span class="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">gemma4:e4b</span>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">從終端機指令輸出到多模態渲染管線與 Blob 儲存底層原理</p>
+        </div>
+      </div>
+
+      <!-- Anchor Navigation -->
+      <nav class="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium">
+        <a href="../../project_local_llm.html" class="px-3 py-1.5 rounded-lg text-emerald-400 hover:text-emerald-300 font-bold hover:bg-slate-800 transition flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          回專題總覽
+        </a>
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+          首頁
+        </a>
+        <a href="#sec-svg" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">1. SVG 架構圖解</a>
+        <a href="#sec-terminal" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">2. 終端機互動百科</a>
+        <a href="#sec-compare" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">3. 對照與實戰 FAQ</a>
+        <a href="#sec-builder" class="px-3 py-1.5 rounded-lg bg-sky-600/20 text-sky-300 border border-sky-500/30 hover:bg-sky-600 hover:text-white transition">4. Modelfile 產生器</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden border-b border-slate-800/80 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 py-12 sm:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs font-mono mb-4">
+          <span>Ollama v0.20.0+</span>
+          <span>•</span>
+          <span>Google DeepMind Gemma 4 Edge Architecture</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-4">
+          看懂 <code class="text-sky-400 font-mono">ollama show</code> 背後的模型黑盒子
+        </h1>
+        <p class="text-base sm:text-lg text-slate-300 leading-relaxed mb-6">
+          當我們在本地執行 <code class="text-emerald-400 font-mono bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">ollama show gemma4:e4b</code> 與 <code class="text-amber-300 font-mono bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">--modelfile</code> 時，終端機吐出的每一行參數都直接決定了<strong class="text-white">顯示卡 VRAM 佔用、多模態輸入能力（視覺/音訊）、Thinking 思維鏈開關</strong>，以及如何無痛建立零額外硬碟佔用的衍生模型。
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a href="#sec-svg" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm shadow-lg shadow-sky-600/25 transition">
+            探索 3 張核心架構圖 ↓
+          </a>
+          <a href="#sec-terminal" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-700 transition">
+            直接點擊終端機欄位解析
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Metric Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4">
+          <div class="text-xs font-mono text-slate-400">總參數量 / 有效激活參數</div>
+          <div class="text-xl sm:text-2xl font-bold text-amber-300 mt-1 font-mono">8.0B <span class="text-sm text-slate-400 font-normal">/ E4B</span></div>
+          <div class="text-xs text-slate-400 mt-1">兼顧多模態編碼與極速推論</div>
+        </div>
+        <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4">
+          <div class="text-xs font-mono text-slate-400">最大上下文視窗</div>
+          <div class="text-xl sm:text-2xl font-bold text-sky-400 mt-1 font-mono">131,072 <span class="text-sm text-slate-400 font-normal">Tokens</span></div>
+          <div class="text-xs text-slate-400 mt-1">原生支援 128K 超長上下文</div>
+        </div>
+        <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4">
+          <div class="text-xs font-mono text-slate-400">原生多模態能力</div>
+          <div class="text-xl sm:text-2xl font-bold text-emerald-400 mt-1 font-mono">Vision + Audio</div>
+          <div class="text-xs text-slate-400 mt-1">無需外掛模型直接看圖與聽音</div>
+        </div>
+        <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4">
+          <div class="text-xs font-mono text-slate-400">深度推理機制</div>
+          <div class="text-xl sm:text-2xl font-bold text-pink-400 mt-1 font-mono">Thinking: true</div>
+          <div class="text-xs text-slate-400 mt-1">內建思維鏈與 Function Calling</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Single-Page Vertical Flow -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-20">
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 1: 3 Custom SVG Architectural Diagrams                        -->
+    <!-- ===================================================================== -->
+    <section id="sec-svg" class="scroll-mt-24 space-y-8">
+      <div class="border-l-4 border-sky-500 pl-4">
+        <span class="text-xs font-mono uppercase tracking-wider text-sky-400 font-semibold">Section 01 • Visual Architecture</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">三大核心機制 SVG 視覺化圖解</h2>
+        <p class="text-sm sm:text-base text-slate-400 mt-1">透過架構圖徹底理解參數結構、Renderer/Parser 資料管線，以及本地 Blob 零複製共享機制。</p>
+      </div>
+
+      <!-- SVG Diagram 1: Parameters & Quantization -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="px-2.5 py-0.5 rounded text-xs font-mono bg-amber-500/15 text-amber-300 border border-amber-500/30">圖解 1：硬體與權重結構</span>
+            <h3 class="text-lg sm:text-xl font-bold text-white mt-1.5">為什麼檔名是 <code class="text-emerald-400">e4b</code>，但 <code class="text-amber-300">parameters</code> 卻顯示 <code class="text-amber-300">8.0B</code>？</h3>
+          </div>
+          <span class="text-xs text-slate-400 font-mono">量化格式：Q4_K_M (~5.5 GB VRAM)</span>
+        </div>
+        
+        <p class="text-sm text-slate-300 leading-relaxed mb-6">
+          Gemma 4 E4B 採用邊緣高效架構：<strong class="text-white">8.0B（80 億）</strong>是整個模型檔案包含所有模組的「總靜態參數量」，而 <strong class="text-emerald-400">E4B（Effective 4B）</strong>則是每次生成文字時實際參與核心推論運算的「有效激活參數量」，兼顧了多模態能力與消費級顯卡的推論速度。
+        </p>
+
+        <div class="w-full overflow-x-auto bg-slate-950 rounded-xl border border-slate-800/80 p-4">
+          <svg viewBox="0 0 920 290" class="w-full min-w-[700px] h-auto" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="gradTotal" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#0284c7" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0.25"/>
+              </linearGradient>
+              <linearGradient id="gradVram" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#a855f7" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#ec4899" stop-opacity="0.3"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Left Block: Total Parameters 8.0B Breakdown -->
+            <rect x="20" y="20" width="470" height="250" rx="14" fill="url(#gradTotal)" stroke="#38bdf8" stroke-width="1.5"/>
+            <text x="40" y="48" fill="#38bdf8" font-family="Fira Code, monospace" font-size="14" font-weight="bold">總參數量：parameters = 8.0B (靜態完整權重)</text>
+            <text x="40" y="68" fill="#94a3b8" font-family="Noto Sans TC, sans-serif" font-size="12">模型檔案內含完整語言骨幹與原生多模態編碼器</text>
+
+            <!-- Sub-boxes inside 8.0B -->
+            <!-- Core LLM -->
+            <rect x="40" y="88" width="210" height="160" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+            <text x="55" y="115" fill="#34d399" font-family="Fira Code, monospace" font-size="14" font-weight="bold">E4B 核心語言骨幹</text>
+            <text x="55" y="136" fill="#e2e8f0" font-family="Noto Sans TC, sans-serif" font-size="12">有效激活參數 ≈ 4.0B</text>
+            <text x="55" y="160" fill="#94a3b8" font-family="Noto Sans TC, sans-serif" font-size="11">• Per-Layer Embeddings 共享</text>
+            <text x="55" y="180" fill="#94a3b8" font-family="Noto Sans TC, sans-serif" font-size="11">• 滑動視窗 + 全域注意力層</text>
+            <text x="55" y="200" fill="#94a3b8" font-family="Noto Sans TC, sans-serif" font-size="11">• 決定主要 Token 生成速度</text>
+            <rect x="55" y="214" width="180" height="22" rx="5" fill="#10b981" fill-opacity="0.2"/>
+            <text x="145" y="229" text-anchor="middle" fill="#6ee7b7" font-family="Noto Sans TC, sans-serif" font-size="11" font-weight="bold">推論速度等同 4B 等級模型</text>
+
+            <!-- Vision Encoder -->
+            <rect x="268" y="88" width="202" height="74" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+            <text x="283" y="112" fill="#38bdf8" font-family="Fira Code, monospace" font-size="13" font-weight="bold">Vision 視覺編碼器</text>
+            <text x="283" y="132" fill="#cbd5e1" font-family="Noto Sans TC, sans-serif" font-size="11">將圖片轉為視覺 Token 向量</text>
+            <text x="283" y="149" fill="#64748b" font-family="Noto Sans TC, sans-serif" font-size="10">僅在輸入圖片時觸發運算</text>
+
+            <!-- Audio & Shared Embeddings -->
+            <rect x="268" y="174" width="202" height="74" rx="10" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="283" y="198" fill="#fbbf24" font-family="Fira Code, monospace" font-size="13" font-weight="bold">Audio + 2560維詞嵌入層</text>
+            <text x="283" y="218" fill="#cbd5e1" font-family="Noto Sans TC, sans-serif" font-size="11">音訊波形編碼 + 超大詞彙表</text>
+            <text x="283" y="235" fill="#64748b" font-family="Noto Sans TC, sans-serif" font-size="10">支援 256K 詞表與原生語音理解</text>
+
+            <!-- Arrow from 8.0B to Quantization -->
+            <path d="M 495 145 L 555 145" stroke="#a855f7" stroke-width="3" fill="none" class="svg-flow-line"/>
+            <polygon points="555,139 568,145 555,151" fill="#a855f7"/>
+            <text x="530" y="132" text-anchor="middle" fill="#d8b4fe" font-family="Fira Code, monospace" font-size="11" font-weight="bold">Q4_K_M</text>
+
+            <!-- Right Block: VRAM & Quantization -->
+            <rect x="572" y="20" width="328" height="250" rx="14" fill="url(#gradVram)" stroke="#a855f7" stroke-width="1.5"/>
+            <text x="592" y="48" fill="#e879f9" font-family="Fira Code, monospace" font-size="14" font-weight="bold">Q4_K_M 混合精度量化壓縮</text>
+            <text x="592" y="68" fill="#94a3b8" font-family="Noto Sans TC, sans-serif" font-size="12">決定顯示卡 VRAM 實際佔用空間</text>
+
+            <!-- Comparison Bars -->
+            <text x="592" y="102" fill="#cbd5e1" font-family="Noto Sans TC, sans-serif" font-size="12">原始 BF16 (16-bit 精度)：約 16.0 GB</text>
+            <rect x="592" y="110" width="285" height="18" rx="4" fill="#334155"/>
+            <rect x="592" y="110" width="285" height="18" rx="4" fill="#64748b"/>
+
+            <text x="592" y="152" fill="#f0abfc" font-family="Noto Sans TC, sans-serif" font-size="12" font-weight="bold">Q4_K_M (~4.8-bit 混合)：約 5.5 GB</text>
+            <rect x="592" y="160" width="285" height="22" rx="4" fill="#1e293b" stroke="#a855f7" stroke-width="1"/>
+            <rect x="592" y="160" width="102" height="22" rx="4" fill="#a855f7"/>
+            <text x="704" y="175" fill="#e9d5ff" font-family="Noto Sans TC, sans-serif" font-size="11">節省 65% 顯存！</text>
+
+            <!-- Info Box -->
+            <rect x="592" y="198" width="285" height="52" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+            <text x="604" y="218" fill="#38bdf8" font-family="Noto Sans TC, sans-serif" font-size="11" font-weight="bold">硬體配置建議：</text>
+            <text x="604" y="236" fill="#cbd5e1" font-family="Noto Sans TC, sans-serif" font-size="11">8GB VRAM 顯卡即可流暢運行（含 KV Cache）</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- SVG Diagram 2: Renderer & Parser Pipeline -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="px-2.5 py-0.5 rounded text-xs font-mono bg-sky-500/15 text-sky-300 border border-sky-500/30">圖解 2：Ollama 0.20.0+ 提示詞與輸出引擎</span>
+            <h3 class="text-lg sm:text-xl font-bold text-white mt-1.5"><code class="text-sky-400">renderer</code> 與 <code class="text-sky-400">parser</code> 如何運作？為何 <code class="text-emerald-400">TEMPLATE</code> 只剩 <code class="text-emerald-400">{{ .Prompt }}</code>？</h3>
+          </div>
+          <span class="text-xs text-slate-400 font-mono">template source: renderer_parser</span>
+        </div>
+
+        <p class="text-sm text-slate-300 leading-relaxed mb-6">
+          早期 Ollama 依賴純文字的 Go Template 拼接對話標籤，但面對 Gemma 4 複雜的<strong class="text-white">圖片/音訊多模態佔位符、Thinking 思維鏈標籤與 Tools 函式呼叫</strong>時容易出錯。因此 Ollama 0.20.0+ 改由原生 Go 程式碼模組（<code class="text-sky-300">gemma4-small</code> Renderer 與 <code class="text-sky-300">gemma4</code> Parser）全權接管輸入封裝與輸出拆解。
+        </p>
+
+        <div class="w-full overflow-x-auto bg-slate-950 rounded-xl border border-slate-800/80 p-4">
+          <svg viewBox="0 0 920 310" class="w-full min-w-[740px] h-auto" xmlns="http://www.w3.org/2000/svg">
+            <!-- Step 1: User Inputs -->
+            <rect x="15" y="30" width="180" height="250" rx="12" fill="#0f172a" stroke="#475569" stroke-width="1.5"/>
+            <text x="105" y="56" text-anchor="middle" fill="#f8fafc" font-family="Noto Sans TC, sans-serif" font-size="13" font-weight="bold">1. 多模態 API 輸入</text>
+            
+            <rect x="30" y="75" width="150" height="44" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1"/>
+            <text x="105" y="95" text-anchor="middle" fill="#7dd3fc" font-family="Fira Code, monospace" font-size="12" font-weight="bold">Text / System</text>
+            <text x="105" y="111" text-anchor="middle" fill="#94a3b8" font-family="Noto Sans TC, sans-serif" font-size="10">對話訊息與系統指令</text>
+
+            <rect x="30" y="132" width="150" height="44" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1"/>
+            <text x="105" y="152" text-anchor="middle" fill="#6ee7b7" font-family="Fira Code, monospace" font-size="12" font-weight="bold">Vision + Audio</text>
+            <text x="105" y="168" text-anchor="middle" fill="#94a3b8" font-family="Noto Sans TC, sans-serif" font-size="10">圖片張量與音訊波形</text>
+
+            <rect x="30" y="189" width="150" height="44" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="1"/>
+            <text x="105" y="209" text-anchor="middle" fill="#fcd34d" font-family="Fira Code, monospace" font-size="12" font-weight="bold">Tools Schema</text>
+            <text x="105" y="225" text-anchor="middle" fill="#94a3b8" font-family="Noto Sans TC, sans-serif" font-size="10">JSON 外部工具定義</text>
+
+            <text x="105" y="262" text-anchor="middle" fill="#64748b" font-family="Fira Code, monospace" font-size="10">think: true / false</text>
+
+            <!-- Arrow 1 -> 2 -->
+            <path d="M 198 155 L 238 155" stroke="#38bdf8" stroke-width="2.5" class="svg-flow-line"/>
+            <polygon points="238,150 248,155 238,160" fill="#38bdf8"/>
+
+            <!-- Step 2: Renderer -->
+            <rect x="252" y="30" width="205" height="250" rx="12" fill="#0c4a6e" fill-opacity="0.35" stroke="#38bdf8" stroke-width="2"/>
+            <text x="354" y="56" text-anchor="middle" fill="#38bdf8" font-family="Fira Code, monospace" font-size="13" font-weight="bold">2. RENDERER 引擎</text>
+            <text x="354" y="74" text-anchor="middle" fill="#bae6fd" font-family="Fira Code, monospace" font-size="11">gemma4-small</text>
+
+            <rect x="267" y="90" width="175" height="92" rx="8" fill="#0f172a" stroke="#0284c7" stroke-width="1"/>
+            <text x="277" y="110" fill="#7dd3fc" font-family="Fira Code, monospace" font-size="10">&lt;|turn&gt;system</text>
+            <text x="277" y="126" fill="#f472b6" font-family="Fira Code, monospace" font-size="10">&lt;|think|&gt; (啟用推理)</text>
+            <text x="277" y="142" fill="#cbd5e1" font-family="Fira Code, monospace" font-size="10">&lt;|turn&gt;user &lt;|image|&gt;</text>
+            <text x="277" y="158" fill="#cbd5e1" font-family="Fira Code, monospace" font-size="10">分析這張架構圖...&lt;turn|&gt;</text>
+            <text x="277" y="174" fill="#34d399" font-family="Fira Code, monospace" font-size="10">&lt;|turn&gt;model</text>
+
+            <rect x="267" y="194" width="175" height="72" rx="8" fill="#1e293b" stroke="#475569" stroke-dasharray="3 3"/>
+            <text x="354" y="214" text-anchor="middle" fill="#94a3b8" font-family="Noto Sans TC, sans-serif" font-size="11" font-weight="bold">為何 TEMPLATE 只有</text>
+            <text x="354" y="232" text-anchor="middle" fill="#34d399" font-family="Fira Code, monospace" font-size="12">{{ .Prompt }} ?</text>
+            <text x="354" y="250" text-anchor="middle" fill="#64748b" font-family="Noto Sans TC, sans-serif" font-size="10">因已被 Go Renderer 接管，舊模板呈惰性</text>
+
+            <!-- Arrow 2 -> 3 -->
+            <path d="M 460 155 L 495 155" stroke="#10b981" stroke-width="2.5" class="svg-flow-line"/>
+            <polygon points="495,150 505,155 495,160" fill="#10b981"/>
+
+            <!-- Step 3: Gemma 4 Model Inference -->
+            <rect x="508" y="65" width="145" height="180" rx="14" fill="#064e3b" fill-opacity="0.4" stroke="#10b981" stroke-width="2"/>
+            <text x="580" y="105" text-anchor="middle" fill="#34d399" font-family="Fira Code, monospace" font-size="14" font-weight="bold">Gemma 4</text>
+            <text x="580" y="125" text-anchor="middle" fill="#a7f3d0" font-family="Fira Code, monospace" font-size="12">8.0B (Q4_K_M)</text>
+            <line x1="528" y1="142" x2="632" y2="142" stroke="#10b981" stroke-opacity="0.4"/>
+            <text x="580" y="164" text-anchor="middle" fill="#e2e8f0" font-family="Noto Sans TC, sans-serif" font-size="11">GPU 張量運算</text>
+            <text x="580" y="184" text-anchor="middle" fill="#94a3b8" font-family="Fira Code, monospace" font-size="10">temp=1, top_k=64</text>
+            <text x="580" y="202" text-anchor="middle" fill="#94a3b8" font-family="Fira Code, monospace" font-size="10">top_p=0.95</text>
+            <text x="580" y="226" text-anchor="middle" fill="#6ee7b7" font-family="Noto Sans TC, sans-serif" font-size="10">輸出原始 Token 串流</text>
+
+            <!-- Arrow 3 -> 4 -->
+            <path d="M 656 155 L 692 155" stroke="#e879f9" stroke-width="2.5" class="svg-flow-line"/>
+            <polygon points="692,150 702,155 692,160" fill="#e879f9"/>
+
+            <!-- Step 4: Parser -->
+            <rect x="705" y="30" width="200" height="250" rx="12" fill="#4a044e" fill-opacity="0.3" stroke="#e879f9" stroke-width="2"/>
+            <text x="805" y="56" text-anchor="middle" fill="#f0abfc" font-family="Fira Code, monospace" font-size="13" font-weight="bold">4. PARSER 解析器</text>
+            <text x="805" y="74" text-anchor="middle" fill="#f5d0fe" font-family="Fira Code, monospace" font-size="11">gemma4 (結構化分流)</text>
+
+            <rect x="720" y="90" width="170" height="52" rx="8" fill="#0f172a" stroke="#f472b6" stroke-width="1"/>
+            <text x="732" y="110" fill="#f472b6" font-family="Fira Code, monospace" font-size="11" font-weight="bold">message.thinking</text>
+            <text x="732" y="128" fill="#cbd5e1" font-family="Noto Sans TC, sans-serif" font-size="10">攔截 &lt;|channel&gt;thought</text>
+
+            <rect x="720" y="152" width="170" height="52" rx="8" fill="#0f172a" stroke="#fbbf24" stroke-width="1"/>
+            <text x="732" y="172" fill="#fbbf24" font-family="Fira Code, monospace" font-size="11" font-weight="bold">message.tool_calls</text>
+            <text x="732" y="190" fill="#cbd5e1" font-family="Noto Sans TC, sans-serif" font-size="10">解析 JSON 函式呼叫請求</text>
+
+            <rect x="720" y="214" width="170" height="52" rx="8" fill="#0f172a" stroke="#34d399" stroke-width="1"/>
+            <text x="732" y="234" fill="#34d399" font-family="Fira Code, monospace" font-size="11" font-weight="bold">message.content</text>
+            <text x="732" y="252" fill="#cbd5e1" font-family="Noto Sans TC, sans-serif" font-size="10">乾淨的最終回覆給使用者</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- SVG Diagram 3: Blob Content-Addressable Storage -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="px-2.5 py-0.5 rounded text-xs font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">圖解 3：內容定址儲存架構 (CAS)</span>
+            <h3 class="text-lg sm:text-xl font-bold text-white mt-1.5"><code class="text-amber-200">FROM ...\blobs\sha256-4c27e0f5...</code> 的零複製共享原理</h3>
+          </div>
+          <span class="text-xs text-slate-400 font-mono">類似 Docker Image Layer 機制</span>
+        </div>
+
+        <p class="text-sm text-slate-300 leading-relaxed mb-6">
+          執行 <code class="text-sky-400">ollama show gemma4:e4b --modelfile</code> 時，你會看到 <code class="text-amber-200">FROM</code> 指向 Windows 本機資料夾下的一串 SHA-256 雜湊檔案。Ollama 採用類似 Docker 的<strong class="text-white">內容定址儲存（Content-Addressable Storage）</strong>：模型名稱（Manifest）只是輕量級的設定指標，無論你基於 <code class="text-emerald-400">FROM gemma4:e4b</code> 建立多少個專屬模型，底層都共同指向同一個 5.5GB 權重檔，<strong class="text-emerald-400">完全不會重複佔用硬碟空間</strong>。
+        </p>
+
+        <div class="w-full overflow-x-auto bg-slate-950 rounded-xl border border-slate-800/80 p-4">
+          <svg viewBox="0 0 920 240" class="w-full min-w-[700px] h-auto" xmlns="http://www.w3.org/2000/svg">
+            <!-- Left: Physical Blob Storage -->
+            <rect x="20" y="25" width="380" height="190" rx="14" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+            <text x="40" y="54" fill="#fbbf24" font-family="Fira Code, monospace" font-size="13" font-weight="bold">實體權重儲存區 (.ollama\models\blobs\)</text>
+            
+            <rect x="40" y="72" width="340" height="80" rx="10" fill="#451a03" fill-opacity="0.45" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="55" y="96" fill="#fde68a" font-family="Fira Code, monospace" font-size="12" font-weight="bold">sha256-4c27e0f5b5adf02ac956c7322b...</text>
+            <text x="55" y="118" fill="#cbd5e1" font-family="Noto Sans TC, sans-serif" font-size="12">GGUF 二進位模型權重本體（約 5.5 GB）</text>
+            <text x="55" y="138" fill="#94a3b8" font-family="Noto Sans TC, sans-serif" font-size="11">唯讀共享 • 全機僅存一份實體檔案</text>
+
+            <rect x="40" y="164" width="340" height="34" rx="6" fill="#1e293b"/>
+            <text x="210" y="185" text-anchor="middle" fill="#94a3b8" font-family="Fira Code, monospace" font-size="11">C:\Users\echom\.ollama\models\blobs\</text>
+
+            <!-- Connecting Arrows -->
+            <path d="M 405 112 L 515 55" stroke="#38bdf8" stroke-width="2" class="svg-flow-line"/>
+            <path d="M 405 112 L 515 120" stroke="#10b981" stroke-width="2" class="svg-flow-line"/>
+            <path d="M 405 112 L 515 185" stroke="#e879f9" stroke-width="2" class="svg-flow-line"/>
+
+            <!-- Right: Logical Model Manifests -->
+            <!-- Model 1 -->
+            <rect x="520" y="22" width="380" height="56" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+            <text x="538" y="45" fill="#38bdf8" font-family="Fira Code, monospace" font-size="13" font-weight="bold">gemma4:e4b (官方原始映像)</text>
+            <text x="538" y="65" fill="#94a3b8" font-family="Fira Code, monospace" font-size="11">Config: temp=1, num_ctx=4096 | 額外佔用: 0 MB</text>
+
+            <!-- Model 2 -->
+            <rect x="520" y="92" width="380" height="56" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+            <text x="538" y="115" fill="#34d399" font-family="Fira Code, monospace" font-size="13" font-weight="bold">gemma4-coder (FROM gemma4:e4b)</text>
+            <text x="538" y="135" fill="#94a3b8" font-family="Fira Code, monospace" font-size="11">Config: temp=0.2, SYSTEM="Python架構師" | 額外佔用: &lt; 2 KB</text>
+
+            <!-- Model 3 -->
+            <rect x="520" y="162" width="380" height="56" rx="10" fill="#0f172a" stroke="#e879f9" stroke-width="1.5"/>
+            <text x="538" y="185" fill="#f0abfc" font-family="Fira Code, monospace" font-size="13" font-weight="bold">gemma4-translator (FROM gemma4:e4b)</text>
+            <text x="538" y="205" fill="#94a3b8" font-family="Fira Code, monospace" font-size="11">Config: temp=0.3, SYSTEM="中日英翻譯" | 額外佔用: &lt; 2 KB</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 2: Interactive Terminal Inspector                             -->
+    <!-- ===================================================================== -->
+    <section id="sec-terminal" class="scroll-mt-24 space-y-6">
+      <div class="border-l-4 border-emerald-500 pl-4">
+        <span class="text-xs font-mono uppercase tracking-wider text-emerald-400 font-semibold">Section 02 • Interactive Terminal Inspector</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">互動式終端機深度解析百科</h2>
+        <p class="text-sm sm:text-base text-slate-400 mt-1">完整還原兩張終端機截圖輸出。請點擊左側終端機中的任一行參數，右側將顯示<strong class="text-slate-200">底層技術原理、硬體效能影響與實戰調校建議</strong>。</p>
+      </div>
+
+      <!-- Command Switcher -->
+      <div class="flex flex-wrap items-center gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+        <span class="text-sm font-medium text-slate-400 pl-1">切換終端機畫面：</span>
+        <button onclick="selectCmd('show')" id="btn-cmd-show" class="font-mono text-xs sm:text-sm px-4 py-2 rounded-lg border border-sky-500 bg-sky-500/15 text-sky-300 font-semibold transition">
+          $ ollama show gemma4:e4b
+        </button>
+        <button onclick="selectCmd('modelfile')" id="btn-cmd-modelfile" class="font-mono text-xs sm:text-sm px-4 py-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-500 hover:text-slate-200 transition">
+          $ ollama show gemma4:e4b --modelfile
+        </button>
+      </div>
+
+      <!-- Split Screen Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left: Terminal Window -->
+        <div class="lg:col-span-6 bg-[#0c0c0c] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+          <!-- Terminal Title Bar -->
+          <div class="bg-slate-900 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+              <span class="ml-2 text-xs font-mono text-slate-400">Command Prompt — C:\Users\echom</span>
+            </div>
+            <span class="text-xs text-sky-400 animate-pulse">👈 點擊任一行</span>
+          </div>
+
+          <!-- Terminal Body: Command 1 -->
+          <div id="term-show" class="p-5 font-mono text-xs sm:text-sm leading-relaxed overflow-x-auto select-none">
+            <div class="text-slate-400 mb-3">C:\Users\echom&gt;<span class="text-white font-semibold">ollama show gemma4:e4b</span></div>
+            
+            <div class="text-sky-400 font-bold mt-2">Model</div>
+            <div class="pl-3 sm:pl-4 space-y-1 text-slate-300">
+              <div onclick="showDetail('architecture')" data-key="architecture" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">architecture</span><span class="text-emerald-300">gemma4</span></div>
+              <div onclick="showDetail('parameters')" data-key="parameters" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">parameters</span><span class="text-amber-300">8.0B</span></div>
+              <div onclick="showDetail('context_length')" data-key="context_length" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">context length</span><span class="text-amber-300">131072</span></div>
+              <div onclick="showDetail('embedding_length')" data-key="embedding_length" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">embedding length</span><span class="text-amber-300">2560</span></div>
+              <div onclick="showDetail('quantization')" data-key="quantization" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">quantization</span><span class="text-purple-300">Q4_K_M</span></div>
+              <div onclick="showDetail('requires')" data-key="requires" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">requires</span><span class="text-slate-200">0.20.0</span></div>
+              <div onclick="showDetail('renderer_parser')" data-key="renderer_parser" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">renderer</span><span class="text-sky-300">gemma4-small</span></div>
+              <div onclick="showDetail('renderer_parser')" data-key="renderer_parser" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">parser</span><span class="text-sky-300">gemma4</span></div>
+              <div onclick="showDetail('template_source')" data-key="template_source" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">template source</span><span class="text-sky-300">renderer_parser</span></div>
+            </div>
+
+            <div class="text-sky-400 font-bold mt-4">Capabilities</div>
+            <div class="pl-3 sm:pl-4 space-y-1 text-slate-300">
+              <div onclick="showDetail('cap_basic')" data-key="cap_basic" class="term-highlight py-1 rounded">completion</div>
+              <div onclick="showDetail('cap_multimodal')" data-key="cap_multimodal" class="term-highlight py-1 rounded text-emerald-300">vision</div>
+              <div onclick="showDetail('cap_multimodal')" data-key="cap_multimodal" class="term-highlight py-1 rounded text-emerald-300">audio</div>
+              <div onclick="showDetail('cap_tools')" data-key="cap_tools" class="term-highlight py-1 rounded text-amber-300">tools</div>
+              <div onclick="showDetail('cap_thinking')" data-key="cap_thinking" class="term-highlight py-1 rounded">
+                <div class="text-pink-400 font-semibold">thinking</div>
+                <div class="pl-6 flex"><span class="w-28 sm:w-32 text-slate-400">levels</span><span>false, true</span></div>
+                <div class="pl-6 flex"><span class="w-28 sm:w-32 text-slate-400">default</span><span class="text-pink-300">true</span></div>
+              </div>
+            </div>
+
+            <div class="text-sky-400 font-bold mt-4">Parameters</div>
+            <div class="pl-3 sm:pl-4 space-y-1 text-slate-300">
+              <div onclick="showDetail('param_sampling')" data-key="param_sampling" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">temperature</span><span class="text-amber-300">1</span></div>
+              <div onclick="showDetail('param_sampling')" data-key="param_sampling" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">top_k</span><span class="text-amber-300">64</span></div>
+              <div onclick="showDetail('param_sampling')" data-key="param_sampling" class="term-highlight py-1 rounded flex"><span class="w-40 sm:w-44 text-slate-400 shrink-0">top_p</span><span class="text-amber-300">0.95</span></div>
+            </div>
+
+            <div class="text-sky-400 font-bold mt-4">License</div>
+            <div onclick="showDetail('license')" data-key="license" class="term-highlight pl-3 sm:pl-4 py-1 rounded text-slate-400">
+              <div>Apache License</div>
+              <div>Version 2.0, January 2004</div>
+              <div>...</div>
+            </div>
+          </div>
+
+          <!-- Terminal Body: Command 2 (--modelfile) -->
+          <div id="term-modelfile" class="hidden p-5 font-mono text-xs sm:text-sm leading-relaxed overflow-x-auto select-none">
+            <div class="text-slate-400 mb-3">C:\Users\echom&gt;<span class="text-white font-semibold">ollama show gemma4:e4b --modelfile</span></div>
+            <div class="text-slate-500 text-xs mb-3">
+              # Modelfile generated by "ollama show"<br>
+              # To build a new Modelfile based on this, replace FROM with:<br>
+              # FROM gemma4:e4b
+            </div>
+
+            <div class="space-y-2 text-slate-300">
+              <div onclick="showDetail('mf_from')" data-key="mf_from" class="term-highlight py-1.5 rounded break-all">
+                <span class="text-sky-400 font-bold">FROM</span> <span class="text-amber-200">C:\Users\echom\.ollama\models\blobs\sha256-4c27e0f5b5adf02ac956c7322bd2ee7636fe3f45a8512c9aba5385242cb6e09a</span>
+              </div>
+              <div onclick="showDetail('mf_template')" data-key="mf_template" class="term-highlight py-1.5 rounded">
+                <span class="text-sky-400 font-bold">TEMPLATE</span> <span class="text-emerald-300">{{ .Prompt }}</span>
+              </div>
+              <div onclick="showDetail('mf_renderer')" data-key="mf_renderer" class="term-highlight py-1.5 rounded">
+                <span class="text-sky-400 font-bold">RENDERER</span> <span class="text-purple-300">gemma4</span>
+              </div>
+              <div onclick="showDetail('mf_renderer')" data-key="mf_renderer" class="term-highlight py-1.5 rounded">
+                <span class="text-sky-400 font-bold">PARSER</span> <span class="text-purple-300">gemma4</span>
+              </div>
+              <div onclick="showDetail('param_sampling')" data-key="param_sampling" class="term-highlight py-1.5 rounded">
+                <div><span class="text-sky-400 font-bold">PARAMETER</span> temperature 1</div>
+                <div><span class="text-sky-400 font-bold">PARAMETER</span> top_k 64</div>
+                <div><span class="text-sky-400 font-bold">PARAMETER</span> top_p 0.95</div>
+              </div>
+              <div onclick="showDetail('license')" data-key="license" class="term-highlight py-1.5 rounded text-slate-400">
+                <span class="text-sky-400 font-bold">LICENSE</span> """ Apache License<br>
+                <span class="pl-8">Version 2.0, January 2004</span><br>
+                <span class="pl-8">http://www.apache.org/licenses/</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Deep Technical Explanation Card -->
+        <div class="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-7 sticky top-24 shadow-2xl">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <span id="detail-badge" class="inline-block px-3 py-1 rounded-md text-xs font-mono font-semibold bg-sky-500/20 text-sky-300 border border-sky-500/30">
+              核心架構與參數量
+            </span>
+            <span class="text-xs text-slate-500 font-mono">深度技術解析卡片</span>
+          </div>
+          <h3 id="detail-title" class="text-xl sm:text-2xl font-bold text-white mb-4 leading-snug">
+            為什麼檔名是 e4b，但 parameters 顯示 8.0B？
+          </h3>
+          <div id="detail-content" class="text-slate-300 text-sm space-y-4 leading-relaxed">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 3: Comparison Table & Engineer FAQ                            -->
+    <!-- ===================================================================== -->
+    <section id="sec-compare" class="scroll-mt-24 space-y-8">
+      <div class="border-l-4 border-amber-500 pl-4">
+        <span class="text-xs font-mono uppercase tracking-wider text-amber-400 font-semibold">Section 03 • Comparison & Best Practices</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">指令用途對照與工程師實戰心法</h2>
+        <p class="text-sm sm:text-base text-slate-400 mt-1">掌握兩個指令的定位差異，以及在實際開發與 API 串接時最常遇到的 4 個關鍵問題。</p>
+      </div>
+
+      <!-- Comparison Table -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl overflow-hidden">
+        <h3 class="text-lg font-bold text-white mb-4">全維度指令對照表：<code class="text-sky-400 font-mono">ollama show</code> vs <code class="text-emerald-400 font-mono">--modelfile</code></h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="border-b border-slate-700 text-slate-300 bg-slate-950/60">
+                <th class="py-3.5 px-4 font-semibold w-1/5">比較維度</th>
+                <th class="py-3.5 px-4 font-semibold font-mono text-sky-400 w-2/5">ollama show gemma4:e4b</th>
+                <th class="py-3.5 px-4 font-semibold font-mono text-emerald-400 w-2/5">ollama show gemma4:e4b --modelfile</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-slate-300">
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="py-3.5 px-4 font-semibold text-white">核心定位</td>
+                <td class="py-3.5 px-4"><strong>模型體檢報告：</strong>快速盤點硬體需求、上下文上限與多模態/工具支援度。</td>
+                <td class="py-3.5 px-4"><strong>模型建置藍圖：</strong>匯出可重新編譯的設定檔原始碼，作為二次客製化範本。</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="py-3.5 px-4 font-semibold text-white">獨有揭露資訊</td>
+                <td class="py-3.5 px-4">總參數量（8.0B）、Embedding 維度（2560）、量化精度（Q4_K_M）、最低版本需求（0.20.0）與 <code class="text-pink-400">thinking</code> 狀態。</td>
+                <td class="py-3.5 px-4">底層權重實體路徑（<code class="text-amber-300">blobs\sha256-...</code>）、原始 <code class="text-emerald-300">TEMPLATE</code> 佔位符與完整 Apache 2.0 授權條款全文。</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="py-3.5 px-4 font-semibold text-white">最佳使用時機</td>
+                <td class="py-3.5 px-4">剛 <code class="font-mono">ollama pull</code> 下載完模型，想確認顯卡是否跑得動、或程式串接時是否支援 <code class="font-mono">tools</code> 與圖片輸入。</td>
+                <td class="py-3.5 px-4">想固定預設 <code class="font-mono">SYSTEM</code> 角色提示詞、調整 <code class="font-mono">num_ctx</code> 長度或降低 <code class="font-mono">temperature</code> 時，將其匯出修改。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4 Practical Engineer FAQs -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-2.5">
+          <div class="flex items-center gap-2 text-pink-400 font-mono text-xs font-bold">
+            <span>FAQ 01 • 效能與延遲優化</span>
+          </div>
+          <h4 class="text-base sm:text-lg font-bold text-white">如何在 API 或對話中關閉 <code class="text-pink-400">thinking</code> 以提升回應速度？</h4>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            從 <code class="font-mono text-slate-200">ollama show</code> 可知 Gemma 4 的 <code class="font-mono text-pink-300">thinking default: true</code>。雖然這能大幅提高寫程式與邏輯推理的準確度，但模型會先輸出數百個思考 Tokens 才給出答案。若你只需要快速翻譯或簡單分類，可在呼叫 Ollama Chat API 時傳入 <code class="font-mono text-sky-300">"think": false</code>（或在 CLI 輸入 <code class="font-mono text-sky-300">/set nothink</code>），即可實現秒回。
+          </p>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-2.5">
+          <div class="flex items-center gap-2 text-amber-400 font-mono text-xs font-bold">
+            <span>FAQ 02 • 採樣參數原理</span>
+          </div>
+          <h4 class="text-base sm:text-lg font-bold text-white">為什麼官方預設 <code class="text-amber-300">temperature</code> 是 1，而不是常見的 0.7？</h4>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            具備深度推理（Thinking）能力的現代模型（如 Gemma 4 與 DeepSeek-R1），如果在思考階段把 <code class="font-mono">temperature</code> 設得太低（如 0.1），模型容易在思維鏈中反覆打轉、陷入邏輯死胡同。Google DeepMind 實測建議搭配 <code class="font-mono text-amber-300">temperature=1, top_k=64, top_p=0.95</code>，讓模型在探索解題路徑時保有足夠的發散性，再透過 <code class="font-mono">top_p=0.95</code> 過濾掉離譜的詞彙。
+          </p>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-2.5">
+          <div class="flex items-center gap-2 text-sky-400 font-mono text-xs font-bold">
+            <span>FAQ 03 • 記憶體管理</span>
+          </div>
+          <h4 class="text-base sm:text-lg font-bold text-white"><code class="text-sky-300">context length: 131072</code> 代表一啟動就會吃滿 128K 顯存嗎？</h4>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            <strong>不會！</strong> <code class="font-mono">131072</code> 是模型架構支援的「理論最大上限」。Ollama 為了保護消費級顯卡不爆顯存，預設執行時的上下文視窗（<code class="font-mono text-emerald-300">num_ctx</code>）通常僅配置 4096 或 8192 Tokens。當你需要分析整份長篇 PDF 或大型程式碼庫時，務必在 Modelfile 中明確設定 <code class="font-mono text-emerald-300">PARAMETER num_ctx 32768</code>，否則超出預設長度的早期對話內容會被自動截斷遺忘。
+          </p>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-2.5">
+          <div class="flex items-center gap-2 text-emerald-400 font-mono text-xs font-bold">
+            <span>FAQ 04 • Modelfile 避坑指南</span>
+          </div>
+          <h4 class="text-base sm:text-lg font-bold text-white">自己寫 Modelfile 時，需要把 <code class="text-emerald-300">TEMPLATE {{ .Prompt }}</code> 複製進去嗎？</h4>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            <strong>千萬不要！</strong> 只要你在 Modelfile 第一行寫上 <code class="font-mono text-emerald-300">FROM gemma4:e4b</code>，Ollama 就會自動從基底模型繼承 <code class="font-mono text-sky-300">RENDERER gemma4</code> 與 <code class="font-mono text-sky-300">PARSER gemma4</code>。如果你畫蛇添足地手動寫入自訂 <code class="font-mono">TEMPLATE</code>，反而會覆蓋掉原生的 Renderer，導致多模態圖片輸入與 Thinking 標籤解析失效！
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 4: Interactive Custom Modelfile Builder                       -->
+    <!-- ===================================================================== -->
+    <section id="sec-builder" class="scroll-mt-24 space-y-6 pb-12">
+      <div class="border-l-4 border-purple-500 pl-4">
+        <span class="text-xs font-mono uppercase tracking-wider text-purple-400 font-semibold">Section 04 • Hands-on Modelfile Generator</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">互動式客製化 Modelfile 產生器</h2>
+        <p class="text-sm sm:text-base text-slate-400 mt-1">直接基於 <code class="text-emerald-400 font-mono">FROM gemma4:e4b</code> 調整參數，即時生成可一鍵建立的專屬模型設定檔。</p>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          <!-- Left Controls -->
+          <div class="lg:col-span-6 space-y-5">
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-1.5">1. 新模型名稱（建立後可用 <code class="font-mono text-sky-400">ollama run</code> 呼叫）</label>
+              <input type="text" id="cfg-name" value="gemma4-architect" oninput="updateModelfile()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm font-mono text-white focus:outline-none focus:border-sky-500 transition">
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-200 mb-1.5">2. SYSTEM 系統提示詞（賦予模型專屬角色與規範）</label>
+              <textarea id="cfg-system" rows="3" oninput="updateModelfile()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 transition leading-relaxed">你是一位資深全端與工業自動化系統架構師。請一律使用繁體中文回答，提供程式碼時必須包含完整邏輯註解、邊界條件檢查與例外處理。</textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+                <div class="flex justify-between text-sm mb-1.5">
+                  <span class="text-slate-300 font-medium">temperature</span>
+                  <span id="val-temp" class="font-mono font-bold text-amber-300">0.4</span>
+                </div>
+                <input type="range" id="cfg-temp" min="0" max="1.5" step="0.1" value="0.4" oninput="updateModelfile()" class="w-full accent-sky-500 cursor-pointer">
+                <p class="text-[11px] text-slate-500 mt-1.5">程式碼/嚴謹分析建議 0.2~0.4；官方預設為 1.0</p>
+              </div>
+
+              <div class="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+                <div class="flex justify-between text-sm mb-1.5">
+                  <span class="text-slate-300 font-medium">num_ctx (上下文長度)</span>
+                  <span id="val-ctx" class="font-mono font-bold text-sky-400">16384</span>
+                </div>
+                <select id="cfg-ctx" onchange="updateModelfile()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-sky-500">
+                  <option value="4096">4096 (4K - 最低顯存佔用)</option>
+                  <option value="8192">8192 (8K - 日常對話平衡)</option>
+                  <option value="16384" selected>16384 (16K - 長文件/程式碼)</option>
+                  <option value="32768">32768 (32K - 大型專案分析)</option>
+                  <option value="65536">65536 (64K - 需 12GB+ VRAM)</option>
+                  <option value="131072">131072 (128K - 模型最大上限)</option>
+                </select>
+                <p class="text-[11px] text-slate-500 mt-1.5">上限 131072，調高會線性增加 KV Cache 顯存</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-slate-300 font-medium">top_k</span>
+                  <span id="val-topk" class="font-mono font-bold text-emerald-400">64</span>
+                </div>
+                <input type="range" id="cfg-topk" min="10" max="100" step="2" value="64" oninput="updateModelfile()" class="w-full accent-emerald-500 cursor-pointer">
+              </div>
+
+              <div class="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+                <div class="flex justify-between text-sm mb-1">
+                  <span class="text-slate-300 font-medium">top_p</span>
+                  <span id="val-topp" class="font-mono font-bold text-emerald-400">0.95</span>
+                </div>
+                <input type="range" id="cfg-topp" min="0.5" max="1.0" step="0.05" value="0.95" oninput="updateModelfile()" class="w-full accent-emerald-500 cursor-pointer">
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Generated Output -->
+          <div class="lg:col-span-6 flex flex-col">
+            <div class="flex items-center justify-between bg-slate-950 px-4 py-3 rounded-t-xl border border-b-0 border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span class="font-mono text-xs text-slate-300 font-semibold">Modelfile 預覽（自動繼承 Renderer 與 Parser）</span>
+              </div>
+              <button onclick="copyModelfile()" id="btn-copy" class="text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white px-3.5 py-1.5 rounded-lg transition shadow">
+                一鍵複製 Modelfile
+              </button>
+            </div>
+            <pre id="modelfile-output" class="bg-[#090d16] border border-slate-800 rounded-b-xl p-4 font-mono text-xs sm:text-sm text-emerald-300 overflow-x-auto flex-1 leading-relaxed"></pre>
+
+            <div class="mt-4 bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">在 Windows / Linux 終端機執行建置與啟動：</span>
+                <span class="text-[11px] font-mono text-emerald-400">額外硬碟佔用：0 MB</span>
+              </div>
+              <code id="cli-command" class="block font-mono text-xs sm:text-sm text-sky-400 bg-slate-900 p-3 rounded-lg border border-slate-800 select-all overflow-x-auto">
+                ollama create gemma4-architect -f Modelfile && ollama run gemma4-architect
+              </code>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4">
+      基於 <code class="text-slate-400 font-mono">ollama show gemma4:e4b</code> 與 <code class="text-slate-400 font-mono">--modelfile</code> 實測輸出製作 • 互動式本地大型語言模型技術教學
+    </div>
+  </footer>
+
+  <script>
+    const detailsData = {
+      architecture: {
+        badge: "模型家族與神經網路拓撲",
+        title: "architecture: gemma4",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層技術原理：</strong> 標示該 GGUF 模型檔案的神經網路拓撲結構屬於 Google DeepMind 開發的 <strong>Gemma 4</strong> 家族架構。</p>
+            <p><strong class="text-white">引擎載入機制：</strong> Ollama 的底層推論引擎（llama.cpp / Ollama Go Runner）在載入模型時，會讀取此 Metadata 鍵值（<code>general.architecture = gemma4</code>），藉此決定要分配哪種注意力機制（交錯式的滑動視窗注意力 Sliding Window Attention 與全域注意力）以及多模態視覺/音訊投影器。</p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-300">
+              <strong class="text-sky-400 block mb-1">🔧 實戰排錯提示：</strong>
+              如果你在載入較新的模型時遇到 <code>error loading model architecture: unknown model architecture: 'gemma4'</code>，代表你的 Ollama 主程式版本過舊，必須升級至 <code>requires</code> 欄位指定的版本以上。
+            </div>
+          </div>
+        `
+      },
+      parameters: {
+        badge: "核心架構與參數量之謎",
+        title: "為什麼檔名是 e4b，但 parameters 顯示 8.0B？",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層技術原理：</strong> 這是 Gemma 4 邊緣運算系列（Edge Models）最核心的架構設計：</p>
+            <ul class="list-disc pl-5 space-y-2 text-slate-300">
+              <li><strong class="text-emerald-400">E4B (Effective 4B)：</strong> 代表推論生成每個 Token 時，核心 Transformer 主幹實際參與運算的「有效激活參數量」約為 40 億（透過 Per-Layer Embeddings 共享與稀疏激活設計達成）。</li>
+              <li><strong class="text-amber-300">總參數量 8.0B：</strong> 整個模型檔案內部包含了龐大的 256K 詞彙嵌入表、原生 Vision 視覺編碼器與 Audio 音訊編碼器權重，加總起來的靜態總參數量為 80 億。</li>
+            </ul>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-300">
+              <strong class="text-amber-400 block mb-1">⚡ 硬體與效能影響：</strong>
+              <strong>記憶體佔用看 8.0B，推論速度看 4B！</strong> 計算顯示卡 VRAM 是否夠用時，必須以 8.0B 搭配量化等級估算（約 5.5 GB）；但實際執行時的每秒生成字數（Tokens/s）會接近輕量級 4B 模型的水準，非常適合筆電或 8GB VRAM 顯卡。
+            </div>
+          </div>
+        `
+      },
+      context_length: {
+        badge: "上下文記憶視窗上限",
+        title: "context length: 131072 (128K Tokens)",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層技術原理：</strong> 代表模型透過 RoPE（旋轉位置編碼）縮放技術，單次對話最多可容納 <strong>131,072 個 Tokens</strong>（約相當於 9～10 萬個繁體中文字，或一整本中篇小說的長度）。</p>
+            <p><strong class="text-white">常見誤區與記憶體影響：</strong> 許多開發者以為 <code>131072</code> 代表一啟動就會吃掉 128K 的顯存。實際上，Ollama 預設只會配置 <code>num_ctx = 4096</code> 或 <code>8192</code>。每將上下文長度調高一倍，KV Cache（鍵值快取）佔用的 VRAM 就會隨之大幅增加。</p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-300">
+              <strong class="text-sky-400 block mb-1">💡 實戰調校建議：</strong>
+              在 8GB VRAM 顯示卡上，建議將 <code>num_ctx</code> 設定在 <code>16384</code> 到 <code>32768</code> 之間，既能處理長篇文件，又能確保所有模型層都留在 GPU 中不掉速（避免 Offload 到系統 RAM）。
+            </div>
+          </div>
+        `
+      },
+      embedding_length: {
+        badge: "隱藏層向量維度",
+        title: "embedding length: 2560",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層技術原理：</strong> 模型內部將每一個輸入的文字、圖片區塊或音訊幀，映射為一個 <strong>2560 維</strong>的高維度浮點數向量空間（Hidden Dimension）。</p>
+            <p><strong class="text-white">效能與表徵能力權衡：</strong> 相較於早期 3B/4B 模型常見的 2048 維，2560 維提供了更寬廣的語意表徵容量，這也是 Gemma 4 E4B 能夠在同一個向量空間中同時融合文字、視覺與音訊多模態特徵的重要原因。</p>
+          </div>
+        `
+      },
+      quantization: {
+        badge: "模型壓縮與精度保留",
+        title: "quantization: Q4_K_M",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層技術原理：</strong> <strong>Q4_K_M</strong> 代表「4-bit K-Quant Medium（中等混合精度量化）」。原始訓練完成的模型權重為 16-bit（BF16），直接部署需要超過 16GB 記憶體。</p>
+            <p><strong class="text-white">為何 K-Quant 這麼聰明？</strong> 它不是無腦把所有權重都砍成 4-bit，而是對模型中對精準度最敏感的注意力層（Attention Value）與輸出層保留較高的 <strong>6-bit（Q6_K）</strong> 精度，其餘前饋網路層才使用 4-bit，使平均位元率落在約 4.8 bits/weight。</p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-300">
+              <strong class="text-purple-400 block mb-1">🎯 選型建議：</strong>
+              <code>Q4_K_M</code> 是本地端推論公認的「甜區（Sweet Spot）」，體積縮小近 65%，但邏輯推理與程式撰寫能力幾乎與原始 16-bit 模型無異。
+            </div>
+          </div>
+        `
+      },
+      requires: {
+        badge: "最低執行環境版本",
+        title: "requires: 0.20.0",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層技術原理：</strong> 宣告此模型映像檔依賴 <strong>Ollama v0.20.0</strong> 或更新版本的新世代執行引擎。</p>
+            <p><strong class="text-white">版本綁定原因：</strong> Gemma 4 導入了全新的原生多模態張量格式、內建的 Go 語言 Renderer/Parser 管線，以及 <code>&lt;|channel&gt;thought</code> 推理串流解析器，這些底層原生支援都是在 Ollama 0.20.0 才正式合入主線的。</p>
+          </div>
+        `
+      },
+      renderer_parser: {
+        badge: "新世代提示詞與輸出引擎",
+        title: "renderer: gemma4-small / parser: gemma4",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層技術原理：</strong> Ollama 0.20.0+ 將繁瑣且容易出錯的對話格式處理，從文字模板升級為編譯進 Ollama 執行檔的原生 Go 模組：</p>
+            <ul class="list-disc pl-5 space-y-2 text-slate-300">
+              <li><strong class="text-sky-300">Renderer (gemma4-small)：</strong> 負責在推論前，將開發者傳入的 <code>messages</code> 陣列、圖片張量、音訊資料與 <code>think</code> 開關，精準組裝成 Gemma 4 預訓練時看過的特殊控制符（如 <code>&lt;|turn&gt;user</code>、<code>&lt;|think|&gt;</code>）。</li>
+              <li><strong class="text-sky-300">Parser (gemma4)：</strong> 負責在推論時即時監聽模型吐出的 Token 串流，自動把思考過程分流到 <code>thinking</code> 欄位、把工具呼叫分流到 <code>tool_calls</code>，確保最終呈現給使用者的 <code>content</code> 乾淨無雜訊。</li>
+            </ul>
+          </div>
+        `
+      },
+      template_source: {
+        badge: "模板引擎優先權宣告",
+        title: "template source: renderer_parser",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">解開 --modelfile 的謎團：</strong> 這行資訊直接解釋了為什麼你在執行 <code>ollama show gemma4:e4b --modelfile</code> 時，只看到一行極簡的 <code>TEMPLATE {{ .Prompt }}</code>。</p>
+            <p><strong class="text-white">運作機制：</strong> 當 <code>template source</code> 顯示為 <code>renderer_parser</code> 時，代表提示詞組裝完全由編譯好的 <code>gemma4-small</code> Renderer 負責，Modelfile 裡面的文字版 <code>TEMPLATE</code> 僅作為向後相容的佔位符（Inert Placeholder）。</p>
+          </div>
+        `
+      },
+      cap_basic: {
+        badge: "基礎核心能力",
+        title: "completion（文本接龍與多輪對話）",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">能力說明：</strong> 支援標準的 <code>/api/generate</code> 文本補全與 <code>/api/chat</code> 多輪對話介面，具備完整的角色記憶（System / User / Assistant）與串流（Streaming）輸出能力。</p>
+          </div>
+        `
+      },
+      cap_multimodal: {
+        badge: "原生全模態感知能力",
+        title: "vision & audio（視覺與音訊原生理解）",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層技術原理：</strong> Gemma 4 E4B 具備真正的 <strong>Any-to-Text 原生多模態架構</strong>，不是透過外掛程式拼湊，而是將視覺與音訊編碼器直接整合進神經網路：</p>
+            <ul class="list-disc pl-5 space-y-2 text-slate-300">
+              <li><strong class="text-emerald-300">vision（視覺理解）：</strong> 支援在對話中直接傳入圖片（如系統架構圖、終端機報錯截圖、手寫筆記或儀表板照片），能精準進行 OCR 文字提取與圖表邏輯分析。</li>
+              <li><strong class="text-emerald-300">audio（音訊理解）：</strong> 可直接接收音訊輸入進行多語言語音轉錄（ASR）、語意摘要與環境聲音分析，省去額外部署 Whisper 語音辨識模型的硬體開銷。</li>
+            </ul>
+          </div>
+        `
+      },
+      cap_tools: {
+        badge: "AI Agent 自動化核心",
+        title: "tools（函式呼叫 / Function Calling）",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層技術原理：</strong> 模型在後訓練（Post-Training）階段經過專門的結構化工具呼叫微調。開發者只需在 API 中定義可用的工具清單（JSON Schema），模型就會自行判斷何時該呼叫外部函式。</p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-300">
+              <strong class="text-amber-400 block mb-1">🤖 工業與自動化應用場景：</strong>
+              非常適合搭配 <strong>Node-RED、n8n 或 Python Agent</strong>，讓本地端模型安全地查詢 SQL 資料庫、讀取 PLC 設備感測器數值或觸發內部 API，且所有敏感資料完全不離開內網。
+            </div>
+          </div>
+        `
+      },
+      cap_thinking: {
+        badge: "內建深度思維鏈推理",
+        title: "thinking (levels: false, true / default: true)",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層技術原理：</strong> Gemma 4 內建類似 OpenAI o-series 與 DeepSeek-R1 的<strong>強化學習思維鏈（Chain-of-Thought）推理機制</strong>：</p>
+            <ul class="list-disc pl-5 space-y-2 text-slate-300">
+              <li><strong class="text-pink-300">default: true（預設開啟）：</strong> 模型在正式回答前，會先進入隱藏的思考頻道進行自我驗證、拆解步驟與邏輯推演，大幅降低幻覺並提升寫程式與數學推導的準確率。</li>
+              <li><strong class="text-white">levels: false, true（可動態切換）：</strong> 支援布林值開關。當你處理簡單任務（如格式轉換、單句翻譯）想要極致低延遲時，可在 API 傳入 <code>"think": false</code> 跳過思考步驟。</li>
+            </ul>
+          </div>
+        `
+      },
+      param_sampling: {
+        badge: "官方推薦解碼採樣參數",
+        title: "temperature: 1 / top_k: 64 / top_p: 0.95",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層解碼原理：</strong> 這三個參數共同控制模型從機率分佈中挑選下一個 Token 的策略：</p>
+            <ul class="list-disc pl-5 space-y-2 text-slate-300">
+              <li><strong class="text-amber-300">temperature = 1：</strong> 保持原始機率分佈的平滑度。對於開啟 <code>thinking</code> 的模型，設為 1 能確保推理過程有足夠的創造力與多樣性，避免思考陷入死胡同。</li>
+              <li><strong class="text-amber-300">top_k = 64：</strong> 硬性截斷，每次只從機率最高的前 64 個候選詞彙中進行抽樣。</li>
+              <li><strong class="text-amber-300">top_p = 0.95（Nucleus Sampling）：</strong> 動態截斷，將候選詞按機率由高到低累加，一旦累積機率達到 95% 就停止，有效剔除機率極低的語法錯誤長尾詞。</li>
+            </ul>
+          </div>
+        `
+      },
+      license: {
+        badge: "企業與商業授權規範",
+        title: "Apache License Version 2.0",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">法律與商業意義：</strong> 相較於早期 Gemma 1/2 使用的客製化 Gemma Terms of Use，此版本明確採用業界最標準、對商業最友善的 <strong>Apache License 2.0</strong>：</p>
+            <ul class="list-disc pl-5 space-y-1.5 text-slate-300">
+              <li><strong>完全允許商業部署：</strong> 可免費整合進企業內部系統、私有化部署專案或商業 SaaS 產品中，無使用者數量或營收門檻限制。</li>
+              <li><strong>允許微調與二次分發：</strong> 企業可使用自有領域資料進行 LoRA / QLoRA 微調並部署，只需保留原始 Apache 2.0 版權聲明即可。</li>
+            </ul>
+          </div>
+        `
+      },
+      mf_from: {
+        badge: "Modelfile 基底來源指標",
+        title: "FROM 指向本地 SHA-256 Blob 檔案",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">底層儲存原理：</strong> 在 <code>--modelfile</code> 輸出中，<code>FROM</code> 顯示的是 Windows 本機儲存該 GGUF 二進位權重檔的絕對路徑（以檔案內容的 SHA-256 雜湊值命名）。</p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-300">
+              <strong class="text-emerald-400 block mb-1">✅ 撰寫 Modelfile 黃金法則：</strong>
+              正如終端機頂部註解所提示的（<code># To build a new Modelfile based on this, replace FROM with: FROM gemma4:e4b</code>），你自己建立衍生模型時，<strong>直接寫 <code>FROM gemma4:e4b</code> 即可</strong>！Ollama 會自動關聯底層同一個 Blob 檔案，實現零額外硬碟佔用。
+            </div>
+          </div>
+        `
+      },
+      mf_template: {
+        badge: "Modelfile 提示詞模板指令",
+        title: "TEMPLATE {{ .Prompt }}",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">為什麼這裡這麼簡短？</strong> 在傳統沒有指定 Renderer 的舊模型中，<code>TEMPLATE</code> 會包含數十行複雜的 <code>{{- if .System }}...{{- end }}</code> 條件判斷語法。</p>
+            <p><strong class="text-white">現代化架構演進：</strong> 由於緊接著宣告了 <code>RENDERER gemma4</code>，所有對話角色的格式轉換都交由 Go 原生程式碼處理，因此這裡的 <code>{{ .Prompt }}</code> 僅作為佔位符存在。建立衍生模型時請<strong>不要覆寫此行</strong>。</p>
+          </div>
+        `
+      },
+      mf_renderer: {
+        badge: "Modelfile 原生管線綁定",
+        title: "RENDERER gemma4 & PARSER gemma4",
+        html: `
+          <div class="space-y-3">
+            <p><strong class="text-white">指令作用：</strong> 明確指示 Ollama 伺服器在載入此模型時，必須掛載 <strong>Gemma 4 專用的輸入渲染器與輸出串流解析器</strong>。</p>
+            <p><strong class="text-white">自製 GGUF 匯入必備知識：</strong> 如果你未來從 Hugging Face 下載了其他人微調好的 Gemma 4 GGUF 檔案（<code>FROM ./my-finetuned-gemma4.gguf</code>）要匯入 Ollama，務必在 Modelfile 中手動補上這兩行，才能讓 Thinking 思考鏈與 Tools 函式呼叫正常運作！</p>
+          </div>
+        `
+      }
+    };
+
+    function showDetail(key) {
+      const data = detailsData[key];
+      if (!data) return;
+
+      document.querySelectorAll('.term-highlight').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll(`[data-key="${key}"]`).forEach(el => el.classList.add('active'));
+
+      document.getElementById('detail-badge').textContent = data.badge;
+      document.getElementById('detail-title').textContent = data.title;
+      document.getElementById('detail-content').innerHTML = data.html;
+    }
+
+    function selectCmd(cmd) {
+      const btnShow = document.getElementById('btn-cmd-show');
+      const btnModelfile = document.getElementById('btn-cmd-modelfile');
+      const termShow = document.getElementById('term-show');
+      const termModelfile = document.getElementById('term-modelfile');
+
+      if (cmd === 'show') {
+        btnShow.className = "font-mono text-xs sm:text-sm px-4 py-2 rounded-lg border border-sky-500 bg-sky-500/15 text-sky-300 font-semibold transition";
+        btnModelfile.className = "font-mono text-xs sm:text-sm px-4 py-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-500 hover:text-slate-200 transition";
+        termShow.classList.remove('hidden');
+        termModelfile.classList.add('hidden');
+        showDetail('parameters');
+      } else {
+        btnModelfile.className = "font-mono text-xs sm:text-sm px-4 py-2 rounded-lg border border-emerald-500 bg-emerald-500/15 text-emerald-300 font-semibold transition";
+        btnShow.className = "font-mono text-xs sm:text-sm px-4 py-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-500 hover:text-slate-200 transition";
+        termModelfile.classList.remove('hidden');
+        termShow.classList.add('hidden');
+        showDetail('mf_from');
+      }
+    }
+
+    function updateModelfile() {
+      const name = document.getElementById('cfg-name').value.trim() || 'custom-gemma4';
+      const system = document.getElementById('cfg-system').value.trim();
+      const temp = document.getElementById('cfg-temp').value;
+      const ctx = document.getElementById('cfg-ctx').value;
+      const topk = document.getElementById('cfg-topk').value;
+      const topp = document.getElementById('cfg-topp').value;
+
+      document.getElementById('val-temp').textContent = temp;
+      document.getElementById('val-ctx').textContent = ctx;
+      document.getElementById('val-topk').textContent = topk;
+      document.getElementById('val-topp').textContent = topp;
+
+      let content = `# 基於本地 gemma4:e4b 建立（自動共享底層 SHA-256 Blob 權重，零額外硬碟佔用）\n`;
+      content += `# 自動繼承 RENDERER gemma4-small 與 PARSER gemma4，切勿覆寫 TEMPLATE\n`;
+      content += `FROM gemma4:e4b\n\n`;
+      content += `# 推論與上下文視窗參數設定\n`;
+      content += `PARAMETER temperature ${temp}\n`;
+      content += `PARAMETER num_ctx ${ctx}\n`;
+      content += `PARAMETER top_k ${topk}\n`;
+      content += `PARAMETER top_p ${topp}\n`;
+
+      if (system) {
+        content += `\n# 預設系統角色指令\nSYSTEM """\n${system}\n"""`;
+      }
+
+      document.getElementById('modelfile-output').textContent = content;
+      document.getElementById('cli-command').textContent = `ollama create ${name} -f Modelfile && ollama run ${name}`;
+    }
+
+    function copyModelfile() {
+      const text = document.getElementById('modelfile-output').textContent;
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        const btn = document.getElementById('btn-copy');
+        btn.textContent = '✓ 已複製到剪貼簿';
+        btn.classList.remove('bg-sky-600', 'hover:bg-sky-500');
+        btn.classList.add('bg-emerald-600');
+        setTimeout(() => {
+          btn.textContent = '一鍵複製 Modelfile';
+          btn.classList.remove('bg-emerald-600');
+          btn.classList.add('bg-sky-600', 'hover:bg-sky-500');
+        }, 2000);
+      } catch (err) {
+        console.error('複製失敗:', err);
+      }
+      document.body.removeChild(textarea);
+    }
+
+    // Initialize default state on load
+    window.addEventListener('DOMContentLoaded', () => {
+      showDetail('parameters');
+      updateModelfile();
+    });
+  </script>
+</body>
+</html>
