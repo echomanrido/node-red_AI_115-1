@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama 模型參數與訓練權重解析指南</title>
+    <!-- 載入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 載入 Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 載入 Prism.js 語法高亮與 Okaidia 深色主題 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 自訂捲軸與微調樣式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .code-glow {
+            box-shadow: 0 0 25px -5px rgba(56, 189, 248, 0.15);
+        }
+        pre[class*="language-"] {
+            margin: 0 !important;
+            background: transparent !important;
+            text-shadow: none !important;
+            font-family: 'JetBrains Mono', monospace !important;
+        }
+        code[class*="language-"] {
+            text-shadow: none !important;
+            font-family: 'JetBrains Mono', monospace !important;
+        }
+        .tensor-card {
+            transition: all 0.2s ease;
+        }
+        .tensor-card:hover {
+            border-color: rgba(56, 189, 248, 0.5);
+            background-color: rgba(30, 41, 59, 0.6);
+        }
+        .tensor-card.active {
+            border-color: #38bdf8;
+            background-color: rgba(14, 165, 233, 0.12);
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.3);
+        }
+        /* SVG 流程圖節點互動樣式 */
+        .flow-node {
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .flow-node:hover rect.node-box {
+            stroke: #38bdf8;
+            stroke-width: 2;
+        }
+        .flow-node.active rect.node-box {
+            stroke: #38bdf8;
+            stroke-width: 2.5;
+            fill: #0c4a6e;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.35));
+        }
+        .flow-node.active text.node-title {
+            fill: #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased selection:bg-sky-500 selection:text-white">
+
+    <!-- 複製成功提示框 (Toast) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-emerald-500 text-slate-950 font-semibold px-4 py-3 rounded-xl shadow-lg flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="toast-msg">已複製到剪貼簿！</span>
+        </div>
+    </div>
+
+    <!-- 頂部導覽列 -->
+    <header class="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                </div>
+                <span class="font-bold text-lg tracking-tight text-white">Ollama 模型參數與權重解析</span>
+            </div>
+            <nav class="hidden md:flex items-center space-x-5 text-sm font-medium text-slate-400">
+                <a href="../../../project_local_llm.html" class="text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    回專題總覽
+                </a>
+                <a href="../../../index.html" class="text-slate-400 hover:text-white flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    首頁
+                </a>
+                <a href="#section-files" class="hover:text-sky-400 transition-colors">1. 檔案結構</a>
+                <a href="#section-cli" class="hover:text-sky-400 transition-colors">2. CLI 與 API</a>
+                <a href="#section-weights" class="hover:text-sky-400 transition-colors">3. 讀取權重</a>
+                <a href="#section-case" class="text-cyan-400 hover:text-cyan-300 transition-colors font-semibold">4. 流程圖與實戰解讀</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero 區塊 -->
+    <section class="relative overflow-hidden py-14 sm:py-20 border-b border-slate-800/80">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-900/20 via-slate-950 to-slate-950 -z-10"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono mb-6">
+                <span>本地儲存路徑：C:\Users\echom\.ollama\models</span>
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-6">
+                徹底搞懂 Ollama 本地模型<br class="hidden sm:inline">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">設定參數、架構規格與訓練權重</span>
+            </h1>
+            <p class="max-w-2xl mx-auto text-slate-400 text-base sm:text-lg leading-relaxed mb-8">
+                打開 <code class="text-sky-300 bg-slate-900 px-1.5 py-0.5 rounded font-mono text-sm">blobs</code> 資料夾卻只看到一長串 <code class="text-sky-300 bg-slate-900 px-1.5 py-0.5 rounded font-mono text-sm">sha256-xxxx</code>？本指南結合真實輸出案例與 LLM 架構流程圖，帶你精準定位每一個參數檔案。
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto text-left">
+                <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5">
+                    <div class="text-emerald-400 font-mono text-xs font-semibold mb-1">類型 01 · 推論設定參數</div>
+                    <div class="text-white font-bold text-base mb-1">Temperature / Stop Tokens</div>
+                    <p class="text-slate-400 text-xs leading-relaxed">控制生成隨機性與停止詞的執行設定。存在極小的 <strong>1 KB 純文字 JSON</strong> 檔案中。</p>
+                </div>
+                <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5">
+                    <div class="text-sky-400 font-mono text-xs font-semibold mb-1">類型 02 · 模型架構超參數</div>
+                    <div class="text-white font-bold text-base mb-1">層數 / 維度 / Context Length</div>
+                    <p class="text-slate-400 text-xs leading-relaxed">決定模型結構的規格參數。嵌入在最大檔案的 <strong>GGUF 檔頭 (Header)</strong> 中。</p>
+                </div>
+                <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5">
+                    <div class="text-amber-400 font-mono text-xs font-semibold mb-1">類型 03 · 模型訓練權重</div>
+                    <div class="text-white font-bold text-base mb-1">Weights &amp; Biases (Tensors)</div>
+                    <p class="text-slate-400 text-xs leading-relaxed">神經網路訓練出的數十億個浮點數矩陣。佔據 <strong>幾百 MB 至十幾 GB</strong> 的主體。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第一章：互動式目錄結構解析器 -->
+    <section id="section-files" class="py-16 border-b border-slate-800/80">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <span class="text-sky-400 font-mono text-sm font-semibold">CHAPTER 01 · DIRECTORY STRUCTURE</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">參數究竟在哪個檔案裡？（真實目錄互動解析）</h2>
+                <p class="text-slate-400 mt-2 text-sm sm:text-base">比對你本機的 <code class="text-slate-300 font-mono">blobs</code> 檔案大小與雜湊碼，點擊下方左側檔案項目檢視實際內容：</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- 左側檔案樹 -->
+                <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 font-mono text-sm">
+                    <div class="flex items-center space-x-2 text-slate-400 pb-3 mb-3 border-b border-slate-800">
+                        <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
+                        <span class="text-xs sm:text-sm truncate">C:\Users\echom\.ollama\models</span>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <div class="text-slate-400 pl-2 flex items-center space-x-2">
+                            <span>📂 manifests\registry.ollama.ai\library\...</span>
+                        </div>
+                        <button onclick="selectFile('manifest')" id="btn-manifest" class="file-btn w-full text-left pl-6 pr-3 py-2.5 rounded-xl bg-sky-500/15 border border-sky-500/40 text-sky-300 flex items-center justify-between transition-all">
+                            <span class="truncate">📄 latest (模型清單檔)</span>
+                            <span class="text-xs bg-sky-500/20 px-2 py-0.5 rounded text-sky-300 shrink-0">~1 KB</span>
+                        </button>
+
+                        <div class="text-slate-400 pl-2 pt-3 flex items-center space-x-2">
+                            <span>📂 blobs\ (實際檔案清單對照)</span>
+                        </div>
+                        <button onclick="selectFile('params')" id="btn-params" class="file-btn w-full text-left pl-6 pr-3 py-2.5 rounded-xl hover:bg-slate-800/80 border border-transparent text-slate-300 flex items-center justify-between transition-all">
+                            <span class="truncate">📄 sha256-1506fb8a...</span>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded shrink-0">1 KB (設定)</span>
+                        </button>
+                        <button onclick="selectFile('template')" id="btn-template" class="file-btn w-full text-left pl-6 pr-3 py-2.5 rounded-xl hover:bg-slate-800/80 border border-transparent text-slate-300 flex items-center justify-between transition-all">
+                            <span class="truncate">📄 sha256-dd084c7d...</span>
+                            <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded shrink-0">9 KB (模板)</span>
+                        </button>
+                        <button onclick="selectFile('model')" id="btn-model" class="file-btn w-full text-left pl-6 pr-3 py-2.5 rounded-xl hover:bg-slate-800/80 border border-transparent text-slate-300 flex items-center justify-between transition-all">
+                            <span class="truncate">📦 sha256-970aa74c...</span>
+                            <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded shrink-0">267,862 KB</span>
+                        </button>
+                        <button onclick="selectFile('largemodels')" id="btn-largemodels" class="file-btn w-full text-left pl-6 pr-3 py-2.5 rounded-xl hover:bg-slate-800/80 border border-transparent text-slate-300 flex items-center justify-between transition-all">
+                            <span class="truncate">📦 sha256-1194192c...</span>
+                            <span class="text-xs bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded shrink-0">18.1 GB (LLM)</span>
+                        </button>
+                    </div>
+
+                    <div class="mt-5 p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-400 font-sans leading-relaxed">
+                        💡 <strong class="text-slate-200">從檔案大小秒判用途：</strong>你資料夾中的 <code class="text-amber-300 font-mono">267,862 KB (~261 MB)</code> 是輕量級模型（如 Embedding 模型），而 <code class="text-rose-300 font-mono">7,633,374 KB (7.6 GB)</code> 與 <code class="text-rose-300 font-mono">18,121,76... KB (18.1 GB)</code> 則是大型語言模型本體！
+                    </div>
+                </div>
+
+                <!-- 右側內容預覽面板 -->
+                <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-6 code-glow min-h-[380px] flex flex-col justify-between">
+                    <div id="file-detail-content">
+                        <!-- 預設載入 manifest 說明 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第二章：免找檔案的 CLI 與 API 查詢器 -->
+    <section id="section-cli" class="py-16 border-b border-slate-800/80 bg-slate-900/30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <span class="text-emerald-400 font-mono text-sm font-semibold">CHAPTER 02 · COMMAND LINE &amp; API</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">最推薦做法：使用指令與 API 自動解析</h2>
+                <p class="text-slate-400 mt-2 text-sm sm:text-base">不需要手動比對 SHA-256 雜湊碼，輸入你的模型名稱即可即時生成對應查詢指令：</p>
+            </div>
+
+            <!-- 互動式模型名稱輸入框 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <label for="model-input" class="block text-sm font-semibold text-white mb-1">輸入本地模型名稱 (可透過 <code class="text-sky-400 font-mono">ollama list</code> 查詢)</label>
+                    <p class="text-xs text-slate-400">下方指令會隨輸入內容即時同步更新</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="model-input" value="nomic-embed-text" oninput="updateCommands()"
+                        class="bg-slate-950 border border-slate-700 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 rounded-xl px-4 py-2.5 text-sm font-mono text-sky-300 w-full sm:w-64 outline-none transition-all"
+                        placeholder="例如: gemma4:e4b">
+                </div>
+            </div>
+
+            <!-- 指令卡片網格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-400 font-mono text-xs font-semibold">方法 A · 檢視總覽規格</span>
+                            <button onclick="copyElementText('cmd-show')" class="text-xs text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors flex items-center space-x-1">
+                                <span>複製指令</span>
+                            </button>
+                        </div>
+                        <p class="text-slate-400 text-sm mb-4">一次列出架構名稱、參數量、量化方式、Context Length 與預設推論參數。</p>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-sm text-emerald-400 overflow-x-auto">
+                        <code id="cmd-show">ollama show nomic-embed-text</code>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-400 font-mono text-xs font-semibold">方法 B · 檢視 Modelfile 設定</span>
+                            <button onclick="copyElementText('cmd-modelfile')" class="text-xs text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors">
+                                <span>複製指令</span>
+                            </button>
+                        </div>
+                        <p class="text-slate-400 text-sm mb-4">單獨匯出 <code class="text-slate-300 font-mono">PARAMETER</code>（如 temperature、num_ctx）與系統提示詞模板。</p>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-sm text-emerald-400 overflow-x-auto">
+                        <code id="cmd-modelfile">ollama show nomic-embed-text --modelfile</code>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 font-mono text-xs font-semibold">方法 C · 透過本地 REST API 取得完整 JSON 結構</span>
+                        <button onclick="copyElementText('cmd-api')" class="text-xs text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors">
+                            <span>複製 PowerShell 指令</span>
+                        </button>
+                    </div>
+                    <p class="text-slate-400 text-sm mb-4">呼叫 Ollama 本機背景服務（埠號 <code class="text-slate-300 font-mono">11434</code>），直接取得 GGUF 內部所有鍵值對（含層數、注意力頭數等）：</p>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs sm:text-sm overflow-x-auto">
+                        <pre class="language-powershell"><code id="cmd-api" class="language-powershell">Invoke-RestMethod -Uri "http://localhost:11434/api/show" -Method Post -Body '{"name": "nomic-embed-text"}' -ContentType "application/json" | ConvertTo-Json -Depth 5</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第三章：讀取模型訓練參數 (GGUF 權重解析) -->
+    <section id="section-weights" class="py-16 border-b border-slate-800/80">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <span class="text-amber-400 font-mono text-sm font-semibold">CHAPTER 03 · NEURAL NETWORK WEIGHTS</span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">如何讀取「模型訓練出來的參數（權重）」？</h2>
+                <p class="text-slate-400 mt-2 text-sm sm:text-base">
+                    模型訓練學到的數十億個參數（Weights 與 Biases），全部以二進位張量（Tensors）形式封裝在 <strong class="text-white">GGUF 格式</strong> 的最大檔案中。因為經過量化壓縮，直接用記事本打開會是亂碼，需透過 Python 讀取。
+                </p>
+            </div>
+
+            <!-- GGUF 檔案內部結構圖解 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8">
+                <h3 class="text-base font-bold text-white mb-4">📦 最大 Blob 檔案（GGUF 格式）內部構造解析</h3>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 text-center font-mono text-xs">
+                    <div class="md:col-span-2 bg-sky-500/15 border border-sky-500/40 rounded-xl p-4 flex flex-col justify-center">
+                        <div class="text-sky-400 font-bold mb-1">1. Magic &amp; Version</div>
+                        <div class="text-slate-400">檔案識別標頭<br>("GGUF")</div>
+                    </div>
+                    <div class="md:col-span-3 bg-purple-500/15 border border-purple-500/40 rounded-xl p-4 flex flex-col justify-center">
+                        <div class="text-purple-400 font-bold mb-1">2. Metadata KV Pairs</div>
+                        <div class="text-slate-400">模型架構參數<br>(層數、維度、詞彙表)</div>
+                    </div>
+                    <div class="md:col-span-7 bg-amber-500/15 border border-amber-500/40 rounded-xl p-4 flex flex-col justify-center">
+                        <div class="text-amber-400 font-bold mb-1">3. Tensor Data (佔 99.9% 檔案大小 · 訓練權重本體)</div>
+                        <div class="text-slate-300 mt-1 grid grid-cols-3 gap-2">
+                            <span class="bg-slate-950/70 py-1.5 px-2 rounded border border-amber-500/20">token_embd.weight</span>
+                            <span class="bg-slate-950/70 py-1.5 px-2 rounded border border-amber-500/20">attn_qkv.weight</span>
+                            <span class="bg-slate-950/70 py-1.5 px-2 rounded border border-amber-500/20">ffn_up/gate/down</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Python 程式碼區塊 (帶完整語法高亮) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden code-glow">
+                <div class="px-6 py-4 bg-slate-950 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex space-x-1.5">
+                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                        </div>
+                        <span class="font-mono text-xs sm:text-sm text-slate-300">1.py — 讀取 GGUF 模型訓練權重與數值（語法高亮版）</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-mono text-slate-500 hidden sm:inline">先安裝: pip install gguf numpy</span>
+                        <a href="看參數.py" download="看參數.py" class="text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            下載 看參數.py
+                        </a>
+                        <button onclick="copyElementText('python-script')" class="text-xs font-semibold text-slate-950 bg-sky-400 hover:bg-sky-300 px-3.5 py-1.5 rounded-lg transition-colors">
+                            複製 Python 程式碼
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6 overflow-x-auto text-xs sm:text-sm leading-relaxed bg-[#1e1e2e]/60">
+                    <pre class="language-python"><code id="python-script" class="language-python">from gguf import GGUFReader
+import numpy as np
+
+# 1. 填入你 blobs 資料夾中對應模型的最大檔案路徑
+# 範例：267,862 KB 的檔案 (sha256-970aa74c0a90ef7482477cf803618e776e173c00...)
+blob_path = r"C:\Users\echom\.ollama\models\blobs\sha256-970aa74c0a90ef7482477cf803618e776e173c00..."
+
+# 2. 使用記憶體映射 (mmap) 開啟，即使讀取 18 GB 檔案也不會耗盡電腦記憶體
+reader = GGUFReader(blob_path, "r")
+
+print(f"總共有 {len(reader.tensors)} 組權重張量 (Tensors)\n")
+
+# 3. 遍歷並印出前 10 組訓練參數（權重層）的名稱、形狀、精度型態與實際數值
+for i, tensor in enumerate(reader.tensors[:10]):
+    print(f"[{i+1:02d}] 層名稱 (Name): {tensor.name}")
+    print(f"     張量形狀 (Shape): {tensor.shape}")
+    print(f"     量化類型 (Type): {tensor.tensor_type.name}")
+    print(f"     前 5 筆資料: {tensor.data[:5]}")
+    print("-" * 60)</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第四章：實戰結果深度解讀（對應真實輸出截圖 + 互動式 LLM 流程圖） -->
+    <section id="section-case" class="py-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
+                <div class="max-w-3xl">
+                    <span class="text-cyan-400 font-mono text-sm font-semibold">CHAPTER 04 · REAL CASE &amp; ARCHITECTURE FLOW</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">實戰輸出深度解讀：從 LLM 運算流程圖看懂這 112 組張量</h2>
+                    <p class="text-slate-400 mt-2 text-sm sm:text-base">
+                        下方的 <strong class="text-slate-200">Transformer 架構流程圖</strong> 與你的終端機輸出完全對應。點擊流程圖中的任意運算方塊，或點擊下方終端機的任一層張量，兩者會<span class="text-sky-400 font-medium">同步高亮聯動</span>並顯示維度變化！
+                    </p>
+                </div>
+                <a href="參數結果 2.txt" target="_blank" class="inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-2 rounded-xl bg-slate-900 text-slate-200 hover:text-white hover:bg-slate-800 border border-slate-700/80 transition-all shadow-md self-start">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    查看完整實測輸出 (參數結果 2.txt)
+                </a>
+            </div>
+
+            <!-- 互動式 LLM / Transformer 資料流向圖 (SVG) -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-6 mb-8 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-800">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span>
+                        <h3 class="text-sm sm:text-base font-bold text-white">Transformer 單層前向傳播流程圖 (輸入文字 → 768 維向量流向)</h3>
+                    </div>
+                    <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">點擊圖中節點可定位對應權重</span>
+                </div>
+
+                <div class="w-full overflow-x-auto pb-2">
+                    <svg viewBox="0 0 1120 350" class="w-full min-w-[880px] h-auto select-none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <!-- 箭頭定義 -->
+                            <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#38bdf8" />
+                            </marker>
+                            <marker id="arrow-slate" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#64748b" />
+                            </marker>
+                            <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#fbbf24" />
+                            </marker>
+                        </defs>
+
+                        <!-- 階段背景區塊：階段一 輸入嵌入 -->
+                        <rect x="10" y="12" width="335" height="325" rx="16" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" />
+                        <text x="26" y="36" fill="#94a3b8" font-size="12" font-weight="bold" font-family="Inter, sans-serif">STAGE 1 · 輸入與詞向量嵌入 (Embedding)</text>
+
+                        <!-- 階段背景區塊：階段二 Transformer Block 0 -->
+                        <rect x="365" y="12" width="745" height="325" rx="16" fill="#0f172a" stroke="#1e293b" stroke-dasharray="6 4" stroke-width="1.5" />
+                        <text x="385" y="36" fill="#38bdf8" font-size="12" font-weight="bold" font-family="Inter, sans-serif">STAGE 2 · Transformer Block 0 (blk.0 · 重複 12 層的核心運算)</text>
+
+                        <!-- 連線與維度標註 -->
+                        <line x1="88" y1="155" x2="115" y2="155" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-slate)" />
+                        <path d="M 225 96 L 225 113" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-slate)" />
+                        <line x1="225" y1="196" x2="225" y2="233" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow-cyan)" />
+                        <text x="234" y="219" fill="#94a3b8" font-size="10" font-family="JetBrains Mono, monospace">[768]</text>
+
+                        <path d="M 325 275 L 350 275 L 350 135 L 382 135" fill="none" stroke="#38bdf8" stroke-width="2.2" marker-end="url(#arrow-cyan)" />
+                        <text x="336" y="205" fill="#38bdf8" font-size="10" font-family="JetBrains Mono, monospace" transform="rotate(-90 336,205)">768 維向量</text>
+
+                        <line x1="555" y1="135" x2="592" y2="135" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrow-amber)" />
+                        <text x="557" y="125" fill="#fbbf24" font-size="10" font-family="JetBrains Mono, monospace">Q/K/V</text>
+
+                        <line x1="675" y1="176" x2="675" y2="228" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow-cyan)" />
+                        <text x="683" y="206" fill="#94a3b8" font-size="10" font-family="JetBrains Mono, monospace">[768]</text>
+
+                        <path d="M 760 270 L 785 270 L 785 135 L 807 135" fill="none" stroke="#38bdf8" stroke-width="2.2" marker-end="url(#arrow-cyan)" />
+
+                        <line x1="945" y1="135" x2="972" y2="135" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrow-amber)" />
+                        <text x="942" y="124" fill="#fbbf24" font-size="10" font-family="JetBrains Mono, monospace">[3072]</text>
+
+                        <line x1="1035" y1="176" x2="1035" y2="235" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow-cyan)" />
+
+                        <!-- 節點定義 -->
+                        <g>
+                            <rect x="20" y="125" width="66" height="60" rx="10" fill="#1e293b" stroke="#475569" stroke-width="1.5" />
+                            <text x="53" y="151" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="bold">輸入文字</text>
+                            <text x="53" y="168" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="JetBrains Mono, monospace">Token ID</text>
+                        </g>
+
+                        <g id="node-types" class="flow-node" onclick="selectTensor('types')">
+                            <rect class="node-box" x="120" y="48" width="205" height="48" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+                            <text x="132" y="68" fill="#38bdf8" font-size="10" font-weight="bold" font-family="JetBrains Mono, monospace">[03] token_types.weight</text>
+                            <text class="node-title" x="132" y="85" fill="#cbd5e1" font-size="11">句子位置類型 [768, 2] · F32</text>
+                        </g>
+
+                        <g id="node-embd" class="flow-node" onclick="selectTensor('embd')">
+                            <rect class="node-box" x="120" y="116" width="205" height="80" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+                            <text x="132" y="138" fill="#fbbf24" font-size="10" font-weight="bold" font-family="JetBrains Mono, monospace">[04] token_embd.weight</text>
+                            <text class="node-title" x="132" y="158" fill="#e2e8f0" font-size="12" font-weight="bold">詞彙查找表 (字典)</text>
+                            <text x="132" y="178" fill="#94a3b8" font-size="10.5" font-family="JetBrains Mono, monospace">[768, 30522] · F16 (2,344萬參)</text>
+                        </g>
+
+                        <g id="node-norm" class="flow-node active" onclick="selectTensor('norm')">
+                            <rect class="node-box" x="120" y="236" width="205" height="78" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+                            <text x="132" y="258" fill="#34d399" font-size="10" font-weight="bold" font-family="JetBrains Mono, monospace">[01-02] token_embd_norm</text>
+                            <text class="node-title" x="132" y="278" fill="#e2e8f0" font-size="12" font-weight="bold">輸入層正規化 (LayerNorm)</text>
+                            <text x="132" y="298" fill="#94a3b8" font-size="10.5" font-family="JetBrains Mono, monospace">weight &amp; bias [768] · F32</text>
+                        </g>
+
+                        <g id="node-attn_qkv" class="flow-node" onclick="selectTensor('attn_qkv')">
+                            <rect class="node-box" x="385" y="95" width="170" height="80" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+                            <text x="396" y="117" fill="#fbbf24" font-size="10" font-weight="bold" font-family="JetBrains Mono, monospace">[05] attn_qkv.weight</text>
+                            <text class="node-title" x="396" y="137" fill="#e2e8f0" font-size="12" font-weight="bold">注意力 Q / K / V 投影</text>
+                            <text x="396" y="157" fill="#94a3b8" font-size="10.5" font-family="JetBrains Mono, monospace">[768, 2304] · F16</text>
+                        </g>
+
+                        <g id="node-attn_out" class="flow-node" onclick="selectTensor('attn_out')">
+                            <rect class="node-box" x="595" y="95" width="160" height="80" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+                            <text x="606" y="117" fill="#fbbf24" font-size="10" font-weight="bold" font-family="JetBrains Mono, monospace">[06] attn_output</text>
+                            <text class="node-title" x="606" y="137" fill="#e2e8f0" font-size="12" font-weight="bold">多頭注意力融合</text>
+                            <text x="606" y="157" fill="#94a3b8" font-size="10.5" font-family="JetBrains Mono, monospace">[768, 768] · F16</text>
+                        </g>
+
+                        <g id="node-out_norm" class="flow-node" onclick="selectTensor('out_norm')">
+                            <rect class="node-box" x="590" y="232" width="170" height="76" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+                            <text x="601" y="253" fill="#34d399" font-size="10" font-weight="bold" font-family="JetBrains Mono, monospace">[10] attn_output_norm</text>
+                            <text class="node-title" x="601" y="273" fill="#e2e8f0" font-size="12" font-weight="bold">殘差與輸出正規化</text>
+                            <text x="601" y="292" fill="#94a3b8" font-size="10.5" font-family="JetBrains Mono, monospace">bias [768] · F32</text>
+                        </g>
+
+                        <g id="node-ffn_up" class="flow-node" onclick="selectTensor('ffn_up')">
+                            <rect class="node-box" x="810" y="95" width="135" height="80" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+                            <text x="819" y="117" fill="#fbbf24" font-size="10" font-weight="bold" font-family="JetBrains Mono, monospace">[07-08] up &amp; gate</text>
+                            <text class="node-title" x="819" y="137" fill="#e2e8f0" font-size="12" font-weight="bold">SwiGLU 門控升維</text>
+                            <text x="819" y="157" fill="#94a3b8" font-size="10.5" font-family="JetBrains Mono, monospace">[768, 3072] · F16</text>
+                        </g>
+
+                        <g id="node-ffn_down" class="flow-node" onclick="selectTensor('ffn_down')">
+                            <rect class="node-box" x="975" y="95" width="120" height="80" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+                            <text x="984" y="117" fill="#fbbf24" font-size="10" font-weight="bold" font-family="JetBrains Mono, monospace">[09] ffn_down</text>
+                            <text class="node-title" x="984" y="137" fill="#e2e8f0" font-size="12" font-weight="bold">前饋網路降維</text>
+                            <text x="984" y="157" fill="#94a3b8" font-size="10.5" font-family="JetBrains Mono, monospace">[3072, 768] · F16</text>
+                        </g>
+
+                        <g>
+                            <rect x="975" y="238" width="120" height="68" rx="10" fill="#020617" stroke="#334155" stroke-width="1.5" />
+                            <text x="1035" y="264" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="bold">進入 blk.1 ~ 11</text>
+                            <text x="1035" y="282" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="JetBrains Mono, monospace">重複相同結構 ×11</text>
+                            <text x="1035" y="297" text-anchor="middle" fill="#64748b" font-size="9.5">最終輸出語意向量</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- 左側：完整 10 組真實終端機輸出重現 -->
+                <div class="lg:col-span-7 bg-[#0c0c0c] border border-slate-800 rounded-2xl p-5 font-mono text-xs sm:text-[13px] leading-relaxed shadow-xl">
+                    <div class="flex items-center justify-between text-slate-400 pb-3 mb-3 border-b border-slate-800">
+                        <span>C:\Users\echom\OneDrive\桌面&gt; python 1.py (全部 10 組張量輸出)</span>
+                        <span class="text-emerald-400">總共有 112 組權重張量</span>
+                    </div>
+
+                    <div class="space-y-2.5 max-h-[680px] overflow-y-auto pr-1">
+                        <!-- [01-02] token_embd_norm -->
+                        <div onclick="selectTensor('norm')" id="card-norm" class="tensor-card active cursor-pointer p-3 rounded-xl border border-slate-800/80">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sky-400 font-semibold">[01-02] token_embd_norm.bias &amp; .weight</span>
+                                <span class="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">對應圖中 STAGE 1</span>
+                            </div>
+                            <div class="text-slate-300">張量形狀 (Shape): <span class="text-amber-300">[768]</span> | 量化類型: <span class="text-emerald-400">F32</span></div>
+                            <div class="text-slate-400 text-xs mt-1">bias:   [ 0.00250164 -0.01488699  1.0740799  -0.0239341  -0.02552114]</div>
+                            <div class="text-slate-400 text-xs">weight: [ 0.763426    0.8204537   0.11956877  0.8367259   0.94523054]</div>
+                        </div>
+
+                        <!-- [03] token_types.weight -->
+                        <div onclick="selectTensor('types')" id="card-types" class="tensor-card cursor-pointer p-3 rounded-xl border border-slate-800/80">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sky-400 font-semibold">[03] token_types.weight</span>
+                                <span class="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">對應圖中 STAGE 1</span>
+                            </div>
+                            <div class="text-slate-300">張量形狀 (Shape): <span class="text-amber-300">[768, 2]</span> | 量化類型: <span class="text-emerald-400">F32</span></div>
+                            <div class="text-slate-400 text-xs mt-1">前 5 筆: [[ 5.9602684e-03 -5.9155808e-03 -1.4683290e+00 ... -1.3405644e-02]]</div>
+                        </div>
+
+                        <!-- [04] token_embd.weight -->
+                        <div onclick="selectTensor('embd')" id="card-embd" class="tensor-card cursor-pointer p-3 rounded-xl border border-slate-800/80">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sky-400 font-semibold">[04] token_embd.weight</span>
+                                <span class="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">對應圖中 STAGE 1</span>
+                            </div>
+                            <div class="text-slate-300">張量形狀 (Shape): <span class="text-amber-300">[768, 30522]</span> | 量化類型: <span class="text-purple-400">F16</span></div>
+                            <div class="text-slate-400 text-xs mt-1">前 5 筆: [[-0.02151 -0.01657 -0.02657 ... 0.03928 -0.03513 0.01098]]</div>
+                        </div>
+
+                        <!-- [05] blk.0.attn_qkv.weight -->
+                        <div onclick="selectTensor('attn_qkv')" id="card-attn_qkv" class="tensor-card cursor-pointer p-3 rounded-xl border border-slate-800/80">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sky-400 font-semibold">[05] blk.0.attn_qkv.weight</span>
+                                <span class="text-[11px] bg-sky-900/40 text-sky-300 px-2 py-0.5 rounded">對應圖中 STAGE 2 (Block 0)</span>
+                            </div>
+                            <div class="text-slate-300">張量形狀 (Shape): <span class="text-amber-300">[768, 2304]</span> | 量化類型: <span class="text-purple-400">F16</span></div>
+                            <div class="text-slate-400 text-xs mt-1">前 5 筆: [[ 0.01628 -0.03485 0.1306 ... 0.0006537 0.0481 -0.007603]]</div>
+                        </div>
+
+                        <!-- [06] blk.0.attn_output.weight -->
+                        <div onclick="selectTensor('attn_out')" id="card-attn_out" class="tensor-card cursor-pointer p-3 rounded-xl border border-slate-800/80">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sky-400 font-semibold">[06] blk.0.attn_output.weight</span>
+                                <span class="text-[11px] bg-sky-900/40 text-sky-300 px-2 py-0.5 rounded">對應圖中 STAGE 2 (Block 0)</span>
+                            </div>
+                            <div class="text-slate-300">張量形狀 (Shape): <span class="text-amber-300">[768, 768]</span> | 量化類型: <span class="text-purple-400">F16</span></div>
+                            <div class="text-slate-400 text-xs mt-1">前 5 筆: [[-1.851e-04 -1.480e-02 2.255e-02 ... 7.501e-02 2.696e-02]]</div>
+                        </div>
+
+                        <!-- [07-08] blk.0.ffn_up & ffn_gate -->
+                        <div onclick="selectTensor('ffn_up')" id="card-ffn_up" class="tensor-card cursor-pointer p-3 rounded-xl border border-slate-800/80">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sky-400 font-semibold">[07-08] blk.0.ffn_up.weight &amp; ffn_gate.weight</span>
+                                <span class="text-[11px] bg-sky-900/40 text-sky-300 px-2 py-0.5 rounded">對應圖中 STAGE 2 (Block 0)</span>
+                            </div>
+                            <div class="text-slate-300">張量形狀 (Shape): <span class="text-amber-300">[768, 3072]</span> | 量化類型: <span class="text-purple-400">F16</span></div>
+                            <div class="text-slate-400 text-xs mt-1">up:   [[-0.0724  0.01869 0.0003142 ... 0.0743  0.02501 0.04962]]</div>
+                            <div class="text-slate-400 text-xs">gate: [[-0.02612 0.0544 -0.00315   ... 0.02226 0.0686 -0.03427]]</div>
+                        </div>
+
+                        <!-- [09] blk.0.ffn_down.weight -->
+                        <div onclick="selectTensor('ffn_down')" id="card-ffn_down" class="tensor-card cursor-pointer p-3 rounded-xl border border-slate-800/80">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sky-400 font-semibold">[09] blk.0.ffn_down.weight</span>
+                                <span class="text-[11px] bg-sky-900/40 text-sky-300 px-2 py-0.5 rounded">對應圖中 STAGE 2 (Block 0)</span>
+                            </div>
+                            <div class="text-slate-300">張量形狀 (Shape): <span class="text-amber-300">[3072, 768]</span> | 量化類型: <span class="text-purple-400">F16</span></div>
+                            <div class="text-slate-400 text-xs mt-1">前 5 筆: [[ 0.11115 0.00366 -0.07947 ... 0.0096 0.00667 -0.01672]]</div>
+                        </div>
+
+                        <!-- [10] blk.0.attn_output_norm.bias -->
+                        <div onclick="selectTensor('out_norm')" id="card-out_norm" class="tensor-card cursor-pointer p-3 rounded-xl border border-slate-800/80">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sky-400 font-semibold">[10] blk.0.attn_output_norm.bias</span>
+                                <span class="text-[11px] bg-sky-900/40 text-sky-300 px-2 py-0.5 rounded">對應圖中 STAGE 2 (Block 0)</span>
+                            </div>
+                            <div class="text-slate-300">張量形狀 (Shape): <span class="text-amber-300">[768]</span> | 量化類型: <span class="text-emerald-400">F32</span></div>
+                            <div class="text-slate-400 text-xs mt-1">前 5 筆: [-0.00889063 -0.02317934 -0.57600987 -0.02217444 0.04132258]</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：動態張量深度解說 + 全域統計 -->
+                <div class="lg:col-span-5 space-y-5">
+                    <div id="tensor-explanation" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 min-h-[340px]">
+                        <!-- 動態填充解說 -->
+                    </div>
+
+                    <!-- 112 組張量結構反推卡片 -->
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-900/60 border border-slate-800 rounded-2xl p-5">
+                        <h4 class="text-sm font-bold text-white mb-2 flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                            <span>為什麼總共是 112 組張量？（架構反推公式）</span>
+                        </h4>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-3">
+                            從你的輸出維度（隱藏層 <code class="text-amber-300 font-mono">768</code>、詞彙量 <code class="text-amber-300 font-mono">30522</code>、SwiGLU 門控結構）可精準反推這是標準的 <strong>12 層 Transformer Encoder</strong>（如 <code class="text-sky-300 font-mono">nomic-embed-text</code>）：
+                        </p>
+                        <ul class="text-xs text-slate-300 space-y-1.5 font-mono bg-slate-950/80 p-3.5 rounded-xl border border-slate-800">
+                            <li>• 輸入嵌入層：4 組 (embd + types + norm.w/b)</li>
+                            <li>• 12 層區塊：12 × 9 組 = 108 組 (attn + ffn + norm)</li>
+                            <li class="text-emerald-400 font-bold pt-1 border-t border-slate-800">• 總計：4 + 108 = 112 組權重張量 (Tensors)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 頁尾 -->
+    <footer class="border-t border-slate-800 py-8 text-center text-xs text-slate-500">
+        <p>Ollama 本地模型結構與 GGUF 權重解析互動指南 · 專為本地 AI 開發者設計</p>
+    </footer>
+
+    <!-- 隱藏的 HTML 模板區塊，避免在 JavaScript 中直接寫入 HTML 標籤導致解析錯誤 -->
+    <template id="tpl-norm">
+        <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+            <p><strong class="text-white">流程圖位置（STAGE 1 最後一步）：</strong>在把查詢到的詞彙向量與句子類型向量相加後，資料在送入第一層 Transformer (<code class="text-sky-300 font-mono">blk.0</code>) 前，必須先經過 <strong class="text-sky-300">LayerNorm 正規化</strong>，將 768 維數值拉回穩定的分佈區間。</p>
+            <p><strong class="text-white">數值解讀：</strong><code class="text-amber-300 font-mono">weight</code>（縮放係數，多在 0.8~1.0 左右微調）與 <code class="text-amber-300 font-mono">bias</code>（平移偏差，多接近 0）是模型訓練出來的穩定器。</p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-400">
+                💡 <strong class="text-emerald-400">混合精度關鍵：</strong>即便主權重壓縮為 F16，所有 <code class="text-slate-200 font-mono">norm</code> 層仍保留 <strong>F32（32位元單精度浮點數）</strong>，避免數值捨入誤差在深層網路中被放大。
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-types">
+        <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+            <p><strong class="text-white">流程圖位置（STAGE 1 上方輸入）：</strong>當你同時輸入兩段句子進行語意比對（例如「問題」與「文章段落」）時，模型需要區分哪個字屬於第一句、哪個字屬於第二句。</p>
+            <p><strong class="text-white">維度解讀 <code class="text-amber-300 font-mono">[768, 2]</code>：</strong>代表只有 <strong>2 種</strong>句子標籤（Segment A 與 Segment B），每種標籤各自對應一組 768 維的特徵向量，在送入正規化層前會與詞向量直接相加。</p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-400">
+                💡 <strong class="text-sky-400">科學記號說明：</strong>你看到的 <code class="text-slate-200 font-mono">5.9602684e-03</code> 代表 <code class="text-slate-200 font-mono">0.0059602684</code>，這是 NumPy 印出極小浮點數時的標準科學記號格式。
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-embd">
+        <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+            <p><strong class="text-white">流程圖位置（STAGE 1 核心字典）：</strong>文字轉成數字 Token ID 後，第一個進入的巨大矩陣就是這裡。它是整個模型的「詞彙字典」。</p>
+            <p><strong class="text-white">維度解讀 <code class="text-amber-300 font-mono">[768, 30522]</code>：</strong>模型總共認識 <strong>30,522 個詞彙 (Tokens)</strong>，每個詞彙都用 <strong>768 個浮點數</strong>來描述它的語意特徵。</p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-400">
+                📊 <strong class="text-amber-400">參數量計算：</strong>光這一層就包含了 <code class="text-slate-200 font-mono">768 × 30,522 = 23,440,896</code>（約 <strong>2,344 萬個訓練參數</strong>），佔了整個小型模型約 17% 的容量！
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-attn_qkv">
+        <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+            <p><strong class="text-white">流程圖位置（STAGE 2 起點）：</strong>這是第 0 層 Transformer Block (<code class="text-sky-300 font-mono">blk.0</code>) 的核心大腦，負責計算句子中每個字與其他字之間的關聯程度（Self-Attention）。</p>
+            <p><strong class="text-white">為什麼形狀是 <code class="text-amber-300 font-mono">[768, 2304]</code>？</strong>因為 <code class="text-slate-200 font-mono">768 × 3 = 2304</code>！GGUF 為了提升 GPU 矩陣乘法效率，把原本分開的 <strong>Query（查詢）、Key（鍵值）、Value（數值）</strong> 三個 <code class="text-slate-200 font-mono">[768, 768]</code> 權重矩陣合併成一個大矩陣一次算完。</p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-400">
+                ⚡ 這層包含 <code class="text-slate-200 font-mono">768 × 2304 = 1,769,472</code> 個訓練權重，並以 <strong>F16（半精度浮點數）</strong>儲存以節省一半記憶體頻寬。
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-attn_out">
+        <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+            <p><strong class="text-white">流程圖位置（STAGE 2 注意力出口）：</strong>在計算完 12 個注意力頭（Multi-Head Attention）各自關注的上下文資訊後，必須透過這個 <code class="text-amber-300 font-mono">[768, 768]</code> 的線性投影矩陣，將多頭結果重新整合成統一的 768 維特徵。</p>
+            <p><strong class="text-white">數值解讀：</strong>你看到的 <code class="text-slate-200 font-mono">-1.851e-04</code> 等正負交錯的小數，就是模型在大量語料訓練後學會的「資訊混合比例權重」。</p>
+        </div>
+    </template>
+
+    <template id="tpl-ffn_up">
+        <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+            <p><strong class="text-white">流程圖位置（STAGE 2 知識推理升維區）：</strong>離開注意力機制與殘差正規化後，資料進入前饋神經網路（FFN）。現代架構採用 <strong>SwiGLU 雙門控設計</strong>，因此同時出現 <code class="text-sky-300 font-mono">ffn_up</code> 與 <code class="text-sky-300 font-mono">ffn_gate</code> 兩組矩陣。</p>
+            <p><strong class="text-white">維度解讀 <code class="text-amber-300 font-mono">[768, 3072]</code>：</strong>把原本 768 維的資訊<strong>放大 4 倍（升維到 3072 維）</strong>！其中 <code class="text-slate-200 font-mono">gate</code> 負責充當開關過濾雜訊，<code class="text-slate-200 font-mono">up</code> 負責在高維空間中提取抽象語意知識。</p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-400">
+                🧠 每一層 Block 的 FFN 區是模型儲存「世界知識」最密集的地方，單這兩組張量就高達 <code class="text-slate-200 font-mono">471 萬個參數</code>。
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-ffn_down">
+        <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+            <p><strong class="text-white">流程圖位置（STAGE 2 降維出口）：</strong>在高維空間（3072 維）完成非線性特徵推理後，必須透過 <code class="text-sky-300 font-mono">ffn_down.weight</code> 把維度重新壓縮回標準的 768 維。</p>
+            <p><strong class="text-white">維度反轉 <code class="text-amber-300 font-mono">[3072, 768]</code>：</strong>注意它的形狀剛好與 <code class="text-slate-200 font-mono">ffn_up [768, 3072]</code> 相反！這樣輸出結果才能保持 768 維，順利交棒給下一層的 <code class="text-sky-300 font-mono">blk.1</code> 繼續運算，一路重複直到第 12 層（<code class="text-sky-300 font-mono">blk.11</code>）。</p>
+        </div>
+    </template>
+
+    <template id="tpl-out_norm">
+        <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+            <p><strong class="text-white">流程圖位置（STAGE 2 注意力與 FFN 之間的橋樑）：</strong>在 <code class="text-sky-300 font-mono">attn_output</code> 算完並加上殘差連接（Residual Connection）後、進入 <code class="text-sky-300 font-mono">ffn_up</code> 升維之前，資料會先經過這層 LayerNorm 穩定數值。</p>
+            <p><strong class="text-white">數值解讀 <code class="text-amber-300 font-mono">[768] · F32</code>：</strong>這組 bias 向量為 768 個通道各自提供獨立的基準偏移量，確保深層網路在傳遞 12 層的過程中不會發生梯度爆炸或數值歸零。</p>
+        </div>
+    </template>
+
+    <script>
+        // 第一章：檔案內容資料庫
+        const fileDetails = {
+            manifest: {
+                badge: "位於 manifests 資料夾 · 索引地圖",
+                badgeClass: "bg-sky-500/20 text-sky-300 border-sky-500/30",
+                title: "模型清單檔 (Manifest JSON)",
+                desc: "這個檔案不包含模型權重，而是記錄該模型由 blobs 資料夾裡的哪幾個雜湊檔案所組成。比對 digest 後面那串英數字，就能在 blobs 資料夾找到對應檔案。",
+                code: JSON.stringify({
+                    "schemaVersion": 2,
+                    "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+                    "layers": [
+                        {
+                            "mediaType": "application/vnd.ollama.image.model",
+                            "digest": "sha256:970aa74c0a90ef7482477cf803618e776e173c00...",
+                            "size": 274290688
+                        },
+                        {
+                            "mediaType": "application/vnd.ollama.image.template",
+                            "digest": "sha256:dd084c7d92a3c1c14cc09ae77153b903fd2024b...",
+                            "size": 9216
+                        },
+                        {
+                            "mediaType": "application/vnd.ollama.image.params",
+                            "digest": "sha256:1506fb8a72846f147af74cb2c91f0a266f75f3d9e...",
+                            "size": 1024
+                        }
+                    ]
+                }, null, 2)
+            },
+            params: {
+                badge: "位於 blobs 資料夾 · 1 KB 純文字檔",
+                badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+                title: "推論設定參數檔 (sha256-1506fb8a...)",
+                desc: "對應你資料夾中大小為 1 KB 的純文字檔案！直接用記事本打開，裡面就是控制模型回答行為的推論超參數。",
+                code: JSON.stringify({
+                    "temperature": 0.7,
+                    "top_p": 0.9,
+                    "repeat_penalty": 1.1,
+                    "num_ctx": 4096,
+                    "stop": [
+                        "<|im_end|>",
+                        "<end_of_turn>"
+                    ]
+                }, null, 2)
+            },
+            template: {
+                badge: "位於 blobs 資料夾 · 9 KB 純文字檔",
+                badgeClass: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+                title: "對話模板與系統指令檔 (sha256-dd084c7d...)",
+                desc: "對應你資料夾中約 8 KB ~ 12 KB 的純文字檔案，定義了角色標籤（System / User / Assistant）如何組裝送進模型。",
+                code: "{{- if .System }}<|im_start|>system\n{{ .System }}<|im_end|>\n{{- end }}\n<|im_start|>user\n{{ .Prompt }}<|im_end|>\n<|im_start|>assistant\n"
+            },
+            model: {
+                badge: "位於 blobs 資料夾 · 267,862 KB (~261 MB)",
+                badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+                title: "輕量模型權重本體 (sha256-970aa74c...)",
+                desc: "這就是你剛才用 Python 1.py 讀取的檔案！它採用 GGUF 格式封裝，內部包含 112 組神經網路訓練權重張量（Tensors），因為是二進位矩陣，必須用 Python gguf 套件解析。",
+                code: "[GGUF Binary Header]\nMagic: GGUF (Version 3)\nTensors Count: 112\nKV Metadata Count: 24\n----------------------------------------\n[Tensor 01] token_embd_norm.bias   [768]        F32\n[Tensor 04] token_embd.weight      [768, 30522] F16\n[Tensor 05] blk.0.attn_qkv.weight  [768, 2304]  F16\n... (後面緊接數千萬個二進位浮點數權重)"
+            },
+            largemodels: {
+                badge: "位於 blobs 資料夾 · 7.6 GB & 18.1 GB 大型檔案",
+                badgeClass: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+                title: "大型語言模型本體 (sha256-1194192c... 等)",
+                desc: "在你截圖中看到的 7,633,374 KB (7.6 GB) 與 18,121,76... KB (18.1 GB) 檔案，是你下載的其他大型生成式模型（例如 8B 或 27B/32B 參數規模的模型），同樣可用相同的 Python 腳本讀取內部數百組張量！",
+                code: "# 在你的 blobs 資料夾中偵測到的其他大型模型權重檔：\n1. sha256-1194192cf2a187eb...  -> 約 18.1 GB (大型模型權重)\n2. sha256-e796792eba26c4d3...  -> 約 16.9 GB (大型模型權重)\n3. sha256-9999d473417a8e17...  -> 約 7.6 GB  (中型模型權重)\n4. sha256-970aa74c0a90ef74...  -> 約 261 MB  (你目前解析的 112 層模型)"
+            }
+        };
+
+        // 切換檔案預覽面板 (完全使用安全的 DOM 操作)
+        function selectFile(key) {
+            const data = fileDetails[key];
+            if (!data) return;
+
+            document.querySelectorAll('.file-btn').forEach(btn => {
+                btn.classList.remove('bg-sky-500/15', 'border-sky-500/40', 'text-sky-300');
+                btn.classList.add('border-transparent', 'text-slate-300');
+            });
+            const activeBtn = document.getElementById('btn-' + key);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-slate-300');
+                activeBtn.classList.add('bg-sky-500/15', 'border-sky-500/40', 'text-sky-300');
+            }
+
+            const container = document.getElementById('file-detail-content');
+            const langClass = key === 'manifest' || key === 'params' ? 'language-json' : 'language-none';
+            container.textContent = "";
+
+            const wrapper = document.createElement('div');
+
+            const badgeEl = document.createElement('span');
+            badgeEl.className = 'inline-block px-3 py-1 rounded-full text-xs font-semibold border ' + data.badgeClass + ' mb-3';
+            badgeEl.textContent = data.badge;
+
+            const titleEl = document.createElement('h3');
+            titleEl.className = 'text-lg font-mono font-bold text-white mb-2 break-all';
+            titleEl.textContent = data.title;
+
+            const descEl = document.createElement('p');
+            descEl.className = 'text-slate-400 text-sm leading-relaxed mb-4';
+            descEl.textContent = data.desc;
+
+            const preEl = document.createElement('pre');
+            preEl.className = '!bg-slate-950 !m-0 border border-slate-800 rounded-xl p-4 font-mono text-xs overflow-x-auto leading-relaxed';
+
+            const codeEl = document.createElement('code');
+            codeEl.id = 'dynamic-file-code';
+            codeEl.className = langClass;
+            codeEl.textContent = data.code;
+
+            preEl.appendChild(codeEl);
+            wrapper.appendChild(badgeEl);
+            wrapper.appendChild(titleEl);
+            wrapper.appendChild(descEl);
+            wrapper.appendChild(preEl);
+            container.appendChild(wrapper);
+
+            if (window.Prism) {
+                Prism.highlightElement(codeEl);
+            }
+        }
+
+        // 第四章：張量解說切換（同步高亮終端機卡片與上方 SVG 流程圖節點）
+        function selectTensor(key) {
+            document.querySelectorAll('.tensor-card').forEach(el => el.classList.remove('active'));
+            const activeCard = document.getElementById('card-' + key);
+            if (activeCard) activeCard.classList.add('active');
+
+            // 同步高亮上方 SVG 流程圖中的對應方塊
+            document.querySelectorAll('.flow-node').forEach(el => el.classList.remove('active'));
+            const activeNode = document.getElementById('node-' + key);
+            if (activeNode) activeNode.classList.add('active');
+
+            const meta = {
+                norm: {
+                    tag: "STAGE 1 · 第 01-02 組 · 輸入層正規化 (LayerNorm)",
+                    title: "token_embd_norm.bias & .weight [768] (F32)"
+                },
+                types: {
+                    tag: "STAGE 1 · 第 03 組 · 段落類型嵌入 (Segment Embedding)",
+                    title: "token_types.weight [768, 2] (F32)"
+                },
+                embd: {
+                    tag: "STAGE 1 · 第 04 組 · 詞彙表查找矩陣 (Token Embedding)",
+                    title: "token_embd.weight [768, 30522] (F16)"
+                },
+                attn_qkv: {
+                    tag: "STAGE 2 (Block 0) · 第 05 組 · 自我注意力 QKV 合併矩陣",
+                    title: "blk.0.attn_qkv.weight [768, 2304] (F16)"
+                },
+                attn_out: {
+                    tag: "STAGE 2 (Block 0) · 第 06 組 · 注意力輸出投影矩陣",
+                    title: "blk.0.attn_output.weight [768, 768] (F16)"
+                },
+                ffn_up: {
+                    tag: "STAGE 2 (Block 0) · 第 07-08 組 · SwiGLU 門控升維層",
+                    title: "blk.0.ffn_up & ffn_gate.weight [768, 3072] (F16)"
+                },
+                ffn_down: {
+                    tag: "STAGE 2 (Block 0) · 第 09 組 · 前饋網路降維輸出層",
+                    title: "blk.0.ffn_down.weight [3072, 768] (F16)"
+                },
+                out_norm: {
+                    tag: "STAGE 2 (Block 0) · 第 10 組 · 區塊輸出正規化偏差",
+                    title: "blk.0.attn_output_norm.bias [768] (F32)"
+                }
+            };
+
+            const item = meta[key];
+            const tpl = document.getElementById('tpl-' + key);
+            const target = document.getElementById('tensor-explanation');
+            if (!item || !tpl || !target) return;
+
+            target.textContent = "";
+
+            const tagEl = document.createElement('span');
+            tagEl.className = 'inline-block px-2.5 py-1 rounded-md bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono mb-3';
+            tagEl.textContent = item.tag;
+
+            const titleEl = document.createElement('h3');
+            titleEl.className = 'text-lg font-bold text-white font-mono mb-4';
+            titleEl.textContent = item.title;
+
+            target.appendChild(tagEl);
+            target.appendChild(titleEl);
+            target.appendChild(tpl.content.cloneNode(true));
+        }
+
+        // 第二章：動態更新 CLI 與 API 指令
+        function updateCommands() {
+            const rawInput = document.getElementById('model-input').value.trim();
+            const modelName = rawInput || 'nomic-embed-text';
+
+            document.getElementById('cmd-show').textContent = 'ollama show ' + modelName;
+            document.getElementById('cmd-modelfile').textContent = 'ollama show ' + modelName + ' --modelfile';
+
+            const apiEl = document.getElementById('cmd-api');
+            apiEl.textContent = 'Invoke-RestMethod -Uri "http://localhost:11434/api/show" -Method Post -Body \'{"name": "' + modelName + '"}\' -ContentType "application/json" | ConvertTo-Json -Depth 5';
+            if (window.Prism) {
+                Prism.highlightElement(apiEl);
+            }
+        }
+
+        // 複製文字到剪貼簿
+        function copyElementText(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+
+            const textToCopy = el.textContent;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            tempTextArea.style.position = 'fixed';
+            tempTextArea.style.left = '-9999px';
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+
+            try {
+                document.execCommand('copy');
+                showToast('已複製到剪貼簿！');
+            } catch (err) {
+                showToast('複製失敗，請手動選取複製');
+            } finally {
+                document.body.removeChild(tempTextArea);
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2200);
+        }
+
+        // 初始化頁面狀態
+        window.addEventListener('DOMContentLoaded', () => {
+            selectFile('manifest');
+            selectTensor('norm');
+            if (window.Prism) {
+                Prism.highlightAll();
+            }
+        });
+    </script>
+</body>
+</html>
