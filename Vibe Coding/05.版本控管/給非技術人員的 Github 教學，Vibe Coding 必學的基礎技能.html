@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Noto Sans TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- KaTeX CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {
+        delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+        ],
+        throwOnError: false
+    });"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+        }
+        /* 自訂平滑 SVG 動畫與漸層 */
+        .svg-transition {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes pulseFlow {
+            0%, 100% { stroke-dashoffset: 24; }
+            50% { stroke-dashoffset: 0; }
+        }
+        .animate-dash {
+            stroke-dasharray: 6 6;
+            animation: pulseFlow 1.5s linear infinite;
+        }
+        @keyframes shieldBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .shield-active {
+            animation: shieldBounce 1.2s ease-in-out infinite;
+            transform-origin: center;
+        }
+        /* 隱藏捲軸但保留捲動能力 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- 複製成功提示 Toast (取代 alert) -->
+    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 font-medium text-sm border border-emerald-400/30">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <span id="toast-message">已複製 AI 白話指令到剪貼簿！</span>
+        </div>
+    </div>
+
+    <!-- 頂部導覽列 -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-white/85 dark:bg-slate-900/85 border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold shadow-md shrink-0">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                </div>
+                <span class="font-bold text-sm sm:text-base truncate">Vibe Coding 必學 GitHub 指南</span>
+            </div>
+
+            <!-- 章節快速跳轉 -->
+            <nav class="hidden lg:flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+                <a href="#sec-basics" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">1. 基礎雙雄</a>
+                <a href="#sec-flow" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">2. 存檔與協作</a>
+                <a href="#sec-branch" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">3. 神奇辦公桌</a>
+                <a href="#sec-merge" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">4. PR與衝突</a>
+                <a href="#sec-rescue" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">5. 改壞救援</a>
+                <a href="#sec-quiz" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">6. 總表與測驗</a>
+                <a href="#sec-transcript" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900 transition">7. 時間軸逐字稿</a>
+            </nav>
+
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="../../vibecoding.html?id=vibe-github-nontech"
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-indigo-500/30 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs sm:text-sm font-semibold transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                    <span>返回 Vibe Coding</span>
+                </a>
+                <button id="theme-toggle" aria-label="切換深色與淺色模式" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                    <!-- Sun icon -->
+                    <svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <!-- Moon icon -->
+                    <svg id="moon-icon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero 區塊 -->
+    <section class="relative overflow-hidden border-b border-slate-200 dark:border-slate-800 bg-gradient-to-b from-indigo-50/70 via-white to-slate-50 dark:from-indigo-950/30 dark:via-slate-950 dark:to-slate-950 pt-10 pb-14 sm:pt-16 sm:pb-20">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center">
+            <!-- 原始 YouTube 影片連結顯眼橫幅 -->
+            <div class="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-4 py-2 rounded-2xl bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800/60 text-red-700 dark:text-red-300 text-xs sm:text-sm font-medium mb-6 shadow-sm">
+                <span class="flex items-center gap-1.5 font-bold">
+                    <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    原始教學影片：
+                </span>
+                <a href="https://www.youtube.com/watch?v=atqcAb7MFAM" target="_blank" rel="noopener noreferrer" class="underline decoration-red-400 hover:text-red-900 dark:hover:text-white break-all font-mono">
+                    https://www.youtube.com/watch?v=atqcAb7MFAM
+                </a>
+                <a href="https://www.youtube.com/watch?v=atqcAb7MFAM" target="_blank" rel="noopener noreferrer" class="px-3 py-1 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition shadow">
+                    前往觀看 ↗
+                </a>
+            </div>
+
+            <div class="mb-3 text-sm font-bold tracking-wider uppercase text-indigo-600 dark:text-indigo-400">
+                作者：Gary Chen ｜ 零程式碼指令・全白話圖解互動版
+            </div>
+
+            <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight mb-6">
+                給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能
+            </h1>
+
+            <p class="max-w-3xl mx-auto text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-8">
+                用 AI 寫程式（Vibe Coding）最怕「改好 A 功能卻改壞 B 功能」，或想找朋友一起協作卻只能用 LINE 互傳壓縮檔？這份互動指南將複雜的工程概念化繁為簡，教你用<strong>自然語言指揮 AI</strong> 駕馭 Git 與 GitHub！
+            </p>
+
+            <!-- 情境痛點卡片 -->
+            <div class="max-w-3xl mx-auto bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 text-left shadow-lg">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-2xl shrink-0">
+                        💸
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg mb-1">
+                            情境引入：Gary 的記帳軟體 Vibe Coding 惡夢
+                        </h2>
+                        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                            假設你用 Claude Code 或 Cursor 做出了一個超好用的記帳 App，但當你叫 AI 「幫我加一個統計圓餅圖」時，原本好好的記帳按鈕突然壞掉了！你沒有留存檔點，只能硬著頭皮叫 AI 猜測修復；更慘的是，當朋友想幫忙一起開發時，你們還在用壓縮檔傳來傳去——這就是你必須學會 <strong>Git 與 GitHub</strong> 的原因。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主內容區 -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-20">
+
+        <!-- ==========================================
+             章節 1：基礎雙雄 Git vs GitHub
+        =========================================== -->
+        <section id="sec-basics" class="scroll-mt-24 space-y-6">
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-sm">CHAPTER 01</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">基礎雙雄：GitHub 與 Git 到底差在哪？</h2>
+            </div>
+
+            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                很多人一開始會把 Git 和 GitHub 混為一談。其實它們是兩個分工明確的工具，一個住在<strong>雲端網路</strong>，一個住在<strong>你自己的電腦裡</strong>：
+            </p>
+
+            <!-- 藍色框：核心觀念 -->
+            <div class="rounded-2xl bg-blue-50/90 dark:bg-blue-950/40 border-l-4 border-blue-500 p-5 sm:p-6 shadow-sm">
+                <div class="flex items-center gap-2 font-bold text-blue-800 dark:text-blue-300 text-lg mb-3">
+                    <span>🔵 核心觀念對照</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm sm:text-base">
+                    <div class="bg-white/80 dark:bg-slate-900/80 rounded-xl p-4 border border-blue-200/70 dark:border-blue-800/50">
+                        <div class="font-bold text-slate-900 dark:text-white text-base mb-1 flex items-center gap-2">
+                            <span>☁️ GitHub ＝ 程式碼專用的 Google Drive</span>
+                        </div>
+                        <p class="text-slate-600 dark:text-slate-300">
+                            一個雲端網站平台。用來存放你的專案備份（稱為 <strong>Repo / Repository 倉庫</strong>），讓你在不同電腦都能存取，也能設定權限邀請朋友一起協作修改。
+                        </p>
+                    </div>
+                    <div class="bg-white/80 dark:bg-slate-900/80 rounded-xl p-4 border border-blue-200/70 dark:border-blue-800/50">
+                        <div class="font-bold text-slate-900 dark:text-white text-base mb-1 flex items-center gap-2">
+                            <span>💻 Git ＝ 本機電腦裡的「時光機監控系統」</span>
+                        </div>
+                        <p class="text-slate-600 dark:text-slate-300">
+                            安裝在你電腦裡的版本控制工具。透過 <code class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 font-mono text-xs">git init</code> 初始化後，它會默默盯著專案資料夾裡的每一個檔案變化，隨時記錄「誰在什麼時候改了哪一行」。
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-blue-200 dark:border-blue-800/60 text-xs sm:text-sm text-blue-900 dark:text-blue-200">
+                    <strong>版本狀態數學抽象：</strong> 初始化後的專案可視為一連串時間快照集合 $\mathcal{H} = \{S_0, S_1, S_2, \dots, S_n\}$，其中每一個狀態 $S_i$ 都完整保存了該時間點的程式碼目錄結構。
+                </div>
+            </div>
+
+            <!-- 綠色實戰框：AI 指令 -->
+            <div class="rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/35 border-l-4 border-emerald-500 p-5 sm:p-6 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span class="font-bold text-emerald-800 dark:text-emerald-300 text-base sm:text-lg flex items-center gap-2">
+                        <span>🟢 給 AI 的白話指令：啟動本機版本追蹤</span>
+                    </span>
+                    <button onclick="copyPrompt('請幫我檢查這個專案是否已經初始化 Git，如果還沒，請幫我執行 git init 並建立一個初步的版本記錄。')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        一鍵複製 Prompt
+                    </button>
+                </div>
+                <p class="font-mono text-sm bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60 text-slate-800 dark:text-emerald-100">
+                    「請幫我檢查這個專案是否已經初始化 Git，如果還沒，請幫我執行 git init 並建立一個初步的版本記錄。」
+                </p>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             章節 2：存檔、資安紅線與多人協作循環 (互動圖解 1)
+        =========================================== -->
+        <section id="sec-flow" class="scroll-mt-24 space-y-6">
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-sm">CHAPTER 02</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">存檔、資安紅線與協作循環</h2>
+            </div>
+
+            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                從自己電腦存檔到上傳雲端，再到朋友下載協作，總共有五個核心動作。在數學上，本機與雲端的同步可表示為狀態轉移映射：
+                $$S_{\text{local}} \xrightarrow{\text{commit}} S_{\text{snapshot}} \xrightarrow{\text{push (filtered by .gitignore)}} S_{\text{remote}} \xrightarrow{\text{clone / pull}} S_{\text{teammate}}$$
+            </p>
+
+            <!-- 互動圖解 1：本機與雲端流向模擬器 -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-8 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">互動圖解 1</span>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">本機與雲端流向模擬器</h3>
+                    </div>
+                    <span id="flow-step-badge" class="self-start sm:self-auto px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold">
+                        目前步驟：1. git init 初始化
+                    </span>
+                </div>
+
+                <!-- 步驟操作按鈕列 -->
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-6">
+                    <button onclick="setFlowStep(1)" id="flow-btn-1" class="flow-btn p-3 rounded-xl text-xs sm:text-sm font-bold border transition text-center bg-indigo-600 text-white border-indigo-600 shadow-md">
+                        1. git init<br><span class="font-normal opacity-90 text-[11px]">本機建立追蹤</span>
+                    </button>
+                    <button onclick="setFlowStep(2)" id="flow-btn-2" class="flow-btn p-3 rounded-xl text-xs sm:text-sm font-bold border transition text-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700">
+                        2. commit<br><span class="font-normal opacity-80 text-[11px]">遊戲本機存檔</span>
+                    </button>
+                    <button onclick="setFlowStep(3)" id="flow-btn-3" class="flow-btn p-3 rounded-xl text-xs sm:text-sm font-bold border transition text-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700">
+                        3. push<br><span class="font-normal opacity-80 text-[11px]">推送雲端+過濾</span>
+                    </button>
+                    <button onclick="setFlowStep(4)" id="flow-btn-4" class="flow-btn p-3 rounded-xl text-xs sm:text-sm font-bold border transition text-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700">
+                        4. clone<br><span class="font-normal opacity-80 text-[11px]">朋友首次複製</span>
+                    </button>
+                    <button onclick="setFlowStep(5)" id="flow-btn-5" class="flow-btn col-span-2 sm:col-span-1 p-3 rounded-xl text-xs sm:text-sm font-bold border transition text-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700">
+                        5. pull<br><span class="font-normal opacity-80 text-[11px]">拉取最新更新</span>
+                    </button>
+                </div>
+
+                <!-- 動態 SVG 畫布 -->
+                <div class="w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-2 sm:p-4">
+                    <svg viewBox="0 0 820 310" class="w-full h-auto select-none" role="img" aria-label="本機與雲端 Git 流向模擬圖">
+                        <defs>
+                            <marker id="arrow-indigo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#6366f1"/>
+                            </marker>
+                            <marker id="arrow-emerald" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981"/>
+                            </marker>
+                            <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b"/>
+                            </marker>
+                        </defs>
+
+                        <!-- 左側：你的本機電腦 (Local) -->
+                        <rect x="20" y="30" width="220" height="250" rx="18" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+                        <text x="130" y="60" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="bold">💻 你的電腦 (Local)</text>
+                        <text x="130" y="80" text-anchor="middle" fill="#94a3b8" font-size="11">記帳軟體資料夾</text>
+
+                        <!-- 本機檔案清單 -->
+                        <rect x="40" y="98" width="180" height="34" rx="8" fill="#334155"/>
+                        <text x="52" y="119" fill="#e2e8f0" font-size="12" font-family="monospace">📄 app.js (記帳主程式)</text>
+
+                        <!-- 機密檔案 .env -->
+                        <g id="svg-env-file">
+                            <rect x="40" y="140" width="180" height="34" rx="8" fill="#450a0a" stroke="#ef4444" stroke-width="1.5"/>
+                            <text x="52" y="161" fill="#fca5a5" font-size="12" font-family="monospace">🔑 .env (API 金鑰/密碼)</text>
+                        </g>
+
+                        <!-- 本機 Git 存檔點盒子 -->
+                        <g id="svg-local-git" class="svg-transition">
+                            <rect x="40" y="190" width="180" height="72" rx="10" fill="#312e81" stroke="#6366f1" stroke-width="2" stroke-dasharray="4 4"/>
+                            <text x="130" y="215" text-anchor="middle" fill="#c7d2fe" font-size="12" font-weight="bold">🗂️ 隱藏資料夾 .git</text>
+                            <text id="svg-commit-status" x="130" y="238" text-anchor="middle" fill="#a5b4fc" font-size="11">已啟動監控 (git init)</text>
+                        </g>
+
+                        <!-- 中間過濾盾牌 (.gitignore) -->
+                        <g id="svg-gitignore-shield" class="svg-transition" opacity="0.4">
+                            <rect x="262" y="95" width="76" height="120" rx="14" fill="#7f1d1d" stroke="#f87171" stroke-width="2"/>
+                            <text x="300" y="130" text-anchor="middle" font-size="24">🛡️</text>
+                            <text x="300" y="155" text-anchor="middle" fill="#fecaca" font-size="11" font-weight="bold">.gitignore</text>
+                            <text x="300" y="172" text-anchor="middle" fill="#fca5a5" font-size="10">攔截 .env</text>
+                            <text x="300" y="188" text-anchor="middle" fill="#fca5a5" font-size="10">不准上傳！</text>
+                        </g>
+
+                        <!-- 中央：GitHub 雲端倉庫 (Remote) -->
+                        <rect x="360" y="30" width="210" height="250" rx="18" fill="#0f172a" stroke="#3b82f6" stroke-width="2.5"/>
+                        <text x="465" y="60" text-anchor="middle" fill="#60a5fa" font-size="15" font-weight="bold">☁️ GitHub 雲端倉庫</text>
+                        <text x="465" y="80" text-anchor="middle" fill="#94a3b8" font-size="11">origin / main 主線</text>
+
+                        <!-- 雲端內容物 -->
+                        <g id="svg-cloud-content" class="svg-transition" opacity="0.25">
+                            <rect x="380" y="102" width="170" height="40" rx="8" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.5"/>
+                            <text x="465" y="126" text-anchor="middle" fill="#dbeafe" font-size="12" font-family="monospace">📄 app.js (安全公開)</text>
+
+                            <rect x="380" y="154" width="170" height="40" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+                            <text x="465" y="178" text-anchor="middle" fill="#a7f3d0" font-size="11">✅ 無機密外洩風險</text>
+
+                            <rect x="380" y="208" width="170" height="50" rx="10" fill="#1e293b"/>
+                            <text id="svg-cloud-version" x="465" y="230" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="bold">雲端版本：尚未上傳</text>
+                            <text x="465" y="247" text-anchor="middle" fill="#64748b" font-size="10">隨時可備份與協作</text>
+                        </g>
+
+                        <!-- 右側：朋友的電腦 (Teammate) -->
+                        <rect x="600" y="30" width="200" height="250" rx="18" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+                        <text x="700" y="60" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="bold">🧑‍💻 朋友的電腦</text>
+                        <text x="700" y="80" text-anchor="middle" fill="#94a3b8" font-size="11">協作者本機環境</text>
+
+                        <g id="svg-friend-content" class="svg-transition" opacity="0.25">
+                            <rect x="618" y="102" width="164" height="42" rx="8" fill="#065f46" stroke="#10b981" stroke-width="1.5"/>
+                            <text x="700" y="127" text-anchor="middle" fill="#ecfdf5" font-size="12" font-family="monospace">📄 app.js + .git</text>
+
+                            <rect x="618" y="156" width="164" height="44" rx="8" fill="#334155"/>
+                            <text id="svg-friend-status" x="700" y="182" text-anchor="middle" fill="#cbd5e1" font-size="11">等待 clone 專案...</text>
+
+                            <rect x="618" y="212" width="164" height="46" rx="8" fill="#1e293b" stroke="#475569"/>
+                            <text x="700" y="232" text-anchor="middle" fill="#fbbf24" font-size="10">💡 需自行建立本機 .env</text>
+                            <text x="700" y="247" text-anchor="middle" fill="#94a3b8" font-size="10">保留完整歷史紀錄</text>
+                        </g>
+
+                        <!-- 動態連線箭頭 -->
+                        <!-- Push 箭頭 (本機 -> 雲端) -->
+                        <g id="arrow-push-group" opacity="0">
+                            <path d="M 242 120 L 354 120" stroke="#6366f1" stroke-width="3.5" class="animate-dash" marker-end="url(#arrow-indigo)"/>
+                            <rect x="255" y="62" width="90" height="22" rx="6" fill="#4f46e5"/>
+                            <text x="300" y="77" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">git push ➔</text>
+                        </g>
+
+                        <!-- Clone 箭頭 (雲端 -> 朋友) -->
+                        <g id="arrow-clone-group" opacity="0">
+                            <path d="M 572 130 L 595 130" stroke="#10b981" stroke-width="3.5" class="animate-dash" marker-end="url(#arrow-emerald)"/>
+                            <rect x="545" y="88" width="84" height="22" rx="6" fill="#059669"/>
+                            <text x="587" y="103" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">clone ➔</text>
+                        </g>
+
+                        <!-- Pull 箭頭 (雲端 -> 本機) -->
+                        <g id="arrow-pull-group" opacity="0">
+                            <path d="M 358 240 L 245 240" stroke="#f59e0b" stroke-width="3.5" class="animate-dash" marker-end="url(#arrow-amber)"/>
+                            <rect x="255" y="248" width="90" height="22" rx="6" fill="#d97706"/>
+                            <text x="300" y="263" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">⬅ git pull</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- 動態解說說明框 -->
+                <div id="flow-explanation" class="mt-5 p-4 sm:p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed">
+                    <strong>1. <code>git init</code> 初始化：</strong> 在你的本機專案資料夾裡建立一個隱藏的 <code>.git</code> 追蹤系統。從這一刻起，電腦裡所有的檔案修改都會被納入監控，但還沒有存檔，也還沒連上雲端。
+                </div>
+            </div>
+
+            <!-- 紅色警告框：資安紅線 -->
+            <div class="rounded-2xl bg-red-50/95 dark:bg-red-950/40 border-l-4 border-red-600 p-5 sm:p-6 shadow-sm">
+                <div class="flex items-center gap-2 font-bold text-red-800 dark:text-red-300 text-lg mb-2">
+                    <span>🔴 資安紅線警告：Push 前務必檢查 .gitignore！</span>
+                </div>
+                <p class="text-sm sm:text-base text-red-900/90 dark:text-red-200 leading-relaxed mb-3">
+                    Vibe Coding 時常會用到 OpenAI、Claude 或資料庫的 <strong>API 金鑰（通通放在 <code>.env</code> 檔案裡）</strong>。如果你在 <code>push</code> 上傳到 GitHub 之前沒有設定好 <code>.gitignore</code>（忽略清單），你的 API Key 就會被公開在網路上，幾分鐘內就會被駭客爬蟲盜刷到破產！<strong>一旦不小心推上去，就算事後刪除紀錄也來不及，唯一的解法是立刻去後台把那把金鑰作廢重辦。</strong>
+                </p>
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-red-200 dark:border-red-800/60">
+                    <span class="text-xs font-bold text-red-700 dark:text-red-300">🟢 每次 Push 前必下的保命 Prompt：</span>
+                    <button onclick="copyPrompt('在幫我 commit 並 push 到 GitHub 之前，請先檢查 .gitignore 檔案，確保 .env、API 金鑰、資料庫密碼和 node_modules 等敏感或暫存檔案都已經被排除，絕對不要上傳！')" class="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition shadow-sm">
+                        複製資安檢查 Prompt
+                    </button>
+                </div>
+            </div>
+
+            <!-- 琥珀色提醒框：新手常見誤區 -->
+            <div class="rounded-2xl bg-amber-50/95 dark:bg-amber-950/35 border-l-4 border-amber-500 p-5 sm:p-6 shadow-sm">
+                <div class="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300 text-lg mb-2">
+                    <span>🟡 新手常見兩大誤區</span>
+                </div>
+                <ul class="space-y-2.5 text-sm sm:text-base text-amber-950/90 dark:text-amber-100/90 list-disc list-inside">
+                    <li>
+                        <strong>誤區一：以為 <code>commit</code> 就是上傳雲端？</strong> 錯！<code>commit</code> 只是像玩單機遊戲打魔王前的「手動存檔點」，檔案還在你電腦裡；必須再做一次 <code>push</code>（推送至 <code>origin main</code>），檔案才會真正飛到 GitHub 雲端。
+                    </li>
+                    <li>
+                        <strong>誤區二：叫朋友直接按網頁上的「Download ZIP」？</strong> 千萬不要！下載壓縮檔只會拿到死板的檔案，完全失去了 <code>.git</code> 版本追蹤能力，以後無法用 <code>pull</code> 同步更新。一定要用 <code>clone</code>（複製）才是正式加入協作！
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             章節 3：神奇辦公桌 Branch vs Worktree (互動圖解 2)
+        =========================================== -->
+        <section id="sec-branch" class="scroll-mt-24 space-y-6">
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-sm">CHAPTER 03</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">「神奇辦公桌」：Branch 分支 vs Worktree 多工作區</h2>
+            </div>
+
+            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                在 Git 世界裡，預設有一條代表「穩定正式版」的主線叫做 <strong><code>main</code></strong>。當你要開發新功能時，直接在 <code>main</code> 上面改非常危險——萬一 AI 改壞了，連原本能用的版本都沒了！這時就需要 <strong><code>branch</code>（分支）</strong> 和進階神技 <strong><code>worktree</code>（多工作區）</strong>。
+            </p>
+
+            <!-- 互動圖解 2：神奇辦公桌模擬器 -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-8 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">互動圖解 2</span>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">神奇辦公桌切換器：單桌平行時空 vs IKEA 買第二張桌</h3>
+                    </div>
+                </div>
+
+                <!-- 切換模式按鈕 -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                    <button onclick="setDeskMode('main')" id="desk-btn-main" class="desk-btn p-3.5 rounded-2xl border text-left transition bg-violet-600 text-white border-violet-600 shadow-md">
+                        <div class="font-bold text-sm">模式 A：單一辦公桌 (main 主線)</div>
+                        <div class="text-xs opacity-90 mt-0.5">桌面上放著穩定正式版藍圖</div>
+                    </button>
+                    <button onclick="setDeskMode('branch')" id="desk-btn-branch" class="desk-btn p-3.5 rounded-2xl border text-left transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700">
+                        <div class="font-bold text-sm">模式 B：Branch 平行時空抽屜</div>
+                        <div class="text-xs opacity-80 mt-0.5">同張桌子瞬間抽換成新功能草稿</div>
+                    </button>
+                    <button onclick="setDeskMode('worktree')" id="desk-btn-worktree" class="desk-btn p-3.5 rounded-2xl border text-left transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700">
+                        <div class="font-bold text-sm">模式 C：Worktree 搬來第二張桌</div>
+                        <div class="text-xs opacity-80 mt-0.5">兩個 AI Agent 同時開工互不打架！</div>
+                    </button>
+                </div>
+
+                <!-- SVG 辦公桌場景 -->
+                <div class="w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3 sm:p-5">
+                    <svg viewBox="0 0 820 290" class="w-full h-auto select-none" role="img" aria-label="Branch 與 Worktree 神奇辦公桌圖解">
+                        <!-- 辦公桌 1 (主工作區) -->
+                        <g id="desk-1-group">
+                            <!-- 桌面 -->
+                            <rect x="35" y="45" width="350" height="205" rx="18" fill="#1e293b" stroke="#64748b" stroke-width="2.5"/>
+                            <text x="210" y="75" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="bold">🪑 辦公桌 #1（主資料夾 /my-app）</text>
+
+                            <!-- 桌上的藍圖狀態 (會隨模式改變) -->
+                            <rect id="desk-1-blueprint" x="60" y="92" width="300" height="95" rx="12" fill="#065f46" stroke="#10b981" stroke-width="2"/>
+                            <text id="desk-1-title" x="210" y="122" text-anchor="middle" fill="#ecfdf5" font-size="14" font-weight="bold">🟢 分支：main (穩定正式版)</text>
+                            <text id="desk-1-desc" x="210" y="146" text-anchor="middle" fill="#a7f3d0" font-size="12">目前使用者正在使用的記帳主程式</text>
+                            <text id="desk-1-agent" x="210" y="170" text-anchor="middle" fill="#6ee7b7" font-size="11">🤖 AI Agent A 正在此桌專注開發中</text>
+
+                            <!-- 抽屜狀態提示 -->
+                            <rect x="60" y="198" width="300" height="36" rx="8" fill="#0f172a"/>
+                            <text id="desk-1-drawer" x="210" y="220" text-anchor="middle" fill="#94a3b8" font-size="11">抽屜狀態：平行時空隨時可切換，但同一時間只能攤開一份</text>
+                        </g>
+
+                        <!-- 辦公桌 2 (Worktree 實體第二張桌) -->
+                        <g id="desk-2-group" class="svg-transition" opacity="0.22">
+                            <rect x="435" y="45" width="350" height="205" rx="18" fill="#1e1b4b" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="6 4"/>
+                            <text x="610" y="75" text-anchor="middle" fill="#ddd6fe" font-size="14" font-weight="bold">🪑 辦公桌 #2（Worktree /my-app-ui）</text>
+
+                            <rect x="460" y="92" width="300" height="95" rx="12" fill="#4c1d95" stroke="#a78bfa" stroke-width="2"/>
+                            <text id="desk-2-title" x="610" y="122" text-anchor="middle" fill="#f5f3ff" font-size="14" font-weight="bold">🟣 分支：feat-ui (介面美化版)</text>
+                            <text id="desk-2-desc" x="610" y="146" text-anchor="middle" fill="#ddd6fe" font-size="12">實體獨立資料夾，共用同一個 .git 倉庫</text>
+                            <text id="desk-2-agent" x="610" y="170" text-anchor="middle" fill="#c4b5fd" font-size="11">🤖 AI Agent B 同時在這裡改 UI，完全不衝突！</text>
+
+                            <rect x="460" y="198" width="300" height="36" rx="8" fill="#0f172a"/>
+                            <text id="desk-2-status" x="610" y="220" text-anchor="middle" fill="#a78bfa" font-size="11">尚未開啟 Worktree（目前只有一張實體桌子）</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- 辦公桌說明與公式 -->
+                <div id="desk-explanation" class="mt-5 p-4 sm:p-5 rounded-2xl bg-violet-50 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-800/60 text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed">
+                    <strong>單一辦公桌 (<code>main</code> 主線)：</strong> 就像你書房裡的一張神奇辦公桌，桌面上正攤開著正式上線的穩定版程式碼。
+                </div>
+
+                <div class="mt-4 p-4 rounded-xl bg-slate-100 dark:bg-slate-800/70 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                    <strong>為什麼多 AI Agent 開發要用 <code>worktree</code>？</strong> 如果只有一張桌子（單純 <code>branch</code>），兩個 AI 同時改檔案會互相覆蓋檔案系統；透過 <code>worktree</code> 開出多個實體工作目錄後，平行開發總耗時從序列相加縮短為最大值：
+                    $$T_{\text{worktree}} = \max(T_{\text{Agent A (資料庫)}},\; T_{\text{Agent B (UI 設計)}}) < T_{\text{Agent A}} + T_{\text{Agent B}}$$
+                </div>
+            </div>
+
+            <!-- 綠色實戰框：Branch 與 Worktree 指令 -->
+            <div class="rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/35 border-l-4 border-emerald-500 p-5 sm:p-6 shadow-sm space-y-3">
+                <div class="font-bold text-emerald-800 dark:text-emerald-300 text-base sm:text-lg">
+                    🟢 給 AI 的白話指令：開分支與開多工作區
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60 flex flex-col justify-between gap-2">
+                        <p class="font-mono text-xs sm:text-sm text-slate-800 dark:text-emerald-100">
+                            「我要開發新的圓餅圖統計功能，請先幫我從 main 開一條新的 branch 叫做 feat-chart，不要直接改到 main。」
+                        </p>
+                        <button onclick="copyPrompt('我要開發新的圓餅圖統計功能，請先幫我從 main 開一條新的 branch 叫做 feat-chart，不要直接改到 main。')" class="self-end px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
+                            複製 Branch 指令
+                        </button>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60 flex flex-col justify-between gap-2">
+                        <p class="font-mono text-xs sm:text-sm text-slate-800 dark:text-emerald-100">
+                            「我想要同時開另一個 AI 視窗來改 UI 介面，請幫我用 git worktree 在旁邊建立一個新的獨立工作資料夾並切到 feat-ui 分支。」
+                        </p>
+                        <button onclick="copyPrompt('我想要同時開另一個 AI 視窗來改 UI 介面，請幫我用 git worktree 在旁邊建立一個新的獨立工作資料夾並切到 feat-ui 分支。')" class="self-end px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
+                            複製 Worktree 指令
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             章節 4：審核、合併與解決 Conflict
+        =========================================== -->
+        <section id="sec-merge" class="scroll-mt-24 space-y-6">
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-sm">CHAPTER 04</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">審核合併（PR & Merge）與 Conflict 衝突決策</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="text-2xl mb-2">📬</div>
+                    <h3 class="font-bold text-lg text-slate-900 dark:text-white mb-1">1. PR (Pull Request) ＝ 合併申請單</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        當你在 <code>feat-chart</code> 分支把新功能測試好並 <code>push</code> 到 GitHub 後，可以發起一個 <strong>PR</strong>。它就像一份「變更報告」，把這次改了哪些程式碼列出來，方便你或團隊夥伴檢查確認沒問題。
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="text-2xl mb-2">🤝</div>
+                    <h3 class="font-bold text-lg text-slate-900 dark:text-white mb-1">2. Merge ＝ 正式合併回 main 主線</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        審查通過後，在 GitHub 按下綠色的 <strong>Merge pull request</strong> 按鈕，新功能就會正式融入雲端的 <code>main</code> 正式版！
+                    </p>
+                </div>
+            </div>
+
+            <!-- 琥珀色提醒框：網頁 Merge 後不會通靈 -->
+            <div class="rounded-2xl bg-amber-50/95 dark:bg-amber-950/35 border-l-4 border-amber-500 p-5 sm:p-6 shadow-sm">
+                <div class="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300 text-lg mb-1">
+                    <span>🟡 關鍵提醒：你的本機電腦不會「通靈」！</span>
+                </div>
+                <p class="text-sm sm:text-base text-amber-950/90 dark:text-amber-100/90 leading-relaxed">
+                    當你在 GitHub 網頁上按下 <code>Merge</code> 後，只有「雲端」的 <code>main</code> 更新了，你電腦裡的 <code>main</code> 並不會自動感應同步！<strong>記得回到你的 AI 編輯器，叫 AI 幫你「切回 <code>main</code> 分支並執行一次 <code>git pull</code>」</strong>，這樣本機才會拿到最新的合併成果。
+                </p>
+            </div>
+
+            <!-- 藍色框：Conflict 衝突的本質與 AI 三大解法 -->
+            <div class="rounded-2xl bg-blue-50/90 dark:bg-blue-950/40 border-l-4 border-blue-500 p-5 sm:p-6 shadow-sm space-y-4">
+                <div class="font-bold text-blue-800 dark:text-blue-300 text-lg">
+                    🔵 遇到 Conflict（程式碼衝突）怎麼辦？非技術人員的解決心法
+                </div>
+                <p class="text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed">
+                    當你跟朋友（或兩個不同分支）剛好改到了「同一個檔案的同一行程式碼」，合併時 Git 會跳出 <strong>Conflict（衝突）</strong>，請人類決定要聽誰的。在數學上，若兩筆變更集在相同檔案位置產生交集衝突（$\Delta A \cap \Delta B \neq \emptyset$），AI 工具通常會用三種策略幫你處理：
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                    <div class="bg-white/90 dark:bg-slate-900 p-3.5 rounded-xl border border-blue-200 dark:border-blue-800">
+                        <div class="font-bold text-indigo-600 dark:text-indigo-400 mb-1">策略 1：二選一</div>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">保留其中一邊的版本，直接捨棄另一邊（例如：「保留我改的新版按鈕，捨棄舊的」）。</p>
+                    </div>
+                    <div class="bg-white/90 dark:bg-slate-900 p-3.5 rounded-xl border border-blue-200 dark:border-blue-800">
+                        <div class="font-bold text-indigo-600 dark:text-indigo-400 mb-1">策略 2：兩邊都保留</div>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">如果兩邊都是新增不同功能，只是剛好寫在同一處，就上下都保留下來。</p>
+                    </div>
+                    <div class="bg-white/90 dark:bg-slate-900 p-3.5 rounded-xl border border-blue-200 dark:border-blue-800">
+                        <div class="font-bold text-indigo-600 dark:text-indigo-400 mb-1">策略 3：重寫整合</div>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">請 AI 讀懂兩邊的意圖後，重新寫一段完美融合兩者功能的新程式碼。</p>
+                    </div>
+                </div>
+                <p class="text-xs sm:text-sm text-blue-900 dark:text-blue-200 font-medium">
+                    💡 <strong>Gary 的心法：</strong> 你不需要看懂紅紅綠綠的衝突符號！你只要以「產品經理」的角度告訴 AI 你的<strong>產品決策</strong>（例如：「我希望按鈕是藍色的，而且點擊後要跳出確認視窗」），AI 就會自動幫你修好所有衝突。
+                </p>
+            </div>
+
+            <!-- 綠色實戰框：PR 與解決衝突指令 -->
+            <div class="rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/35 border-l-4 border-emerald-500 p-5 sm:p-6 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span class="font-bold text-emerald-800 dark:text-emerald-300 text-base sm:text-lg">
+                        🟢 給 AI 的白話指令：發起 PR 與解決合併衝突
+                    </span>
+                    <button onclick="copyPrompt('目前合併發生了 Conflict 衝突。我的產品需求是：保留新版的圓餅圖統計功能，同時也要保留原本的匯出 CSV 按鈕。請幫我依這個邏輯解決所有衝突並完成合併。')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">
+                        複製解決衝突 Prompt
+                    </button>
+                </div>
+                <p class="font-mono text-sm bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60 text-slate-800 dark:text-emerald-100">
+                    「目前合併發生了 Conflict 衝突。我的產品需求是：保留新版的圓餅圖統計功能，同時也要保留原本的匯出 CSV 按鈕。請幫我依這個邏輯解決所有衝突並完成合併。」
+                </p>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             章節 5：AI 改壞程式救援決策器 (互動圖解 3)
+        =========================================== -->
+        <section id="sec-rescue" class="scroll-mt-24 space-y-6">
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-sm">CHAPTER 05</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">AI 改壞程式怎麼救？Restore vs Revert</h2>
+            </div>
+
+            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                Vibe Coding 最常遇到的就是「AI 改過頭把整個畫面弄壞了」。這時候千萬別慌張叫 AI 盲猜修復，只要判斷一個問題：<strong>「你剛剛 <code>commit</code>（存檔）了沒？」</strong> 就能精準時光倒流！
+            </p>
+
+            <!-- 互動圖解 3：救援決策器 -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-8 shadow-xl">
+                <div class="mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">互動圖解 3</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">AI 改壞程式救援決策器</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">請點選你目前的慘況，觀察時間軸如何安全還原：</p>
+                </div>
+
+                <!-- 情境選擇按鈕 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    <button onclick="setRescueMode('restore')" id="rescue-btn-restore" class="rescue-btn p-4 rounded-2xl border text-left transition bg-rose-600 text-white border-rose-600 shadow-md">
+                        <div class="font-bold text-base">情境 1：還沒 commit 就發現改壞了！</div>
+                        <div class="text-xs opacity-90 mt-1">剛叫 AI 改完一測試就壞掉，還沒存檔 → 使用 <strong>git restore</strong></div>
+                    </button>
+                    <button onclick="setRescueMode('revert')" id="rescue-btn-revert" class="rescue-btn p-4 rounded-2xl border text-left transition bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700">
+                        <div class="font-bold text-base">情境 2：已經 commit 才發現改壞了！</div>
+                        <div class="text-xs opacity-80 mt-1">存檔（甚至 push）後才發現有 Bug → 使用 <strong>git revert</strong></div>
+                    </button>
+                </div>
+
+                <!-- 動態時間軸 SVG -->
+                <div class="w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3 sm:p-5">
+                    <svg viewBox="0 0 820 240" class="w-full h-auto select-none" role="img" aria-label="Restore 與 Revert 時間軸差異圖">
+                        <defs>
+                            <marker id="arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#f43f5e"/>
+                            </marker>
+                            <marker id="arrow-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#14b8a6"/>
+                            </marker>
+                        </defs>
+
+                        <!-- 時間主軸底線 -->
+                        <line x1="60" y1="120" x2="760" y2="120" stroke="#475569" stroke-width="3" stroke-dasharray="6 6"/>
+
+                        <!-- Commit 1 (正常) -->
+                        <circle cx="130" cy="120" r="24" fill="#10b981" stroke="#ecfdf5" stroke-width="3"/>
+                        <text x="130" y="125" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">C1</text>
+                        <text x="130" y="165" text-anchor="middle" fill="#94a3b8" font-size="12" font-weight="bold">初始正常版</text>
+
+                        <!-- Commit 2 (正常存檔點) -->
+                        <circle cx="310" cy="120" r="26" fill="#10b981" stroke="#ecfdf5" stroke-width="3"/>
+                        <text x="310" y="125" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">C2</text>
+                        <text x="310" y="165" text-anchor="middle" fill="#34d399" font-size="12" font-weight="bold">上一次正常存檔</text>
+
+                        <!-- 情境 A：Restore (未 Commit 的髒改動被抹除) -->
+                        <g id="svg-restore-group" class="svg-transition">
+                            <circle cx="510" cy="120" r="26" fill="#450a0a" stroke="#f43f5e" stroke-width="3" stroke-dasharray="5 4"/>
+                            <text x="510" y="124" text-anchor="middle" fill="#fda4af" font-size="11" font-weight="bold">未存檔</text>
+                            <text x="510" y="165" text-anchor="middle" fill="#fb7185" font-size="12" font-weight="bold">💥 AI 改壞的草稿</text>
+                            <text x="510" y="183" text-anchor="middle" fill="#94a3b8" font-size="11">(直接丟進垃圾桶抹除)</text>
+
+                            <!-- 回溯箭頭 C2 <- 未存檔 -->
+                            <path d="M 485 95 Q 410 40 335 95" fill="none" stroke="#f43f5e" stroke-width="3.5" class="animate-dash" marker-end="url(#arrow-rose)"/>
+                            <rect x="348" y="36" width="124" height="24" rx="8" fill="#e11d48"/>
+                            <text x="410" y="52" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">git restore 一鍵讀檔</text>
+                        </g>
+
+                        <!-- 情境 B：Revert (已 Commit C3 壞掉，新增 C4 反向抵消) -->
+                        <g id="svg-revert-group" class="svg-transition" opacity="0">
+                            <circle cx="500" cy="120" r="26" fill="#dc2626" stroke="#fecaca" stroke-width="3"/>
+                            <text x="500" y="125" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">C3</text>
+                            <text x="500" y="165" text-anchor="middle" fill="#f87171" font-size="12" font-weight="bold">💥 已存檔的錯誤版本</text>
+                            <text x="500" y="183" text-anchor="middle" fill="#94a3b8" font-size="11">(歷史紀錄不可隨意篡改)</text>
+
+                            <!-- C4 Revert 節點 -->
+                            <circle cx="690" cy="120" r="28" fill="#0d9488" stroke="#99f6e4" stroke-width="3"/>
+                            <text x="690" y="125" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">C4</text>
+                            <text x="690" y="165" text-anchor="middle" fill="#2dd4bf" font-size="12" font-weight="bold">✅ Revert 反向抵消</text>
+                            <text x="690" y="183" text-anchor="middle" fill="#94a3b8" font-size="11">(內容完全等同 C2！)</text>
+
+                            <!-- 反向抵消弧線 C3 -> C4 -->
+                            <path d="M 525 95 Q 595 40 665 95" fill="none" stroke="#14b8a6" stroke-width="3.5" class="animate-dash" marker-end="url(#arrow-teal)"/>
+                            <rect x="528" y="36" width="134" height="24" rx="8" fill="#0f766e"/>
+                            <text x="595" y="52" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">git revert 新增反向記錄</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- 救援說明與 LaTeX 公式 -->
+                <div id="rescue-explanation" class="mt-5 p-4 sm:p-5 rounded-2xl bg-rose-50 dark:bg-rose-950/35 border border-rose-200 dark:border-rose-800/60 text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed">
+                    <strong><code>git restore</code>（一鍵讀檔）：</strong> 因為你還沒執行 <code>commit</code>，這堆改壞的程式碼只是暫存的草稿。執行 <code>restore</code> 會直接把所有未存檔的修改丟掉，瞬間回到上一個正常存檔點 <code>C2</code>，就像遊戲死亡後直接讀取上一個存檔！
+                </div>
+
+                <div class="mt-4 p-4 rounded-xl bg-slate-100 dark:bg-slate-800/70 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                    <strong>為什麼協作時要用 <code>revert</code> 而不是硬刪歷史？</strong> <code>revert</code> 的本質是產生一筆與錯誤提交 $C_{\text{bad}}$ 大小相等、方向相反的逆向變更 $C_{\text{revert}} = -C_{\text{bad}}$，使得最新狀態滿足：
+                    $$S_{\text{new}} = S_{\text{C2}} + C_{\text{bad}} + C_{\text{revert}} = S_{\text{C2}} + \Delta 0 = S_{\text{C2}}$$
+                    這樣既能讓程式恢復正常，又能完整保留「曾經改錯又修好」的歷史軌跡，不會讓協作夥伴的電腦產生歷史衝突。
+                </div>
+            </div>
+
+            <!-- 綠色實戰框：救援 Prompt -->
+            <div class="rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/35 border-l-4 border-emerald-500 p-5 sm:p-6 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span class="font-bold text-emerald-800 dark:text-emerald-300 text-base sm:text-lg">
+                        🟢 給 AI 的白話指令：一鍵救援還原
+                    </span>
+                    <button onclick="copyPrompt('剛才的修改把程式弄壞了！請幫我檢查這批改動是否已經 commit：如果還沒 commit，請用 git restore 幫我全部還原到上一個存檔點；如果已經 commit 了，請幫我用 git revert 產生一筆反向提交來抵消剛才的錯誤。')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">
+                        複製萬用救援 Prompt
+                    </button>
+                </div>
+                <p class="font-mono text-sm bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60 text-slate-800 dark:text-emerald-100">
+                    「剛才的修改把程式弄壞了！請幫我檢查這批改動是否已經 commit：如果還沒 commit，請用 git restore 幫我全部還原到上一個存檔點；如果已經 commit 了，請幫我用 git revert 產生一筆反向提交來抵消剛才的錯誤。」
+                </p>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             章節 6：核心指令白話總表 & 互動小測驗
+        =========================================== -->
+        <section id="sec-quiz" class="scroll-mt-24 space-y-10">
+            <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                    <span class="px-3 py-1 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-sm">CHAPTER 06</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">Vibe Coder 必備 GitHub 詞彙速查表</h2>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md bg-white dark:bg-slate-900">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700">
+                                <th class="py-3.5 px-4 font-bold">關鍵字</th>
+                                <th class="py-3.5 px-4 font-bold">白話比喻</th>
+                                <th class="py-3.5 px-4 font-bold">實際用途與注意事項</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="py-3 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">git init</td>
+                                <td class="py-3 px-4">安裝監視器</td>
+                                <td class="py-3 px-4">在本機資料夾啟動版本追蹤系統。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="py-3 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">commit</td>
+                                <td class="py-3 px-4">遊戲手動存檔點</td>
+                                <td class="py-3 px-4">在<strong>自己電腦裡</strong>拍下目前正常版本的快照（尚未上傳雲端）。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="py-3 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">.gitignore</td>
+                                <td class="py-3 px-4">機密安檢過濾網</td>
+                                <td class="py-3 px-4">將 <code>.env</code>、API Key 列入黑名單，防止上傳到公開網路。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="py-3 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">push</td>
+                                <td class="py-3 px-4">上傳雲端硬碟</td>
+                                <td class="py-3 px-4">將本機已 <code>commit</code> 的進度推送到 GitHub 雲端倉庫。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="py-3 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">clone / pull</td>
+                                <td class="py-3 px-4">首次複製 / 同步更新</td>
+                                <td class="py-3 px-4"><code>clone</code> 用於第一次完整複製專案；<code>pull</code> 用於後續拉取最新進度。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="py-3 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">branch / worktree</td>
+                                <td class="py-3 px-4">平行抽屜 / 第二張桌</td>
+                                <td class="py-3 px-4"><code>branch</code> 開安全沙盒開發新功能；<code>worktree</code> 開實體資料夾供多 AI 同時作業。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="py-3 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">PR / merge</td>
+                                <td class="py-3 px-4">合併申請 / 正式併入</td>
+                                <td class="py-3 px-4">審查分支功能無誤後合併回 <code>main</code>（合併後本機記得 <code>pull</code>）。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <td class="py-3 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">restore / revert</td>
+                                <td class="py-3 px-4">一鍵讀檔 / 反向抵消</td>
+                                <td class="py-3 px-4">未存檔改壞用 <code>restore</code>；已存檔改壞用 <code>revert</code> 新增反向記錄。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 互動小測驗 -->
+            <div class="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-200">隨堂實戰演練</span>
+                        <h3 class="text-xl sm:text-2xl font-extrabold">Vibe Coding 生存小測驗</h3>
+                    </div>
+                    <span id="quiz-score-badge" class="px-3.5 py-1 rounded-full bg-white/20 text-sm font-bold">
+                        答對題數：0 / 3
+                    </span>
+                </div>
+
+                <div class="space-y-5" id="quiz-container">
+                    <!-- 題目 1 -->
+                    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/15">
+                        <p class="font-bold text-base mb-3">Q1. 你剛請 AI 幫記帳軟體加了一個新功能，還沒執行 <code>commit</code>，一測試發現整個畫面壞掉了！這時應該請 AI 執行哪個動作最乾淨快速？</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <button onclick="answerQuiz(1, 'A', true, this)" class="quiz-opt-1 text-left p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-sm transition">
+                                A. 使用 <code>git restore</code> 直接捨棄未存檔改動，一鍵讀檔回上一個存檔點
+                            </button>
+                            <button onclick="answerQuiz(1, 'B', false, this)" class="quiz-opt-1 text-left p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-sm transition">
+                                B. 趕快先 <code>push</code> 到 GitHub 雲端，然後再手動把整個資料夾刪掉
+                            </button>
+                        </div>
+                        <p id="quiz-feedback-1" class="hidden mt-3 text-xs sm:text-sm font-medium p-2.5 rounded-xl"></p>
+                    </div>
+
+                    <!-- 題目 2 -->
+                    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/15">
+                        <p class="font-bold text-base mb-3">Q2. 準備把專案第一次 <code>push</code> 上傳到 GitHub 前，哪一個動作如果漏掉，可能會讓你的 API 金鑰外洩被盜刷？</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <button onclick="answerQuiz(2, 'A', false, this)" class="quiz-opt-2 text-left p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-sm transition">
+                                A. 忘記在 GitHub 網頁上按 Download ZIP
+                            </button>
+                            <button onclick="answerQuiz(2, 'B', true, this)" class="quiz-opt-2 text-left p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-sm transition">
+                                B. 忘記在 <code>.gitignore</code> 裡面排除 <code>.env</code> 機密環境變數檔
+                            </button>
+                        </div>
+                        <p id="quiz-feedback-2" class="hidden mt-3 text-xs sm:text-sm font-medium p-2.5 rounded-xl"></p>
+                    </div>
+
+                    <!-- 題目 3 -->
+                    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white/15">
+                        <p class="font-bold text-base mb-3">Q3. 你想同時開兩個 AI Agent 視窗，讓 Agent A 寫後端資料庫、Agent B 同步美化前端介面，且兩邊檔案互不干擾，應該請 AI 使用什麼功能？</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <button onclick="answerQuiz(3, 'A', true, this)" class="quiz-opt-3 text-left p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-sm transition">
+                                A. 使用 <code>git worktree</code> 建立第二個獨立的實體工作資料夾
+                            </button>
+                            <button onclick="answerQuiz(3, 'B', false, this)" class="quiz-opt-3 text-left p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-sm transition">
+                                B. 讓兩個 AI 在同一個資料夾裡面同時修改 <code>main</code> 主線
+                            </button>
+                        </div>
+                        <p id="quiz-feedback-3" class="hidden mt-3 text-xs sm:text-sm font-medium p-2.5 rounded-xl"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             章節 7：互動式時間軸逐字稿 (00:00:00 ～ 19:16)
+        =========================================== -->
+        <section id="sec-transcript" class="scroll-mt-24 space-y-8 pt-6 border-t-2 border-dashed border-slate-200 dark:border-slate-800">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="px-3 py-1 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-sm">CHAPTER 07</span>
+                        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">全片 19 分 16 秒完整精校版</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">互動式時間軸逐字稿（Interactive Timeline Transcript）</h2>
+                    <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-1">
+                        點擊上方時間軸色塊快速跳轉章節，或點擊任意段落的時間戳記徽章直接開啟 YouTube 對應秒數。
+                    </p>
+                </div>
+                <div class="text-xs font-mono bg-slate-100 dark:bg-slate-800 px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shrink-0">
+                    總時長：00:00:00 — 00:19:16
+                </div>
+            </div>
+
+            <!-- 頂部互動式 SVG 課程時間軸總覽圖 -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-7 shadow-xl space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-white">課程時間軸視覺化總覽（點擊色塊跳轉對應段落）</h3>
+                    </div>
+                    <div id="timeline-hover-preview" class="text-xs sm:text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1.5 rounded-xl border border-indigo-200/70 dark:border-indigo-800/50">
+                        💡 滑鼠移至或點擊下方時間軸區段查看章節精華
+                    </div>
+                </div>
+
+                <!-- SVG 橫向時間軸進度條 -->
+                <div class="w-full overflow-x-auto pb-2">
+                    <svg viewBox="0 0 920 135" class="w-full min-w-[680px] h-auto select-none" role="img" aria-label="課程 8 大主題時間軸進度條">
+                        <!-- 背景軌道 -->
+                        <rect x="20" y="34" width="880" height="44" rx="12" fill="#1e293b"/>
+
+                        <!-- 8 大主題色塊 (按秒數比例分配 1156 秒總長) -->
+                        <!-- 1. 00:00 - 01:56 (116s -> ~88px) -->
+                        <g class="cursor-pointer transition-opacity hover:opacity-90" onclick="jumpToTranscriptNode('ts-node-1')" onmouseenter="previewTimelineSegment('00:00 - 01:56｜開場與 GitHub 雲端倉庫概念', '比喻為程式碼專用的 Google Drive，解決 AI 改壞與壓縮檔協作痛點。')">
+                            <rect x="22" y="36" width="88" height="40" rx="10" fill="#4f46e5"/>
+                            <text x="66" y="60" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">1.開場/GH</text>
+                        </g>
+
+                        <!-- 2. 01:56 - 04:21 (145s -> ~110px) -->
+                        <g class="cursor-pointer transition-opacity hover:opacity-90" onclick="jumpToTranscriptNode('ts-node-2')" onmouseenter="previewTimelineSegment('01:56 - 04:21｜Git 本機追蹤與 Commit 存檔', 'git init 啟動本機監控，commit 如同打魔王前的遊戲手動存檔點。')">
+                            <rect x="112" y="36" width="110" height="40" rx="8" fill="#2563eb"/>
+                            <text x="167" y="60" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">2.Git/Commit</text>
+                        </g>
+
+                        <!-- 3. 04:21 - 06:07 (106s -> ~80px) -->
+                        <g class="cursor-pointer transition-opacity hover:opacity-90" onclick="jumpToTranscriptNode('ts-node-3')" onmouseenter="previewTimelineSegment('04:21 - 06:07｜Push 上雲端與 .gitignore 資安', 'push 將本機存檔推上雲端，務必透過 .gitignore 攔截 .env 與 API 金鑰。')">
+                            <rect x="224" y="36" width="80" height="40" rx="8" fill="#dc2626"/>
+                            <text x="264" y="60" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">3.Push/資安</text>
+                        </g>
+
+                        <!-- 4. 06:07 - 07:35 (88s -> ~68px) -->
+                        <g class="cursor-pointer transition-opacity hover:opacity-90" onclick="jumpToTranscriptNode('ts-node-4')" onmouseenter="previewTimelineSegment('06:07 - 07:35｜多人協作：Clone 與 Pull', '首次加入用 clone 完整複製專案，日常同步最新進度用 pull。')">
+                            <rect x="306" y="36" width="68" height="40" rx="8" fill="#059669"/>
+                            <text x="340" y="60" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">4.協作循環</text>
+                        </g>
+
+                        <!-- 5. 07:35 - 11:58 (263s -> ~198px) -->
+                        <g class="cursor-pointer transition-opacity hover:opacity-90" onclick="jumpToTranscriptNode('ts-node-5')" onmouseenter="previewTimelineSegment('07:35 - 11:58｜神奇辦公桌：Branch 與 Worktree', 'branch 開平行抽屜保護 main 主線；worktree 開實體多資料夾讓多 AI 同時作業。')">
+                            <rect x="376" y="36" width="198" height="40" rx="8" fill="#7c3aed"/>
+                            <text x="475" y="60" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">5.Branch 與 Worktree 多工</text>
+                        </g>
+
+                        <!-- 6. 11:58 - 15:48 (230s -> ~174px) -->
+                        <g class="cursor-pointer transition-opacity hover:opacity-90" onclick="jumpToTranscriptNode('ts-node-6')" onmouseenter="previewTimelineSegment('11:58 - 15:48｜PR 審核、Merge 與解決 Conflict', '發起 PR 審查後 merge 回 main（本機記得 pull），用產品邏輯請 AI 解決衝突。')">
+                            <rect x="576" y="36" width="174" height="40" rx="8" fill="#d97706"/>
+                            <text x="663" y="60" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">6.PR / Merge / 衝突</text>
+                        </g>
+
+                        <!-- 7. 15:48 - 17:45 (117s -> ~88px) -->
+                        <g class="cursor-pointer transition-opacity hover:opacity-90" onclick="jumpToTranscriptNode('ts-node-7')" onmouseenter="previewTimelineSegment('15:48 - 17:45｜改壞救援：Restore vs Revert', '未 commit 改壞用 restore 一鍵讀檔；已 commit 改壞用 revert 新增反向記錄抵消。')">
+                            <rect x="752" y="36" width="88" height="40" rx="8" fill="#e11d48"/>
+                            <text x="796" y="60" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">7.改壞救援</text>
+                        </g>
+
+                        <!-- 8. 17:45 - 19:16 (91s -> ~56px) -->
+                        <g class="cursor-pointer transition-opacity hover:opacity-90" onclick="jumpToTranscriptNode('ts-node-8')" onmouseenter="previewTimelineSegment('17:45 - 19:16｜全片總結與 Vibe Coder 心法', '建立每次新功能開 branch、存檔前檢查資安的好習慣，讓 AI 成為最強副駕駛。')">
+                            <rect x="842" y="36" width="56" height="40" rx="10" fill="#0d9488"/>
+                            <text x="870" y="60" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">8.總結</text>
+                        </g>
+
+                        <!-- 時間刻度標示 -->
+                        <text x="22" y="98" fill="#64748b" font-size="11" font-family="monospace">00:00</text>
+                        <text x="112" y="98" fill="#64748b" font-size="11" font-family="monospace">01:56</text>
+                        <text x="224" y="98" fill="#64748b" font-size="11" font-family="monospace">04:21</text>
+                        <text x="306" y="98" fill="#64748b" font-size="11" font-family="monospace">06:07</text>
+                        <text x="376" y="98" fill="#64748b" font-size="11" font-family="monospace">07:35</text>
+                        <text x="576" y="98" fill="#64748b" font-size="11" font-family="monospace">11:58</text>
+                        <text x="752" y="98" fill="#64748b" font-size="11" font-family="monospace">15:48</text>
+                        <text x="842" y="98" fill="#64748b" font-size="11" font-family="monospace">17:45</text>
+                        <text x="898" y="98" text-anchor="end" fill="#64748b" font-size="11" font-family="monospace">19:16</text>
+                    </svg>
+                </div>
+
+                <!-- 關鍵字即時搜尋與主題標籤篩選器 -->
+                <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-4">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative flex-1">
+                            <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <input type="text" id="transcript-search-input" oninput="filterTranscript()" placeholder="搜尋逐字稿關鍵字（例如：worktree、API、衝突、revert、辦公桌...）" class="w-full pl-11 pr-10 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <button id="clear-search-btn" onclick="clearTranscriptSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold">清除</button>
+                        </div>
+                        <div id="transcript-count-badge" class="self-start sm:self-center text-xs font-semibold text-slate-500 dark:text-slate-400 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800">
+                            顯示全部 8 個時間軸章節
+                        </div>
+                    </div>
+
+                    <!-- 主題標籤篩選按鈕列 -->
+                    <div class="flex flex-wrap gap-2" id="transcript-tag-filters">
+                        <button onclick="setTranscriptTag('all', this)" class="ts-tag-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm transition">全部</button>
+                        <button onclick="setTranscriptTag('basics', this)" class="ts-tag-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">基礎概念</button>
+                        <button onclick="setTranscriptTag('security', this)" class="ts-tag-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">存檔與資安</button>
+                        <button onclick="setTranscriptTag('collab', this)" class="ts-tag-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">多人協作</button>
+                        <button onclick="setTranscriptTag('branch', this)" class="ts-tag-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">分支與平行開發</button>
+                        <button onclick="setTranscriptTag('merge', this)" class="ts-tag-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">合併與衝突</button>
+                        <button onclick="setTranscriptTag('rescue', this)" class="ts-tag-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">救援機制</button>
+                        <button onclick="setTranscriptTag('summary', this)" class="ts-tag-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">總結心法</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 完整時間軸逐字稿卡片列表 (Vertical Timeline) -->
+            <div id="transcript-cards-list" class="relative space-y-6 before:content-[''] before:hidden sm:before:block before:absolute before:left-6 before:top-4 before:bottom-4 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-800">
+
+                <!-- 節點 1: 00:00:00 - 00:01:56 -->
+                <article id="ts-node-1" data-tag="basics" class="transcript-card relative sm:pl-16 transition-all">
+                    <!-- 時間軸圓點圖示 -->
+                    <div class="hidden sm:flex absolute left-0 top-5 w-12 h-12 rounded-2xl bg-indigo-600 text-white items-center justify-center shadow-lg ring-4 ring-slate-50 dark:ring-slate-950">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-7 shadow-md hover:shadow-lg transition">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                            <div class="flex flex-wrap items-center gap-2.5">
+                                <a href="https://www.youtube.com/watch?v=atqcAb7MFAM&t=0s" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-red-600 hover:bg-red-700 text-white font-mono text-xs font-bold shadow-sm transition">
+                                    <span>▶ 00:00:00</span>
+                                </a>
+                                <span class="px-2.5 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs font-bold">基礎概念</span>
+                                <h3 class="font-extrabold text-lg sm:text-xl text-slate-900 dark:text-white">開場引言：Vibe Coding 的痛點與 GitHub 雲端倉庫</h3>
+                            </div>
+                        </div>
+
+                        <div class="transcript-body space-y-3 text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
+                            <p>
+                                哈囉大家好，我是 Gary。最近越來越多非技術背景的朋友開始使用 <strong>Cursor</strong> 或 <strong>Claude Code</strong> 進行 <strong>Vibe Coding</strong>，只用自然語言就能做出自己的網站或記帳軟體。但大家很快就會遇到兩個超痛苦的問題：第一，當你叫 AI 增加新功能時，它不小心把原本好好的舊功能改壞了，你卻不知道怎麼退回上一步；第二，當你想找朋友一起合作開發專案時，難道每次都要把資料夾打包成 ZIP 壓縮檔用 LINE 傳來傳去嗎？
+                            </p>
+                            <p>
+                                這就是為什麼我們今天要學 <strong>GitHub</strong>。對非技術人員來說，你不需要去背任何工程師的黑色終端機指令，只要聽懂背後的觀念，就能直接用白話文叫 AI 幫你操作。你可以把 <strong>GitHub</strong> 想像成「程式碼專用的 Google Drive」，它是一個放在雲端的平台，每個專案在上面都叫做一個 <strong>Repository（簡稱 Repo，倉庫）</strong>，它不僅能幫你把心血安全備份在雲端，還能記錄每一次的修改歷史並支援多人同時協作。
+                            </p>
+                        </div>
+
+                        <!-- 藍色觀念框 -->
+                        <div class="mt-4 rounded-2xl bg-blue-50/90 dark:bg-blue-950/40 border-l-4 border-blue-500 p-4 text-xs sm:text-sm text-blue-900 dark:text-blue-200">
+                            <strong>🔵 核心精華：</strong> GitHub = 雲端專案倉庫（Repo）。就像在 Google Drive 建立雲端資料夾一樣，讓程式碼不再只困在單一一台電腦裡。
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 節點 2: 00:01:56 - 00:04:21 -->
+                <article id="ts-node-2" data-tag="basics security" class="transcript-card relative sm:pl-16 transition-all">
+                    <div class="hidden sm:flex absolute left-0 top-5 w-12 h-12 rounded-2xl bg-blue-600 text-white items-center justify-center shadow-lg ring-4 ring-slate-50 dark:ring-slate-950">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-7 shadow-md hover:shadow-lg transition">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                            <div class="flex flex-wrap items-center gap-2.5">
+                                <a href="https://www.youtube.com/watch?v=atqcAb7MFAM&t=116s" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-red-600 hover:bg-red-700 text-white font-mono text-xs font-bold shadow-sm transition">
+                                    <span>▶ 00:01:56</span>
+                                </a>
+                                <span class="px-2.5 py-1 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-bold">基礎概念 / 存檔</span>
+                                <h3 class="font-extrabold text-lg sm:text-xl text-slate-900 dark:text-white">本機追蹤系統 Git、git init 與 Commit 遊戲存檔點</h3>
+                            </div>
+                        </div>
+
+                        <div class="transcript-body space-y-3 text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
+                            <p>
+                                了解雲端的 GitHub 之後，那什麼是 <strong>Git</strong> 呢？<strong>Git</strong> 是安裝在你自己電腦（本機端）裡的一套版本控制工具。當你在電腦裡建立好記帳軟體的資料夾後，第一步就是要請 AI 幫你執行 <code>git init</code>（Initialize 初始化）。這個動作就像是在你的資料夾裡裝了一台隱形監視器，從這一秒開始，裡面任何一個檔案新增、修改或刪除，Git 都會幫你盯得死死的。
+                            </p>
+                            <p>
+                                接著，當你請 AI 寫出第一版能正常記帳的畫面後，千萬不要急著繼續改！你應該先做一個動作叫做 <strong><code>commit</code>（提交存檔）</strong>。你可以把 <code>commit</code> 想像成玩單機 RPG 遊戲、準備走進魔王房間前的「手動存檔點」。你會寫一句簡單的存檔備註，例如「完成基礎記帳輸入介面」，Git 就會把此刻完美的狀態拍成一張快照存在你電腦的隱藏資料夾裡。要特別注意的是，<code>commit</code> 只是存在<strong>你自己的電腦裡</strong>，這時候 GitHub 雲端上還完全看不到東西喔！
+                            </p>
+                        </div>
+
+                        <!-- 數學與綠色指令框 -->
+                        <div class="mt-4 space-y-3">
+                            <div class="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                                <strong>狀態轉移模型：</strong> 每次執行存檔皆是將當前工作目錄狀態 $S_t$ 與變更集 $\Delta_t$ 封裝為不可變的歷史節點：$$S_{t+1} = \text{commit}(S_t, \Delta_t)$$
+                            </div>
+                            <div class="rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/35 border-l-4 border-emerald-500 p-4 flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-xs sm:text-sm text-emerald-900 dark:text-emerald-200 font-medium">
+                                    🟢 <strong>給 AI 的實戰指令：</strong>「目前這個版本測試沒問題，請幫我執行 git commit 存檔，備註寫『完成基礎記帳畫面』。」
+                                </span>
+                                <button onclick="copyPrompt('目前這個版本測試沒問題，請幫我執行 git commit 存檔，備註寫「完成基礎記帳畫面」。')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shrink-0">
+                                    複製指令
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 節點 3: 00:04:21 - 00:06:07 -->
+                <article id="ts-node-3" data-tag="security" class="transcript-card relative sm:pl-16 transition-all">
+                    <div class="hidden sm:flex absolute left-0 top-5 w-12 h-12 rounded-2xl bg-red-600 text-white items-center justify-center shadow-lg ring-4 ring-slate-50 dark:ring-slate-950">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-7 shadow-md hover:shadow-lg transition">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                            <div class="flex flex-wrap items-center gap-2.5">
+                                <a href="https://www.youtube.com/watch?v=atqcAb7MFAM&t=261s" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-red-600 hover:bg-red-700 text-white font-mono text-xs font-bold shadow-sm transition">
+                                    <span>▶ 00:04:21</span>
+                                </a>
+                                <span class="px-2.5 py-1 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 text-xs font-bold">存檔與資安</span>
+                                <h3 class="font-extrabold text-lg sm:text-xl text-slate-900 dark:text-white">Push 推送上雲端，以及絕對不能踩的 .gitignore 資安紅線</h3>
+                            </div>
+                        </div>
+
+                        <div class="transcript-body space-y-3 text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
+                            <p>
+                                在本機做好 <code>commit</code> 存檔後，接下來我們要把這個進度送到雲端的 GitHub 倉庫（通常預設雲端位置叫做 <code>origin main</code>），這個「上傳」的動作就叫做 <strong><code>push</code>（推送）</strong>。一旦你執行 <code>git push</code>，你在本機存檔的程式碼就會正式同步到 GitHub 網站上。
+                            </p>
+                            <p>
+                                <strong>但是！在執行 <code>push</code> 之前有一個超級重要的保命動作，大家一定要畫三顆星星：檢查 <code>.gitignore</code>！</strong> 我們在做 Vibe Coding 時，經常會串接 OpenAI、Claude 或雲端資料庫，這些付費的 <strong>API 金鑰（API Keys）</strong>與密碼通常會放在一個叫做 <code>.env</code> 的環境變數檔案裡。<code>.gitignore</code> 就像是一份「忽略清單（黑名單）」，凡是寫在 <code>.gitignore</code> 裡面的檔案，Git 在 <code>push</code> 的時候就會自動跳過、不准上傳。
+                            </p>
+                            <p>
+                                如果你忘記把 <code>.env</code> 放進 <code>.gitignore</code> 就把專案推上公開的 GitHub，網路上隨時都有駭客的自動爬蟲機器人在掃描新上傳的程式碼，不到幾分鐘你的 API 金鑰就會被盜用刷爆帳單！而且就算你事後發現趕快把檔案刪掉，Git 的歷史紀錄裡還是留有痕跡，唯一補救辦法只有立刻去服務商後台把那把金鑰作廢重辦。所以每次 <code>push</code> 前，務必請 AI 幫你確認 <code>.env</code> 已經被安全排除！
+                            </p>
+                        </div>
+
+                        <!-- 紅色警告框 -->
+                        <div class="mt-4 rounded-2xl bg-red-50/95 dark:bg-red-950/45 border-l-4 border-red-600 p-4 text-xs sm:text-sm text-red-900 dark:text-red-200">
+                            <strong>🔴 資安鐵律：</strong> 公開上傳集合必須滿足過濾條件 $F_{\text{remote}} = F_{\text{local}} \setminus F_{\text{gitignore}}$，且確保 $\{ \texttt{.env},\; \texttt{*key*} \} \subseteq F_{\text{gitignore}}$。一旦金鑰外洩，唯有「作廢舊金鑰」才能止血！
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 節點 4: 00:06:07 - 00:07:35 -->
+                <article id="ts-node-4" data-tag="collab" class="transcript-card relative sm:pl-16 transition-all">
+                    <div class="hidden sm:flex absolute left-0 top-5 w-12 h-12 rounded-2xl bg-emerald-600 text-white items-center justify-center shadow-lg ring-4 ring-slate-50 dark:ring-slate-950">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-7 shadow-md hover:shadow-lg transition">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                            <div class="flex flex-wrap items-center gap-2.5">
+                                <a href="https://www.youtube.com/watch?v=atqcAb7MFAM&t=367s" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-red-600 hover:bg-red-700 text-white font-mono text-xs font-bold shadow-sm transition">
+                                    <span>▶ 00:06:07</span>
+                                </a>
+                                <span class="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-bold">多人協作</span>
+                                <h3 class="font-extrabold text-lg sm:text-xl text-slate-900 dark:text-white">告別壓縮檔！多人協作循環：Clone 與 Pull</h3>
+                            </div>
+                        </div>
+
+                        <div class="transcript-body space-y-3 text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
+                            <p>
+                                當你的專案已經安全 <code>push</code> 到 GitHub 之後，現在你的朋友想加入一起開發，該怎麼做呢？千萬不要叫他去 GitHub 網頁點「Download ZIP」下載壓縮檔！因為下載壓縮檔只會拿到死板的檔案，裡面完全沒有 <code>.git</code> 的版本追蹤大腦，未來你們沒辦法互相同步更新。
+                            </p>
+                            <p>
+                                正確的做法是把專案網址給朋友，請他的 AI 幫他執行 <strong><code>git clone</code>（複製）</strong>。<code>clone</code> 會在朋友的電腦裡建立一模一樣的專案資料夾，並完整保留與 GitHub 雲端的連線以及過去所有的存檔歷史。當朋友寫好新功能並 <code>push</code> 回雲端後，你只需要在自己的電腦請 AI 執行 <strong><code>git pull</code>（拉取更新）</strong>，就能瞬間把朋友寫好的新程式碼同步下載到你的電腦裡。就這樣「你 <code>push</code> ➔ 他 <code>pull</code> ➔ 他 <code>push</code> ➔ 你 <code>pull</code>」，徹底告別傳壓縮檔的石器時代！
+                            </p>
+                        </div>
+
+                        <!-- 琥珀色提醒框 -->
+                        <div class="mt-4 rounded-2xl bg-amber-50/95 dark:bg-amber-950/35 border-l-4 border-amber-500 p-4 text-xs sm:text-sm text-amber-950 dark:text-amber-100">
+                            <strong>🟡 協作小撇步：</strong> 因為 <code>.env</code> 沒有上傳到雲端，朋友第一次 <code>clone</code> 下來後，記得自己把一組測試用的 API 金鑰貼進他電腦的 <code>.env</code> 裡，程式才能順利跑起來喔！
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 節點 5: 00:07:35 - 00:11:58 -->
+                <article id="ts-node-5" data-tag="branch" class="transcript-card relative sm:pl-16 transition-all">
+                    <div class="hidden sm:flex absolute left-0 top-5 w-12 h-12 rounded-2xl bg-violet-600 text-white items-center justify-center shadow-lg ring-4 ring-slate-50 dark:ring-slate-950">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01

@@ -1929,6 +1929,268 @@ unit_18_ost_vibe_coding = {
     ]
 }
 
+
+# 20：Vibe Coding 必學的版本控制：從零搞懂 Git！｜Kelly Tsai
+unit_20_git_kelly = {
+    "id": "vibe-git-kelly",
+    "labNumber": "20",
+    "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！｜Kelly Tsai",
+    "shortTitle": "從零搞懂 Git 版本控制",
+    "category": "版本控管",
+    "date": "2026-11-18",
+    "summary": "AI 幫你光速寫代碼，但改壞了怎麼辦？專為 Vibe Coding 學習者打造的 Git 核心觀念全解析！由知名軟體工程師 Kelly Tsai 親授，徹底破解「三個平行宇宙（Working Directory 工作區、Staging Area 暫存區、Repository 儲存庫）」的神秘面紗。包含平行宇宙動態視覺化模擬器、核心指令速查手冊、遠端 VPS 安全隔離防坑秘笈與完整時間軸逐字稿，讓你放心衝刺 Vibe Coding，隨時擁有時光倒流的改壞後悔藥！",
+    "flowTitle": "Git 三大平行宇宙狀態演進與時光倒流防禦流水線",
+    "resultTitle": "Git 平行宇宙模擬器、CLI 指令手冊與時間軸逐字稿工作台",
+    "flowImage": make_svg_diagram(
+        "Git 三大平行宇宙與時光倒流流水線",
+        "Working Dir (工作區) -> git add (暫存區) -> git commit (儲存庫) -> git push (遠端)",
+        [
+            {"num": "GIT-1", "title": "工作區域", "sub": "AI 產出代碼編輯修改", "tag": "Workspace"},
+            {"num": "GIT-2", "title": "暫存打包", "sub": "git add 標記關鍵快照", "tag": "Staging"},
+            {"num": "GIT-3", "title": "永久封存", "sub": "git commit 鑄造版本節點", "tag": "Repository"},
+            {"num": "GIT-4", "title": "分支平行", "sub": "git branch 探索新功能", "tag": "Branching"},
+            {"num": "GIT-5", "title": "時光回溯", "sub": "git checkout/reset 救援", "tag": "Rollback"}
+        ],
+        loop_label="Vibe Coding 必備安全網：以 Commit 為錨點，大膽讓 AI 重構，改壞一鍵穿梭時空還原",
+        accent="#f97316"
+    ),
+    "resultImage": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html",
+    "slideUrl": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html",
+    "objective": "1. 徹底理解 Git 的本質：分散式版本控制系統與「平行宇宙快照」模型。\n2. 掌握「工作區 ➔ 暫存區 (Stage) ➔ 本地儲存庫 (Repo)」三部曲與核心指令 (status, add, commit, log, branch, merge)。\n3. 熟練掌握時光倒流技巧 (checkout / reset) 與 VPS 伺服器上的安全隔離防禦措施，為 AI 生成代碼打造穩固防線。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 體會 Git 的必要性 — 終結「final_v2_final_真的不改了.zip」",
+            "description": "理解在 AI 協同開發時，高頻率的代碼變更若無版本控制將導致災難性的覆蓋與混亂。"
+        },
+        {
+            "step": "步驟 2: 操作「三個平行宇宙」互動模擬器",
+            "description": "透過視覺化節點即時觀察 git add 將檔案推入暫存區、git commit 生成 SHA-1 快照的記憶體拓撲。"
+        },
+        {
+            "step": "步驟 3: 掌握 Branch 分支與平行宇宙探索",
+            "description": "學會為 AI 實驗性重構開闢獨立 feature 分支，確認穩定後再 merge 回 main 主分支，保持生產代碼乾淨。"
+        },
+        {
+            "step": "步驟 4: 實作改壞救援與 VPS 防坑配置",
+            "description": "學習使用 git diff 審閱 AI 產出的改動，並掌握意外 commit 敏感檔案時的救援手段與 .gitignore 配置。"
+        }
+    ],
+    "promptTemplate": "你是一位精通 Git 內部原理的資深技術導師兼版本控制教練。\n請依據 Kelly Tsai 的 Git 教學架構，針對一位剛使用 Cursor / Claude Code 的新手：\n1. 請以「三個平行宇宙（工作區、暫存區、本地儲存庫）」比喻，解釋 git status 輸出的紅字 (Untracked) 與綠字 (Changes to be committed)。\n2. 請給出在讓 AI 大規模重構舊專案之前，最推薦執行的「防爆三步驟」Git 指令組合。\n3. 如果 AI 不小心把包含了 API Key 的 .env 檔案 commit 進本地儲存庫，請給予安全移除且保留本地檔案的具體終端機操作指南。",
+    "codeSnippet": {
+        "language": "bash",
+        "code": "# Vibe Coding 必備 Git 每日防禦工作流\n$ git status                 # 檢視當前工作區狀態與變更檔案\n$ git add -p                 # 逐區塊審閱 AI 生成的代碼差異\n$ git commit -m 'feat: 新增安全驗證中介層' # 鑄造清晰語意的版本快照\n\n# 探索 AI 實驗性新功能：開闢安全分支\n$ git checkout -b feat/ai-refactor\n\n# 若 AI 改壞想一鍵還原工作區\n$ git restore .              # 放棄工作區所有未暫存的修改"
+    },
+    "references": [
+        {
+            "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(專屬互動教學頁面)",
+            "url": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html",
+            "bgColor": "rgba(249, 115, 22, 0.15)",
+            "borderColor": "rgba(249, 115, 22, 0.6)",
+            "color": "#fb923c",
+            "icon": "fa-solid fa-code-branch",
+            "badge": "本單元專題"
+        },
+        {
+            "title": "YouTube 官方原片：Kelly Tsai 教學頻道",
+            "url": "https://www.youtube.com/watch?v=xDPoBLnyWIo"
+        },
+        {
+            "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 21)",
+            "url": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html"
+        },
+        {
+            "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 22)",
+            "url": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-clock-rotate-left",
+            "scenario": "AI 產碼改壞快速時空回溯",
+            "description": "當 AI 生成的大規模代碼導致系統報錯崩潰時，藉由乾淨的 Commit 節點一秒重設回健康狀態。"
+        },
+        {
+            "icon": "fa-solid fa-code-fork",
+            "scenario": "多功能實驗性並行演進",
+            "description": "利用 Git 分支讓不同 AI Coding Agent 在各自獨立的 Worktree / 分支推進任務，避免代碼覆蓋衝突。"
+        }
+    ]
+}
+
+# 21：給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能
+unit_21_github_nontech = {
+    "id": "vibe-github-nontech",
+    "labNumber": "21",
+    "title": "給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能",
+    "shortTitle": "非技術人員的 GitHub 教學",
+    "category": "版本控管",
+    "date": "2026-11-18",
+    "summary": "不懂終端機黑底白字？這堂專為非工程師、產品經理與 Vibe Coding 初學者設計的 GitHub 白話指南！用生動的比喻破解 Git 與 GitHub 的本質差異：Git 是你電腦上的「時光機」，GitHub 則是雲端的「全宇宙圖書館」。圖解「神奇辦公桌 (Branch 分支)」、Pull Request (PR) 審閱機制與衝突解決，搭配點擊即可複製的「AI 白話指令秘笈」與互動測驗，讓你輕鬆與工程團隊及 Coding Agents 協同合作！",
+    "flowTitle": "非技術人員 GitHub 雲端協作與 PR 驗收五步工作流",
+    "resultTitle": "GitHub 白話實戰教學、AI 溝通指令庫與互動驗收測驗",
+    "flowImage": make_svg_diagram(
+        "非技術人員 GitHub 雲端協作與驗收流",
+        "Local Machine (時光機) -> Push to Cloud (圖書館) -> Branch Table (獨立桌) -> PR Review (審查) -> Merge (合流)",
+        [
+            {"num": "GH-1", "title": "本機時光機", "sub": "Git 記錄每一次修改歷程", "tag": "Git Local"},
+            {"num": "GH-2", "title": "雲端圖書館", "sub": "GitHub 雲端備份與共享", "tag": "GitHub Cloud"},
+            {"num": "GH-3", "title": "獨立辦公桌", "sub": "Branch 打造安全沙盒", "tag": "Branching"},
+            {"num": "GH-4", "title": "提出審查", "sub": "Pull Request 成果驗收", "tag": "PR Review"},
+            {"num": "GH-5", "title": "無縫合流", "sub": "Merge 整合入主幹專案", "tag": "Production"}
+        ],
+        loop_label="白話協作模式：即使不會下指令，也能指揮 AI 建立分支、提交變更並在 GitHub 完成安全審閱",
+        accent="#8b5cf6"
+    ),
+    "resultImage": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html",
+    "slideUrl": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html",
+    "objective": "1. 搞懂核心隱喻：Git（單機存檔時光機）與 GitHub（全球雲端協作平台）的互補關係。\n2. 理解團隊協作標準流程：Repository 倉庫、Commit 存檔點、Push 上傳、Pull 下載、Branch 分支與 Pull Request (PR)。\n3. 掌握「用大白話向 AI 下達 Git 指令」的具體溝通技巧，在不背指令的情況下完成無痛版本控管與改壞救援。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 建立概念地圖 — 檔案總管 vs 時光機 vs 雲端圖書館",
+            "description": "透過生活化圖解釐清為什麼隨手複製資料夾備份會變成災難，而 GitHub 能解決跨裝置同步與協同難題。"
+        },
+        {
+            "step": "步驟 2: 探索「神奇辦公桌」分支哲學",
+            "description": "理解 main 分支作為「正式上線展示間」的崇高地位，任何新功能都應在獨立辦公桌 (feature 分支) 雕琢。"
+        },
+        {
+            "step": "步驟 3: 體驗 Pull Request (PR) 驗收與合併",
+            "description": "掌握 PR 作為「邀請主管/團隊同仁驗收工作」的正式儀式，學會看懂 Diff 綠色新增與紅色刪除標記。"
+        },
+        {
+            "step": "步驟 4: 使用「AI 白話指令卡」與自我檢測",
+            "description": "直接複製專屬 Prompt 讓 AI 幫你執行 add, commit, push 或救援，並完成 5 道實戰測驗鞏固核心觀念。"
+        }
+    ],
+    "promptTemplate": "你是一位超級親切、善於用生活比喻說明的資深軟體工程教練。\n我是一位非技術背景的專案經理 / Vibe Coding 初學者，正在開發一個網站專案：\n1. 請以最通俗白話的文字（嚴禁出現晦澀技術術語），向我解釋什麼是 Pull Request (PR)？為什麼工程師一定要開 PR 不能直接改 main 分支？\n2. 我剛用 Cursor 寫完了一個新功能，請給我一句我可以直接複製貼給 AI Agent 的指令，讓它自動幫我開一個乾淨分支、把改動存檔並上傳到 GitHub。\n3. 如果我想在 GitHub 介面上預覽改動並確認沒問題再合併，我應該點擊哪些按鈕？請條列圖文步驟說明。",
+    "codeSnippet": {
+        "language": "markdown",
+        "code": "# 非技術人員專用：讓 AI 幫你操作 Git 的白話提示詞\n\n「AI，我剛做好了導航列美化功能：\n1. 請幫我建立一個名為 `feat/navbar-style` 的新分支。\n2. 把目前修改的所有 CSS 與 HTML 檔案加入暫存並存檔 (Commit)。\n3. 提交訊息請寫：`feat: 美化頂部導航列樣式與手機選單`。\n4. 自動推送到遠端 GitHub 儲存庫，並告訴我開 PR 的網址！」"
+    },
+    "references": [
+        {
+            "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (專屬互動頁面)",
+            "url": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html",
+            "bgColor": "rgba(139, 92, 246, 0.15)",
+            "borderColor": "rgba(139, 92, 246, 0.6)",
+            "color": "#a78bfa",
+            "icon": "fa-brands fa-github",
+            "badge": "本單元專題"
+        },
+        {
+            "title": "YouTube 官方原片：非技術人員 GitHub 指南",
+            "url": "https://www.youtube.com/watch?v=atqcAb7MFAM"
+        },
+        {
+            "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 20)",
+            "url": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html"
+        },
+        {
+            "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 22)",
+            "url": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-users",
+            "scenario": "跨職能團隊與非工程人員協作",
+            "description": "讓 PM、設計師與業務人員能看懂 GitHub PR、參與驗收測試，並利用網頁介面即時提問與審閱改動。"
+        },
+        {
+            "icon": "fa-solid fa-cloud-arrow-up",
+            "scenario": "個人專案雲端備份與多裝置同步",
+            "description": "告別隨身碟拷貝代碼，學會利用 GitHub 託管私有倉庫，在家中電腦與筆電之間無痛同步 Vibe Coding 進度。"
+        }
+    ]
+}
+
+# 22：用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂
+unit_22_cicd_gary = {
+    "id": "vibe-cicd-gary",
+    "labNumber": "22",
+    "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (自動化軟體工廠指南)",
+    "shortTitle": "新手看懂 CI/CD 自動化工廠",
+    "category": "版本控管",
+    "date": "2026-11-18",
+    "summary": "當你用 Claude Code 或 Cursor 開心地寫功能、開了 PR 卻看見黃燈在轉「等待 CI 檢查」時，背後到底發生了什麼？精選知名技術頻道 Gary Chen 重磅教學。用現代汽車組裝工廠為喻，深入淺出拆解 CI (持續整合) 與 CD (持續交付/部署) 的底層機制。涵蓋 5 步驟自動化流水線 (Build ➔ Unit Test ➔ Static Analysis ➔ Staging ➔ Deploy)、三道必備品管關卡、PR 門禁與主幹防禦策略，並提供 GitHub Actions 完整範本與時間軸逐字稿，助你打造不會被 AI 改壞的鋼鐵防線！",
+    "flowTitle": "CI/CD 自動化軟體工廠 5 步驟品管與雙層防禦流水線",
+    "resultTitle": "CI/CD 互動式流水線工作台、GitHub Actions 範本與時間軸逐字稿",
+    "flowImage": make_svg_diagram(
+        "CI/CD 自動化品管與部署流水線",
+        "Code Push -> Lint & Build -> Unit Tests -> Security Scan -> Deploy",
+        [
+            {"num": "CI-1", "title": "代碼觸發", "sub": "開發者推送至 GitHub PR", "tag": "Trigger"},
+            {"num": "CI-2", "title": "編譯建置", "sub": "驗證依賴與基本語法完整", "tag": "Build"},
+            {"num": "CI-3", "title": "自動測試", "sub": "單元測試防止打地鼠噩夢", "tag": "Test"},
+            {"num": "CD-1", "title": "靜態分析", "sub": "SonarQube/資安漏洞掃描", "tag": "Analysis"},
+            {"num": "CD-2", "title": "自動部署", "sub": "綠燈放行至 Staging/Prod", "tag": "Deploy"}
+        ],
+        loop_label="品質防線心法：讓機器人替你做枯燥繁重的品管檢查，人在安全護欄內享受極速 Vibe Coding",
+        accent="#0ea5e9"
+    ),
+    "resultImage": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html",
+    "slideUrl": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html",
+    "objective": "1. 掌握 CI/CD 的核心定義：CI (持續整合) 負責頻繁驗證品質，CD (持續交付/部署) 負責自動化發布交付。\n2. 深入理解五大流水線步驟：代碼推送 ➔ 自動編譯 ➔ 單元測試 ➔ 靜態程式碼分析 ➔ 自動化部屬。\n3. 學會配置 GitHub Actions 工作流程與 PR 阻擋門禁，徹底終結「改好 A 功能、改壞 B 功能」的打地鼠迴圈。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 體會為什麼需要 CI/CD — 告別「改好 A、改壞 B」的打地鼠噩夢",
+            "description": "以生活化案例解析手動測試的遺漏死角，理解自動化迴歸測試為何是 AI 時代最重要的品質護照。"
+        },
+        {
+            "step": "步驟 2: 拆解 CI/CD 五大流水線步驟 (Pipeline)",
+            "description": "深入流水線各節點職責：代碼檢出、語法檢查 (Linting)、單元測試 (Unit Tests)、程式碼覆蓋率與建置產物生成。"
+        },
+        {
+            "step": "步驟 3: 建立雙層防禦體系 — PR 門禁與主幹防線",
+            "description": "學習在 GitHub 設定分支保護規則 (Branch Protection Rule)，測試未亮綠燈前強制禁止合併入 main。"
+        },
+        {
+            "step": "步驟 4: 實作專屬 GitHub Actions 自動化腳本",
+            "description": "研讀專為 Node.js / Web 專案打造的 .github/workflows/ci.yml 實戰範本，並掌握失敗日誌的快速排查技巧。"
+        }
+    ],
+    "promptTemplate": "你是一位頂尖的 DevOps 專家與雲端架構師。\n我們團隊正在進行 Vibe Coding 轉型，經常使用 AI 生成代碼，急需建立現代化的 CI/CD 品質護欄：\n1. 請以「現代汽車品管流水線」為比喻，向團隊解釋為什麼每一次 PR 都必須通過 CI 檢查？\n2. 請為我們由 Node.js + HTML/JS 前端構成的專案，撰寫一份高效的 GitHub Actions (.github/workflows/ci.yml) 設定檔，必須包含：依賴快取、ESLint 語法檢查、Jest 單元測試以及測試覆蓋率報告。\n3. 請說明當 CI 流水線亮紅燈時，開發者應該如何快速查看 Action 日誌，並引導 AI Agent 正確修復失敗的測試。",
+    "codeSnippet": {
+        "language": "yaml",
+        "code": "# 現代化 CI/CD 流水線配置範例 (.github/workflows/ci.yml)\nname: Vibe CI/CD Pipeline\non:\n  push:\n    branches: [ main ]\n  pull_request:\n    branches: [ main ]\n\njobs:\n  quality-gate:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n          cache: 'npm'\n      - run: npm ci\n      - run: npm run lint           # 第一道關卡：語法與風格檢查\n      - run: npm test -- --coverage # 第二道關卡：單元測試全綠\n      - run: npm run build          # 第三道關卡：生產打包建置"
+    },
+    "references": [
+        {
+            "title": "用 AI 寫程式你得懂的 CI/CD？新手看懂自動化工廠 (專屬全景互動頁面)",
+            "url": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html",
+            "bgColor": "rgba(14, 165, 233, 0.15)",
+            "borderColor": "rgba(14, 165, 233, 0.6)",
+            "color": "#38bdf8",
+            "icon": "fa-solid fa-gears",
+            "badge": "本單元專題"
+        },
+        {
+            "title": "YouTube 官方原片：Gary Chen 教學頻道",
+            "url": "https://www.youtube.com/watch?v=aCvEYczBVSY"
+        },
+        {
+            "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 20)",
+            "url": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html"
+        },
+        {
+            "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 21)",
+            "url": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-shield-virus",
+            "scenario": "AI 產碼自動化回歸測試與打地鼠防禦",
+            "description": "在 AI 狂飆產出代碼的同時，自動化單元測試在每次提交時即刻驗證，防止悄悄改壞既有核心業務邏輯。"
+        },
+        {
+            "icon": "fa-solid fa-rocket",
+            "scenario": "無痛零停機自動化發布與部署",
+            "description": "代碼通過 PR 審閱並合併至 main 主幹後，自動化觸發 GitHub Pages 或雲端容器部屬，大幅縮短交付週期。"
+        }
+    ]
+}
+
 vibe_labs = [
     unit_01_captain_dev,
     unit_01_grill_me,
@@ -1948,7 +2210,10 @@ vibe_labs = [
     unit_15_team_dev_guide,
     unit_16_team_dev_transcript,
     unit_17_team_dev_transcript_interactive,
-    unit_18_ost_vibe_coding
+    unit_18_ost_vibe_coding,
+    unit_20_git_kelly,
+    unit_21_github_nontech,
+    unit_22_cicd_gary
 ]
 
 # 寫入 vibecoding.json

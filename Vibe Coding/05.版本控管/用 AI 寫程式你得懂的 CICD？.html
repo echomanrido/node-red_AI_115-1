@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂</title>
+
+  <!-- 載入外部資源（附帶安全降級備援，確保離線或受限環境依然完美排版） -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    /* 基礎重置與自足樣式表（確保即使 Tailwind CDN 受阻也能保持精緻現代版面） */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", "Noto Sans TC", Inter, Roboto, sans-serif;
+      color: #0f172a;
+      background-color: #f8fafc;
+      line-height: 1.6;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+    code, pre, .font-mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    /* 版面容器與彈性網格備援 */
+    .page-container {
+      max-width: 1152px;
+      margin: 0 auto;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .page-container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+    }
+
+    /* SVG 動態流動虛線動畫 */
+    @keyframes pulseFlow {
+      0% { stroke-dashoffset: 24; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .svg-flow-line {
+      stroke-dasharray: 6 6;
+      animation: pulseFlow 1.2s linear infinite;
+    }
+
+    /* 面板切換彈入動畫 */
+    @keyframes popIn {
+      0% { opacity: 0; transform: translateY(6px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-pop-in {
+      animation: popIn 0.25s ease-out forwards;
+    }
+
+    /* 卡片與互動按鈕微動效 */
+    .card-surface {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1.25rem;
+      box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.06);
+    }
+
+    .pipeline-node {
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .pipeline-node:hover {
+      opacity: 0.94;
+    }
+
+    /* 數學公式容器防溢出與乾淨呈現 */
+    .math-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      overflow-x: auto;
+      font-size: 0.95rem;
+      color: #0f172a;
+    }
+
+    .katex-display {
+      margin: 0.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    /* 確保小螢幕橫向捲動順暢 */
+    .svg-scroll-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+  <!-- 頂部醒目原始影片橫幅 -->
+  <div style="background-color:#0f172a; color:#ffffff; border-bottom:1px solid #1e293b;">
+    <div class="page-container py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm">
+      <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+        <span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:9999px; background:#dc2626; color:#fff; flex-shrink:0;">
+          <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </span>
+        <span style="font-weight:600; color:#e2e8f0;">原始教學影片：</span>
+        <span style="padding:2px 8px; border-radius:6px; background:#1e293b; color:#fcd34d; font-weight:700; font-size:12px; border:1px solid #334155;">頻道：Gary Chen</span>
+      </div>
+      <a href="https://www.youtube.com/watch?v=aCvEYczBVSY" target="_blank" rel="noopener noreferrer"
+         style="display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:9999px; background:#dc2626; color:#ffffff; font-weight:700; font-size:12px; text-decoration:none;">
+        <span class="font-mono">https://www.youtube.com/watch?v=aCvEYczBVSY</span>
+        <span>・前往觀看 ↗</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 黏性導覽列 -->
+  <header style="position:sticky; top:0; z-index:40; background:rgba(255,255,255,0.96); border-bottom:1px solid #e2e8f0;">
+    <div class="page-container flex items-center justify-between h-14 gap-2">
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="../../vibecoding.html?id=vibe-cicd-gary"
+           style="display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:8px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:12px; font-weight:700; text-decoration:none;">
+          <span>← 返回 Vibe Coding</span>
+        </a>
+        <span style="display:inline-flex; align-items:center; justify-content:center; padding:4px 10px; border-radius:10px; background:linear-gradient(135deg,#4f46e5,#2563eb); color:#fff; font-weight:800; font-size:13px;">
+          CI/CD
+        </span>
+        <span class="font-bold text-slate-800 text-sm hidden md:inline">AI 時代自動化軟體工廠指南</span>
+      </div>
+      <nav class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 overflow-x-auto py-1">
+        <a href="#why-cicd" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 whitespace-nowrap" style="text-decoration:none; color:#334155;">為什麼需要</a>
+        <a href="#five-steps" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 whitespace-nowrap" style="text-decoration:none; color:#334155;">五步驟流水線</a>
+        <a href="#ci-gates" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 whitespace-nowrap" style="text-decoration:none; color:#334155;">三道基本關卡</a>
+        <a href="#advanced-defense" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-100 whitespace-nowrap" style="text-decoration:none; color:#334155;">進階與雙層防線</a>
+        <a href="#timeline-explorer" style="text-decoration:none; background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe; padding:5px 12px; border-radius:8px; font-weight:700; white-space:nowrap;">
+          ⏱️ 時間軸逐字稿
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero 主標題區 -->
+  <section style="background:linear-gradient(180deg, #eef2ff 0%, #ffffff 75%, #f8fafc 100%); border-bottom:1px solid #e2e8f0; padding:3.5rem 0 4rem 0;">
+    <div class="page-container text-center" style="max-width:860px;">
+      <div style="display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:9999px; background:#e0e7ff; color:#3730a3; font-size:13px; font-weight:700; margin-bottom:1.25rem; border:1px solid #c7d2fe;">
+        <span>🛡️ Vibe Coding 必備工程防線・互動圖解與時間軸全解析</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-5">
+        用 AI 寫程式你得懂的 CI/CD？<br />
+        <span style="color:#4f46e5;">新手一支影片看懂</span>
+      </h1>
+
+      <p class="text-base sm:text-lg text-slate-600 leading-relaxed mb-7">
+        當你用 Cursor、Claude Code 或 Codex 快速生出功能、開了 Pull Request 卻看到黃燈轉圈圈寫著「等待 CI 檢查」時，背後到底發生了什麼事？這份互動指南帶你從零打造自動化品管防線，徹底終結「改好 A 功能、卻改壞 B 功能」的打地鼠噩夢！
+      </p>
+
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <a href="#five-steps" style="text-decoration:none; background:#4f46e5; color:#ffffff; padding:12px 24px; border-radius:12px; font-weight:700; font-size:15px; box-shadow:0 4px 12px rgba(79,70,229,0.28);">
+          上半部：互動圖解教學 ↓
+        </a>
+        <a href="#timeline-explorer" style="text-decoration:none; background:#ffffff; color:#4338ca; padding:12px 24px; border-radius:12px; font-weight:700; font-size:15px; border:1px solid #a5b4fc;">
+          ⏱️ 下半部：時間軸逐字稿 (00:00~13:52)
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 主內容區塊 -->
+  <main class="page-container py-12 space-y-20">
+
+    <!-- =================================================================== -->
+    <!-- SECTION 1: 為什麼用 AI 寫程式需要 CI/CD？                            -->
+    <!-- =================================================================== -->
+    <section id="why-cicd" class="scroll-mt-20">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="space-y-4">
+          <span style="display:inline-block; padding:4px 10px; border-radius:8px; background:#dbeafe; color:#1e40af; font-weight:800; font-size:12px;">
+            01 / 核心痛點解析
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+            沒有 CI/CD 的 AI 開發：<br />一場無止盡的「打地鼠」輪迴
+          </h2>
+          <p class="text-slate-600 leading-relaxed">
+            用 AI 寫程式的速度極快，短短幾分鐘就能做出一個個人記帳軟體。但隨著功能越疊越多，AI 往往在開發新功能時，不小心動到舊功能的共用邏輯。如果沒有自動化檢查，每次上線都要靠人工把整個網站從頭點到尾，既耗時又容易漏掉隱藏 Bug。
+          </p>
+
+          <!-- 藍色核心觀念框 -->
+          <div style="padding:1.25rem; border-radius:1rem; background:#eff6ff; border-left:4px solid #2563eb;">
+            <div style="font-weight:800; color:#1e3a8a; margin-bottom:6px; font-size:15px;">
+              🔵 核心觀念：CI/CD 是 AI 軟體工廠的「自動品管與物流線」
+            </div>
+            <p style="margin:0; font-size:14px; color:#1e40af; line-height:1.65;">
+              <strong>CI（持續整合）</strong>負責在程式碼合併前「自動驗貨，確保沒改壞東西」；<strong>CD（持續交付 / 持續部署）</strong>負責在驗貨通過後「自動打包並上架到雲端」，讓你專注在創意與產品設計，把重複性的品管交給機器。
+            </p>
+          </div>
+        </div>
+
+        <!-- 無 CI/CD vs 有 CI/CD 對比雙卡 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- 紅色地雷警告框 -->
+          <div style="padding:1.5rem; border-radius:1.25rem; background:#fff1f2; border:1px solid #fecdd3; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-size:24px; margin-bottom:10px;">🔨</div>
+              <h3 style="font-weight:800; color:#881337; font-size:18px; margin:0 0 10px 0;">沒有 CI/CD 的日常</h3>
+              <ul style="padding-left:1.1rem; margin:0; font-size:14px; color:#9f1239; space-y:8px;">
+                <li style="margin-bottom:8px;">叫 AI 加「匯出報表」，結果「新增記帳」按鈕壞掉了</li>
+                <li style="margin-bottom:8px;">修好新增記帳後，總金額計算又出錯（打地鼠循環）</li>
+                <li>每次更新都要手動打包、上傳伺服器，心驚膽戰</li>
+              </ul>
+            </div>
+            <div style="margin-top:16px; padding-top:10px; border-top:1px solid #fecdd3; font-size:12px; font-weight:700; color:#be123c;">
+              結果：越寫越慢，不敢改動舊程式碼
+            </div>
+          </div>
+
+          <!-- 綠色最佳實踐框 -->
+          <div style="padding:1.5rem; border-radius:1.25rem; background:#ecfdf5; border:1px solid #a7f3d0; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-size:24px; margin-bottom:10px;">🛡️</div>
+              <h3 style="font-weight:800; color:#064e3b; font-size:18px; margin:0 0 10px 0;">導入 CI/CD 的工廠</h3>
+              <ul style="padding-left:1.1rem; margin:0; font-size:14px; color:#065f46;">
+                <li style="margin-bottom:8px;">每次開 PR 自動啟動雲端體檢，秒抓型別與邏輯錯誤</li>
+                <li style="margin-bottom:8px;">自動跑完所有舊功能測試考卷，保證「做 A 不壞 B」</li>
+                <li>亮綠燈合併後，平台自動將最新版網站無縫發布上線</li>
+              </ul>
+            </div>
+            <div style="margin-top:16px; padding-top:10px; border-top:1px solid #a7f3d0; font-size:12px; font-weight:700; color:#047857;">
+              結果：放心讓 AI 衝刺，品質穩定可控
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- SECTION 2: 互動式 SVG 圖解 - 記帳軟體開發五步驟完整流程              -->
+    <!-- =================================================================== -->
+    <section id="five-steps" class="scroll-mt-20 space-y-6">
+      <div class="text-center max-w-3xl mx-auto space-y-2">
+        <span style="display:inline-block; padding:4px 10px; border-radius:8px; background:#e0e7ff; color:#3730a3; font-weight:800; font-size:12px;">
+          02 / 互動式架構流水線
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+          以「記帳軟體」為例：軟體開發完整五步驟
+        </h2>
+        <p class="text-slate-600 text-sm sm:text-base">
+          點擊下方 SVG 流水線中的任意節點（步驟 1 至 5），查看每個階段在 GitHub 與雲端部署平台發生的詳細動作！
+        </p>
+      </div>
+
+      <div class="card-surface p-4 sm:p-8">
+        <!-- SVG 流水線圖 -->
+        <div class="svg-scroll-wrapper">
+          <svg id="pipeline-svg" viewBox="0 0 1000 250" style="width:100%; min-width:760px; height:auto; display:block;" role="img" aria-label="CI/CD 五步驟互動流水線圖">
+            <!-- CI 與 CD 區域外框 -->
+            <rect x="10" y="12" width="760" height="226" rx="20" fill="#eef2ff" fill-opacity="0.65" stroke="#c7d2fe" stroke-width="1.5" stroke-dasharray="6 4" />
+            <text x="28" y="38" fill="#4338ca" font-size="13" font-weight="800">CI 階段：持續整合（分支開發、審查與自動化把關）</text>
+
+            <rect x="785" y="12" width="205" height="226" rx="20" fill="#ecfdf5" fill-opacity="0.8" stroke="#a7f3d0" stroke-width="1.5" stroke-dasharray="6 4" />
+            <text x="803" y="38" fill="#047857" font-size="13" font-weight="800">CD 階段：自動上架</text>
+
+            <!-- 連接線 -->
+            <line x1="175" y1="130" x2="215" y2="130" stroke="#6366f1" stroke-width="3" class="svg-flow-line" />
+            <polygon points="215,125 225,130 215,135" fill="#6366f1" />
+
+            <line x1="365" y1="130" x2="405" y2="130" stroke="#6366f1" stroke-width="3" class="svg-flow-line" />
+            <polygon points="405,125 415,130 405,135" fill="#6366f1" />
+
+            <line x1="565" y1="130" x2="605" y2="130" stroke="#10b981" stroke-width="3" class="svg-flow-line" />
+            <polygon points="605,125 615,130 605,135" fill="#10b981" />
+
+            <line x1="755" y1="130" x2="805" y2="130" stroke="#10b981" stroke-width="3" class="svg-flow-line" />
+            <polygon points="805,125 815,130 805,135" fill="#10b981" />
+
+            <!-- Step 1 -->
+            <g class="pipeline-node" onclick="selectPipelineStep(1)">
+              <rect id="node-rect-1" x="25" y="65" width="150" height="130" rx="16" fill="#4f46e5" stroke="#312e81" stroke-width="3" />
+              <circle cx="52" cy="91" r="13" fill="#ffffff" fill-opacity="0.22" />
+              <text x="52" y="96" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="800">1</text>
+              <text x="100" y="126" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="800">開新分支</text>
+              <text x="100" y="147" text-anchor="middle" fill="#e0e7ff" font-size="12" font-weight="600">Git Branch</text>
+              <text x="100" y="172" text-anchor="middle" fill="#c7d2fe" font-size="11">feat/monthly-report</text>
+            </g>
+
+            <!-- Step 2 -->
+            <g class="pipeline-node" onclick="selectPipelineStep(2)">
+              <rect id="node-rect-2" x="225" y="65" width="140" height="130" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
+              <circle cx="250" cy="91" r="13" fill="#e0e7ff" />
+              <text x="250" y="96" text-anchor="middle" fill="#4338ca" font-size="13" font-weight="800">2</text>
+              <text x="295" y="126" text-anchor="middle" fill="#1e293b" font-size="15" font-weight="800">開立 PR</text>
+              <text x="295" y="147" text-anchor="middle" fill="#64748b" font-size="12" font-weight="600">Pull Request</text>
+              <text x="295" y="172" text-anchor="middle" fill="#6366f1" font-size="11">申請合併進主線</text>
+            </g>
+
+            <!-- Step 3 -->
+            <g class="pipeline-node" onclick="selectPipelineStep(3)">
+              <rect id="node-rect-3" x="415" y="65" width="150" height="130" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
+              <circle cx="440" cy="91" r="13" fill="#fef3c7" />
+              <text x="440" y="96" text-anchor="middle" fill="#b45309" font-size="13" font-weight="800">3</text>
+              <text x="490" y="126" text-anchor="middle" fill="#1e293b" font-size="15" font-weight="800">CI 持續整合</text>
+              <text x="490" y="147" text-anchor="middle" fill="#64748b" font-size="12" font-weight="600">GitHub Actions</text>
+              <text x="490" y="172" text-anchor="middle" fill="#d97706" font-size="11">Lint / Test / Build</text>
+            </g>
+
+            <!-- Step 4 -->
+            <g class="pipeline-node" onclick="selectPipelineStep(4)">
+              <rect id="node-rect-4" x="615" y="65" width="140" height="130" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
+              <circle cx="640" cy="91" r="13" fill="#dcfce7" />
+              <text x="640" y="96" text-anchor="middle" fill="#15803d" font-size="13" font-weight="800">4</text>
+              <text x="685" y="126" text-anchor="middle" fill="#1e293b" font-size="15" font-weight="800">合併主線</text>
+              <text x="685" y="147" text-anchor="middle" fill="#64748b" font-size="12" font-weight="600">Merge to Main</text>
+              <text x="685" y="172" text-anchor="middle" fill="#16a34a" font-size="11">全綠燈才放行</text>
+            </g>
+
+            <!-- Step 5 -->
+            <g class="pipeline-node" onclick="selectPipelineStep(5)">
+              <rect id="node-rect-5" x="815" y="65" width="155" height="130" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
+              <circle cx="840" cy="91" r="13" fill="#d1fae5" />
+              <text x="840" y="96" text-anchor="middle" fill="#047857" font-size="13" font-weight="800">5</text>
+              <text x="892" y="126" text-anchor="middle" fill="#1e293b" font-size="15" font-weight="800">CD 自動部署</text>
+              <text x="892" y="147" text-anchor="middle" fill="#64748b" font-size="12" font-weight="600">Vercel / Netlify</text>
+              <text x="892" y="172" text-anchor="middle" fill="#059669" font-size="11">用戶無縫用到新版</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- 步驟快速切換按鈕列 -->
+        <div class="flex flex-wrap items-center justify-center gap-2 mt-4 pb-5 border-b border-slate-100">
+          <button type="button" onclick="selectPipelineStep(1)" id="btn-step-1" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold cursor-pointer">步驟 1：開新分支</button>
+          <button type="button" onclick="selectPipelineStep(2)" id="btn-step-2" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold cursor-pointer">步驟 2：開立 PR</button>
+          <button type="button" onclick="selectPipelineStep(3)" id="btn-step-3" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold cursor-pointer">步驟 3：CI 檢查</button>
+          <button type="button" onclick="selectPipelineStep(4)" id="btn-step-4" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold cursor-pointer">步驟 4：合併主線</button>
+          <button type="button" onclick="selectPipelineStep(5)" id="btn-step-5" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold cursor-pointer">步驟 5：CD 上線</button>
+        </div>
+
+        <!-- 動態步驟詳情面板 -->
+        <div id="pipeline-detail-panel" class="mt-5 p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200"></div>
+      </div>
+
+      <!-- 藍色補充框：持續交付 vs 持續部署 -->
+      <div style="padding:1.5rem; border-radius:1.25rem; background:#eff6ff; border:1px solid #bfdbfe;">
+        <h4 style="font-weight:800; color:#1e3a8a; margin:0 0 12px 0; font-size:16px;">
+          📘 名詞小百科：CD 的兩種意思「持續交付」vs「持續部署」
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div style="padding:1rem; border-radius:0.85rem; background:#ffffff; border:1px solid #dbeafe;">
+            <strong style="color:#1d4ed8; display:block; margin-bottom:4px;">📦 持續交付（Continuous Delivery）</strong>
+            <span style="color:#334155;">程式碼通過 CI 並打包好，隨時處於「可上線狀態」，但最後一刻保留<strong>人工點擊確認按鈕</strong>（例如大型金融或 App Store 審核前）才正式發布。</span>
+          </div>
+          <div style="padding:1rem; border-radius:0.85rem; background:#ffffff; border:1px solid #a7f3d0;">
+            <strong style="color:#047857; display:block; margin-bottom:4px;">🚀 持續部署（Continuous Deployment）</strong>
+            <span style="color:#334155;">全自動化無人值守！只要合併進 <code>main</code> 主線，Render、Netlify 或 Vercel 立刻自動重新打包並推上正式網址，多數 Web 專案採用此模式。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- SECTION 3: GitHub Actions 雲端沙盒模擬器與三道基本關卡               -->
+    <!-- =================================================================== -->
+    <section id="ci-gates" class="scroll-mt-20 space-y-8">
+      <div class="max-w-3xl space-y-2">
+        <span style="display:inline-block; padding:4px 10px; border-radius:8px; background:#fef3c7; color:#92400e; font-weight:800; font-size:12px;">
+          03 / GitHub Actions 雲端沙盒與三道關卡
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+          CI 的運作原理與三道基本關卡模擬器
+        </h2>
+        <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+          CI 的本質是一份寫在專案 <code style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:13px;">.github/workflows/ci.yml</code> 的檢查清單（不會寫沒關係，直接叫 Claude Code 或 Cursor 幫你生成即可！）。每當開 PR 時，<strong>GitHub Actions 會在雲端租用一台全新的空白電腦</strong>，徹底排除本機殘留舊套件或暫存檔干擾，依序執行三道關卡：
+        </p>
+      </div>
+
+      <!-- 互動模擬器主體 -->
+      <div style="background:#0f172a; color:#f1f5f9; border-radius:1.5rem; padding:1.5rem; border:1px solid #1e293b; box-shadow:0 12px 30px -8px rgba(15,23,42,0.25);">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 mb-5" style="border-bottom:1px solid #1e293b;">
+          <div>
+            <div class="flex items-center gap-2">
+              <span style="width:10px; height:10px; border-radius:9999px; background:#f43f5e; display:inline-block;"></span>
+              <span style="width:10px; height:10px; border-radius:9999px; background:#fbbf24; display:inline-block;"></span>
+              <span style="width:10px; height:10px; border-radius:9999px; background:#10b981; display:inline-block;"></span>
+              <span class="font-mono text-xs text-slate-400 ml-1">runner: ubuntu-latest (全新空白雲端虛擬機)</span>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-white mt-2 mb-0">
+              互動體驗：切換程式碼情境，觀察 CI 如何攔截 AI 失誤！
+            </h3>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="runCISimulation('pass')" id="sim-btn-pass"
+              style="background:#059669; color:#ffffff; border:none; padding:8px 14px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer;">
+              🟢 全綠燈通過 (All Pass)
+            </button>
+            <button type="button" onclick="runCISimulation('lint')" id="sim-btn-lint"
+              style="background:#1e293b; color:#fda4af; border:1px solid #f43f5e; padding:8px 14px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer;">
+              🔴 關卡 1 紅燈 (useEffect / "100元")
+            </button>
+            <button type="button" onclick="runCISimulation('test')" id="sim-btn-test"
+              style="background:#1e293b; color:#fda4af; border:1px solid #f43f5e; padding:8px 14px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer;">
+              🔴 關卡 2 紅燈 (加總算錯)
+            </button>
+            <button type="button" onclick="runCISimulation('build')" id="sim-btn-build"
+              style="background:#1e293b; color:#fda4af; border:1px solid #f43f5e; padding:8px 14px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer;">
+              🔴 關卡 3 紅燈 (漏傳檔案)
+            </button>
+          </div>
+        </div>
+
+        <!-- 雲端沙盒檢查管線 SVG -->
+        <div class="svg-scroll-wrapper mb-4">
+          <svg id="ci-sandbox-svg" viewBox="0 0 960 215" style="width:100%; min-width:720px; height:auto; display:block;" role="img" aria-label="GitHub Actions 雲端沙盒三道關卡模擬器">
+            <rect x="6" y="6" width="948" height="203" rx="18" fill="#0b1120" stroke="#334155" stroke-width="2" />
+            <text x="26" y="32" fill="#94a3b8" font-size="12" font-family="monospace">☁️ GitHub Actions Ephemeral Runner (.github/workflows/ci.yml)</text>
+
+            <!-- Gate 0: Setup -->
+            <g transform="translate(24, 52)">
+              <rect width="165" height="130" rx="14" fill="#1e293b" stroke="#475569" stroke-width="1.5" />
+              <text x="82" y="30" text-anchor="middle" fill="#cbd5e1" font-size="13" font-weight="bold">前置環境準備</text>
+              <text x="82" y="54" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="monospace">git checkout</text>
+              <text x="82" y="74" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="monospace">npm ci</text>
+              <rect x="32" y="92" width="100" height="24" rx="6" fill="#064e3b" />
+              <text x="82" y="108" text-anchor="middle" fill="#34d399" font-size="11" font-weight="bold">✓ 環境已就緒</text>
+            </g>
+
+            <!-- Arrow 1 -->
+            <line x1="194" y1="117" x2="226" y2="117" stroke="#10b981" stroke-width="3" />
+            <polygon points="226,112 235,117 226,122" fill="#10b981" />
+
+            <!-- Gate 1 -->
+            <g transform="translate(238, 52)">
+              <rect id="gate1-box" width="210" height="130" rx="14" fill="#1e293b" stroke="#10b981" stroke-width="2.5" />
+              <text x="105" y="28" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">關卡 1：品質與型別</text>
+              <text x="105" y="50" text-anchor="middle" fill="#93c5fd" font-size="11" font-family="monospace">npm run lint</text>
+              <text x="105" y="68" text-anchor="middle" fill="#93c5fd" font-size="11" font-family="monospace">npm run typecheck</text>
+              <rect id="gate1-badge" x="35" y="90" width="140" height="26" rx="8" fill="#064e3b" />
+              <text id="gate1-status" x="105" y="107" text-anchor="middle" fill="#34d399" font-size="12" font-weight="bold">🟢 綠燈通過</text>
+            </g>
+
+            <!-- Arrow 2 -->
+            <line x1="453" y1="117" x2="485" y2="117" stroke="#10b981" stroke-width="3" />
+            <polygon points="485,112 494,117 485,122" fill="#10b981" />
+
+            <!-- Gate 2 -->
+            <g transform="translate(497, 52)">
+              <rect id="gate2-box" width="210" height="130" rx="14" fill="#1e293b" stroke="#10b981" stroke-width="2.5" />
+              <text x="105" y="28" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">關卡 2：自動化測試</text>
+              <text x="105" y="50" text-anchor="middle" fill="#c4b5fd" font-size="11" font-family="monospace">npm run test</text>
+              <text x="105" y="68" text-anchor="middle" fill="#94a3b8" font-size="11">虛擬用戶試記三筆帳</text>
+              <rect id="gate2-badge" x="35" y="90" width="140" height="26" rx="8" fill="#064e3b" />
+              <text id="gate2-status" x="105" y="107" text-anchor="middle" fill="#34d399" font-size="12" font-weight="bold">🟢 綠燈通過</text>
+            </g>
+
+            <!-- Arrow 3 -->
+            <line x1="712" y1="117" x2="744" y2="117" stroke="#10b981" stroke-width="3" />
+            <polygon points="744,112 753,117 744,122" fill="#10b981" />
+
+            <!-- Gate 3 -->
+            <g transform="translate(756, 52)">
+              <rect id="gate3-box" width="180" height="130" rx="14" fill="#1e293b" stroke="#10b981" stroke-width="2.5" />
+              <text x="90" y="28" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">關卡 3：打包組裝</text>
+              <text x="90" y="50" text-anchor="middle" fill="#fcd34d" font-size="11" font-family="monospace">npm run build</text>
+              <text x="90" y="68" text-anchor="middle" fill="#94a3b8" font-size="11">編譯壓縮成品檔案</text>
+              <rect id="gate3-badge" x="20" y="90" width="140" height="26" rx="8" fill="#064e3b" />
+              <text id="gate3-status" x="90" y="107" text-anchor="middle" fill="#34d399" font-size="12" font-weight="bold">🟢 綠燈通過</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- 模擬終端機輸出 -->
+        <div id="ci-terminal-output" style="background:#020617; border:1px solid #1e293b; border-radius:1rem; padding:1.25rem;" class="font-mono text-xs sm:text-sm space-y-2"></div>
+      </div>
+
+      <!-- 三道基本關卡詳解三欄卡片 -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 關卡 1 -->
+        <div class="card-surface p-6 space-y-3">
+          <div class="flex items-center justify-between">
+            <span style="padding:3px 10px; border-radius:9999px; background:#dbeafe; color:#1e40af; font-weight:800; font-size:12px;">關卡 1</span>
+            <code class="text-xs text-slate-500">lint &amp; typecheck</code>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900">程式碼品質與型別檢查</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            <strong>1. <code>npm run lint</code>：</strong>透過 ESLint 抓出 AI 寫程式的壞習慣，例如未清理的無用變數，或 React 中不當使用 <code>useEffect</code> 導致無限迴圈卡死瀏覽器的危險寫法。
+          </p>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            <strong>2. <code>npm run typecheck</code>：</strong>確保資料格式一致。記帳金額應該是純數字 <code>100</code>，若 AI 誤傳純文字 <code>"100元"</code> 去做加法運算，TypeScript 會立刻攔截！
+          </p>
+          <div class="math-box">
+            <div style="font-size:11px; color:#2563eb; font-weight:700; margin-bottom:4px;">記帳金額型別安全驗證公式</div>
+            <div class="katex-target" data-fallback="Total = ∑ xᵢ ,  xᵢ ∈ ℝ (Number) ≠ String(&quot;100元&quot;)">
+              $$\text{Total} = \sum_{i=1}^{n} x_i, \quad x_i \in \mathbb{R}\text{ (Number)} \neq \text{String}(\text{"100元"})$$
+            </div>
+          </div>
+        </div>
+
+        <!-- 關卡 2 -->
+        <div class="card-surface p-6 space-y-3">
+          <div class="flex items-center justify-between">
+            <span style="padding:3px 10px; border-radius:9999px; background:#f3e8ff; color:#6b21a8; font-weight:800; font-size:12px;">關卡 2</span>
+            <code class="text-xs text-slate-500">npm run test</code>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900">自動化功能測試（標準考卷）</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            事先寫好一份「標準驗收考卷」，讓電腦在背景模擬虛擬用戶操作記帳軟體：例如依序輸入三筆支出（100 元、250 元、50 元），檢查系統加總是否精準等於 400 元。
+          </p>
+          <div class="math-box">
+            <div style="font-size:11px; color:#64748b; font-weight:700; margin-bottom:4px;">PR 合併綠燈放行邏輯條件</div>
+            <div class="katex-target" data-fallback="Merge Ready ⇔ (Lint ∧ Typecheck ∧ Test ∧ Build) = True">
+              $$\text{Merge Ready} \iff \text{Lint} \land \text{Typecheck} \land \text{Test} \land \text{Build} = \text{True}$$
+            </div>
+          </div>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            只要新功能一不小心改壞舊的加總邏輯，考卷立刻不及格並退回修改！
+          </p>
+        </div>
+
+        <!-- 關卡 3 -->
+        <div class="card-surface p-6 space-y-3">
+          <div class="flex items-center justify-between">
+            <span style="padding:3px 10px; border-radius:9999px; background:#fef3c7; color:#92400e; font-weight:800; font-size:12px;">關卡 3</span>
+            <code class="text-xs text-slate-500">npm run build</code>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900">打包測試（組裝出廠驗收）</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            開發時我們看到的是一個個零散的元件與程式碼檔案；正式上線前，必須透過 <code>npm run build</code> 將所有檔案編譯、壓縮並組裝成瀏覽器看得懂的最終網站成品。
+          </p>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            這關能確保所有零件都能順利拼裝起來（不會有少引入檔案、漏傳本地新建檔案或語法無法編譯的問題），避免正式發布後用戶打開網站卻一片空白！
+          </p>
+        </div>
+      </div>
+
+      <!-- 紅色警告框：紅燈除錯標準作業程序 -->
+      <div style="padding:1.5rem; border-radius:1.25rem; background:#fff1f2; border-left:4px solid #e11d48;">
+        <div style="font-weight:800; color:#881337; font-size:16px; margin-bottom:6px;">
+          🔴 遇到 CI 亮紅燈怎麼辦？AI 時代超省力除錯法
+        </div>
+        <p style="margin:0; font-size:14px; color:#9f1239; line-height:1.65;">
+          CI 亮紅燈並不是壞事，反而代表它成功幫你擋下了一個準備上線的 Bug！你不需要自己苦苦追查，只要點擊 GitHub PR 頁面紅燈旁的 <strong>「Details」</strong> 查看報錯訊息，或者更聰明一點：<strong>直接開啟 GitHub Connectors（讓 Claude Code / Codex 直接讀取該 PR 的 CI 失敗紀錄）</strong>，跟 AI 說：「幫我看一下這個 PR 為什麼 CI 沒過並修好它」，AI 就會自動定位錯誤、修改程式碼並重新推送！
+        </p>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- SECTION 4: 進階 CI 關卡與雙層防線思維                               -->
+    <!-- =================================================================== -->
+    <section id="advanced-defense" class="scroll-mt-20 space-y-8">
+      <div class="max-w-3xl space-y-2">
+        <span style="display:inline-block; padding:4px 10px; border-radius:8px; background:#f3e8ff; color:#6b21a8; font-weight:800; font-size:12px;">
+          04 / 進階測試武器與雙層防線
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+          當產品越來越複雜：進階 CI 武器與「雙層防線」思維
+        </h2>
+        <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+          基本三道關卡能守住 80% 的常見錯誤，但如果你的應用牽涉到真實瀏覽器畫面操作，甚至內建了「AI 理財顧問」這類每次回答都不太一樣的功能，我們就需要升級武器庫，並在 CI 之上建立第二層防線！
+        </p>
+      </div>
+
+      <!-- 兩大進階 CI 武器卡片（紫色進階防線框） -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 武器 1: Playwright -->
+        <div style="padding:1.75rem; border-radius:1.5rem; background:#faf5ff; border:1px solid #e9d5ff;" class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span style="padding:4px 10px; border-radius:9999px; background:#7c3aed; color:#ffffff; font-weight:800; font-size:12px;">進階武器 A</span>
+            <span class="font-mono text-xs text-purple-800 font-semibold">E2E Browser Testing</span>
+          </div>
+          <h3 class="text-xl font-extrabold text-purple-950">
+            🎭 Playwright 自動化瀏覽器測試
+          </h3>
+          <p class="text-sm text-purple-900 leading-relaxed">
+            在雲端虛擬機裡真正啟動一個瀏覽器，模擬真人打開網址、輸入帳號密碼、點擊「匯出月報表」按鈕，確認畫面沒有白屏且按鈕確實有效。
+          </p>
+          <div style="padding:1rem; border-radius:1rem; background:#ffffff; border:1px solid #e9d5ff;">
+            <div style="font-weight:800; font-size:12px; color:#6b21a8; margin-bottom:4px;">⚖️ 關鍵取捨原則（避免拖慢開發速度）</div>
+            <p style="margin:0; font-size:13px; color:#334155; line-height:1.6;">
+              瀏覽器測試跑起來較花時間，<strong>切忌每個小畫面都寫</strong>！建議只針對<strong>「流程已穩定且最核心關鍵」</strong>的路徑（如：會員登入、結帳付款、核心報表匯出）設定即可。
+            </p>
+          </div>
+        </div>
+
+        <!-- 武器 2: LLM-as-a-Judge -->
+        <div style="padding:1.75rem; border-radius:1.5rem; background:#faf5ff; border:1px solid #e9d5ff;" class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span style="padding:4px 10px; border-radius:9999px; background:#7c3aed; color:#ffffff; font-weight:800; font-size:12px;">進階武器 B</span>
+            <span class="font-mono text-xs text-purple-800 font-semibold">AI Evaluation</span>
+          </div>
+          <h3 class="text-xl font-extrabold text-purple-950">
+            ⚖️ LLM-as-a-Judge（AI 裁判測試）
+          </h3>
+          <p class="text-sm text-purple-900 leading-relaxed">
+            如果你的記帳軟體內建「AI 理財顧問」，每次生成的建議文字都不固定，傳統死板測試派不上用場。這時可準備常見題庫讓 AI 回答，再派另一位「裁判 AI」依據原始帳目數據與評分標準打分數！
+          </p>
+          <div style="padding:1rem; border-radius:1rem; background:#ffffff; border:1px solid #e9d5ff;">
+            <div style="font-weight:800; font-size:12px; color:#6b21a8; margin-bottom:4px;">📐 裁判 AI 品質放行門檻公式（20 題題庫）</div>
+            <div class="math-box" style="margin-bottom:6px;">
+              <div class="katex-target" data-fallback="Pass Rate = (1/N) ∑ 𝕀(Sₖ ≥ S_min) ≥ θ_threshold  (N=20)">
+                $$\text{Pass Rate} = \frac{1}{N}\sum_{k=1}^{N} \mathbb{I}(S_k \ge S_{\text{min}}) \ge \theta_{\text{threshold}} \quad (N=20)$$
+              </div>
+            </div>
+            <p style="margin:0; font-size:12px; color:#475569;">
+              若 AI 算錯花費總額或開始胡說八道，導致通過率低於門檻，CI 就會直接退貨！
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 雙層防線架構 SVG 示意圖 -->
+      <div class="card-surface p-5 sm:p-8 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <span style="display:inline-block; padding:4px 10px; border-radius:8px; background:#dcfce7; color:#166534; font-weight:800; font-size:12px; margin-bottom:6px;">
+              終極心法：Double-Layer Defense
+            </span>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 m-0">
+              雙層防線架構圖：CI 之外的「獨立 AI 實機驗證」
+            </h3>
+          </div>
+          <div class="text-xs sm:text-sm text-slate-500 max-w-md">
+            CI 全綠燈只代表通過了「事先寫好的標準考題」；真實世界的操作充滿意外，因此還需要第二層實機把關！
+          </div>
+        </div>
+
+        <div class="svg-scroll-wrapper">
+          <svg viewBox="0 0 960 270" style="width:100%; min-width:740px; height:auto; display:block;" role="img" aria-label="雙層防線架構示意圖">
+            <!-- 左側：AI 開發產出 PR -->
+            <rect x="15" y="80" width="160" height="110" rx="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" />
+            <text x="95" y="120" text-anchor="middle" fill="#1e293b" font-size="14" font-weight="800">AI 開發新功能</text>
+            <text x="95" y="143" text-anchor="middle" fill="#475569" font-size="12">提交 Pull Request</text>
+            <text x="95" y="165" text-anchor="middle" fill="#6366f1" font-size="11" font-family="monospace">PR #42 Ready</text>
+
+            <!-- 箭頭 1 -->
+            <line x1="180" y1="135" x2="225" y2="135" stroke="#6366f1" stroke-width="3" class="svg-flow-line" />
+            <polygon points="225,129 235,135 225,141" fill="#6366f1" />
+
+            <!-- 第一層防線：CI 預設考題 -->
+            <rect x="240" y="20" width="260" height="230" rx="20" fill="#eff6ff" stroke="#3b82f6" stroke-width="2.5" />
+            <rect x="260" y="35" width="220" height="28" rx="8" fill="#2563eb" />
+            <text x="370" y="54" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="800">第一層防線：CI 自動化檢查</text>
+            <text x="370" y="87" text-anchor="middle" fill="#1e3a8a" font-size="13" font-weight="700">檢驗「已知的標準問題」</text>
+            <rect x="265" y="105" width="210" height="32" rx="8" fill="#ffffff" stroke="#bfdbfe" />
+            <text x="370" y="125" text-anchor="middle" fill="#1d4ed8" font-size="12">✓ Lint / Typecheck / Build</text>
+            <rect x="265" y="145" width="210" height="32" rx="8" fill="#ffffff" stroke="#bfdbfe" />
+            <text x="370" y="165" text-anchor="middle" fill="#1d4ed8" font-size="12">✓ 固定題庫 Test &amp; Judge</text>
+            <text x="370" y="210" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="600">盲點：無法預知沒寫進考卷的怪操作</text>
+
+            <!-- 箭頭 2 -->
+            <line x1="505" y1="135" x2="550" y2="135" stroke="#10b981" stroke-width="3" class="svg-flow-line" />
+            <polygon points="550,129 560,135 550,141" fill="#10b981" />
+
+            <!-- 第二層防線：獨立 AI 實機驗證 -->
+            <rect x="565" y="20" width="275" height="230" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5" />
+            <rect x="585" y="35" width="235" height="28" rx="8" fill="#059669" />
+            <text x="702" y="54" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="800">第二層防線：獨立 AI 實機驗證</text>
+            <text x="702" y="87" text-anchor="middle" fill="#064e3b" font-size="13" font-weight="700">模擬「真實世界混亂操作」</text>
+            <rect x="590" y="105" width="225" height="32" rx="8" fill="#ffffff" stroke="#a7f3d0" />
+            <text x="702" y="125" text-anchor="middle" fill="#047857" font-size="12">🕵️ 未參與開發的獨立 AI 審查員</text>
+            <rect x="590" y="145" width="225" height="32" rx="8" fill="#ffffff" stroke="#a7f3d0" />
+            <text x="702" y="165" text-anchor="middle" fill="#047857" font-size="12">🎥 進系統到處亂點並錄下實機證據</text>
+            <text x="702" y="210" text-anchor="middle" fill="#059669" font-size="11" font-weight="600">技巧：使用 create verification skill</text>
+
+            <!-- 箭頭 3 -->
+            <line x1="845" y1="135" x2="875" y2="135" stroke="#059669" stroke-width="3" />
+            <polygon points="875,129 885,135 875,141" fill="#059669" />
+
+            <!-- 最終放行 -->
+            <rect x="888" y="85" width="62" height="100" rx="14" fill="#047857" />
+            <text x="919" y="130" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="800">安全</text>
+            <text x="919" y="151" text-anchor="middle" fill="#a7f3d0" font-size="13" font-weight="800">合併</text>
+          </svg>
+        </div>
+
+        <!-- 綠色最佳實踐框 + 雙層防線風險收斂公式 -->
+        <div style="padding:1.25rem; border-radius:1rem; background:#ecfdf5; border:1px solid #a7f3d0;" class="space-y-3">
+          <div style="font-weight:800; color:#064e3b; font-size:15px;">
+            🟢 實戰秘訣：為什麼要找「未參與開發的獨立 AI」做實機驗證？
+          </div>
+          <p style="margin:0; font-size:14px; color:#065f46; line-height:1.65;">
+            寫程式的 AI 容易有「盲點」（就像自己改自己的考卷容易忽略錯誤）。透過建立驗證技能（例如使用 <code style="background:#d1fae5; padding:2px 6px; border-radius:4px; font-weight:700;">create verification skill</code>），在合併 PR 前指派另一位全新的獨立 AI 扮演挑剔的使用者，實際開啟預覽網頁到處點擊、輸入極端數值並錄製截圖或操作證據。兩層防線都過關，你就能真正高枕無憂地按下 Merge！
+          </p>
+          <div class="math-box">
+            <div style="font-size:11px; color:#047857; font-weight:700; margin-bottom:4px;">雙層防線風險收斂模型</div>
+            <div class="katex-target" data-fallback="P(Bug in Prod) = P(Miss_CI) × P(Miss_Agent Verification)">
+              $$P(\text{Bug in Prod}) = P(\text{Miss}_{\text{CI}}) \times P(\text{Miss}_{\text{Agent Verification}})$$
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 下半部：時間軸互動逐字稿導覽 (Timeline Transcript Explorer)           -->
+    <!-- =================================================================== -->
+    <section id="timeline-explorer" class="scroll-mt-20 pt-10 space-y-6" style="border-top:2px dashed #cbd5e1;">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div class="space-y-2 max-w-3xl">
+          <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:8px; background:#0f172a; color:#fcd34d; font-weight:800; font-size:12px;">
+            ⏱️ 下半部：Timeline Transcript Explorer | 00:00 ~ 13:52 完整精解
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+            時間軸互動逐字稿導覽：跟著影片秒數逐段精讀
+          </h2>
+          <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+            點擊橫向進度尺、輸入關鍵字搜尋，或依四色重點標籤篩選，並可直接點擊時間戳記跳轉至 YouTube 該秒數觀看！
+          </p>
+        </div>
+        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:8px 14px; font-size:13px; color:#475569; flex-shrink:0;">
+          目前顯示：<strong id="timeline-count-badge" style="color:#4f46e5; font-size:15px;">17</strong> 個關鍵時間軸段落
+        </div>
+      </div>
+
+      <!-- 1. 互動式橫向時間軸 SVG 進度尺 -->
+      <div class="card-surface p-4 sm:p-6 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span class="font-bold text-slate-800 text-sm">📍 互動式時間軸進度尺（點擊章節色塊或圓點可平滑跳轉）</span>
+          <span id="ruler-active-label" style="font-size:12px; font-weight:700; padding:4px 10px; border-radius:8px; background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe;">
+            目前聚焦：[00:00] 為什麼用 AI 寫程式常看到等待 CI 檢查？
+          </span>
+        </div>
+
+        <div class="svg-scroll-wrapper">
+          <svg id="timeline-ruler-svg" viewBox="0 0 1000 130" style="width:100%; min-width:760px; height:auto; display:block;" role="img" aria-label="影片時間軸章節進度尺">
+            <!-- 背景軌道 -->
+            <rect x="20" y="40" width="960" height="24" rx="12" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" />
+
+            <!-- 五大章節色塊 -->
+            <g style="cursor:pointer;" onclick="jumpToTimelineNode('node-0000')">
+              <rect x="20" y="40" width="93" height="24" rx="8" fill="#3b82f6" fill-opacity="0.85" />
+              <text x="66" y="28" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="800">1. 痛點引入</text>
+              <text x="66" y="82" text-anchor="middle" fill="#64748b" font-size="10" font-family="monospace">00:00</text>
+            </g>
+
+            <g style="cursor:pointer;" onclick="jumpToTimelineNode('node-0127')">
+              <rect x="115" y="40" width="164" height="24" rx="6" fill="#10b981" fill-opacity="0.85" />
+              <text x="197" y="28" text-anchor="middle" fill="#047857" font-size="11" font-weight="800">2. 開發五步驟</text>
+              <text x="120" y="82" text-anchor="middle" fill="#64748b" font-size="10" font-family="monospace">01:21</text>
+            </g>
+
+            <g style="cursor:pointer;" onclick="jumpToTimelineNode('node-0345')">
+              <rect x="281" y="40" width="344" height="24" rx="6" fill="#f59e0b" fill-opacity="0.85" />
+              <text x="453" y="28" text-anchor="middle" fill="#b45309" font-size="11" font-weight="800">3. CI 三道基本關卡與雲端沙盒</text>
+              <text x="286" y="82" text-anchor="middle" fill="#64748b" font-size="10" font-family="monospace">03:45</text>
+            </g>
+
+            <g style="cursor:pointer;" onclick="jumpToTimelineNode('node-0845')">
+              <rect x="627" y="40" width="109" height="24" rx="6" fill="#06b6d4" fill-opacity="0.85" />
+              <text x="681" y="28" text-anchor="middle" fill="#0e7490" font-size="11" font-weight="800">4. 綠燈與 CD</text>
+              <text x="632" y="82" text-anchor="middle" fill="#64748b" font-size="10" font-family="monospace">08:45</text>
+            </g>
+
+            <g style="cursor:pointer;" onclick="jumpToTimelineNode('node-1021')">
+              <rect x="738" y="40" width="242" height="24" rx="8" fill="#8b5cf6" fill-opacity="0.85" />
+              <text x="859" y="28" text-anchor="middle" fill="#6d28d9" font-size="11" font-weight="800">5. 進階武器與雙層防線</text>
+              <text x="744" y="82" text-anchor="middle" fill="#64748b" font-size="10" font-family="monospace">10:21</text>
+              <text x="975" y="82" text-anchor="end" fill="#64748b" font-size="10" font-family="monospace">13:52</text>
+            </g>
+
+            <!-- 17 個節點圓點 -->
+            <g id="ruler-dots-group"></g>
+
+            <!-- 動態游標指示器 -->
+            <g id="ruler-playhead" transform="translate(20, 0)">
+              <line x1="0" y1="34" x2="0" y2="72" stroke="#0f172a" stroke-width="2.5" />
+              <polygon points="-6,90 6,90 0,81" fill="#0f172a" />
+              <rect x="-24" y="92" width="48" height="20" rx="6" fill="#0f172a" />
+              <text id="ruler-playhead-time" x="0" y="106" text-anchor="middle" fill="#ffffff" font-size="10" font-family="monospace" font-weight="bold">00:00</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 2. 控制列：章節快跳膠囊 + 搜尋框 + 四色標籤篩選 -->
+      <div class="card-surface p-4 sm:p-5 space-y-4">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-bold text-slate-500 mr-1">章節快跳：</span>
+          <button type="button" onclick="jumpToTimelineNode('node-0000')" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; padding:5px 12px; border-radius:9999px; font-size:12px; font-weight:700; cursor:pointer;">
+            00:00 痛點引入
+          </button>
+          <button type="button" onclick="jumpToTimelineNode('node-0127')" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; padding:5px 12px; border-radius:9999px; font-size:12px; font-weight:700; cursor:pointer;">
+            01:21 開發五步驟
+          </button>
+          <button type="button" onclick="jumpToTimelineNode('node-0345')" style="background:#fffbeb; color:#b45309; border:1px solid #fde68a; padding:5px 12px; border-radius:9999px; font-size:12px; font-weight:700; cursor:pointer;">
+            03:45 CI 三道基本關卡
+          </button>
+          <button type="button" onclick="jumpToTimelineNode('node-0845')" style="background:#ecfeff; color:#0e7490; border:1px solid #a5f3fc; padding:5px 12px; border-radius:9999px; font-size:12px; font-weight:700; cursor:pointer;">
+            08:45 PR 綠燈與 CD 部署
+          </button>
+          <button type="button" onclick="jumpToTimelineNode('node-1021')" style="background:#faf5ff; color:#6d28d9; border:1px solid #e9d5ff; padding:5px 12px; border-radius:9999px; font-size:12px; font-weight:700; cursor:pointer;">
+            10:21 進階武器與雙層防線
+          </button>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-3 justify-between pt-3" style="border-top:1px solid #f1f5f9;">
+          <!-- 搜尋輸入框 -->
+          <div style="position:relative; flex:1; max-width:420px;">
+            <input id="timeline-search-input" type="text" oninput="filterTimelineNodes()"
+              placeholder="搜尋關鍵字（如：useEffect、100元、Playwright、Vercel...）"
+              style="width:100%; padding:8px 32px 8px 14px; border-radius:10px; border:1px solid #cbd5e1; font-size:13px; background:#f8fafc; color:#0f172a;" />
+            <button type="button" id="clear-search-btn" onclick="clearTimelineFilters()"
+              style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:#64748b; font-weight:800; cursor:pointer;">✕</button>
+          </div>
+
+          <!-- 四色重點標籤篩選按鈕 -->
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button type="button" onclick="setTimelineColorFilter('all')" id="filter-btn-all"
+              style="background:#1e293b; color:#ffffff; border:1px solid #1e293b; padding:6px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">
+              全部標籤
+            </button>
+            <button type="button" onclick="setTimelineColorFilter('blue')" id="filter-btn-blue"
+              style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; padding:6px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">
+              🔵 核心觀念
+            </button>
+            <button type="button" onclick="setTimelineColorFilter('green')" id="filter-btn-green"
+              style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; padding:6px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">
+              🟢 指令與實作
+            </button>
+            <button type="button" onclick="setTimelineColorFilter('red')" id="filter-btn-red"
+              style="background:#fff1f2; color:#be123c; border:1px solid #fecdd3; padding:6px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">
+              🔴 紅燈地雷警告
+            </button>
+            <button type="button" onclick="setTimelineColorFilter('purple')" id="filter-btn-purple"
+              style="background:#faf5ff; color:#6d28d9; border:1px solid #e9d5ff; padding:6px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">
+              🟣 進階防線
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 17 個時間軸逐字稿精解卡片容器 -->
+      <div id="timeline-cards-container" class="space-y-5"></div>
+
+      <!-- 無搜尋結果提示 -->
+      <div id="timeline-empty-state" style="display:none; text-align:center; padding:3rem 1rem; background:#ffffff; border:1px solid #e2e8f0; border-radius:1.25rem;">
+        <div style="font-size:28px; margin-bottom:8px;">🔍</div>
+        <p style="color:#475569; font-weight:600; font-size:14px; margin-bottom:12px;">找不到符合篩選條件的時間軸段落</p>
+        <button type="button" onclick="clearTimelineFilters()"
+          style="background:#4f46e5; color:#ffffff; border:none; padding:8px 16px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer;">
+          重設所有篩選條件
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁尾 -->
+  <footer style="background:#0f172a; color:#94a3b8; border-top:1px solid #1e293b; padding:2.5rem 0; margin-top:3rem;">
+    <div class="page-container flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="text-center sm:text-left">
+        <div style="color:#ffffff; font-weight:800; font-size:15px; margin-bottom:4px;">用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂</div>
+        <div style="font-size:12px;">核心流程：開新分支 → 開 PR → CI 自動體檢（Lint / Typecheck / Test / Build）→ 合併主線 → CD 自動上線</div>
+      </div>
+      <a href="https://www.youtube.com/watch?v=aCvEYczBVSY" target="_blank" rel="noopener noreferrer"
+         style="text-decoration:none; background:#1e293b; color:#e2e8f0; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:600; border:1px solid #334155;">
+        前往觀看原版 YouTube 教學影片 ↗
+      </a>
+    </div>
+  </footer>
+
+  <!-- 互動腳本（零外部依賴保證運作，並安全整合 KaTeX 渲染） -->
+  <script>
+    // 安全渲染 KaTeX 公式（若網路環境允許載入 KaTeX 則渲染排版公式，否則保留清晰可讀的 Unicode 備援）
+    function renderMathSafely() {
+      try {
+        if (typeof renderMathInElement === "function") {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false }
+            ],
+            throwOnError: false
+          });
+        } else {
+          // 備援處理：若 KaTeX 未載入，將 $$...$$ 替換為乾淨的 Unicode 公式文字
+          var targets = document.querySelectorAll(".katex-target");
+          targets.forEach(function (el) {
+            var fb = el.getAttribute("data-fallback");
+            if (fb && el.textContent.indexOf("$$") !== -1) {
+              el.innerHTML = '<span style="font-family: ui-monospace, monospace; font-weight: 700;">' + fb + '</span>';
+            }
+          });
+        }
+      } catch (err) {
+        console.warn("Math rendering fallback active:", err);
+      }
+    }
+
+    // 五步驟流水線資料
+    var pipelineData = {
+      1: {
+        badge: "步驟 1 / 5・CI 階段起點",
+        badgeBg: "#e0e7ff",
+        badgeColor: "#3730a3",
+        title: "開新分支（Git Branch）：隔離實驗室",
+        summary: "當我們想為記帳軟體新增「匯出月報表」功能時，絕對不要直接在穩定的 main 主線上修改，而是先開一條獨立分支（例如 feat/monthly-report）。",
+        analogy: "就像把主線程式碼影印一份放到獨立實驗室裡交給 AI 盡情發揮，就算 AI 在裡面改得天翻地覆，正在線上的正式版記帳軟體也完全不受影響。",
+        command: "git checkout -b feat/monthly-report"
+      },
+      2: {
+        badge: "步驟 2 / 5・提出合併申請",
+        badgeBg: "#dbeafe",
+        badgeColor: "#1e40af",
+        title: "推上 GitHub 並開立 PR（Pull Request）",
+        summary: "AI 在分支裡寫完「匯出月報表」功能後，將程式碼推送（Push）到 GitHub 雲端倉庫，並開啟一張 Pull Request（合併請求單），正式申請把新功能併回主線。",
+        analogy: "這張 PR 就像是「產品出廠申請單」，一旦開立，就會立刻觸發倉庫裡設定好的自動化品管門禁！",
+        command: "git push origin feat/monthly-report  # 在 GitHub 點擊 Create Pull Request"
+      },
+      3: {
+        badge: "步驟 3 / 5・自動化品管核心",
+        badgeBg: "#fef3c7",
+        badgeColor: "#92400e",
+        title: "CI（Continuous Integration，持續整合）雲端大體檢",
+        summary: "GitHub Actions 偵測到新 PR 後，立刻在雲端租用一台全新的空白電腦，自動把新舊程式碼整合在一起，跑完 Lint、Typecheck、Test 與 Build 所有檢查。",
+        analogy: "如果發現新寫的報表功能不小心弄壞了舊的「新增記帳」功能，CI 會立刻亮起紅燈並鎖住合併按鈕，把問題擋在門外。",
+        command: "# 自動執行 .github/workflows/ci.yml 內的檢查清單"
+      },
+      4: {
+        badge: "步驟 4 / 5・驗收通過正式入庫",
+        badgeBg: "#dcfce7",
+        badgeColor: "#166534",
+        title: "合併回主線（Merge to Main）",
+        summary: "當 CI 檢查的所有項目都亮起令人安心的「綠燈」後，代表新功能運作正常且沒有破壞任何舊功能，此時才按下 Merge 按鈕，將程式碼正式併入 main 主線。",
+        analogy: "品管章蓋下去後，新零件正式成為記帳軟體標準版的一部分！",
+        command: "git checkout main && git merge feat/monthly-report"
+      },
+      5: {
+        badge: "步驟 5 / 5・自動化物流上架",
+        badgeBg: "#ccfbf1",
+        badgeColor: "#115e59",
+        title: "CD（持續交付 / 持續部署）自動發布上線",
+        summary: "雲端部署平台（如 Render、Netlify、Vercel）隨時盯著 main 主線。一旦偵測到主線有新程式碼合併進來，平台會自動抓取最新程式碼、重新打包並發布到正式網址。",
+        analogy: "你完全不需要手動上傳檔案或重啟伺服器，喝口水的時間，全世界的使用者重新整理網頁就能用到全新的「匯出月報表」功能了！",
+        command: "Vercel / Netlify Webhook Triggered -> Building -> Live in Production!"
+      }
+    };
+
+    function selectPipelineStep(step) {
+      var data = pipelineData[step];
+      if (!data) return;
+
+      for (var i = 1; i <= 5; i++) {
+        var rect = document.getElementById("node-rect-" + i);
+        var btn = document.getElementById("btn-step-" + i);
+        if (rect) {
+          if (i === step) {
+            rect.setAttribute("stroke", "#4f46e5");
+            rect.setAttribute("stroke-width", "3.5");
+            if (i !== 1) rect.setAttribute("fill", "#eef2ff");
+          } else {
+            rect.setAttribute("stroke", i === 1 ? "#312e81" : "#cbd5e1");
+            rect.setAttribute("stroke-width", "2");
+            if (i !== 1) rect.setAttribute("fill", "#ffffff");
+          }
+        }
+        if (btn) {
+          if (i === step) {
+            btn.style.background = "#4f46e5";
+            btn.style.color = "#ffffff";
+            btn.style.border = "1px solid #4f46e5";
+          } else {
+            btn.style.background = "#f1f5f9";
+            btn.style.color = "#334155";
+            btn.style.border = "1px solid #e2e8f0";
+          }
+        }
+      }
+
+      var panel = document.getElementById("pipeline-detail-panel");
+      if (panel) {
+        panel.classList.remove("animate-pop-in");
+        void panel.offsetWidth;
+        panel.classList.add("animate-pop-in");
+        panel.innerHTML =
+          '<div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">' +
+            '<span style="display:inline-block; width:fit-content; padding:4px 12px; border-radius:9999px; font-size:12px; font-weight:800; background:' + data.badgeBg + '; color:' + data.badgeColor + ';">' + data.badge + '</span>' +
+            '<code style="font-size:12px; background:#0f172a; color:#6ee7b7; padding:6px 12px; border-radius:8px; overflow-x:auto;">' + data.command + '</code>' +
+          '</div>' +
+          '<h3 class="text-xl font-extrabold text-slate-900 mb-2">' + data.title + '</h3>' +
+          '<p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-3">' + data.summary + '</p>' +
+          '<div style="padding:12px 14px; border-radius:12px; background:#ffffff; border:1px solid #e2e8f0; font-size:13px; color:#475569;">' +
+            '💡 <strong style="color:#0f172a;">白話比喻：</strong>' + data.analogy +
+          '</div>';
+      }
+    }
+
+    // GitHub Actions 雲端沙盒模擬器
+    function setGateState(gateNum, state) {
+      var box = document.getElementById("gate" + gateNum + "-box");
+      var badge = document.getElementById("gate" + gateNum + "-badge");
+      var status = document.getElementById("gate" + gateNum + "-status");
+      if (!box || !badge || !status) return;
+
+      if (state === "pass") {
+        box.setAttribute("stroke", "#10b981");
+        badge.setAttribute("fill", "#064e3b");
+        status.setAttribute("fill", "#34d399");
+        status.textContent = "🟢 綠燈通過";
+      } else if (state === "fail") {
+        box.setAttribute("stroke", "#f43f5e");
+        badge.setAttribute("fill", "#881337");
+        status.setAttribute("fill", "#fda4af");
+        status.textContent = "🔴 紅燈攔截！";
+      } else {
+        box.setAttribute("stroke", "#475569");
+        badge.setAttribute("fill", "#334155");
+        status.setAttribute("fill", "#94a3b8");
+        status.textContent = "⏸️ 已跳過檢查";
+      }
+    }
+
+    function runCISimulation(mode) {
+      var terminal = document.getElementById("ci-terminal-output");
+      var modes = ["pass", "lint", "test", "build"];
+      modes.forEach(function (m) {
+        var btn = document.getElementById("sim-btn-" + m);
+        if (!btn) return;
+        if (m === mode) {
+          btn.style.boxShadow = m === "pass" ? "0 0 0 3px rgba(52,211,153,0.5)" : "0 0 0 3px rgba(244,63,94,0.5)";
+        } else {
+          btn.style.boxShadow = "none";
+        }
+      });
+
+      if (!terminal) return;
+
+      if (mode === "pass") {
+        setGateState(1, "pass");
+        setGateState(2, "pass");
+        setGateState(3, "pass");
+        terminal.innerHTML =
+          '<div style="color:#34d399; font-weight:800;">✅ All checks have passed! (3/3 checks successful in 28s)</div>' +
+          '<div style="color:#cbd5e1; font-size:13px; line-height:1.7;">' +
+            '<div><span style="color:#34d399;">✔ [關卡 1]</span> npm run lint &amp; typecheck — 0 errors, 0 warnings. 型別與 React Hook 規範完全正確。</div>' +
+            '<div><span style="color:#34d399;">✔ [關卡 2]</span> npm run test — 虛擬用戶試記 3 筆帳目（100 + 250 + 50 = 400），12/12 測試案例全數通過。</div>' +
+            '<div><span style="color:#34d399;">✔ [關卡 3]</span> npm run build — 生產環境成品打包成功 (dist/bundle.js 142 kB)。</div>' +
+          '</div>' +
+          '<div style="padding-top:8px; border-top:1px solid #1e293b; color:#6ee7b7; font-size:12px;">' +
+            '🎉 GitHub PR 狀態已轉為綠色：「Merge pull request」按鈕已解鎖，可安全合併並觸發 CD 上線！' +
+          '</div>';
+      } else if (mode === "lint") {
+        setGateState(1, "fail");
+        setGateState(2, "skip");
+        setGateState(3, "skip");
+        terminal.innerHTML =
+          '<div style="color:#fb7185; font-weight:800;">❌ CI Failed at Gate 1: Lint &amp; Typecheck (Exit code 1)</div>' +
+          '<div style="padding:10px; border-radius:10px; background:rgba(136,19,55,0.45); border:1px solid #9f1239; color:#fecdd3; font-size:12px; line-height:1.6;">' +
+            '<div><strong>Error 1 (ESLint):</strong> src/components/MonthlyReport.tsx:24 — React Hook <code>useEffect</code> 缺少依賴陣列，將導致無限迴圈渲染！</div>' +
+            '<div><strong>Error 2 (TypeScript):</strong> src/utils/calc.ts:15 — 型別 <code>string</code> ("100元") 無法指派給參數型別 <code>number</code>。</div>' +
+          '</div>' +
+          '<div style="padding-top:8px; border-top:1px solid #1e293b; color:#fcd34d; font-size:12px;">' +
+            '🛡️ 攔截成功！PR 合併按鈕已鎖定。請點擊 Details 或透過 GitHub Connectors 讓 AI 讀取報錯並自動修復。' +
+          '</div>';
+      } else if (mode === "test") {
+        setGateState(1, "pass");
+        setGateState(2, "fail");
+        setGateState(3, "skip");
+        terminal.innerHTML =
+          '<div style="color:#fb7185; font-weight:800;">❌ CI Failed at Gate 2: Automated Test (1 failed, 11 passed)</div>' +
+          '<div style="padding:10px; border-radius:10px; background:rgba(136,19,55,0.45); border:1px solid #9f1239; color:#fecdd3; font-size:12px; line-height:1.6;">' +
+            '<div><strong>FAIL</strong> tests/expenseSummary.test.ts &gt; 虛擬用戶試記三筆帳目加總驗證</div>' +
+            '<div>Expected: <span style="color:#34d399;">400</span> | Received: <span style="color:#fb7185;">350</span> (AI 修改匯出報表時誤刪了最後一筆加總邏輯！)</div>' +
+          '</div>' +
+          '<div style="padding-top:8px; border-top:1px solid #1e293b; color:#fcd34d; font-size:12px;">' +
+            '🛡️ 攔截成功！多虧有自動化驗收考卷，成功抓出「做 A 壞 B」的隱藏邏輯 Bug，避免算錯用戶帳目！' +
+          '</div>';
+      } else if (mode === "build") {
+        setGateState(1, "pass");
+        setGateState(2, "pass");
+        setGateState(3, "fail");
+        terminal.innerHTML =
+          '<div style="color:#fb7185; font-weight:800;">❌ CI Failed at Gate 3: Production Build (vite build failed)</div>' +
+          '<div style="padding:10px; border-radius:10px; background:rgba(136,19,55,0.45); border:1px solid #9f1239; color:#fecdd3; font-size:12px; line-height:1.6;">' +
+            '<div><strong>Build Error:</strong> Could not resolve "./ExportPdfHelper" from "src/pages/ReportPage.tsx"</div>' +
+            '<div>原因：AI 在本機忘了將新建的輔助檔案加入 Git 追蹤，導致雲端全新空白電腦找不到該檔案！</div>' +
+          '</div>' +
+          '<div style="padding-top:8px; border-top:1px solid #1e293b; color:#fcd34d; font-size:12px;">' +
+            '🛡️ 攔截成功！全新雲端沙盒完美抓出「在我電腦上可以跑、但其實漏傳檔案」的經典地雷！' +
+          '</div>';
+      }
+    }
+
+    // =========================================================================
+    // 時間軸互動逐字稿導覽資料（完整 17 個關鍵節點）
+    // =========================================================================
+    var timelineNodesData = [
+      {
+        id: "node-0000",
+        time: "00:00",
+        seconds: 0,
+        chapter: "第一階段：痛點引入",
+        title: "為什麼用 AI 寫程式常看到「等待 CI 檢查」？",
+        summary: "用 AI 寫程式開完 PR 後，畫面常跳出黃燈轉圈圈寫著『正在等待 CI 檢查』。這道自動把關機制能徹底解決每次疊加新功能時『做 A 壞 B』、陷入抓 Bug 打地鼠無限迴圈的噩夢。",
+        context: "AI 時代軟體工廠產出極快，但人工逐一重測所有舊功能完全不切實際。CI/CD 就是為你的程式碼建立一條全自動品管與物流流水線。",
+        boxType: "blue",
+        boxLabel: "🔵 核心觀念・自動化品管把關",
+        boxText: "CI/CD 是 AI 開發的護城河：將繁瑣的『檢查有沒有改壞』與『打包上傳網站』全部交給雲端機器自動執行。"
+      },
+      {
+        id: "node-0047",
+        time: "00:47",
+        seconds: 47,
+        chapter: "第一階段：痛點引入",
+        title: "實戰案例設定：為「記帳軟體」新增匯出月報表",
+        summary: "為了讓新手具體理解，影片以一個已經上線運作的『個人記帳軟體』為例：現在我們準備請 AI 幫這個軟體開發一個全新的『匯出月報表』功能。",
+        context: "在沒有保護機制的情況下，AI 為了寫出匯出報表，可能會不小心改動到原本記帳加總或資料庫讀取的共用程式碼。",
+        boxType: "blue",
+        boxLabel: "🔵 情境案例・記帳 App 迭代",
+        boxText: "目標：在不破壞『新增記帳、分類統計、歷史查詢』等既有功能的前提下，安全地把『匯出月報表』送上線。"
+      },
+      {
+        id: "node-0127",
+        time: "01:27",
+        seconds: 87,
+        chapter: "第二階段：開發五步驟",
+        title: "步驟一開新分支（Branch）與步驟二開立 PR",
+        summary: "第一步先從穩定的 main 主線切出一條獨立分支（隔離實驗室）讓 AI 安心寫新功能；第二步寫完後推上 GitHub 並開立 Pull Request（PR），正式提出合併申請。",
+        context: "分開開發能確保線上正式版永遠穩定。PR 則像是工廠的『出廠檢驗申請單』，一送出就會喚醒自動品管員。",
+        boxType: "green",
+        boxLabel: "🟢 最佳實踐・Git 分支隔離流程",
+        boxText: "指令節奏：git checkout -b feat/export-report → AI 完成開發 → git push → 開啟 Pull Request 等待檢查。"
+      },
+      {
+        id: "node-0202",
+        time: "02:02",
+        seconds: 122,
+        chapter: "第二階段：開發五步驟",
+        title: "步驟三：CI（Continuous Integration，持續整合）啟動",
+        summary: "PR 一開立，GitHub 立刻在背景自動把你的新功能分支與原本的主線程式碼整合在一起，並執行一系列自動化測試與品質掃描，確認新舊零件完全相容。",
+        context: "這就是為什麼我們在 PR 頁面會看到檢查項目在轉圈圈——系統正在替你進行全方位的自動化體檢。",
+        boxType: "blue",
+        boxLabel: "🔵 核心觀念・持續整合定義",
+        boxText: "Continuous Integration 的精神在於『頻繁且自動地將新程式碼併入主線前進行驗證』，越早發現衝突成本越低。"
+      },
+      {
+        id: "node-0217",
+        time: "02:17",
+        seconds: 137,
+        chapter: "第二階段：開發五步驟",
+        title: "步驟四合併主線（Merge）與步驟五 CD 自動部署",
+        summary: "當 CI 全部亮綠燈後，執行步驟四將程式碼合併回 main 主線；接著步驟五 CD（持續交付 / 持續部署）接手，Render、Netlify 或 Vercel 偵測到主線更新，自動打包並發布上線。",
+        context: "持續交付（Delivery）保留最後人工按確認鍵；持續部署（Deployment）則全自動無縫上線，使用者重新整理網頁就能用到新功能。",
+        boxType: "green",
+        boxLabel: "🟢 最佳實踐・自動化發布流水線",
+        boxText: "CI 負責『驗貨（確保沒壞）』，CD 負責『上架（Render / Netlify / Vercel 自動重新編譯與部署）』。"
+      },
+      {
+        id: "node-0345",
+        time: "03:45",
+        seconds: 225,
+        chapter: "第三階段：CI 三道基本關卡",
+        title: "揭開 CI 神秘面紗：.github/workflows/ci.yml 檢查清單",
+        summary: "CI 並不是什麼黑魔法，它本質上就是存放在專案 .github/workflows/ci.yml 裡的一份自動化指令清單。新手完全不需要手寫，直接請 Claude Code、Codex 或 Cursor 幫你生成即可！",
+        context: "你可以把它想像成工廠品管員手上的『標準驗收 CheckList』，每次開 PR 都會逐條打勾確認。",
+        boxType: "green",
+        boxLabel: "🟢 指令與實作・AI 生成設定檔",
+        boxText: "對 AI 下達指令：『請幫我建立 .github/workflows/ci.yml，在每次 PR 時自動執行 lint、typecheck、test 與 build。』"
+      },
+      {
+        id: "node-0433",
+        time: "04:33",
+        seconds: 273,
+        chapter: "第三階段：CI 三道基本關卡",
+        title: "關卡一（上）：npm run lint 抓出 AI 寫程式壞習慣",
+        summary: "透過 ESLint 規則進行程式碼品質掃描，專門揪出 AI 遺留的無用變數，或是攔截容易導致網頁卡死的危險寫法（例如不當使用 React 的 useEffect 引發無限迴圈）。",
+        context: "AI 寫程式有時為了求快會留下潛在效能地雷，Lint 就像嚴格的代碼潔癖教練，在合併前強制修正。",
+        boxType: "red",
+        boxLabel: "🔴 紅燈地雷警告・useEffect 無限迴圈",
+        boxText: "常見 AI 地雷：在 useEffect 內更新狀態卻未正確設定依賴陣列，導致瀏覽器無限重繪崩潰，npm run lint 會直接亮紅燈攔截！"
+      },
+      {
+        id: "node-0525",
+        time: "05:25",
+        seconds: 325,
+        chapter: "第三階段：CI 三道基本關卡",
+        title: "關卡一（下）：npm run typecheck 攔截「100元」型別錯亂",
+        summary: "TypeScript 型別檢查確保資料格式嚴格匹配。例如記帳金額應該是純數字 100，若 AI 不小心把純文字字串 \"100元\" 拿去做加減運算，typecheck 會立刻報錯退回。",
+        context: "如果讓文字與數字混算上線，使用者的月報表總金額可能會變成 NaN 或字串拼接的 \"100元250元\"！",
+        boxType: "red",
+        boxLabel: "🔴 紅燈地雷警告・型別不匹配",
+        boxText: "防呆底線：金額欄位必須嚴格為 Number（100），杜絕 String（\"100元\"）混入財務計算邏輯。"
+      },
+      {
+        id: "node-0608",
+        time: "06:08",
+        seconds: 368,
+        chapter: "第三階段：CI 三道基本關卡",
+        title: "關卡二：npm run test 讓虛擬用戶考標準驗收考卷",
+        summary: "透過預先寫好的自動化測試腳本，讓電腦在背景模擬虛擬用戶操作：例如自動試記三筆帳並核對總金額是否正確，確保新功能正常且沒有改壞任何舊功能。",
+        context: "這就像幫軟體準備一份『標準驗收考卷』，每次改版都重考一次，100 分才准畢業。",
+        boxType: "green",
+        boxLabel: "🟢 指令與實作・回歸測試（Regression Test）",
+        boxText: "核心價值：一旦寫好『記帳加總測試』，未來無論 AI 怎麼擴充新功能，只要算錯舊帳就會立刻被抓包。"
+      },
+      {
+        id: "node-0658",
+        time: "06:58",
+        seconds: 418,
+        chapter: "第三階段：CI 三道基本關卡",
+        title: "關卡三：npm run build 模擬最終網站成品組裝",
+        summary: "開發時我們面對的是零散的元件檔案；npm run build 會將所有程式碼編譯、壓縮並組裝成瀏覽器看得懂的最終網站成品，確保所有零件都能順利拼裝不出錯。",
+        context: "很多時候開發模式（npm run dev）看起來沒事，一打包才發現少引入檔案或環境變數錯誤，這關能避免上線後網站白屏打不開。",
+        boxType: "green",
+        boxLabel: "🟢 指令與實作・出廠前總組裝預演",
+        boxText: "只有通過 npm run build 的專案，才能保證交給 Vercel / Netlify 部署時不會在最後一刻編譯失敗。"
+      },
+      {
+        id: "node-0747",
+        time: "07:47",
+        seconds: 467,
+        chapter: "第三階段：CI 三道基本關卡",
+        title: "為什麼 GitHub Actions 要在雲端租一台「全新的空白電腦」？",
+        summary: "因為開發者的本機電腦常殘留舊套件、快取檔或未追蹤的本地檔案（造成『在我電腦上明明可以跑』的假象）。每次開 PR 租用全新空白虛擬機重跑，才能保證環境 100% 純淨客觀。",
+        context: "如果 AI 在本機新增了一個檔案卻忘了加進 Git，本機跑得過，但雲端空白電腦一抓程式碼就會立刻抓出缺件！",
+        boxType: "blue",
+        boxLabel: "🔵 核心觀念・純淨沙盒隔離環境",
+        boxText: "雲端空白電腦（Ephemeral Runner）消除了本機環境差異，驗收通過後即銷毀，既精準又省資源。"
+      },
+      {
+        id: "node-0845",
+        time: "08:45",
+        seconds: 525,
+        chapter: "第四階段：PR 綠燈與 CD 部署",
+        title: "看懂 PR 狀態列：3/3 綠燈勾勾與紅燈 Details 除錯術",
+        summary: "在 GitHub PR 頁面最下方，可以看到所有 CI 關卡的即時狀態。全部通過會顯示綠色勾勾；若任一關亮紅燈，點擊 Details 查看錯誤報告，或直接讓 AI 透過 GitHub Connectors 自動讀取並修復。",
+        context: "紅燈不是挫折，而是免費的自動除錯提示！把報錯丟給 AI，通常幾十秒內就能自動修好並重新觸發綠燈。",
+        boxType: "red",
+        boxLabel: "🔴 紅燈地雷警告・AI 自動修復閉環",
+        boxText: "省力技巧：透過 GitHub Connectors 授權 Claude Code / Codex 讀取 PR 失敗日誌，一句話即可讓 AI 自動修完重推。"
+      },
+      {
+        id: "node-0933",
+        time: "09:33",
+        seconds: 573,
+        chapter: "第四階段：PR 綠燈與 CD 部署",
+        title: "合併進 Main 之後：Render / Vercel 自動監聽上線",
+        summary: "當我們安心按下 Merge pull request 將程式碼併入 main 主線後，綁定好的部署平台（如 Render、Netlify、Vercel）會立刻收到通知，自動拉取最新主線程式碼並完成正式環境更新。",
+        context: "從開分支、CI 體檢到 CD 自動部署，整套現代化軟體工程流水線到此完整閉環。",
+        boxType: "green",
+        boxLabel: "🟢 指令與實作・無痛持續部署",
+        boxText: "main 分支永遠保持『隨時可發布』的最高品質狀態，讓每次版本更新都像呼吸一樣自然流暢。"
+      },
+      {
+        id: "node-1021",
+        time: "10:21",
+        seconds: 621,
+        chapter: "第五階段：進階武器與雙層防線",
+        title: "進階武器一：Playwright 自動化瀏覽器實機點擊測試",
+        summary: "當產品變複雜時，可加入 Playwright 在雲端真正開啟瀏覽器模擬真人點擊網頁，確認畫面無白屏、按鈕可正常互動。但切記只針對『流程已穩定且最核心關鍵』的路徑設定。",
+        context: "如果在產品早期原型階段對每個小畫面都寫瀏覽器測試，每次改 UI 都要重改測試腳本，反而會嚴重拖慢開發速度。",
+        boxType: "purple",
+        boxLabel: "🟣 進階防線・核心路徑精準打擊",
+        boxText: "Playwright 挑選原則：只測『登入、付款結帳、匯出核心報表』等絕對不能壞的黃金路徑（Critical Paths）。"
+      },
+      {
+        id: "node-1110",
+        time: "11:10",
+        seconds: 670,
+        chapter: "第五階段：進階武器與雙層防線",
+        title: "進階武器二：LLM-as-a-Judge（用裁判 AI 驗收 AI 功能）",
+        summary: "若記帳軟體內建『AI 理財顧問』，每次回答文字都不固定，傳統死板測試無法驗證。此時可準備 20 題常見問題題庫讓 AI 作答，再交由另一位『裁判 AI』依據原始數據與評分標準打分數。",
+        context: "一旦 AI 理財顧問算錯花費總額或開始胡說八道，裁判 AI 給出的分數低於門檻，CI 就會自動退貨不准上線。",
+        boxType: "purple",
+        boxLabel: "🟣 進階防線・AI 評估題庫機制",
+        boxText: "公式思維：20 題標準題庫 + 原始帳目 Ground Truth + 裁判 AI 評分標準 = 可量化的 AI 品質門檻。"
+      },
+      {
+        id: "node-1212",
+        time: "12:12",
+        seconds: 732,
+        chapter: "第五階段：進階武器與雙層防線",
+        title: "終極雙層防線：CI 全綠只是底線，還需獨立 AI 實機驗證",
+        summary: "CI 全綠燈只代表通過『事先定義好的標準考題』。面對真實用戶的混亂操作，在 CI 之上應再建立第二層防線（如使用 create verification skill），指派未參與開發的獨立 AI 進系統到處點擊並錄下證據。",
+        context: "寫程式的 AI 容易有盲點（自己改自己考卷），由另一位獨立 AI 扮演挑剔用戶做實機探索驗證，才能抓出意想不到的邊界 Bug。",
+        boxType: "purple",
+        boxLabel: "🟣 進階防線・雙層防線架構（Double-Layer）",
+        boxText: "第一層（CI）：守住已知標準規範；第二層（create verification skill）：獨立 AI 實機亂點並錄製操作證據才放行。"
+      },
+      {
+        id: "node-1306",
+        time: "13:06",
+        seconds: 786,
+        chapter: "第五階段：進階武器與雙層防線",
+        title: "總結：AI 時代的關鍵能力在於「建立自動驗收系統」",
+        summary: "當 AI 讓寫程式的產出速度提升十倍，開發者真正的瓶頸已不再是『寫不寫得出來』，而是『如何確保每次修改都安全可靠』。建立完善的 CI/CD 與雙層驗證，就能讓你的 AI 軟體工廠全速前進。",
+        context: "從今天起，為你的下一個 AI 專案加上 .github/workflows/ci.yml，徹底告別改 A 壞 B 的焦慮！",
+        boxType: "blue",
+        boxLabel: "🔵 核心觀念・從寫程式轉向設計品管系統",
+        boxText: "掌握『分支隔離 → CI 三關卡 → 獨立 AI 實機驗證 → CD 自動上線』，你就是駕馭 AI 工程團隊的架構師。"
+      }
+    ];
+
+    var activeColorFilter = "all";
+
+    function renderRulerDots() {
+      var dotsGroup = document.getElementById("ruler-dots-group");
+      if (!dotsGroup) return;
+      var totalSeconds = 832;
+      var startX = 20;
+      var usableWidth = 960;
+      var colorMap = {
+        blue: "#2563eb",
+        green: "#059669",
+        red: "#e11d48",
+        purple: "#7c3aed"
+      };
+
+      var html = "";
+      for (var i = 0; i < timelineNodesData.length; i++) {
+        var node = timelineNodesData[i];
+        var cx = (startX + (node.seconds / totalSeconds) * usableWidth).toFixed(1);
+        var fill = colorMap[node.boxType] || "#4f46e5";
+        html += '<g style="cursor:pointer;" onclick="jumpToTimelineNode(\'' + node.id + '\')">' +
+                  '<title>[' + node.time + '] ' + node.title + '</title>' +
+                  '<circle cx="' + cx + '" cy="52" r="6" fill="#ffffff" stroke="' + fill + '" stroke-width="2.5" />' +
+                '</g>';
+      }
+      dotsGroup.innerHTML = html;
+    }
+
+    function updateRulerPlayhead(node) {
+      var playhead = document.getElementById("ruler-playhead");
+      var timeLabel = document.getElementById("ruler-playhead-time");
+      var activeLabel = document.getElementById("ruler-active-label");
+      if (!playhead || !node) return;
+
+      var x = (20 + (node.seconds / 832) * 960).toFixed(1);
+      playhead.setAttribute("transform", "translate(" + x + ", 0)");
+      if (timeLabel) timeLabel.textContent = node.time;
+      if (activeLabel) activeLabel.textContent = "目前聚焦：[" + node.time + "] " + node.title;
+    }
+
+    function updateRulerPlayheadById(id) {
+      for (var i = 0; i < timelineNodesData.length; i++) {
+        if (timelineNodesData[i].id === id) {
+          updateRulerPlayhead(timelineNodesData[i]);
+          break;
+        }
+      }
+    }
+
+    function jumpToTimelineNode(nodeId) {
+      var targetNode = null;
+      for (var i = 0; i < timelineNodesData.length; i++) {
+        if (timelineNodesData[i].id === nodeId) {
+          targetNode = timelineNodesData[i];
+          break;
+        }
+      }
+      if (!targetNode) return;
+
+      var el = document.getElementById(nodeId);
+      if (!el) {
+        clearTimelineFilters();
+      }
+
+      setTimeout(function () {
+        var refreshedEl = document.getElementById(nodeId);
+        if (refreshedEl) {
+          refreshedEl.scrollIntoView({ behavior: "smooth", block: "center" });
+          refreshedEl.style.boxShadow = "0 0 0 3px #4f46e5";
+          setTimeout(function () {
+            refreshedEl.style.boxShadow = "";
+          }, 1600);
+        }
+        updateRulerPlayhead(targetNode);
+      }, 40);
+    }
+
+    function renderTimelineCards(nodes) {
+      var container = document.getElementById("timeline-cards-container");
+      var emptyState = document.getElementById("timeline-empty-state");
+      var countBadge = document.getElementById("timeline-count-badge");
+
+      if (countBadge) countBadge.textContent = nodes.length;
+      if (!container) return;
+
+      if (nodes.length === 0) {
+        container.innerHTML = "";
+        if (emptyState) emptyState.style.display = "block";
+        return;
+      }
+
+      if (emptyState) emptyState.style.display = "none";
+
+      var boxStyles = {
+        blue: { bg: "#eff6ff", border: "#2563eb", labelColor: "#1e40af", textColor: "#1e3a8a" },
+        green: { bg: "#ecfdf5", border: "#059669", labelColor: "#065f46", textColor: "#064e3b" },
+        red: { bg: "#fff1f2", border: "#e11d48", labelColor: "#9f1239", textColor: "#881337" },
+        purple: { bg: "#faf5ff", border: "#7c3aed", labelColor: "#5b21b6", textColor: "#4c1d95" }
+      };
+
+      var html = "";
+      for (var i = 0; i < nodes.length; i++) {
+        var node = nodes[i];
+        var st = boxStyles[node.boxType] || boxStyles.blue;
+        var ytUrl = "https://www.youtube.com/watch?v=aCvEYczBVSY&t=" + node.seconds + "s";
+
+        html +=
+          '<article id="' + node.id + '" onclick="updateRulerPlayheadById(\'' + node.id + '\')" ' +
+            'class="card-surface p-5 sm:p-6 transition-all" style="cursor:pointer;">' +
+            '<div class="flex flex-wrap items-center justify-between gap-2 mb-3">' +
+              '<div class="flex items-center gap-2">' +
+                '<a href="' + ytUrl + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" ' +
+                  'style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:8px; background:#0f172a; color:#fcd34d; font-size:13px; font-weight:800; text-decoration:none;" class="font-mono">' +
+                  '<span>▶ ' + node.time + '</span>' +
+                '</a>' +
+                '<span style="font-size:12px; font-weight:700; color:#475569; background:#f1f5f9; padding:4px 10px; border-radius:6px;">' +
+                  node.chapter +
+                '</span>' +
+              '</div>' +
+              '<a href="' + ytUrl + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" ' +
+                'style="font-size:12px; font-weight:700; color:#4f46e5; text-decoration:none;">' +
+                '跳轉該秒數播放 ↗' +
+              '</a>' +
+            '</div>' +
+            '<h3 class="text-lg sm:text-xl font-extrabold text-slate-900 mb-2">' + node.title + '</h3>' +
+            '<p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-2">' + node.summary + '</p>' +
+            '<p class="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4">📌 <strong>實戰脈絡：</strong>' + node.context + '</p>' +
+            '<div style="padding:14px 16px; border-radius:12px; background:' + st.bg + '; border-left:4px solid ' + st.border + ';">' +
+              '<div style="font-weight:800; color:' + st.labelColor + '; font-size:13px; margin-bottom:4px;">' + node.boxLabel + '</div>' +
+              '<p style="margin:0; font-size:13px; color:' + st.textColor + '; line-height:1.6;">' + node.boxText + '</p>' +
+            '</div>' +
+          '</article>';
+      }
+      container.innerHTML = html;
+    }
+
+    function filterTimelineNodes() {
+      var input = document.getElementById("timeline-search-input");
+      var clearBtn = document.getElementById("clear-search-btn");
+      var query = input ? (input.value || "").trim().toLowerCase() : "";
+
+      if (clearBtn) {
+        clearBtn.style.display = query.length > 0 ? "block" : "none";
+      }
+
+      var filtered = timelineNodesData.filter(function (node) {
+        var matchesColor = activeColorFilter === "all" || node.boxType === activeColorFilter;
+        var text = (node.time + " " + node.chapter + " " + node.title + " " + node.summary + " " + node.context + " " + node.boxText).toLowerCase();
+        var matchesQuery = !query || text.indexOf(query) !== -1;
+        return matchesColor && matchesQuery;
+      });
+
+      renderTimelineCards(filtered);
+    }
+
+    function setTimelineColorFilter(color) {
+      activeColorFilter = color;
+      var colors = ["all", "blue", "green", "red", "purple"];
+      for (var i = 0; i < colors.length; i++) {
+        var c = colors[i];
+        var btn = document.getElementById("filter-btn-" + c);
+        if (!btn) continue;
+        if (c === color) {
+          btn.style.boxShadow = "0 0 0 2px #0f172a";
+        } else {
+          btn.style.boxShadow = "none";
+        }
+      }
+      filterTimelineNodes();
+    }
+
+    function clearTimelineFilters() {
+      var input = document.getElementById("timeline-search-input");
+      if (input) input.value = "";
+      setTimelineColorFilter("all");
+    }
+
+    // 頁面載入完成後立即初始化所有互動元件
+    function bootstrapInteractivePage() {
+      selectPipelineStep(1);
+      runCISimulation("pass");
+      renderRulerDots();
+      renderTimelineCards(timelineNodesData);
+      renderMathSafely();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", bootstrapInteractivePage);
+    } else {
+      bootstrapInteractivePage();
+    }
+    window.addEventListener("load", renderMathSafely);
+  </script>
+</body>
+</html>

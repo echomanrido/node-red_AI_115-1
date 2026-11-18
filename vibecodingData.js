@@ -1527,5 +1527,224 @@ window.INITIAL_VIBE_DATA = [
         "description": "在傳統 PLC/SCADA 改造升級時，依痛點分枝快速驗證邊緣計算、通訊協定轉換與預測維護之技術可行性。"
       }
     ]
+  },
+  {
+    "id": "vibe-git-kelly",
+    "labNumber": "20",
+    "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！｜Kelly Tsai",
+    "shortTitle": "從零搞懂 Git 版本控制",
+    "category": "版本控管",
+    "date": "2026-11-18",
+    "summary": "AI 幫你光速寫代碼，但改壞了怎麼辦？專為 Vibe Coding 學習者打造的 Git 核心觀念全解析！由知名軟體工程師 Kelly Tsai 親授，徹底破解「三個平行宇宙（Working Directory 工作區、Staging Area 暫存區、Repository 儲存庫）」的神秘面紗。包含平行宇宙動態視覺化模擬器、核心指令速查手冊、遠端 VPS 安全隔離防坑秘笈與完整時間軸逐字稿，讓你放心衝刺 Vibe Coding，隨時擁有時光倒流的改壞後悔藥！",
+    "flowTitle": "Git 三大平行宇宙狀態演進與時光倒流防禦流水線",
+    "resultTitle": "Git 平行宇宙模擬器、CLI 指令手冊與時間軸逐字稿工作台",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmOTczMTYiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjZjk3MzE2Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+R2l0IOS4ieWkp+W5s+ihjOWuh+WumeiIh+aZguWFieWAkua1gea1geawtOe3mjwvdGV4dD4KICA8dGV4dCB4PSIzOCIgeT0iNjAiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iMTEiPldvcmtpbmcgRGlyICjlt6XkvZzljYApIC0mZ3Q7IGdpdCBhZGQgKOaaq+WtmOWNgCkgLSZndDsgZ2l0IGNvbW1pdCAo5YSy5a2Y5bqrKSAtJmd0OyBnaXQgcHVzaCAo6YGg56uvKTwvdGV4dD4KICA8cmVjdCB4PSIyNSIgeT0iODAiIHdpZHRoPSI2NzAiIGhlaWdodD0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA4KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzQiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIzNCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjZjk3MzE2Ii8+CiAgICA8Y2lyY2xlIGN4PSI1NiIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjZjk3MzE2IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU2IiB5PSIxNDAiIGZpbGw9IiNmOTczMTYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HSVQtMTwvdGV4dD4KICAgIDxyZWN0IHg9IjEwMiIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIxMjMiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPldvcmtzcGFjZTwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ2IiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7lt6XkvZzljYDln588L3RleHQ+CiAgICA8dGV4dCB4PSI0NiIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+QUkg55Si5Ye65Luj56K857eo6Lyv5L+u5pS5PC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDE1MyAxNjAgTCAxNjUgMTYwIiBzdHJva2U9IiNmOTczMTYiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMTY4IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMTY4IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiNmOTczMTYiLz4KICAgIDxjaXJjbGUgY3g9IjE5MCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjZjk3MzE2IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjE5MCIgeT0iMTQwIiBmaWxsPSIjZjk3MzE2IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R0lULTI8L3RleHQ+CiAgICA8cmVjdCB4PSIyMzYiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iMjU3IiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TdGFnaW5nPC90ZXh0PgogICAgPHRleHQgeD0iMTgwIiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7mmqvlrZjmiZPljIU8L3RleHQ+CiAgICA8dGV4dCB4PSIxODAiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPmdpdCBhZGQg5qiZ6KiY6Zec6Y215b+r54WnPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDI4NyAxNjAgTCAyOTkgMTYwIiBzdHJva2U9IiNmOTczMTYiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzAyIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMzAyIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiNmOTczMTYiLz4KICAgIDxjaXJjbGUgY3g9IjMyNCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjZjk3MzE2IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjMyNCIgeT0iMTQwIiBmaWxsPSIjZjk3MzE2IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R0lULTM8L3RleHQ+CiAgICA8cmVjdCB4PSIzNzAiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iMzkxIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5SZXBvc2l0b3J5PC90ZXh0PgogICAgPHRleHQgeD0iMzE0IiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7msLjkuYXlsIHlrZg8L3RleHQ+CiAgICA8dGV4dCB4PSIzMTQiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPmdpdCBjb21taXQg6ZGE6YCg54mIPC90ZXh0PgogICAgPHRleHQgeD0iMzE0IiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij7mnKznr4Dpu548L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gNDIxIDE2MCBMIDQzMyAxNjAiIHN0cm9rZT0iI2Y5NzMxNiIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSI0MzYiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSI0MzYiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iI2Y5NzMxNiIvPgogICAgPGNpcmNsZSBjeD0iNDU4IiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiNmOTczMTYiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iNDU4IiB5PSIxNDAiIGZpbGw9IiNmOTczMTYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HSVQtNDwvdGV4dD4KICAgIDxyZWN0IHg9IjUwNCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSI1MjUiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkJyYW5jaGluZzwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ0OCIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+5YiG5pSv5bmz6KGMPC90ZXh0PgogICAgPHRleHQgeD0iNDQ4IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5naXQgYnJhbmNoIOaOoue0ouaWsDwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ0OCIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+5Yqf6IO9PC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDU1NSAxNjAgTCA1NjcgMTYwIiBzdHJva2U9IiNmOTczMTYiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iNTcwIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iNTcwIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiNmOTczMTYiLz4KICAgIDxjaXJjbGUgY3g9IjU5MiIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjZjk3MzE2IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU5MiIgeT0iMTQwIiBmaWxsPSIjZjk3MzE2IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R0lULTU8L3RleHQ+CiAgICA8cmVjdCB4PSI2MzgiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iNjU5IiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Sb2xsYmFjazwvdGV4dD4KICAgIDx0ZXh0IHg9IjU4MiIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+5pmC5YWJ5Zue5rqvPC90ZXh0PgogICAgPHRleHQgeD0iNTgyIiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5naXQgY2hlY2tvdXQvcjwvdGV4dD4KICAgIDx0ZXh0IHg9IjU4MiIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+ZXNldCDmlZHmj7Q8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gNjI4IDIxOCBDIDYyOCAyNjUsIDkyIDI2NSwgOTIgMjE4IiBzdHJva2U9IiNmOTczMTYiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtZGFzaGFycmF5PSI1LDQiIGZpbGw9Im5vbmUiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPHRleHQgeD0iMzYwIiB5PSIyNjAiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI1MDAiPlZpYmUgQ29kaW5nIOW/heWCmeWuieWFqOe2su+8muS7pSBDb21taXQg54K66Yyo6bue77yM5aSn6Ia96K6TIEFJIOmHjeani++8jOaUueWjnuS4gOmNteepv+aireaZguepuumChOWOnzwvdGV4dD4KPC9zdmc+",
+    "resultImage": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html",
+    "slideUrl": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html",
+    "objective": "1. 徹底理解 Git 的本質：分散式版本控制系統與「平行宇宙快照」模型。\n2. 掌握「工作區 ➔ 暫存區 (Stage) ➔ 本地儲存庫 (Repo)」三部曲與核心指令 (status, add, commit, log, branch, merge)。\n3. 熟練掌握時光倒流技巧 (checkout / reset) 與 VPS 伺服器上的安全隔離防禦措施，為 AI 生成代碼打造穩固防線。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 體會 Git 的必要性 — 終結「final_v2_final_真的不改了.zip」",
+        "description": "理解在 AI 協同開發時，高頻率的代碼變更若無版本控制將導致災難性的覆蓋與混亂。"
+      },
+      {
+        "step": "步驟 2: 操作「三個平行宇宙」互動模擬器",
+        "description": "透過視覺化節點即時觀察 git add 將檔案推入暫存區、git commit 生成 SHA-1 快照的記憶體拓撲。"
+      },
+      {
+        "step": "步驟 3: 掌握 Branch 分支與平行宇宙探索",
+        "description": "學會為 AI 實驗性重構開闢獨立 feature 分支，確認穩定後再 merge 回 main 主分支，保持生產代碼乾淨。"
+      },
+      {
+        "step": "步驟 4: 實作改壞救援與 VPS 防坑配置",
+        "description": "學習使用 git diff 審閱 AI 產出的改動，並掌握意外 commit 敏感檔案時的救援手段與 .gitignore 配置。"
+      }
+    ],
+    "promptTemplate": "你是一位精通 Git 內部原理的資深技術導師兼版本控制教練。\n請依據 Kelly Tsai 的 Git 教學架構，針對一位剛使用 Cursor / Claude Code 的新手：\n1. 請以「三個平行宇宙（工作區、暫存區、本地儲存庫）」比喻，解釋 git status 輸出的紅字 (Untracked) 與綠字 (Changes to be committed)。\n2. 請給出在讓 AI 大規模重構舊專案之前，最推薦執行的「防爆三步驟」Git 指令組合。\n3. 如果 AI 不小心把包含了 API Key 的 .env 檔案 commit 進本地儲存庫，請給予安全移除且保留本地檔案的具體終端機操作指南。",
+    "codeSnippet": {
+      "language": "bash",
+      "code": "# Vibe Coding 必備 Git 每日防禦工作流\n$ git status                 # 檢視當前工作區狀態與變更檔案\n$ git add -p                 # 逐區塊審閱 AI 生成的代碼差異\n$ git commit -m 'feat: 新增安全驗證中介層' # 鑄造清晰語意的版本快照\n\n# 探索 AI 實驗性新功能：開闢安全分支\n$ git checkout -b feat/ai-refactor\n\n# 若 AI 改壞想一鍵還原工作區\n$ git restore .              # 放棄工作區所有未暫存的修改"
+    },
+    "references": [
+      {
+        "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(專屬互動教學頁面)",
+        "url": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html",
+        "bgColor": "rgba(249, 115, 22, 0.15)",
+        "borderColor": "rgba(249, 115, 22, 0.6)",
+        "color": "#fb923c",
+        "icon": "fa-solid fa-code-branch",
+        "badge": "本單元專題"
+      },
+      {
+        "title": "YouTube 官方原片：Kelly Tsai 教學頻道",
+        "url": "https://www.youtube.com/watch?v=xDPoBLnyWIo"
+      },
+      {
+        "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 21)",
+        "url": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html"
+      },
+      {
+        "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 22)",
+        "url": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-clock-rotate-left",
+        "scenario": "AI 產碼改壞快速時空回溯",
+        "description": "當 AI 生成的大規模代碼導致系統報錯崩潰時，藉由乾淨的 Commit 節點一秒重設回健康狀態。"
+      },
+      {
+        "icon": "fa-solid fa-code-fork",
+        "scenario": "多功能實驗性並行演進",
+        "description": "利用 Git 分支讓不同 AI Coding Agent 在各自獨立的 Worktree / 分支推進任務，避免代碼覆蓋衝突。"
+      }
+    ]
+  },
+  {
+    "id": "vibe-github-nontech",
+    "labNumber": "21",
+    "title": "給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能",
+    "shortTitle": "非技術人員的 GitHub 教學",
+    "category": "版本控管",
+    "date": "2026-11-18",
+    "summary": "不懂終端機黑底白字？這堂專為非工程師、產品經理與 Vibe Coding 初學者設計的 GitHub 白話指南！用生動的比喻破解 Git 與 GitHub 的本質差異：Git 是你電腦上的「時光機」，GitHub 則是雲端的「全宇宙圖書館」。圖解「神奇辦公桌 (Branch 分支)」、Pull Request (PR) 審閱機制與衝突解決，搭配點擊即可複製的「AI 白話指令秘笈」與互動測驗，讓你輕鬆與工程團隊及 Coding Agents 協同合作！",
+    "flowTitle": "非技術人員 GitHub 雲端協作與 PR 驗收五步工作流",
+    "resultTitle": "GitHub 白話實戰教學、AI 溝通指令庫與互動驗收測驗",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM4YjVjZjYiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjOGI1Y2Y2Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+6Z2e5oqA6KGT5Lq65ZOhIEdpdEh1YiDpm7Lnq6/ljZTkvZzoiIfpqZfmlLbmtYE8L3RleHQ+CiAgPHRleHQgeD0iMzgiIHk9IjYwIiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjExIj5Mb2NhbCBNYWNoaW5lICjmmYLlhYnmqZ8pIC0mZ3Q7IFB1c2ggdG8gQ2xvdWQgKOWcluabuOmkqCkgLSZndDsgQnJhbmNoIFRhYmxlICjnjajnq4vmoYwpIC0mZ3Q7IFBSIFJldmlldyAo5a+p5p+lKSAtJmd0OyBNZXJnZSAo5ZCI5rWBKTwvdGV4dD4KICA8cmVjdCB4PSIyNSIgeT0iODAiIHdpZHRoPSI2NzAiIGhlaWdodD0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA4KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzQiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIzNCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjOGI1Y2Y2Ii8+CiAgICA8Y2lyY2xlIGN4PSI1NiIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjOGI1Y2Y2IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU2IiB5PSIxNDAiIGZpbGw9IiM4YjVjZjYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HSC0xPC90ZXh0PgogICAgPHJlY3QgeD0iMTAyIiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjEyMyIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R2l0IExvY2FsPC90ZXh0PgogICAgPHRleHQgeD0iNDYiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuacrOapn+aZguWFieapnzwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ2IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5HaXQg6KiY6YyE5q+P5LiA5qyh5L+u5pS55q2356iLPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDE1MyAxNjAgTCAxNjUgMTYwIiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMTY4IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMTY4IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiM4YjVjZjYiLz4KICAgIDxjaXJjbGUgY3g9IjE5MCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjOGI1Y2Y2IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjE5MCIgeT0iMTQwIiBmaWxsPSIjOGI1Y2Y2IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R0gtMjwvdGV4dD4KICAgIDxyZWN0IHg9IjIzNiIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIyNTciIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkdpdEh1YiBDbG91ZDwvdGV4dD4KICAgIDx0ZXh0IHg9IjE4MCIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+6Zuy56uv5ZyW5pu46aSoPC90ZXh0PgogICAgPHRleHQgeD0iMTgwIiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5HaXRIdWIg6Zuy56uv5YKZ5Lu96IiH5YWx5LqrPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDI4NyAxNjAgTCAyOTkgMTYwIiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzAyIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMzAyIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiM4YjVjZjYiLz4KICAgIDxjaXJjbGUgY3g9IjMyNCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjOGI1Y2Y2IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjMyNCIgeT0iMTQwIiBmaWxsPSIjOGI1Y2Y2IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R0gtMzwvdGV4dD4KICAgIDxyZWN0IHg9IjM3MCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIzOTEiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkJyYW5jaGluZzwvdGV4dD4KICAgIDx0ZXh0IHg9IjMxNCIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+542o56uL6L6m5YWs5qGMPC90ZXh0PgogICAgPHRleHQgeD0iMzE0IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5CcmFuY2gg5omT6YCg5a6J5YWo5rKZ55uSPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDQyMSAxNjAgTCA0MzMgMTYwIiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iNDM2IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iNDM2IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiM4YjVjZjYiLz4KICAgIDxjaXJjbGUgY3g9IjQ1OCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjOGI1Y2Y2IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjQ1OCIgeT0iMTQwIiBmaWxsPSIjOGI1Y2Y2IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R0gtNDwvdGV4dD4KICAgIDxyZWN0IHg9IjUwNCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSI1MjUiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlBSIFJldmlldzwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ0OCIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+5o+Q5Ye65a+p5p+lPC90ZXh0PgogICAgPHRleHQgeD0iNDQ4IiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5QdWxsIFJlcXVlc3Qg5oiQPC90ZXh0PgogICAgPHRleHQgeD0iNDQ4IiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij7mnpzpqZfmlLY8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gNTU1IDE2MCBMIDU2NyAxNjAiIHN0cm9rZT0iIzhiNWNmNiIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSI1NzAiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSI1NzAiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzhiNWNmNiIvPgogICAgPGNpcmNsZSBjeD0iNTkyIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iNTkyIiB5PSIxNDAiIGZpbGw9IiM4YjVjZjYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HSC01PC90ZXh0PgogICAgPHJlY3QgeD0iNjM4IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjY1OSIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UHJvZHVjdGlvbjwvdGV4dD4KICAgIDx0ZXh0IHg9IjU4MiIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+54Sh57ir5ZCI5rWBPC90ZXh0PgogICAgPHRleHQgeD0iNTgyIiB5PSIxODYiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iOS41Ij5NZXJnZSDmlbTlkIjlhaXkuLvlubnlsIjmoYg8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gNjI4IDIxOCBDIDYyOCAyNjUsIDkyIDI2NSwgOTIgMjE4IiBzdHJva2U9IiM4YjVjZjYiIHN0cm9rZS13aWR0aD0iMS4yIiBzdHJva2UtZGFzaGFycmF5PSI1LDQiIGZpbGw9Im5vbmUiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPHRleHQgeD0iMzYwIiB5PSIyNjAiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI1MDAiPueZveipseWNlOS9nOaooeW8j++8muWNs+S9v+S4jeacg+S4i+aMh+S7pO+8jOS5n+iDveaMh+aPriBBSSDlu7rnq4vliIbmlK/jgIHmj5DkuqTorormm7TkuKblnKggR2l0SHViIOWujOaIkOWuieWFqOWvqemWsTwvdGV4dD4KPC9zdmc+",
+    "resultImage": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html",
+    "slideUrl": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html",
+    "objective": "1. 搞懂核心隱喻：Git（單機存檔時光機）與 GitHub（全球雲端協作平台）的互補關係。\n2. 理解團隊協作標準流程：Repository 倉庫、Commit 存檔點、Push 上傳、Pull 下載、Branch 分支與 Pull Request (PR)。\n3. 掌握「用大白話向 AI 下達 Git 指令」的具體溝通技巧，在不背指令的情況下完成無痛版本控管與改壞救援。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 建立概念地圖 — 檔案總管 vs 時光機 vs 雲端圖書館",
+        "description": "透過生活化圖解釐清為什麼隨手複製資料夾備份會變成災難，而 GitHub 能解決跨裝置同步與協同難題。"
+      },
+      {
+        "step": "步驟 2: 探索「神奇辦公桌」分支哲學",
+        "description": "理解 main 分支作為「正式上線展示間」的崇高地位，任何新功能都應在獨立辦公桌 (feature 分支) 雕琢。"
+      },
+      {
+        "step": "步驟 3: 體驗 Pull Request (PR) 驗收與合併",
+        "description": "掌握 PR 作為「邀請主管/團隊同仁驗收工作」的正式儀式，學會看懂 Diff 綠色新增與紅色刪除標記。"
+      },
+      {
+        "step": "步驟 4: 使用「AI 白話指令卡」與自我檢測",
+        "description": "直接複製專屬 Prompt 讓 AI 幫你執行 add, commit, push 或救援，並完成 5 道實戰測驗鞏固核心觀念。"
+      }
+    ],
+    "promptTemplate": "你是一位超級親切、善於用生活比喻說明的資深軟體工程教練。\n我是一位非技術背景的專案經理 / Vibe Coding 初學者，正在開發一個網站專案：\n1. 請以最通俗白話的文字（嚴禁出現晦澀技術術語），向我解釋什麼是 Pull Request (PR)？為什麼工程師一定要開 PR 不能直接改 main 分支？\n2. 我剛用 Cursor 寫完了一個新功能，請給我一句我可以直接複製貼給 AI Agent 的指令，讓它自動幫我開一個乾淨分支、把改動存檔並上傳到 GitHub。\n3. 如果我想在 GitHub 介面上預覽改動並確認沒問題再合併，我應該點擊哪些按鈕？請條列圖文步驟說明。",
+    "codeSnippet": {
+      "language": "markdown",
+      "code": "# 非技術人員專用：讓 AI 幫你操作 Git 的白話提示詞\n\n「AI，我剛做好了導航列美化功能：\n1. 請幫我建立一個名為 `feat/navbar-style` 的新分支。\n2. 把目前修改的所有 CSS 與 HTML 檔案加入暫存並存檔 (Commit)。\n3. 提交訊息請寫：`feat: 美化頂部導航列樣式與手機選單`。\n4. 自動推送到遠端 GitHub 儲存庫，並告訴我開 PR 的網址！」"
+    },
+    "references": [
+      {
+        "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (專屬互動頁面)",
+        "url": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html",
+        "bgColor": "rgba(139, 92, 246, 0.15)",
+        "borderColor": "rgba(139, 92, 246, 0.6)",
+        "color": "#a78bfa",
+        "icon": "fa-brands fa-github",
+        "badge": "本單元專題"
+      },
+      {
+        "title": "YouTube 官方原片：非技術人員 GitHub 指南",
+        "url": "https://www.youtube.com/watch?v=atqcAb7MFAM"
+      },
+      {
+        "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 20)",
+        "url": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html"
+      },
+      {
+        "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 22)",
+        "url": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-users",
+        "scenario": "跨職能團隊與非工程人員協作",
+        "description": "讓 PM、設計師與業務人員能看懂 GitHub PR、參與驗收測試，並利用網頁介面即時提問與審閱改動。"
+      },
+      {
+        "icon": "fa-solid fa-cloud-arrow-up",
+        "scenario": "個人專案雲端備份與多裝置同步",
+        "description": "告別隨身碟拷貝代碼，學會利用 GitHub 託管私有倉庫，在家中電腦與筆電之間無痛同步 Vibe Coding 進度。"
+      }
+    ]
+  },
+  {
+    "id": "vibe-cicd-gary",
+    "labNumber": "22",
+    "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (自動化軟體工廠指南)",
+    "shortTitle": "新手看懂 CI/CD 自動化工廠",
+    "category": "版本控管",
+    "date": "2026-11-18",
+    "summary": "當你用 Claude Code 或 Cursor 開心地寫功能、開了 PR 卻看見黃燈在轉「等待 CI 檢查」時，背後到底發生了什麼？精選知名技術頻道 Gary Chen 重磅教學。用現代汽車組裝工廠為喻，深入淺出拆解 CI (持續整合) 與 CD (持續交付/部署) 的底層機制。涵蓋 5 步驟自動化流水線 (Build ➔ Unit Test ➔ Static Analysis ➔ Staging ➔ Deploy)、三道必備品管關卡、PR 門禁與主幹防禦策略，並提供 GitHub Actions 完整範本與時間軸逐字稿，助你打造不會被 AI 改壞的鋼鐵防線！",
+    "flowTitle": "CI/CD 自動化軟體工廠 5 步驟品管與雙層防禦流水線",
+    "resultTitle": "CI/CD 互動式流水線工作台、GitHub Actions 範本與時間軸逐字稿",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMwZWE1ZTkiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjMGVhNWU5Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+Q0kvQ0Qg6Ieq5YuV5YyW5ZOB566h6IiH6YOo572y5rWB5rC057eaPC90ZXh0PgogIDx0ZXh0IHg9IjM4IiB5PSI2MCIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSIxMSI+Q29kZSBQdXNoIC0mZ3Q7IExpbnQgJmFtcDsgQnVpbGQgLSZndDsgVW5pdCBUZXN0cyAtJmd0OyBTZWN1cml0eSBTY2FuIC0mZ3Q7IERlcGxveTwvdGV4dD4KICA8cmVjdCB4PSIyNSIgeT0iODAiIHdpZHRoPSI2NzAiIGhlaWdodD0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA4KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzQiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIzNCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjMGVhNWU5Ii8+CiAgICA8Y2lyY2xlIGN4PSI1NiIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjU2IiB5PSIxNDAiIGZpbGw9IiMwZWE1ZTkiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DSS0xPC90ZXh0PgogICAgPHJlY3QgeD0iMTAyIiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjEyMyIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VHJpZ2dlcjwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ2IiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7ku6Pnorzop7jnmbw8L3RleHQ+CiAgICA8dGV4dCB4PSI0NiIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+6ZaL55m86ICF5o6o6YCB6IezIEdpdEh1YiA8L3RleHQ+CiAgICA8dGV4dCB4PSI0NiIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+UFI8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gMTUzIDE2MCBMIDE2NSAxNjAiIHN0cm9rZT0iIzBlYTVlOSIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSIxNjgiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzBlYTVlOSIvPgogICAgPGNpcmNsZSBjeD0iMTkwIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiMwZWE1ZTkiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iMTkwIiB5PSIxNDAiIGZpbGw9IiMwZWE1ZTkiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DSS0yPC90ZXh0PgogICAgPHJlY3QgeD0iMjM2IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjI1NyIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QnVpbGQ8L3RleHQ+CiAgICA8dGV4dCB4PSIxODAiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPue3qOitr+W7uue9rjwvdGV4dD4KICAgIDx0ZXh0IHg9IjE4MCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+6amX6K2J5L6d6LO06IiH5Z+65pys6Kqe5rOV5a6M5pW0PC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDI4NyAxNjAgTCAyOTkgMTYwIiBzdHJva2U9IiMwZWE1ZTkiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMzAyIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMzAyIiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiMwZWE1ZTkiLz4KICAgIDxjaXJjbGUgY3g9IjMyNCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjMyNCIgeT0iMTQwIiBmaWxsPSIjMGVhNWU5IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q0ktMzwvdGV4dD4KICAgIDxyZWN0IHg9IjM3MCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIzOTEiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlRlc3Q8L3RleHQ+CiAgICA8dGV4dCB4PSIzMTQiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuiHquWLlea4rOippjwvdGV4dD4KICAgIDx0ZXh0IHg9IjMxNCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+5Zau5YWD5ris6Kmm6Ziy5q2i5omT5Zyw6byg5Zmp5aSiPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDQyMSAxNjAgTCA0MzMgMTYwIiBzdHJva2U9IiMwZWE1ZTkiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iNDM2IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iNDM2IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiMwZWE1ZTkiLz4KICAgIDxjaXJjbGUgY3g9IjQ1OCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjQ1OCIgeT0iMTQwIiBmaWxsPSIjMGVhNWU5IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q0QtMTwvdGV4dD4KICAgIDxyZWN0IHg9IjUwNCIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSI1MjUiIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFuYWx5c2lzPC90ZXh0PgogICAgPHRleHQgeD0iNDQ4IiB5PSIxNjgiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj7pnZzmhYvliIbmnpA8L3RleHQ+CiAgICA8dGV4dCB4PSI0NDgiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPlNvbmFyUXViZS/os4flronmvI/mtJ48L3RleHQ+CiAgICA8dGV4dCB4PSI0NDgiIHk9IjIwMCIgZmlsbD0iIzY0NzQ4YiIgZm9udC1zaXplPSI4LjUiPuaOg+aPjzwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA1NTUgMTYwIEwgNTY3IDE2MCIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjU3MCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjU3MCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjMGVhNWU5Ii8+CiAgICA8Y2lyY2xlIGN4PSI1OTIiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzBlYTVlOSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSI1OTIiIHk9IjE0MCIgZmlsbD0iIzBlYTVlOSIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNELTI8L3RleHQ+CiAgICA8cmVjdCB4PSI2MzgiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iNjU5IiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5EZXBsb3k8L3RleHQ+CiAgICA8dGV4dCB4PSI1ODIiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuiHquWLlemDqOe9sjwvdGV4dD4KICAgIDx0ZXh0IHg9IjU4MiIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+57ag54eI5pS+6KGM6IezIFN0YWdpbmcvPC90ZXh0PgogICAgPHRleHQgeD0iNTgyIiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij5Qcm9kPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDYyOCAyMTggQyA2MjggMjY1LCA5MiAyNjUsIDkyIDIxOCIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjEuMiIgc3Ryb2tlLWRhc2hhcnJheT0iNSw0IiBmaWxsPSJub25lIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDx0ZXh0IHg9IjM2MCIgeT0iMjYwIiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNTAwIj7lk4Hos6rpmLLnt5rlv4Pms5XvvJrorpPmqZ/lmajkurrmm7/kvaDlgZrmnq/nh6XnuYHph43nmoTlk4HnrqHmqqLmn6XvvIzkurrlnKjlronlhajorbfmrITlhafkuqvlj5fmpbXpgJ8gVmliZSBDb2Rpbmc8L3RleHQ+Cjwvc3ZnPg==",
+    "resultImage": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html",
+    "slideUrl": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html",
+    "objective": "1. 掌握 CI/CD 的核心定義：CI (持續整合) 負責頻繁驗證品質，CD (持續交付/部署) 負責自動化發布交付。\n2. 深入理解五大流水線步驟：代碼推送 ➔ 自動編譯 ➔ 單元測試 ➔ 靜態程式碼分析 ➔ 自動化部屬。\n3. 學會配置 GitHub Actions 工作流程與 PR 阻擋門禁，徹底終結「改好 A 功能、改壞 B 功能」的打地鼠迴圈。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 體會為什麼需要 CI/CD — 告別「改好 A、改壞 B」的打地鼠噩夢",
+        "description": "以生活化案例解析手動測試的遺漏死角，理解自動化迴歸測試為何是 AI 時代最重要的品質護照。"
+      },
+      {
+        "step": "步驟 2: 拆解 CI/CD 五大流水線步驟 (Pipeline)",
+        "description": "深入流水線各節點職責：代碼檢出、語法檢查 (Linting)、單元測試 (Unit Tests)、程式碼覆蓋率與建置產物生成。"
+      },
+      {
+        "step": "步驟 3: 建立雙層防禦體系 — PR 門禁與主幹防線",
+        "description": "學習在 GitHub 設定分支保護規則 (Branch Protection Rule)，測試未亮綠燈前強制禁止合併入 main。"
+      },
+      {
+        "step": "步驟 4: 實作專屬 GitHub Actions 自動化腳本",
+        "description": "研讀專為 Node.js / Web 專案打造的 .github/workflows/ci.yml 實戰範本，並掌握失敗日誌的快速排查技巧。"
+      }
+    ],
+    "promptTemplate": "你是一位頂尖的 DevOps 專家與雲端架構師。\n我們團隊正在進行 Vibe Coding 轉型，經常使用 AI 生成代碼，急需建立現代化的 CI/CD 品質護欄：\n1. 請以「現代汽車品管流水線」為比喻，向團隊解釋為什麼每一次 PR 都必須通過 CI 檢查？\n2. 請為我們由 Node.js + HTML/JS 前端構成的專案，撰寫一份高效的 GitHub Actions (.github/workflows/ci.yml) 設定檔，必須包含：依賴快取、ESLint 語法檢查、Jest 單元測試以及測試覆蓋率報告。\n3. 請說明當 CI 流水線亮紅燈時，開發者應該如何快速查看 Action 日誌，並引導 AI Agent 正確修復失敗的測試。",
+    "codeSnippet": {
+      "language": "yaml",
+      "code": "# 現代化 CI/CD 流水線配置範例 (.github/workflows/ci.yml)\nname: Vibe CI/CD Pipeline\non:\n  push:\n    branches: [ main ]\n  pull_request:\n    branches: [ main ]\n\njobs:\n  quality-gate:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n          cache: 'npm'\n      - run: npm ci\n      - run: npm run lint           # 第一道關卡：語法與風格檢查\n      - run: npm test -- --coverage # 第二道關卡：單元測試全綠\n      - run: npm run build          # 第三道關卡：生產打包建置"
+    },
+    "references": [
+      {
+        "title": "用 AI 寫程式你得懂的 CI/CD？新手看懂自動化工廠 (專屬全景互動頁面)",
+        "url": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html",
+        "bgColor": "rgba(14, 165, 233, 0.15)",
+        "borderColor": "rgba(14, 165, 233, 0.6)",
+        "color": "#38bdf8",
+        "icon": "fa-solid fa-gears",
+        "badge": "本單元專題"
+      },
+      {
+        "title": "YouTube 官方原片：Gary Chen 教學頻道",
+        "url": "https://www.youtube.com/watch?v=aCvEYczBVSY"
+      },
+      {
+        "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 20)",
+        "url": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html"
+      },
+      {
+        "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 21)",
+        "url": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-shield-virus",
+        "scenario": "AI 產碼自動化回歸測試與打地鼠防禦",
+        "description": "在 AI 狂飆產出代碼的同時，自動化單元測試在每次提交時即刻驗證，防止悄悄改壞既有核心業務邏輯。"
+      },
+      {
+        "icon": "fa-solid fa-rocket",
+        "scenario": "無痛零停機自動化發布與部署",
+        "description": "代碼通過 PR 審閱並合併至 main 主幹後，自動化觸發 GitHub Pages 或雲端容器部屬，大幅縮短交付週期。"
+      }
+    ]
   }
 ];

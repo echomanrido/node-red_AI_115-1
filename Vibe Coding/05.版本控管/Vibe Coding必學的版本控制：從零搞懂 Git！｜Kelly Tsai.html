@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai</title>
+  <!-- Google Fonts: Inter & JetBrains Mono & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- KaTeX CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Base & Reset Guarantees (Independent of external CDN timing) */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* Hero Section Explicit Vertical Stack & Grid Layout */
+    .hero-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+      max-width: 72rem;
+      margin: 0 auto;
+    }
+    .yt-source-banner {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      width: 100%;
+    }
+    .yt-source-info {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      min-width: 0;
+      flex: 1 1 260px;
+    }
+    .yt-source-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.625rem;
+      flex-shrink: 0;
+    }
+    .hero-pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: fit-content;
+      max-width: 100%;
+      white-space: nowrap;
+    }
+    .hero-main-title {
+      display: block;
+      width: 100%;
+      line-height: 1.3;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+    .hero-subtitle {
+      display: block;
+      width: 100%;
+      max-width: 72ch;
+      line-height: 1.75;
+    }
+    .hero-cta-row {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.875rem;
+      width: 100%;
+    }
+    .hero-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1rem;
+      width: 100%;
+    }
+    .hero-metric-card {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Rock-solid Responsive Grids for All Sections */
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+      gap: 1.5rem;
+      width: 100%;
+    }
+    .three-col-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+      gap: 1.5rem;
+      width: 100%;
+    }
+    .cli-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+      gap: 1rem;
+      width: 100%;
+    }
+
+    /* Custom scrollbar & SVG animation helpers */
+    .commit-node {
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+      cursor: pointer;
+    }
+    .commit-node:hover {
+      filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.75));
+    }
+    .branch-path {
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 0;
+      transition: all 0.5s ease;
+    }
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      70% { transform: scale(1.45); opacity: 0; }
+      100% { transform: scale(1.45); opacity: 0; }
+    }
+    .head-pulse {
+      transform-origin: center;
+      transform-box: fill-box;
+      animation: pulseRing 2s infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-white/85 dark:bg-slate-900/85 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white font-mono font-bold shadow-sm">
+          git
+        </span>
+        <span class="font-bold text-sm sm:text-base truncate text-slate-900 dark:text-white">
+          Vibe Coding Git 實戰指南
+        </span>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-300">
+        <a href="#pain-points" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">為何需要 Git</a>
+        <a href="#interactive-lab" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">平行宇宙模擬器</a>
+        <a href="#core-concepts" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">核心觀念</a>
+        <a href="#cli-cheatsheet" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">指令手冊</a>
+        <a href="#vps-security" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">安全隔離</a>
+        <a href="#timeline-transcript" class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline transition">時間軸逐字稿</a>
+      </nav>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="../../vibecoding.html?id=vibe-git-kelly"
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-indigo-500/30 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs sm:text-sm font-semibold transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          <span>返回 Vibe Coding</span>
+        </a>
+        <button id="themeToggle" aria-label="切換深色與淺色模式" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-200">
+          <!-- Sun icon (shown in dark mode) -->
+          <svg id="sunIcon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <!-- Moon icon (shown in light mode) -->
+          <svg id="moonIcon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section with Mandatory Original Title & Prominent YouTube Link -->
+  <section class="relative overflow-hidden border-b border-slate-200 dark:border-slate-800 bg-gradient-to-b from-indigo-50/70 via-white to-slate-50 dark:from-indigo-950/30 dark:via-slate-950 dark:to-slate-950 pt-10 pb-14 sm:pt-14 sm:pb-20">
+    <div class="hero-inner max-w-5xl mx-auto px-4 sm:px-6">
+      <!-- Row 1: Prominent YouTube Source Banner (Fixed unclosed tag & explicit flex layout) -->
+      <div class="yt-source-banner mb-8 rounded-2xl border-2 border-red-500/30 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-lg shadow-red-500/5">
+        <div class="yt-source-info">
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white shadow-sm">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <div class="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
+              原始教學影片來源 • Kelly Tsai
+            </div>
+            <a href="https://www.youtube.com/watch?v=xDPoBLnyWIo" target="_blank" rel="noopener noreferrer" class="text-xs sm:text-sm font-mono text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 underline truncate block mt-0.5">
+              https://www.youtube.com/watch?v=xDPoBLnyWIo
+            </a>
+          </div>
+        </div>
+
+        <div class="yt-source-actions">
+          <button id="copyHeroYtBtn" type="button" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold text-sm px-4 py-2.5 transition">
+            <span>📋 複製連結</span>
+          </button>
+          <a href="https://www.youtube.com/watch?v=xDPoBLnyWIo" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white font-semibold text-sm px-5 py-2.5 shadow-md transition">
+            <span>前往 YouTube 觀看原片</span>
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 3h7m0 0v7m0-7L10 14M5 7v12a2 2 0 002 2h12" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Row 2: Pill Tag -->
+      <div class="hero-pill-badge rounded-full bg-indigo-100 dark:bg-indigo-950/80 border border-indigo-200 dark:border-indigo-800 px-3.5 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-4">
+        <span>🛡️ AI 時代寫程式的必備安全網</span>
+      </div>
+
+      <!-- Row 3: Exact Original Title -->
+      <h1 class="hero-main-title text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
+        Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai
+      </h1>
+
+      <!-- Row 4: Subtitle Paragraph -->
+      <p class="hero-subtitle mt-5 text-base sm:text-lg text-slate-600 dark:text-slate-300">
+        用 Cursor、Claude 或 ChatGPT 寫程式雖然很快，但你是否也遇過「<strong>AI 幫你加了新功能，卻把原本正常的畫面全改壞</strong>」？本互動指南完整收錄影片核心觀念、平行宇宙分支模擬器、終端機實戰手冊與<strong>完整時間軸逐字稿（00:00:00 – 00:17:56）</strong>，讓你從此擁有隨時「時光倒流」的超能力。
+      </p>
+
+      <!-- Row 5: Quick Jump Buttons -->
+      <div class="hero-cta-row mt-6">
+        <a href="#interactive-lab" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm px-5 py-3 shadow-md shadow-indigo-600/20 transition">
+          <span>🌿 前往互動式 Git 平行宇宙模擬器</span>
+        </a>
+        <a href="#timeline-transcript" class="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-800 dark:text-slate-100 font-semibold text-sm px-5 py-3 shadow-sm transition">
+          <span>🕒 跳轉至完整時間軸逐字稿（12 段落）</span>
+        </a>
+      </div>
+
+      <!-- Row 6: Quick Stats / Badges Grid -->
+      <div class="hero-metrics-grid mt-8">
+        <div class="hero-metric-card rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
+          <div class="text-xs text-slate-500 dark:text-slate-400">核心武器</div>
+          <div class="text-lg font-bold text-slate-900 dark:text-white mt-1">Git + GitHub</div>
+        </div>
+        <div class="hero-metric-card rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
+          <div class="text-xs text-slate-500 dark:text-slate-400">存檔機制</div>
+          <div class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-1">Commit 蓋章</div>
+        </div>
+        <div class="hero-metric-card rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
+          <div class="text-xs text-slate-500 dark:text-slate-400">安全實驗室</div>
+          <div class="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1">Branch 平行宇宙</div>
+        </div>
+        <div class="hero-metric-card rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
+          <div class="text-xs text-slate-500 dark:text-slate-400">入門門檻</div>
+          <div class="text-lg font-bold text-amber-600 dark:text-amber-400 mt-1">只需 3 個指令</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-16">
+
+    <!-- Section 1: Pain Points & Mathematical Efficiency Model -->
+    <section id="pain-points" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-sm">1</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">痛點解析：為什麼 Vibe Coding 需要版本控制？</h2>
+      </div>
+
+      <div class="two-col-grid">
+        <!-- Pain Point Card -->
+        <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <span>💥</span> 沒有版本控制的四大慘劇
+          </h3>
+          <ul class="space-y-3 text-sm sm:text-base text-slate-600 dark:text-slate-300">
+            <li class="flex items-start gap-2.5">
+              <span class="text-rose-500 font-bold mt-0.5">✕</span>
+              <span><strong>拆東牆補西牆：</strong>請 AI 修正按鈕樣式，結果連資料庫連線與登入邏輯一起被改壞。</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-rose-500 font-bold mt-0.5">✕</span>
+              <span><strong>Ctrl+Z 的極限：</strong>一旦關閉編輯器或跨越多個檔案修改，復原鍵完全失效，只能痛苦重來。</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-rose-500 font-bold mt-0.5">✕</span>
+              <span><strong>資料夾命名地獄：</strong>電腦裡充滿 <code class="text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">專案_final_v2_真的最終版</code>，根本分不清哪版能動。</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-rose-500 font-bold mt-0.5">✕</span>
+              <span><strong>本機單點風險：</strong>檔案全鎖在自己電腦裡，換台電腦無法繼續開發，也無法安全地與隊友協作。</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- KaTeX Mathematical State Model Card -->
+        <div class="rounded-2xl bg-slate-900 text-slate-100 border border-slate-800 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-bold text-indigo-300 flex items-center gap-2">
+              <span>📐</span> 版本控制狀態演進與回溯成本模型
+            </h3>
+            <span class="text-xs font-mono bg-indigo-950 text-indigo-300 px-2.5 py-1 rounded-full border border-indigo-800">KaTeX 建模</span>
+          </div>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            在 Git 的世界裡，每次執行「蓋章存檔（Commit）」，都是將前一刻專案快照 $S_{t-1}$ 加上本次 Diff 程式碼變更集 $\Delta C_t$，推進至下一個不可竄改的確定狀態：
+          </p>
+          <div class="rounded-xl bg-slate-950/90 border border-slate-800 p-3.5 text-center overflow-x-auto">
+            $$S_{t} = f(S_{t-1}, \Delta C_t), \quad \forall t \in \mathbb{N}$$
+          </div>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            當你開闢一條新分支（Branch）進行 AI 實驗時，其狀態空間與主線完全正交隔離（$B_{\text{feature}} \perp B_{\text{main}}$）。一旦改壞需要回溯，透過 Commit Hash 還原 $\text{Restore}(H_i) \rightarrow S_i$ 的時間複雜度遠勝無版控的人工反覆修復：
+          </p>
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <div class="rounded-xl bg-emerald-950/50 border border-emerald-800/60 p-3">
+              <div class="text-xs text-emerald-400 font-semibold">有 Git 存檔點</div>
+              <div class="text-base font-bold text-white mt-1">$O(1)$ 瞬間退回</div>
+              <div class="text-xs text-slate-400 mt-0.5">$\text{Restore}(H_i) \rightarrow S_i$</div>
+            </div>
+            <div class="rounded-xl bg-rose-950/50 border border-rose-800/60 p-3">
+              <div class="text-xs text-rose-400 font-semibold">無版本控制</div>
+              <div class="text-base font-bold text-white mt-1">$O(n \cdot k)$ 發散迴圈</div>
+              <div class="text-xs text-slate-400 mt-0.5">反覆請 AI 猜測修補 $n$ 檔</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amber Callout Box: Vibe Coding Pitfall Warning -->
+      <div class="rounded-2xl border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-950/30 p-5 shadow-sm">
+        <div class="flex items-start gap-3.5">
+          <span class="text-2xl">⚠️</span>
+          <div>
+            <h4 class="font-bold text-amber-900 dark:text-amber-300 text-base">Vibe Coding 避坑提醒：讓 AI 大改前，務必先開 Branch！</h4>
+            <p class="text-sm text-amber-800 dark:text-amber-200/90 mt-1 leading-relaxed">
+              永遠不要在你的主線（<code class="font-mono bg-amber-200/60 dark:bg-amber-900/60 px-1.5 py-0.5 rounded">main</code>）上直接下複雜的 Prompt 讓 AI 重構整個專案！先用 <code class="font-mono bg-amber-200/60 dark:bg-amber-900/60 px-1.5 py-0.5 rounded">git checkout -b</code> 開一條平行宇宙分支；改成功了就 Merge 回主線，改壞了直接整條分支刪除，主線毫髮無傷。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Interactive Git Parallel Universe SVG Simulator -->
+    <section id="interactive-lab" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-sm">2</span>
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">互動式 Git 平行宇宙模擬器</h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">親手點擊下方按鈕模擬 Git 運作，或直接點擊圖上的「存檔節點」啟動時光機回溯！</p>
+          </div>
+        </div>
+        <button id="btnResetSim" class="self-start sm:self-auto text-xs font-semibold px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          ↺ 重置模擬器
+        </button>
+      </div>
+
+      <!-- Simulator Card -->
+      <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+        <!-- Control Toolbar -->
+        <div class="p-4 sm:p-5 bg-slate-100/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-2.5">
+          <button id="btnInit" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-mono font-semibold bg-slate-800 text-white hover:bg-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 transition shadow-sm">
+            1. git init
+          </button>
+          <button id="btnCommit" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-mono font-semibold bg-indigo-600 text-white hover:bg-indigo-500 transition shadow-sm">
+            2. git commit (蓋章存檔)
+          </button>
+          <button id="btnBranch" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-mono font-semibold bg-amber-500 text-slate-950 hover:bg-amber-400 transition shadow-sm">
+            3. git checkout -b feature/ai (開平行宇宙)
+          </button>
+          <button id="btnMerge" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-mono font-semibold bg-emerald-600 text-white hover:bg-emerald-500 transition shadow-sm">
+            4. git merge (合併回主線)
+          </button>
+          <button id="btnPush" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-mono font-semibold bg-sky-600 text-white hover:bg-sky-500 transition shadow-sm">
+            5. git push (推上 GitHub)
+          </button>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="px-5 py-3 bg-indigo-50/70 dark:bg-indigo-950/40 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
+          <div class="flex items-center gap-3">
+            <span class="font-semibold text-slate-600 dark:text-slate-300">目前所在宇宙 (HEAD)：</span>
+            <span id="currentBranchBadge" class="font-mono font-bold px-2.5 py-0.5 rounded-md bg-indigo-600 text-white">main</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="font-semibold text-slate-600 dark:text-slate-300">GitHub 雲端同步狀態：</span>
+            <span id="cloudSyncBadge" class="font-mono font-semibold px-2.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">尚未推送 (Local Only)</span>
+          </div>
+        </div>
+
+        <!-- Interactive SVG Canvas -->
+        <div class="relative w-full overflow-x-auto bg-slate-50 dark:bg-[#0b1120] p-4">
+          <svg id="gitSvg" viewBox="0 0 860 280" class="w-full min-w-[640px] h-auto select-none">
+            <defs>
+              <pattern id="gridPattern" width="30" height="30" patternUnits="userSpaceOnUse">
+                <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(148, 163, 184, 0.12)" stroke-width="1"/>
+              </pattern>
+              <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0284c7" stop-opacity="0.18"/>
+                <stop offset="100%" stop-color="#6366f1" stop-opacity="0.18"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Background Grid -->
+            <rect width="860" height="280" fill="url(#gridPattern)" rx="12" />
+
+            <!-- Lane Labels -->
+            <rect x="16" y="42" width="128" height="30" rx="8" fill="rgba(79, 70, 229, 0.15)" stroke="#6366f1" stroke-width="1.2"/>
+            <text x="80" y="61" text-anchor="middle" fill="#6366f1" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">main (主線宇宙)</text>
+
+            <rect x="16" y="152" width="128" height="30" rx="8" fill="rgba(245, 158, 11, 0.15)" stroke="#f59e0b" stroke-width="1.2"/>
+            <text x="80" y="171" text-anchor="middle" fill="#d97706" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">feature/ai (實驗)</text>
+
+            <!-- Guide Lines -->
+            <line x1="155" y1="57" x2="730" y2="57" stroke="rgba(99, 102, 241, 0.25)" stroke-width="2" stroke-dasharray="6 6"/>
+            <line x1="155" y1="167" x2="730" y2="167" stroke="rgba(245, 158, 11, 0.25)" stroke-width="2" stroke-dasharray="6 6"/>
+
+            <!-- GitHub Cloud Zone on Right -->
+            <g id="githubCloudZone" transform="translate(745, 32)">
+              <rect width="100" height="215" rx="16" fill="url(#cloudGrad)" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="5 4"/>
+              <text x="50" y="34" text-anchor="middle" font-size="24">☁️</text>
+              <text x="50" y="58" text-anchor="middle" fill="#0284c7" font-family="Inter, sans-serif" font-size="12" font-weight="800">GitHub 雲端</text>
+              <text id="cloudCommitCount" x="50" y="80" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono, monospace" font-size="11">0 commits</text>
+              <g id="cloudSyncedDots" transform="translate(50, 105)"></g>
+            </g>
+
+            <!-- Dynamic Links & Nodes Layer -->
+            <g id="svgLinksLayer"></g>
+            <g id="svgNodesLayer"></g>
+          </svg>
+        </div>
+
+        <!-- Inspector & Visual Diff Panel -->
+        <div class="two-col-grid p-5 sm:p-6 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+          <!-- Left: Node Inspector & Time Machine -->
+          <div class="space-y-3 min-w-0">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">🕰️ 時光機節點檢視器</span>
+              <span id="inspectorHash" class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">Commit #c1</span>
+            </div>
+            <h4 id="inspectorTitle" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              init: 建立專案基礎架構
+            </h4>
+            <p id="inspectorDesc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              點擊上方按鈕操作 Git，或點擊圖表上任意圓形節點，即可查看該存檔點的程式碼變動並執行一鍵時光倒流。
+            </p>
+            <div class="pt-1 flex flex-wrap items-center gap-3">
+              <button id="btnRestoreNode" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold transition shadow-sm">
+                <span>⏪ 時光倒流還原至此版本</span>
+              </button>
+              <span id="simFeedbackMsg" class="text-xs font-medium text-emerald-600 dark:text-emerald-400"></span>
+            </div>
+          </div>
+
+          <!-- Right: Diff Preview (Red/Green Comparison) -->
+          <div class="rounded-2xl bg-slate-950 border border-slate-800 p-4 font-mono text-xs overflow-x-auto">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 text-slate-400">
+              <span>Diff 視覺化差異審查 (Pull Request 視角)</span>
+              <span id="diffFileLabel" class="text-indigo-400">app.js</span>
+            </div>
+            <pre id="diffCodeBox" class="leading-relaxed space-y-1">
+<span class="text-slate-500">@@ -1,4 +1,5 @@</span>
+<span class="text-slate-300">  function initApp() {</span>
+<span class="bg-emerald-950/80 text-emerald-400 block px-2 py-0.5 rounded">+   console.log("專案初始化完成 v1.0");</span>
+<span class="bg-rose-950/80 text-rose-400 block px-2 py-0.5 rounded">-   // TODO: 尚未設定版本控制</span>
+<span class="text-slate-300">  }</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Core Concepts & Color-Coded Callout Boxes -->
+    <section id="core-concepts" class="space-y-8">
+      <div class="flex items-center gap-3">
+        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-sm">3</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">核心觀念圖解：一次搞懂 Git 與 GitHub</h2>
+      </div>
+
+      <!-- Blue Callout Box: Git vs GitHub -->
+      <div class="rounded-2xl border-l-4 border-sky-500 bg-sky-50 dark:bg-sky-950/30 p-6 shadow-sm space-y-4">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">📘</span>
+          <h3 class="text-lg sm:text-xl font-bold text-sky-950 dark:text-sky-200">核心觀念：Git 跟 GitHub 到底差在哪？</h3>
+        </div>
+        <div class="two-col-grid pt-1">
+          <div class="rounded-xl bg-white/90 dark:bg-slate-900/90 p-4 border border-sky-200 dark:border-sky-800/60">
+            <div class="font-bold text-sky-700 dark:text-sky-300 text-base flex items-center gap-2">
+              <span>💻 Git（本地端的記帳方法）</span>
+            </div>
+            <p class="text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
+              安裝在你自己電腦裡的「版本控制工具」。它就像一本專屬帳本，忠實記錄「<strong>誰在什麼時候、把哪幾行程式碼改成了什麼</strong>」，即使沒有網路也能隨時存檔與退回。
+            </p>
+          </div>
+          <div class="rounded-xl bg-white/90 dark:bg-slate-900/90 p-4 border border-sky-200 dark:border-sky-800/60">
+            <div class="font-bold text-indigo-700 dark:text-indigo-300 text-base flex items-center gap-2">
+              <span>☁️ GitHub（雲端網站平台）</span>
+            </div>
+            <p class="text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
+              把你電腦裡的檔案連同這本「Git 帳本」一起備份到雲端的網站。免費帳號就能建立<strong>私人專案（Private Repo）</strong>，方便跨裝置同步、雲端部署或團隊審核。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Concept Cards Grid: Commit, Branch/Merge, PR/Diff -->
+      <div class="three-col-grid">
+        <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-3">
+          <div class="h-11 w-11 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl font-bold">
+            🔖
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Commit（蓋章存檔）</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            就像玩遊戲打 Boss 前按下的「手動存檔點」。每次 Commit 都會產生一組獨一無二的編號（Hash）與說明文字，確保未來隨時能精準跳回這一刻。
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-3">
+          <div class="h-11 w-11 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold">
+            🌿
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Branch & Merge（平行宇宙）</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            從 <code class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">main</code> 主線分岔出一條獨立時空。在分支上放手讓 AI 實驗新功能，測試沒問題後再透過 <strong>Merge</strong> 合併回主線。
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-3">
+          <div class="h-11 w-11 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold">
+            🔍
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Pull Request (PR) & Diff</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            合併回主線前的「正式審核單」。GitHub 會用 <strong>Diff</strong> 畫面標出改動：<span class="text-emerald-600 dark:text-emerald-400 font-bold">綠色代表新增</span>、<span class="text-rose-600 dark:text-rose-400 font-bold">紅色代表刪除</span>，一眼抓出 AI 是否偷刪重要程式碼。
+          </p>
+        </div>
+      </div>
+
+      <!-- Green Callout Box: Best Practices -->
+      <div class="rounded-2xl border-l-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 p-6 shadow-sm">
+        <div class="flex items-start gap-3.5">
+          <span class="text-2xl">✅</span>
+          <div class="space-y-2">
+            <h4 class="font-bold text-emerald-950 dark:text-emerald-200 text-base sm:text-lg">最佳實踐：何時該 Commit？如何寫好 Commit Message？</h4>
+            <ul class="text-sm text-emerald-900 dark:text-emerald-200/90 space-y-1.5 list-disc list-inside leading-relaxed">
+              <li><strong>存檔時機黃金法則：</strong>只要程式處於「<strong>還能正常跑起來</strong>」的狀態，就要立刻 Commit！因為 AI 修改幅度大，密集存檔點能把損失降到最低。</li>
+              <li><strong>寫人看得懂的說明：</strong>拒絕寫「更新」、「改了一下」這種無意義留言。應該具體寫出做了什麼，例如：<code class="font-mono bg-emerald-200/60 dark:bg-emerald-900/60 px-1.5 py-0.5 rounded">"修好登入後跳轉失敗的問題"</code> 或 <code class="font-mono bg-emerald-200/60 dark:bg-emerald-900/60 px-1.5 py-0.5 rounded">"新增深色模式切換按鈕"</code>。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Red Callout Box: Security Warning -->
+      <div class="rounded-2xl border-l-4 border-rose-600 bg-rose-50 dark:bg-rose-950/35 p-6 shadow-sm">
+        <div class="flex items-start gap-3.5">
+          <span class="text-2xl">🚨</span>
+          <div class="space-y-2">
+            <h4 class="font-bold text-rose-950 dark:text-rose-200 text-base sm:text-lg">資安警告：用 <code class="font-mono">.gitignore</code> 保護 API Key 與機密金鑰！</h4>
+            <p class="text-sm text-rose-900 dark:text-rose-200/90 leading-relaxed">
+              Vibe Coding 經常會用到 OpenAI、Claude 或資料庫的 API Key（通常放在 <code class="font-mono bg-rose-200/70 dark:bg-rose-900/70 px-1.5 py-0.5 rounded">.env</code> 檔案中）。<strong>千萬不要把金鑰推送到 GitHub</strong>，否則一旦設為公開，幾秒內就會被爬蟲盜刷帳單！請務必建立 <code class="font-mono bg-rose-200/70 dark:bg-rose-900/70 px-1.5 py-0.5 rounded">.gitignore</code> 檔案並將 <code class="font-mono">.env</code> 列入排除名單，同時切記<strong>勿直接在 main 分支上硬改</strong>。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Terminal CLI Cheatsheet with One-Click Copy -->
+    <section id="cli-cheatsheet" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-sm">4</span>
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">終端機（Terminal）指令實戰手冊</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">在 VS Code / Cursor 按下 <kbd class="px-1.5 py-0.5 text-xs font-mono bg-slate-200 dark:bg-slate-800 rounded">Ctrl + `</kbd> 開啟終端機，點擊右側按鈕即可一鍵複製指令。</p>
+        </div>
+      </div>
+
+      <div id="commandsContainer" class="cli-grid">
+        <!-- Populated cleanly via JS so every copy button works reliably -->
+      </div>
+    </section>
+
+    <!-- Section 5: Cloud Isolation (VPS) & 3-Step Beginner Action Plan -->
+    <section id="vps-security" class="space-y-8">
+      <div class="flex items-center gap-3">
+        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-sm">5</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">進階防護與新手三步驟行動清單</h2>
+      </div>
+
+      <!-- Cloud Isolation VPS Card -->
+      <div class="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 text-white p-6 sm:p-8 border border-slate-800 shadow-lg">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="space-y-3 max-w-2xl">
+            <span class="inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              ☁️ 雲端隔離環境建議
+            </span>
+            <h3 class="text-xl sm:text-2xl font-bold">用獨立 VPS 運行 AI Agent 與自動化工具（如 n8n）</h3>
+            <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+              當你開始讓 AI Coding Agent 自動執行終端機指令、或架設 <code class="font-mono text-indigo-300">n8n</code> 自動化工作流時，建議租用一台獨立的雲端 VPS（影片中以 <strong>Hostinger</strong> 為例）。將 AI 運行環境與你的個人電腦徹底隔離，不僅能保護本機私密檔案與金鑰安全，還能 24 小時穩定運作並隨時彈性擴充硬體資源。
+            </p>
+          </div>
+          <div class="shrink-0 rounded-2xl bg-white/5 border border-white/10 p-4 space-y-2 text-xs font-mono text-slate-300">
+            <div class="flex items-center gap-2 text-emerald-400 font-bold">
+              <span>●</span> 環境隔離架構示意（KVM2 規格）
+            </div>
+            <div>[你的本機電腦] ── 私人照片/信用卡/金鑰隔離</div>
+            <div>[GitHub Repo] &nbsp;── 程式碼與版本歷史樞紐</div>
+            <div>[Hostinger VPS] ─ 2 vCPU / 8GB RAM 獨立運行 AI</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-Step Beginner Action Checklist -->
+      <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">🚀 新手三步驟行動清單（現在就動手！）</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              Kelly 提醒：不用一開始就死背所有指令！挑一個手邊的專案資料夾，完成以下三個動作就踏出第一步了：
+            </p>
+          </div>
+          <span id="checklistProgress" class="text-xs font-mono font-bold px-3 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 self-start">
+            已完成 0 / 3 步
+          </span>
+        </div>
+
+        <div class="space-y-3" id="actionChecklist">
+          <label class="flex items-start gap-3.5 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600 cursor-pointer transition bg-slate-50/60 dark:bg-slate-950/40">
+            <input type="checkbox" class="action-checkbox mt-1 h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+            <div>
+              <div class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
+                第一步：在專案資料夾啟動追蹤 <code class="font-mono text-indigo-600 dark:text-indigo-400 ml-1">git init</code>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                開啟終端機，在你的專案根目錄輸入初始化指令，替這個資料夾建立專屬的 Git 帳本。
+              </p>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3.5 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600 cursor-pointer transition bg-slate-50/60 dark:bg-slate-950/40">
+            <input type="checkbox" class="action-checkbox mt-1 h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+            <div>
+              <div class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
+                第二步：將所有檔案放進待存檔區 <code class="font-mono text-indigo-600 dark:text-indigo-400 ml-1">git add .</code>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                確認 <code class="font-mono">.gitignore</code> 已排除機密金鑰後，把目前可正常運作的檔案全部加入追蹤。
+              </p>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3.5 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600 cursor-pointer transition bg-slate-50/60 dark:bg-slate-950/40">
+            <input type="checkbox" class="action-checkbox mt-1 h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+            <div>
+              <div class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
+                第三步：蓋下人生第一個安全存檔章 <code class="font-mono text-indigo-600 dark:text-indigo-400 ml-1">git commit -m "完成基礎版本"</code>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                恭喜！從這一刻起，就算下一秒請 AI 大改把程式弄壞，你都已經擁有隨時退回的護身符了。
+              </p>
+            </div>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Complete Timeline Transcript (00:00:00 - 00:17:56) -->
+    <section id="timeline-transcript" class="space-y-8 pt-6 border-t-2 border-slate-200 dark:border-slate-800">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div class="flex items-start sm:items-center gap-3">
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-sm">6</span>
+          <div>
+            <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+              <span>🎙️ Full Structured Transcript</span>
+              <span>•</span>
+              <span>12 個完整分段</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-0.5">
+              影片完整時間軸逐字稿（00:00:00 – 00:17:56）
+            </h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              已校對所有專有名詞（Git、GitHub、Commit、Branch、.gitignore），點擊任一時間戳記可複製該秒數的 YouTube 直達連結或直接跳轉播放。
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <button id="btnExpandAll" type="button" class="px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            全部展開
+          </button>
+          <button id="btnCollapseAll" type="button" class="px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            全部收合
+          </button>
+        </div>
+      </div>
+
+      <!-- Interactive SVG Timeline Map -->
+      <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+            🗺️ 互動式全片時間軸地圖（點擊節點跳轉至對應逐字稿卡片）
+          </span>
+          <span id="timelineMapHint" class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+            總片長 17 分 56 秒 • 6 大核心學習階段
+          </span>
+        </div>
+
+        <div class="w-full overflow-x-auto pb-1">
+          <svg id="timelineMapSvg" viewBox="0 0 880 155" class="w-full min-w-[680px] h-auto select-none">
+            <!-- Base Timeline Track -->
+            <line x1="50" y1="68" x2="830" y2="68" stroke="rgba(148, 163, 184, 0.35)" stroke-width="4" stroke-linecap="round" />
+            <line x1="50" y1="68" x2="830" y2="68" stroke="#6366f1" stroke-width="2" stroke-dasharray="6 4" />
+            <!-- Interactive Nodes injected by JS -->
+            <g id="timelineMapNodes"></g>
+          </svg>
+        </div>
+
+        <!-- Active Stage Quick Concept & Formula Box -->
+        <div id="timelineStageCallout" class="rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="text-xs font-bold text-indigo-700 dark:text-indigo-300" id="stageCalloutHeader">
+              [00:00:00] 階段一：痛點與版控觀念
+            </div>
+            <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300" id="stageCalloutDesc">
+              Vibe Coding 最大風險在於「AI 一次修改範圍過大卻沒有存檔點」；建立 Git 版控等同將系統回溯複雜度從 $O(n \cdot k)$ 降為 $O(1)$。
+            </p>
+          </div>
+          <a id="stageCalloutJumpBtn" href="#seg-01" class="shrink-0 inline-flex items-center justify-center px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
+            閱讀此段逐字稿 ↓
+          </a>
+        </div>
+      </div>
+
+      <!-- Chapter Filter Tabs & Live Keyword Search Bar -->
+      <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <!-- Chapter Filter Pills -->
+          <div id="chapterFilters" class="flex flex-wrap items-center gap-2">
+            <button type="button" data-chapter="all" class="chapter-btn active px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm transition">
+              全部章節 (12)
+            </button>
+            <button type="button" data-chapter="ch1" class="chapter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+              01 痛點與版控觀念
+            </button>
+            <button type="button" data-chapter="ch2" class="chapter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+              02 Git 核心概念
+            </button>
+            <button type="button" data-chapter="ch3" class="chapter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+              03 VS Code 實戰指令
+            </button>
+            <button type="button" data-chapter="ch4" class="chapter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+              04 分支與 PR 審查
+            </button>
+            <button type="button" data-chapter="ch5" class="chapter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+              05 VPS 雲端與總結
+            </button>
+          </div>
+
+          <!-- Keyword Search Input -->
+          <div class="relative w-full lg:w-72 shrink-0">
+            <input id="transcriptSearchInput" type="text" placeholder="搜尋逐字稿（如 commit、PR、VPS）..." class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 pl-9 pr-8 py-2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+            </svg>
+            <button id="clearSearchBtn" type="button" aria-label="清除搜尋" class="hidden absolute right-2.5 top-2 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800">
+          <span id="transcriptMatchCount">目前顯示全部 12 個時間軸分段</span>
+          <div class="flex items-center gap-2">
+            <span>快速搜尋：</span>
+            <button type="button" class="quick-kw underline hover:text-indigo-600 dark:hover:text-indigo-400" data-kw="commit">commit</button>
+            <button type="button" class="quick-kw underline hover:text-indigo-600 dark:hover:text-indigo-400" data-kw="branch">branch</button>
+            <button type="button" class="quick-kw underline hover:text-indigo-600 dark:hover:text-indigo-400" data-kw="PR">PR</button>
+            <button type="button" class="quick-kw underline hover:text-indigo-600 dark:hover:text-indigo-400" data-kw="API">API</button>
+            <button type="button" class="quick-kw underline hover:text-indigo-600 dark:hover:text-indigo-400" data-kw="VPS">VPS</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transcript Cards Container -->
+      <div id="transcriptCardsContainer" class="space-y-5">
+        <!-- Populated dynamically via JS with full structured transcript, callout boxes, formula/command chips, and timestamp links -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Floating Toast Notification -->
+  <div id="globalToast" class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-300 rounded-xl bg-slate-900 dark:bg-indigo-600 text-white text-xs sm:text-sm font-semibold px-4 py-3 shadow-xl border border-slate-700 dark:border-indigo-400">
+    已複製到剪貼簿！
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-8 mt-12">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+      <div>
+        內容改編自 YouTube 教學影片：<strong class="text-slate-700 dark:text-slate-200">Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai</strong>
+      </div>
+      <a href="https://www.youtube.com/watch?v=xDPoBLnyWIo" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+        觀看完整原片 →
+      </a>
+    </div>
+  </footer>
+
+  <!-- Interactive Logic -->
+  <script>
+    // 1. Theme Toggle Logic (Light / Dark Mode)
+    const themeToggle = document.getElementById('themeToggle');
+    const htmlEl = document.documentElement;
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      htmlEl.classList.add('dark');
+    }
+    themeToggle.addEventListener('click', () => {
+      htmlEl.classList.toggle('dark');
+    });
+
+    // Global Toast & Clipboard Helper
+    const globalToast = document.getElementById('globalToast');
+    let toastTimer = null;
+    function showToast(msg) {
+      globalToast.textContent = msg;
+      globalToast.classList.remove('opacity-0', 'translate-y-2');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        globalToast.classList.add('opacity-0', 'translate-y-2');
+      }, 2200);
+    }
+
+    function copyTextToClipboard(text, successMsg) {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      showToast(successMsg || '✓ 已複製到剪貼簿！');
+    }
+
+    const copyHeroYtBtn = document.getElementById('copyHeroYtBtn');
+    if (copyHeroYtBtn) {
+      copyHeroYtBtn.addEventListener('click', () => {
+        copyTextToClipboard('https://www.youtube.com/watch?v=xDPoBLnyWIo', '✓ 已複製 YouTube 影片網址！');
+      });
+    }
+
+    // 2. CLI Cheatsheet Data & Copy Helper (using document.execCommand('copy') per environment rules)
+    const cliCommands = [
+      {
+        cmd: 'git init',
+        title: '初始化專案倉庫',
+        desc: '在目前資料夾建立隱藏的 .git 帳本，讓 Git 開始追蹤所有檔案變化。'
+      },
+      {
+        cmd: 'git status',
+        title: '查看目前檔案狀態',
+        desc: '隨時檢查哪些檔案被修改、新增或刪除，以及目前正處於哪一條分支。'
+      },
+      {
+        cmd: 'git add .',
+        title: '將所有變動加入追蹤區',
+        desc: '把目前資料夾內所有修改過的檔案放進「準備蓋章的籃子（Staging Area）」。'
+      },
+      {
+        cmd: 'git commit -m "修好登入跳轉問題"',
+        title: '蓋章存檔並附上具體說明',
+        desc: '正式產生一組存檔快照與編號，雙引號內請寫清楚本次改動重點。'
+      },
+      {
+        cmd: 'git remote add origin <GitHub網址>',
+        title: '綁定 GitHub 遠端倉庫',
+        desc: '將本地端專案與你在 GitHub 網站上新建的 Repository 建立連線（只需設定一次）。'
+      },
+      {
+        cmd: 'git push',
+        title: '推送進度到 GitHub 雲端',
+        desc: '把本地端的檔案與所有 Commit 紀錄同步上傳至 GitHub 備份。'
+      },
+      {
+        cmd: 'git checkout -b feature/ai',
+        title: '開新分支並切換過去',
+        desc: '從主線分岔出一條平行宇宙分支，讓 AI 在上面大膽實驗而不影響主線。'
+      },
+      {
+        cmd: 'git push --set-upstream origin <branch>',
+        title: '首次推送新分支到遠端',
+        desc: '第一次將本地建立的新分支推上 GitHub 時，綁定遠端對應分支並建立 PR。'
+      },
+      {
+        cmd: 'git log',
+        title: '查看歷史存檔紀錄',
+        desc: '列出過去所有的 Commit 時間、說明與專屬編號（Hash），方便日後時光倒流。'
+      }
+    ];
+
+    const commandsContainer = document.getElementById('commandsContainer');
+    cliCommands.forEach((item) => {
+      const card = document.createElement('div');
+      card.className = 'rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm flex flex-col justify-between gap-3';
+      card.innerHTML = `
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="text-sm font-bold text-slate-900 dark:text-white">${item.title}</span>
+            <button type="button" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-300 transition">
+              <span>複製指令</span>
+            </button>
+          </div>
+          <div class="rounded-xl bg-slate-950 text-emerald-400 font-mono text-xs sm:text-sm px-3.5 py-2.5 overflow-x-auto border border-slate-800">
+            $ ${item.cmd}
+          </div>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">${item.desc}</p>
+      `;
+
+      const copyBtn = card.querySelector('.copy-btn');
+      copyBtn.addEventListener('click', () => {
+        const tempInput = document.createElement('textarea');
+        tempInput.value = item.cmd;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+
+        const originalHTML = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<span>✓ 已複製</span>';
+        copyBtn.classList.add('bg-emerald-600', 'text-white');
+        setTimeout(() => {
+          copyBtn.innerHTML = originalHTML;
+          copyBtn.classList.remove('bg-emerald-600', 'text-white');
+        }, 1600);
+      });
+
+      commandsContainer.appendChild(card);
+    });
+
+    // 3. Interactive Git Parallel Universe Simulator
+    const initialNodes = [
+      {
+        id: 'c1',
+        branch: 'main',
+        x: 190,
+        y: 57,
+        parentId: null,
+        title: 'init: 建立專案基礎架構',
+        desc: '執行 git init 並建立第一個可運行的網頁骨架，這是你最安全的起點。',
+        file: 'index.html',
+        diffAdded: '+ <h1>Hello Vibe Coding!</h1>',
+        diffRemoved: '- // 空白資料夾'
+      },
+      {
+        id: 'c2',
+        branch: 'main',
+        x: 295,
+        y: 57,
+        parentId: 'c1',
+        title: 'feat: 完成首頁導覽列與按鈕',
+        desc: '功能正常運作！立刻執行 git add . 與 git commit 蓋下第二個安全存檔章。',
+        file: 'navbar.js',
+        diffAdded: '+ export function renderNav() { return "<nav>OK</nav>"; }',
+        diffRemoved: '- // 待實作導覽列'
+      }
+    ];
+
+    let simState = {
+      nodes: JSON.parse(JSON.stringify(initialNodes)),
+      currentBranch: 'main',
+      headNodeId: 'c2',
+      selectedNodeId: 'c2',
+      pushedCount: 0,
+      aiCommitStep: 0
+    };
+
+    const aiScenarioPresets = [
+      {
+        title: 'feature/ai: 請 AI 重構登入介面與深色主題',
+        desc: '在平行宇宙 feature/ai 中大膽讓 AI 修改版面，主線 main 完全不受影響。',
+        file: 'theme.css',
+        diffAdded: '+ :root { --bg-primary: #0f172a; --accent: #6366f1; }',
+        diffRemoved: '- body { background: #ffffff; }'
+      },
+      {
+        title: 'feature/ai: 修正 AI 誤刪的 API 驗證邏輯',
+        desc: '透過 Diff 檢查發現 AI 不小心刪掉驗證碼，補回後再次蓋章存檔！',
+        file: 'auth.js',
+        diffAdded: '+ if (!token) return reject("Unauthorized");',
+        diffRemoved: '- // AI 誤刪了 token 檢查'
+      },
+      {
+        title: 'feat: 新增使用者個人儀表板卡片',
+        desc: '新功能測試完全正常，立即蓋章存檔保留戰果。',
+        file: 'dashboard.js',
+        diffAdded: '+ renderStatsCard({ commits: 12, status: "Healthy" });',
+        diffRemoved: '- console.log("placeholder");'
+      }
+    ];
+
+    const svgLinksLayer = document.getElementById('svgLinksLayer');
+    const svgNodesLayer = document.getElementById('svgNodesLayer');
+    const currentBranchBadge = document.getElementById('currentBranchBadge');
+    const cloudSyncBadge = document.getElementById('cloudSyncBadge');
+    const cloudCommitCount = document.getElementById('cloudCommitCount');
+    const cloudSyncedDots = document.getElementById('cloudSyncedDots');
+    const inspectorHash = document.getElementById('inspectorHash');
+    const inspectorTitle = document.getElementById('inspectorTitle');
+    const inspectorDesc = document.getElementById('inspectorDesc');
+    const diffFileLabel = document.getElementById('diffFileLabel');
+    const diffCodeBox = document.getElementById('diffCodeBox');
+    const simFeedbackMsg = document.getElementById('simFeedbackMsg');
+
+    function showFeedback(text) {
+      simFeedbackMsg.textContent = text;
+      setTimeout(() => {
+        if (simFeedbackMsg.textContent === text) simFeedbackMsg.textContent = '';
+      }, 2800);
+    }
+
+    function renderSimulator() {
+      // Update Header Badges
+      currentBranchBadge.textContent = simState.currentBranch;
+      currentBranchBadge.className = simState.currentBranch === 'main'
+        ? 'font-mono font-bold px-2.5 py-0.5 rounded-md bg-indigo-600 text-white'
+        : 'font-mono font-bold px-2.5 py-0.5 rounded-md bg-amber-500 text-slate-950';
+
+      if (simState.pushedCount === 0) {
+        cloudSyncBadge.textContent = '尚未推送 (Local Only)';
+        cloudSyncBadge.className = 'font-mono font-semibold px-2.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
+      } else if (simState.pushedCount < simState.nodes.length) {
+        cloudSyncBadge.textContent = `部分同步 (${simState.pushedCount}/${simState.nodes.length} commits)`;
+        cloudSyncBadge.className = 'font-mono font-semibold px-2.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300';
+      } else {
+        cloudSyncBadge.textContent = `已完整備份至 GitHub (${simState.pushedCount} commits)`;
+        cloudSyncBadge.className = 'font-mono font-semibold px-2.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300';
+      }
+
+      cloudCommitCount.textContent = `${simState.pushedCount} commits`;
+      cloudSyncedDots.innerHTML = '';
+      for (let i = 0; i < Math.min(simState.pushedCount, 6); i++) {
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', (i % 3) * 18 - 18);
+        dot.setAttribute('cy', Math.floor(i / 3) * 20);
+        dot.setAttribute('r', '5');
+        dot.setAttribute('fill', '#0ea5e9');
+        cloudSyncedDots.appendChild(dot);
+      }
+
+      // Render SVG Links
+      svgLinksLayer.innerHTML = '';
+      simState.nodes.forEach((node) => {
+        if (node.parentId) {
+          const parent = simState.nodes.find((n) => n.id === node.parentId);
+          if (parent) {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const midX = (parent.x + node.x) / 2;
+            const d = `M ${parent.x} ${parent.y} C ${midX} ${parent.y}, ${midX} ${node.y}, ${node.x} ${node.y}`;
+            path.setAttribute('d', d);
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', node.branch === 'main' ? '#6366f1' : '#f59e0b');
+            path.setAttribute('stroke-width', '3.5');
+            path.setAttribute('class', 'branch-path');
+            svgLinksLayer.appendChild(path);
+          }
+        }
+        if (node.mergeFromId) {
+          const source = simState.nodes.find((n) => n.id === node.mergeFromId);
+          if (source) {
+            const mPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const midX = (source.x + node.x) / 2;
+            const d = `M ${source.x} ${source.y} C ${midX} ${source.y}, ${midX} ${node.y}, ${node.x} ${node.y}`;
+            mPath.setAttribute('d', d);
+            mPath.setAttribute('fill', 'none');
+            mPath.setAttribute('stroke', '#10b981');
+            mPath.setAttribute('stroke-width', '3.5');
+            mPath.setAttribute('stroke-dasharray', '6 3');
+            svgLinksLayer.appendChild(mPath);
+          }
+        }
+      });
+
+      // Render SVG Nodes
+      svgNodesLayer.innerHTML = '';
+      simState.nodes.forEach((node, idx) => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'commit-node');
+        g.addEventListener('click', () => {
+          simState.selectedNodeId = node.id;
+          renderSimulator();
+        });
+
+        // Pulse ring if HEAD
+        if (node.id === simState.headNodeId) {
+          const pulse = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          pulse.setAttribute('cx', node.x);
+          pulse.setAttribute('cy', node.y);
+          pulse.setAttribute('r', '18');
+          pulse.setAttribute('fill', 'none');
+          pulse.setAttribute('stroke', node.branch === 'main' ? '#6366f1' : '#f59e0b');
+          pulse.setAttribute('stroke-width', '2.5');
+          pulse.setAttribute('class', 'head-pulse');
+          g.appendChild(pulse);
+
+          // HEAD Tag
+          const headRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          headRect.setAttribute('x', node.x - 24);
+          headRect.setAttribute('y', node.y - 38);
+          headRect.setAttribute('width', '48');
+          headRect.setAttribute('height', '18');
+          headRect.setAttribute('rx', '5');
+          headRect.setAttribute('fill', '#10b981');
+          g.appendChild(headRect);
+
+          const headText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          headText.setAttribute('x', node.x);
+          headText.setAttribute('y', node.y - 26);
+          headText.setAttribute('text-anchor', 'middle');
+          headText.setAttribute('fill', '#ffffff');
+          headText.setAttribute('font-family', 'JetBrains Mono, monospace');
+          headText.setAttribute('font-size', '10');
+          headText.setAttribute('font-weight', '700');
+          headText.textContent = 'HEAD';
+          g.appendChild(headText);
+        }
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', node.x);
+        circle.setAttribute('cy', node.y);
+        circle.setAttribute('r', node.id === simState.selectedNodeId ? '16' : '13');
+        circle.setAttribute('fill', node.isMerge ? '#10b981' : (node.branch === 'main' ? '#4f46e5' : '#f59e0b'));
+        circle.setAttribute('stroke', node.id === simState.selectedNodeId ? '#ffffff' : 'rgba(255,255,255,0.6)');
+        circle.setAttribute('stroke-width', node.id === simState.selectedNodeId ? '3.5' : '2');
+        g.appendChild(circle);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', node.x);
+        label.setAttribute('y', node.y + 4);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('fill', '#ffffff');
+        label.setAttribute('font-family', 'JetBrains Mono, monospace');
+        label.setAttribute('font-size', '10');
+        label.setAttribute('font-weight', '700');
+        label.textContent = node.id;
+        g.appendChild(label);
+
+        const subLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        subLabel.setAttribute('x', node.x);
+        subLabel.setAttribute('y', node.y + 30);
+        subLabel.setAttribute('text-anchor', 'middle');
+        subLabel.setAttribute('fill', '#94a3b8');
+        subLabel.setAttribute('font-family', 'Inter, sans-serif');
+        subLabel.setAttribute('font-size', '10');
+        subLabel.textContent = `存檔 #${idx + 1}`;
+        g.appendChild(subLabel);
+
+        svgNodesLayer.appendChild(g);
+      });
+
+      // Update Inspector Panel
+      const selected = simState.nodes.find((n) => n.id === simState.selectedNodeId) || simState.nodes[simState.nodes.length - 1];
+      if (selected) {
+        inspectorHash.textContent = `Commit #${selected.id} (${selected.branch})`;
+        inspectorTitle.textContent = selected.title;
+        inspectorDesc.textContent = selected.desc;
+        diffFileLabel.textContent = selected.file;
+        diffCodeBox.innerHTML = `<span class="text-slate-500">@@ -10,4 +10,5 @@</span>
+<span class="text-slate-300">  // 專案檔案快照 (${selected.id})</span>
+<span class="bg-emerald-950/80 text-emerald-400 block px-2 py-0.5 rounded">${selected.diffAdded}</span>
+<span class="bg-rose-950/80 text-rose-400 block px-2 py-0.5 rounded">${selected.diffRemoved}</span>
+<span class="text-slate-300">  // 狀態已安全記錄於 Git 帳本</span>`;
+      }
+    }
+
+    // Simulator Action Buttons
+    document.getElementById('btnInit').addEventListener('click', () => {
+      simState = {
+        nodes: [JSON.parse(JSON.stringify(initialNodes[0]))],
+        currentBranch: 'main',
+        headNodeId: 'c1',
+        selectedNodeId: 'c1',
+        pushedCount: 0,
+        aiCommitStep: 0
+      };
+      showFeedback('✓ 已執行 git init，建立全新專案帳本！');
+      renderSimulator();
+    });
+
+    document.getElementById('btnCommit').addEventListener('click', () => {
+      if (simState.nodes.length >= 6) {
+        showFeedback('ℹ️ 已達畫布展示上限，可點擊「合併」或「重置模擬器」繼續體驗！');
+        return;
+      }
+      const nextNum = simState.nodes.length + 1;
+      const newId = `c${nextNum}`;
+      const maxX = Math.max(...simState.nodes.map((n) => n.x));
+      const preset = aiScenarioPresets[simState.aiCommitStep % aiScenarioPresets.length];
+      simState.aiCommitStep++;
+
+      const newNode = {
+        id: newId,
+        branch: simState.currentBranch,
+        x: Math.min(maxX + 95, 680),
+        y: simState.currentBranch === 'main' ? 57 : 167,
+        parentId: simState.headNodeId,
+        title: preset.title,
+        desc: preset.desc,
+        file: preset.file,
+        diffAdded: preset.diffAdded,
+        diffRemoved: preset.diffRemoved
+      };
+
+      simState.nodes.push(newNode);
+      simState.headNodeId = newId;
+      simState.selectedNodeId = newId;
+      showFeedback(`✓ 已蓋章存檔 (${newId})！隨時可退回此時間點。`);
+      renderSimulator();
+    });
+
+    document.getElementById('btnBranch').addEventListener('click', () => {
+      if (simState.currentBranch === 'feature/ai') {
+        showFeedback('ℹ️ 你已經在平行宇宙 feature/ai 中了！試試按「git commit」吧。');
+        return;
+      }
+      if (simState.nodes.length >= 6) {
+        showFeedback('ℹ️ 畫布空間已滿，請先重置模擬器再建立新分支。');
+        return;
+      }
+      simState.currentBranch = 'feature/ai';
+      const nextNum = simState.nodes.length + 1;
+      const newId = `c${nextNum}`;
+      const maxX = Math.max(...simState.nodes.map((n) => n.x));
+      const preset = aiScenarioPresets[0];
+
+      const branchNode = {
+        id: newId,
+        branch: 'feature/ai',
+        x: Math.min(maxX + 95, 680),
+        y: 167,
+        parentId: simState.headNodeId,
+        title: preset.title,
+        desc: '已成功開啟平行宇宙分支 feature/ai！在這裡請 AI 大改完全不會弄壞 main 主線。',
+        file: preset.file,
+        diffAdded: preset.diffAdded,
+        diffRemoved: preset.diffRemoved
+      };
+
+      simState.nodes.push(branchNode);
+      simState.headNodeId = newId;
+      simState.selectedNodeId = newId;
+      showFeedback('🌿 已切換至平行宇宙 feature/ai 並建立首個實驗存檔！');
+      renderSimulator();
+    });
+
+    document.getElementById('btnMerge').addEventListener('click', () => {
+      const aiNodes = simState.nodes.filter((n) => n.branch === 'feature/ai');
+      if (aiNodes.length === 0) {
+        showFeedback('⚠️ 請先點擊「3. git checkout -b feature/ai」開啟平行宇宙分支再合併！');
+        return;
+      }
+      if (simState.currentBranch === 'main' && simState.nodes[simState.nodes.length - 1].isMerge) {
+        showFeedback('ℹ️ 平行宇宙已合併回 main 主線囉！');
+        return;
+      }
+      const lastAiNode = aiNodes[aiNodes.length - 1];
+      const mainNodes = simState.nodes.filter((n) => n.branch === 'main');
+      const lastMainNode = mainNodes[mainNodes.length - 1];
+
+      const nextNum = simState.nodes.length + 1;
+      const newId = `c${nextNum}`;
+      const maxX = Math.max(...simState.nodes.map((n) => n.x));
+
+      const mergeNode = {
+        id: newId,
+        branch: 'main',
+        isMerge: true,
+        x: Math.min(maxX + 95, 685),
+        y: 57,
+        parentId: lastMainNode.id,
+        mergeFromId: lastAiNode.id,
+        title: 'merge: 將 feature/ai 實驗成果安全合併回 main',
+        desc: '確認 Diff 差異無誤後執行 Merge，平行宇宙的成功改動已正式融入主線！',
+        file: 'main-bundle.js',
+        diffAdded: '+ Merge branch "feature/ai" into main (All tests passed)',
+        diffRemoved: '- 移除實驗性暫存標記'
+      };
+
+      simState.currentBranch = 'main';
+      simState.nodes.push(mergeNode);
+      simState.headNodeId = newId;
+      simState.selectedNodeId = newId;
+      showFeedback('🎉 合併成功！feature/ai 已安全融入 main 主線宇宙。');
+      renderSimulator();
+    });
+
+    document.getElementById('btnMerge').addEventListener('click', () => {
+      const aiNodes = simState.nodes.filter((n) => n.branch === 'ai-exp');
+      if (aiNodes.length === 0) {
+        showFeedback('⚠️ 請先點擊「3. git checkout -b」開啟平行宇宙分支再合併！');
+        return;
+      }
+      if (simState.currentBranch === 'main' && simState.nodes[simState.nodes.length - 1].isMerge) {
+        showFeedback('ℹ️ 平行宇宙已合併回 main 主線囉！');
+        return;
+      }
+      const lastAiNode = aiNodes[aiNodes.length - 1];
+      const mainNodes = simState.nodes.filter((n) => n.branch === 'main');
+      const lastMainNode = mainNodes[mainNodes.length - 1];
+
+      const nextNum = simState.nodes.length + 1;
+      const newId = `c${nextNum}`;
+      const maxX = Math.max(...simState.nodes.map((n) => n.x));
+
+      const mergeNode = {
+        id: newId,
+        branch: 'main',
+        isMerge: true,
+        x: Math.min(maxX + 95, 685),
+        y: 57,
+        parentId: lastMainNode.id,
+        mergeFromId: lastAiNode.id,
+        title: 'merge: 將 ai-exp 實驗成果安全合併回 main',
+        desc: '確認 Diff 差異無誤後執行 Merge，平行宇宙的成功改動已正式融入主線！',
+        file: 'main-bundle.js',
+        diffAdded: '+ Merge branch "ai-exp" into main (All tests passed)',
+        diffRemoved: '- 移除實驗性暫存標記'
+      };
+
+      simState.currentBranch = 'main';
+      simState.nodes.push(mergeNode);
+      simState.headNodeId = newId;
+      simState.selectedNodeId = newId;
+      showFeedback('🎉 合併成功！ai-exp 已安全融入 main 主線宇宙。');
+      renderSimulator();
+    });
+
+    document.getElementById('btnPush').addEventListener('click', () => {
+      simState.pushedCount = simState.nodes.length;
+      showFeedback(`☁️ 已將全部 ${simState.pushedCount} 個存檔推送到 GitHub 雲端備份！`);
+      renderSimulator();
+    });
+
+    document.getElementById('btnRestoreNode').addEventListener('click', () => {
+      const targetIndex = simState.nodes.findIndex((n) => n.id === simState.selectedNodeId);
+      if (targetIndex === -1) return;
+      const targetNode = simState.nodes[targetIndex];
+      simState.nodes = simState.nodes.slice(0, targetIndex + 1);
+      simState.headNodeId = targetNode.id;
+      simState.currentBranch = targetNode.branch;
+      if (simState.pushedCount > simState.nodes.length) {
+        simState.pushedCount = simState.nodes.length;
+      }
+      showFeedback(`⏪ 時光倒流成功！專案已完整還原至 #${targetNode.id} 狀態。`);
+      renderSimulator();
+    });
+
+    document.getElementById('btnResetSim').addEventListener('click', () => {
+      simState = {
+        nodes: JSON.parse(JSON.stringify(initialNodes)),
+        currentBranch: 'main',
+        headNodeId: 'c2',
+        selectedNodeId: 'c2',
+        pushedCount: 0,
+        aiCommitStep: 0
+      };
+      showFeedback('↺ 模擬器已恢復初始狀態。');
+      renderSimulator();
+    });
+
+    // 4. Action Checklist Progress Counter
+    const checkboxes = document.querySelectorAll('.action-checkbox');
+    const checklistProgress = document.getElementById('checklistProgress');
+    checkboxes.forEach((cb) => {
+      cb.addEventListener('change', () => {
+        const checkedCount = document.querySelectorAll('.action-checkbox:checked').length;
+        checklistProgress.textContent = `已完成 ${checkedCount} / 3 步`;
+        if (checkedCount === 3) {
+          checklistProgress.classList.remove('bg-indigo-100', 'text-indigo-700', 'dark:bg-indigo-950', 'dark:text-indigo-300');
+          checklistProgress.classList.add('bg-emerald-100', 'text-emerald-700', 'dark:bg-emerald-950', 'dark:text-emerald-300');
+          checklistProgress.textContent = '🎉 恭喜完成新手三步驟！';
+        }
+      });
+    });
+
+    // Initial Render
+    renderSimulator();
+
+    // 5. Complete Timeline Transcript Data & Interactive Logic
+    const transcriptSegments = [
+      {
+        id: 'seg-01',
+        chapter: 'ch1',
+        chapterLabel: '01 痛點與版控觀念',
+        time: '00:00:00',
+        seconds: 0,
+        title: '開場：Vibe Coding 的最大痛點',
+        commandOrFormula: '問題核心：無版控修復成本 $O(n \\cdot k)$ vs. Git 還原 $O(1)$',
+        calloutType: 'amber',
+        calloutTitle: '💡 本段金句與洞察',
+        calloutText: '「從一個人寫的小工具，到幾千萬行程式碼的大型系統，工程師幾十年來都在用同一套 Git 邏輯保護自己的心血。」',
+        paragraphs: [
+          '用 AI 寫程式（Vibe Coding）雖然非常快，但你一定遇過這種崩潰的情況：請 AI 幫你加一個新功能，結果新功能是加上去了，原本正常運作的畫面或功能卻整個壞掉；你想叫它改回來，卻越改越亂，改到最後連自己都不知道現在到底是第幾版。',
+          '而且所有檔案都只放在自己的電腦裡，想傳給朋友看或換台電腦繼續寫，只能把整個資料夾壓縮起來寄出去。其實專業軟體工程師幾十年來早就用一套工具解決了這些痛點——它叫做 Git。不管是個人周末做的小工具，還是幾千萬行程式碼的大型商業系統，背後都是同一套版本控制邏輯。'
+        ]
+      },
+      {
+        id: 'seg-02',
+        chapter: 'ch1',
+        chapterLabel: '01 痛點與版控觀念',
+        time: '00:01:35',
+        seconds: 95,
+        title: '什麼是版本控制（Version Control）與 Git vs. GitHub',
+        commandOrFormula: 'Git（本地記帳方法） + GitHub（雲端倉庫與協作平台）',
+        calloutType: 'sky',
+        calloutTitle: '📘 核心概念辨析',
+        calloutText: 'Git 是跑在你自己電腦上的「記帳方法」，完全離線也能用；GitHub 則是把檔案連同這本帳本放到雲端的網站。你可以只用 Git 而完全不碰 GitHub！',
+        paragraphs: [
+          '所謂「版本控制（Version Control）」，說穿了就是幫你的程式碼建立一本詳細的帳本，忠實記錄「誰在什麼時候、把哪幾行程式碼改成了什麼」。只要有了這本帳本，你隨時都能看清歷史變化，並在出錯時精準退回到過去任何一個時間點。',
+          '很多新手會把 Git 跟 GitHub 搞混：Git 是一套安裝在你本地電腦上的版本控制工具（記帳方法）；而 GitHub 則是一個雲端網站平台，用來存放你的專案檔案與這本 Git 帳本。因此，你完全可以只在自己電腦裡使用 Git 做版本紀錄，而不一定要上傳到 GitHub。'
+        ]
+      },
+      {
+        id: 'seg-03',
+        chapter: 'ch2',
+        chapterLabel: '02 Git 核心概念',
+        time: '00:02:27',
+        seconds: 147,
+        title: '核心動作一：Commit（蓋章存檔）與兩大判斷原則',
+        commandOrFormula: '$S_t = f(S_{t-1}, \\Delta C_t)$ ｜ git commit -m "具體說明"',
+        calloutType: 'emerald',
+        calloutTitle: '✅ 蓋章存檔兩大黃金原則',
+        calloutText: '原則一：只要程式「還能跑」就立刻 Commit（AI 改動幅度大，一天存幾十次都零成本）。原則二：Commit Message 要寫未來搜尋看得懂的話，如「修好登入之後跳轉的問題」，絕不寫「更新」或「修正一下」。',
+        paragraphs: [
+          '你可以把 Commit 想像成「蓋章存檔」。每當你完成一個段落並蓋下一個章，Git 就會幫當下的所有檔案拍一張快照，產生一組獨一無二的編號（Commit Hash），並讓你附上一句說明文字（Commit Message）。',
+          '什麼時候該蓋章？第一個原則是：「只要程式處於還能正常跑起來的狀態，就要頻繁 Commit」。尤其 Vibe Coding 時 AI 一次常修改好幾個檔案，更需要密集的存檔點，而且在本地蓋章完全沒有任何成本，一天蓋幾十次都可以。第二個原則是：Commit Message 一定要寫得具體清楚，讓未來的自己一搜尋就看得懂，例如「修好登入之後跳轉的問題」，千萬不要只寫「更新」或「修正一下」。'
+        ]
+      },
+      {
+        id: 'seg-04',
+        chapter: 'ch2',
+        chapterLabel: '02 Git 核心概念',
+        time: '00:03:39',
+        seconds: 219,
+        title: '核心動作二：Branch（分支平行宇宙）與 Merge（合併）',
+        commandOrFormula: 'B_feature ⊥ B_main ｜ git checkout -b <branch> → git merge',
+        calloutType: 'amber',
+        calloutTitle: '🌿 把賭注變成可丟棄的平行宇宙實驗',
+        calloutText: '在主線（main）直接讓 AI 做大改動就像一場高風險賭注；開一條 Branch 之後，改壞了整條分支直接丟掉，主線毫髮無傷！大多數科技公司也嚴格禁止工程師直接修改 main 分支。',
+        paragraphs: [
+          '當你想請 AI 進行大幅度改版或嘗試新功能時，直接在主線（通常叫做 main）上動手就像一場賭注，一旦改壞就很難收拾。這時我們就需要 Branch（分支）——你可以把它想像成從主線分岔出去的一條「平行宇宙」。',
+          '在平行宇宙分支裡，你可以放手讓 AI 進行各種實驗，因為無論怎麼改都不會影響到原本穩定的主線。如果實驗失敗、整個弄壞了，只要把這條分支整條丟掉就好；一旦測試確認沒問題，再透過 Merge（合併）動作，把平行宇宙的成果安全融合回主線。這也是為什麼絕大多數公司都會規定禁止直接改動 main 分支。'
+        ]
+      },
+      {
+        id: 'seg-05',
+        chapter: 'ch2',
+        chapterLabel: '02 Git 核心概念',
+        time: '00:04:32',
+        seconds: 272,
+        title: '雲端備份與隱私：Push、Repo 與 .gitignore',
+        commandOrFormula: 'git push ｜ Private Repo（免費） vs. Public Repo + .gitignore',
+        calloutType: 'rose',
+        calloutTitle: '🚨 機密金鑰防護警告（.gitignore）',
+        calloutText: '免費 GitHub 帳號就能建立私人（Private）Repo！若設為公開（Public），全世界都看得到你的程式碼，務必透過 .gitignore 排除包含 API Key 的設定檔（如 .env），避免金鑰外洩遭盜刷。',
+        paragraphs: [
+          '如果所有存檔都只留在本地電腦，萬一哪天硬碟壞掉或不小心誤刪資料夾，整本帳本還是會跟著消失。因此我們需要透過 Push（推送），把本地的檔案與 Commit 歷史紀錄上傳到 GitHub 雲端備份，同時也方便分享給其他人。',
+          '在 GitHub 上存放專案的資料夾稱為 Repository（簡稱 Repo）。現在 GitHub 免費帳號就能建立私人（Private）Repo，只有你授權的人看得到；如果你選擇設為公開（Public），代表全世界每個人都能瀏覽你的程式碼，所以一定要善用 .gitignore 檔案，把 API Key、密碼等機密資訊列入排除名單，避免被 Git 追蹤並推上網路。'
+        ]
+      },
+      {
+        id: 'seg-06',
+        chapter: 'ch2',
+        chapterLabel: '02 Git 核心概念',
+        time: '00:05:26',
+        seconds: 326,
+        title: '審查 AI 改動的關卡：Pull Request（PR）與 Diff',
+        commandOrFormula: 'Pull Request（審核單） + Diff（綠色新增 / 紅色刪除）',
+        calloutType: 'sky',
+        calloutTitle: '🔍 用 Diff 抓出 AI 的「順手亂改」',
+        calloutText: '審查 Diff 時重點檢查三件事：1. 動了幾個檔案？ 2. 有沒有順手改掉你沒提過的功能？ 3. 有沒有誤刪重要程式碼？如果看不懂 AI 寫的邏輯，可以直接叫 AI 多加註解（inline comment）！',
+        paragraphs: [
+          '當改動幅度比較大，或者你使用的是雲端 Coding Agent 幫你自動寫程式時，通常不會直接把分支合併回主線，而是先開一張 Pull Request（簡稱 PR）審核單，請自己或團隊成員審查過後再合併。',
+          '打開 PR 畫面時，最關鍵的功能就是 Diff（差異對比）：畫面會用綠色標示這次新增的程式碼，用紅色標示被刪除的程式碼。在 Vibe Coding 時，這個畫面能幫你清楚檢查 AI 到底動了幾個檔案、有沒有擅自改掉你沒提到的地方，或者不小心把原本正常的程式刪掉了。如果你看不太懂 AI 寫的那幾行，甚至可以要求 AI 在程式碼旁邊多加註解（inline comment）方便你審查。'
+        ]
+      },
+      {
+        id: 'seg-07',
+        chapter: 'ch3',
+        chapterLabel: '03 VS Code 實戰指令',
+        time: '00:06:43',
+        seconds: 403,
+        title: '實戰演練一：本地初始化與第一次 Commit（VS Code Terminal）',
+        commandOrFormula: 'git init → git status → git add . → git commit -m "first commit"',
+        calloutType: 'emerald',
+        calloutTitle: '⌨️ 本地存檔三部曲操作筆記',
+        calloutText: '執行 git init 會建立隱藏的 .git 資料夾；新增檔案後可用 git status 確認 untracked 狀態；接著用 git add .（或 git add -A）把變動放進待存檔區，最後下 git commit -m "first commit" 完成蓋章。',
+        paragraphs: [
+          '接下來我們直接在 VS Code 裡實際操作一遍。先開啟一個名為 git-demo 的空資料夾，並打開下方的終端機（Terminal）。第一步輸入 git init，這會讓 Git 在資料夾裡建立一個隱藏的 .git 帳本資料夾，正式啟動版本追蹤。',
+          '接著我們在資料夾裡新增一個 example.py 檔案，裡面寫上一行 # test。此時在終端機輸入 git status，會看到紅字提示這個檔案目前處於 untracked（尚未被追蹤）的狀態。我們輸入 git add .（或 git add -A）把所有檔案加入追蹤，最後執行 git commit -m "first commit"，就成功替專案蓋下了第一個存檔章！'
+        ]
+      },
+      {
+        id: 'seg-08',
+        chapter: 'ch3',
+        chapterLabel: '03 VS Code 實戰指令',
+        time: '00:09:16',
+        seconds: 556,
+        title: '實戰演練二：綁定遠端 GitHub 並 Push 上雲端',
+        commandOrFormula: 'git remote add origin <GitHub Repo 網址> → git push',
+        calloutType: 'sky',
+        calloutTitle: '☁️ 首次連線雲端倉庫',
+        calloutText: '在 GitHub 建立新的私人 Repository 後，畫面會直接提供設定指令。複製執行 git remote add origin <網址> 綁定遠端位置，之後每次只需輸入 git push 就能把最新存檔同步上去。',
+        paragraphs: [
+          '本地端存檔完成後，我們要把專案備份到雲端。打開 GitHub 網站，點擊右上角建立一個新的 Repository，取名為 git-demo 並設為 Private（私人）。',
+          '建立完成後，GitHub 頁面上會顯示一串綁定指令。我們複製其中這行：git remote add origin <你的倉庫網址>，貼回 VS Code 終端機執行，讓本地專案知道雲端倉庫的位置。接著輸入 git push（首次推送依提示設定 upstream），重新整理 GitHub 網頁，就會看到剛才寫的 example.py 和 "first commit" 紀錄都已經安全同步到雲端了！'
+        ]
+      },
+      {
+        id: 'seg-09',
+        chapter: 'ch4',
+        chapterLabel: '04 分支與 PR 審查',
+        time: '00:10:40',
+        seconds: 640,
+        title: '實戰演練三：開立新分支、推送與 PR 審核流程',
+        commandOrFormula: 'git checkout -b example-branch → git push --set-upstream origin example-branch',
+        calloutType: 'amber',
+        calloutTitle: '🔀 完整分支協作與 PR 合併步驟',
+        calloutText: '新開分支首次推送時，必須加上 --set-upstream origin <分支名稱> 讓 GitHub 知道要建立對應的遠端分支；推送後網頁會亮起「Compare & pull request」綠色按鈕，檢視 Files changed 無誤後即可按 Merge pull request。',
+        paragraphs: [
+          '現在我們來演練如何開一條平行宇宙分支。在終端機輸入 git checkout -b example-branch，這個指令會同時「建立」並「切換」到名為 example-branch 的新分支。我們在 example.py 裡多加一行 # test2，接著依序執行 git add . 與 git commit -m "add test2" 把改動存進這條新分支。',
+          '要將新分支推上雲端時，第一次需輸入 git push --set-upstream origin example-branch。回到 GitHub 頁面，上方就會自動跳出「Compare & pull request」的提示按鈕！點進去後可以填寫 PR 標題與摘要、指定 Reviewer 審查人（若還在開發中也可先轉成 Draft 草稿），確認自動化檢查（Checks）與 Files changed 裡的紅綠 Diff 內容都沒問題後，點擊「Merge pull request」就正式把新分支合併回主線了。'
+        ]
+      },
+      {
+        id: 'seg-10',
+        chapter: 'ch4',
+        chapterLabel: '04 分支與 PR 審查',
+        time: '00:13:38',
+        seconds: 818,
+        title: '查看歷史紀錄：Git Log 與進階指令心法',
+        commandOrFormula: 'git log ｜ 進階關鍵字：restore / rebase / cherry-pick / squash / stash',
+        calloutType: 'emerald',
+        calloutTitle: '🧭 新手學習心法：邊做邊學，不必死背',
+        calloutText: '透過 git log 可查出每一個存檔點的 Commit Hash 編號作為還原依據。至於 rebase、restore、cherry-pick、squash、stash 等進階指令，遇到特定情境再請 AI 教你就好了，千萬別一開始全背以免把專案狀態搞亂！',
+        paragraphs: [
+          '當你的存檔點越來越多，想回頭查看過去到底蓋了哪些章，只要在終端機輸入 git log，畫面就會由新到舊列出所有的 Commit 紀錄、時間、留言說明，以及那一長串專屬的 Commit Hash 編號——未來當你要退回某個特定版本時，靠的就是這組編號。',
+          '除了今天學的基礎指令外，Git 還有許多進階功能，像是用來還原檔案的 restore、整理歷史線的 rebase、挑特定存檔過來的 cherry-pick、合併多個存檔的 squash，以及暫存修改的 stash。但強烈建議新手千萬不要一開始就把所有指令背起來，那樣反而容易搞亂目前狀態；只要先掌握最核心的幾個動作，未來實際遇到問題時再問 AI 該下哪個指令即可。'
+        ]
+      },
+      {
+        id: 'seg-11',
+        chapter: 'ch5',
+        chapterLabel: '05 VPS 雲端與總結',
+        time: '00:14:40',
+        seconds: 880,
+        title: '進階架構：用獨立 VPS 運行 AI Agent（Hostinger 示範）',
+        commandOrFormula: 'GitHub Repo ⇄ 獨立 VPS（KVM2：2 vCPU / 8GB RAM / 100GB NVMe / 8TB 頻寬）',
+        calloutType: 'sky',
+        calloutTitle: '🛡️ 為什麼推薦在獨立 VPS 上跑 AI Agent？',
+        calloutText: '把專案推上 GitHub 後，就能讓雲端 VPS 裡的 AI Agent 自動拉取程式碼並協助開發，完全隔離你的本機電腦，不用擔心 AI 誤刪私人資料夾或接觸到瀏覽器裡的信用卡與機密金鑰！',
+        paragraphs: [
+          '學會把專案放上 GitHub 之後，還能解鎖一個非常實用的進階玩法：在獨立的雲端虛擬主機（VPS）上運行 AI Coding Agent 或自動化工具（例如 n8n）。因為 AI Agent 往往需要較高的終端機操作權限，如果直接跑在自己的日常電腦上，萬一指令下錯可能會誤刪本機檔案，或有接觸到個人金鑰與敏感資料的風險；放在獨立 VPS 裡則能做到完全環境隔離，而且 24 小時在線、資源也能隨時升級。',
+          '影片中以 Hostinger VPS 為例示範：選擇性價比很高的 KVM2 方案（配備 2 顆 vCPU、8GB 記憶體、100GB 硬碟空間與 8TB 流量），結帳時可輸入優惠碼折抵，並在系統設定時直接勾選一鍵部署 n8n 或 Agent Zero 等熱門 AI 應用，幾分鐘內就能擁有專屬的雲端 AI 工作站。'
+        ]
+      },
+      {
+        id: 'seg-12',
+        chapter: 'ch5',
+        chapterLabel: '05 VPS 雲端與總結',
+        time: '00:17:21',
+        seconds: 1041,
+        title: '結語：給 Vibe Coding 新手的第一個行動任務',
+        commandOrFormula: '今日任務：git init → git add . → git commit -m "我的第一個安全存檔"',
+        calloutType: 'emerald',
+        calloutTitle: '🎯 立刻行動：替你的專案蓋下第一個章！',
+        calloutText: '如果整支影片你只記住一件事：現在就挑一個手邊正在做的專案資料夾，依序執行 git init、git add .、git commit，幫自己建立第一個安全存檔點！',
+        paragraphs: [
+          '看到這裡，你可能覺得 Git 的名詞好多，但其實日常開發 90% 的時間都在重複幾個最基本的動作。如果你看完這支影片只打算先做一件事，請你現在就挑一個手邊正在做的專案資料夾，打開終端機，依序輸入 git init、git add .，然後下達 git commit -m "first commit"。',
+          '只要蓋下這第一個章，你就已經為自己的 Vibe Coding 之旅裝上了最可靠的安全網——從今以後，你可以更放心地讓 AI 幫你實現各種創意，因為你知道無論發生什麼事，你永遠都能一秒回到安全的起點！'
+        ]
+      }
+    ];
+
+    const timelineStages = [
+      { id: 'st1', segId: 'seg-01', time: '00:00:00', label: '01 痛點與版控', x: 75, color: '#6366f1', desc: 'Vibe Coding 最大風險在於「AI 一次修改範圍過大卻沒有存檔點」；建立 Git 版控等同將系統回溯複雜度從 O(n·k) 降為 O(1)。' },
+      { id: 'st2', segId: 'seg-03', time: '00:02:27', label: '02 Commit 蓋章', x: 225, color: '#10b981', desc: '每次 Commit 就是狀態轉移 S_t = f(S_{t-1}, ΔC_t)。只要程式「還能跑」就頻繁蓋章，並寫出具體清楚的 Commit Message。' },
+      { id: 'st3', segId: 'seg-04', time: '00:03:39', label: '03 Branch 平行宇宙', x: 380, color: '#f59e0b', desc: '開一條 Branch 讓 AI 在平行宇宙裡大膽實驗（B_feature ⊥ B_main），改壞整條丟掉，改好再 Merge 回主線。' },
+      { id: 'st4', segId: 'seg-06', time: '00:05:26', label: '04 PR 與 Diff 審查', x: 535, color: '#0ea5e9', desc: '透過 Pull Request 與紅綠 Diff 畫面（綠增紅刪）嚴格把關 AI 改動，並用 .gitignore 鎖住 API Key 機密。' },
+      { id: 'st5', segId: 'seg-07', time: '00:06:43', label: '05 終端機實戰演練', x: 685, color: '#8b5cf6', desc: '在 VS Code 終端機實作 git init → git add . → git commit → git push，以及開立新分支發起 PR 合併。' },
+      { id: 'st6', segId: 'seg-11', time: '00:14:40', label: '06 雲端 VPS 與總結', x: 815, color: '#ec4899', desc: '推薦在獨立 VPS（如 Hostinger KVM2）隔離運行 AI Agent 與 n8n，並立刻替手邊專案蓋下第一個安全存檔章！' }
+    ];
+
+    // Render Interactive SVG Timeline Map
+    const timelineMapNodes = document.getElementById('timelineMapNodes');
+    const stageCalloutHeader = document.getElementById('stageCalloutHeader');
+    const stageCalloutDesc = document.getElementById('stageCalloutDesc');
+    const stageCalloutJumpBtn = document.getElementById('stageCalloutJumpBtn');
+    let activeStageId = 'st1';
+
+    function renderTimelineMap() {
+      if (!timelineMapNodes) return;
+      timelineMapNodes.innerHTML = '';
+      timelineStages.forEach((st) => {
+        const isActive = st.id === activeStageId;
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'commit-node');
+        g.addEventListener('click', () => {
+          activeStageId = st.id;
+          stageCalloutHeader.textContent = `[${st.time}] ${st.label}`;
+          stageCalloutDesc.textContent = st.desc;
+          stageCalloutJumpBtn.setAttribute('href', `#${st.segId}`);
+          renderTimelineMap();
+
+          // Reset chapter filter to 'all' if hidden and scroll smoothly to target card
+          currentChapterFilter = 'all';
+          updateChapterButtons();
+          renderTranscriptCards();
+          const targetCard = document.getElementById(st.segId);
+          if (targetCard) {
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetCard.classList.add('ring-2', 'ring-indigo-500');
+            setTimeout(() => targetCard.classList.remove('ring-2', 'ring-indigo-500'), 2000);
+          }
+        });
+
+        // Time Pill above node
+        const timePill = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        timePill.setAttribute('x', st.x - 34);
+        timePill.setAttribute('y', 18);
+        timePill.setAttribute('width', 68);
+        timePill.setAttribute('height', 22);
+        timePill.setAttribute('rx', 6);
+        timePill.setAttribute('fill', isActive ? st.color : 'rgba(100, 116, 139, 0.2)');
+        g.appendChild(timePill);
+
+        const timeTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        timeTxt.setAttribute('x', st.x);
+        timeTxt.setAttribute('y', 33);
+        timeTxt.setAttribute('text-anchor', 'middle');
+        timeTxt.setAttribute('fill', isActive ? '#ffffff' : '#64748b');
+        timeTxt.setAttribute('font-family', 'JetBrains Mono, monospace');
+        timeTxt.setAttribute('font-size', '10');
+        timeTxt.setAttribute('font-weight', '700');
+        timeTxt.textContent = st.time;
+        g.appendChild(timeTxt);
+
+        // Node Circle
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', st.x);
+        circle.setAttribute('cy', 68);
+        circle.setAttribute('r', isActive ? 14 : 10);
+        circle.setAttribute('fill', st.color);
+        circle.setAttribute('stroke', '#ffffff');
+        circle.setAttribute('stroke-width', isActive ? 3.5 : 2);
+        g.appendChild(circle);
+
+        // Stage Label below node
+        const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        lbl.setAttribute('x', st.x);
+        lbl.setAttribute('y', 104);
+        lbl.setAttribute('text-anchor', 'middle');
+        lbl.setAttribute('fill', isActive ? '#4f46e5' : '#64748b');
+        lbl.setAttribute('font-family', 'Inter, Noto Sans TC, sans-serif');
+        lbl.setAttribute('font-size', '11');
+        lbl.setAttribute('font-weight', isActive ? '800' : '600');
+        lbl.textContent = st.label;
+        g.appendChild(lbl);
+
+        timelineMapNodes.appendChild(g);
+      });
+    }
+
+    // Transcript Filtering, Search Highlighting & Expand/Collapse
+    const transcriptCardsContainer = document.getElementById('transcriptCardsContainer');
+    const transcriptSearchInput = document.getElementById('transcriptSearchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const transcriptMatchCount = document.getElementById('transcriptMatchCount');
+    const chapterBtns = document.querySelectorAll('.chapter-btn');
+
+    let currentChapterFilter = 'all';
+    let currentSearchKeyword = '';
+    let collapsedSet = new Set();
+
+    function escapeRegExp(str) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function highlightText(text, keyword) {
+      if (!keyword.trim()) return text;
+      const regex = new RegExp(`(${escapeRegExp(keyword.trim())})`, 'gi');
+      return text.replace(regex, '<mark class="bg-amber-300 dark:bg-amber-500/80 text-slate-950 font-semibold px-1 rounded">$1</mark>');
+    }
+
+    function getCalloutClasses(type) {
+      switch (type) {
+        case 'sky':
+          return 'border-sky-500 bg-sky-50/90 dark:bg-sky-950/35 text-sky-950 dark:text-sky-200';
+        case 'emerald':
+          return 'border-emerald-500 bg-emerald-50/90 dark:bg-emerald-950/35 text-emerald-950 dark:text-emerald-200';
+        case 'rose':
+          return 'border-rose-500 bg-rose-50/90 dark:bg-rose-950/35 text-rose-950 dark:text-rose-200';
+        case 'amber':
+        default:
+          return 'border-amber-500 bg-amber-50/90 dark:bg-amber-950/35 text-amber-950 dark:text-amber-200';
+      }
+    }
+
+    function renderTranscriptCards() {
+      if (!transcriptCardsContainer) return;
+      transcriptCardsContainer.innerHTML = '';
+
+      const kw = currentSearchKeyword.trim().toLowerCase();
+      const filtered = transcriptSegments.filter((seg) => {
+        const matchChapter = currentChapterFilter === 'all' || seg.chapter === currentChapterFilter;
+        if (!matchChapter) return false;
+        if (!kw) return true;
+        const haystack = [
+          seg.time,
+          seg.title,
+          seg.chapterLabel,
+          seg.commandOrFormula,
+          seg.calloutTitle,
+          seg.calloutText,
+          ...seg.paragraphs
+        ].join(' ').toLowerCase();
+        return haystack.includes(kw);
+      });
+
+      transcriptMatchCount.textContent = kw || currentChapterFilter !== 'all'
+        ? `篩選結果：共找到 ${filtered.length} 個符合的時間軸段落`
+        : `目前顯示全部 ${filtered.length} 個時間軸分段`;
+
+      if (filtered.length === 0) {
+        transcriptCardsContainer.innerHTML = `
+          <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 text-center space-y-2">
+            <div class="text-2xl">🔎</div>
+            <div class="font-bold text-slate-900 dark:text-white">找不到符合「${currentSearchKeyword}」的逐字稿內容</div>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">請嘗試更換關鍵字（如 commit、branch、PR、API、VPS）或切換回「全部章節」。</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach((seg) => {
+        const isCollapsed = collapsedSet.has(seg.id);
+        const ytTimestampUrl = `https://www.youtube.com/watch?v=xDPoBLnyWIo&t=${seg.seconds}s`;
+
+        const card = document.createElement('article');
+        card.id = seg.id;
+        card.className = 'rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm transition-all duration-300';
+
+        const paragraphsHtml = seg.paragraphs
+          .map((p) => `<p class="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">${highlightText(p, currentSearchKeyword)}</p>`)
+          .join('');
+
+        card.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <button type="button" class="copy-ts-btn inline-flex items-center gap-1.5 font-mono text-xs sm:text-sm font-bold px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition" title="點擊複製此時間點 YouTube 連結">
+                <span>⏱ [${seg.time}]</span>
+              </button>
+              <a href="${ytTimestampUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60 hover:bg-red-100 dark:hover:bg-red-900/50 transition" title="在 YouTube 從 ${seg.time} 開始播放">
+                <span>▶ 從此秒數播放</span>
+              </a>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                ${seg.chapterLabel}
+              </span>
+            </div>
+
+            <button type="button" class="toggle-seg-btn self-start sm:self-auto text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+              ${isCollapsed ? '展開內容 ▼' : '收合內容 ▲'}
+            </button>
+          </div>
+
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mt-3">
+            ${highlightText(seg.title, currentSearchKeyword)}
+          </h3>
+
+          <div class="seg-body mt-4 space-y-4 ${isCollapsed ? 'hidden' : ''}">
+            <!-- Command / Formula Chip -->
+            <div class="rounded-xl bg-slate-950 text-indigo-300 font-mono text-xs sm:text-sm px-4 py-2.5 border border-slate-800 overflow-x-auto">
+              ${seg.commandOrFormula}
+            </div>
+
+            <!-- Structured Transcript Paragraphs -->
+            <div class="space-y-3">
+              ${paragraphsHtml}
+            </div>
+
+            <!-- Semantic Callout Box -->
+            <div class="rounded-xl border-l-4 p-4 ${getCalloutClasses(seg.calloutType)}">
+              <div class="font-bold text-xs sm:text-sm">${highlightText(seg.calloutTitle, currentSearchKeyword)}</div>
+              <p class="text-xs sm:text-sm mt-1 opacity-95 leading-relaxed">${highlightText(seg.calloutText, currentSearchKeyword)}</p>
+            </div>
+          </div>
+        `;
+
+        // Copy timestamp link button
+        const copyTsBtn = card.querySelector('.copy-ts-btn');
+        copyTsBtn.addEventListener('click', () => {
+          copyTextToClipboard(ytTimestampUrl, `✓ 已複製 [${seg.time}] YouTube 時間戳連結！`);
+        });
+
+        // Individual card expand/collapse toggle
+        const toggleSegBtn = card.querySelector('.toggle-seg-btn');
+        toggleSegBtn.addEventListener('click', () => {
+          if (collapsedSet.has(seg.id)) {
+            collapsedSet.delete(seg.id);
+          } else {
+            collapsedSet.add(seg.id);
+          }
+          renderTranscriptCards();
+        });
+
+        transcriptCardsContainer.appendChild(card);
+      });
+
+      // Re-render KaTeX inside newly added transcript cards if available
+      if (typeof renderMathInElement === 'function') {
+        renderMathInElement(transcriptCardsContainer, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ]
+        });
+      }
+    }
+
+    function updateChapterButtons() {
+      chapterBtns.forEach((btn) => {
+        const ch = btn.getAttribute('data-chapter');
+        if (ch === currentChapterFilter) {
+          btn.className = 'chapter-btn active px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm transition';
+        } else {
+          btn.className = 'chapter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition';
+        }
+      });
+    }
+
+    chapterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        currentChapterFilter = btn.getAttribute('data-chapter');
+        updateChapterButtons();
+        renderTranscriptCards();
+      });
+    });
+
+    if (transcriptSearchInput) {
+      transcriptSearchInput.addEventListener('input', (e) => {
+        currentSearchKeyword = e.target.value;
+        if (currentSearchKeyword.trim()) {
+          clearSearchBtn.classList.remove('hidden');
+        } else {
+          clearSearchBtn.classList.add('hidden');
+        }
+        renderTranscriptCards();
+      });
+    }
+
+    if (clearSearchBtn) {
+      clearSearchBtn.addEventListener('click', () => {
+        currentSearchKeyword = '';
+        transcriptSearchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        renderTranscriptCards();
+      });
+    }
+
+    document.querySelectorAll('.quick-kw').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const kw = btn.getAttribute('data-kw');
+        currentSearchKeyword = kw;
+        transcriptSearchInput.value = kw;
+        clearSearchBtn.classList.remove('hidden');
+        renderTranscriptCards();
+      });
+    });
+
+    document.getElementById('btnExpandAll').addEventListener('click', () => {
+      collapsedSet.clear();
+      renderTranscriptCards();
+    });
+
+    document.getElementById('btnCollapseAll').addEventListener('click', () => {
+      transcriptSegments.forEach((seg) => collapsedSet.add(seg.id));
+      renderTranscriptCards();
+    });
+
+    renderTimelineMap();
+    renderTranscriptCards();
+  </script>
+</body>
+</html>
