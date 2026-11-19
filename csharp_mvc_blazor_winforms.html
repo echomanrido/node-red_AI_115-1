@@ -1,0 +1,2560 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVC、Blazor、WinForms 怎麼選？AI 時代初學 C# 程式設計的最佳方向</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- KaTeX 數學公式渲染引擎 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', '"Noto Sans TC"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    /* SVG 互動節點動態效果 */
+    .svg-node {
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .svg-node:hover {
+      filter: drop-shadow(0 6px 12px rgba(79, 70, 229, 0.25));
+      transform: translateY(-2px);
+    }
+    .svg-node.active rect,
+    .svg-node.active circle {
+      stroke: #4f46e5;
+      stroke-width: 3px;
+    }
+    /* 虛線流動動畫 */
+    @keyframes dashFlow {
+      to {
+        stroke-dashoffset: -24;
+      }
+    }
+    .flow-line {
+      stroke-dasharray: 6 6;
+      animation: dashFlow 1.2s linear infinite;
+    }
+    .flow-line-highlight {
+      stroke: #4f46e5 !important;
+      stroke-width: 3.5px !important;
+      stroke-dasharray: 8 4;
+      animation: dashFlow 0.7s linear infinite;
+    }
+    /* 確保所有 SVG 圖表內的文字皆可用滑鼠反白選取與複製 */
+    svg, svg text, svg tspan {
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      -moz-user-select: text !important;
+    }
+    svg text, svg tspan {
+      cursor: text !important;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+  <!-- 頂部導覽列 -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-sm">
+          C#
+        </span>
+        <div>
+          <span class="font-bold text-slate-900 text-sm sm:text-base tracking-tight block leading-tight">AI 時代 C# 實戰教學</span>
+          <span class="text-xs text-slate-500 hidden sm:block">西藥批發管理系統系列｜第 02 集</span>
+        </div>
+      <nav class="hidden md:flex items-center gap-5 text-sm font-medium text-slate-600">
+        <a href="#visual-diagrams" class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-semibold hover:bg-amber-100 transition">核心圖解</a>
+        <a href="#intro" class="hover:text-indigo-600 transition">課程背景</a>
+        <a href="#tech-compare" class="hover:text-indigo-600 transition">三大技術解析</a>
+        <a href="#arch-svg" class="hover:text-indigo-600 transition">互動架構圖</a>
+        <a href="#purchase-sim" class="hover:text-indigo-600 transition">採購登錄模擬</a>
+        <a href="#decision-tree" class="hover:text-indigo-600 transition">學習路徑選擇器</a>
+        <a href="#timeline-transcript" class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 font-semibold hover:bg-indigo-100 transition">時間軸逐字稿</a>
+      </nav>
+      
+      <div class="flex items-center gap-2">
+        <a href="csharp_supplements.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold transition border border-slate-200">
+          <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+          <span>返回補充教材</span>
+        </a>
+        <a href="https://youtu.be/Jj2fj28KmSo?si=fA8oiHdFgh8KAFzo" target="_blank" rel="noopener noreferrer"
+
+         class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-semibold shadow-sm transition">
+        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        <span>觀看原片</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO 區塊：置頂原影片連結與主標題 -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white pt-10 pb-16 sm:pt-14 sm:pb-20">
+    <!-- 背景幾何裝飾 SVG -->
+    <svg class="absolute inset-0 w-full h-full opacity-15 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.8"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+    </svg>
+
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-6">
+      <!-- 頂部醒目 YouTube 原影片資訊橫幅 -->
+      <div class="mb-8 p-4 sm:p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+        <div class="flex items-start sm:items-center gap-3.5">
+          <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-rose-600 flex items-center justify-center shadow-lg">
+            <svg class="w-6 h-6 text-white fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2 text-xs font-semibold text-rose-300 uppercase tracking-wider mb-1">
+              <span>YouTube 原影片連結</span>
+              <span class="px-2 py-0.5 rounded-full bg-white/10 text-slate-200">片長 09:53</span>
+              <span class="px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-200">講師：卓老師 & 助理巨蟹座阿關</span>
+            </div>
+            
+      <div class="flex items-center gap-2">
+        <a href="csharp_supplements.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold transition border border-slate-200">
+          <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+          <span>返回補充教材</span>
+        </a>
+        <a href="https://youtu.be/Jj2fj28KmSo?si=fA8oiHdFgh8KAFzo" target="_blank" rel="noopener noreferrer"
+
+               class="text-sm sm:text-base font-mono text-amber-300 hover:text-amber-200 underline decoration-amber-400/60 underline-offset-4 break-all transition">
+              https://youtu.be/Jj2fj28KmSo?si=fA8oiHdFgh8KAFzo
+            </a>
+          </div>
+        </div>
+        
+      <div class="flex items-center gap-2">
+        <a href="csharp_supplements.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold transition border border-slate-200">
+          <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+          <span>返回補充教材</span>
+        </a>
+        <a href="https://youtu.be/Jj2fj28KmSo?si=fA8oiHdFgh8KAFzo" target="_blank" rel="noopener noreferrer"
+
+           class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm shadow-lg shadow-rose-900/40 transition transform hover:-translate-y-0.5">
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <span>前往 YouTube 觀看影片</span>
+        </a>
+      </div>
+
+      <!-- 主標題區 -->
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-200 text-xs font-semibold mb-4">
+          <span>互動式圖文教學講義</span>
+          <span>•</span>
+          <span>支援公式渲染 & 流程模擬</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-5">
+          MVC、Blazor、WinForms 怎麼選？AI 時代初學 C# 程式設計的最佳方向
+        </h1>
+        <p class="text-base sm:text-lg text-slate-300 leading-relaxed mb-8">
+          在 AI 輔助寫程式（Vibe Coding / AI 協作）的時代，初學者想用 C# 開發真正可商用的「西藥批發管理系統」，究竟該從傳統桌面應用、純 C# 互動網頁，還是經典 MVC 架構著手？本頁完整拆解影片核心脈絡與互動實戰！
+        </p>
+
+        <!-- 快速時間軸導覽膠囊 -->
+        <div class="flex flex-wrap gap-2 text-xs">
+          <a href="#visual-diagrams" class="px-3 py-1.5 rounded-lg bg-amber-400/20 hover:bg-amber-400/30 border border-amber-300/40 text-amber-200 font-semibold transition">🖼️ 1:1 系統架構與介面比較圖解</a>
+          <a href="#intro" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition">⏱ 00:00 前言背景</a>
+          <a href="#tech-compare" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition">⏱ 01:12 WinForms</a>
+          <a href="#tech-compare" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition">⏱ 02:29 Blazor</a>
+          <a href="#tech-compare" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition">⏱ 03:59 ASP.NET MVC</a>
+          <a href="#purchase-sim" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition">⏱ 05:24 採購登錄實戰</a>
+          <a href="#ai-boundary" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition">⏱ 06:39 AI 時代建議</a>
+          <a href="#conclusion" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition">⏱ 08:16 總結與預告</a>
+          <a href="#timeline-transcript" class="px-3 py-1.5 rounded-lg bg-indigo-500/40 hover:bg-indigo-500/60 border border-indigo-400/40 text-white font-semibold transition">📜 完整時間軸逐字稿</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 主內容區 -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-12 space-y-16">
+
+    <!-- 置頂新增區塊：1:1 還原核心架構與操作介面圖解 -->
+    <section id="visual-diagrams" class="scroll-mt-24 space-y-12">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-5">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold mb-2">
+            <span>🖼️ 核心架構與操作介面圖解</span>
+            <span>•</span>
+            <span>高精準度 1:1 向量 SVG 還原</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+            系統架構全景與三種操作介面比較
+          </h2>
+          <p class="text-sm text-slate-600 mt-1.5">
+            點擊下方兩張互動式 SVG 圖表中的區塊或表格欄位，可即時查看各層級的設計原理與實務細節說明。
+          </p>
+      <!-- 圖一：系統架構與關係圖 (1:1 還原) -->
+      <div id="diagram-arch-card" class="bg-white rounded-3xl border border-slate-200 shadow-md overflow-hidden">
+        <div class="p-4 sm:p-6 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Diagram 01 • System Architecture</span>
+            <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">圖一：系統架構與關係圖</h3>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs text-slate-500 bg-white px-3 py-1.5 rounded-xl border border-slate-200">
+              💡 可直接用滑鼠拖曳反白複製圖內文字，或點擊區塊查看解說
+            </span>
+            <button type="button" id="copy-arch-btn" onclick="copySvgDiagramText('arch', this)"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              <span>複製圖表文字</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SVG 1:1 還原容器 (移除 select-none 以便文字可選取) -->
+        <div class="w-full overflow-x-auto bg-white p-2 sm:p-4">
+          <svg id="med2-arch-svg" class="min-w-[960px] w-full h-auto" viewBox="0 0 1120 710" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- 箭頭定義 -->
+              <marker id="arrow-navy-down" viewBox="0 0 10 10" refX="5" refY="8" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 1 2 L 5 8 L 9 2 z" fill="#1E3A8A"/>
+              </marker>
+              <marker id="arrow-navy-up" viewBox="0 0 10 10" refX="5" refY="2" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 1 8 L 5 2 L 9 8 z" fill="#1E3A8A"/>
+              </marker>
+              <marker id="arrow-green-right" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 2 1 L 8 5 L 2 9 z" fill="#15803D"/>
+              </marker>
+              <marker id="arrow-green-left" viewBox="0 0 10 10" refX="2" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 8 1 L 2 5 L 8 9 z" fill="#15803D"/>
+              </marker>
+              <marker id="arrow-purple-down" viewBox="0 0 10 10" refX="5" refY="8" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 1 2 L 5 8 L 9 2 z" fill="#7C3AED"/>
+              </marker>
+              <filter id="card-shadow" x="-2%" y="-2%" width="104%" height="106%">
+                <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0f172a" flood-opacity="0.06"/>
+              </filter>
+            </defs>
+
+            <!-- 整體外框 -->
+            <rect x="4" y="4" width="1112" height="702" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+
+            <!-- 頂部深藍標題列 -->
+            <rect x="4" y="4" width="1112" height="46" rx="14" fill="#173254"/>
+            <rect x="4" y="32" width="1112" height="18" fill="#173254"/>
+            <text x="560" y="34" text-anchor="middle" fill="#FFFFFF" font-size="22" font-weight="800" letter-spacing="1">系統架構與關係圖</text>
+
+            <!-- ==================== 左側上方：前端三系統外框容器 ==================== -->
+            <rect x="20" y="62" width="826" height="252" rx="16" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.2"/>
+
+            <!-- 1. MVC 系統 (Web 網站) -->
+            <g class="svg-node" onclick="selectMed2Block('mvc')">
+              <rect x="32" y="74" width="260" height="228" rx="12" fill="#ECEBF7" stroke="#A5B4FC" stroke-width="1.5" filter="url(#card-shadow)"/>
+              <!-- 地球顯示器圖示 -->
+              <rect x="64" y="88" width="44" height="30" rx="4" fill="none" stroke="#312E81" stroke-width="2.5"/>
+              <line x1="78" y1="124" x2="94" y2="124" stroke="#312E81" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="86" y1="118" x2="86" y2="124" stroke="#312E81" stroke-width="2.5"/>
+              <circle cx="86" cy="103" r="9" fill="none" stroke="#312E81" stroke-width="1.6"/>
+              <ellipse cx="86" cy="103" rx="4" ry="9" fill="none" stroke="#312E81" stroke-width="1.3"/>
+              <line x1="77" y1="103" x2="95" y2="103" stroke="#312E81" stroke-width="1.3"/>
+              <!-- 標題 -->
+              <text x="120" y="102" fill="#0F172A" font-size="18" font-weight="800">MVC 系統</text>
+              <text x="120" y="122" fill="#1E293B" font-size="14" font-weight="700">(Web 網站)</text>
+              <!-- 迷你網頁介面縮圖 -->
+              <rect x="78" y="136" width="166" height="58" rx="4" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1"/>
+              <rect x="78" y="136" width="166" height="10" rx="3" fill="#1E293B"/>
+              <circle cx="84" cy="141" r="1.5" fill="#F87171"/>
+              <circle cx="89" cy="141" r="1.5" fill="#FBBF24"/>
+              <circle cx="94" cy="141" r="1.5" fill="#34D399"/>
+              <rect x="85" y="151" width="38" height="7" rx="1.5" fill="#3B82F6"/>
+              <rect x="127" y="151" width="42" height="7" rx="1.5" fill="#E2E8F0"/>
+              <rect x="173" y="151" width="32" height="7" rx="1.5" fill="#E2E8F0"/>
+              <line x1="85" y1="164" x2="236" y2="164" stroke="#CBD5E1" stroke-width="1"/>
+              <line x1="85" y1="171" x2="236" y2="171" stroke="#E2E8F0" stroke-width="1"/>
+              <line x1="85" y1="178" x2="236" y2="178" stroke="#E2E8F0" stroke-width="1"/>
+              <line x1="85" y1="185" x2="236" y2="185" stroke="#E2E8F0" stroke-width="1"/>
+              <!-- 條列重點 -->
+              <circle cx="56" cy="212" r="3" fill="#1E293B"/><text x="66" y="216" fill="#0F172A" font-size="13" font-weight="600">進貨、銷貨、出貨作業</text>
+              <circle cx="56" cy="233" r="3" fill="#1E293B"/><text x="66" y="237" fill="#0F172A" font-size="13" font-weight="600">主檔維護 (商品、客戶等)</text>
+              <circle cx="56" cy="254" r="3" fill="#1E293B"/><text x="66" y="258" fill="#0F172A" font-size="13" font-weight="600">報表與列印</text>
+              <circle cx="56" cy="275" r="3" fill="#1E293B"/><text x="66" y="279" fill="#0F172A" font-size="13" font-weight="600">角色權限與帳號管理</text>
+            </g>
+
+            <!-- 2. Blazor 系統 (Web 網站) -->
+            <g class="svg-node" onclick="selectMed2Block('blazor')">
+              <rect x="303" y="74" width="260" height="228" rx="12" fill="#EAE6F8" stroke="#C4B5FD" stroke-width="1.5" filter="url(#card-shadow)"/>
+              <!-- 紫色 Blazor 火焰 @ 圖示 -->
+              <path d="M356 86 C340 86 330 98 330 112 C330 123 338 130 349 130 C362 130 374 119 374 103 C374 96 371 90 368 87 C367 92 363 94 360 92 C358 90 359 87 356 86 Z" fill="#5C2D91"/>
+              <text x="351" y="117" text-anchor="middle" fill="#FFFFFF" font-size="22" font-weight="900">@</text>
+              <!-- 標題 -->
+              <text x="385" y="102" fill="#0F172A" font-size="18" font-weight="800">Blazor 系統</text>
+              <text x="385" y="122" fill="#1E293B" font-size="14" font-weight="700">(Web 網站)</text>
+              <!-- 迷你網頁介面縮圖 -->
+              <rect x="349" y="136" width="166" height="58" rx="4" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1"/>
+              <rect x="349" y="136" width="166" height="10" rx="3" fill="#1E293B"/>
+              <circle cx="355" cy="141" r="1.5" fill="#F87171"/>
+              <circle cx="360" cy="141" r="1.5" fill="#FBBF24"/>
+              <circle cx="365" cy="141" r="1.5" fill="#34D399"/>
+              <rect x="356" y="151" width="38" height="7" rx="1.5" fill="#3B82F6"/>
+              <rect x="398" y="151" width="42" height="7" rx="1.5" fill="#E2E8F0"/>
+              <rect x="444" y="151" width="32" height="7" rx="1.5" fill="#E2E8F0"/>
+              <line x1="356" y1="164" x2="507" y2="164" stroke="#CBD5E1" stroke-width="1"/>
+              <line x1="356" y1="171" x2="507" y2="171" stroke="#E2E8F0" stroke-width="1"/>
+              <line x1="356" y1="178" x2="507" y2="178" stroke="#E2E8F0" stroke-width="1"/>
+              <line x1="356" y1="185" x2="507" y2="185" stroke="#E2E8F0" stroke-width="1"/>
+              <!-- 條列重點 -->
+              <circle cx="327" cy="212" r="3" fill="#1E293B"/><text x="337" y="216" fill="#0F172A" font-size="13" font-weight="600">進貨、銷貨、出貨作業</text>
+              <circle cx="327" cy="233" r="3" fill="#1E293B"/><text x="337" y="237" fill="#0F172A" font-size="13" font-weight="600">主檔查詢與維護</text>
+              <circle cx="327" cy="254" r="3" fill="#1E293B"/><text x="337" y="258" fill="#0F172A" font-size="13" font-weight="600">與 MVC 共用相同業務規則</text>
+              <circle cx="327" cy="275" r="3" fill="#1E293B"/><text x="337" y="279" fill="#0F172A" font-size="13" font-weight="600">相同的角色權限</text>
+            </g>
+
+            <!-- 3. WinForms 系統 (桌面應用程式) -->
+            <g class="svg-node" onclick="selectMed2Block('winforms')">
+              <rect x="574" y="74" width="260" height="228" rx="12" fill="#E4F1FA" stroke="#93C5FD" stroke-width="1.5" filter="url(#card-shadow)"/>
+              <!-- 藍色 Windows 四格視窗圖示 -->
+              <polygon points="592,92 610,89 610,104 592,104" fill="#0284C7"/>
+              <polygon points="613,89 635,86 635,104 613,104" fill="#0284C7"/>
+              <polygon points="592,107 610,107 610,122 592,119" fill="#0284C7"/>
+              <polygon points="613,107 635,107 635,125 613,122" fill="#0284C7"/>
+              <!-- 標題 -->
+              <text x="646" y="102" fill="#0F172A" font-size="18" font-weight="800">WinForms 系統</text>
+              <text x="646" y="122" fill="#1E293B" font-size="14" font-weight="700">(桌面應用程式)</text>
+              <!-- 迷你桌面視窗縮圖 -->
+              <rect x="620" y="136" width="166" height="58" rx="4" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1"/>
+              <rect x="620" y="136" width="166" height="9" rx="2" fill="#3B82F6"/>
+              <rect x="626" y="149" width="154" height="10" rx="1.5" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="0.8"/>
+              <line x1="626" y1="165" x2="780" y2="165" stroke="#CBD5E1" stroke-width="1"/>
+              <line x1="626" y1="173" x2="780" y2="173" stroke="#E2E8F0" stroke-width="1"/>
+              <line x1="626" y1="181" x2="780" y2="181" stroke="#E2E8F0" stroke-width="1"/>
+              <rect x="742" y="185" width="36" height="6" rx="1" fill="#0284C7"/>
+              <!-- 條列重點 -->
+              <circle cx="594" cy="211" r="3" fill="#1E293B"/><text x="603" y="215" fill="#0F172A" font-size="13" font-weight="600">進貨、銷貨、出貨作業</text>
+              <circle cx="594" cy="230" r="3" fill="#1E293B"/><text x="603" y="234" fill="#0F172A" font-size="13" font-weight="600">查詢、草稿新增與修改</text>
+              <circle cx="594" cy="249" r="3" fill="#1E293B"/><text x="603" y="253" fill="#0F172A" font-size="13" font-weight="600">透過 Web API 執行正式確認</text>
+              <text x="603" y="270" fill="#0F172A" font-size="13" font-weight="600">(銷貨、出貨)</text>
+              <circle cx="594" cy="288" r="3" fill="#1E293B"/><text x="603" y="292" fill="#0F172A" font-size="13" font-weight="600">列印 (銷貨單、出貨單)</text>
+            </g>
+
+            <!-- ==================== 中間連接箭頭與膠囊標籤 ==================== -->
+            <!-- 左箭頭：MVC <-> 共用層 -->
+            <line x1="208" y1="306" x2="208" y2="365" stroke="#1E3A8A" stroke-width="3" marker-start="url(#arrow-navy-up)" marker-end="url(#arrow-navy-down)"/>
+            <!-- 中箭頭：Blazor <-> 共用層 -->
+            <line x1="433" y1="306" x2="433" y2="365" stroke="#1E3A8A" stroke-width="3" marker-start="url(#arrow-navy-up)" marker-end="url(#arrow-navy-down)"/>
+            <!-- 紫藍圓角膠囊標籤 -->
+            <rect x="242" y="317" width="158" height="40" rx="8" fill="#635BA2" filter="url(#card-shadow)"/>
+            <text x="321" y="334" text-anchor="middle" fill="#FFFFFF" font-size="12.5" font-weight="700">在同一個方案中</text>
+            <text x="321" y="350" text-anchor="middle" fill="#FFFFFF" font-size="12.5" font-weight="700">直接呼叫共用服務</text>
+
+            <!-- 右箭頭：WinForms <-> Web API -->
+            <line x1="674" y1="306" x2="674" y2="367" stroke="#1E3A8A" stroke-width="3" marker-start="url(#arrow-navy-up)" marker-end="url(#arrow-navy-down)"/>
+            <!-- 深藍圓角膠囊標籤 -->
+            <rect x="690" y="317" width="126" height="40" rx="8" fill="#1E4B8F" filter="url(#card-shadow)"/>
+            <text x="753" y="334" text-anchor="middle" fill="#FFFFFF" font-size="12.5" font-weight="700">HTTPS (JSON)</text>
+            <text x="753" y="350" text-anchor="middle" fill="#FFFFFF" font-size="12.5" font-weight="700">呼叫 Web API</text>
+
+            <!-- ==================== 中層左側：共用層 (共用程式庫) ==================== -->
+            <g class="svg-node" onclick="selectMed2Block('shared')">
+              <rect x="20" y="370" width="522" height="218" rx="14" fill="#F1F5F9" stroke="#64748B" stroke-width="1.3" filter="url(#card-shadow)"/>
+              <!-- 堆疊菱形圖示 -->
+              <polygon points="52,385 68,393 52,401 36,393" fill="none" stroke="#1E3A8A" stroke-width="2.2"/>
+              <polyline points="36,399 52,407 68,399" fill="none" stroke="#1E3A8A" stroke-width="2.2"/>
+              <polyline points="36,405 52,413 68,405" fill="none" stroke="#1E3A8A" stroke-width="2.2"/>
+              <text x="80" y="405" fill="#0F172A" font-size="18" font-weight="800">共用層 (共用程式庫)</text>
+
+              <!-- 內部卡片 1：業務服務層 -->
+              <rect x="34" y="418" width="494" height="78" rx="10" fill="#DDEBF7" stroke="#93C5FD" stroke-width="1"/>
+              <!-- 齒輪圖示 -->
+              <circle cx="62" cy="457" r="11" fill="none" stroke="#1E3A8A" stroke-width="3.5"/>
+              <circle cx="62" cy="457" r="4" fill="#DDEBF7"/>
+              <path d="M62 441 L62 445 M62 469 L62 473 M46 457 L50 457 M74 457 L78 457 M51 446 L54 449 M70 465 L73 468 M73 446 L70 449 M54 465 L51 468" stroke="#1E3A8A" stroke-width="3" stroke-linecap="round"/>
+              <text x="86" y="438" fill="#0F172A" font-size="14.5" font-weight="800">業務服務層 (Application / Domain Service)</text>
+              <circle cx="92" cy="454" r="2.5" fill="#1E293B"/><text x="100" y="458" fill="#1E293B" font-size="12.5" font-weight="600">SalesOrderService (銷貨單：新增、修改、確認)</text>
+              <circle cx="92" cy="471" r="2.5" fill="#1E293B"/><text x="100" y="475" fill="#1E293B" font-size="12.5" font-weight="600">SalesShipmentService (出貨單：草稿、確認扣庫存)</text>
+              <circle cx="92" cy="488" r="2.5" fill="#1E293B"/><text x="100" y="492" fill="#1E293B" font-size="12.5" font-weight="600">採購 / 進貨服務、庫存服務、編號產生、驗證規則 …</text>
+
+              <!-- 內部卡片 2：資料存取層 -->
+              <rect x="34" y="503" width="494" height="75" rx="10" fill="#E6E4F5" stroke="#C4B5FD" stroke-width="1"/>
+              <!-- 資料庫圓柱圖示 -->
+              <ellipse cx="62" cy="527" rx="12" ry="5" fill="none" stroke="#1E293B" stroke-width="2.2"/>
+              <path d="M50 527 L50 551 C50 554 74 554 74 551 L74 527" fill="none" stroke="#1E293B" stroke-width="2.2"/>
+              <path d="M50 535 C50 538 74 538 74 535" fill="none" stroke="#1E293B" stroke-width="2"/>
+              <path d="M50 543 C50 546 74 546 74 543" fill="none" stroke="#1E293B" stroke-width="2"/>
+              <text x="86" y="523" fill="#0F172A" font-size="14.5" font-weight="800">資料存取層 (Infrastructure / Repository)</text>
+              <circle cx="92" cy="539" r="2.5" fill="#1E293B"/><text x="100" y="543" fill="#1E293B" font-size="12.5" font-weight="600">Entity Framework Core (DbContext)</text>
+              <circle cx="92" cy="555" r="2.5" fill="#1E293B"/><text x="100" y="559" fill="#1E293B" font-size="12.5" font-weight="600">交易控制、RowVersion 並行控制</text>
+              <circle cx="92" cy="571" r="2.5" fill="#1E293B"/><text x="100" y="575" fill="#1E293B" font-size="12.5" font-weight="600">共用的資料模型與 Repository</text>
+            </g>
+
+            <!-- 綠色雙向箭頭：共用層 <-> Web API -->
+            <line x1="546" y1="462" x2="584" y2="462" stroke="#15803D" stroke-width="3" marker-start="url(#arrow-green-left)" marker-end="url(#arrow-green-right)"/>
+
+            <!-- ==================== 中層右側：Web API (HTTPS) ==================== -->
+            <g class="svg-node" onclick="selectMed2Block('webapi')">
+              <rect x="589" y="370" width="257" height="175" rx="14" fill="#E8F6EC" stroke="#86EFAC" stroke-width="1.5" filter="url(#card-shadow)"/>
+              <!-- 雲端齒輪圖示 -->
+              <path d="M615 415 L645 415 C651 415 655 410 655 404 C655 399 651 395 646 394 C644 386 637 381 629 381 C620 381 613 387 612 396 C607 397 604 401 604 406 C604 411 609 415 615 415 Z" fill="none" stroke="#0284C7" stroke-width="2.2"/>
+              <circle cx="631" cy="402" r="5" fill="none" stroke="#0F172A" stroke-width="2"/>
+              <text x="665" y="408" fill="#0F172A" font-size="17" font-weight="800">Web API (HTTPS)</text>
+
+              <circle cx="606" cy="436" r="2.8" fill="#1E293B"/><text x="615" y="440" fill="#0F172A" font-size="13" font-weight="600">提供 WinForms 使用的業務 API</text>
+              <circle cx="606" cy="459" r="2.8" fill="#1E293B"/><text x="615" y="463" fill="#0F172A" font-size="13" font-weight="600">登入驗證、角色權限檢查</text>
+              <circle cx="606" cy="482" r="2.8" fill="#1E293B"/><text x="615" y="486" fill="#0F172A" font-size="13" font-weight="600">銷貨單確認、出貨單新增與確認</text>
+              <circle cx="606" cy="505" r="2.8" fill="#1E293B"/><text x="615" y="509" fill="#0F172A" font-size="13" font-weight="600">沿用同一套業務服務與交易規則</text>
+            </g>
+
+            <!-- 雙向箭頭：共用層 <-> SQL Server 資料庫 -->
+            <line x1="340" y1="590" x2="340" y2="611" stroke="#1E3A8A" stroke-width="3" marker-start="url(#arrow-navy-up)" marker-end="url(#arrow-navy-down)"/>
+
+            <!-- ==================== 底層：SQL Server 資料庫 ==================== -->
+            <g class="svg-node" onclick="selectMed2Block('database')">
+              <rect x="20" y="614" width="826" height="82" rx="14" fill="#FCF3CF" stroke="#F59E0B" stroke-width="1.3" filter="url(#card-shadow)"/>
+              <!-- 資料庫圓柱圖示 -->
+              <ellipse cx="144" cy="628" rx="10" ry="4" fill="none" stroke="#78350F" stroke-width="2"/>
+              <path d="M134 628 L134 646 C134 648.5 154 648.5 154 646 L154 628" fill="none" stroke="#78350F" stroke-width="2"/>
+              <path d="M134 634 C134 636.5 154 636.5 154 634" fill="none" stroke="#78350F" stroke-width="1.8"/>
+              <path d="M134 640 C134 642.5 154 642.5 154 640" fill="none" stroke="#78350F" stroke-width="1.8"/>
+              <text x="164" y="643" fill="#0F172A" font-size="17" font-weight="800">SQL Server 資料庫</text>
+
+              <!-- 6 個資料表白底小卡片 -->
+              <rect x="32" y="652" width="126" height="36" rx="7" fill="#FFFFFF" stroke="#D97706" stroke-width="1"/>
+              <text x="95" y="667" text-anchor="middle" fill="#0F172A" font-size="12" font-weight="800">進貨相關表</text>
+              <text x="95" y="682" text-anchor="middle" fill="#334155" font-size="11" font-weight="600">(P 開頭)</text>
+
+              <rect x="166" y="652" width="126" height="36" rx="7" fill="#FFFFFF" stroke="#D97706" stroke-width="1"/>
+              <text x="229" y="667" text-anchor="middle" fill="#0F172A" font-size="12" font-weight="800">銷貨相關表</text>
+              <text x="229" y="682" text-anchor="middle" fill="#334155" font-size="11" font-weight="600">(S 開頭)</text>
+
+              <rect x="300" y="652" width="126" height="36" rx="7" fill="#FFFFFF" stroke="#D97706" stroke-width="1"/>
+              <text x="363" y="667" text-anchor="middle" fill="#0F172A" font-size="12" font-weight="800">出貨相關表</text>
+              <text x="363" y="682" text-anchor="middle" fill="#334155" font-size="11" font-weight="600">(H 開頭)</text>
+
+              <rect x="434" y="652" width="118" height="36" rx="7" fill="#FFFFFF" stroke="#D97706" stroke-width="1"/>
+              <text x="493" y="667" text-anchor="middle" fill="#0F172A" font-size="12" font-weight="800">庫存表</text>
+              <text x="493" y="682" text-anchor="middle" fill="#334155" font-size="11" font-weight="600">(批號庫存)</text>
+
+              <rect x="560" y="652" width="134" height="36" rx="7" fill="#FFFFFF" stroke="#D97706" stroke-width="1"/>
+              <text x="627" y="667" text-anchor="middle" fill="#0F172A" font-size="12" font-weight="800">主檔表</text>
+              <text x="627" y="682" text-anchor="middle" fill="#334155" font-size="10.5" font-weight="600">(商品、客戶、廠商等)</text>
+
+              <rect x="702" y="652" width="132" height="36" rx="7" fill="#FFFFFF" stroke="#D97706" stroke-width="1"/>
+              <text x="768" y="667" text-anchor="middle" fill="#0F172A" font-size="12" font-weight="800">系統表</text>
+              <text x="768" y="682" text-anchor="middle" fill="#334155" font-size="10.5" font-weight="600">(帳號、角色、權限等)</text>
+            </g>
+
+            <!-- ==================== 右側欄上卡片：整體重點 ==================== -->
+            <g class="svg-node" onclick="selectMed2Block('highlights')">
+              <rect x="862" y="62" width="242" height="252" rx="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" filter="url(#card-shadow)"/>
+              <!-- 靶心箭頭圖示 -->
+              <circle cx="892" cy="88" r="12" fill="none" stroke="#1E3A8A" stroke-width="2.2"/>
+              <circle cx="892" cy="88" r="6" fill="none" stroke="#1E3A8A" stroke-width="2"/>
+              <circle cx="892" cy="88" r="2" fill="#1E3A8A"/>
+              <line x1="892" y1="88" x2="906" y2="74" stroke="#1E3A8A" stroke-width="2.2" stroke-linecap="round"/>
+              <text x="914" y="95" fill="#0F172A" font-size="18" font-weight="800">整體重點</text>
+
+              <!-- 4 條綠色勾勾清單 -->
+              <circle cx="886" cy="126" r="9" fill="#2E7D32"/>
+              <polyline points="881,126 885,130 891,122" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="903" y="126" fill="#0F172A" font-size="12.5" font-weight="700">三個前端：MVC、Blazor、</text>
+              <text x="903" y="143" fill="#0F172A" font-size="12.5" font-weight="700">WinForms，各自提供操作</text>
+              <text x="903" y="160" fill="#0F172A" font-size="12.5" font-weight="700">介面。</text>
+
+              <circle cx="886" cy="180" r="9" fill="#2E7D32"/>
+              <polyline points="881,180 885,184 891,176" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="903" y="180" fill="#0F172A" font-size="12.5" font-weight="700">共用業務邏輯與資料存取，</text>
+              <text x="903" y="197" fill="#0F172A" font-size="12.5" font-weight="700">確保規則、計算與庫存一致。</text>
+
+              <circle cx="886" cy="221" r="9" fill="#2E7D32"/>
+              <polyline points="881,221 885,225 891,217" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="903" y="221" fill="#0F172A" font-size="12.5" font-weight="700">WinForms 透過 HTTPS</text>
+              <text x="903" y="238" fill="#0F172A" font-size="12.5" font-weight="700">Web API 存取業務功能。</text>
+
+              <circle cx="886" cy="264" r="9" fill="#2E7D32"/>
+              <polyline points="881,264 885,268 891,260" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="903" y="264" fill="#0F172A" font-size="12.5" font-weight="700">統一使用 SQL Server</text>
+              <text x="903" y="281" fill="#0F172A" font-size="12.5" font-weight="700">資料庫。</text>
+            </g>
+
+            <!-- ==================== 右側欄下卡片：流程範例：銷貨與出貨 ==================== -->
+            <g class="svg-node" onclick="selectMed2Block('workflow')">
+              <rect x="862" y="330" width="242" height="366" rx="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" filter="url(#card-shadow)"/>
+              <!-- 立體方塊圖示 -->
+              <polygon points="888,346 900,352 888,358 876,352" fill="none" stroke="#1E3A8A" stroke-width="2"/>
+              <polyline points="876,352 876,365 888,371 900,365 900,352" fill="none" stroke="#1E3A8A" stroke-width="2"/>
+              <line x1="888" y1="358" x2="888" y2="371" stroke="#1E3A8A" stroke-width="2"/>
+              <text x="908" y="365" fill="#0F172A" font-size="16.5" font-weight="800">流程範例：銷貨與出貨</text>
+
+              <!-- 步驟 1 -->
+              <rect x="874" y="384" width="218" height="54" rx="10" fill="#ECEBF7" stroke="#C4B5FD" stroke-width="1"/>
+              <circle cx="894" cy="411" r="12" fill="#7E74B8"/>
+              <text x="894" y="416" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="800">1</text>
+              <text x="914" y="407" fill="#0F172A" font-size="13.5" font-weight="800">建立銷貨草稿</text>
+              <text x="914" y="424" fill="#334155" font-size="11.5" font-weight="600">(MVC / Blazor / WinForms)</text>
+
+              <!-- 箭頭 1->2 -->
+              <line x1="983" y1="439" x2="983" y2="455" stroke="#7E74B8" stroke-width="2.5" marker-end="url(#arrow-purple-down)"/>
+
+              <!-- 步驟 2 -->
+              <rect x="874" y="458" width="218" height="66" rx="10" fill="#ECEBF7" stroke="#C4B5FD" stroke-width="1"/>
+              <circle cx="894" cy="491" r="12" fill="#7E74B8"/>
+              <text x="894" y="496" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="800">2</text>
+              <text x="914" y="479" fill="#0F172A" font-size="13.5" font-weight="800">正式確認銷貨單</text>
+              <text x="914" y="496" fill="#334155" font-size="11.5" font-weight="600">(共用 SalesOrderService)</text>
+              <text x="914" y="513" fill="#1E293B" font-size="11.5" font-weight="700">※不扣庫存</text>
+
+              <!-- 箭頭 2->3 -->
+              <line x1="983" y1="525" x2="983" y2="541" stroke="#2E7D32" stroke-width="2.5" marker-end="url(#arrow-navy-down)"/>
+
+              <!-- 步驟 3 -->
+              <rect x="874" y="544" width="218" height="54" rx="10" fill="#E8F6EC" stroke="#86EFAC" stroke-width="1"/>
+              <circle cx="894" cy="571" r="12" fill="#43A047"/>
+              <text x="894" y="576" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="800">3</text>
+              <text x="914" y="567" fill="#0F172A" font-size="13.5" font-weight="800">建立出貨草稿</text>
+              <text x="914" y="584" fill="#334155" font-size="11" font-weight="600">(指定進貨批號、輸入出貨數量)</text>
+
+              <!-- 箭頭 3->4 -->
+              <line x1="983" y1="599" x2="983" y2="615" stroke="#C62828" stroke-width="2.5" marker-end="url(#arrow-navy-down)"/>
+
+              <!-- 步驟 4 -->
+              <rect x="874" y="618" width="218" height="68" rx="10" fill="#FDEDEC" stroke="#F5B7B1" stroke-width="1"/>
+              <circle cx="894" cy="652" r="12" fill="#D9534F"/>
+              <text x="894" y="657" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="800">4</text>
+              <text x="914" y="639" fill="#0F172A" font-size="13.5" font-weight="800">確認出貨單</text>
+              <text x="914" y="656" fill="#334155" font-size="11.5" font-weight="600">(共用 SalesShipmentService)</text>
+              <text x="914" y="673" fill="#991B1B" font-size="11" font-weight="700">※檢查庫存並扣除批號數量</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- 圖一互動解析說明列 + 深度解說卡片 -->
+        <div class="p-6 bg-slate-50 border-t border-slate-200 space-y-5">
+          <div id="med2-arch-inspector" class="rounded-2xl bg-indigo-900 text-white p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+            <div>
+              <span id="med2-ins-tag" class="inline-block px-2.5 py-0.5 rounded bg-amber-400 text-slate-900 text-xs font-extrabold mb-1.5">
+                架構全景解說
+              </span>
+              <h4 id="med2-ins-title" class="text-base sm:text-lg font-bold">
+                「多前端共用核心（Shared Core）」企業級分層設計
+              </h4>
+              <p id="med2-ins-body" class="text-xs sm:text-sm text-indigo-100 mt-1 leading-relaxed">
+                這張圖揭示了西藥批發系統最關鍵的架構哲學：無論前端是 ASP.NET Core MVC、Blazor 還是桌面版 WinForms，真正的商業邏輯（SalesOrderService、SalesShipmentService）與資料存取（EF Core DbContext）全部集中於底下的「共用層」，徹底避免同一套規則寫三遍造成的計算不一致。
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 space-y-1.5">
+              <div class="font-extrabold text-indigo-700">① Web 端直連 vs 桌面端走 Web API</div>
+              <p class="text-slate-600 leading-relaxed">
+                <strong>MVC</strong> 與 <strong>Blazor</strong> 同屬 ASP.NET Core 伺服器端方案，可直接參考並呼叫「共用程式庫」；而 <strong>WinForms</strong> 執行於員工本機桌面，基於資安與集中控管考量，統一透過 <strong>HTTPS (JSON) 呼叫 Web API</strong> 執行正式確認動作。
+              </p>
+            </div>
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 space-y-1.5">
+              <div class="font-extrabold text-emerald-700">② 銷貨與出貨的兩段式庫存控管</div>
+              <p class="text-slate-600 leading-relaxed">
+                仔細看右側流程範例：步驟 2「正式確認銷貨單」<strong>※不扣庫存</strong>（僅代表訂單成立）；直到步驟 4 倉庫人員指定藥品批號並「確認出貨單」時，才透過 <code class="font-mono text-xs bg-slate-100 px-1 rounded">SalesShipmentService</code> 檢查並扣除對應<strong>批號庫存</strong>。
+              </p>
+            </div>
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 space-y-1.5">
+              <div class="font-extrabold text-amber-700">③ 單一 SQL Server 資料庫與並行控制</div>
+              <p class="text-slate-600 leading-relaxed">
+                三套前端最終都寫入同一座 <strong>SQL Server</strong> 資料庫（依單據前綴分為 P 進貨、S 銷貨、H 出貨及批號庫存表），並透過 EF Core 的交易控制與 <code class="font-mono text-xs bg-slate-100 px-1 rounded">RowVersion</code> 防止多人同時搶扣同一批號藥品。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 圖二：三種操作介面比較 (1:1 還原) -->
+      <div id="diagram-table-card" class="bg-white rounded-3xl border border-slate-200 shadow-md overflow-hidden">
+        <div class="p-4 sm:p-6 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Diagram 02 • UI Technologies Matrix</span>
+            <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">圖二：三種操作介面比較總表</h3>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-slate-500">點擊高亮欄位：</span>
+            <button type="button" onclick="highlightCompareCol('all')" class="cmp-col-btn px-2.5 py-1 rounded-lg bg-slate-800 text-white font-bold">全部顯示</button>
+            <button type="button" onclick="highlightCompareCol('winforms')" class="cmp-col-btn px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 font-bold hover:bg-blue-200">WinForms</button>
+            <button type="button" onclick="highlightCompareCol('mvc')" class="cmp-col-btn px-2.5 py-1 rounded-lg bg-teal-100 text-teal-800 font-bold hover:bg-teal-200">ASP.NET Core MVC</button>
+            <button type="button" onclick="highlightCompareCol('blazor')" class="cmp-col-btn px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 font-bold hover:bg-purple-200">Blazor</button>
+            <button type="button" id="copy-table-btn" onclick="copySvgDiagramText('table', this)"
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-sm transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              <span>複製圖表文字</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SVG 1:1 還原深藍比較表格 -->
+        <div class="w-full overflow-x-auto bg-[#0B2244] p-2 sm:p-4">
+          <svg id="med2-compare-svg" class="min-w-[880px] w-full h-auto" viewBox="0 0 1120 620" xmlns="http://www.w3.org/2000/svg">
+            <!-- 深海軍藍背景 -->
+            <rect x="0" y="0" width="1120" height="620" rx="12" fill="#0B2244"/>
+
+            <!-- 頂部大標題與副標題 -->
+            <text x="560" y="64" text-anchor="middle" fill="#FFFFFF" font-size="44" font-weight="900" letter-spacing="2">三種操作介面比較</text>
+            <text x="560" y="108" text-anchor="middle" fill="#FFFFFF" font-size="25" font-weight="800" letter-spacing="0.5">WinForms  •  ASP.NET Core MVC  •  Blazor</text>
+
+            <!-- 表格雙線外框 -->
+            <rect x="14" y="128" width="1092" height="432" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+            <rect x="19" y="133" width="1082" height="422" fill="none" stroke="#93C5FD" stroke-width="1"/>
+
+            <!-- 表頭底色 -->
+            <rect x="19" y="133" width="206" height="60" fill="#0D2B56"/>
+            <rect id="cmp-bg-winforms-h" x="225" y="133" width="275" height="60" fill="#0E76E5"/>
+            <rect id="cmp-bg-mvc-h" x="500" y="133" width="305" height="60" fill="#00918E"/>
+            <rect id="cmp-bg-blazor-h" x="805" y="133" width="296" height="60" fill="#7B3FE4"/>
+
+            <!-- 表頭文字 -->
+            <text x="122" y="172" text-anchor="middle" fill="#FFFFFF" font-size="23" font-weight="800">比較項目</text>
+            <text x="362" y="172" text-anchor="middle" fill="#FFFFFF" font-size="24" font-weight="800">WinForms</text>
+            <text x="652" y="172" text-anchor="middle" fill="#FFFFFF" font-size="24" font-weight="800">ASP.NET Core MVC</text>
+            <text x="953" y="172" text-anchor="middle" fill="#FFFFFF" font-size="24" font-weight="800">Blazor</text>
+
+            <!-- 第 1 列：主要使用環境 -->
+            <rect x="19" y="193" width="1082" height="60" fill="#0A2143"/>
+            <text x="36" y="231" fill="#FFFFFF" font-size="21" font-weight="800">主要使用環境</text>
+            <text x="242" y="231" fill="#FFFFFF" font-size="21" font-weight="700">Windows 桌面</text>
+            <text x="518" y="231" fill="#FFFFFF" font-size="21" font-weight="700">網頁瀏覽器</text>
+            <text x="822" y="231" fill="#FFFFFF" font-size="21" font-weight="700">網頁瀏覽器</text>
+
+            <!-- 第 2 列：主要程式語言 -->
+            <rect x="19" y="253" width="1082" height="60" fill="#173863"/>
+            <text x="36" y="291" fill="#FFFFFF" font-size="21" font-weight="800">主要程式語言</text>
+            <text x="242" y="291" fill="#FFFFFF" font-size="21" font-weight="700">C#</text>
+            <text x="518" y="291" fill="#FFFFFF" font-size="21" font-weight="700">C#、HTML、JavaScript</text>
+            <text x="822" y="291" fill="#FFFFFF" font-size="21" font-weight="700">C#、HTML／Razor</text>
+
+            <!-- 第 3 列：畫面設計方式 -->
+            <rect x="19" y="313" width="1082" height="60" fill="#0A2143"/>
+            <text x="36" y="351" fill="#FFFFFF" font-size="21" font-weight="800">畫面設計方式</text>
+            <text x="242" y="351" fill="#FFFFFF" font-size="21" font-weight="700">成熟的拖拉式設計工具</text>
+            <text x="518" y="351" fill="#FFFFFF" font-size="21" font-weight="700">網頁標記與樣式編排</text>
+            <text x="822" y="351" fill="#FFFFFF" font-size="21" font-weight="700">Razor 元件組合畫面</text>
+
+            <!-- 第 4 列：互動功能 -->
+            <rect x="19" y="373" width="1082" height="60" fill="#173863"/>
+            <text x="36" y="411" fill="#FFFFFF" font-size="21" font-weight="800">互動功能</text>
+            <text x="242" y="411" fill="#FFFFFF" font-size="21" font-weight="700">C# 事件</text>
+            <text x="518" y="411" fill="#FFFFFF" font-size="21" font-weight="700">常搭配 JavaScript</text>
+            <text x="822" y="411" fill="#FFFFFF" font-size="21" font-weight="700">C# 元件事件</text>
+
+            <!-- 第 5 列：初學者理解畫面 -->
+            <rect x="19" y="433" width="1082" height="60" fill="#0A2143"/>
+            <text x="36" y="471" fill="#FFFFFF" font-size="21" font-weight="800">初學者理解畫面</text>
+            <text x="242" y="471" fill="#FFFFFF" font-size="21" font-weight="700">拖拉控制項，較直覺</text>
+            <text x="518" y="471" fill="#FFFFFF" font-size="20.5" font-weight="700">需學網頁架構與 MVC 分工</text>
+            <text x="822" y="471" fill="#FFFFFF" font-size="20.5" font-weight="700">需學元件、資料繫結與狀態</text>
+
+            <!-- 第 6 列：適合的方向 -->
+            <rect x="19" y="493" width="1082" height="62" fill="#173863"/>
+            <text x="36" y="531" fill="#FFFFFF" font-size="21" font-weight="800">適合的方向</text>
+            <text x="242" y="531" fill="#FFFFFF" font-size="21" font-weight="700">Windows 管理軟體</text>
+            <text x="518" y="531" fill="#FFFFFF" font-size="21" font-weight="700">一般網站、管理系統</text>
+            <text x="822" y="531" fill="#FFFFFF" font-size="21" font-weight="700">互動式網頁、管理系統</text>
+
+            <!-- 欄位高亮遮罩層 (預設隱藏，點擊上方按鈕可切換聚焦單一技術欄) -->
+            <rect id="cmp-dim-winforms" x="225" y="133" width="275" height="422" fill="#050D1A" fill-opacity="0" pointer-events="none" style="transition: fill-opacity 0.25s;"/>
+            <rect id="cmp-dim-mvc" x="500" y="133" width="305" height="422" fill="#050D1A" fill-opacity="0" pointer-events="none" style="transition: fill-opacity 0.25s;"/>
+            <rect id="cmp-dim-blazor" x="805" y="133" width="296" height="422" fill="#050D1A" fill-opacity="0" pointer-events="none" style="transition: fill-opacity 0.25s;"/>
+
+            <!-- 表格水平與垂直分隔線 -->
+            <line x1="19" y1="193" x2="1101" y2="193" stroke="#93C5FD" stroke-width="1.5"/>
+            <line x1="19" y1="253" x2="1101" y2="253" stroke="#64748B" stroke-width="1"/>
+            <line x1="19" y1="313" x2="1101" y2="313" stroke="#64748B" stroke-width="1"/>
+            <line x1="19" y1="373" x2="1101" y2="373" stroke="#64748B" stroke-width="1"/>
+            <line x1="19" y1="433" x2="1101" y2="433" stroke="#64748B" stroke-width="1"/>
+            <line x1="19" y1="493" x2="1101" y2="493" stroke="#64748B" stroke-width="1"/>
+
+            <line x1="225" y1="133" x2="225" y2="555" stroke="#93C5FD" stroke-width="1.5"/>
+            <line x1="500" y1="133" x2="500" y2="555" stroke="#93C5FD" stroke-width="1.5"/>
+            <line x1="805" y1="133" x2="805" y2="555" stroke="#93C5FD" stroke-width="1.5"/>
+
+            <!-- 底部補充說明與浮水印 -->
+            <text x="16" y="594" fill="#FFFFFF" font-size="18.5" font-weight="800">補充：MVC 與 Blazor 都會用到 CSS；Blazor 在特定情況下也會使用 JavaScript。</text>
+            <text x="1104" y="606" text-anchor="end" fill="#E2E8F0" font-size="13.5" font-weight="700">協同 AI 寫程式</text>
+          </svg>
+        </div>
+
+        <!-- 圖二深度解說框 -->
+        <div class="p-6 bg-slate-50 border-t border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+          <div class="rounded-2xl bg-blue-50 border border-blue-200 p-4">
+            <div class="font-extrabold text-blue-900 mb-1">🔵 WinForms：純 C# 桌面直覺體驗</div>
+            <p class="text-blue-950/85 leading-relaxed">
+              完全不需要學習 HTML、CSS 或 JavaScript，透過拖拉控制項與撰寫 C# 事件即可完成 Windows 管理軟體，是零基礎認識程式邏輯最友善的起點。
+            </p>
+          </div>
+          <div class="rounded-2xl bg-teal-50 border border-teal-200 p-4">
+            <div class="font-extrabold text-teal-900 mb-1">🟢 ASP.NET Core MVC：前后端分工最明確</div>
+            <p class="text-teal-950/85 leading-relaxed">
+              結合 C# 後端與 HTML/CSS/JavaScript 前端，適合標準表單與查詢型管理網站；雖然初期需學習 MVC 分工與前端腳本，但架構最穩健、範例最齊全。
+            </p>
+          </div>
+          <div class="rounded-2xl bg-purple-50 border border-purple-200 p-4">
+            <div class="font-extrabold text-purple-900 mb-1">🟣 Blazor：用 C# 元件寫出互動式網頁</div>
+            <p class="text-purple-950/85 leading-relaxed">
+              以 Razor 元件組合畫面並用 C# 處理元件事件（僅特定瀏覽器原生功能才需 JS 互操作），既能跨瀏覽器使用，又能保留純 C# 開發的連貫性。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. 前言與課程背景 [00:00:00] -->
+    <section id="intro" class="scroll-mt-24">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="px-3 py-1 rounded-lg bg-indigo-100 text-indigo-700 font-mono text-xs font-bold">00:00:00</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">1. 前言與課程背景：AI 時代的選擇題</h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div class="lg:col-span-7 bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-4">
+          <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+            <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">
+              🦀
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900">卓老師 × 語音助理「巨蟹座阿關」</h3>
+              <p class="text-xs text-slate-500">延續第 01 集「西藥批發管理系統」實戰案例</p>
+            </div>
+          </div>
+          <p class="text-slate-700 leading-relaxed">
+            在上一集中，我們透過實際展示「西藥批發管理系統」探討了 AI 協作開發的可能性。然而，許多剛踏入 C# 領域的初學者常會面臨一個關鍵困惑：<strong class="text-indigo-700">「既然現在有 AI 可以幫忙寫程式碼，那我學 ASP.NET MVC、Blazor 還是 Windows Forms (WinForms)，是不是每一種都一樣簡單？」</strong>
+          </p>
+          <p class="text-slate-700 leading-relaxed">
+            答案是：<strong class="text-slate-900">AI 確實大幅降低了撰寫語法的門檻，但這三種技術在「運作架構、部署方式、使用場景」上截然不同。</strong>選對符合自己目標的起點，才能讓學習事半功倍。
+          </p>
+        </div>
+
+        <!-- 藍色資訊重點框 (Callout Box) -->
+        <div class="lg:col-span-5 rounded-2xl bg-sky-50 border-l-4 border-sky-500 p-6 sm:p-7 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center gap-2 text-sky-800 font-bold text-base mb-3">
+              <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>本集核心探討問題</span>
+            </div>
+            <ul class="space-y-2.5 text-sm text-sky-900/90 leading-relaxed">
+              <li class="flex items-start gap-2">
+                <span class="font-bold text-sky-600">01.</span>
+                <span><strong>WinForms、Blazor、MVC</strong> 各自的優點與先天限制為何？</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="font-bold text-sky-600">02.</span>
+                <span>同一個「採購登錄」商用功能，在三種技術下如何實作？</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="font-bold text-sky-600">03.</span>
+                <span>有了 AI 協作後，初學者最該投入精力精進的核心能力是什麼？</span>
+              </li>
+            </ul>
+          </div>
+          <div class="mt-6 pt-4 border-t border-sky-200/70 text-xs text-sky-700 font-medium">
+            💡 提示：下方提供互動架構圖與採購計算模擬器，可邊看邊操作！
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 三大技術深度解析 [00:01:12 - 00:05:24] -->
+    <section id="tech-compare" class="scroll-mt-24">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="px-3 py-1 rounded-lg bg-indigo-100 text-indigo-700 font-mono text-xs font-bold">01:12 ~ 05:24</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">2. 三大技術深度解析與優缺點對比</h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 卡片 1：WinForms -->
+        <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+          <div class="p-6 bg-gradient-to-r from-blue-600 to-cyan-600 text-white">
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-mono">00:01:12</span>
+              <span class="text-xs font-semibold bg-black/20 px-2.5 py-0.5 rounded-lg">Windows 桌面應用</span>
+            </div>
+            <h3 class="text-xl font-extrabold">Windows Forms (WinForms)</h3>
+            <p class="text-xs text-blue-100 mt-1">所見即所得的經典桌面表單開發</p>
+          </div>
+          <div class="p-6 flex-1 flex flex-col justify-between space-y-5">
+            <p class="text-sm text-slate-600 leading-relaxed">
+              屬於傳統 Windows 桌面應用程式。最大特色是在 Visual Studio 設計工具中，可以直接用滑鼠拖拉文字輸入框（TextBox）、標籤（Label）、按鈕（Button）與資料表格（DataGridView）。
+            </p>
+
+            <!-- 綠色推薦/優點框 -->
+            <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
+              <h4 class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span>✅ 技術優勢</span>
+              </h4>
+              <ul class="text-xs text-emerald-900 space-y-1.5 leading-relaxed">
+                <li>• 控制項具體直覺，事件觸發（如按鈕 Click）極易理解。</li>
+                <li>• 不需先學網頁排版語法，適合零程式經驗快速建立成就感。</li>
+              </ul>
+            </div>
+
+            <!-- 琥珀色注意/限制框 -->
+            <div class="rounded-xl bg-amber-50 border border-amber-200 p-4">
+              <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span>⚠️ 先天限制與適用場景</span>
+              </h4>
+              <ul class="text-xs text-amber-900 space-y-1.5 leading-relaxed">
+                <li>• <strong>無法跨平台：</strong>不能直接用手機、平板或瀏覽器操作。</li>
+                <li>• <strong>部署維護：</strong>每台電腦需安裝執行檔，後續版本更新需額外規劃。</li>
+                <li>• <strong>最佳場景：</strong>純公司內部 Windows 電腦專用的管理系統。</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- 卡片 2：Blazor -->
+        <article class="bg-white rounded-2xl border-2 border-indigo-500 shadow-md overflow-hidden flex flex-col relative">
+          <div class="absolute top-3 right-3 z-10">
+            <span class="px-2.5 py-1 rounded-full bg-amber-400 text-slate-900 text-[11px] font-extrabold shadow">講師推薦 C# 網頁首選</span>
+          </div>
+          <div class="p-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-mono">00:02:29</span>
+            </div>
+            <h3 class="text-xl font-extrabold">Blazor</h3>
+            <p class="text-xs text-indigo-100 mt-1">使用 C# 打造現代互動式網頁應用</p>
+          </div>
+          <div class="p-6 flex-1 flex flex-col justify-between space-y-5">
+            <p class="text-sm text-slate-600 leading-relaxed">
+              使用 HTML 與 CSS 設計畫面，但<strong class="text-indigo-700">前端互動邏輯可以直接用 C# 撰寫</strong>！例如輸入供應商名稱即時搜尋、更新清單與選取項目，原本需寫 JavaScript 的工作全都能用 C# 事件完成。
+            </p>
+
+            <!-- 綠色推薦/優點框 -->
+            <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
+              <h4 class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span>✅ 技術優勢</span>
+              </h4>
+              <ul class="text-xs text-emerald-900 space-y-1.5 leading-relaxed">
+                <li>• 前後端統一使用 C# 語言與物件模型，不用在 JS 與 C# 間頻繁切換。</li>
+                <li>• 支援跨裝置瀏覽器操作，非常值得想寫 C# 網頁管理系統者優先學習。</li>
+              </ul>
+            </div>
+
+            <!-- 琥珀色注意/限制框 -->
+            <div class="rounded-xl bg-amber-50 border border-amber-200 p-4">
+              <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span>⚠️ 學習門檻與部署考量</span>
+              </h4>
+              <ul class="text-xs text-amber-900 space-y-1.5 leading-relaxed">
+                <li>• 仍需具備基礎 HTML/CSS，並理解<strong>元件生命週期、資料繫結與狀態管理</strong>。</li>
+                <li>• 若採 <strong>Interactive Server</strong> 模式，互動需維持與伺服器的即時連線，部署時須考量網路品質與伺服器資源。</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- 卡片 3：ASP.NET MVC -->
+        <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+          <div class="p-6 bg-gradient-to-r from-slate-800 to-slate-700 text-white">
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-mono">00:03:59</span>
+              <span class="text-xs font-semibold bg-emerald-500/30 text-emerald-200 px-2.5 py-0.5 rounded-lg">本專案首發示範</span>
+            </div>
+            <h3 class="text-xl font-extrabold">ASP.NET MVC</h3>
+            <p class="text-xs text-slate-300 mt-1">職責清晰分離的成熟企業網站架構</p>
+          </div>
+          <div class="p-6 flex-1 flex flex-col justify-between space-y-5">
+            <p class="text-sm text-slate-600 leading-relaxed">
+              極為成熟的網頁開發架構，將程式嚴謹拆分為三層：<strong>Model</strong>（資料與商業模型）、<strong>View</strong>（畫面呈現）與 <strong>Controller</strong>（接收請求與流程協調）。
+            </p>
+
+            <!-- 綠色推薦/優點框 -->
+            <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
+              <h4 class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span>✅ 技術優勢</span>
+              </h4>
+              <ul class="text-xs text-emerald-900 space-y-1.5 leading-relaxed">
+                <li>• 架構清晰、易於團隊分工與長期維護，網路教學資源與範例最豐富。</li>
+                <li>• 非常適合標準表單輸入與資料查詢型商用網站。</li>
+              </ul>
+            </div>
+
+            <!-- 琥珀色注意/限制框 -->
+            <div class="rounded-xl bg-amber-50 border border-amber-200 p-4">
+              <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span>⚠️ 初學者挑戰</span>
+              </h4>
+              <ul class="text-xs text-amber-900 space-y-1.5 leading-relaxed">
+                <li>• 除 C# 外，還需同時接觸 <strong>HTML、CSS、JavaScript（或 jQuery）</strong>。</li>
+                <li>• 若要做到「輸入兩個字即時搜尋供應商」等動態效果，必須搭配前端 JS/AJAX 實作，初期需吸收較多網頁觀念。</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 互動式 SVG 架構比較圖解 -->
+    <section id="arch-svg" class="scroll-mt-24 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Interactive Architecture Diagram</span>
+          <h2 class="text-2xl font-bold text-slate-900 mt-1">互動式運作原理 SVG 架構圖解</h2>
+          <p class="text-sm text-slate-500 mt-1">切換上方技術分頁，並<strong>點擊圖中的彩色方塊節點</strong>，查看各元件在系統中的職責！</p>
+        </div>
+
+        <!-- 分頁切換按鈕 -->
+        <div class="inline-flex p-1.5 rounded-2xl bg-slate-100 border border-slate-200/80 self-start">
+          <button type="button" onclick="switchArchTab('winforms')" id="tab-winforms"
+                  class="arch-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900">
+            WinForms 架構
+          </button>
+          <button type="button" onclick="switchArchTab('blazor')" id="tab-blazor"
+                  class="arch-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-indigo-600 text-white shadow">
+            Blazor Server 架構
+          </button>
+          <button type="button" onclick="switchArchTab('mvc')" id="tab-mvc"
+                  class="arch-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900">
+            ASP.NET MVC 架構
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 items-center">
+        <!-- SVG 畫布區 -->
+        <div class="lg:col-span-8 bg-slate-50 rounded-2xl border border-slate-200/80 p-4 overflow-hidden">
+          <!-- 1. WinForms SVG -->
+          <svg id="svg-winforms" class="arch-svg-panel hidden w-full h-auto" viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg">
+            <rect x="15" y="15" width="690" height="290" rx="18" fill="#eff6ff" stroke="#93c5fd" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="35" y="45" fill="#1e40af" font-size="14" font-weight="bold">Windows 桌面本機執行環境 (.exe)</text>
+
+            <!-- 連線 -->
+            <line x1="210" y1="160" x2="280" y2="160" stroke="#3b82f6" stroke-width="3" class="flow-line"/>
+            <line x1="450" y1="160" x2="520" y2="160" stroke="#3b82f6" stroke-width="3" class="flow-line"/>
+
+            <!-- 節點 1：Form 控制項 -->
+            <g class="svg-node" onclick="showNodeDetail('wf-ui')">
+              <rect x="40" y="95" width="170" height="130" rx="14" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/>
+              <rect x="40" y="95" width="170" height="32" rx="14" fill="#2563eb"/>
+              <text x="125" y="116" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">Form 視覺控制項</text>
+              <text x="125" y="152" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">TextBox / Button</text>
+              <text x="125" y="174" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">DataGridView 表格</text>
+              <text x="125" y="202" text-anchor="middle" fill="#3b82f6" font-size="11">點擊查看說明 👆</text>
+            </g>
+
+            <!-- 節點 2：C# 事件處理 -->
+            <g class="svg-node" onclick="showNodeDetail('wf-event')">
+              <rect x="280" y="95" width="170" height="130" rx="14" fill="#ffffff" stroke="#0891b2" stroke-width="2"/>
+              <rect x="280" y="95" width="170" height="32" rx="14" fill="#0891b2"/>
+              <text x="365" y="116" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">C# 事件驅動邏輯</text>
+              <text x="365" y="152" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">btnSave_Click()</text>
+              <text x="365" y="174" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">直接計算金額與驗證</text>
+              <text x="365" y="202" text-anchor="middle" fill="#0891b2" font-size="11">點擊查看說明 👆</text>
+            </g>
+
+            <!-- 節點 3：資料庫 -->
+            <g class="svg-node" onclick="showNodeDetail('wf-db')">
+              <rect x="520" y="95" width="160" height="130" rx="14" fill="#ffffff" stroke="#475569" stroke-width="2"/>
+              <rect x="520" y="95" width="160" height="32" rx="14" fill="#334155"/>
+              <text x="600" y="116" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">SQL 資料庫</text>
+              <text x="600" y="152" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">直接連線或 API</text>
+              <text x="600" y="174" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">儲存採購單據</text>
+              <text x="600" y="202" text-anchor="middle" fill="#475569" font-size="11">點擊查看說明 👆</text>
+            </g>
+          </svg>
+
+          <!-- 2. Blazor Interactive Server SVG -->
+          <svg id="svg-blazor" class="arch-svg-panel w-full h-auto" viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg">
+            <!-- 左側瀏覽器框 -->
+            <rect x="15" y="20" width="220" height="280" rx="16" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="2"/>
+            <text x="125" y="46" text-anchor="middle" fill="#5b21b6" font-size="13" font-weight="bold">用戶端瀏覽器 (跨平台)</text>
+
+            <!-- 右側伺服器框 -->
+            <rect x="330" y="20" width="375" height="280" rx="16" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/>
+            <text x="517" y="46" text-anchor="middle" fill="#3730a3" font-size="13" font-weight="bold">伺服器端 ASP.NET Core Server</text>
+
+            <!-- SignalR 雙向連線 -->
+            <line x1="210" y1="150" x2="355" y2="150" stroke="#7c3aed" stroke-width="3.5" class="flow-line"/>
+            <line x1="355" y1="175" x2="210" y2="175" stroke="#4f46e5" stroke-width="3.5" class="flow-line"/>
+
+            <!-- 節點 1：DOM 畫面 -->
+            <g class="svg-node" onclick="showNodeDetail('bz-dom')">
+              <rect x="35" y="85" width="180" height="155" rx="14" fill="#ffffff" stroke="#8b5cf6" stroke-width="2"/>
+              <rect x="35" y="85" width="180" height="32" rx="14" fill="#7c3aed"/>
+              <text x="125" y="106" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">HTML / CSS 畫面</text>
+              <text x="125" y="142" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">僅傳送 UI 差異更新</text>
+              <text x="125" y="164" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">無需手寫複雜 JS</text>
+              <text x="125" y="215" text-anchor="middle" fill="#7c3aed" font-size="11">點擊查看說明 👆</text>
+            </g>
+
+            <!-- 節點 2：SignalR 通道 -->
+            <g class="svg-node" onclick="showNodeDetail('bz-signalr')">
+              <rect x="235" y="122" width="95" height="80" rx="12" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+              <text x="282" y="150" text-anchor="middle" fill="#92400e" font-size="12" font-weight="extrabold">SignalR</text>
+              <text x="282" y="168" text-anchor="middle" fill="#b45309" font-size="10" font-weight="600">即時長連線</text>
+              <text x="282" y="190" text-anchor="middle" fill="#d97706" font-size="10">點擊詳情 👆</text>
+            </g>
+
+            <!-- 節點 3：Razor 元件與 C# 狀態 -->
+            <g class="svg-node" onclick="showNodeDetail('bz-comp')">
+              <rect x="355" y="85" width="175" height="155" rx="14" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+              <rect x="355" y="85" width="175" height="32" rx="14" fill="#4f46e5"/>
+              <text x="442" y="106" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">Razor C# 元件</text>
+              <text x="442" y="142" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">@bind 資料雙向繫結</text>
+              <text x="442" y="164" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">C# 事件處理搜尋</text>
+              <text x="442" y="186" text-anchor="middle" fill="#6366f1" font-size="11">管理元件生命週期</text>
+              <text x="442" y="215" text-anchor="middle" fill="#4f46e5" font-size="11">點擊查看說明 👆</text>
+            </g>
+
+            <!-- 節點 4：DB -->
+            <g class="svg-node" onclick="showNodeDetail('bz-db')">
+              <rect x="550" y="85" width="135" height="155" rx="14" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+              <rect x="550" y="85" width="135" height="32" rx="14" fill="#334155"/>
+              <text x="617" y="106" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">資料庫與服務</text>
+              <text x="617" y="148" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">EF Core 存取</text>
+              <text x="617" y="170" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">共用 C# 模型</text>
+              <text x="617" y="215" text-anchor="middle" fill="#475569" font-size="11">點擊查看說明 👆</text>
+            </g>
+          </svg>
+
+          <!-- 3. ASP.NET MVC SVG -->
+          <svg id="svg-mvc" class="arch-svg-panel hidden w-full h-auto" viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg">
+            <rect x="15" y="15" width="690" height="290" rx="18" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+            <text x="35" y="44" fill="#334155" font-size="14" font-weight="bold">ASP.NET MVC 職責分離請求週期</text>
+
+            <!-- 連線 -->
+            <line x1="205" y1="160" x2="275" y2="160" stroke="#0f172a" stroke-width="3" class="flow-line"/>
+            <line x1="455" y1="130" x2="515" y2="105" stroke="#059669" stroke-width="3" class="flow-line"/>
+            <line x1="455" y1="190" x2="515" y2="215" stroke="#d97706" stroke-width="3" class="flow-line"/>
+
+            <!-- 節點 1：瀏覽器 + JS -->
+            <g class="svg-node" onclick="showNodeDetail('mvc-browser')">
+              <rect x="35" y="90" width="170" height="145" rx="14" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+              <rect x="35" y="90" width="170" height="32" rx="14" fill="#475569"/>
+              <text x="120" y="111" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">瀏覽器 (前端)</text>
+              <text x="120" y="146" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">HTML / CSS</text>
+              <text x="120" y="168" text-anchor="middle" fill="#e11d48" font-size="12" font-weight="700">+ JS / jQuery 互動</text>
+              <text x="120" y="210" text-anchor="middle" fill="#475569" font-size="11">點擊查看說明 👆</text>
+            </g>
+
+            <!-- 節點 2：Controller -->
+            <g class="svg-node" onclick="showNodeDetail('mvc-controller')">
+              <rect x="275" y="90" width="180" height="145" rx="14" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+              <rect x="275" y="90" width="180" height="32" rx="14" fill="#4f46e5"/>
+              <text x="365" y="111" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">Controller (控制器)</text>
+              <text x="365" y="146" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">接收 HTTP 請求</text>
+              <text x="365" y="168" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="600">協調商業流程與驗證</text>
+              <text x="365" y="210" text-anchor="middle" fill="#4f46e5" font-size="11">點擊查看說明 👆</text>
+            </g>
+
+            <!-- 節點 3：Model -->
+            <g class="svg-node" onclick="showNodeDetail('mvc-model')">
+              <rect x="515" y="55" width="170" height="95" rx="14" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+              <rect x="515" y="55" width="170" height="28" rx="14" fill="#059669"/>
+              <text x="600" y="74" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Model (資料模型)</text>
+              <text x="600" y="106" text-anchor="middle" fill="#1e293b" font-size="11" font-weight="600">資料結構、商業規則與 DB</text>
+              <text x="600" y="132" text-anchor="middle" fill="#059669" font-size="10">點擊查看說明 👆</text>
+            </g>
+
+            <!-- 節點 4：View -->
+            <g class="svg-node" onclick="showNodeDetail('mvc-view')">
+              <rect x="515" y="175" width="170" height="95" rx="14" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+              <rect x="515" y="175" width="170" height="28" rx="14" fill="#d97706"/>
+              <text x="600" y="194" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">View (Razor 檢視)</text>
+              <text x="600" y="226" text-anchor="middle" fill="#1e293b" font-size="11" font-weight="600">專責渲染 HTML 畫面</text>
+              <text x="600" y="252" text-anchor="middle" fill="#d97706" font-size="10">點擊查看說明 👆</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- 右側節點詳情說明面板 -->
+        <div class="lg:col-span-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 p-6 flex flex-col justify-between min-h-[260px]">
+          <div>
+            <span id="node-badge" class="inline-block px-2.5 py-1 rounded-md bg-indigo-600 text-white text-xs font-bold mb-3">
+              Blazor Server 核心節點
+            </span>
+            <h3 id="node-title" class="text-lg font-extrabold text-slate-900 mb-2">
+              Razor C# 元件 (@bind 與事件)
+            </h3>
+            <p id="node-desc" class="text-sm text-slate-700 leading-relaxed">
+              在 Blazor 中，畫面與邏輯封裝在 .razor 元件裡。當使用者在採購畫面輸入供應商關鍵字時，直接觸發 C# 方法查詢資料並更新畫面狀態，大幅減少撰寫 JavaScript 的負擔。
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-indigo-200/80 text-xs text-indigo-800 flex items-center gap-2">
+            <span>👆 試著點擊左側圖表中的不同方塊切換解說</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 實戰案例比較：「採購登錄」互動模擬器 [00:05:24] -->
+    <section id="purchase-sim" class="scroll-mt-24">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="px-3 py-1 rounded-lg bg-indigo-100 text-indigo-700 font-mono text-xs font-bold">00:05:24</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">3. 實戰案例比較：西藥批發系統「採購登錄」</h2>
+      </div>
+
+      <!-- 紫色核心觀念框 (Callout Box) -->
+      <div class="mb-8 rounded-2xl bg-purple-50 border-l-4 border-purple-600 p-6 shadow-sm">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center flex-shrink-0 font-bold">
+            ★
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold text-purple-950 mb-1">
+              核心觀念：介面技術只是外殼，「業務規則」才是靈魂！
+            </h3>
+            <p class="text-sm text-purple-900/90 leading-relaxed">
+              影片中特別強調：在開發「採購登錄」功能時，真正要學的不只是語法怎麼寫，而是<strong>「先將商業需求與業務規則定義清楚」</strong>。只要底層的商業流程（選供應商 → 搜商品 → 算金額 → 存草稿）設計合理，未來就能輕鬆套用到 WinForms、Blazor 或 MVC 任何一種介面！
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 互動模擬器主容器 -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <!-- 頂部技術視角切換列 -->
+        <div class="bg-slate-900 text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="font-bold text-sm sm:text-base">西藥批發管理系統 — 採購登錄互動模擬器</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-slate-400">切換實作視角：</span>
+            <button type="button" onclick="setSimTech('winforms')" id="sim-btn-winforms"
+                    class="sim-tech-btn px-3 py-1.5 rounded-lg font-semibold bg-slate-800 text-slate-300 hover:text-white transition">
+              WinForms 視角
+            </button>
+            <button type="button" onclick="setSimTech('blazor')" id="sim-btn-blazor"
+                    class="sim-tech-btn px-3 py-1.5 rounded-lg font-semibold bg-indigo-600 text-white shadow transition">
+              Blazor 視角
+            </button>
+            <button type="button" onclick="setSimTech('mvc')" id="sim-btn-mvc"
+                    class="sim-tech-btn px-3 py-1.5 rounded-lg font-semibold bg-slate-800 text-slate-300 hover:text-white transition">
+              MVC 視角
+            </button>
+          </div>
+        </div>
+
+        <!-- 技術視角實作說明條 -->
+        <div id="sim-tech-banner" class="bg-indigo-50 border-b border-indigo-100 px-6 py-3 text-xs sm:text-sm text-indigo-900 flex items-center gap-2">
+          <span class="font-bold px-2 py-0.5 rounded bg-indigo-600 text-white text-xs">Blazor 實作方式</span>
+          <span id="sim-tech-desc">透過 Razor 元件與 C# 事件（@oninput / @bind）即時過濾供應商與藥品清單，並直接呼叫 C# 屬性計算金額。</span>
+        </div>
+
+        <div class="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <!-- 左側：操作表單 -->
+          <div class="lg:col-span-7 space-y-5">
+            <!-- 步驟 1：選擇供應商 -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+              <label class="block text-xs font-bold uppercase tracking-wider text-indigo-600 mb-2">
+                Step 1. 選擇供應商（支援關鍵字即時篩選）
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input type="text" id="supplier-search" oninput="filterSuppliers()" placeholder="輸入關鍵字（如：永信、杏輝）..."
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" />
+                <select id="supplier-select" onchange="highlightStep(1)"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="SUP-01">永信藥品工業股份有限公司</option>
+                  <option value="SUP-02">杏輝藥品工業股份有限公司</option>
+                  <option value="SUP-03">生達化學製藥股份有限公司</option>
+                  <option value="SUP-04">中化製藥股份有限公司</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 步驟 2 & 3：搜尋商品並加入明細 -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <label class="block text-xs font-bold uppercase tracking-wider text-indigo-600">
+                Step 2 & 3. 選取西藥商品、輸入數量與採購單價
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <div class="sm:col-span-5">
+                  <span class="text-[11px] text-slate-500 block mb-1">藥品名稱</span>
+                  <select id="drug-select" onchange="onDrugChange()"
+                          class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="普拿疼膜衣錠 500mg|120">普拿疼膜衣錠 500mg ($120)</option>
+                    <option value="克流感膠囊 75mg|650">克流感膠囊 75mg ($650)</option>
+                    <option value="亞培安素原味營養品|75">亞培安素原味營養品 ($75)</option>
+                    <option value="循利寧膜衣錠 40mg|480">循利寧膜衣錠 40mg ($480)</option>
+                  </select>
+                </div>
+                <div class="sm:col-span-3">
+                  <span class="text-[11px] text-slate-500 block mb-1">採購數量 ($Q_i$)</span>
+                  <input type="number" id="drug-qty" value="10" min="1" max="9999" oninput="highlightStep(2)"
+                         class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <div class="sm:col-span-4">
+                  <span class="text-[11px] text-slate-500 block mb-1">採購單價 ($P_i$)</span>
+                  <div class="flex gap-2">
+                    <input type="number" id="drug-price" value="120" min="1" oninput="highlightStep(2)"
+                           class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    <button type="button" onclick="addPurchaseItem()"
+                            class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold whitespace-nowrap shadow-sm transition">
+                      + 加入
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 採購明細表格 -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-200">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr class="bg-slate-100 text-slate-700 text-xs uppercase">
+                    <th class="py-3 px-4">藥品品項</th>
+                    <th class="py-3 px-3 text-right">數量 ($Q_i$)</th>
+                    <th class="py-3 px-3 text-right">單價 ($P_i$)</th>
+                    <th class="py-3 px-4 text-right">小計 ($Q_i \times P_i$)</th>
+                    <th class="py-3 px-3 text-center">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="purchase-tbody" class="divide-y divide-slate-100 bg-white">
+                  <!-- JS 動態生成 -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 儲存草稿操作列 -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+              <div id="draft-status" class="text-xs font-medium text-slate-500">
+                狀態：編輯中（尚未儲存草稿）
+              </div>
+              <button type="button" onclick="savePurchaseDraft()"
+                      class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-sm transition">
+                Step 4. 儲存採購草稿
+              </button>
+            </div>
+          </div>
+
+          <!-- 右側：即時 SVG 業務流程圖 + KaTeX 公式計算面板 -->
+          <div class="lg:col-span-5 flex flex-col justify-between space-y-5">
+            <!-- SVG 業務流程圖 -->
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+              <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">即時業務資料流向圖 (SVG)</div>
+              <svg class="w-full h-auto" viewBox="0 0 380 210" xmlns="http://www.w3.org/2000/svg">
+                <!-- 連線 -->
+                <line id="sim-line-1" x1="115" y1="50" x2="215" y2="50" stroke="#94a3b8" stroke-width="2.5"/>
+                <line id="sim-line-2" x1="295" y1="80" x2="295" y2="125" stroke="#94a3b8" stroke-width="2.5"/>
+                <line id="sim-line-3" x1="215" y1="155" x2="145" y2="155" stroke="#94a3b8" stroke-width="2.5"/>
+
+                <!-- 步驟 1 -->
+                <g id="sim-node-1">
+                  <rect x="15" y="22" width="120" height="56" rx="12" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+                  <text x="75" y="46" text-anchor="middle" fill="#312e81" font-size="11" font-weight="bold">1. 選擇供應商</text>
+                  <text x="75" y="64" text-anchor="middle" fill="#4f46e5" font-size="10">驗證廠商資格</text>
+                </g>
+
+                <!-- 步驟 2 -->
+                <g id="sim-node-2">
+                  <rect x="215" y="22" width="150" height="56" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+                  <text x="290" y="46" text-anchor="middle" fill="#1e293b" font-size="11" font-weight="bold">2. 搜尋選取商品</text>
+                  <text x="290" y="64" text-anchor="middle" fill="#64748b" font-size="10">載入藥品基準單價</text>
+                </g>
+
+                <!-- 步驟 3 -->
+                <g id="sim-node-3">
+                  <rect x="215" y="125" width="150" height="60" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+                  <text x="290" y="150" text-anchor="middle" fill="#1e293b" font-size="11" font-weight="bold">3. 計算小計與總額</text>
+                  <text x="290" y="168" text-anchor="middle" fill="#64748b" font-size="10">即時加總明細金額</text>
+                </g>
+
+                <!-- 步驟 4 -->
+                <g id="sim-node-4">
+                  <rect x="15" y="125" width="130" height="60" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+                  <text x="80" y="150" text-anchor="middle" fill="#1e293b" font-size="11" font-weight="bold">4. 儲存採購草稿</text>
+                  <text x="80" y="168" text-anchor="middle" fill="#64748b" font-size="10">寫入主檔與明細表</text>
+                </g>
+              </svg>
+            </div>
+
+            <!-- KaTeX 數學公式與即時總金額卡片 -->
+            <div class="rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-6 shadow-md space-y-4">
+              <div class="text-xs font-bold uppercase tracking-wider text-indigo-300">商業計算規則 (KaTeX 渲染)</div>
+              <div class="bg-white/10 rounded-xl p-3.5 text-xs sm:text-sm space-y-2 border border-white/10">
+                <div>單筆明細公式：$\text{小計}_i = \text{數量}(Q_i) \times \text{單價}(P_i)$</div>
+                <div>採購單總金額：$$\text{總金額} = \sum_{i=1}^{n} (Q_i \times P_i)$$</div>
+              </div>
+              <div class="flex items-baseline justify-between pt-2 border-t border-white/15">
+                <span class="text-sm text-slate-300">目前採購單總金額：</span>
+                <span id="purchase-total" class="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono">
+                  NT$ 1,200
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. AI 時代的初學者學習路徑與 AI 邊界 [00:06:39] -->
+    <section id="decision-tree" class="scroll-mt-24 space-y-8">
+      <div class="flex items-center gap-3">
+        <span class="px-3 py-1 rounded-lg bg-indigo-100 text-indigo-700 font-mono text-xs font-bold">00:06:39</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">4. AI 時代學習路徑決策器 & 不可取代的核心</h2>
+      </div>
+
+      <!-- 互動式學習路徑選擇器 -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+        <h3 class="text-lg font-bold text-slate-900 mb-2">🧭 互動式學習路徑推薦：點擊最符合你現況的選項</h3>
+        <p class="text-sm text-slate-500 mb-6">根據你的程式背景與開發目標，系統將高亮推薦最適合的切入方向：</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <button type="button" onclick="selectLearnerProfile('zero')" id="prof-zero"
+                  class="profile-card text-left p-5 rounded-2xl border-2 border-slate-200 hover:border-indigo-400 transition bg-slate-50/50">
+            <div class="text-2xl mb-2">🌱</div>
+            <div class="font-bold text-slate-900 text-base mb-1">情況 A：完全零程式經驗</div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              想先認識什麼是按鈕、文字框、表格與事件觸發，希望快速看到畫面成果。
+            </p>
+          </button>
+
+          <button type="button" onclick="selectLearnerProfile('csharp-web')" id="prof-csharp-web"
+                  class="profile-card text-left p-5 rounded-2xl border-2 border-indigo-600 bg-indigo-50/60 shadow-sm transition">
+            <div class="text-2xl mb-2">🚀</div>
+            <div class="font-bold text-indigo-950 text-base mb-1">情況 B：目標瀏覽器商用系統</div>
+            <p class="text-xs text-indigo-900/80 leading-relaxed">
+              希望使用者能用手機、平板或電腦瀏覽器操作系統，且想用一致的 C# 語言貫穿前後端。
+            </p>
+          </button>
+
+          <button type="button" onclick="selectLearnerProfile('classic-mvc')" id="prof-classic-mvc"
+                  class="profile-card text-left p-5 rounded-2xl border-2 border-slate-200 hover:border-indigo-400 transition bg-slate-50/50">
+            <div class="text-2xl mb-2">🏛️</div>
+            <div class="font-bold text-slate-900 text-base mb-1">情況 C：想學成熟網站架構</div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              願意同時學習 HTML/CSS/JS 前端技術，想掌握業界最經典、資源最豐富的網站分層架構。
+            </p>
+          </button>
+        </div>
+
+        <!-- 動態推薦結果框 -->
+        <div id="profile-result" class="rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-indigo-200 mb-1">推薦起手技術</div>
+            <h4 id="rec-tech-title" class="text-xl sm:text-2xl font-extrabold mb-1">優先選擇：Blazor</h4>
+            <p id="rec-tech-reason" class="text-sm text-indigo-100 leading-relaxed">
+              前後端皆使用 C# 語言與工具，無需同時消化複雜的 JavaScript 框架即可開發具備即時互動能力的瀏覽器商用管理系統。
+            </p>
+          </div>
+          <span id="rec-badge" class="px-4 py-2 rounded-xl bg-white text-indigo-700 font-extrabold text-xs whitespace-nowrap shadow">
+            C# 全端一致首選
+          </span>
+        </div>
+      </div>
+
+      <!-- 紅色/琥珀色警示重點框：AI 協作的邊界與工程師真正價值 -->
+      <div id="ai-boundary" class="rounded-3xl bg-rose-50 border-2 border-rose-200 p-6 sm:p-8 shadow-sm">
+        <div class="flex flex-col md:flex-row gap-6 items-start">
+          <div class="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center flex-shrink-0 text-xl font-extrabold shadow">
+            !
+          </div>
+          <div class="space-y-4 flex-1">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-rose-600">Critical Reminder｜AI 無法取代的關鍵</span>
+              <h3 class="text-xl sm:text-2xl font-extrabold text-rose-950 mt-0.5">
+                AI 只能提高寫程式的效率，以下 5 大核心能力必須由你親自把關！
+              </h3>
+            </div>
+            <p class="text-sm text-rose-900/90 leading-relaxed">
+              即使有 AI 協助產出程式碼，開發者仍必須具備基本的程式架構與語法閱讀能力，才能判斷 AI 寫得對不對，並親自精進以下決定系統成敗的關鍵領域：
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <div class="bg-white rounded-xl p-3.5 border border-rose-200 shadow-sm">
+                <div class="font-extrabold text-rose-700 text-sm mb-1">1. 資料庫設計</div>
+                <p class="text-xs text-slate-600">資料表關聯、主外鍵與欄位型別規劃。</p>
+              </div>
+              <div class="bg-white rounded-xl p-3.5 border border-rose-200 shadow-sm">
+                <div class="font-extrabold text-rose-700 text-sm mb-1">2. 業務規則</div>
+                <p class="text-xs text-slate-600">採購、銷貨、庫存扣帳的真實商業邏輯。</p>
+              </div>
+              <div class="bg-white rounded-xl p-3.5 border border-rose-200 shadow-sm">
+                <div class="font-extrabold text-rose-700 text-sm mb-1">3. 權限控管</div>
+                <p class="text-xs text-slate-600">不同職務人員的操作與資料存取邊界。</p>
+              </div>
+              <div class="bg-white rounded-xl p-3.5 border border-rose-200 shadow-sm">
+                <div class="font-extrabold text-rose-700 text-sm mb-1">4. 系統安全性</div>
+                <p class="text-xs text-slate-600">防範資料外洩、注入攻擊與敏感資訊保護。</p>
+              </div>
+              <div class="bg-white rounded-xl p-3.5 border border-rose-200 shadow-sm">
+                <div class="font-extrabold text-rose-700 text-sm mb-1">5. 實際測試</div>
+                <p class="text-xs text-slate-600">邊界條件驗證與真實商用場景壓力測試。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 結尾、學習心法與下集預告 [00:08:16] -->
+    <section id="conclusion" class="scroll-mt-24">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="px-3 py-1 rounded-lg bg-indigo-100 text-indigo-700 font-mono text-xs font-bold">00:08:16</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">5. 總結、學習心法與下集預告</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 學習心法框 -->
+        <div class="rounded-2xl bg-amber-50 border border-amber-200 p-6 sm:p-7 space-y-3 shadow-sm">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-200/70 text-amber-900 text-xs font-bold">
+            <span>📖 卓老師學習心法提醒</span>
+          </div>
+          <h3 class="text-lg font-extrabold text-amber-950">工具沒有新舊取代，只有場景適配</h3>
+          <p class="text-sm text-amber-900/90 leading-relaxed">
+            WinForms、Blazor 與 MVC 並非誰淘汰誰的關係，而是各自對應不同需求的工具。在後續系列課程中，我們會以「西藥批發管理系統」為主軸，透過 AI 協作從商品、供應商、客戶一路實作到採購與銷貨流程，帶大家親身體驗三種技術的差異。
+          </p>
+          <p class="text-sm font-bold text-amber-950 pt-1">
+            ✍️ 切記：看教學影片不能走馬看花，一定要多看幾次並動手做筆記複習，才能真正累積成自己的第二甚至第一專長！
+          </p>
+        </div>
+
+        <!-- 下集預告框 -->
+        <div class="rounded-2xl bg-emerald-50 border border-emerald-200 p-6 sm:p-7 flex flex-col justify-between shadow-sm">
+          <div class="space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-200/70 text-emerald-900 text-xs font-bold">
+              <span>🎬 下集預告 (Episode 03)</span>
+            </div>
+            <h3 class="text-lg font-extrabold text-emerald-950">從 ASP.NET MVC 範本起步，打通基本資料維護！</h3>
+            <p class="text-sm text-emerald-900/90 leading-relaxed">
+              考量到成熟網站架構與後續三種前端對比的教學順序，本專案的第一個實作版本將從 <strong>ASP.NET MVC 範本</strong>出發！我們會先挑選欄位較單純的<strong>「商品類別」</strong>與<strong>「付款方式」</strong>基本資料維護功能，帶大家完整打通單一功能的開發流程。
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-emerald-200 flex items-center justify-between">
+            <span class="text-xs font-semibold text-emerald-800">準備好開啟 Visual Studio 了嗎？</span>
+            
+      <div class="flex items-center gap-2">
+        <a href="csharp_supplements.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold transition border border-slate-200">
+          <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+          <span>返回補充教材</span>
+        </a>
+        <a href="https://youtu.be/Jj2fj28KmSo?si=fA8oiHdFgh8KAFzo" target="_blank" rel="noopener noreferrer"
+
+               class="text-xs font-bold text-emerald-700 hover:text-emerald-900 underline">
+              重溫本集 YouTube 影片 →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 視覺分隔線 -->
+    <div class="relative py-4">
+      <div class="absolute inset-0 flex items-center" aria-hidden="true">
+        <div class="w-full border-t-2 border-dashed border-slate-300"></div>
+      </div>
+      <div class="relative flex justify-center">
+        <span class="bg-slate-50 px-4 py-1.5 rounded-full border border-slate-300 text-xs font-bold text-slate-600 tracking-wider uppercase shadow-sm">
+          Timeline & Full Transcript Navigation
+        </span>
+      </div>
+    </div>
+
+    <!-- 6. 新增區塊：互動式影片時間軸與逐字稿導覽 (00:00 ~ 09:53) -->
+    <section id="timeline-transcript" class="scroll-mt-24 space-y-8">
+      <!-- 區塊標題與簡介 -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold mb-2">
+            <span>📜 完整時間軸與逐字稿導覽</span>
+            <span>•</span>
+            <span>00:00 ~ 09:53 全片精準校訂版</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+            互動式影片時間軸與逐字稿總覽
+          </h2>
+          <p class="text-sm text-slate-600 mt-1.5 max-w-3xl leading-relaxed">
+            已全面校訂技術專有名詞（<code class="px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-800 font-mono text-xs">C#</code>、<code class="px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-800 font-mono text-xs">Blazor</code>、<code class="px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-800 font-mono text-xs">ASP.NET MVC</code>、<code class="px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-800 font-mono text-xs">WinForms</code>、<code class="px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-800 font-mono text-xs">西藥批發管理系統</code>）。點擊下方 SVG 時間軸節點或時間徽章，即可快速定位段落或跳轉至該秒數 YouTube 影片。
+          </p>
+        </div>
+        <a href="https://youtu.be/Jj2fj28KmSo" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-sm transition self-start md:self-auto">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <span>開啟 YouTube 同步對照</span>
+        </a>
+      </div>
+
+      <!-- 互動式 SVG 時間軸導覽地圖 (00:00 ~ 09:53) -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+              <span>互動式時間軸進度導覽地圖（點擊節點平滑跳轉至對應逐字稿）</span>
+            </h3>
+          </div>
+          <div id="timeline-active-indicator" class="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200">
+            目前聚焦：[00:00:00] 開場與問題背景（進度 0%）
+          </div>
+        </div>
+
+        <!-- 橫向 SVG 時間軸圖表 -->
+        <div class="w-full overflow-x-auto pb-2">
+          <svg class="min-w-[760px] w-full h-auto" viewBox="0 0 880 185" xmlns="http://www.w3.org/2000/svg">
+            <!-- 背景軌道底框 -->
+            <rect x="10" y="10" width="860" height="165" rx="20" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+
+            <!-- 主時間軸底線 -->
+            <line x1="65" y1="88" x2="815" y2="88" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round"/>
+            <!-- 動態進度高亮線 -->
+            <line id="timeline-svg-progress" x1="65" y1="88" x2="65" y2="88" stroke="#4f46e5" stroke-width="6" stroke-linecap="round" style="transition: x2 0.45s cubic-bezier(0.4, 0, 0.2, 1);"/>
+
+            <!-- 5 大關鍵階段區塊標示 -->
+            <rect x="55" y="18" width="120" height="22" rx="6" fill="#e0e7ff"/>
+            <text x="115" y="33" text-anchor="middle" fill="#3730a3" font-size="10" font-weight="bold">① 問題背景</text>
+
+            <rect x="185" y="18" width="350" height="22" rx="6" fill="#dbeafe"/>
+            <text x="360" y="33" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="bold">② 三大技術核心對比 (WinForms / Blazor / MVC)</text>
+
+            <rect x="545" y="18" width="115" height="22" rx="6" fill="#f3e8ff"/>
+            <text x="602" y="33" text-anchor="middle" fill="#6b21a8" font-size="10" font-weight="bold">③ 採購實戰</text>
+
+            <rect x="668" y="18" width="100" height="22" rx="6" fill="#ffe4e6"/>
+            <text x="718" y="33" text-anchor="middle" fill="#9f1239" font-size="10" font-weight="bold">④ AI 選型策略</text>
+
+            <rect x="775" y="18" width="82" height="22" rx="6" fill="#d1fae5"/>
+            <text x="816" y="33" text-anchor="middle" fill="#065f46" font-size="10" font-weight="bold">⑤ 總結預告</text>
+
+            <!-- 節點 1: 00:00 (x=65) -->
+            <g class="svg-node timeline-svg-node" data-idx="0" onclick="jumpToTranscriptCard(0)">
+              <circle cx="65" cy="88" r="14" fill="#4f46e5" stroke="#ffffff" stroke-width="3"/>
+              <text x="65" y="92" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">1</text>
+              <text x="65" y="64" text-anchor="middle" fill="#334155" font-size="11" font-weight="bold">00:00</text>
+              <text x="65" y="122" text-anchor="middle" fill="#1e293b" font-size="11" font-weight="bold">開場背景</text>
+              <text x="65" y="138" text-anchor="middle" fill="#64748b" font-size="10">巨蟹座阿關</text>
+            </g>
+
+            <!-- 節點 2: 01:12 (x=190) -->
+            <g class="svg-node timeline-svg-node" data-idx="1" onclick="jumpToTranscriptCard(1)">
+              <circle cx="190" cy="88" r="14" fill="#2563eb" stroke="#ffffff" stroke-width="3"/>
+              <text x="190" y="92" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">2</text>
+              <text x="190" y="64" text-anchor="middle" fill="#334155" font-size="11" font-weight="bold">01:12</text>
+              <text x="190" y="122" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="bold">WinForms</text>
+              <text x="190" y="138" text-anchor="middle" fill="#64748b" font-size="10">桌面拖拉控制項</text>
+            </g>
+
+            <!-- 節點 3: 02:29 (x=315) -->
+            <g class="svg-node timeline-svg-node" data-idx="2" onclick="jumpToTranscriptCard(2)">
+              <circle cx="315" cy="88" r="14" fill="#7c3aed" stroke="#ffffff" stroke-width="3"/>
+              <text x="315" y="92" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">3</text>
+              <text x="315" y="64" text-anchor="middle" fill="#334155" font-size="11" font-weight="bold">02:29</text>
+              <text x="315" y="122" text-anchor="middle" fill="#6d28d9" font-size="11" font-weight="bold">Blazor</text>
+              <text x="315" y="138" text-anchor="middle" fill="#64748b" font-size="10">純 C# 互動網頁</text>
+            </g>
+
+            <!-- 節點 4: 03:59 (x=445) -->
+            <g class="svg-node timeline-svg-node" data-idx="3" onclick="jumpToTranscriptCard(3)">
+              <circle cx="445" cy="88" r="14" fill="#0f172a" stroke="#ffffff" stroke-width="3"/>
+              <text x="445" y="92" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">4</text>
+              <text x="445" y="64" text-anchor="middle" fill="#334155" font-size="11" font-weight="bold">03:59</text>
+              <text x="445" y="122" text-anchor="middle" fill="#0f172a" font-size="11" font-weight="bold">ASP.NET MVC</text>
+              <text x="445" y="138" text-anchor="middle" fill="#64748b" font-size="10">三層職責分離</text>
+            </g>
+
+            <!-- 節點 5: 05:24 (x=575) -->
+            <g class="svg-node timeline-svg-node" data-idx="4" onclick="jumpToTranscriptCard(4)">
+              <circle cx="575" cy="88" r="14" fill="#9333ea" stroke="#ffffff" stroke-width="3"/>
+              <text x="575" y="92" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">5</text>
+              <text x="575" y="64" text-anchor="middle" fill="#334155" font-size="11" font-weight="bold">05:24</text>
+              <text x="575" y="122" text-anchor="middle" fill="#7e22ce" font-size="11" font-weight="bold">採購登錄比較</text>
+              <text x="575" y="138" text-anchor="middle" fill="#64748b" font-size="10">業務規則為核心</text>
+            </g>
+
+            <!-- 節點 6: 06:39 (x=700) -->
+            <g class="svg-node timeline-svg-node" data-idx="5" onclick="jumpToTranscriptCard(5)">
+              <circle cx="700" cy="88" r="14" fill="#e11d48" stroke="#ffffff" stroke-width="3"/>
+              <text x="700" y="92" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">6</text>
+              <text x="700" y="64" text-anchor="middle" fill="#334155" font-size="11" font-weight="bold">06:39</text>
+              <text x="700" y="122" text-anchor="middle" fill="#be123c" font-size="11" font-weight="bold">AI 選型指南</text>
+              <text x="700" y="138" text-anchor="middle" fill="#64748b" font-size="10">五大不可取代力</text>
+            </g>
+
+            <!-- 節點 7: 08:16 ~ 09:53 (x=815) -->
+            <g class="svg-node timeline-svg-node" data-idx="6" onclick="jumpToTranscriptCard(6)">
+              <circle cx="815" cy="88" r="14" fill="#059669" stroke="#ffffff" stroke-width="3"/>
+              <text x="815" y="92" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">7</text>
+              <text x="815" y="64" text-anchor="middle" fill="#334155" font-size="11" font-weight="bold">08:16~09:53</text>
+              <text x="815" y="122" text-anchor="middle" fill="#047857" font-size="11" font-weight="bold">總結與下集預告</text>
+              <text x="815" y="138" text-anchor="middle" fill="#64748b" font-size="10">MVC 基本資料起步</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- 關鍵字搜尋與分類篩選工具列 -->
+        <div class="pt-4 border-t border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <!-- 分類篩選膠囊 -->
+          <div class="flex flex-wrap items-center gap-2" id="transcript-filter-group">
+            <button type="button" onclick="filterTranscript('all')" data-cat="all"
+                    class="tr-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm transition">
+              全部段落 (7)
+            </button>
+            <button type="button" onclick="filterTranscript('winforms')" data-cat="winforms"
+                    class="tr-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              WinForms
+            </button>
+            <button type="button" onclick="filterTranscript('blazor')" data-cat="blazor"
+                    class="tr-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              Blazor
+            </button>
+            <button type="button" onclick="filterTranscript('mvc')" data-cat="mvc"
+                    class="tr-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              ASP.NET MVC
+            </button>
+            <button type="button" onclick="filterTranscript('ai-practice')" data-cat="ai-practice"
+                    class="tr-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              實戰與 AI 建議
+            </button>
+          </div>
+
+          <!-- 即時關鍵字搜尋框 -->
+          <div class="relative w-full lg:w-80">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z"/>
+            </svg>
+            <input type="text" id="transcript-search-input" oninput="applyTranscriptFilters()"
+                   placeholder="搜尋逐字稿關鍵字（如：SignalR、採購、草稿）..."
+                   class="w-full pl-10 pr-9 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+            <button type="button" id="transcript-search-clear" onclick="clearTranscriptSearch()"
+                    class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold">
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 垂直時間軸逐字稿卡片列表容器 -->
+      <div class="relative pl-6 sm:pl-10 border-l-2 border-indigo-200 space-y-8" id="transcript-cards-container">
+
+        <!-- 段落 1: [00:00:00] -->
+        <article id="tr-card-0" data-index="0" data-x="65" data-progress="0%" data-cats="ai-practice"
+                 class="transcript-card relative bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:border-indigo-400 transition">
+          <div class="absolute -left-[33px] sm:-left-[49px] top-7 w-4 h-4 rounded-full bg-indigo-600 ring-4 ring-indigo-100"></div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <a href="https://youtu.be/Jj2fj28KmSo?t=0" target="_blank" rel="noopener noreferrer"
+                 title="點擊跳轉至 YouTube 00:00:00"
+                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-mono text-xs font-bold shadow-sm transition">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <span>00:00:00</span>
+              </a>
+              <span class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold">序章 • 問題背景</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium">西藥批發管理系統</span>
+            </div>
+            <button type="button" onclick="syncTimelineNode(0)" class="text-xs text-indigo-600 hover:underline font-semibold">
+              📍 在時間軸標記此段
+            </button>
+          </div>
+
+          <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 mb-3">
+            1. 開場與問題背景：AI 協作時代，初學 C# 的三大技術抉擇
+          </h3>
+
+          <div class="space-y-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+            <p>
+              哈囉大家好，我是卓老師的語音助理「巨蟹座阿關」。在上一集影片中，我們透過「西藥批發管理系統」的實戰展示，帶大家看見了 AI 協作開發商用軟體的強大潛力。緊接著許多準備踏入 C# 程式設計領域的初學者便提出了一個非常實際的問題：<strong>「我想用 C# 開發一套真正可以拿來商用的管理系統，但在有 AI 輔助寫程式的今天，我到底該從 ASP.NET MVC、Blazor 還是 Windows Forms (WinForms) 哪一種技術開始？」</strong>
+            </p>
+            <p>
+              很多人以為有了 AI 幫忙產出程式碼之後，選哪一種架構好像都差不多；但事實上，這三種技術在<strong>運作原理、操作介面體驗以及實際部署維護</strong>上完全不同。選對符合自己目標的起點，才能讓學習過程少走許多冤枉路。
+            </p>
+          </div>
+
+          <!-- 藍色重點整理框 -->
+          <div class="mt-5 rounded-2xl bg-sky-50 border-l-4 border-sky-500 p-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="text-xs sm:text-sm text-sky-950 leading-relaxed">
+              <strong class="font-bold text-sky-800">核心提問（技術核心）：</strong>
+              AI 解決的是「語法撰寫速度」，但開發者仍必須決定系統要跑在「Windows 單機桌面」還是「跨裝置瀏覽器」，這正是本集要幫初學者釐清的關鍵分水嶺。
+            </div>
+          </div>
+        </article>
+
+        <!-- 段落 2: [00:01:12] -->
+        <article id="tr-card-1" data-index="1" data-x="190" data-progress="14%" data-cats="winforms"
+                 class="transcript-card relative bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:border-blue-400 transition">
+          <div class="absolute -left-[33px] sm:-left-[49px] top-7 w-4 h-4 rounded-full bg-blue-600 ring-4 ring-blue-100"></div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <a href="https://youtu.be/Jj2fj28KmSo?t=72" target="_blank" rel="noopener noreferrer"
+                 title="點擊跳轉至 YouTube 00:01:12"
+                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-mono text-xs font-bold shadow-sm transition">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <span>00:01:12</span>
+              </a>
+              <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-bold">Windows Forms (WinForms)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium">Windows 桌面應用程式</span>
+            </div>
+            <button type="button" onclick="syncTimelineNode(1)" class="text-xs text-blue-600 hover:underline font-semibold">
+              📍 在時間軸標記此段
+            </button>
+          </div>
+
+          <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 mb-3">
+            2. 第一種技術：Windows Forms (WinForms) —— 視覺拖拉最直覺的入門磚
+          </h3>
+
+          <div class="space-y-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+            <p>
+              首先來看第一種技術：<strong>Windows Forms，簡稱 WinForms</strong>。它是微軟非常經典的 Windows 桌面應用程式開發框架。對於完全沒有程式經驗的初學者來說，WinForms 最大的魅力在於 Visual Studio 內建的視覺化設計工具——你可以直接用滑鼠從工具箱把<strong>文字輸入框（TextBox）、標籤（Label）、按鈕（Button）以及資料表格（DataGridView）</strong>拖拉到視窗畫面上擺放。
+            </p>
+            <p>
+              這種「所見即所得」的開發方式，讓控制項非常具體，點兩下按鈕就能直接寫入對應的事件處理邏輯，初學者很快就能理解畫面與程式之間的互動關係。不過，WinForms 也有明顯的限制：它只能在 Windows 桌面環境執行，無法讓使用者直接透過手機、平板或其他作業系統的瀏覽器開啟操作；此外，當公司內部有多台電腦需要使用時，軟體的安裝部署與後續版本更新也都需要額外規劃。因此，它最適合純公司內部、固定在 Windows 電腦上作業的管理系統。
+            </p>
+          </div>
+
+          <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 綠色適用場景框 -->
+            <div class="rounded-2xl bg-emerald-50 border border-emerald-200 p-4">
+              <div class="text-xs font-extrabold text-emerald-800 mb-1">✅ 適用場景與優勢</div>
+              <p class="text-xs sm:text-sm text-emerald-900 leading-relaxed">
+                零程式基礎建立成就感、純公司內部 Windows 電腦專用系統（如櫃檯收銀、倉庫單機作業）。
+              </p>
+            </div>
+            <!-- 琥珀色注意事項框 -->
+            <div class="rounded-2xl bg-amber-50 border border-amber-200 p-4">
+              <div class="text-xs font-extrabold text-amber-800 mb-1">⚠️ 限制與部署成本</div>
+              <p class="text-xs sm:text-sm text-amber-900 leading-relaxed">
+                不支援手機與跨平台瀏覽器操作，客戶端需安裝執行檔，後續版本派送與更新需額外維護。
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 段落 3: [00:02:29] -->
+        <article id="tr-card-2" data-index="2" data-x="315" data-progress="29%" data-cats="blazor"
+                 class="transcript-card relative bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:border-purple-400 transition">
+          <div class="absolute -left-[33px] sm:-left-[49px] top-7 w-4 h-4 rounded-full bg-purple-600 ring-4 ring-purple-100"></div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <a href="https://youtu.be/Jj2fj28KmSo?t=149" target="_blank" rel="noopener noreferrer"
+                 title="點擊跳轉至 YouTube 00:02:29"
+                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-mono text-xs font-bold shadow-sm transition">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <span>00:02:29</span>
+              </a>
+              <span class="px-2.5 py-1 rounded-lg bg-purple-50 text-purple-700 text-xs font-bold">Blazor</span>
+              <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold">講師推薦 C# 網頁首選</span>
+            </div>
+            <button type="button" onclick="syncTimelineNode(2)" class="text-xs text-purple-600 hover:underline font-semibold">
+              📍 在時間軸標記此段
+            </button>
+          </div>
+
+          <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 mb-3">
+            3. 第二種技術：Blazor —— 用 C# 駕馭前端互動的現代網頁框架
+          </h3>
+
+          <div class="space-y-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+            <p>
+              第二種技術是近年備受矚目的 <strong>Blazor</strong>。它允許開發者使用 HTML 與 CSS 建構網頁外觀，但最吸引人的突破在於：<strong>原本在網頁前端必須依靠 JavaScript 處理的互動邏輯，在 Blazor 中可以直接使用 C# 來撰寫！</strong>舉例來說，在「西藥批發管理系統」的採購畫面裡，當操作人員輸入供應商名稱的關鍵字時，畫面要即時篩選出符合的廠商清單並讓使用者點選，這類動態互動都能直接透過 C# 事件處理輕鬆完成。
+            </p>
+            <p>
+              當然，使用 Blazor 依然需要具備 HTML 與 CSS 的基礎排版觀念，並且要學習<strong>元件生命週期、資料繫結（Data Binding）與狀態管理</strong>。此外，如果你採用的是 <strong>Blazor Interactive Server</strong> 運作模式，因為每一次前端互動都需要透過 SignalR 與伺服器維持即時連線，未來系統正式上線部署時，就必須把網路連線品質與伺服器記憶體資源納入評估。整體而言，如果你的目標是開發一套跨裝置、用 C# 貫穿前後端的網頁管理系統，Blazor 非常值得優先學習。
+            </p>
+          </div>
+
+          <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 藍色技術核心框 -->
+            <div class="rounded-2xl bg-sky-50 border-l-4 border-sky-500 p-4">
+              <div class="text-xs font-extrabold text-sky-800 mb-1">💡 技術核心：前後端統一 C#</div>
+              <p class="text-xs sm:text-sm text-sky-900 leading-relaxed">
+                透過 Razor 元件與 <code class="font-mono bg-white px-1 rounded">@bind</code> 資料繫結，直接用 C# 事件處理即時搜尋與局部畫面更新，無需手寫繁瑣 JavaScript。
+              </p>
+            </div>
+            <!-- 琥珀色注意事項框 -->
+            <div class="rounded-2xl bg-amber-50 border-l-4 border-amber-500 p-4">
+              <div class="text-xs font-extrabold text-amber-800 mb-1">⚠️ Interactive Server 部署考量</div>
+              <p class="text-xs sm:text-sm text-amber-900 leading-relaxed">
+                互動過程需維持與伺服器的即時連線（Circuit），多人同時上線時須留意網路穩定度與伺服器資源配置。
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 段落 4: [00:03:59] -->
+        <article id="tr-card-3" data-index="3" data-x="445" data-progress="44%" data-cats="mvc"
+                 class="transcript-card relative bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:border-slate-500 transition">
+          <div class="absolute -left-[33px] sm:-left-[49px] top-7 w-4 h-4 rounded-full bg-slate-800 ring-4 ring-slate-200"></div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <a href="https://youtu.be/Jj2fj28KmSo?t=239" target="_blank" rel="noopener noreferrer"
+                 title="點擊跳轉至 YouTube 00:03:59"
+                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-mono text-xs font-bold shadow-sm transition">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <span>00:03:59</span>
+              </a>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-white text-xs font-bold">ASP.NET MVC</span>
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold">本專案示範首發架構</span>
+            </div>
+            <button type="button" onclick="syncTimelineNode(3)" class="text-xs text-slate-700 hover:underline font-semibold">
+              📍 在時間軸標記此段
+            </button>
+          </div>
+
+          <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 mb-3">
+            4. 第三種技術：ASP.NET MVC —— 職責分離、資源最豐富的經典網站架構
+          </h3>
+
+          <div class="space-y-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+            <p>
+              第三種則是歷久彌新、架構非常成熟的 <strong>ASP.NET MVC</strong>。它的核心精神在於將應用程式的職責明確劃分為三大區塊：負責資料結構與商業模型的 <strong>Model</strong>、專責畫面呈現的 <strong>View</strong>，以及負責接收瀏覽器請求並協調流程的 <strong>Controller</strong>。這種高度解耦的分層設計，非常有利於大型商用系統的程式碼整理、團隊分工與長期維護。
+            </p>
+            <p>
+              由於 MVC 發展歷史悠久，網路上的教學文章、開源套件與企業實戰範例極為豐富，非常適合處理標準表單輸入與資料查詢功能。不過對初學者而言，選擇 MVC 意味著除了後端的 C# 之外，通常還必須同時學習前端的 <strong>HTML、CSS 以及 JavaScript（或 jQuery）</strong>；一旦畫面需要做到不重新整理網頁的即時動態互動，就得透過前端腳本發送非同步請求來配合，初期需要同時吸收的網頁技術觀念較多。
+            </p>
+          </div>
+
+          <!-- 綠色與琥珀色雙欄重點框 -->
+          <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="rounded-2xl bg-emerald-50 border border-emerald-200 p-4">
+              <div class="text-xs font-extrabold text-emerald-800 mb-1">✅ 架構優勢</div>
+              <p class="text-xs sm:text-sm text-emerald-900 leading-relaxed">
+                Model / View / Controller 職責清晰分離，企業維護性極高，教學資源與 AI 訓練語料最豐富。
+              </p>
+            </div>
+            <div class="rounded-2xl bg-amber-50 border border-amber-200 p-4">
+              <div class="text-xs font-extrabold text-amber-800 mb-1">⚠️ 學習曲線挑戰</div>
+              <p class="text-xs sm:text-sm text-amber-900 leading-relaxed">
+                除 C# 外需同步掌握 HTML、CSS 與 JavaScript / jQuery 才能打造流暢的前端即時互動體驗。
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 段落 5: [00:05:24] -->
+        <article id="tr-card-4" data-index="4" data-x="575" data-progress="59%" data-cats="winforms blazor mvc ai-practice"
+                 class="transcript-card relative bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:border-purple-400 transition">
+          <div class="absolute -left-[33px] sm:-left-[49px] top-7 w-4 h-4 rounded-full bg-purple-600 ring-4 ring-purple-100"></div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <a href="https://youtu.be/Jj2fj28KmSo?t=324" target="_blank" rel="noopener noreferrer"
+                 title="點擊跳轉至 YouTube 00:05:24"
+                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-mono text-xs font-bold shadow-sm transition">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <span>00:05:24</span>
+              </a>
+              <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 text-xs font-bold">實戰案例對比</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-medium">採購登錄流程</span>
+            </div>
+            <button type="button" onclick="syncTimelineNode(4)" class="text-xs text-purple-700 hover:underline font-semibold">
+              📍 在時間軸標記此段
+            </button>
+          </div>
+
+          <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 mb-3">
+            5. 實戰功能大比拚：以「採購登錄」為例，業務規則才是真正靈魂
+          </h3>
+
+          <div class="space-y-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+            <p>
+              為了讓大家更有具體畫面，我們直接以西藥批發管理系統中最核心的<strong>「採購登錄」</strong>功能來做比較。無論你選用哪一種技術，背後的<strong>共通商業流程</strong>都是完全一致的：第一步先<strong>選擇供應商</strong>；第二步<strong>搜尋並選取西藥商品</strong>；第三步<strong>輸入採購數量與單價</strong>（系統自動依公式 $\text{Subtotal}_i = Q_i \times P_i$ 算出單筆小計，並加總 $\text{Total} = \sum_{i=1}^{n} \text{Subtotal}_i$ 計算整張採購單總金額）；第四步則是<strong>儲存採購草稿</strong>寫入資料庫。
+            </p>
+            <p>
+              三種技術的差異僅在於「介面層如何實作這些互動」：<strong>WinForms</strong> 是透過桌面文字框、DataGridView 表格與視窗事件處理完成；<strong>Blazor</strong> 是透過 Razor 元件與 C# 事件完成即時搜尋與明細更新；<strong>MVC</strong> 則是透過 Razor View、Controller 搭配必要的前端 JavaScript 互動程式來處理。因此，初學者真正應該學習的重點，是<strong>先把商業需求與業務規則定義清楚</strong>——只要底層規則規劃合理，未來無論要套用到哪一種前端技術都能水到渠成！
+            </p>
+          </div>
+
+          <!-- 紫色 AI 協作心法框 -->
+          <div class="mt-5 rounded-2xl bg-purple-50 border-l-4 border-purple-600 p-4 flex items-start gap-3">
+            <span class="px-2 py-0.5 rounded bg-purple-600 text-white text-xs font-extrabold mt-0.5">心法</span>
+            <div class="text-xs sm:text-sm text-purple-950 leading-relaxed">
+              <strong class="font-bold">業務規則優先原則：</strong>
+              先定義清楚「供應商驗證 → 商品計價（$\text{Subtotal}_i = Q_i \times P_i$）→ 總額加總（$\text{Total} = \sum \text{Subtotal}_i$）→ 草稿狀態控管」，介面只是這套商業邏輯的不同外衣。
+            </div>
+          </div>
+        </article>
+
+        <!-- 段落 6: [00:06:39] -->
+        <article id="tr-card-5" data-index="5" data-x="700" data-progress="78%" data-cats="winforms blazor mvc ai-practice"
+                 class="transcript-card relative bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:border-rose-400 transition">
+          <div class="absolute -left-[33px] sm:-left-[49px] top-7 w-4 h-4 rounded-full bg-rose-600 ring-4 ring-rose-100"></div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <a href="https://youtu.be/Jj2fj28KmSo?t=399" target="_blank" rel="noopener noreferrer"
+                 title="點擊跳轉至 YouTube 00:06:39"
+                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-mono text-xs font-bold shadow-sm transition">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <span>00:06:39</span>
+              </a>
+              <span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 text-xs font-bold">AI 時代選型指南</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium">工程師不可取代價值</span>
+            </div>
+            <button type="button" onclick="syncTimelineNode(5)" class="text-xs text-rose-600 hover:underline font-semibold">
+              📍 在時間軸標記此段
+            </button>
+          </div>
+
+          <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 mb-3">
+            6. AI 時代的初學者選型指南與五大不可取代核心能力
+          </h3>
+
+          <div class="space-y-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+            <p>
+              綜合以上分析，在 AI 時代初學者該如何做出最適合自己的選擇？我們提供三個明確的切入建議：第一，如果你<strong>完全沒有程式經驗</strong>，想先直覺認識按鈕、文字框與事件處理，可以從 <strong>WinForms</strong> 入手建立信心；第二，如果你的目標是<strong>開發瀏覽器跨裝置商用系統</strong>，建議優先考慮 <strong>Blazor</strong>，前後端都能維持一致的 C# 語言與工具鏈；第三，如果你想學習<strong>企業最成熟的經典網站架構</strong>，且願意一併接觸前端技術，<strong>ASP.NET MVC</strong> 依然極具學習價值（這也是我們示範專案將 MVC 擺在第一個前端實作順位的原因）。
+            </p>
+            <p>
+              更重要的是，大家必須認清一個事實：<strong>AI 只能協助提高寫程式的效率，並不能取代工程師的專業判斷！</strong>開發者本身仍須具備基本的程式架構與語法閱讀能力，並親自精進與負責五大關鍵領域：<strong>資料庫設計、業務規則定義、權限控管、系統安全性，以及完整的實際測試</strong>。
+            </p>
+          </div>
+
+          <!-- 紅色警戒重点框 -->
+          <div class="mt-5 rounded-2xl bg-rose-50 border-l-4 border-rose-600 p-4 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-lg bg-rose-600 text-white font-extrabold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">!</span>
+            <div class="text-xs sm:text-sm text-rose-950 leading-relaxed">
+              <strong class="font-bold text-rose-800">AI 協作紅線提醒：</strong>
+              AI 可以幫你生成 CRUD 程式碼，但「資料庫關聯正規化、商用業務規則、角色權限控管、資安防護與真實情境測試」必須由開發者親自把關。
+            </div>
+          </div>
+        </article>
+
+        <!-- 段落 7: [00:08:16] ~ [00:09:53] -->
+        <article id="tr-card-6" data-index="6" data-x="815" data-progress="100%" data-cats="mvc ai-practice"
+                 class="transcript-card relative bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:border-emerald-400 transition">
+          <div class="absolute -left-[33px] sm:-left-[49px] top-7 w-4 h-4 rounded-full bg-emerald-600 ring-4 ring-emerald-100"></div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <a href="https://youtu.be/Jj2fj28KmSo?t=496" target="_blank" rel="noopener noreferrer"
+                 title="點擊跳轉至 YouTube 00:08:16"
+                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-mono text-xs font-bold shadow-sm transition">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <span>00:08:16 ~ 09:53</span>
+              </a>
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold">總結與下集預告</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium">Episode 03 路線圖</span>
+            </div>
+            <button type="button" onclick="syncTimelineNode(6)" class="text-xs text-emerald-700 hover:underline font-semibold">
+              📍 在時間軸標記此段
+            </button>
+          </div>
+
+          <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 mb-3">
+            7. 總結、學習心法提醒與下集預告（從 MVC 基本資料維護起步）
+          </h3>
+
+          <div class="space-y-3 text-sm sm:text-base text-slate-700 leading-relaxed">
+            <p>
+              總結來說，WinForms、Blazor 與 ASP.NET MVC 並非誰取代誰的新舊淘汰關係，而是各自對應不同應用場景的專業工具。在接下來的系列課程中，我們會以「西藥批發管理系統」為核心主軸，透過 AI 協作從商品、供應商、客戶資料建檔，一路實作到完整的採購與銷貨流程，帶大家親自體驗這三種技術在實務開發上的差異。
+            </p>
+            <p>
+              在結束前也特別提醒大家一個重要觀念：<strong>看教學影片千萬不能走馬看花</strong>，一定要多看幾次並親自動手做筆記複習，把知識內化成自己真正帶得走的專業技能。在<strong>下一集</strong>課程中，我們將正式從 <strong>ASP.NET MVC 範本</strong>起步，先挑選欄位較少、結構單純的<strong>「商品類別」</strong>與<strong>「付款方式」</strong>基本資料維護功能，帶大家完整打通單一功能的開發流程，我們下集見！
+            </p>
+          </div>
+
+          <!-- 綠色下集預告與學習提醒框 -->
+          <div class="mt-5 rounded-2xl bg-emerald-50 border-l-4 border-emerald-600 p-4 flex items-start gap-3">
+            <span class="text-lg leading-none mt-0.5">🎬</span>
+            <div class="text-xs sm:text-sm text-emerald-950 leading-relaxed">
+              <strong class="font-bold text-emerald-800">下集實戰路線（Episode 03）：</strong>
+              採用 <strong>ASP.NET MVC</strong> 範本，從欄位最精簡的「商品類別」與「付款方式」CRUD 維護切入，建立完整開發手感！
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- 搜尋無結果提示框 -->
+      <div id="transcript-empty-state" class="hidden rounded-2xl bg-slate-100 border border-slate-200 p-8 text-center">
+        <p class="text-sm font-bold text-slate-700 mb-2">找不到符合關鍵字或篩選條件的逐字稿段落</p>
+        <button type="button" onclick="resetAllTranscriptFilters()"
+                class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition">
+          重置所有篩選條件
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁尾 -->
+  <footer class="bg-slate-900 text-slate-400 py-10 mt-12 border-t border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+      <div>
+        <p class="text-slate-200 font-semibold">MVC、Blazor、WinForms 怎麼選？AI 時代初學 C# 程式設計的最佳方向</p>
+        <p class="mt-1">互動式教學筆記網頁｜依據 YouTube 課程逐字稿結構整理製作</p>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <a href="csharp_supplements.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold transition border border-slate-200">
+          <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+          <span>返回補充教材</span>
+        </a>
+        <a href="https://youtu.be/Jj2fj28KmSo?si=fA8oiHdFgh8KAFzo" target="_blank" rel="noopener noreferrer"
+
+         class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition">
+        原影片連結：youtu.be/Jj2fj28KmSo
+      </a>
+    </div>
+  </footer>
+
+  <!-- 互動腳本 -->
+  <script>
+    // 1. 互動式 SVG 架構圖解資料與切換邏輯
+    const nodeDetails = {
+      'wf-ui': {
+        badge: 'WinForms 節點',
+        title: 'Form 視覺控制項 (TextBox / DataGridView)',
+        desc: '在 Visual Studio 設計工具中直接拖拉文字框、標籤、按鈕與表格。控制項屬性所見即所得，初學者能非常直覺地對應畫面元素與程式碼名稱。'
+      },
+      'wf-event': {
+        badge: 'WinForms 節點',
+        title: 'C# 事件驅動邏輯 (Click / TextChanged)',
+        desc: '當使用者點擊「儲存」或修改數量欄位時，直接觸發對應的 C# 事件方法，在同一支桌面程式內完成小計計算與輸入驗證，無需處理 HTTP 請求。'
+      },
+      'wf-db': {
+        badge: 'WinForms 節點',
+        title: 'SQL 資料庫與部署限制',
+        desc: '可直接連線內部 SQL Server 儲存採購資料。但因屬於 Windows 桌面執行檔，無法直接在手機或瀏覽器開啟，每次更新版本也需處理客戶端安裝部署。'
+      },
+      'bz-dom': {
+        badge: 'Blazor Server 節點',
+        title: '瀏覽器 HTML / CSS 畫面渲染',
+        desc: '使用者透過任何裝置的瀏覽器開啟系統。Blazor 會自動比對畫面差異，僅將需要更新的 DOM 片段傳回瀏覽器，實現流暢的單頁應用體驗。'
+      },
+      'bz-signalr': {
+        badge: 'Blazor Server 核心通道',
+        title: 'SignalR 即時雙向連線',
+        desc: 'Blazor Interactive Server 透過 SignalR 與伺服器維持長連線，將瀏覽器事件即時傳給伺服器端的 C# 處理。部署時需注意網路連線品質與伺服器記憶體資源。'
+      },
+      'bz-comp': {
+        badge: 'Blazor Server 核心節點',
+        title: 'Razor C# 元件 (@bind 與事件)',
+        desc: '在 Blazor 中，畫面與邏輯封裝在 .razor 元件裡。當使用者輸入供應商名稱時，直接觸發 C# 事件即時篩選清單，同時需學習元件生命週期與狀態管理。'
+      },
+      'bz-db': {
+        badge: 'Blazor Server 節點',
+        title: '後端資料庫與共用 C# 模型',
+        desc: '因為前後端邏輯都在伺服器端以 C# 執行，可直接呼叫 Entity Framework Core 存取資料庫，無須額外撰寫繁瑣的 REST API 串接層。'
+      },
+      'mvc-browser': {
+        badge: 'ASP.NET MVC 節點',
+        title: '瀏覽器前端 (HTML + CSS + JS / jQuery)',
+        desc: 'MVC 網站除了基本的 HTML/CSS 外，若要在採購畫面實現「輸入兩個字即時搜尋供應商」等動態效果，通常還需撰寫 JavaScript 或 jQuery 發送非同步請求。'
+      },
+      'mvc-controller': {
+        badge: 'ASP.NET MVC 核心節點',
+        title: 'Controller (控制器)',
+        desc: '負責接收瀏覽器送來的 HTTP 請求，協調商業邏輯驗證，決定要向 Model 取得哪些資料，並將結果交給指定的 View 呈現，是整個流程的指揮中心。'
+      },
+      'mvc-model': {
+        badge: 'ASP.NET MVC 核心節點',
+        title: 'Model (資料與商業模型)',
+        desc: '定義西藥商品、供應商與採購單的資料結構、驗證規則與資料庫存取邏輯，讓資料定義與畫面呈現徹底解耦，便於大型商用系統維護。'
+      },
+      'mvc-view': {
+        badge: 'ASP.NET MVC 核心節點',
+        title: 'View (Razor 檢視頁面)',
+        desc: '專責將 Controller 傳來的 Model 資料渲染成 HTML 網頁輸出給使用者，不包含複雜的資料庫存取邏輯，保持職責單純清晰。'
+      }
+    };
+
+    function switchArchTab(arch) {
+      // 切換分頁按鈕樣式
+      document.querySelectorAll('.arch-tab').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow');
+        btn.classList.add('text-slate-600', 'hover:text-slate-900');
+      });
+      const activeBtn = document.getElementById('tab-' + arch);
+      activeBtn.classList.remove('text-slate-600', 'hover:text-slate-900');
+      activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow');
+
+      // 切換 SVG 畫布
+      document.querySelectorAll('.arch-svg-panel').forEach(svg => svg.classList.add('hidden'));
+      document.getElementById('svg-' + arch).classList.remove('hidden');
+
+      // 預設顯示該架構的第一個核心節點說明
+      const defaultKeys = {
+        winforms: 'wf-ui',
+        blazor: 'bz-comp',
+        mvc: 'mvc-controller'
+      };
+      showNodeDetail(defaultKeys[arch]);
+    }
+
+    function showNodeDetail(key) {
+      const sel = window.getSelection();
+      if (sel && sel.toString().trim().length > 0) return;
+      const info = nodeDetails[key];
+      if (!info) return;
+      document.getElementById('node-badge').textContent = info.badge;
+      document.getElementById('node-title').textContent = info.title;
+      document.getElementById('node-desc').textContent = info.desc;
+    }
+
+    // 2. 採購登錄互動模擬器邏輯
+    const suppliers = [
+      { id: 'SUP-01', name: '永信藥品工業股份有限公司' },
+      { id: 'SUP-02', name: '杏輝藥品工業股份有限公司' },
+      { id: 'SUP-03', name: '生達化學製藥股份有限公司' },
+      { id: 'SUP-04', name: '中化製藥股份有限公司' }
+    ];
+
+    let purchaseItems = [
+      { id: 1, name: '普拿疼膜衣錠 500mg', qty: 10, price: 120 }
+    ];
+
+    const simTechInfo = {
+      winforms: {
+        badge: 'WinForms 實作方式',
+        desc: '透過 TextBox 的 TextChanged 事件過濾 ComboBox 供應商清單，加入明細後直接更新 DataGridView 表格並即時重新計算總金額 Label。'
+      },
+      blazor: {
+        badge: 'Blazor 實作方式',
+        desc: '透過 Razor 元件與 C# 事件（@oninput / @bind）即時過濾供應商與藥品清單，並直接呼叫 C# 屬性計算金額。'
+      },
+      mvc: {
+        badge: 'MVC 實作方式',
+        desc: '透過 Razor View 搭配前端 JavaScript / jQuery 監聽輸入事件與動態增減表格列，最後透過表單 POST 或 AJAX 將 JSON 傳回 Controller 儲存。'
+      }
+    };
+
+    function setSimTech(tech) {
+      document.querySelectorAll('.sim-tech-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow');
+        btn.classList.add('bg-slate-800', 'text-slate-300');
+      });
+      const active = document.getElementById('sim-btn-' + tech);
+      active.classList.remove('bg-slate-800', 'text-slate-300');
+      active.classList.add('bg-indigo-600', 'text-white', 'shadow');
+
+      const banner = document.getElementById('sim-tech-banner');
+      banner.querySelector('span:first-child').textContent = simTechInfo[tech].badge;
+      document.getElementById('sim-tech-desc').textContent = simTechInfo[tech].desc;
+    }
+
+    function filterSuppliers() {
+      const keyword = document.getElementById('supplier-search').value.trim();
+      const select = document.getElementById('supplier-select');
+      const filtered = suppliers.filter(s => s.name.includes(keyword));
+      select.innerHTML = '';
+      if (filtered.length === 0) {
+        const opt = document.createElement('option');
+        opt.textContent = '（查無符合之供應商）';
+        select.appendChild(opt);
+      } else {
+        filtered.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = s.name;
+          select.appendChild(opt);
+        });
+      }
+      highlightStep(1);
+    }
+
+    function onDrugChange() {
+      const val = document.getElementById('drug-select').value;
+      const price = val.split('|')[1];
+      document.getElementById('drug-price').value = price;
+      highlightStep(2);
+    }
+
+    function addPurchaseItem() {
+      const val = document.getElementById('drug-select').value;
+      const name = val.split('|')[0];
+      const qty = Math.max(1, parseInt(document.getElementById('drug-qty').value, 10) || 1);
+      const price = Math.max(1, parseInt(document.getElementById('drug-price').value, 10) || 1);
+
+      const existing = purchaseItems.find(item => item.name === name && item.price === price);
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        purchaseItems.push({ id: Date.now(), name, qty, price });
+      }
+      renderPurchaseTable();
+      highlightStep(3);
+    }
+
+    function removePurchaseItem(id) {
+      purchaseItems = purchaseItems.filter(item => item.id !== id);
+      renderPurchaseTable();
+      highlightStep(3);
+    }
+
+    function renderPurchaseTable() {
+      const tbody = document.getElementById('purchase-tbody');
+      tbody.innerHTML = '';
+      let total = 0;
+
+      if (purchaseItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">目前尚無採購明細，請由上方加入西藥商品</td></tr>`;
+      } else {
+        purchaseItems.forEach(item => {
+          const subtotal = item.qty * item.price;
+          total += subtotal;
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-50 transition';
+          tr.innerHTML = `
+            <td class="py-3 px-4 font-medium text-slate-800">${item.name}</td>
+            <td class="py-3 px-3 text-right font-mono">${item.qty}</td>
+            <td class="py-3 px-3 text-right font-mono">$${item.price.toLocaleString()}</td>
+            <td class="py-3 px-4 text-right font-mono font-bold text-indigo-700">$${subtotal.toLocaleString()}</td>
+            <td class="py-3 px-3 text-center">
+              <button type="button" onclick="removePurchaseItem(${item.id})" class="text-xs text-rose-500 hover:text-rose-700 font-semibold">刪除</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('purchase-total').textContent = 'NT$ ' + total.toLocaleString();
+      document.getElementById('draft-status').innerHTML = '狀態：<span class="text-amber-600 font-semibold">內容已變更（尚未儲存草稿）</span>';
+    }
+
+    function savePurchaseDraft() {
+      const supplierSelect = document.getElementById('supplier-select');
+      const supplierName = supplierSelect.options[supplierSelect.selectedIndex]?.text || '未指定供應商';
+      const now = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+      document.getElementById('draft-status').innerHTML =
+        `<span class="text-emerald-600 font-bold">✅ 已於 ${now} 儲存「${supplierName}」採購草稿（共 ${purchaseItems.length} 筆明細）</span>`;
+      highlightStep(4);
+    }
+
+    function highlightStep(stepNum) {
+      // 重置所有 SVG 步驟節點與連線樣式
+      for (let i = 1; i <= 4; i++) {
+        const rect = document.querySelector(`#sim-node-${i} rect`);
+        if (rect) {
+          rect.setAttribute('fill', i === stepNum ? '#e0e7ff' : '#ffffff');
+          rect.setAttribute('stroke', i === stepNum ? '#4f46e5' : '#cbd5e1');
+        }
+      }
+      for (let j = 1; j <= 3; j++) {
+        const line = document.getElementById(`sim-line-${j}`);
+        if (line) {
+          if (j < stepNum) {
+            line.classList.add('flow-line-highlight');
+          } else {
+            line.classList.remove('flow-line-highlight');
+          }
+        }
+      }
+    }
+
+    // 3. AI 時代學習路徑決策器
+    const learnerRecommendations = {
+      zero: {
+        title: '優先選擇：Windows Forms (WinForms)',
+        reason: '視覺化拖拉控制項最具體直覺，能讓你快速理解什麼是按鈕、文字框與事件處理，建立程式設計的基礎信心，之後再轉向網頁開發會輕鬆許多。',
+        badge: '零經驗直覺入門'
+      },
+      'csharp-web': {
+        title: '優先選擇：Blazor',
+        reason: '前後端皆使用 C# 語言與工具，無需同時消化複雜的 JavaScript 框架即可開發具備即時互動能力的瀏覽器商用管理系統。',
+        badge: 'C# 全端一致首選'
+      },
+      'classic-mvc': {
+        title: '優先選擇：ASP.NET MVC',
+        reason: '嚴謹的 Model-View-Controller 職責分離架構，擁有最豐富的教學資源與企業維護範例，也是本系列課程第一個帶領大家實作的範本！',
+        badge: '企業經典分層架構'
+      }
+    };
+
+    function selectLearnerProfile(profileKey) {
+      document.querySelectorAll('.profile-card').forEach(card => {
+        card.classList.remove('border-indigo-600', 'bg-indigo-50/60', 'shadow-sm');
+        card.classList.add('border-slate-200', 'bg-slate-50/50');
+      });
+      const activeCard = document.getElementById('prof-' + profileKey);
+      activeCard.classList.remove('border-slate-200', 'bg-slate-50/50');
+      activeCard.classList.add('border-indigo-600', 'bg-indigo-50/60', 'shadow-sm');
+
+      const rec = learnerRecommendations[profileKey];
+      document.getElementById('rec-tech-title').textContent = rec.title;
+      document.getElementById('rec-tech-reason').textContent = rec.reason;
+      document.getElementById('rec-badge').textContent = rec.badge;
+    }
+
+    // 初始化渲染採購表格
+    window.addEventListener('DOMContentLoaded', () => {
+      renderPurchaseTable();
+    });
+
+    // 4. 互動式影片時間軸與逐字稿導覽腳本
+    let currentTranscriptCat = 'all';
+
+    const timelineMeta = [
+      { time: '00:00:00', title: '開場與問題背景', x: 65, progress: '0%' },
+      { time: '00:01:12', title: 'Windows Forms (WinForms)', x: 190, progress: '14%' },
+      { time: '00:02:29', title: 'Blazor 互動式網頁', x: 315, progress: '29%' },
+      { time: '00:03:59', title: 'ASP.NET MVC 經典架構', x: 445, progress: '44%' },
+      { time: '00:05:24', title: '採購登錄實戰比較', x: 575, progress: '59%' },
+      { time: '00:06:39', title: 'AI 時代選型指南與核心能力', x: 700, progress: '78%' },
+      { time: '00:08:16', title: '總結、學習心法與下集預告', x: 815, progress: '100%' }
+    ];
+
+    function syncTimelineNode(idx) {
+      const meta = timelineMeta[idx];
+      if (!meta) return;
+
+      // 更新 SVG 進度條長度與指示文字
+      const progressLine = document.getElementById('timeline-svg-progress');
+      if (progressLine) {
+        progressLine.setAttribute('x2', meta.x);
+      }
+      const indicator = document.getElementById('timeline-active-indicator');
+      if (indicator) {
+        indicator.textContent = `目前聚焦：[${meta.time}] ${meta.title}（進度 ${meta.progress}）`;
+      }
+
+      // 高亮對應 SVG 節點
+      document.querySelectorAll('.timeline-svg-node').forEach(node => {
+        const nodeIdx = parseInt(node.getAttribute('data-idx'), 10);
+        const circle = node.querySelector('circle');
+        if (circle) {
+          if (nodeIdx === idx) {
+            circle.setAttribute('r', '17');
+            circle.setAttribute('stroke', '#f59e0b');
+            circle.setAttribute('stroke-width', '4');
+          } else {
+            circle.setAttribute('r', '14');
+            circle.setAttribute('stroke', '#ffffff');
+            circle.setAttribute('stroke-width', '3');
+          }
+        }
+      });
+
+      // 高亮對應逐字稿卡片
+      document.querySelectorAll('.transcript-card').forEach(card => {
+        const cIdx = parseInt(card.getAttribute('data-index'), 10);
+        if (cIdx === idx) {
+          card.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50/20');
+        } else {
+          card.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50/20');
+        }
+      });
+    }
+
+    function jumpToTranscriptCard(idx) {
+      const sel = window.getSelection();
+      if (sel && sel.toString().trim().length > 0) return;
+      // 若目前有篩選隱藏該卡片，先恢復顯示全部
+      const targetCard = document.getElementById('tr-card-' + idx);
+      if (targetCard && targetCard.classList.contains('hidden')) {
+        resetAllTranscriptFilters();
+      }
+      syncTimelineNode(idx);
+      if (targetCard) {
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function filterTranscript(cat) {
+      currentTranscriptCat = cat;
+      document.querySelectorAll('.tr-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-cat') === cat) {
+          btn.classList.remove('bg-slate-100', 'text-slate-700', 'hover:bg-slate-200');
+          btn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+        } else {
+          btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
+          btn.classList.add('bg-slate-100', 'text-slate-700', 'hover:bg-slate-200');
+        }
+      });
+      applyTranscriptFilters();
+    }
+
+    function applyTranscriptFilters() {
+      const input = document.getElementById('transcript-search-input');
+      const clearBtn = document.getElementById('transcript-search-clear');
+      const keyword = (input ? input.value : '').trim().toLowerCase();
+
+      if (clearBtn) {
+        clearBtn.classList.toggle('hidden', keyword.length === 0);
+      }
+
+      let visibleCount = 0;
+      document.querySelectorAll('.transcript-card').forEach(card => {
+        const cats = card.getAttribute('data-cats') || '';
+        const text = card.textContent.toLowerCase();
+        const matchCat = currentTranscriptCat === 'all' || cats.includes(currentTranscriptCat);
+        const matchKey = keyword === '' || text.includes(keyword);
+
+        if (matchCat && matchKey) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      const emptyState = document.getElementById('transcript-empty-state');
+      if (emptyState) {
+        emptyState.classList.toggle('hidden', visibleCount > 0);
+      }
+    }
+
+    function clearTranscriptSearch() {
+      const input = document.getElementById('transcript-search-input');
+      if (input) input.value = '';
+      applyTranscriptFilters();
+    }
+
+    function resetAllTranscriptFilters() {
+      const input = document.getElementById('transcript-search-input');
+      if (input) input.value = '';
+      filterTranscript('all');
+    }
+
+    // 5. 頂部兩張 1:1 SVG 圖表互動控制邏輯
+    const med2BlockDetails = {
+      mvc: {
+        tag: '前端表現層 • ASP.NET Core MVC',
+        title: 'MVC 系統 (Web 網站)：直接參考共用程式庫',
+        body: 'MVC 系統與共用層（Application / Infrastructure）位於同一個 Visual Studio 方案中，因此 Controller 可直接呼叫 SalesOrderService 與 SalesShipmentService，處理進貨、銷貨、出貨、主檔維護與報表列印。'
+      },
+      blazor: {
+        tag: '前端表現層 • Blazor Web 網站',
+        title: 'Blazor 系統 (Web 網站)：與 MVC 共用同一套業務規則',
+        body: 'Blazor 元件同樣在伺服器端直接呼叫共用層服務，享有與 MVC 完全一致的驗證邏輯、價格計算與角色權限控管，展現「多前端共用核心」的高重用性。'
+      },
+      winforms: {
+        tag: '前端表現層 • WinForms 桌面應用程式',
+        title: 'WinForms 系統：透過 HTTPS (JSON) 呼叫 Web API',
+        body: '因桌面程式安裝於使用者本機電腦，為確保資料庫連線安全與業務規則統一，WinForms 查詢與草稿作業之外的「正式確認（銷貨、出貨）」一律透過 HTTPS 呼叫 Web API 執行。'
+      },
+      shared: {
+        tag: '核心中樞 • 共用層 (共用程式庫)',
+        title: '業務服務層 (Domain Service) + 資料存取層 (Repository)',
+        body: '整個系統的心臟！業務服務層封裝銷貨單確認、出貨單扣庫存、單據編號產生與驗證規則；資料存取層透過 EF Core (DbContext) 與 RowVersion 並行控制確保多使用者同時操作時的資料一致性。'
+      },
+      webapi: {
+        tag: '安全閘道 • Web API (HTTPS)',
+        title: '專為 WinForms 提供的業務 API 介面',
+        body: '負責接收 WinForms 傳來的 HTTPS (JSON) 請求，進行登入驗證與角色權限檢查後，沿用同一套共用業務服務執行銷貨單確認與出貨單扣庫存交易。'
+      },
+      database: {
+        tag: '資料持久化 • SQL Server 資料庫',
+        title: '六大核心資料表群組統一儲存',
+        body: '包含進貨相關表（P 開頭）、銷貨相關表（S 開頭）、出貨相關表（H 開頭）、批號庫存表、主檔表（商品/客戶/廠商）與系統權限表，確保三種前端看到的庫存數字永遠一致。'
+      },
+      highlights: {
+        tag: '架構設計總結 • 整體重點',
+        title: '三個前端、一套核心邏輯、一座統一資料庫',
+        body: '透過明確的分層隔離，開發團隊可以在不更動核心業務規則與資料庫結構的前提下，自由擴充或替換不同型態的操作介面（Web 或 Desktop）。'
+      },
+      workflow: {
+        tag: '商用實務流程 • 銷貨與出貨四步驟',
+        title: '為什麼「確認銷貨單」不扣庫存，直到「確認出貨單」才扣批號庫存？',
+        body: '在西藥批發實務中，接單（銷貨單）時尚未指定實際揀貨的藥品效期與進貨批號；必須等到倉庫建立出貨草稿、指定進貨批號並確認出貨單時，才呼叫 SalesShipmentService 檢查並扣除對應批號的實際庫存。'
+      }
+    };
+
+    function selectMed2Block(key) {
+      const sel = window.getSelection();
+      if (sel && sel.toString().trim().length > 0) return;
+      const info = med2BlockDetails[key];
+      if (!info) return;
+      const tagEl = document.getElementById('med2-ins-tag');
+      const titleEl = document.getElementById('med2-ins-title');
+      const bodyEl = document.getElementById('med2-ins-body');
+      if (tagEl) tagEl.textContent = info.tag;
+      if (titleEl) titleEl.textContent = info.title;
+      if (bodyEl) bodyEl.textContent = info.body;
+    }
+
+    // 一鍵複製 SVG 圖表結構化文字（相容 iframe 剪貼簿權限）
+    function copySvgDiagramText(type, btnEl) {
+      const diagramTexts = {
+        arch: `【系統架構與關係圖】
+1. MVC 系統 (Web 網站)：進貨、銷貨、出貨作業｜主檔維護 (商品、客戶等)｜報表與列印｜角色權限與帳號管理
+2. Blazor 系統 (Web 網站)：進貨、銷貨、出貨作業｜主檔查詢與維護｜與 MVC 共用相同業務規則｜相同的角色權限
+   └─ 在同一個方案中直接呼叫共用服務
+3. WinForms 系統 (桌面應用程式)：進貨、銷貨、出貨作業｜查詢、草稿新增與修改｜透過 Web API 執行正式確認 (銷貨、出貨)｜列印 (銷貨單、出貨單)
+   └─ HTTPS (JSON) 呼叫 Web API
+4. 共用層 (共用程式庫)：
+   - 業務服務層 (Application / Domain Service)：SalesOrderService (銷貨單：新增、修改、確認)、SalesShipmentService (出貨單：草稿、確認扣庫存)、採購 / 進貨服務、庫存服務、編號產生、驗證規則 …
+   - 資料存取層 (Infrastructure / Repository)：Entity Framework Core (DbContext)、交易控制、RowVersion 並行控制、共用的資料模型與 Repository
+5. Web API (HTTPS)：提供 WinForms 使用的業務 API｜登入驗證、角色權限檢查｜銷貨單確認、出貨單新增與確認｜沿用同一套業務服務與交易規則
+6. SQL Server 資料庫：進貨相關表 (P 開頭)｜銷貨相關表 (S 開頭)｜出貨相關表 (H 開頭)｜庫存表 (批號庫存)｜主檔表 (商品、客戶、廠商等)｜系統表 (帳號、角色、權限等)
+7. 整體重點：
+   - 三個前端：MVC、Blazor、WinForms，各自提供操作介面。
+   - 共用業務邏輯與資料存取，確保規則、計算與庫存一致。
+   - WinForms 透過 HTTPS Web API 存取業務功能。
+   - 統一使用 SQL Server 資料庫。
+8. 流程範例：銷貨與出貨：
+   1) 建立銷貨草稿 (MVC / Blazor / WinForms)
+   2) 正式確認銷貨單 (共用 SalesOrderService) ※不扣庫存
+   3) 建立出貨草稿 (指定進貨批號、輸入出貨數量)
+   4) 確認出貨單 (共用 SalesShipmentService) ※檢查庫存並扣除批號數量`,
+        table: `【三種操作介面比較：WinForms • ASP.NET Core MVC • Blazor】
+- 主要使用環境：WinForms (Windows 桌面)｜ASP.NET Core MVC (網頁瀏覽器)｜Blazor (網頁瀏覽器)
+- 主要程式語言：WinForms (C#)｜ASP.NET Core MVC (C#、HTML、JavaScript)｜Blazor (C#、HTML／Razor)
+- 畫面設計方式：WinForms (成熟的拖拉式設計工具)｜ASP.NET Core MVC (網頁標記與樣式編排)｜Blazor (Razor 元件組合畫面)
+- 互動功能：WinForms (C# 事件)｜ASP.NET Core MVC (常搭配 JavaScript)｜Blazor (C# 元件事件)
+- 初學者理解畫面：WinForms (拖拉控制項，較直覺)｜ASP.NET Core MVC (需學網頁架構與 MVC 分工)｜Blazor (需學元件、資料繫結與狀態)
+- 適合的方向：WinForms (Windows 管理軟體)｜ASP.NET Core MVC (一般網站、管理系統)｜Blazor (互動式網頁、管理系統)
+補充：MVC 與 Blazor 都會用到 CSS；Blazor 在特定情況下也會使用 JavaScript。（協同 AI 寫程式）`
+      };
+
+      const textToCopy = diagramTexts[type] || '';
+      const textarea = document.createElement('textarea');
+      textarea.value = textToCopy;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        if (btnEl) {
+          const span = btnEl.querySelector('span');
+          const origText = span ? span.textContent : '';
+          if (span) span.textContent = '已複製！';
+          btnEl.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+          btnEl.classList.add('bg-emerald-600');
+          setTimeout(() => {
+            if (span) span.textContent = origText;
+            btnEl.classList.remove('bg-emerald-600');
+            btnEl.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+          }, 1800);
+        }
+      } catch (e) {
+        // 忽略剪貼簿異常
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
+
+    function highlightCompareCol(col) {
+      const dims = {
+        winforms: document.getElementById('cmp-dim-winforms'),
+        mvc: document.getElementById('cmp-dim-mvc'),
+        blazor: document.getElementById('cmp-dim-blazor')
+      };
+      Object.keys(dims).forEach(k => {
+        if (!dims[k]) return;
+        if (col === 'all' || col === k) {
+          dims[k].setAttribute('fill-opacity', '0');
+        } else {
+          dims[k].setAttribute('fill-opacity', '0.62');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

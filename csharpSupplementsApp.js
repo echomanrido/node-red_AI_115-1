@@ -245,6 +245,18 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <h2 class="lab-main-title">${numStr ? `C# 補充 ${numStr}: ` : ''}${escapeHtml(sup.title)}</h2>
         <p class="lab-summary">${escapeHtml(sup.summary)}</p>
+        ${sup.pageUrl ? `
+        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed rgba(168, 85, 247, 0.3); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <a href="${sup.pageUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: #ffffff; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: 0 4px 18px rgba(99, 102, 241, 0.45); transition: all 0.2s ease;">
+            <i class="fa-solid fa-desktop" style="font-size: 1.05rem;"></i>
+            <span>開啟獨立互動式專題網頁 (完整版)</span>
+            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem; margin-left: 2px;"></i>
+          </a>
+          <span style="font-size: 0.8rem; color: #a855f7; background: rgba(168, 85, 247, 0.1); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(168, 85, 247, 0.25);">
+            <i class="fa-solid fa-sparkles"></i> 內含西藥批發採購登錄模擬、架構 SVG 與路徑決策器
+          </span>
+        </div>
+        ` : ''}
       </section>
 
       <!-- (2) 教材圖片展示 -->
