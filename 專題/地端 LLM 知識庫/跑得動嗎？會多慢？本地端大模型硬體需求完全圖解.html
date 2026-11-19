@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama Qwen 3.8 (27B) 硬體需求與效能瓶頸全解析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+    <!-- 頂部導覽列 -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                    </svg>
+                </div>
+                <span class="font-bold text-lg sm:text-xl text-slate-900 tracking-tight">Ollama 本地部署硬體指南</span>
+            </div>
+            <nav class="hidden md:flex items-center space-x-4 text-sm font-medium text-slate-600">
+                <a href="../../project_local_llm.html" class="text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-1 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    回專題總覽
+                </a>
+                <a href="../../index.html" class="hover:text-indigo-600 flex items-center gap-1 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    首頁
+                </a>
+                <a href="#workflow-analogy" class="hover:text-indigo-600 transition">評估流程</a>
+                <a href="#models" class="hover:text-indigo-600 transition">模型規格</a>
+                <a href="#platform-compare" class="hover:text-indigo-600 transition">Win獨顯vsMac</a>
+                <a href="#memory-matrix" class="hover:text-indigo-600 transition">RAM/VRAM情境</a>
+                <a href="#simulator" class="hover:text-indigo-600 transition">硬體檢測</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主視覺 Hero Section -->
+    <section class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white py-14 sm:py-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center space-x-2 bg-indigo-500/20 border border-indigo-400/30 rounded-full px-3 py-1 text-xs sm:text-sm text-indigo-300 mb-6">
+                    <span>🎯 深度解析：Qwen 3.8 (27B) 系列模型</span>
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-bold tracking-tight leading-tight mb-6">
+                    跑得動嗎？會多慢？<br>
+                    <span class="text-indigo-400">本地端大模型硬體需求完全圖解</span>
+                </h1>
+                <p class="text-slate-300 text-base sm:text-lg leading-relaxed mb-8">
+                    從 18GB 量化版、30GB 高精度版到 56GB 滿血版，還有 Apple 專屬的 MLX 架構與 MTP 加速版。本教學帶你搞懂 VRAM、系統記憶體 (RAM) 與 CPU 之間如何協同作戰，以及資源不足時會發生什麼災難。
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="#simulator" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition">
+                        立即測試你的電腦配置
+                    </a>
+                    <a href="https://ollama.com/library/qwen3.8/tags" target="_blank" rel="noopener noreferrer" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium px-6 py-3 rounded-xl transition inline-flex items-center gap-2">
+                        <span>🔗 前往 Ollama 官方模型庫 (Tags)</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+
+        <!-- 第零部分：評估模型流程與生活化比喻（新增） -->
+        <section id="workflow-analogy" class="scroll-mt-24 space-y-12">
+            <!-- 1. 四步驟評估模型流程圖 (SVG) -->
+            <div>
+                <div class="mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
+                        <span class="bg-indigo-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-lg">0</span>
+                        下載前先看這張圖：四步驟評估你的電腦能跑哪款模型
+                    </h2>
+                    <p class="text-slate-600 mt-2">
+                        面對一堆 18GB、30GB、56GB 與 MLX 標籤不知從何下手？跟著下面 4 個步驟快速篩選最適合你硬體的版本：
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-8 shadow-sm">
+                    <svg viewBox="0 0 1000 240" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 連接線與箭頭 -->
+                        <path d="M225 110 H265" stroke="#94A3B8" stroke-width="3" stroke-dasharray="5 5"/>
+                        <polygon points="265,104 277,110 265,116" fill="#6366F1"/>
+                        
+                        <path d="M475 110 H515" stroke="#94A3B8" stroke-width="3" stroke-dasharray="5 5"/>
+                        <polygon points="515,104 527,110 515,116" fill="#6366F1"/>
+
+                        <path d="M725 110 H765" stroke="#94A3B8" stroke-width="3" stroke-dasharray="5 5"/>
+                        <polygon points="765,104 777,110 765,116" fill="#6366F1"/>
+
+                        <!-- Step 1 -->
+                        <rect x="10" y="20" width="215" height="185" rx="16" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+                        <rect x="26" y="34" width="68" height="24" rx="6" fill="#4F46E5"/>
+                        <text x="60" y="50" fill="white" font-size="12" font-weight="bold" text-anchor="middle">STEP 1</text>
+                        <text x="26" y="82" fill="#1E1B4B" font-size="16" font-weight="bold">確認電腦作業系統</text>
+                        <text x="26" y="108" fill="#4338CA" font-size="13" font-weight="600">🍎 Apple Silicon Mac</text>
+                        <text x="26" y="126" fill="#475569" font-size="12">→ 可選 MLX 或 GGUF 版</text>
+                        <text x="26" y="154" fill="#0369A1" font-size="13" font-weight="600">🪟 Windows / Linux</text>
+                        <text x="26" y="172" fill="#475569" font-size="12">→ 只能選無 MLX 的 GGUF 版</text>
+
+                        <!-- Step 2 -->
+                        <rect x="278" y="20" width="200" height="185" rx="16" fill="#F0FDF4" stroke="#10B981" stroke-width="2"/>
+                        <rect x="294" y="34" width="68" height="24" rx="6" fill="#059669"/>
+                        <text x="328" y="50" fill="white" font-size="12" font-weight="bold" text-anchor="middle">STEP 2</text>
+                        <text x="294" y="82" fill="#064E3B" font-size="16" font-weight="bold">盤點高速空間上限</text>
+                        <text x="294" y="110" fill="#334155" font-size="12.5">• Win 獨顯看「顯卡 VRAM」</text>
+                        <text x="294" y="132" fill="#334155" font-size="12.5">• Mac 看「統一記憶體 × 75%」</text>
+                        <rect x="294" y="148" width="168" height="40" rx="8" fill="#DCFCE7"/>
+                        <text x="378" y="165" fill="#166534" font-size="11.5" font-weight="bold" text-anchor="middle">關鍵口訣：空間必須大於</text>
+                        <text x="378" y="181" fill="#166534" font-size="11.5" font-weight="bold" text-anchor="middle">「模型大小 + 4GB 快取」</text>
+
+                        <!-- Step 3 -->
+                        <rect x="528" y="20" width="200" height="185" rx="16" fill="#FFFBEB" stroke="#F59E0B" stroke-width="2"/>
+                        <rect x="544" y="34" width="68" height="24" rx="6" fill="#D97706"/>
+                        <text x="578" y="50" fill="white" font-size="12" font-weight="bold" text-anchor="middle">STEP 3</text>
+                        <text x="544" y="82" fill="#78350F" font-size="16" font-weight="bold">對號入座挑精度</text>
+                        <text x="544" y="110" fill="#334155" font-size="12.5">• 24~32G → 選 18GB (Q4)</text>
+                        <text x="544" y="134" fill="#334155" font-size="12.5">• 36~64G → 選 30GB (Q8)</text>
+                        <text x="544" y="158" fill="#334155" font-size="12.5">• 96G 以上 → 選 56GB (BF16)</text>
+                        <text x="544" y="182" fill="#B45309" font-size="11.5" font-weight="600">*不足 24G 則需靠 RAM 降速硬撐</text>
+
+                        <!-- Step 4 -->
+                        <rect x="778" y="20" width="212" height="185" rx="16" fill="#FAF5FF" stroke="#A855F7" stroke-width="2"/>
+                        <rect x="794" y="34" width="68" height="24" rx="6" fill="#9333EA"/>
+                        <text x="828" y="50" fill="white" font-size="12" font-weight="bold" text-anchor="middle">STEP 4</text>
+                        <text x="794" y="82" fill="#581C87" font-size="16" font-weight="bold">預留上下文與圖片</text>
+                        <text x="794" y="110" fill="#334155" font-size="12.5">Qwen 3.8 支援 256K 長文</text>
+                        <text x="794" y="132" fill="#334155" font-size="12.5">與圖片辨識，這兩者都會</text>
+                        <text x="794" y="154" fill="#334155" font-size="12.5">額外吃掉 4~12GB 空間！</text>
+                        <text x="794" y="180" fill="#7E22CE" font-size="12" font-weight="bold">→ 建議先開 8K~16K 測試</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 2. 生活化比喻：高級餐廳廚房大作戰 (SVG + 圖文卡片) -->
+            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-3xl p-6 sm:p-10 shadow-lg border border-slate-700">
+                <div class="max-w-3xl mb-8">
+                    <span class="bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-bold px-3 py-1 rounded-full">秒懂硬體原理 • 生活化比喻</span>
+                    <h3 class="text-2xl sm:text-3xl font-bold mt-3">把電腦想像成一間「高級米其林廚房」</h3>
+                    <p class="text-slate-300 text-sm sm:text-base mt-2 leading-relaxed">
+                        AI 回答你的每一個字，就像主廚要翻閱食譜、拿取食材並快速炒出一道菜。為什麼 VRAM 這麼關鍵？看看廚房裡這四個角色的關係就懂了！
+                    </p>
+                </div>
+
+                <!-- 廚房比喻 SVG 插圖 -->
+                <div class="bg-slate-950/60 border border-slate-700/80 rounded-2xl p-4 sm:p-6 mb-8">
+                    <svg viewBox="0 0 960 290" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 1. SSD 倉庫 -->
+                        <rect x="15" y="45" width="185" height="200" rx="14" fill="#1E293B" stroke="#64748B" stroke-width="2"/>
+                        <text x="107" y="80" fill="#94A3B8" font-size="28" text-anchor="middle">🏢</text>
+                        <text x="107" y="112" fill="#F8FAFC" font-size="15" font-weight="bold" text-anchor="middle">SSD 硬碟</text>
+                        <text x="107" y="132" fill="#94A3B8" font-size="12" text-anchor="middle">「地下室冷凍大倉庫」</text>
+                        <line x1="35" y1="146" x2="180" y2="146" stroke="#334155" stroke-width="1"/>
+                        <text x="107" y="168" fill="#CBD5E1" font-size="11.5" text-anchor="middle">空間超大 (1TB~4TB)</text>
+                        <text x="107" y="188" fill="#CBD5E1" font-size="11.5" text-anchor="middle">平時存放 18G/56G 模型</text>
+                        <text x="107" y="216" fill="#F87171" font-size="11.5" font-weight="bold" text-anchor="middle">上下樓搬貨極慢 (3~7 GB/s)</text>
+
+                        <!-- 箭頭 1 -->
+                        <path d="M205 145 H250" stroke="#64748B" stroke-width="2.5" stroke-dasharray="4 4"/>
+                        <polygon points="250,139 262,145 250,151" fill="#94A3B8"/>
+                        <text x="232" y="132" fill="#94A3B8" font-size="10.5" text-anchor="middle">啟動載入</text>
+
+                        <!-- 2. RAM 大冰箱 -->
+                        <rect x="265" y="45" width="205" height="200" rx="14" fill="#172554" stroke="#3B82F6" stroke-width="2"/>
+                        <text x="367" y="80" fill="#60A5FA" font-size="28" text-anchor="middle">🧊</text>
+                        <text x="367" y="112" fill="#EFF6FF" font-size="15" font-weight="bold" text-anchor="middle">系統 RAM (主機板)</text>
+                        <text x="367" y="132" fill="#93C5FD" font-size="12" text-anchor="middle">「廚房後方的雙門大冰箱」</text>
+                        <line x1="285" y1="146" x2="450" y2="146" stroke="#1E40AF" stroke-width="1"/>
+                        <text x="367" y="168" fill="#DBEAFE" font-size="11.5" text-anchor="middle">容量大 (32GB ~ 128GB)</text>
+                        <text x="367" y="188" fill="#DBEAFE" font-size="11.5" text-anchor="middle">灶台放不下時暫放這裏</text>
+                        <text x="367" y="216" fill="#FBBF24" font-size="11.5" font-weight="bold" text-anchor="middle">走過去拿菜偏慢 (50~90 GB/s)</text>
+
+                        <!-- 箭頭 2 (PCIe 窄門) -->
+                        <path d="M475 145 H535" stroke="#F59E0B" stroke-width="3"/>
+                        <polygon points="535,139 547,145 535,151" fill="#F59E0B"/>
+                        <rect x="478" y="115" width="60" height="20" rx="4" fill="#78350F"/>
+                        <text x="508" y="129" fill="#FDE68A" font-size="10" font-weight="bold" text-anchor="middle">PCIe 窄門</text>
+
+                        <!-- 3. VRAM 灶台工作區 -->
+                        <rect x="550" y="30" width="225" height="230" rx="16" fill="#064E3B" stroke="#10B981" stroke-width="2.5"/>
+                        <text x="662" y="68" fill="#34D399" font-size="30" text-anchor="middle">🔥</text>
+                        <text x="662" y="102" fill="#ECFDF5" font-size="16" font-weight="bold" text-anchor="middle">獨顯 VRAM (顯示卡)</text>
+                        <text x="662" y="123" fill="#6EE7B7" font-size="12.5" font-weight="600" text-anchor="middle">「主廚手邊的黃金熱炒灶台」</text>
+                        <line x1="570" y1="138" x2="755" y2="138" stroke="#047857" stroke-width="1"/>
+                        <text x="662" y="160" fill="#D1FAE5" font-size="11.5" text-anchor="middle">桌面較小 (8GB ~ 24GB)</text>
+                        <text x="662" y="180" fill="#D1FAE5" font-size="11.5" text-anchor="middle">食材全放桌上，伸手就能炒！</text>
+                        <text x="662" y="205" fill="#34D399" font-size="12" font-weight="bold" text-anchor="middle">伸手即得極速 (1,000 GB/s)</text>
+                        <rect x="572" y="220" width="180" height="26" rx="6" fill="#065F46"/>
+                        <text x="662" y="237" fill="#A7F3D0" font-size="11" font-weight="bold" text-anchor="middle">💡 Mac = 把冰箱和灶台合體超大桌</text>
+
+                        <!-- 4. CPU 與 GPU 主廚 -->
+                        <rect x="795" y="45" width="150" height="200" rx="14" fill="#312E81" stroke="#818CF8" stroke-width="2"/>
+                        <text x="870" y="80" fill="#A5B4FC" font-size="28" text-anchor="middle">👨‍🍳</text>
+                        <text x="870" y="112" fill="#EEF2FF" font-size="15" font-weight="bold" text-anchor="middle">CPU vs GPU</text>
+                        <text x="870" y="132" fill="#C7D2FE" font-size="12" text-anchor="middle">「兩位不同風格的主廚」</text>
+                        <line x1="810" y1="146" x2="930" y2="146" stroke="#4338CA" stroke-width="1"/>
+                        <text x="870" y="168" fill="#E0E7FF" font-size="11" text-anchor="middle">CPU：米其林總管 (8~16核)</text>
+                        <text x="870" y="185" fill="#A5B4FC" font-size="10.5" text-anchor="middle">擅長複雜排程，炒大鍋菜慢</text>
+                        <text x="870" y="208" fill="#E0E7FF" font-size="11" text-anchor="middle">GPU：上千名切菜快手</text>
+                        <text x="870" y="225" fill="#6EE7B7" font-size="10.5" font-weight="bold" text-anchor="middle">同時翻炒幾千道菜無敵快</text>
+                    </svg>
+                </div>
+
+                <!-- 四句話總結廚房比喻 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                    <div class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <div class="font-bold text-emerald-400 mb-1">🔥 灶台夠大 (VRAM ≥ 24G)</div>
+                        <p class="text-slate-300 text-xs leading-relaxed">所有食材（18GB 模型）全擺在手邊灶台上，GPU 快手團隊瞬間出菜，每分鐘狂出好幾十道菜！</p>
+                    </div>
+                    <div class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <div class="font-bold text-amber-400 mb-1">🧊 灶台太小跑冰箱 (Offload)</div>
+                        <p class="text-slate-300 text-xs leading-relaxed">灶台只有 12GB，主廚每炒一口菜就得穿過窄門（PCIe）跑去大冰箱（RAM）拿食材，出菜速度直接砍 5 倍。</p>
+                    </div>
+                    <div class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <div class="font-bold text-rose-400 mb-1">🏢 冰箱也滿了衝地下室 (Swap)</div>
+                        <p class="text-slate-300 text-xs leading-relaxed">連冰箱（RAM）都塞不下，主廚只好每炒一秒就搭電梯衝去地下室倉庫（SSD）拿菜，整間餐廳陷入癱瘓。</p>
+                    </div>
+                    <div class="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <div class="font-bold text-purple-400 mb-1">🍎 Mac 的「無印良品超大中島」</div>
+                        <p class="text-slate-300 text-xs leading-relaxed">Mac 沒有分冰箱跟灶台，而是直接蓋了一張 96GB/128GB 超級大中島（統一記憶體），連 56GB 滿漢全席都能直接擺上桌！</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第一部分：圖片模型深度拆解與硬體需求表 -->
+        <section id="models" class="scroll-mt-24">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
+                        <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-lg flex items-center justify-center text-lg">1</span>
+                        兩張截圖中的所有 Qwen 3.8 模型規格總覽
+                    </h2>
+                    <p class="text-slate-600 mt-2">
+                        全部皆為 27B（270億參數）、支援多模態（Text, Image）與 256K 上下文，但分為<strong>「通用標準版 (GGUF)」</strong>（含 Q4_K_M / Q8_0 / BF16 與 MTP 多詞元預測加速版）以及<strong>「Apple Silicon 專屬版 (MLX)」</strong>。
+                    </p>
+                </div>
+                <a href="https://ollama.com/library/qwen3.8/tags" target="_blank" rel="noopener noreferrer" class="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-4 py-2.5 rounded-xl border border-indigo-200 transition">
+                    <span>查看 Ollama 官方完整 Tags</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+            </div>
+
+            <!-- 關鍵提醒卡片：KV Cache -->
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-5 rounded-r-xl mb-8 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <div>
+                        <h3 class="font-bold text-amber-900">重要觀念：模型大小 ≠ 實際記憶體需求！（什麼是 MTP？）</h3>
+                        <p class="text-sm text-amber-800 mt-1 leading-relaxed">
+                            1. 標示的 <strong>18GB / 30GB / 56GB</strong> 僅是模型權重大小，實際運行還需加上 <strong>KV Cache（256K 上下文快取）</strong> 與 <strong>視覺編碼器（Image 輸入）</strong>，建議再多預留 <strong>4GB ~ 12GB</strong> 緩衝。<br>
+                            2. 新截圖中的 <strong>MTP (Multi-Token Prediction，多詞元預測)</strong> 是模型自帶的投機解碼加速頭，能在推論時一次預測多個字，讓生成速度提升約 1.5~2 倍，且 Windows/Linux 獨顯與 Mac 皆可直接運行！
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 響應式表格 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 text-xs sm:text-sm uppercase tracking-wider">
+                                <th class="py-4 px-5 font-semibold">模型名稱 (Tag)</th>
+                                <th class="py-4 px-5 font-semibold">架構 / 量化精度</th>
+                                <th class="py-4 px-5 font-semibold">模型體積</th>
+                                <th class="py-4 px-5 font-semibold">建議硬體門檻 (含緩衝)</th>
+                                <th class="py-4 px-5 font-semibold">適用平台與獨顯說明</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 text-sm">
+                            <!-- 標準 Q4 / MTP-Q4 -->
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="py-4 px-5 font-bold text-slate-900">
+                                    qwen3.8:latest / 27b<br>
+                                    <span class="text-indigo-700 font-semibold">qwen3.8:27b-mtp-q4_K_M</span>
+                                </td>
+                                <td class="py-4 px-5">
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">標準 GGUF (4-bit)</span>
+                                    <div class="text-xs text-slate-500 mt-1">mtp 版含多詞元加速</div>
+                                </td>
+                                <td class="py-4 px-5 font-mono font-semibold text-slate-700">18 GB</td>
+                                <td class="py-4 px-5">
+                                    <div class="font-semibold text-indigo-700">24GB VRAM</div>
+                                    <div class="text-xs text-slate-500">或 16GB VRAM + 32GB RAM</div>
+                                </td>
+                                <td class="py-4 px-5 text-slate-600">
+                                    <strong>Windows / Linux 獨顯首選</strong> & Mac 通用<br>
+                                    <span class="text-xs text-emerald-600">推薦選 mtp-q4_K_M 速度更快</span>
+                                </td>
+                            </tr>
+                            <!-- 新增：MTP-Q8_0 -->
+                            <tr class="hover:bg-slate-50 transition bg-blue-50/20">
+                                <td class="py-4 px-5 font-bold text-slate-900">
+                                    qwen3.8:27b-mtp-q8_0
+                                </td>
+                                <td class="py-4 px-5">
+                                    <span class="bg-cyan-100 text-cyan-800 text-xs font-medium px-2.5 py-0.5 rounded">標準 GGUF (8-bit 高精)</span>
+                                    <div class="text-xs text-slate-500 mt-1">幾乎無損畫質 + MTP 加速</div>
+                                </td>
+                                <td class="py-4 px-5 font-mono font-semibold text-cyan-800">30 GB</td>
+                                <td class="py-4 px-5">
+                                    <div class="font-semibold text-cyan-700">32GB~48GB VRAM</div>
+                                    <div class="text-xs text-slate-500">如 RTX 5090 (32G) / 雙卡 3090 / 64GB Mac</div>
+                                </td>
+                                <td class="py-4 px-5 text-slate-600">
+                                    <strong>Windows / Linux 獨顯</strong> & Mac 通用<br>
+                                    <span class="text-xs text-slate-500">24GB 單卡會微幅溢出到 RAM</span>
+                                </td>
+                            </tr>
+                            <!-- 新增：MTP-BF16 -->
+                            <tr class="hover:bg-slate-50 transition bg-amber-50/30">
+                                <td class="py-4 px-5 font-bold text-slate-900">
+                                    qwen3.8:27b-mtp-bf16
+                                </td>
+                                <td class="py-4 px-5">
+                                    <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded">標準 GGUF (BF16 滿血)</span>
+                                    <div class="text-xs text-slate-500 mt-1">原生未量化權重 + MTP</div>
+                                </td>
+                                <td class="py-4 px-5 font-mono font-semibold text-amber-800">56 GB</td>
+                                <td class="py-4 px-5">
+                                    <div class="font-semibold text-amber-800">64GB+ VRAM 或 96GB+ Mac</div>
+                                    <div class="text-xs text-slate-500">雙張 RTX 4090 / A100 80G / Mac Studio</div>
+                                </td>
+                                <td class="py-4 px-5 text-slate-600">
+                                    <strong>Windows / Linux 多顯卡工作站</strong> & 高階 Mac 通用
+                                </td>
+                            </tr>
+                            <!-- MLX 4-bit -->
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="py-4 px-5 font-bold text-slate-900">
+                                    qwen3.8:27b-mlx<br>
+                                    <span class="text-xs font-normal text-slate-600">qwen3.8:27b-dflash2-nvfp4 (19GB)</span>
+                                </td>
+                                <td class="py-4 px-5">
+                                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">MLX (Apple 4-bit)</span>
+                                </td>
+                                <td class="py-4 px-5 font-mono font-semibold text-slate-700">18~19 GB</td>
+                                <td class="py-4 px-5">
+                                    <div class="font-semibold text-purple-700">32GB 統一記憶體</div>
+                                    <div class="text-xs text-slate-500">M1/M2/M3/M4 Pro 或 Max</div>
+                                </td>
+                                <td class="py-4 px-5 text-slate-600">
+                                    🍎 <strong>僅限 Apple Silicon Mac</strong><br>
+                                    <span class="text-xs text-slate-500">Windows 獨顯請改載上方 GGUF 版</span>
+                                </td>
+                            </tr>
+                            <!-- MLX BF16 -->
+                            <tr class="hover:bg-slate-50 transition bg-rose-50/30">
+                                <td class="py-4 px-5 font-bold text-slate-900">qwen3.8:27b-mlx-bf16</td>
+                                <td class="py-4 px-5">
+                                    <span class="bg-rose-100 text-rose-800 text-xs font-medium px-2.5 py-0.5 rounded">MLX (BF16 滿血無損)</span>
+                                </td>
+                                <td class="py-4 px-5 font-mono font-semibold text-rose-700">56 GB</td>
+                                <td class="py-4 px-5">
+                                    <div class="font-semibold text-rose-700">96GB ~ 128GB 統一記憶體</div>
+                                    <div class="text-xs text-slate-500">高階 Mac Studio / MacBook Pro</div>
+                                </td>
+                                <td class="py-4 px-5 text-slate-600">
+                                    🍎 <strong>僅限高階 Apple Silicon Mac</strong><br>
+                                    <span class="text-xs text-slate-500">Win/Linux 獨顯請改載上方 mtp-bf16</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 關鍵迷思解答區塊 (MLX 與 Windows 獨顯能否運行) -->
+            <div id="mlx-faq" class="mt-8 bg-indigo-50/70 border border-indigo-200 rounded-2xl p-6 sm:p-8 scroll-mt-24">
+                <h3 class="text-xl font-bold text-indigo-950 flex items-center gap-2 mb-4">
+                    <span class="bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-md">核心原理</span>
+                    什麼是 MLX？為什麼它僅限 Mac，而 Windows / Linux 獨顯要選 GGUF？
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-700 leading-relaxed">
+                    <div class="bg-white p-5 rounded-xl border border-indigo-100 shadow-xs">
+                        <h4 class="font-bold text-slate-900 text-base mb-2">1. 什麼是 Apple MLX 框架？</h4>
+                        <p>
+                            <strong>MLX 是 Apple 機器學習研究團隊開源的一個陣列計算框架</strong>，官方的說法是<strong>「面向 Apple 晶片的陣列框架」</strong>。它的 Python 介面風格接近 NumPy，另有 Swift、C++ 等介面；計算是<strong>惰性（Lazy Evaluation）</strong>的，陣列只在需要時才真正求值。
+                        </p>
+                        <p class="mt-2">
+                            最重要的是，它充分利用 Apple 晶片的<strong>統一記憶體（Unified Memory）</strong>，陣列直接放在共享記憶體裡，在處理器（CPU）和圖形處理器（GPU）之間切換<strong>不需要來回複製資料</strong>。圍繞它有一批配套專案，用來在 Mac 上執行和微調語言模型、語音與影像模型，社群也把許多開源模型轉換成了 MLX 可直接載入的格式（即圖片中的 <code class="bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded font-mono text-xs">-mlx</code> 版本）。
+                        </p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-indigo-100 shadow-xs">
+                        <h4 class="font-bold text-slate-900 text-base mb-2">2. Windows / Linux 獨顯怎麼跑？（包含 30GB 與 56GB 版）</h4>
+                        <p>
+                            因為 MLX 是專為 Apple 晶片硬體設計的，Windows/Linux 上的 NVIDIA 或 AMD 顯卡無法執行 <code class="bg-purple-100 text-purple-800 px-1 py-0.5 rounded font-mono text-xs">-mlx</code> 模型，<strong>但 Windows/Linux 獨顯完全可以跑同等甚至更強的版本！</strong>只要選擇沒有 MLX 標籤的 <strong>GGUF 標準版</strong>即可：
+                        </p>
+                        <ul class="list-disc list-inside mt-2 space-y-1.5 text-slate-600">
+                            <li><strong>18GB (mtp-q4_K_M)：</strong>單張 RTX 3090 / 4090 (24GB) 即可全速飛天。</li>
+                            <li><strong>30GB (mtp-q8_0)：</strong>適合單張 RTX 5090 (32GB) 或雙張 24GB 顯卡，精度幾乎無損。</li>
+                            <li><strong>56GB (mtp-bf16)：</strong>Win/Linux 需靠「雙顯卡（如雙張 4090/5090）」或「工作站專業卡（RTX 6000 Ada 48G / A100 80G）」跨卡併行運算，硬體成本遠高於買一台 96GB+ Mac Studio。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第二部分：Windows 加上獨立顯卡 vs Mac 統一記憶體深度對比 -->
+        <section id="platform-compare" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
+                    <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-lg flex items-center justify-center text-lg">2</span>
+                    Windows + 獨立顯卡 vs. Mac 深度架構對決
+                </h2>
+                <p class="text-slate-600 mt-2">
+                    為什麼同樣跑 27B 模型，Windows 需要斤斤計較「顯卡 VRAM 幾 GB」，而 Mac 卻直接看「總記憶體」？兩者的硬體設計邏輯完全不同！
+                </p>
+            </div>
+
+            <!-- 架構視覺對比圖 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Windows + 獨立顯卡 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Windows / Linux 陣營</span>
+                            <span class="text-xs font-mono text-slate-500">分離式記憶體架構</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Windows + 獨立顯卡 (NVIDIA / AMD)</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5">
+                            在傳統 PC 中，<strong>CPU 用的 RAM</strong> 與 <strong>獨立顯卡用的 VRAM</strong> 是兩塊完全獨立、互不相通的物理晶片，中間只靠一條狹窄的 PCIe 插槽連接。
+                        </p>
+
+                        <!-- SVG 示意圖 -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-5">
+                            <div class="flex items-center justify-between gap-2 text-center text-xs">
+                                <div class="flex-1 bg-white p-3 rounded-lg border border-slate-300 shadow-xs">
+                                    <div class="font-bold text-slate-800">主機板 RAM</div>
+                                    <div class="text-slate-500 mt-1">32GB / 64GB</div>
+                                    <div class="text-blue-600 font-mono mt-1">~60 GB/s (慢)</div>
+                                </div>
+                                <div class="flex flex-col items-center px-1">
+                                    <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">PCIe 牆</span>
+                                    <span class="text-slate-400 my-1">⇄</span>
+                                    <span class="text-[10px] text-slate-400">搬運極慢</span>
+                                </div>
+                                <div class="flex-1 bg-emerald-50 p-3 rounded-lg border border-emerald-300 shadow-xs">
+                                    <div class="font-bold text-emerald-900">獨立顯卡 VRAM</div>
+                                    <div class="text-emerald-700 mt-1">8GB ~ 24GB</div>
+                                    <div class="text-emerald-600 font-mono font-bold mt-1">~1,000 GB/s (極快)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5 text-sm border-t border-slate-100 pt-4">
+                        <div class="flex items-start gap-2">
+                            <span class="text-emerald-600 font-bold">✔ 優勢：</span>
+                            <span class="text-slate-700">只要<strong>獨顯 VRAM ≥ 24GB</strong>（如 RTX 3090/4090），CUDA 核心算力與高達 1TB/s 的頻寬會帶來<strong>輾壓級的生成速度</strong>與圖片處理速度。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-rose-600 font-bold">✘ 痛點：</span>
+                            <span class="text-slate-700">主流顯卡（8GB/12GB/16GB）<strong>VRAM 嚴重受限</strong>！一旦超過顯卡容量（例如單卡跑 56GB 的 bf16 模型），就必須切分到主機板 RAM，速度瞬間暴跌 10 倍。</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apple Silicon Mac -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full">Apple Silicon 陣營</span>
+                            <span class="text-xs font-mono text-slate-500">統一記憶體架構 (UMA)</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Mac (M1 / M2 / M3 / M4 系列)</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5">
+                            Apple 晶片將 CPU、GPU 與記憶體封裝在一起。<strong>沒有獨立顯卡，也不支援外接顯卡 (eGPU)</strong>，但所有記憶體都是「共用大水池」，GPU 可直接讀取高達 75%~80% 的總記憶體！
+                        </p>
+
+                        <!-- SVG 示意圖 -->
+                        <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-200 mb-5">
+                            <div class="bg-white p-3 rounded-lg border border-purple-300 text-center text-xs shadow-xs">
+                                <div class="font-bold text-purple-900 text-sm">統一記憶體大水池 (32GB ~ 192GB)</div>
+                                <div class="text-purple-600 font-mono mt-1">頻寬：100 GB/s (基本款) ~ 800 GB/s (Ultra)</div>
+                                <div class="mt-2 pt-2 border-t border-purple-100 flex justify-around text-slate-600">
+                                    <span>🧠 CPU 直接存取</span>
+                                    <span>⚡ GPU 直接存取 (零複製)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5 text-sm border-t border-slate-100 pt-4">
+                        <div class="flex items-start gap-2">
+                            <span class="text-emerald-600 font-bold">✔ 優勢：</span>
+                            <span class="text-slate-700"><strong>大容量性價比無敵！</strong>買一台 96GB 或 128GB 的 Mac Studio / MacBook Pro，就能輕鬆載入單張 PC 顯卡塞不下的 <strong>56GB 滿血版 (bf16)</strong>，且原生支援 <strong>MLX 加速格式</strong>。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-rose-600 font-bold">✘ 痛點：</span>
+                            <span class="text-slate-700">GPU 核心算力較弱，當輸入 <strong>256K 超長文章或高解析度圖片</strong> 時，前處理（Prompt Processing）的等待時間會比 NVIDIA 獨顯慢上不少。</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 雙平台情境對照表 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-100 px-5 py-3 border-b border-slate-200 font-bold text-sm text-slate-800">
+                    📊 常見硬體配置實戰對照表（以運行 Qwen 3.8 27B 為例）
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-slate-600 bg-slate-50/50">
+                                <th class="py-3.5 px-5 font-semibold">硬體配置組合</th>
+                                <th class="py-3.5 px-5 font-semibold">18GB 標準版 (Q4)</th>
+                                <th class="py-3.5 px-5 font-semibold">56GB 滿血版 (BF16)</th>
+                                <th class="py-3.5 px-5 font-semibold">核心瓶頸與真實體驗</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            <tr>
+                                <td class="py-3.5 px-5 font-medium text-slate-900">Windows + RTX 4060/4070<br><span class="text-xs text-slate-500">(8GB~12GB 獨顯 + 32GB RAM)</span></td>
+                                <td class="py-3.5 px-5 text-amber-600 font-semibold">勉強可跑 (6~10 t/s)</td>
+                                <td class="py-3.5 px-5 text-rose-600 font-semibold">無法運行 (OOM 崩潰)</td>
+                                <td class="py-3.5 px-5 text-slate-600">獨顯 VRAM 太小，一半模型被迫溢出到主機板 RAM，顯卡算力被 PCIe 頻寬拖死。</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3.5 px-5 font-medium text-slate-900">Windows + 單張 RTX 3090/4090<br><span class="text-xs text-slate-500">(24GB 獨顯 + 64GB RAM)</span></td>
+                                <td class="py-3.5 px-5 text-emerald-600 font-semibold">極速飛天 (45~65 t/s)</td>
+                                <td class="py-3.5 px-5 text-orange-600 font-semibold">極度痛苦 (1~2 t/s)</td>
+                                <td class="py-3.5 px-5 text-slate-600">18GB 版全進顯卡無敵快；但 56GB 版有超過 35GB 溢出到 CPU/RAM，瞬間變老爺車。</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3.5 px-5 font-medium text-slate-900">Windows + 雙顯卡 / 工作站卡<br><span class="text-xs text-slate-500">(雙張 4090 或 RTX 6000 Ada 48G+)</span></td>
+                                <td class="py-3.5 px-5 text-emerald-600 font-semibold">極速飛天 (50~70+ t/s)</td>
+                                <td class="py-3.5 px-5 text-emerald-600 font-semibold">全速順跑 (20~35 t/s)</td>
+                                <td class="py-3.5 px-5 text-slate-600">透過 Tensor Parallel 跨顯卡併行運算（需用 GGUF 格式），效能最強但建置成本與功耗極高。</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3.5 px-5 font-medium text-slate-900">MacBook Air / 基本款 M 晶片<br><span class="text-xs text-slate-500">(16GB ~ 24GB 統一記憶體)</span></td>
+                                <td class="py-3.5 px-5 text-orange-600 font-semibold">嚴重卡頓 (Swap)</td>
+                                <td class="py-3.5 px-5 text-rose-600 font-semibold">無法運行 (OOM 崩潰)</td>
+                                <td class="py-3.5 px-5 text-slate-600">扣除系統佔用後可用記憶體不足 18GB，且基本款記憶體頻寬僅 ~100GB/s，完全跑不動 27B。</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3.5 px-5 font-medium text-slate-900">MacBook Pro / Studio (Max/Ultra)<br><span class="text-xs text-slate-500">(96GB ~ 128GB 統一記憶體)</span></td>
+                                <td class="py-3.5 px-5 text-emerald-600 font-semibold">非常流暢 (30~45 t/s)</td>
+                                <td class="py-3.5 px-5 text-emerald-600 font-semibold">順暢可跑 (12~18 t/s)</td>
+                                <td class="py-3.5 px-5 text-slate-600">憑藉超大統一記憶體與 400~800GB/s 頻寬，搭配 MLX 格式成為本地跑滿血版的最具性價比選擇。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第三部分：RAM 與 VRAM 的四種組合情境 -->
+        <section id="memory-matrix" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
+                    <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-lg flex items-center justify-center text-lg">3</span>
+                    RAM 與 VRAM 夠不夠？四種情境深度解析
+                </h2>
+                <p class="text-slate-600 mt-2">
+                    以運行 <strong>18GB 的 Qwen 3.8 (27B)</strong> 為例（實際需約 22GB 空間），根據你的顯示卡記憶體 (VRAM) 與系統記憶體 (RAM) 容量，會出現以下四種截然不同的命運：
+                </p>
+            </div>
+
+            <!-- 視覺化架構圖解 (SVG) -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8">
+                <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">資料傳輸頻寬對比圖（為什麼不同架構速度差這麼多？）</h3>
+                <svg viewBox="0 0 900 220" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 背景格線 -->
+                    <line x1="220" y1="20" x2="220" y2="195" stroke="#CBD5E1" stroke-width="2"/>
+                    <line x1="420" y1="20" x2="420" y2="195" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+                    <line x1="620" y1="20" x2="620" y2="195" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+                    <line x1="820" y1="20" x2="820" y2="195" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+
+                    <!-- Bar 1: 高階獨顯 VRAM -->
+                    <text x="210" y="48" fill="#0F172A" font-size="13" font-weight="bold" text-anchor="end">高階獨顯 VRAM (RTX 4090)</text>
+                    <rect x="220" y="30" width="600" height="26" rx="6" fill="#10B981"/>
+                    <text x="810" y="48" fill="#064E3B" font-size="12" font-weight="bold" text-anchor="end">~1,008 GB/s (極速超跑道)</text>
+
+                    <!-- Bar 2: Mac Studio Max/Ultra -->
+                    <text x="210" y="88" fill="#0F172A" font-size="13" font-weight="bold" text-anchor="end">Mac Pro / Max / Ultra 統一記憶體</text>
+                    <rect x="220" y="70" width="320" height="26" rx="6" fill="#8B5CF6"/>
+                    <text x="550" y="88" fill="#5B21B6" font-size="12" font-weight="bold">400 ~ 800 GB/s (寬敞快速道路)</text>
+
+                    <!-- Bar 3: 系統 DDR5 RAM -->
+                    <text x="210" y="128" fill="#0F172A" font-size="13" font-weight="bold" text-anchor="end">主機板 DDR4 / DDR5 RAM</text>
+                    <rect x="220" y="110" width="55" height="26" rx="6" fill="#3B82F6"/>
+                    <text x="285" y="128" fill="#1D4ED8" font-size="12" font-weight="bold">45 ~ 90 GB/s (鄉間單線道，慢 10 倍)</text>
+
+                    <!-- Bar 4: NVMe SSD -->
+                    <text x="210" y="168" fill="#0F172A" font-size="13" font-weight="bold" text-anchor="end">NVMe SSD 虛擬記憶體 (Swap)</text>
+                    <rect x="220" y="150" width="12" height="26" rx="3" fill="#EF4444"/>
+                    <text x="242" y="168" fill="#DC2626" font-size="12" font-weight="bold">3 ~ 7 GB/s (泥濘羊腸小徑，卡死主因)</text>
+
+                    <!-- X軸刻度 -->
+                    <text x="220" y="212" fill="#64748B" font-size="11" text-anchor="middle">0 GB/s</text>
+                    <text x="420" y="212" fill="#64748B" font-size="11" text-anchor="middle">330 GB/s</text>
+                    <text x="620" y="212" fill="#64748B" font-size="11" text-anchor="middle">660 GB/s</text>
+                    <text x="820" y="212" fill="#64748B" font-size="11" text-anchor="middle">1,000 GB/s</text>
+                </svg>
+            </div>
+
+            <!-- 四種情況卡片網格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- 情況一 -->
+                <div class="bg-white rounded-2xl border-2 border-emerald-500 p-6 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">情況一：完美狀態</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg">✔</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">VRAM 夠大（≥ 24GB）</h3>
+                            <p class="text-xs text-slate-500">例：RTX 3090 / 4090 / 5090，或 32GB+ Mac</p>
+                        </div>
+                    </div>
+                    <!-- 視覺進度條 -->
+                    <div class="space-y-2 mb-4 bg-slate-50 p-3 rounded-xl">
+                        <div class="flex justify-between text-xs font-medium">
+                            <span>VRAM 使用率 (100% 模型層數載入 GPU)</span>
+                            <span class="text-emerald-600">22GB / 24GB</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2.5">
+                            <div class="bg-emerald-500 h-2.5 rounded-full" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li><strong class="text-slate-800">發生什麼事：</strong>Ollama 會將所有神經網路層（Layers）完整放進高速 VRAM 中，完全不需要動用系統 RAM。</li>
+                        <li><strong class="text-slate-800">實際體感：</strong>生成速度極快（約 <strong>35 ~ 60+ tokens/秒</strong>），文字瞬間噴發，上傳圖片辨識也只需 1~2 秒。</li>
+                    </ul>
+                </div>
+
+                <!-- 情況二 -->
+                <div class="bg-white rounded-2xl border-2 border-amber-400 p-6 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-amber-400 text-amber-950 text-xs font-bold px-3 py-1 rounded-bl-xl">情況二：混合降速 (Offload)</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-lg">!</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">VRAM 不夠，但系統 RAM 夠大</h3>
+                            <p class="text-xs text-slate-500">例：8GB/12GB/16GB 顯卡 + 32GB/64GB RAM</p>
+                        </div>
+                    </div>
+                    <!-- 視覺進度條 -->
+                    <div class="space-y-2 mb-4 bg-slate-50 p-3 rounded-xl">
+                        <div class="flex justify-between text-xs font-medium">
+                            <span>GPU 載入 60% + CPU/RAM 分擔 40%</span>
+                            <span class="text-amber-600">跨匯流排傳輸</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2.5 flex overflow-hidden">
+                            <div class="bg-emerald-500 h-2.5" style="width: 60%"></div>
+                            <div class="bg-amber-400 h-2.5" style="width: 40%"></div>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li><strong class="text-slate-800">發生什麼事：</strong>Ollama 非常聰明，它會把塞得下的部分放 VRAM，<strong>塞不下的部分自動切分到系統 RAM</strong>（稱為 Layer Offloading）。</li>
+                        <li><strong class="text-slate-800">實際體感：</strong>不會當機，但速度大幅下降（約 <strong>4 ~ 12 tokens/秒</strong>），像人類打字一樣一個字一個字慢慢跳出來，勉強可用。</li>
+                    </ul>
+                </div>
+
+                <!-- 情況三 -->
+                <div class="bg-white rounded-2xl border-2 border-orange-500 p-6 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">情況三：幻燈片地獄</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-lg">🐢</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">VRAM + RAM 勉強夠，但全靠硬碟撐</h3>
+                            <p class="text-xs text-slate-500">例：無獨立顯卡，僅有 16GB 或 24GB 系統 RAM</p>
+                        </div>
+                    </div>
+                    <!-- 視覺進度條 -->
+                    <div class="space-y-2 mb-4 bg-slate-50 p-3 rounded-xl">
+                        <div class="flex justify-between text-xs font-medium">
+                            <span>RAM 爆滿，啟用 SSD 虛擬記憶體 (Swap)</span>
+                            <span class="text-orange-600">硬碟讀寫 100%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2.5 flex overflow-hidden">
+                            <div class="bg-blue-500 h-2.5" style="width: 75%"></div>
+                            <div class="bg-red-500 h-2.5 animate-pulse" style="width: 25%"></div>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li><strong class="text-slate-800">發生什麼事：</strong>Windows / macOS 會把硬碟空間當作虛擬記憶體（Pagefile / Swap）來救援，資料在 SSD 與 RAM 之間瘋狂搬運。</li>
+                        <li><strong class="text-slate-800">實際體感：</strong>整台電腦鼠標卡頓、風扇狂轉，生成速度掉到 <strong>0.2 ~ 1 token/秒</strong>（等一句話要好幾分鐘），且極度傷 SSD 壽命。</li>
+                    </ul>
+                </div>
+
+                <!-- 情況四 -->
+                <div class="bg-white rounded-2xl border-2 border-rose-600 p-6 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">情況四：直接崩潰 (OOM)</div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-lg">✖</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">VRAM 與 RAM 總和徹底不足</h3>
+                            <p class="text-xs text-slate-500">例：8GB/16GB RAM 筆電，硬碟剩餘空間也不足</p>
+                        </div>
+                    </div>
+                    <!-- 視覺進度條 -->
+                    <div class="space-y-2 mb-4 bg-slate-50 p-3 rounded-xl">
+                        <div class="flex justify-between text-xs font-medium">
+                            <span>記憶體配置失敗 (Out Of Memory)</span>
+                            <span class="text-rose-600">Error 500</span>
+                        </div>
+                        <div class="w-full bg-rose-200 rounded-full h-2.5">
+                            <div class="bg-rose-600 h-2.5 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li><strong class="text-slate-800">發生什麼事：</strong>在載入模型權重的瞬間，系統觸發 <strong>OOM (Out of Memory) 保護機制</strong>，作業系統直接強制終止 Ollama 行程。</li>
+                        <li><strong class="text-slate-800">實際體感：</strong>終端機直接報錯 <code>llama runner process has terminated: exit status 2</code> 或 <code>unable to allocate memory</code>，完全無法啟動。</li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第四部分：CPU 夠不夠力的影響 -->
+        <section id="cpu-impact" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
+                    <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-lg flex items-center justify-center text-lg">4</span>
+                    那 CPU 夠不夠力，有什麼影響？
+                </h2>
+                <p class="text-slate-600 mt-2">
+                    很多人以為跑 AI 只看顯示卡，但其實 <strong>CPU 決定了「記憶體頻寬上限」與「資料搬運效率」</strong>。當你的 VRAM 不夠大時，CPU 的強弱會直接決定你的生死！
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
+                    
+                    <!-- 階段 A -->
+                    <div class="p-6">
+                        <div class="inline-block bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-1 rounded mb-3">情境 A：模型全在 VRAM 中</div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">CPU 影響極小（只需負責打雜）</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                            當你的顯卡有 24GB 以上 VRAM 時，CPU 只需要負責一開始把模型從硬碟讀進顯卡，以及處理輸入文字的分詞（Tokenization）。
+                        </p>
+                        <div class="bg-slate-50 p-3 rounded-xl text-xs text-slate-600">
+                            <strong>CPU 不夠力時會怎樣？</strong><br>
+                            僅在「第一次啟動模型」載入時間多等 3~5 秒，開始對話後的生成速度幾乎不受影響。
+                        </div>
+                    </div>
+
+                    <!-- 情境 B -->
+                    <div class="p-6 bg-amber-50/30">
+                        <div class="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded mb-3">情境 B：模型溢出到系統 RAM</div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">CPU 成為核心運算引擎！</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                            只要有哪怕 20% 的模型留在系統 RAM，那部分的矩陣運算就必須由 <strong>CPU 核心</strong> 親自計算，並依賴 CPU 的記憶體控制器去讀取 RAM。
+                        </p>
+                        <div class="bg-white border border-amber-200 p-3 rounded-xl text-xs text-slate-700 space-y-1.5">
+                            <strong class="text-amber-800 block">CPU 不夠力（如老舊 Intel 8代以前 / 低功耗 U 系列筆電）會怎樣？</strong>
+                            <p>1. <strong>缺乏 AVX-512 指令集：</strong>矩陣運算效率暴跌一半以上。</p>
+                            <p>2. <strong>記憶體通道頻寬太窄：</strong>單通道 RAM 筆電會讓生成速度從 8 tokens/s 慘跌至 1.5 tokens/s。</p>
+                            <p>3. <strong>多模態圖片處理極慢：</strong>圖片前處理會讓 CPU 滿載 100%，卡住長達 30 秒以上才開始回答。</p>
+                        </div>
+                    </div>
+
+                    <!-- 情境 C -->
+                    <div class="p-6">
+                        <div class="inline-block bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded mb-3">情境 C：256K 長文本提示詞處理</div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">決定「首字延遲 (TTFT)」</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                            圖片中的 Qwen 3.8 支援高達 <strong>256K Context</strong>。當你丟入一本十萬字的小說或整份程式碼庫給它分析時，系統需要進行「Prompt Processing（提示詞預處理）」。
+                        </p>
+                        <div class="bg-slate-50 p-3 rounded-xl text-xs text-slate-600">
+                            <strong>CPU/算力不夠時會怎樣？</strong><br>
+                            按下送出後，游標會閃爍很久「假死狀態」（可能長達 1~3 分鐘沒反應），這就是 CPU 與運算單元正在消化龐大的上下文。
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 第五部分：互動式硬體模擬器 -->
+        <section id="simulator" class="scroll-mt-24">
+            <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-10 shadow-xl">
+                <div class="max-w-3xl mb-8">
+                    <span class="text-indigo-400 font-semibold text-sm tracking-wider uppercase">Interactive Diagnostic</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold mt-1">互動式硬體模擬檢測器</h2>
+                    <p class="text-slate-400 text-sm sm:text-base mt-2">
+                        選擇你打算執行的 Qwen 3.8 模型版本，並調整你電腦的硬體規格，立即預測實際運行狀況！
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <!-- 左側控制面板 -->
+                    <div class="lg:col-span-6 space-y-6 bg-slate-800/80 p-6 rounded-2xl border border-slate-700">
+                        
+                        <!-- 選擇模型 -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">1. 選擇要運行的模型</label>
+                            <select id="sim-model" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500">
+                                <option value="18-gguf">qwen3.8:latest / 27b-mtp-q4_K_M (18GB 標準版 - Win/Mac通用)</option>
+                                <option value="30-gguf">qwen3.8:27b-mtp-q8_0 (30GB 高精度版 - Win/Mac通用)</option>
+                                <option value="56-gguf">qwen3.8:27b-mtp-bf16 (56GB 滿血版 - Win/Mac通用)</option>
+                                <option value="18-mlx">qwen3.8:27b-mlx (18GB 僅限 Mac MLX版)</option>
+                                <option value="19-mlx">qwen3.8:27b-dflash2-nvfp4 (19GB 僅限 Mac MLX版)</option>
+                                <option value="56-mlx">qwen3.8:27b-mlx-bf16 (56GB 僅限 Mac MLX滿血版)</option>
+                            </select>
+                        </div>
+
+                        <!-- 平台架構 -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">2. 電腦平台架構</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button type="button" id="btn-pc" onclick="setPlatform('pc')" class="py-2.5 px-4 rounded-xl border font-medium text-sm transition bg-indigo-600 border-indigo-500 text-white">
+                                    Windows / Linux (獨顯)
+                                </button>
+                                <button type="button" id="btn-mac" onclick="setPlatform('mac')" class="py-2.5 px-4 rounded-xl border font-medium text-sm transition bg-slate-900 border-slate-700 text-slate-400 hover:text-white">
+                                    Apple Silicon (Mac)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- PC 專屬滑桿 (VRAM + RAM) -->
+                        <div id="pc-controls" class="space-y-5">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-slate-300">獨立顯示卡 VRAM (支援多卡總和)</span>
+                                    <span id="vram-val" class="font-mono font-bold text-indigo-400">12 GB</span>
+                                </div>
+                                <input type="range" id="sim-vram" min="0" max="96" step="4" value="12" class="w-full accent-indigo-500 cursor-pointer">
+                                <div class="flex justify-between text-xs text-slate-500 mt-1">
+                                    <span>0GB (無獨顯)</span>
+                                    <span>24GB (單卡旗艦)</span>
+                                    <span>48GB (雙卡)</span>
+                                    <span>96GB (工作站)</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-slate-300">系統記憶體 RAM</span>
+                                    <span id="ram-val" class="font-mono font-bold text-indigo-400">32 GB</span>
+                                </div>
+                                <input type="range" id="sim-ram" min="8" max="128" step="8" value="32" class="w-full accent-indigo-500 cursor-pointer">
+                                <div class="flex justify-between text-xs text-slate-500 mt-1">
+                                    <span>8GB</span>
+                                    <span>32GB</span>
+                                    <span>64GB</span>
+                                    <span>128GB</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mac 專屬滑桿 (統一記憶體) -->
+                        <div id="mac-controls" class="hidden space-y-5">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-slate-300">Mac 統一記憶體 (Unified Memory)</span>
+                                    <span id="mac-ram-val" class="font-mono font-bold text-purple-400">32 GB</span>
+                                </div>
+                                <input type="range" id="sim-mac-ram" min="8" max="192" step="8" value="32" class="w-full accent-purple-500 cursor-pointer">
+                                <div class="flex justify-between text-xs text-slate-500 mt-1">
+                                    <span>8GB</span>
+                                    <span>32GB</span>
+                                    <span>64GB</span>
+                                    <span>128GB+</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CPU 等級 -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">3. 處理器 (CPU) 世代與等級</label>
+                            <select id="sim-cpu" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500">
+                                <option value="high">高階新款 (如 i7/i9 13代+, Ryzen 7/9 7000+, M2/M3/M4 Pro/Max)</option>
+                                <option value="mid" selected>主流中階 (如 i5 12代, Ryzen 5 5600, M1/M2/M3 基本款)</option>
+                                <option value="low">老舊或省電版 (如 Intel 10代以前, 輕薄本 U 系列處理器)</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <!-- 右側診斷結果 -->
+                    <div class="lg:col-span-6 bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 flex flex-col justify-between min-h-[380px]">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">診斷預測結果</span>
+                                <span id="res-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                    混合模式 (GPU + CPU)
+                                </span>
+                            </div>
+
+                            <h3 id="res-title" class="text-xl sm:text-2xl font-bold text-white mb-3">
+                                可以運行，但會出現明顯降速
+                            </h3>
+
+                            <p id="res-desc" class="text-slate-300 text-sm leading-relaxed mb-6">
+                                你的 12GB VRAM 無法完整裝下 18GB 模型（加上快取約需 21GB），Ollama 會將約 45% 的模型權重溢出到你的 32GB 系統 RAM 中運算。
+                            </p>
+
+                            <!-- 數據指標 -->
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/80">
+                                    <div class="text-xs text-slate-400 mb-1">預估生成速度</div>
+                                    <div id="res-speed" class="text-lg sm:text-xl font-mono font-bold text-amber-400">6 ~ 10 tokens/s</div>
+                                </div>
+                                <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/80">
+                                    <div class="text-xs text-slate-400 mb-1">256K 長文 / 圖片反應</div>
+                                    <div id="res-latency" class="text-lg sm:text-xl font-mono font-bold text-slate-200">偏慢 (需等待數十秒)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="res-advice" class="bg-indigo-950/60 border border-indigo-500/30 rounded-xl p-4 text-xs sm:text-sm text-indigo-200">
+                            💡 <strong>優化建議：</strong>在 Ollama 中將 Context Length 限制在 <code>8192</code> 或 <code>16384</code>，不要開滿 256K，可大幅減少 VRAM 爆掉的幅度！
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-white border-t border-slate-200 py-8 mt-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-500">
+            <p>Ollama 本地大模型部署硬體指南 • 數據基於 GGUF 與 Apple MLX 推論架構實測經驗估算</p>
+        </div>
+    </footer>
+
+    <!-- 互動邏輯腳本 -->
+    <script>
+        let currentPlatform = 'pc';
+
+        const modelSelect = document.getElementById('sim-model');
+        const vramSlider = document.getElementById('sim-vram');
+        const ramSlider = document.getElementById('sim-ram');
+        const macRamSlider = document.getElementById('sim-mac-ram');
+        const cpuSelect = document.getElementById('sim-cpu');
+
+        const vramVal = document.getElementById('vram-val');
+        const ramVal = document.getElementById('ram-val');
+        const macRamVal = document.getElementById('mac-ram-val');
+
+        function setPlatform(platform) {
+            currentPlatform = platform;
+            const btnPc = document.getElementById('btn-pc');
+            const btnMac = document.getElementById('btn-mac');
+            const pcControls = document.getElementById('pc-controls');
+            const macControls = document.getElementById('mac-controls');
+
+            if (platform === 'pc') {
+                btnPc.className = "py-2.5 px-4 rounded-xl border font-medium text-sm transition bg-indigo-600 border-indigo-500 text-white";
+                btnMac.className = "py-2.5 px-4 rounded-xl border font-medium text-sm transition bg-slate-900 border-slate-700 text-slate-400 hover:text-white";
+                pcControls.classList.remove('hidden');
+                macControls.classList.add('hidden');
+            } else {
+                btnMac.className = "py-2.5 px-4 rounded-xl border font-medium text-sm transition bg-purple-600 border-purple-500 text-white";
+                btnPc.className = "py-2.5 px-4 rounded-xl border font-medium text-sm transition bg-slate-900 border-slate-700 text-slate-400 hover:text-white";
+                macControls.classList.remove('hidden');
+                pcControls.classList.add('hidden');
+            }
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            const model = modelSelect.value;
+            const vram = parseInt(vramSlider.value);
+            const ram = parseInt(ramSlider.value);
+            const macRam = parseInt(macRamSlider.value);
+            const cpu = cpuSelect.value;
+
+            vramVal.textContent = vram + ' GB';
+            ramVal.textContent = ram + ' GB';
+            macRamVal.textContent = macRam + ' GB';
+
+            const resBadge = document.getElementById('res-badge');
+            const resTitle = document.getElementById('res-title');
+            const resDesc = document.getElementById('res-desc');
+            const resSpeed = document.getElementById('res-speed');
+            const resLatency = document.getElementById('res-latency');
+            const resAdvice = document.getElementById('res-advice');
+
+            // 檢查架構相容性
+            if (currentPlatform === 'pc' && model.includes('mlx')) {
+                resBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30";
+                resBadge.textContent = "架構不相容 (MLX 限 Mac)";
+                resTitle.textContent = "無法直接執行：MLX 僅支援 Apple 晶片";
+                resDesc.textContent = "你選擇的模型帶有 MLX 標籤，這是專為 Apple Silicon (M1~M4) 統一記憶體設計的格式，Windows / Linux 獨顯無法直接讀取。";
+                resSpeed.textContent = "0 tokens/s (報錯)";
+                resSpeed.className = "text-lg sm:text-xl font-mono font-bold text-rose-400";
+                resLatency.textContent = "無法啟動";
+                resAdvice.innerHTML = model === '56-mlx' 
+                    ? "💡 <strong>Windows 獨顯替代方案：</strong>請改下載標準 GGUF 格式的 <code>qwen3.8:27b-bf16</code>（非 MLX 版），並確保你的單卡或雙顯卡總 VRAM ≥ 64GB 即可全速運行！"
+                    : "💡 <strong>Windows 獨顯替代方案：</strong>請在上方改選標準 GGUF 格式的 <code>qwen3.8:latest</code> 或 <code>qwen3.8:27b</code>，Windows 獨顯即可完美加速！";
+                return;
+            }
+
+            // 計算需求容量 (模型本體 + 約 3.5GB 基礎上下文開銷)
+            let baseSize = 18;
+            if (model === '19-mlx') baseSize = 19;
+            if (model === '30-gguf') baseSize = 30;
+            if (model === '56-mlx' || model === '56-gguf') baseSize = 56;
+            const requiredMem = baseSize + 3.5; // 實際順跑需求
+
+            // Mac 邏輯 (統一記憶體)
+            if (currentPlatform === 'mac') {
+                const usableMem = macRam * 0.78;
+
+                if (macRam < baseSize) {
+                    resBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30";
+                    resBadge.textContent = "記憶體嚴重不足 (OOM)";
+                    resTitle.textContent = "無法載入或系統嚴重卡死";
+                    resDesc.textContent = `模型本身就需要 ${baseSize}GB，但你的 Mac 總共只有 ${macRam}GB 統一記憶體。系統會瘋狂寫入 SSD Swap，導致整台 Mac 凍結甚至崩潰。`;
+                    resSpeed.textContent = "< 0.5 tokens/s";
+                    resSpeed.className = "text-lg sm:text-xl font-mono font-bold text-rose-400";
+                    resLatency.textContent = "極度卡頓";
+                    resAdvice.innerHTML = "💡 <strong>建議：</strong>你的 Mac 記憶體不足以運行此體積的模型，建議改用體積較小的 18GB 4-bit 版本或 8B 模型。";
+                } else if (usableMem >= requiredMem) {
+                    resBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                    resBadge.textContent = "完美流暢 (全 GPU 加速)";
+                    resTitle.textContent = "運行極度順暢，發揮完整實力！";
+                    resDesc.textContent = `你的 ${macRam}GB 統一記憶體足以讓 macOS 將整個 ${baseSize}GB 模型完整鎖定在 GPU 核心中高速運算，完全不需硬碟交換。`;
+                    let speedEst = "28 ~ 45 tokens/s";
+                    if (baseSize === 30) speedEst = "18 ~ 28 tokens/s";
+                    if (baseSize === 56) speedEst = "12 ~ 18 tokens/s";
+                    if (cpu !== 'high') speedEst = "12 ~ 22 tokens/s";
+                    resSpeed.textContent = speedEst;
+                    resSpeed.className = "text-lg sm:text-xl font-mono font-bold text-emerald-400";
+                    resLatency.textContent = "極快 (1~3 秒內反應)";
+                    resAdvice.innerHTML = "💡 <strong>狀態極佳：</strong>你可以放心開啟多模態圖片辨識，並享受流暢的長文本對話體驗。";
+                } else {
+                    resBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                    resBadge.textContent = "記憶體緊繃 (觸發 Swap)";
+                    resTitle.textContent = "勉強可跑，但背景程式會被壓縮";
+                    resDesc.textContent = `模型加上快取需要約 ${requiredMem}GB，已經逼近你 ${macRam}GB 記憶體的物理極限。開啟瀏覽器或輸入長文章時會觸發硬碟 Swap 降速。`;
+                    resSpeed.textContent = "5 ~ 12 tokens/s";
+                    resSpeed.className = "text-lg sm:text-xl font-mono font-bold text-amber-400";
+                    resLatency.textContent = "偏慢 (長文需等待)";
+                    resAdvice.innerHTML = "💡 <strong>優化建議：</strong>執行 Ollama 前請先關閉 Chrome 等吃記憶體的軟體，並避免一次輸入超過 16K 的長文章。";
+                }
+                return;
+            }
+
+            // PC 邏輯 (獨立 VRAM + 系統 RAM)
+            const totalMem = vram + ram;
+
+            if (totalMem < requiredMem) {
+                resBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30";
+                resBadge.textContent = "情況四：記憶體不足 (OOM)";
+                resTitle.textContent = "直接報錯崩潰，無法啟動模型";
+                resDesc.textContent = `模型加上系統開銷至少需要 ${requiredMem}GB，但你的 VRAM (${vram}GB) + RAM (${ram}GB) 總和僅有 ${totalMem}GB，系統會直接觸發 OOM 終止程式。`;
+                resSpeed.textContent = "0 tokens/s (崩潰)";
+                resSpeed.className = "text-lg sm:text-xl font-mono font-bold text-rose-400";
+                resLatency.textContent = "無法執行";
+                resAdvice.innerHTML = "💡 <strong>解決方案：</strong>請升級系統 RAM 至 32GB 以上，或改下載參數較小的 <code>qwen3.8:8b</code> 版本。";
+            } else if (vram >= requiredMem) {
+                resBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                resBadge.textContent = "情況一：全速起飛 (100% GPU)";
+                resTitle.textContent = "完美配置！模型完整駐留顯示卡";
+                resDesc.textContent = `你的 ${vram}GB VRAM 足以將整個 27B 模型與快取完整裝入顯示卡高速記憶體中，完全不需經過主機板 PCIe 瓶頸。`;
+                resSpeed.textContent = "40 ~ 65+ tokens/s";
+                resSpeed.className = "text-lg sm:text-xl font-mono font-bold text-emerald-400";
+                resLatency.textContent = "極快 (瞬間回應)";
+                resAdvice.innerHTML = "💡 <strong>狀態極佳：</strong>即便是老舊一點的 CPU 也不會拖累你，享受本地端頂級 AI 的飛快速度吧！";
+            } else if (vram > 0 && ram >= 24) {
+                const gpuRatio = Math.round((vram / requiredMem) * 100);
+                const cpuRatio = 100 - gpuRatio;
+                let speedText = "6 ~ 11 tokens/s";
+                if (cpu === 'low') speedText = "2 ~ 4 tokens/s (受限於老舊 CPU)";
+                if (cpu === 'high' && gpuRatio > 70) speedText = "12 ~ 18 tokens/s";
+
+                resBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                resBadge.textContent = `情況二：混合降速 (${gpuRatio}% GPU / ${cpuRatio}% CPU)`;
+                resTitle.textContent = "可以運行，但會出現明顯打字機降速";
+                resDesc.textContent = `你的 ${vram}GB VRAM 只能裝下約 ${gpuRatio}% 的模型，剩下的 ${cpuRatio}% 被迫溢出到系統 RAM 由 CPU 接手運算，受限於記憶體頻寬而降速。`;
+                resSpeed.textContent = speedText;
+                resSpeed.className = "text-lg sm:text-xl font-mono font-bold text-amber-400";
+                resLatency.textContent = cpu === 'low' ? "極慢 (圖片辨識會卡頓)" : "普通 (長文需等 15~30 秒)";
+                resAdvice.innerHTML = "💡 <strong>優化建議：</strong>確保主機板有開啟記憶體雙通道 (XMP/EXPO)，並限制 Context 長度在 8K 以內，能讓更多層數留在顯卡裡！";
+            } else {
+                let speedText = cpu === 'high' ? "3 ~ 5 tokens/s" : "0.5 ~ 1.5 tokens/s";
+                if (ram <= 24) speedText = "0.2 ~ 0.8 tokens/s (硬碟狂轉)";
+
+                resBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-orange-500/20 text-orange-300 border border-orange-500/30";
+                resBadge.textContent = "情況三：純 CPU 苦撐 / 虛擬記憶體地獄";
+                resTitle.textContent = "速度極慢，就像在看幻燈片";
+                resDesc.textContent = vram === 0 
+                    ? `你沒有獨立顯示卡，全部 27B 參數都必須依賴 CPU 與系統 RAM 苦苦支撐。${ram <= 24 ? '且 24GB 以下 RAM 會頻繁觸發 SSD 虛擬記憶體，導致整台電腦卡頓！' : ''}`
+                    : `雖然有 ${vram}GB 顯卡，但系統 RAM 僅 ${ram}GB 過於緊繃，作業系統會被迫動用硬碟空間當作虛擬記憶體，嚴重拖垮整體效能。`;
+                resSpeed.textContent = speedText;
+                resSpeed.className = "text-lg sm:text-xl font-mono font-bold text-orange-400";
+                resLatency.textContent = "非常久 (可能需要數分鐘)";
+                resAdvice.innerHTML = "💡 <strong>強烈建議：</strong>在沒有大顯存或超大記憶體的情況下跑 27B 模型體驗極差，建議改用 <code>qwen3.8:8b</code> 甚至 <code>3b</code> 版本。";
+            }
+        }
+
+        [modelSelect, vramSlider, ramSlider, macRamSlider, cpuSelect].forEach(el => {
+            el.addEventListener('input', updateSimulation);
+        });
+
+        updateSimulation();
+    </script>
+</body>
+</html>
