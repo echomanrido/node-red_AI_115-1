@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 渲染側邊欄選單
+  // 渲染側邊欄選單 (依小分類分組)
   function renderSidebar(sups) {
     labListEl.innerHTML = '';
     if (sups.length === 0) {
@@ -92,29 +92,55 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // 依 category 自動分組
+    const groups = {};
     sups.forEach(sup => {
-      const item = document.createElement('a');
-      item.className = `lab-item ${sup.id === currentSupId ? 'active' : ''}`;
-      item.dataset.id = sup.id;
-      item.href = `#${sup.id}`;
-      const numStr = sup.supNumber || '';
-      item.innerHTML = `
-        <div class="lab-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.35);">${numStr || '•'}</div>
-        <div class="lab-info">
-          <div class="lab-title-text">${escapeHtml(sup.title)}</div>
-          <div class="lab-meta-text">${escapeHtml(sup.category)} • ${escapeHtml(sup.date)}</div>
-        </div>
+      const cat = sup.category || '一般補充';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(sup);
+    });
+
+    Object.keys(groups).forEach(catName => {
+      // 分組標題 (使用 styles.css 的 csharp-group-header)
+      const groupHeader = document.createElement('div');
+      groupHeader.className = 'csharp-group-header';
+      let icon = 'fa-solid fa-folder-open';
+      if (catName.includes('安裝') || catName.includes('操作')) {
+        icon = 'fa-solid fa-screwdriver-wrench';
+      } else if (catName.includes('架構') || catName.includes('決策')) {
+        icon = 'fa-solid fa-layer-group';
+      }
+      groupHeader.innerHTML = `
+        <span><i class="${icon}" style="margin-right: 6px;"></i>${escapeHtml(catName)}</span>
+        <span class="group-badge">${groups[catName].length} 篇</span>
       `;
+      labListEl.appendChild(groupHeader);
 
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        selectSupplement(sup.id);
-        if (window.innerWidth <= 900) {
-          sidebar.classList.remove('open');
-        }
+      // 分組單元項目
+      groups[catName].forEach(sup => {
+        const item = document.createElement('a');
+        item.className = `lab-item ${sup.id === currentSupId ? 'active' : ''}`;
+        item.dataset.id = sup.id;
+        item.href = `#${sup.id}`;
+        const numStr = sup.supNumber || '';
+        item.innerHTML = `
+          <div class="lab-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.35);">${numStr || '•'}</div>
+          <div class="lab-info">
+            <div class="lab-title-text">${escapeHtml(sup.title)}</div>
+            <div class="lab-meta-text">${escapeHtml(sup.category)} • ${escapeHtml(sup.date)}</div>
+          </div>
+        `;
+
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          selectSupplement(sup.id);
+          if (window.innerWidth <= 900) {
+            sidebar.classList.remove('open');
+          }
+        });
+
+        labListEl.appendChild(item);
       });
-
-      labListEl.appendChild(item);
     });
   }
 
