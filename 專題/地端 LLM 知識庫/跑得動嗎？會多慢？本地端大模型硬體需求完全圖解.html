@@ -31,13 +31,13 @@
                 </div>
                 <span class="font-bold text-lg sm:text-xl text-slate-900 tracking-tight">Ollama 本地部署硬體指南</span>
             </div>
-            <nav class="hidden md:flex items-center space-x-4 text-sm font-medium text-slate-600">
+            <nav class="hidden md:flex flex-wrap items-center space-x-3.5 text-xs lg:text-sm font-medium text-slate-600">
                 <a href="../../project_local_llm.html" class="text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-1 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     回專題總覽
                 </a>
                 <a href="../../index.html" class="hover:text-indigo-600 flex items-center gap-1 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     首頁
                 </a>
                 <a href="#workflow-analogy" class="hover:text-indigo-600 transition">評估流程</a>
@@ -45,6 +45,9 @@
                 <a href="#platform-compare" class="hover:text-indigo-600 transition">Win獨顯vsMac</a>
                 <a href="#memory-matrix" class="hover:text-indigo-600 transition">RAM/VRAM情境</a>
                 <a href="#simulator" class="hover:text-indigo-600 transition">硬體檢測</a>
+                <a href="#version-diff" class="hover:text-indigo-600 transition">版本差異</a>
+                <a href="#tech-deep-dive" class="hover:text-indigo-600 transition">技術圖解</a>
+                <a href="#highlights-benchmark" class="hover:text-indigo-600 transition">亮點與跑分</a>
             </nav>
         </div>
     </header>
@@ -245,10 +248,10 @@
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
                         <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-lg flex items-center justify-center text-lg">1</span>
-                        兩張截圖中的所有 Qwen 3.8 模型規格總覽
+                        截圖中所有 Qwen 3.8 模型規格總覽 (完整 13 款)
                     </h2>
                     <p class="text-slate-600 mt-2">
-                        全部皆為 27B（270億參數）、支援多模態（Text, Image）與 256K 上下文，但分為<strong>「通用標準版 (GGUF)」</strong>（含 Q4_K_M / Q8_0 / BF16 與 MTP 多詞元預測加速版）以及<strong>「Apple Silicon 專屬版 (MLX)」</strong>。
+                        依照 Ollama 官方列表完整收錄 13 個版本（全部皆為 27B 參數、<strong>256K Context</strong>、支援 <strong>Text, Image</strong> 多模態輸入），涵蓋標準 GGUF、MTP 加速版與 Apple MLX 系列。
                     </p>
                 </div>
                 <a href="https://ollama.com/library/qwen3.8/tags" target="_blank" rel="noopener noreferrer" class="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-4 py-2.5 rounded-xl border border-indigo-200 transition">
@@ -264,119 +267,299 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                     </svg>
                     <div>
-                        <h3 class="font-bold text-amber-900">重要觀念：模型大小 ≠ 實際記憶體需求！（什麼是 MTP？）</h3>
+                        <h3 class="font-bold text-amber-900">重要觀念：模型體積 ≠ 實際記憶體需求！</h3>
                         <p class="text-sm text-amber-800 mt-1 leading-relaxed">
-                            1. 標示的 <strong>18GB / 30GB / 56GB</strong> 僅是模型權重大小，實際運行還需加上 <strong>KV Cache（256K 上下文快取）</strong> 與 <strong>視覺編碼器（Image 輸入）</strong>，建議再多預留 <strong>4GB ~ 12GB</strong> 緩衝。<br>
-                            2. 新截圖中的 <strong>MTP (Multi-Token Prediction，多詞元預測)</strong> 是模型自帶的投機解碼加速頭，能在推論時一次預測多個字，讓生成速度提升約 1.5~2 倍，且 Windows/Linux 獨顯與 Mac 皆可直接運行！
+                            列表中的 <strong>18GB / 19GB / 30GB / 56GB</strong> 僅是模型權重大小，實際運行還需加上 <strong>KV Cache（256K 上下文快取）</strong> 與 <strong>視覺編碼器（Image 輸入）</strong>，建議再多預留 <strong>4GB ~ 12GB</strong> 緩衝空間才不會爆記憶體。
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- 響應式表格 -->
+            <!-- 響應式表格：完整 13 款依圖片順序排列 -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 text-xs sm:text-sm uppercase tracking-wider">
-                                <th class="py-4 px-5 font-semibold">模型名稱 (Tag)</th>
-                                <th class="py-4 px-5 font-semibold">架構 / 量化精度</th>
-                                <th class="py-4 px-5 font-semibold">模型體積</th>
-                                <th class="py-4 px-5 font-semibold">建議硬體門檻 (含緩衝)</th>
-                                <th class="py-4 px-5 font-semibold">適用平台與獨顯說明</th>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 text-xs uppercase tracking-wider">
+                                <th class="py-3.5 px-4 font-semibold">模型名稱 (Name / Tag)</th>
+                                <th class="py-3.5 px-4 font-semibold">架構 / 量化精度</th>
+                                <th class="py-3.5 px-4 font-semibold">體積 / 上下文 / 輸入</th>
+                                <th class="py-3.5 px-4 font-semibold">建議硬體門檻 (含緩衝)</th>
+                                <th class="py-3.5 px-4 font-semibold">適用平台與說明</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 text-sm">
-                            <!-- 標準 Q4 / MTP-Q4 -->
+                            <!-- 1. qwen3.8:latest -->
                             <tr class="hover:bg-slate-50 transition">
-                                <td class="py-4 px-5 font-bold text-slate-900">
-                                    qwen3.8:latest / 27b<br>
-                                    <span class="text-indigo-700 font-semibold">qwen3.8:27b-mtp-q4_K_M</span>
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:latest
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">e118e4d12a70 • 預設最新</div>
                                 </td>
-                                <td class="py-4 px-5">
+                                <td class="py-3.5 px-4">
                                     <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">標準 GGUF (4-bit)</span>
-                                    <div class="text-xs text-slate-500 mt-1">mtp 版含多詞元加速</div>
                                 </td>
-                                <td class="py-4 px-5 font-mono font-semibold text-slate-700">18 GB</td>
-                                <td class="py-4 px-5">
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-slate-800">18GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
                                     <div class="font-semibold text-indigo-700">24GB VRAM</div>
-                                    <div class="text-xs text-slate-500">或 16GB VRAM + 32GB RAM</div>
+                                    <div class="text-xs text-slate-500">或 16G VRAM + 32G RAM</div>
                                 </td>
-                                <td class="py-4 px-5 text-slate-600">
-                                    <strong>Windows / Linux 獨顯首選</strong> & Mac 通用<br>
-                                    <span class="text-xs text-emerald-600">推薦選 mtp-q4_K_M 速度更快</span>
-                                </td>
-                            </tr>
-                            <!-- 新增：MTP-Q8_0 -->
-                            <tr class="hover:bg-slate-50 transition bg-blue-50/20">
-                                <td class="py-4 px-5 font-bold text-slate-900">
-                                    qwen3.8:27b-mtp-q8_0
-                                </td>
-                                <td class="py-4 px-5">
-                                    <span class="bg-cyan-100 text-cyan-800 text-xs font-medium px-2.5 py-0.5 rounded">標準 GGUF (8-bit 高精)</span>
-                                    <div class="text-xs text-slate-500 mt-1">幾乎無損畫質 + MTP 加速</div>
-                                </td>
-                                <td class="py-4 px-5 font-mono font-semibold text-cyan-800">30 GB</td>
-                                <td class="py-4 px-5">
-                                    <div class="font-semibold text-cyan-700">32GB~48GB VRAM</div>
-                                    <div class="text-xs text-slate-500">如 RTX 5090 (32G) / 雙卡 3090 / 64GB Mac</div>
-                                </td>
-                                <td class="py-4 px-5 text-slate-600">
-                                    <strong>Windows / Linux 獨顯</strong> & Mac 通用<br>
-                                    <span class="text-xs text-slate-500">24GB 單卡會微幅溢出到 RAM</span>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    <strong>全平台通用</strong>（與下方 <code>27b</code> 為相同檔案 Hash）
                                 </td>
                             </tr>
-                            <!-- 新增：MTP-BF16 -->
-                            <tr class="hover:bg-slate-50 transition bg-amber-50/30">
-                                <td class="py-4 px-5 font-bold text-slate-900">
-                                    qwen3.8:27b-mtp-bf16
-                                </td>
-                                <td class="py-4 px-5">
-                                    <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded">標準 GGUF (BF16 滿血)</span>
-                                    <div class="text-xs text-slate-500 mt-1">原生未量化權重 + MTP</div>
-                                </td>
-                                <td class="py-4 px-5 font-mono font-semibold text-amber-800">56 GB</td>
-                                <td class="py-4 px-5">
-                                    <div class="font-semibold text-amber-800">64GB+ VRAM 或 96GB+ Mac</div>
-                                    <div class="text-xs text-slate-500">雙張 RTX 4090 / A100 80G / Mac Studio</div>
-                                </td>
-                                <td class="py-4 px-5 text-slate-600">
-                                    <strong>Windows / Linux 多顯卡工作站</strong> & 高階 Mac 通用
-                                </td>
-                            </tr>
-                            <!-- MLX 4-bit -->
+                            <!-- 2. qwen3.8:27b -->
                             <tr class="hover:bg-slate-50 transition">
-                                <td class="py-4 px-5 font-bold text-slate-900">
-                                    qwen3.8:27b-mlx<br>
-                                    <span class="text-xs font-normal text-slate-600">qwen3.8:27b-dflash2-nvfp4 (19GB)</span>
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b <span class="ml-1 text-[11px] bg-blue-50 text-blue-600 border border-blue-200 px-1.5 py-0.5 rounded-full font-medium">latest</span>
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">e118e4d12a70 • 明確指定版本</div>
                                 </td>
-                                <td class="py-4 px-5">
-                                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">MLX (Apple 4-bit)</span>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">標準 GGUF (4-bit)</span>
                                 </td>
-                                <td class="py-4 px-5 font-mono font-semibold text-slate-700">18~19 GB</td>
-                                <td class="py-4 px-5">
-                                    <div class="font-semibold text-purple-700">32GB 統一記憶體</div>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-slate-800">18GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-semibold text-indigo-700">24GB VRAM</div>
+                                    <div class="text-xs text-slate-500">或 16G VRAM + 32G RAM</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    <strong>Windows / Linux 獨顯</strong> & Mac 通用基礎版
+                                </td>
+                            </tr>
+                            <!-- 3. qwen3.8:27b-dflash2-nvfp4 -->
+                            <tr class="hover:bg-slate-50 transition bg-purple-50/20">
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b-dflash2-nvfp4
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">34a4a4b5084f • DFlash2 加速</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">MLX (NVFP4 4-bit)</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-purple-800">19GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-semibold text-purple-700">32GB+ 統一記憶體</div>
                                     <div class="text-xs text-slate-500">M1/M2/M3/M4 Pro 或 Max</div>
                                 </td>
-                                <td class="py-4 px-5 text-slate-600">
-                                    🍎 <strong>僅限 Apple Silicon Mac</strong><br>
-                                    <span class="text-xs text-slate-500">Windows 獨顯請改載上方 GGUF 版</span>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    🍎 <strong>僅限 Mac</strong>（搭載 DFlash2 投機採樣加速，多 1GB 草稿頭）
                                 </td>
                             </tr>
-                            <!-- MLX BF16 -->
-                            <tr class="hover:bg-slate-50 transition bg-rose-50/30">
-                                <td class="py-4 px-5 font-bold text-slate-900">qwen3.8:27b-mlx-bf16</td>
-                                <td class="py-4 px-5">
-                                    <span class="bg-rose-100 text-rose-800 text-xs font-medium px-2.5 py-0.5 rounded">MLX (BF16 滿血無損)</span>
+                            <!-- 4. qwen3.8:27b-mlx -->
+                            <tr class="hover:bg-slate-50 transition bg-purple-50/20">
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b-mlx
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">5642e97495e1 • MLX 預設版</div>
                                 </td>
-                                <td class="py-4 px-5 font-mono font-semibold text-rose-700">56 GB</td>
-                                <td class="py-4 px-5">
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">MLX (NVFP4 4-bit)</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-purple-800">18GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-semibold text-purple-700">32GB+ 統一記憶體</div>
+                                    <div class="text-xs text-slate-500">M1/M2/M3/M4 Pro 或 Max</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    🍎 <strong>僅限 Mac</strong>（與第 10 款 <code>27b-nvfp4</code> 為相同 Hash）
+                                </td>
+                            </tr>
+                            <!-- 5. qwen3.8:27b-mlx-bf16 -->
+                            <tr class="hover:bg-slate-50 transition bg-rose-50/25">
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b-mlx-bf16
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">65e5e1c72d2d • MLX 滿血版</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-rose-100 text-rose-800 text-xs font-medium px-2.5 py-0.5 rounded">MLX (BF16 16-bit無損)</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-rose-700">56GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
                                     <div class="font-semibold text-rose-700">96GB ~ 128GB 統一記憶體</div>
-                                    <div class="text-xs text-slate-500">高階 Mac Studio / MacBook Pro</div>
+                                    <div class="text-xs text-slate-500">高階 Mac Studio / Pro</div>
                                 </td>
-                                <td class="py-4 px-5 text-slate-600">
-                                    🍎 <strong>僅限高階 Apple Silicon Mac</strong><br>
-                                    <span class="text-xs text-slate-500">Win/Linux 獨顯請改載上方 mtp-bf16</span>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    🍎 <strong>僅限高階 Mac</strong>（原始 BF16 未量化精度）
+                                </td>
+                            </tr>
+                            <!-- 6. qwen3.8:27b-mtp-q4_K_M -->
+                            <tr class="hover:bg-slate-50 transition bg-emerald-50/20">
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b-mtp-q4_K_M
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">22130167c4c2 • MTP 加速</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded">GGUF (4-bit + MTP)</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-emerald-800">18GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-semibold text-indigo-700">24GB VRAM</div>
+                                    <div class="text-xs text-slate-500">RTX 3090 / 4090 單卡首選</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    <strong>Win/Linux 獨顯首選</strong>（比無 mtp 版吐字更快）
+                                </td>
+                            </tr>
+                            <!-- 7. qwen3.8:27b-mtp-q8_0 -->
+                            <tr class="hover:bg-slate-50 transition bg-cyan-50/20">
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b-mtp-q8_0
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">8a1582877303 • 高精 + MTP</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-cyan-100 text-cyan-800 text-xs font-medium px-2.5 py-0.5 rounded">GGUF (8-bit + MTP)</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-cyan-800">30GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-semibold text-cyan-700">32GB~48GB VRAM / 64G Mac</div>
+                                    <div class="text-xs text-slate-500">RTX 5090 (32G) / 雙卡 3090</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    <strong>Win/Linux & Mac 通用</strong>（畫質近乎無損 + 加速）
+                                </td>
+                            </tr>
+                            <!-- 8. qwen3.8:27b-mtp-bf16 -->
+                            <tr class="hover:bg-slate-50 transition bg-amber-50/20">
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b-mtp-bf16
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">197257101a8c • 滿血 + MTP</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded">GGUF (BF16 + MTP)</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-amber-800">56GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-semibold text-amber-800">64GB+ VRAM / 96G+ Mac</div>
+                                    <div class="text-xs text-slate-500">雙卡 4090/5090 / A100 80G</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    <strong>多顯卡工作站首選</strong>（滿血精度兼顧多詞元加速）
+                                </td>
+                            </tr>
+                            <!-- 9. qwen3.8:27b-mxfp8 -->
+                            <tr class="hover:bg-slate-50 transition bg-purple-50/20">
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b-mxfp8
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">569f507f4d14 • Microscaling FP8</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">MLX (MXFP8 8-bit)</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-purple-800">30GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-semibold text-purple-700">48GB ~ 64GB 統一記憶體</div>
+                                    <div class="text-xs text-slate-500">M2/M3/M4 Max (36G 略緊)</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    🍎 <strong>僅限 Mac</strong>（微縮放 FP8 高精度，適合 64G Mac）
+                                </td>
+                            </tr>
+                            <!-- 10. qwen3.8:27b-nvfp4 -->
+                            <tr class="hover:bg-slate-50 transition bg-purple-50/20">
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b-nvfp4
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">5642e97495e1 • NVFP4 格式</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">MLX (NVFP4 4-bit)</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-purple-800">18GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-semibold text-purple-700">32GB+ 統一記憶體</div>
+                                    <div class="text-xs text-slate-500">M1/M2/M3/M4 Pro 或 Max</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    🍎 <strong>僅限 Mac</strong>（與第 4 款 <code>27b-mlx</code> 為同一檔案）
+                                </td>
+                            </tr>
+                            <!-- 11. qwen3.8:27b-q4_K_M -->
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b-q4_K_M
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">25b843619e94 • 純標準 Q4</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">GGUF (Q4_K_M 4-bit)</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-slate-800">18GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-semibold text-indigo-700">24GB VRAM</div>
+                                    <div class="text-xs text-slate-500">或 16G VRAM + 32G RAM</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    <strong>全平台通用</strong>（無 MTP 模組的純標準 4-bit 量化）
+                                </td>
+                            </tr>
+                            <!-- 12. qwen3.8:27b-q8_0 -->
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b-q8_0
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">8f5fb6b71ea0 • 純標準 Q8</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-cyan-100 text-cyan-800 text-xs font-medium px-2.5 py-0.5 rounded">GGUF (Q8_0 8-bit)</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-cyan-800">30GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-semibold text-cyan-700">32GB~48GB VRAM / 64G Mac</div>
+                                    <div class="text-xs text-slate-500">RTX 5090 (32G) / 雙卡 3090</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    <strong>全平台通用</strong>（純 8-bit 量化，無 MTP 加速頭）
+                                </td>
+                            </tr>
+                            <!-- 13. qwen3.8:27b-bf16 -->
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    qwen3.8:27b-bf16
+                                    <div class="text-xs font-mono font-normal text-slate-400 mt-0.5">1aa85dae8b2d • 純原生滿血</div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded">GGUF (BF16 16-bit)</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <span class="font-mono font-bold text-amber-800">56GB</span>
+                                    <span class="text-xs text-slate-500 block">256K • Text, Image</span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-semibold text-amber-800">64GB+ VRAM / 96G+ Mac</div>
+                                    <div class="text-xs text-slate-500">雙卡 4090/5090 / A100 80G</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-600 text-xs">
+                                    <strong>全平台通用</strong>（最純粹未壓縮原廠權重，適合研究比對）
                                 </td>
                             </tr>
                         </tbody>
@@ -804,14 +987,19 @@
                         
                         <!-- 選擇模型 -->
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-2">1. 選擇要運行的模型</label>
-                            <select id="sim-model" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500">
-                                <option value="18-gguf">qwen3.8:latest / 27b-mtp-q4_K_M (18GB 標準版 - Win/Mac通用)</option>
-                                <option value="30-gguf">qwen3.8:27b-mtp-q8_0 (30GB 高精度版 - Win/Mac通用)</option>
-                                <option value="56-gguf">qwen3.8:27b-mtp-bf16 (56GB 滿血版 - Win/Mac通用)</option>
-                                <option value="18-mlx">qwen3.8:27b-mlx (18GB 僅限 Mac MLX版)</option>
-                                <option value="19-mlx">qwen3.8:27b-dflash2-nvfp4 (19GB 僅限 Mac MLX版)</option>
-                                <option value="56-mlx">qwen3.8:27b-mlx-bf16 (56GB 僅限 Mac MLX滿血版)</option>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">1. 選擇要運行的模型 (完整 13 款)</label>
+                            <select id="sim-model" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500">
+                                <option value="18-gguf">qwen3.8:latest / 27b (18GB 標準 GGUF 4-bit)</option>
+                                <option value="18-gguf">qwen3.8:27b-q4_K_M (18GB 純標準 Q4_K_M)</option>
+                                <option value="18-gguf">qwen3.8:27b-mtp-q4_K_M (18GB 4-bit + MTP 加速)</option>
+                                <option value="30-gguf">qwen3.8:27b-q8_0 (30GB 純標準 8-bit 高精度)</option>
+                                <option value="30-gguf">qwen3.8:27b-mtp-q8_0 (30GB 8-bit + MTP 加速)</option>
+                                <option value="56-gguf">qwen3.8:27b-bf16 (56GB 原生滿血版)</option>
+                                <option value="56-gguf">qwen3.8:27b-mtp-bf16 (56GB 滿血版 + MTP 加速)</option>
+                                <option value="18-mlx">qwen3.8:27b-mlx / 27b-nvfp4 (18GB 僅限 Mac MLX)</option>
+                                <option value="19-mlx">qwen3.8:27b-dflash2-nvfp4 (19GB 僅限 Mac DFlash2加速)</option>
+                                <option value="30-mlx">qwen3.8:27b-mxfp8 (30GB 僅限 Mac MLX 8-bit)</option>
+                                <option value="56-mlx">qwen3.8:27b-mlx-bf16 (56GB 僅限 Mac MLX 滿血版)</option>
                             </select>
                         </div>
 
@@ -927,6 +1115,1068 @@
             </div>
         </section>
 
+        <!-- 第六部分：所有模型版本差異總整理（新增在網頁最下面） -->
+        <section id="version-diff" class="scroll-mt-24">
+            <div class="mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
+                    <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-lg flex items-center justify-center text-lg">6</span>
+                    所有模型版本差異總整理：一分鐘看懂後綴密碼
+                </h2>
+                <p class="text-slate-600 mt-2">
+                    看到 <code class="bg-slate-200 px-1.5 py-0.5 rounded text-xs">q4_K_M</code>、<code class="bg-slate-200 px-1.5 py-0.5 rounded text-xs">nvfp4</code>、<code class="bg-slate-200 px-1.5 py-0.5 rounded text-xs">mxfp8</code>、<code class="bg-slate-200 px-1.5 py-0.5 rounded text-xs">mtp</code>、<code class="bg-slate-200 px-1.5 py-0.5 rounded text-xs">dflash2</code> 眼花撩亂嗎？其實它們只是從<strong>「四大維度」</strong>進行排列組合！
+                </p>
+            </div>
+
+            <!-- 四大維度拆解卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- 維度 1：底層執行引擎 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center gap-2 text-indigo-700 font-bold text-base mb-3">
+                        <span class="bg-indigo-100 px-2.5 py-1 rounded-lg text-xs">維度一</span>
+                        執行框架格式（決定哪種電腦能跑）
+                    </div>
+                    <div class="space-y-3 text-sm text-slate-600">
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="font-bold text-slate-900">標準 GGUF 格式（名稱無 <code>mlx</code> 字樣）</div>
+                            <p class="mt-1 text-xs leading-relaxed">
+                                包含 <code>latest</code>、<code>27b</code>、<code>q4_K_M</code>、<code>q8_0</code>、<code>bf16</code> 與所有 <code>mtp-*</code> 版本。基於 llama.cpp 引擎，<strong>Windows 獨顯、Linux 伺服器與 Mac 全部都能跑</strong>。
+                            </p>
+                        </div>
+                        <div class="bg-purple-50/60 p-3.5 rounded-xl border border-purple-200">
+                            <div class="font-bold text-purple-900">Apple MLX 格式（名稱含 <code>mlx</code>、<code>nvfp4</code>、<code>mxfp8</code>、<code>dflash2</code>）</div>
+                            <p class="mt-1 text-xs leading-relaxed text-purple-950/80">
+                                專為 Apple Silicon 晶片（M1~M4）統一記憶體打造的原生陣列格式，零拷貝直接存取，在 Mac 上的記憶體效率與能效表現比 GGUF 更佳，但 <strong>Windows/Linux 無法執行</strong>。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 維度 2：量化精度與體積 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center gap-2 text-emerald-700 font-bold text-base mb-3">
+                        <span class="bg-emerald-100 px-2.5 py-1 rounded-lg text-xs">維度二</span>
+                        量化精度與體積（決定聰明程度與記憶體門檻）
+                    </div>
+                    <div class="space-y-2.5 text-xs text-slate-600">
+                        <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <span class="font-mono font-bold text-blue-700 bg-blue-100 px-2 py-1 rounded shrink-0">18~19GB (4-bit)</span>
+                            <div>
+                                <strong class="text-slate-900 block">q4_K_M (GGUF) / nvfp4 (MLX)</strong>
+                                將原本 16-bit 權重壓縮至 4-bit（NVFP4 為微縮放浮點 4-bit 量化，精度保留比傳統整數 4-bit 更優）。保留約 96%~98% 原版智商，體積縮小 3 倍，是大多數人最實用的甜點級選擇。
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <span class="font-mono font-bold text-cyan-700 bg-cyan-100 px-2 py-1 rounded shrink-0">30GB (8-bit)</span>
+                            <div>
+                                <strong class="text-slate-900 block">q8_0 (GGUF) / mxfp8 (MLX)</strong>
+                                8-bit 高精度量化（MXFP8 為 OCP 微縮放浮點 8-bit 格式）。邏輯推理、寫程式與長文細節幾乎與原版零差異（99.8% 還原度），適合擁有 32GB+ 顯卡或 64GB Mac 的進階用戶。
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <span class="font-mono font-bold text-amber-700 bg-amber-100 px-2 py-1 rounded shrink-0">56GB (16-bit)</span>
+                            <div>
+                                <strong class="text-slate-900 block">bf16 (Brain Float 16 原生滿血版)</strong>
+                                完全未經任何壓縮的原廠訓練權重。適合學術基準測試、嚴格資料抽取或擁有 96GB+ 統一記憶體 / 雙顯卡工作站的玩家。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 維度 3：投機解碼加速技術 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center gap-2 text-amber-700 font-bold text-base mb-3">
+                        <span class="bg-amber-100 px-2.5 py-1 rounded-lg text-xs">維度三</span>
+                        投機解碼加速頭（MTP vs DFlash2）
+                    </div>
+                    <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
+                        <div class="bg-amber-50/60 p-3.5 rounded-xl border border-amber-200">
+                            <strong class="text-amber-950 text-sm block mb-1">⚡ MTP (Multi-Token Prediction，多詞元預測)</strong>
+                            傳統模型每次只能「猜 1 個字 → 驗證 1 個字」；帶有 <code>mtp</code> 的版本內建多詞元預測頭，能<strong>一次同時預測接下來的 2~4 個字並平行驗證</strong>，輸出結果完全一模一樣，但生成速度可提升 <strong>1.5 ~ 2 倍</strong>（尤其在寫程式碼、翻譯時最有感）。
+                        </div>
+                        <div class="bg-purple-50/60 p-3.5 rounded-xl border border-purple-200">
+                            <strong class="text-purple-950 text-sm block mb-1">🚀 DFlash2 (Apple MLX 專屬草稿加速技術)</strong>
+                            出現在 <code>qwen3.8:27b-dflash2-nvfp4 (19GB)</code> 中，比標準 18GB MLX 版多出的 <strong>1GB</strong> 就是內嵌的輕量級快速草稿預測網路（Draft Model），專為 Apple Silicon 優化的投機採樣加速方案。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 維度 4：別名與相同檔案對照 -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center gap-2 text-slate-700 font-bold text-base mb-3">
+                        <span class="bg-slate-200 px-2.5 py-1 rounded-lg text-xs">維度四</span>
+                        別名關係（這些標籤其實是同一個檔案！）
+                    </div>
+                    <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                        觀察截圖下方的 12 碼檔案雜湊值（Hash），你會發現有幾組標籤指向完全相同的模型檔案，下載其中一個即可：
+                    </p>
+                    <ul class="space-y-2.5 text-xs">
+                        <li class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="font-mono font-bold text-slate-800">qwen3.8:latest ＝ qwen3.8:27b</div>
+                            <div class="text-slate-500 mt-0.5">Hash 皆為 <code>e118e4d12a70</code>（18GB 標準 GGUF 4-bit）</div>
+                        </li>
+                        <li class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="font-mono font-bold text-purple-800">qwen3.8:27b-mlx ＝ qwen3.8:27b-nvfp4</div>
+                            <div class="text-slate-500 mt-0.5">Hash 皆為 <code>5642e97495e1</code>（18GB Apple MLX NVFP4 版）</div>
+                        </li>
+                        <li class="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 text-emerald-900">
+                            <strong>💡 懶人最終挑選建議：</strong><br>
+                            • <strong>Windows / Linux 獨顯：</strong>首選 <code>qwen3.8:27b-mtp-q4_K_M</code>（24G顯卡）或 <code>mtp-q8_0</code>（32G+顯卡）。<br>
+                            • <strong>Apple Silicon Mac：</strong>32G 記憶體選 <code>qwen3.8:27b-dflash2-nvfp4</code>；64G 選 <code>27b-mxfp8</code>；96G+ 選 <code>27b-mlx-bf16</code>。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第七部分：進階核心技術圖文全解析（量化精度與體積、MTP、DFlash2） -->
+        <section id="tech-deep-dive" class="scroll-mt-24 space-y-10">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
+                    <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-lg flex items-center justify-center text-lg">7</span>
+                    進階核心技術圖文全解析：量化精度、MTP 與 DFlash2
+                </h2>
+                <p class="text-slate-600 mt-2">
+                    透過視覺化原理圖，帶你徹底看懂模型是如何從 56GB 瘦身成 18GB，以及 MTP 與 DFlash2 兩大加速黑科技是怎麼讓 AI 吐字速度翻倍的！
+                </p>
+            </div>
+
+            <!-- 1. 量化精度與體積 (SVG + 圖文) -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="bg-blue-600 text-white text-xs px-2.5 py-1 rounded-md">技術 1</span>
+                        量化精度與體積（BF16 vs FP8/Q8 vs NVFP4/Q4）
+                    </h3>
+                    <span class="text-xs font-medium text-slate-500">核心原理：用更精簡的位元數儲存 270 億個神經網路參數</span>
+                </div>
+                <p class="text-sm text-slate-600 leading-relaxed mb-6">
+                    所謂「量化（Quantization）」，就像把一張超高解析度的 <strong>RAW 無損原始照片（BF16，56GB）</strong>，轉存成高品質 <strong>PNG（8-bit，30GB）</strong> 或輕巧的 <strong>WebP/JPG（4-bit，18GB）</strong>。肉眼（日常對話）幾乎看不出畫質差異，但檔案體積直接縮小 3 倍，讓一般家用顯卡與 Mac 也能裝得下！
+                </p>
+
+                <!-- SVG 圖解：位元精度與體積對照 -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 mb-6">
+                    <svg viewBox="0 0 920 250" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 卡片 1: BF16 -->
+                        <rect x="10" y="15" width="280" height="220" rx="14" fill="#FFFBEB" stroke="#F59E0B" stroke-width="2"/>
+                        <rect x="26" y="30" width="95" height="24" rx="6" fill="#D97706"/>
+                        <text x="73" y="46" fill="white" font-size="11.5" font-weight="bold" text-anchor="middle">16-bit (BF16)</text>
+                        <text x="274" y="47" fill="#B45309" font-size="16" font-weight="bold" text-anchor="end">56 GB</text>
+                        <text x="26" y="78" fill="#78350F" font-size="14" font-weight="bold">原生無損滿血精度</text>
+                        <!-- 16格位元示意 -->
+                        <g transform="translate(26, 92)">
+                            <rect x="0" y="0" width="248" height="22" rx="4" fill="#FDE68A" stroke="#F59E0B"/>
+                            <text x="124" y="15" fill="#92400E" font-size="10.5" font-family="monospace" font-weight="bold" text-anchor="middle">[1符號 + 8指數 + 7尾數 = 16 bits]</text>
+                        </g>
+                        <text x="26" y="138" fill="#475569" font-size="12">• 智商保留度：<tspan font-weight="bold" fill="#B45309">100% (原廠基準)</tspan></text>
+                        <text x="26" y="160" fill="#475569" font-size="12">• 代表標籤：<tspan font-family="monospace" font-size="11">bf16 / mlx-bf16</tspan></text>
+                        <text x="26" y="182" fill="#475569" font-size="12">• 適用場景：嚴謹研究、96G+ Mac</text>
+                        <rect x="26" y="196" width="248" height="24" rx="6" fill="#FEF3C7"/>
+                        <text x="150" y="212" fill="#92400E" font-size="11" font-weight="bold" text-anchor="middle">體積最大，需雙顯卡或高階 Mac</text>
+
+                        <!-- 卡片 2: 8-bit -->
+                        <rect x="320" y="15" width="280" height="220" rx="14" fill="#ECFEFF" stroke="#06B6D4" stroke-width="2"/>
+                        <rect x="336" y="30" width="95" height="24" rx="6" fill="#0891B2"/>
+                        <text x="383" y="46" fill="white" font-size="11.5" font-weight="bold" text-anchor="middle">8-bit (Q8/FP8)</text>
+                        <text x="584" y="47" fill="#0E7490" font-size="16" font-weight="bold" text-anchor="end">30 GB</text>
+                        <text x="336" y="78" fill="#164E63" font-size="14" font-weight="bold">近乎無損高精度壓縮</text>
+                        <!-- 8格位元示意 -->
+                        <g transform="translate(336, 92)">
+                            <rect x="0" y="0" width="140" height="22" rx="4" fill="#A5F3FC" stroke="#06B6D4"/>
+                            <text x="70" y="15" fill="#155E75" font-size="10.5" font-family="monospace" font-weight="bold" text-anchor="middle">[8 bits / 參數]</text>
+                            <text x="248" y="15" fill="#0891B2" font-size="11" font-weight="bold" text-anchor="end">體積減半!</text>
+                        </g>
+                        <text x="336" y="138" fill="#475569" font-size="12">• 智商保留度：<tspan font-weight="bold" fill="#0E7490">~99.8% (幾乎無感差異)</tspan></text>
+                        <text x="336" y="160" fill="#475569" font-size="12">• 代表標籤：<tspan font-family="monospace" font-size="11">q8_0 / mxfp8</tspan></text>
+                        <text x="336" y="182" fill="#475569" font-size="12">• 適用場景：複雜寫程式、長文分析</text>
+                        <rect x="336" y="196" width="248" height="24" rx="6" fill="#CFFAFE"/>
+                        <text x="460" y="212" fill="#155E75" font-size="11" font-weight="bold" text-anchor="middle">適合 RTX 5090 (32G) 或 64G Mac</text>
+
+                        <!-- 卡片 3: 4-bit -->
+                        <rect x="630" y="15" width="280" height="220" rx="14" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+                        <rect x="646" y="30" width="105" height="24" rx="6" fill="#4F46E5"/>
+                        <text x="698" y="46" fill="white" font-size="11.5" font-weight="bold" text-anchor="middle">4-bit (Q4/NVFP4)</text>
+                        <text x="894" y="47" fill="#4338CA" font-size="16" font-weight="bold" text-anchor="end">18~19 GB</text>
+                        <text x="646" y="78" fill="#1E1B4B" font-size="14" font-weight="bold">黃金甜點級高性價比</text>
+                        <!-- 4格位元示意 -->
+                        <g transform="translate(646, 92)">
+                            <rect x="0" y="0" width="85" height="22" rx="4" fill="#C7D2FE" stroke="#6366F1"/>
+                            <text x="42" y="15" fill="#3730A3" font-size="10.5" font-family="monospace" font-weight="bold" text-anchor="middle">[4 bits]</text>
+                            <text x="248" y="15" fill="#4F46E5" font-size="11" font-weight="bold" text-anchor="end">體積縮至 1/3!</text>
+                        </g>
+                        <text x="646" y="138" fill="#475569" font-size="12">• 智商保留度：<tspan font-weight="bold" fill="#4338CA">~96% ~ 98% (日常極佳)</tspan></text>
+                        <text x="646" y="160" fill="#475569" font-size="12">• 代表標籤：<tspan font-family="monospace" font-size="11">q4_K_M / nvfp4</tspan></text>
+                        <text x="646" y="182" fill="#475569" font-size="12">• 適用場景：日常問答、翻譯、一般開發</text>
+                        <rect x="646" y="196" width="248" height="24" rx="6" fill="#E0E7FF"/>
+                        <text x="770" y="212" fill="#3730A3" font-size="11" font-weight="bold" text-anchor="middle">適合 24G 獨顯 (4090) 或 32G Mac</text>
+                    </svg>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm text-slate-600 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                    <div>
+                        <strong class="text-slate-900">🔹 什麼是 NVFP4 與 MXFP8？</strong><br>
+                        這兩種是新一代「微縮放浮點格式（Microscaling Floating Point）」。相比傳統把數字硬砍成整數的 <code>Q4</code> / <code>Q8</code>，<code>NVFP4</code> 與 <code>MXFP8</code> 透過極小區塊的動態縮放因子，能更精準保留權重中的極端數值，在 Apple M 系列晶片與新世代 GPU 上精度更高。
+                    </div>
+                    <div>
+                        <strong class="text-slate-900">🔹 為什麼選 4-bit 反而速度更快？</strong><br>
+                        大型語言模型生成文字時最大的瓶頸是「記憶體讀取頻寬」。<code>18GB</code> 每次讀取的資料量只有 <code>56GB</code> 的三分之一，因此 <strong>4-bit 版本的吐字速度通常是 BF16 滿血版的 2.5 ~ 3 倍快</strong>！
+                    </div>
+                </div>
+
+                <!-- 新增：位元內部構造深度解剖 (SVG + 白話圖文) -->
+                <div class="mt-8 pt-8 border-t border-slate-200">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                        <h4 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="bg-indigo-600 text-white text-xs px-2 py-0.5 rounded">深度解剖</span>
+                            這三個位元格子裡面到底裝了什麼？為什麼壓縮後不會變笨？
+                        </h4>
+                        <span class="text-xs text-slate-500">以儲存神經網路權重數字 <code class="bg-slate-100 px-1.5 py-0.5 rounded font-mono text-slate-800">-0.31415926</code> 為例</span>
+                    </div>
+
+                    <!-- SVG 位元結構透視圖 -->
+                    <div class="bg-slate-900 rounded-2xl p-5 sm:p-7 text-white mb-6">
+                        <svg viewBox="0 0 920 340" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 1. BF16 16-bit 結構 -->
+                            <text x="15" y="26" fill="#FBBF24" font-size="13.5" font-weight="bold">1️⃣ [1 符號 + 8 指數 + 7 尾數 = 16 bits] —— BF16 (Brain Float 16) 原生浮點數</text>
+                            <text x="15" y="45" fill="#94A3B8" font-size="11.5">Google Brain 專為 AI 設計的格式：保留與 32-bit 相同的超大數值範圍（8位指數），只精簡小數點後面的細微尾數。</text>
+
+                            <!-- 16 個格子繪製 (起點 x=15, 寬度總計 560, 每格 35) -->
+                            <!-- Sign (1 bit) -->
+                            <rect x="15" y="56" width="38" height="34" rx="4" fill="#EF4444" stroke="#FCA5A5" stroke-width="1.5"/>
+                            <text x="34" y="77" fill="white" font-size="13" font-family="monospace" font-weight="bold" text-anchor="middle">1</text>
+                            <text x="34" y="106" fill="#FCA5A5" font-size="10.5" font-weight="bold" text-anchor="middle">符號(1)</text>
+
+                            <!-- Exponent (8 bits) -->
+                            <rect x="58" y="56" width="272" height="34" rx="4" fill="#0284C7" stroke="#7DD3FC" stroke-width="1.5"/>
+                            <text x="194" y="77" fill="white" font-size="12.5" font-family="monospace" font-weight="bold" text-anchor="middle">0 1 1 1 1 1 0 1  (決定小數點位置/數量級)</text>
+                            <text x="194" y="106" fill="#7DD3FC" font-size="10.5" font-weight="bold" text-anchor="middle">指數 Exponent (8 bits：可表示極大到極小)</text>
+
+                            <!-- Mantissa (7 bits) -->
+                            <rect x="335" y="56" width="245" height="34" rx="4" fill="#059669" stroke="#6EE7B7" stroke-width="1.5"/>
+                            <text x="457" y="77" fill="white" font-size="12.5" font-family="monospace" font-weight="bold" text-anchor="middle">0 1 0 0 0 0 1 (有效數字精細度)</text>
+                            <text x="457" y="106" fill="#6EE7B7" font-size="10.5" font-weight="bold" text-anchor="middle">尾數 Mantissa (7 bits：小數細節)</text>
+
+                            <!-- 右側結果框 1 -->
+                            <rect x="595" y="56" width="310" height="52" rx="8" fill="#1E293B" stroke="#F59E0B"/>
+                            <text x="610" y="76" fill="#FDE68A" font-size="11.5" font-weight="bold">實際存入值：-0.314453125 (高度還原)</text>
+                            <text x="610" y="96" fill="#CBD5E1" font-size="11">代價：每個參數佔 2 Bytes × 270億 ≈ 56 GB</text>
+
+                            <!-- 分隔線 -->
+                            <line x1="15" y1="124" x2="905" y2="124" stroke="#334155" stroke-width="1" stroke-dasharray="4 4"/>
+
+                            <!-- 2. 8 bits / 參數 -->
+                            <text x="15" y="148" fill="#22D3EE" font-size="13.5" font-weight="bold">2️⃣ [8 bits / 參數] —— Q8_0 (整數8位) 與 MXFP8 (微縮放浮點8位)</text>
+                            <text x="15" y="167" fill="#94A3B8" font-size="11.5">把 16 格砍半成 8 格（只有 256 種刻度），並讓 32 個相鄰參數「共用一把比例尺（Scale）」，既省空間又保留小數精準度！</text>
+
+                            <!-- 8 個格子 (寬度 280) -->
+                            <rect x="15" y="178" width="280" height="34" rx="4" fill="#0891B2" stroke="#67E8F9" stroke-width="1.5"/>
+                            <text x="155" y="199" fill="white" font-size="12.5" font-family="monospace" font-weight="bold" text-anchor="middle">1 | 0 1 1 0 1 1 0  (256 階精細刻度)</text>
+                            
+                            <!-- 共用比例尺 -->
+                            <rect x="305" y="178" width="275" height="34" rx="4" fill="#164E63" stroke="#22D3EE" stroke-dasharray="3 3"/>
+                            <text x="442" y="199" fill="#A5F3FC" font-size="11.5" font-weight="bold" text-anchor="middle">+ 共用比例尺 (每32個參數分攤1個縮放因子)</text>
+
+                            <!-- 右側結果框 2 -->
+                            <rect x="595" y="178" width="310" height="52" rx="8" fill="#1E293B" stroke="#06B6D4"/>
+                            <text x="610" y="198" fill="#A5F3FC" font-size="11.5" font-weight="bold">實際存入值：-0.31415 (誤差小於 0.1%)</text>
+                            <text x="610" y="218" fill="#CBD5E1" font-size="11">代價：每個參數佔 1 Byte × 270億 ≈ 30 GB</text>
+
+                            <!-- 分隔線 -->
+                            <line x1="15" y1="246" x2="905" y2="246" stroke="#334155" stroke-width="1" stroke-dasharray="4 4"/>
+
+                            <!-- 3. 4 bits -->
+                            <text x="15" y="270" fill="#818CF8" font-size="13.5" font-weight="bold">3️⃣ [4 bits] —— Q4_K_M 與 NVFP4 (極致壓縮：每個參數只剩半個 Byte！)</text>
+                            <text x="15" y="289" fill="#94A3B8" font-size="11.5">只用 4 個位元（僅 16 種刻度，就像把無段變速改成 16 段變速），靠「分組動態縮放」把重要參數保護好，體積直接砍到 1/3！</text>
+
+                            <!-- 4 個格子 (寬度 140) -->
+                            <rect x="15" y="300" width="140" height="34" rx="4" fill="#4F46E5" stroke="#A5B4FC" stroke-width="1.5"/>
+                            <text x="85" y="321" fill="white" font-size="13" font-family="monospace" font-weight="bold" text-anchor="middle">1 | 0 1 1 (16階)</text>
+
+                            <!-- 動態雙層比例尺 -->
+                            <rect x="165" y="300" width="415" height="34" rx="4" fill="#312E81" stroke="#818CF8" stroke-dasharray="3 3"/>
+                            <text x="372" y="321" fill="#C7D2FE" font-size="11.5" font-weight="bold" text-anchor="middle">+ 雙層微縮放區塊 (NVFP4 每16個參數配專屬浮點比例尺)</text>
+
+                            <!-- 右側結果框 3 -->
+                            <rect x="595" y="294" width="310" height="44" rx="8" fill="#1E293B" stroke="#6366F1"/>
+                            <text x="610" y="313" fill="#C7D2FE" font-size="11.5" font-weight="bold">實際存入值：-0.3125 (大方向完全正確)</text>
+                            <text x="610" y="330" fill="#CBD5E1" font-size="11">代價：每個參數 0.5 Byte × 270億 ≈ 18 GB</text>
+                        </svg>
+                    </div>
+
+                    <!-- 三張生活化白話對照卡 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+                        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4">
+                            <div class="font-bold text-amber-900 mb-1.5">📐 為什麼 BF16 要「8指數 + 7尾數」？</div>
+                            <p class="text-slate-700 leading-relaxed text-xs">
+                                傳統電腦小數（FP16）只有 5 位指數，訓練 AI 時數字太大或太小容易直接「溢位當機」。<strong>BF16 故意把尾數砍到 7 位、把指數擴充到 8 位</strong>，讓它能裝下天文數字到微塵級小數，因此成為全球大模型訓練的黃金標準（270 億參數 × 2 Bytes = 54GB + 視覺模組 ≈ <strong>56GB</strong>）。
+                            </p>
+                        </div>
+
+                        <div class="bg-cyan-50/70 border border-cyan-200 rounded-xl p-4">
+                            <div class="font-bold text-cyan-900 mb-1.5">📏 8 bits / 參數：把溫度計切成 256 格</div>
+                            <p class="text-slate-700 leading-relaxed text-xs">
+                                AI 裡同一層的權重其實都集中在某個小範圍內（例如 -0.5 到 +0.5）。只要先記錄這組數字的「最大倍率（Scale）」，剩下的數字就能用 <strong>0~255（8 bits）的刻度</strong>精準表示。<code>Q8_0</code> 與 <code>MXFP8</code> 就像用 256 格游標卡尺量長度，誤差小到連寫複雜程式碼都感覺不出來（體積減半成 <strong>30GB</strong>）。
+                            </p>
+                        </div>
+
+                        <div class="bg-indigo-50/70 border border-indigo-200 rounded-xl p-4">
+                            <div class="font-bold text-indigo-900 mb-1.5">🎯 4 bits：只有 16 格怎麼還能這麼聰明？</div>
+                            <p class="text-slate-700 leading-relaxed text-xs">
+                                4 bits 只有 <strong>16 種數值組合（0000 ~ 1111）</strong>！如果整層共用一把尺會變得很粗糙，所以 <code>Q4_K_M</code> 和 <code>NVFP4</code> 把每 16~32 個參數切成分組「各自配一把迷你比例尺」，並特別保護決定推理邏輯的關鍵神經元，讓體積暴減至 <strong>18GB</strong> 卻依然能流暢寫程式、看圖說故事！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. MTP (Multi-Token Prediction) 圖文解析 -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="bg-emerald-600 text-white text-xs px-2.5 py-1 rounded-md">技術 2</span>
+                        MTP（Multi-Token Prediction，多詞元預測加速）
+                    </h3>
+                    <span class="text-xs font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded">對應標籤：mtp-q4_K_M / mtp-q8_0 / mtp-bf16</span>
+                </div>
+                <p class="text-sm text-slate-600 leading-relaxed mb-6">
+                    傳統大語言模型就像一個謹慎的打字員，每搬運一次 18GB 的模型權重，只能辛苦擠出 <strong>1 個字（Token）</strong>。而 Qwen 3.8 原生訓練時就內建了 <strong>MTP 預測頭</strong>，能讓模型在一次運算中「順便猜出後面好幾個字」，再一口氣平行驗證，<strong>畫質 100% 不變，速度卻能暴增 1.5 ~ 2 倍！</strong>
+                </p>
+
+                <!-- SVG 圖解：傳統單詞元 vs MTP 多詞元平行驗證 -->
+                <div class="bg-slate-900 rounded-2xl p-5 sm:p-7 text-white">
+                    <svg viewBox="0 0 900 245" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 上半部：傳統自回歸模式 -->
+                        <text x="15" y="28" fill="#94A3B8" font-size="13" font-weight="bold">🐢 傳統模式 (無 MTP)：每次讀取整包 18GB 權重，只能產生 1 個詞元 (序列慢速)</text>
+                        
+                        <rect x="15" y="42" width="130" height="44" rx="8" fill="#1E293B" stroke="#475569"/>
+                        <text x="80" y="68" fill="#E2E8F0" font-size="12" text-anchor="middle">輸入：今天天氣</text>
+
+                        <path d="M150 64 H195" stroke="#64748B" stroke-width="2"/>
+                        <polygon points="195,59 205,64 195,69" fill="#64748B"/>
+                        <text x="177" y="54" fill="#94A3B8" font-size="9.5" text-anchor="middle">讀18GB</text>
+
+                        <rect x="210" y="42" width="95" height="44" rx="8" fill="#334155" stroke="#64748B"/>
+                        <text x="257" y="68" fill="#F8FAFC" font-size="13" font-weight="bold" text-anchor="middle">輸出「真」</text>
+
+                        <path d="M310 64 H355" stroke="#64748B" stroke-width="2"/>
+                        <polygon points="355,59 365,64 355,69" fill="#64748B"/>
+                        <text x="337" y="54" fill="#94A3B8" font-size="9.5" text-anchor="middle">再讀18GB</text>
+
+                        <rect x="370" y="42" width="95" height="44" rx="8" fill="#334155" stroke="#64748B"/>
+                        <text x="417" y="68" fill="#F8FAFC" font-size="13" font-weight="bold" text-anchor="middle">輸出「好」</text>
+
+                        <path d="M470 64 H515" stroke="#64748B" stroke-width="2"/>
+                        <polygon points="515,59 525,64 515,69" fill="#64748B"/>
+                        <text x="497" y="54" fill="#94A3B8" font-size="9.5" text-anchor="middle">再讀18GB</text>
+
+                        <rect x="530" y="42" width="95" height="44" rx="8" fill="#334155" stroke="#64748B"/>
+                        <text x="577" y="68" fill="#F8FAFC" font-size="13" font-weight="bold" text-anchor="middle">輸出「適合」</text>
+
+                        <text x="645" y="68" fill="#F87171" font-size="12" font-weight="bold">→ 產生 3 個詞需讀取 3 次記憶體！</text>
+
+                        <!-- 分隔線 -->
+                        <line x1="15" y1="108" x2="885" y2="108" stroke="#334155" stroke-width="1" stroke-dasharray="5 5"/>
+
+                        <!-- 下半部：MTP 模式 -->
+                        <text x="15" y="135" fill="#34D399" font-size="13" font-weight="bold">⚡ MTP 多詞元預測模式：主幹網路 + 內建 MTP 頭，一次平行猜出多個詞並同步驗證！</text>
+
+                        <rect x="15" y="152" width="130" height="68" rx="8" fill="#064E3B" stroke="#10B981" stroke-width="1.5"/>
+                        <text x="80" y="182" fill="#ECFDF5" font-size="12" font-weight="bold" text-anchor="middle">輸入：今天天氣</text>
+                        <text x="80" y="202" fill="#6EE7B7" font-size="10.5" text-anchor="middle">(僅讀取 1 次 18GB)</text>
+
+                        <path d="M150 186 H200" stroke="#10B981" stroke-width="2.5"/>
+                        <polygon points="200,180 212,186 200,192" fill="#10B981"/>
+
+                        <!-- 平行產出框 -->
+                        <rect x="218" y="148" width="385" height="76" rx="10" fill="#022C22" stroke="#34D399" stroke-width="2"/>
+                        <text x="410" y="166" fill="#A7F3D0" font-size="10.5" font-weight="bold" text-anchor="middle">單次前向傳播平行預測與驗證 (Parallel Verification)</text>
+                        
+                        <rect x="232" y="175" width="105" height="38" rx="6" fill="#059669"/>
+                        <text x="284" y="198" fill="white" font-size="12.5" font-weight="bold" text-anchor="middle">主幹：「真」✔</text>
+
+                        <rect x="352" y="175" width="110" height="38" rx="6" fill="#047857" stroke="#6EE7B7"/>
+                        <text x="407" y="198" fill="#ECFDF5" font-size="12.5" font-weight="bold" text-anchor="middle">MTP1：「好」✔</text>
+
+                        <rect x="476" y="175" width="114" height="38" rx="6" fill="#047857" stroke="#6EE7B7"/>
+                        <text x="533" y="198" fill="#ECFDF5" font-size="12.5" font-weight="bold" text-anchor="middle">MTP2：「適合」✔</text>
+
+                        <path d="M608 186 H648" stroke="#34D399" stroke-width="2.5"/>
+                        <polygon points="648,180 660,186 648,192" fill="#34D399"/>
+
+                        <rect x="665" y="152" width="220" height="68" rx="8" fill="#1E1B4B" stroke="#818CF8"/>
+                        <text x="775" y="180" fill="#E0E7FF" font-size="12" font-weight="bold" text-anchor="middle">速度提升 1.5x ~ 2.0x</text>
+                        <text x="775" y="200" fill="#A5B4FC" font-size="11" text-anchor="middle">數學嚴格驗證，品質零損失！</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 3. DFlash2 圖文解析 -->
+            <div class="bg-white rounded-2xl border border-purple-200 p-6 sm:p-8 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="bg-purple-600 text-white text-xs px-2.5 py-1 rounded-md">技術 3</span>
+                        DFlash2（Apple MLX 專屬雙模型草稿投機解碼）
+                    </h3>
+                    <span class="text-xs font-mono bg-purple-50 text-purple-800 border border-purple-200 px-2.5 py-1 rounded">對應標籤：qwen3.8:27b-dflash2-nvfp4 (19GB)</span>
+                </div>
+                <p class="text-sm text-slate-600 leading-relaxed mb-6">
+                    在截圖列表中，你有沒有發現 <code class="bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded font-mono text-xs">qwen3.8:27b-dflash2-nvfp4</code> 體積是 <strong>19GB</strong>，比標準 MLX 版（18GB）多出了 <strong>1GB</strong>？那多出來的 1GB，就是一顆專為 Apple 晶片統一記憶體打造的<strong>「閃電快手小助理模型（Draft Model）」</strong>！
+                </p>
+
+                <!-- SVG 圖解：DFlash2 大小模型協同機制 -->
+                <div class="bg-purple-50/60 border border-purple-200 rounded-2xl p-5 sm:p-7 mb-5">
+                    <svg viewBox="0 0 900 220" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 左側：1GB DFlash2 草稿小助理 -->
+                        <rect x="15" y="25" width="250" height="170" rx="14" fill="#F3E8FF" stroke="#9333EA" stroke-width="2"/>
+                        <rect x="30" y="40" width="110" height="24" rx="6" fill="#7E22CE"/>
+                        <text x="85" y="56" fill="white" font-size="11" font-weight="bold" text-anchor="middle">1GB 輕量草稿頭</text>
+                        <text x="250" y="56" fill="#6B21A8" font-size="12" font-weight="bold" text-anchor="end">極速草擬</text>
+                        <text x="30" y="88" fill="#3B0764" font-size="14" font-weight="bold">⚡ DFlash2 閃電快手</text>
+                        <text x="30" y="112" fill="#581C87" font-size="12">• 體積僅 1GB，讀取幾乎零延遲</text>
+                        <text x="30" y="134" fill="#581C87" font-size="12">• 瞬間盲猜出後續 4~6 個字</text>
+                        <rect x="30" y="150" width="220" height="30" rx="6" fill="#E9D5FF"/>
+                        <text x="140" y="169" fill="#581C87" font-size="11" font-family="monospace" font-weight="bold" text-anchor="middle">草稿：「建議使用 async await」</text>
+
+                        <!-- 中間箭頭：統一記憶體零拷貝傳遞 -->
+                        <path d="M272 110 H365" stroke="#9333EA" stroke-width="3" stroke-dasharray="5 4"/>
+                        <polygon points="365,104 378,110 365,116" fill="#9333EA"/>
+                        <rect x="276" y="76" width="92" height="24" rx="5" fill="#6B21A8"/>
+                        <text x="322" y="92" fill="white" font-size="10" font-weight="bold" text-anchor="middle">統一記憶體零複製</text>
+
+                        <!-- 右側：18GB 27B 主教授審核 -->
+                        <rect x="385" y="25" width="275" height="170" rx="14" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2"/>
+                        <rect x="400" y="40" width="120" height="24" rx="6" fill="#4338CA"/>
+                        <text x="460" y="56" fill="white" font-size="11" font-weight="bold" text-anchor="middle">18GB 27B 主模型</text>
+                        <text x="645" y="56" fill="#3730A3" font-size="12" font-weight="bold" text-anchor="end">平行批次批改</text>
+                        <text x="400" y="88" fill="#1E1B4B" font-size="14" font-weight="bold">🎓 27B 權威大教授</text>
+                        <text x="400" y="112" fill="#312E81" font-size="12">• 不用自己一個字一個字苦寫</text>
+                        <text x="400" y="134" fill="#312E81" font-size="12">• 一次平行批改助理寫好的 5 個字</text>
+                        <rect x="400" y="150" width="245" height="30" rx="6" fill="#C7D2FE"/>
+                        <text x="522" y="169" fill="#1E1B4B" font-size="11" font-weight="bold" text-anchor="middle">批改結果：全對！一口氣直接輸出 ✔</text>
+
+                        <!-- 連接到最終成果 -->
+                        <path d="M666 110 H705" stroke="#10B981" stroke-width="3"/>
+                        <polygon points="705,104 718,110 705,116" fill="#10B981"/>
+
+                        <!-- 成果框 -->
+                        <rect x="722" y="25" width="165" height="170" rx="14" fill="#ECFDF5" stroke="#10B981" stroke-width="2"/>
+                        <text x="804" y="65" fill="#059669" font-size="26" text-anchor="middle">🚀</text>
+                        <text x="804" y="96" fill="#064E3B" font-size="14" font-weight="bold" text-anchor="middle">Mac 吐字狂飆</text>
+                        <text x="804" y="120" fill="#047857" font-size="12" text-anchor="middle">突破記憶體頻寬牆</text>
+                        <text x="804" y="142" fill="#047857" font-size="12" text-anchor="middle">速度提升 1.8x~2.5x</text>
+                        <rect x="736" y="156" width="136" height="24" rx="6" fill="#10B981"/>
+                        <text x="804" y="172" fill="white" font-size="10.5" font-weight="bold" text-anchor="middle">32G+ Mac 首選版本</text>
+                    </svg>
+                </div>
+
+                <!-- MTP vs DFlash2 差異對照表 -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm border border-slate-200 rounded-xl overflow-hidden">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                <th class="py-3 px-4 font-semibold">比較項目</th>
+                                <th class="py-3 px-4 font-semibold text-emerald-800">MTP (Multi-Token Prediction)</th>
+                                <th class="py-3 px-4 font-semibold text-purple-800">DFlash2 (Speculative Decoding)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 bg-white">
+                            <tr>
+                                <td class="py-2.5 px-4 font-medium text-slate-900">運作架構原理</td>
+                                <td class="py-2.5 px-4 text-slate-600">單一模型內部自帶多個預測頭（Self-Speculative），共享主幹特徵</td>
+                                <td class="py-2.5 px-4 text-slate-600">「1GB 獨立快手草稿模型」＋「18GB 主模型」雙網路協同投機解碼</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 px-4 font-medium text-slate-900">支援平台格式</td>
+                                <td class="py-2.5 px-4 text-slate-600"><strong>GGUF 通用版</strong>（Windows / Linux 獨顯 & Mac 皆可）</td>
+                                <td class="py-2.5 px-4 text-slate-600"><strong>Apple MLX 專屬版</strong>（僅限 M1 / M2 / M3 / M4 Mac）</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 px-4 font-medium text-slate-900">額外記憶體開銷</td>
+                                <td class="py-2.5 px-4 text-slate-600">幾乎不增加體積（維持 18GB / 30GB / 56GB）</td>
+                                <td class="py-2.5 px-4 text-slate-600">多出約 <strong>1GB</strong> 存放草稿模型（18GB → 19GB）</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 px-4 font-medium text-slate-900">輸出品質是否改變？</td>
+                                <td class="py-2.5 px-4 text-emerald-700 font-semibold">100% 數學等價，與無加速版一字不差</td>
+                                <td class="py-2.5 px-4 text-purple-700 font-semibold">100% 數學等價，主模型把關驗證，零品質損失</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第八部分：Qwen 3.8 (27B) 核心亮點 (Highlights) 與官方 Benchmark 跑分全解析 -->
+        <section id="highlights-benchmark" class="scroll-mt-24 space-y-10">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
+                    <span class="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-lg flex items-center justify-center text-lg">8</span>
+                    Qwen 3.8 (27B) 核心亮點與官方 Benchmark 跑分全解析
+                </h2>
+                <p class="text-slate-600 mt-2">
+                    為什麼大家願意為了 Qwen 3.8 (27B) 升級 24GB 顯卡或 32GB+ Mac？因為它在 27B 輕量級尺寸下，繳出了多項超越 <strong>Opus 4.6 Max</strong> 與前代旗艦 <strong>Qwen 3.7-Plus</strong> 的驚人實測成績！
+                </p>
+            </div>
+
+            <!-- 1. 五大核心升級亮點 (Highlights SVG + 卡片) -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+                    <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-md">Highlights</span>
+                        Qwen 3.8-27B 五大核心技術升級亮點
+                    </h3>
+                    <span class="text-xs text-slate-500">支援推理深度控制與長達數小時影片理解</span>
+                </div>
+
+                <!-- 五大亮點架構 SVG 圖 -->
+                <div class="bg-slate-900 rounded-2xl p-5 sm:p-7 text-white mb-6">
+                    <svg viewBox="0 0 920 260" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 中央核心節點 -->
+                        <rect x="330" y="95" width="260" height="70" rx="16" fill="#312E81" stroke="#818CF8" stroke-width="2.5"/>
+                        <text x="460" y="126" fill="#EEF2FF" font-size="16" font-weight="bold" text-anchor="middle">Qwen 3.8 - 27B 核心引擎</text>
+                        <text x="460" y="148" fill="#A5B4FC" font-size="12" text-anchor="middle">全能寫碼 • 自主代理 • 彈性思考 • 原生視聽</text>
+
+                        <!-- 連接線 -->
+                        <path d="M330 115 L250 65" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+                        <path d="M330 145 L250 195" stroke="#10B981" stroke-width="2" stroke-dasharray="4 4"/>
+                        <path d="M460 165 L460 192" stroke="#06B6D4" stroke-width="2" stroke-dasharray="4 4"/>
+                        <path d="M590 115 L670 65" stroke="#F59E0B" stroke-width="2" stroke-dasharray="4 4"/>
+                        <path d="M590 145 L670 195" stroke="#EC4899" stroke-width="2" stroke-dasharray="4 4"/>
+
+                        <!-- 1. Core Capabilities (左上) -->
+                        <rect x="15" y="15" width="235" height="82" rx="12" fill="#1E1B4B" stroke="#6366F1" stroke-width="1.5"/>
+                        <text x="30" y="38" fill="#818CF8" font-size="12.5" font-weight="bold">1. Core Capabilities (核心能力全面飛躍)</text>
+                        <text x="30" y="58" fill="#E2E8F0" font-size="11">• 寫程式、專業辦公、學術研究全面進化</text>
+                        <text x="30" y="76" fill="#94A3B8" font-size="10.5">• 專精長週期 (Long-horizon) 複雜多步驟任務</text>
+
+                        <!-- 2. Agent Execution (左下) -->
+                        <rect x="15" y="162" width="235" height="82" rx="12" fill="#064E3B" stroke="#10B981" stroke-width="1.5"/>
+                        <text x="30" y="185" fill="#34D399" font-size="12.5" font-weight="bold">2. Agent Execution (自主代理執行力)</text>
+                        <text x="30" y="205" fill="#ECFDF5" font-size="11">• 更強的自主規劃與環境錯誤回饋修正</text>
+                        <text x="30" y="223" fill="#A7F3D0" font-size="10.5">• 端到端 (End-to-End) 任務完成率大幅提高</text>
+
+                        <!-- 3. Downstream Compatibility (中下) -->
+                        <rect x="320" y="192" width="280" height="54" rx="12" fill="#164E63" stroke="#06B6D4" stroke-width="1.5"/>
+                        <text x="460" y="214" fill="#22D3EE" font-size="12" font-weight="bold" text-anchor="middle">3. Downstream Compatibility (開發工具生態相容)</text>
+                        <text x="460" y="232" fill="#CFFAFE" font-size="10.5" text-anchor="middle">廣泛支援主流 Agent 框架與 IDE 工具，無縫接入現有工作流</text>
+
+                        <!-- 4. Flexible Thinking Control (右上) -->
+                        <rect x="670" y="15" width="235" height="82" rx="12" fill="#451A03" stroke="#F59E0B" stroke-width="1.5"/>
+                        <text x="685" y="38" fill="#FBBF24" font-size="12" font-weight="bold">4. Flexible Thinking Control (彈性思考控制)</text>
+                        <text x="685" y="58" fill="#FEF3C7" font-size="11">• 預設開啟思考模式，可依單次請求開關</text>
+                        <text x="685" y="76" fill="#FDE68A" font-size="10.5" font-family="monospace">• reasoning_effort &amp; preserve_thinking</text>
+
+                        <!-- 5. Vision-Language Understanding (右下) -->
+                        <rect x="670" y="162" width="235" height="82" rx="12" fill="#500724" stroke="#EC4899" stroke-width="1.5"/>
+                        <text x="685" y="185" fill="#F472B6" font-size="12" font-weight="bold">5. Vision-Language (原生視覺語言理解)</text>
+                        <text x="685" y="205" fill="#FCE7F3" font-size="11">• 原生支援圖片與影片深度語意理解</text>
+                        <text x="685" y="223" fill="#FBCFE8" font-size="10.5">• 涵蓋 STEM 科學圖表、文件至數小時長影片</text>
+                    </svg>
+                </div>
+
+                <!-- 兩大實用技術細節補充 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+                    <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4">
+                        <div class="font-bold text-amber-950 mb-1">🧠 彈性思考參數對硬體與速度的影響：</div>
+                        <p class="text-slate-700 leading-relaxed text-xs">
+                            Qwen 3.8 預設開啟 <strong>Thinking（深度思考）</strong>模式。透過 <code class="bg-white px-1.5 py-0.5 rounded border border-amber-300 font-mono">reasoning_effort</code> 可調整推理深度，而 <code class="bg-white px-1.5 py-0.5 rounded border border-amber-300 font-mono">preserve_thinking</code> 可在多輪對話中保留歷史思考脈絡。<strong>小提醒：</strong>思考過程會產生較多隱藏 Tokens，若硬體速度較慢，簡單任務可關閉思考模式以秒回！
+                        </p>
+                    </div>
+                    <div class="bg-pink-50/70 border border-pink-200 rounded-xl p-4">
+                        <div class="font-bold text-pink-950 mb-1">🎬 支援「數小時長影片 (Hour-scale videos)」理解：</div>
+                        <p class="text-slate-700 leading-relaxed text-xs">
+                            受惠於 <strong>256K 超長上下文</strong>與原生多模態視覺編碼器，Qwen 3.8 不只能看懂 STEM 理工科圖表與複雜 PDF 文件，還能消化長達數小時的影片內容（處理長影片時建議搭配 32GB+ VRAM 或 64GB+ Mac 統一記憶體）。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 核心指標橫向對比圖 (SVG Chart) -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">關鍵戰力視覺化對比：Qwen 3.8-27B 憑什麼越級打怪？</h3>
+                <p class="text-xs sm:text-sm text-slate-600 mb-6">
+                    選取六大最具代表性的基準測試，對比 <strong>Qwen 3.8-27B (藍紫)</strong>、前代同級 <strong>Qwen 3.6-27B (灰)</strong> 與超大杯旗艦 <strong>Opus 4.6 Max (琥珀)</strong>：
+                </p>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6">
+                    <svg viewBox="0 0 920 355" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 圖例 -->
+                        <rect x="260" y="10" width="14" height="14" rx="3" fill="#4F46E5"/>
+                        <text x="280" y="22" fill="#1E1B4B" font-size="12" font-weight="bold">Qwen 3.8-27B (主角)</text>
+                        <rect x="430" y="10" width="14" height="14" rx="3" fill="#94A3B8"/>
+                        <text x="450" y="22" fill="#475569" font-size="12" font-weight="bold">Qwen 3.6-27B (前代)</text>
+                        <rect x="595" y="10" width="14" height="14" rx="3" fill="#F59E0B"/>
+                        <text x="615" y="22" fill="#92400E" font-size="12" font-weight="bold">Opus 4.6 Max (競品旗艦)</text>
+
+                        <!-- 格線 -->
+                        <line x1="260" y1="38" x2="260" y2="322" stroke="#CBD5E1" stroke-width="1.5"/>
+                        <line x1="405" y1="38" x2="405" y2="322" stroke="#E2E8F0" stroke-dasharray="4 4"/>
+                        <line x1="550" y1="38" x2="550" y2="322" stroke="#E2E8F0" stroke-dasharray="4 4"/>
+                        <line x1="695" y1="38" x2="695" y2="322" stroke="#E2E8F0" stroke-dasharray="4 4"/>
+                        <line x1="840" y1="38" x2="840" y2="322" stroke="#E2E8F0" stroke-dasharray="4 4"/>
+
+                        <!-- 1. 軟體工程 QwenSWEBench (79.0 vs 49.3 vs 63.8) -->
+                        <text x="250" y="62" fill="#0F172A" font-size="12" font-weight="bold" text-anchor="end">軟體工程 (QwenSWEBench)</text>
+                        <rect x="260" y="46" width="458" height="10" rx="3" fill="#4F46E5"/>
+                        <text x="724" y="55" fill="#4338CA" font-size="11" font-weight="bold">79.0 (冠軍!)</text>
+                        <rect x="260" y="58" width="286" height="9" rx="3" fill="#94A3B8"/>
+                        <text x="552" y="66" fill="#64748B" font-size="10.5">49.3</text>
+                        <rect x="260" y="69" width="370" height="9" rx="3" fill="#F59E0B"/>
+                        <text x="636" y="77" fill="#B45309" font-size="10.5">63.8</text>
+
+                        <!-- 2. 代理寫碼 SWE-bench Pro (61.7 vs 53.5 vs 53.4) -->
+                        <text x="250" y="109" fill="#0F172A" font-size="12" font-weight="bold" text-anchor="end">代理寫碼 (SWE-bench Pro)</text>
+                        <rect x="260" y="93" width="358" height="10" rx="3" fill="#4F46E5"/>
+                        <text x="624" y="102" fill="#4338CA" font-size="11" font-weight="bold">61.7 (冠軍!)</text>
+                        <rect x="260" y="105" width="310" height="9" rx="3" fill="#94A3B8"/>
+                        <text x="576" y="113" fill="#64748B" font-size="10.5">53.5</text>
+                        <rect x="260" y="116" width="309" height="9" rx="3" fill="#F59E0B"/>
+                        <text x="575" y="124" fill="#B45309" font-size="10.5">53.4</text>
+
+                        <!-- 3. 電腦操作 OSWorld-Verified (84.3 vs 63.9 vs 72.7) -->
+                        <text x="250" y="156" fill="#0F172A" font-size="12" font-weight="bold" text-anchor="end">電腦操作 (OSWorld-Verified)</text>
+                        <rect x="260" y="140" width="489" height="10" rx="3" fill="#4F46E5"/>
+                        <text x="755" y="149" fill="#4338CA" font-size="11" font-weight="bold">84.3 (冠軍!)</text>
+                        <rect x="260" y="152" width="370" height="9" rx="3" fill="#94A3B8"/>
+                        <text x="636" y="160" fill="#64748B" font-size="10.5">63.9</text>
+                        <rect x="260" y="163" width="421" height="9" rx="3" fill="#F59E0B"/>
+                        <text x="687" y="171" fill="#B45309" font-size="10.5">72.7</text>
+
+                        <!-- 4. 手機操控 AndroidWorld (81.9 vs 70.3 vs 62.0) -->
+                        <text x="250" y="203" fill="#0F172A" font-size="12" font-weight="bold" text-anchor="end">手機操控 (AndroidWorld)</text>
+                        <rect x="260" y="187" width="475" height="10" rx="3" fill="#4F46E5"/>
+                        <text x="741" y="196" fill="#4338CA" font-size="11" font-weight="bold">81.9 (冠軍!)</text>
+                        <rect x="260" y="199" width="408" height="9" rx="3" fill="#94A3B8"/>
+                        <text x="674" y="207" fill="#64748B" font-size="10.5">70.3</text>
+                        <rect x="260" y="210" width="360" height="9" rx="3" fill="#F59E0B"/>
+                        <text x="626" y="218" fill="#B45309" font-size="10.5">62.0</text>
+
+                        <!-- 5. 視覺數學 MathVision (94.6 vs 85.1 vs 65.5) -->
+                        <text x="250" y="250" fill="#0F172A" font-size="12" font-weight="bold" text-anchor="end">視覺數學 (MathVision +CI)</text>
+                        <rect x="260" y="234" width="548" height="10" rx="3" fill="#4F46E5"/>
+                        <text x="814" y="243" fill="#4338CA" font-size="11" font-weight="bold">94.6 (冠軍!)</text>
+                        <rect x="260" y="246" width="493" height="9" rx="3" fill="#94A3B8"/>
+                        <text x="759" y="254" fill="#64748B" font-size="10.5">85.1 (無CI)</text>
+                        <rect x="260" y="257" width="380" height="9" rx="3" fill="#F59E0B"/>
+                        <text x="646" y="265" fill="#B45309" font-size="10.5">65.5 (無CI)</text>
+
+                        <!-- 6. 演算法競賽 LiveCodeBench v6 (90.3 vs 83.9 vs 88.8) -->
+                        <text x="250" y="297" fill="#0F172A" font-size="12" font-weight="bold" text-anchor="end">演算法競賽 (LiveCodeBench)</text>
+                        <rect x="260" y="281" width="523" height="10" rx="3" fill="#4F46E5"/>
+                        <text x="789" y="290" fill="#4338CA" font-size="11" font-weight="bold">90.3 (冠軍!)</text>
+                        <rect x="260" y="293" width="486" height="9" rx="3" fill="#94A3B8"/>
+                        <text x="752" y="301" fill="#64748B" font-size="10.5">83.9</text>
+                        <rect x="260" y="304" width="515" height="9" rx="3" fill="#F59E0B"/>
+                        <text x="781" y="312" fill="#B45309" font-size="10.5">88.8</text>
+
+                        <!-- X 軸刻度 -->
+                        <text x="260" y="340" fill="#64748B" font-size="11" text-anchor="middle">0</text>
+                        <text x="405" y="340" fill="#64748B" font-size="11" text-anchor="middle">25</text>
+                        <text x="550" y="340" fill="#64748B" font-size="11" text-anchor="middle">50</text>
+                        <text x="695" y="340" fill="#64748B" font-size="11" text-anchor="middle">75</text>
+                        <text x="840" y="340" fill="#64748B" font-size="11" text-anchor="middle">100 分</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 3. 完整官方 Benchmark 數據對照表 (完整收錄兩張跑分圖所有 25 項測試，並加上白話解析與官方連結) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-900 text-white px-5 py-4 flex flex-wrap items-center justify-between gap-2">
+                    <span class="font-bold text-sm sm:text-base">📊 官方完整 Benchmark 基準測試總表 (含白話解釋與官方連結)</span>
+                    <span class="text-xs text-indigo-300">粗體為該項最高分 • 點擊藍字標籤可前往基準測試專案頁面</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700">
+                                <th class="py-3 px-4 font-semibold min-w-[260px]">測試項目 (Benchmark) 與白話解析</th>
+                                <th class="py-3 px-4 font-bold text-indigo-700 bg-indigo-50/80 text-center">Qwen3.8-27B</th>
+                                <th class="py-3 px-4 font-semibold text-center">Qwen3.6-27B</th>
+                                <th class="py-3 px-4 font-semibold text-center">Qwen3.7-Plus</th>
+                                <th class="py-3 px-4 font-semibold text-center">Muse Glimmer-30B</th>
+                                <th class="py-3 px-4 font-semibold text-center">Opus4.6 Max</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            <!-- 類別 1: Coding -->
+                            <tr class="bg-indigo-100/70">
+                                <td colspan="6" class="py-2 px-4 font-bold text-indigo-900 text-xs tracking-wider uppercase">💻 Coding (程式開發與軟體工程)</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Agentic terminal coding</span>
+                                        <a href="https://www.tbench.ai/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">Terminal Bench 2.1 ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">考驗 AI 在真實 Linux 終端機 (CLI) 自主下指令、除錯、編譯與部署專案的實戰能力。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 text-slate-700">73.0</td>
+                                <td class="py-3 px-4 text-center text-slate-500">63.4</td>
+                                <td class="py-3 px-4 text-center text-slate-500">64.0</td>
+                                <td class="py-3 px-4 text-center text-slate-500">51.7</td>
+                                <td class="py-3 px-4 text-center font-bold text-slate-900">78.2</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Agentic coding</span>
+                                        <a href="https://scale.com/leaderboard/swe_bench_pro_public" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">SWE-bench Pro ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">模擬真實軟體工程師，從 GitHub 真實開源專案 Issue 中自主定位 Bug 並提交可通過測試的修補程式。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">61.7</td>
+                                <td class="py-3 px-4 text-center text-slate-500">53.5</td>
+                                <td class="py-3 px-4 text-center text-slate-500">57.6</td>
+                                <td class="py-3 px-4 text-center text-slate-500">51.2</td>
+                                <td class="py-3 px-4 text-center text-slate-500">53.4</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Repo-level code generation</span>
+                                        <a href="https://github.com/multimodal-art-projection/NL2RepoBench" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">NL2Repo-Bench ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">考驗「一句話從零建構整個多檔案程式碼倉庫 (Repository)」的架構設計與跨檔案依賴撰寫能力。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 text-slate-700">42.3</td>
+                                <td class="py-3 px-4 text-center text-slate-500">36.2</td>
+                                <td class="py-3 px-4 text-center text-slate-500">41.1</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center font-bold text-slate-900">47.6</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Agentic coding</span>
+                                        <a href="https://pretty-radio-b75.notion.site/DeepSWE-Training-a-Fully-Open-sourced-State-of-the-Art-Coding-Agent-by-Scaling-RL-22281902c1468193aabbe9a8c59bbe33" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">DeepSWE 1.1 ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">高難度長鏈條軟體工程代理測試，評估 AI 經過多輪測試回饋後自我修正複雜程式碼的極限。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">42.2</td>
+                                <td class="py-3 px-4 text-center text-slate-500">13.3</td>
+                                <td class="py-3 px-4 text-center text-slate-500">14.2</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Software engineering</span>
+                                        <a href="https://github.com/QwenLM/Qwen3-Coder" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">QwenSWEBench ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">涵蓋多語言、多框架的綜合軟體工程基準，測試需求理解、程式重構與單元測試撰寫。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">79.0</td>
+                                <td class="py-3 px-4 text-center text-slate-500">49.3</td>
+                                <td class="py-3 px-4 text-center text-slate-500">59.2</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-500">63.8</td>
+                            </tr>
+
+                            <!-- 類別 2: Agent -->
+                            <tr class="bg-indigo-100/70">
+                                <td colspan="6" class="py-2 px-4 font-bold text-indigo-900 text-xs tracking-wider uppercase">🤖 Agent (自主任務與職場辦公代理)</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Long-horizon office work</span>
+                                        <a href="https://github.com/QwenLM/Qwen-Agent" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">CoWorkBench ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">模擬長週期辦公室協作（如整理跨部門文件、核對試算表、撰寫報告並寄送郵件）的連貫執行力。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">70.7</td>
+                                <td class="py-3 px-4 text-center text-slate-500">61.0</td>
+                                <td class="py-3 px-4 text-center text-slate-500">65.1</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-500">68.2</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Professional job tasks</span>
+                                        <a href="https://huggingface.co/datasets" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">JobBench ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">涵蓋金融分析、法務審查、專案管理等真實白領專業職務場景的複雜問題解決能力。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">33.4</td>
+                                <td class="py-3 px-4 text-center text-slate-500">21.8</td>
+                                <td class="py-3 px-4 text-center text-slate-500">27.6</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Frontier agentic tasks</span>
+                                        <a href="https://github.com/ScaleAI/agents-last-exam" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">Agents' Last Exam ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">專為頂級 AI 設計的「代理終極大考」，測試自主聯網檢索、工具呼叫與高難度推理整合。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">Pass@1: 20.4<br>Score: 42.9</td>
+                                <td class="py-3 px-4 text-center text-slate-500">Pass@1: 10.6<br>Score: 27.3</td>
+                                <td class="py-3 px-4 text-center text-slate-500">Pass@1: 13.2<br>Score: 33.6</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                            </tr>
+
+                            <!-- 類別 3: General -->
+                            <tr class="bg-indigo-100/70">
+                                <td colspan="6" class="py-2 px-4 font-bold text-indigo-900 text-xs tracking-wider uppercase">🧠 General (通用指令遵循、科學推理與競賽寫碼)</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Instruction following</span>
+                                        <a href="https://github.com/allenai/IFBench" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">IFBench ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">考驗 AI 是否嚴格遵守人類的「龜毛格式限制」（例如字數限制、禁用特定字母、指定 JSON 結構）。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">79.5</td>
+                                <td class="py-3 px-4 text-center text-slate-500">69.1</td>
+                                <td class="py-3 px-4 text-center text-slate-500">79.1</td>
+                                <td class="py-3 px-4 text-center text-slate-500">77.0</td>
+                                <td class="py-3 px-4 text-center text-slate-500">62.5</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Scientific reasoning</span>
+                                        <a href="https://github.com/idavidrein/gpqa" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">GPQA Diamond ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">由物理、化學、生物學博士撰寫的「Google 搜尋也查不到答案」的研究所級深度科學推理題。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 text-slate-700">89.2</td>
+                                <td class="py-3 px-4 text-center text-slate-500">87.8</td>
+                                <td class="py-3 px-4 text-center text-slate-500">90.3</td>
+                                <td class="py-3 px-4 text-center text-slate-500">83.5</td>
+                                <td class="py-3 px-4 text-center font-bold text-slate-900">91.3</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Multidisciplinary reasoning</span>
+                                        <a href="https://agi.safe.ai/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">HLE (人類最後的考試) ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">Humanity's Last Exam，集結全球各領域頂尖學者出題，代表當前人類知識邊界的極難跨學科考試。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 text-slate-700">30.8</td>
+                                <td class="py-3 px-4 text-center text-slate-500">24.0</td>
+                                <td class="py-3 px-4 text-center text-slate-500">34.7</td>
+                                <td class="py-3 px-4 text-center text-slate-500">22.0</td>
+                                <td class="py-3 px-4 text-center font-bold text-slate-900">40.0</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Competitive coding</span>
+                                        <a href="https://livecodebench.github.io/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-200 inline-flex items-center gap-0.5 transition">LiveCodeBench v6 ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">收錄 LeetCode、AtCoder 等最新演算法競賽題目（防止模型背題庫），考驗純演算法與資料結構實力。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">90.3</td>
+                                <td class="py-3 px-4 text-center text-slate-500">83.9</td>
+                                <td class="py-3 px-4 text-center text-slate-500">89.6</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-500">88.8</td>
+                            </tr>
+
+                            <!-- 類別 4: Agentic Multimodal Intelligence -->
+                            <tr class="bg-purple-100/70">
+                                <td colspan="6" class="py-2 px-4 font-bold text-purple-900 text-xs tracking-wider uppercase">🖥️ Agentic Multimodal Intelligence (多模態電腦/手機/網頁操作代理)</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Computer use</span>
+                                        <a href="https://os-world.github.io/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">OSWorld-Verified ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">直接看電腦螢幕截圖並操作滑鼠鍵盤，自主完成跨軟體操作（如在 Ubuntu/Win 剪片、改設定、處理檔案）。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">84.3</td>
+                                <td class="py-3 px-4 text-center text-slate-500">63.9</td>
+                                <td class="py-3 px-4 text-center text-slate-500">73.3</td>
+                                <td class="py-3 px-4 text-center text-slate-500">65.9</td>
+                                <td class="py-3 px-4 text-center text-slate-500">72.7</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Browser use</span>
+                                        <a href="https://webarena.dev/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">WebArena-Verified ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">在真實電商、論壇、GitLab 與地圖網頁環境中，自主瀏覽、填表、比價並完成複雜網頁任務。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">64.8</td>
+                                <td class="py-3 px-4 text-center text-slate-500">48.8</td>
+                                <td class="py-3 px-4 text-center text-slate-500">55.3</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Mobile use</span>
+                                        <a href="https://github.com/google-research/android_world" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">AndroidWorld ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">看懂手機 App 畫面並模擬點擊滑動，替人類在 Android 系統上完成訂鬧鐘、發訊息、管理行事曆等操作。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">81.9</td>
+                                <td class="py-3 px-4 text-center text-slate-500">70.3</td>
+                                <td class="py-3 px-4 text-center text-slate-500">81.0</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-500">62.0</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Application recreation</span>
+                                        <a href="https://github.com/QwenLM/Qwen3-VL" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">RecreationBench ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">「看圖/看操作影片復刻軟體」：給 AI 看一個應用程式的介面與操作流程，考驗它完整寫出同款 App 的能力。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">47.1</td>
+                                <td class="py-3 px-4 text-center text-slate-500">29.8</td>
+                                <td class="py-3 px-4 text-center text-slate-500">30.2</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Multimodal tool use</span>
+                                        <a href="https://github.com/QwenLM/Qwen-Agent" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">ClawEval-MM ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">考驗 AI 在處理圖片與視覺任務時，自主呼叫外部工具（如裁切放大圖片、寫 Python 畫圖驗證）的能力。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">Pass@3: 57.4<br><span class="font-normal text-slate-600">Avg: 56.9</span></td>
+                                <td class="py-3 px-4 text-center text-slate-500">Pass@3: 42.6<br>Avg: 50.4</td>
+                                <td class="py-3 px-4 text-center text-slate-700 font-bold">Pass@3: 57.4<br>Avg: 60.1</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-500">Pass@3: 52.5<br>Avg: 54.7</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Multimodal software engineering</span>
+                                        <a href="https://www.swebench.com/multimodal.html" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">SWE-MM ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">多模態版 SWE-bench：當 GitHub Issue 附帶「UI 破版截圖或報錯畫面」時，AI 結合視覺與程式碼修復 Bug 的能力。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">38.6</td>
+                                <td class="py-3 px-4 text-center text-slate-500">25.7</td>
+                                <td class="py-3 px-4 text-center text-slate-500">30.0</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-500">27.1</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Visual web development</span>
+                                        <a href="https://github.com/QwenLM/Qwen3-VL" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">Vision2Web ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">給定一張網頁設計稿或參考截圖，直接還原出排版精準、具備互動功能的前端網頁程式碼。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">62.9</td>
+                                <td class="py-3 px-4 text-center text-slate-500">45.0</td>
+                                <td class="py-3 px-4 text-center text-slate-500">42.1</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                            </tr>
+
+                            <!-- 類別 5: General Multimodal Intelligence -->
+                            <tr class="bg-purple-100/70">
+                                <td colspan="6" class="py-2 px-4 font-bold text-purple-900 text-xs tracking-wider uppercase">👁️ General Multimodal Intelligence (通用視覺推理、圖表與文件識別)</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Visual math problem solving</span>
+                                        <a href="https://mathvision-cuhk.github.io/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">MathVision ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">看幾何圖形、函數曲線圖解數學競賽題（<span class="text-slate-600 font-medium">CI = Code Interpreter</span>，代表允許 AI 寫程式輔助計算驗算）。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">無CI: 90.0<br>含CI: 94.6</td>
+                                <td class="py-3 px-4 text-center text-slate-500">無CI: 85.1</td>
+                                <td class="py-3 px-4 text-center font-bold text-slate-700">無CI: 90.3</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-500">無CI: 65.5</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>General visual reasoning</span>
+                                        <a href="https://huggingface.co/datasets" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">BabyVision ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">人類幼兒直覺就能看懂、但 AI 常犯錯的基礎空間視覺直覺測試（如數積木、找規律、視覺錯覺）。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">無CI: 65.7<br>含CI: 85.6</td>
+                                <td class="py-3 px-4 text-center text-slate-500">無CI: 28.9</td>
+                                <td class="py-3 px-4 text-center text-slate-500">無CI: 64.7<br>含CI: 70.4</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-500">無CI: 12.6</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Scientific chart analysis</span>
+                                        <a href="https://charxiv.github.io/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">CharXiv (RQ) ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">從 arXiv 頂尖學術論文中截取極其複雜的多維度科研圖表，考驗數據精準讀取與跨圖推理能力。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 font-bold text-indigo-700">無CI: 83.7<br>含CI: 90.2</td>
+                                <td class="py-3 px-4 text-center text-slate-500">無CI: 78.4</td>
+                                <td class="py-3 px-4 text-center text-slate-700">無CI: 85.8<br>含CI: 85.9</td>
+                                <td class="py-3 px-4 text-center text-slate-500">78.8</td>
+                                <td class="py-3 px-4 text-center text-slate-500">無CI: 66.0</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Document intelligence</span>
+                                        <a href="https://github.com/opendatalab/OmniDocBench" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">OmniDocBench 1.5 ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">全方位複雜文件解析（含多欄排版論文、手寫筆記、複雜合併儲存格財報、數學公式轉 Markdown）。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 text-slate-700">91.1</td>
+                                <td class="py-3 px-4 text-center text-slate-500">89.4</td>
+                                <td class="py-3 px-4 text-center font-bold text-slate-900">91.4</td>
+                                <td class="py-3 px-4 text-center text-slate-500">75.8</td>
+                                <td class="py-3 px-4 text-center text-slate-500">86.6</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Real-world perception</span>
+                                        <a href="https://x.ai/blog/grok-1.5v" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">RealWorldQA ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">真實物理世界空間感知（如行車記錄器視角判斷車距、室內空間方位、物體相對位置判讀）。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 text-slate-700">85.9</td>
+                                <td class="py-3 px-4 text-center text-slate-500">84.1</td>
+                                <td class="py-3 px-4 text-center font-bold text-slate-900">86.9</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-500">73.9</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-medium text-slate-900">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span>Embodied intelligence</span>
+                                        <a href="https://embodied-reasoning-qa.github.io/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-flex items-center gap-0.5 transition">ERQA ↗</a>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-normal mt-1">具身智能（機器人視野）推理測試，評估 AI 作為機器人大腦規劃抓取動作、避障與物理常識的能力。</p>
+                                </td>
+                                <td class="py-3 px-4 text-center bg-indigo-50/40 text-slate-700">65.5</td>
+                                <td class="py-3 px-4 text-center text-slate-500">62.5</td>
+                                <td class="py-3 px-4 text-center font-bold text-slate-900">69.8</td>
+                                <td class="py-3 px-4 text-center text-slate-400">--</td>
+                                <td class="py-3 px-4 text-center text-slate-500">40.8</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- 頁尾 -->
@@ -1007,7 +2257,7 @@
             // 計算需求容量 (模型本體 + 約 3.5GB 基礎上下文開銷)
             let baseSize = 18;
             if (model === '19-mlx') baseSize = 19;
-            if (model === '30-gguf') baseSize = 30;
+            if (model === '30-gguf' || model === '30-mlx') baseSize = 30;
             if (model === '56-mlx' || model === '56-gguf') baseSize = 56;
             const requiredMem = baseSize + 3.5; // 實際順跑需求
 
