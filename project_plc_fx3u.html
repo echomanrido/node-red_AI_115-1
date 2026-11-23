@@ -1407,6 +1407,84 @@ public static string HexToString(string hexInput) {
                   <br>&nbsp;&nbsp;前兩位 <code style="color:#f1f5f9;">24</code> = <strong>FX2N / FX3U 機型</strong>；後三位 <code style="color:#f1f5f9;">318</code> = <strong>Ver. 3.18</strong> 韌體版本。
                   <br>• <strong>CheckSum 驗證</strong>：<code style="color:#cbd5e1;">46+45+35+45+03 = 108</code>，末兩位取 <code style="color:#38bdf8;">08</code>（ASCII <code style="color:#e2e8f0;">30 38</code>）。
                 </p>
+
+              <!-- 深度技術圖解：為什麼是 1st Data ... Last Data？兩層高低架構全圖解 -->
+              <div style="margin-top: 15px; background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 18px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: #38bdf8; font-weight: 800; font-size: 0.95rem;">
+                  <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                  <span>【深度技術解密】為什麼是 1st Data ... Last Data？兩層高低架構徹底剖析</span>
+                </div>
+
+                <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.7; margin-bottom: 14px;">
+                  這是三菱 FX 序列通訊中最容易混淆的核心！請牢記<strong>「宏觀看暫存器（Byte 級別），微觀看 ASCII 字元（Nibble 級別）」</strong>這兩層不同維度的排列規則：
+                </p>
+
+                <!-- 兩層架構對照圖解方塊 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 16px;">
+                  
+                  <!-- 層次一：宏觀 Word 層次 (Little-Endian) -->
+                  <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 14px;">
+                    <div style="color: #fbbf24; font-weight: 800; font-size: 0.88rem; margin-bottom: 6px;">
+                      <i class="fa-solid fa-layer-group mr-1"></i> 第一層：宏觀暫存器（Word 級別）
+                    </div>
+                    <div style="color: #94a3b8; font-size: 0.82rem; margin-bottom: 8px;">
+                      暫存器為 16-Bit，由 2 個 Bytes 組成：
+                    </div>
+                    <div style="background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; text-align: center; border: 1px dashed rgba(245, 158, 11, 0.4); margin-bottom: 8px;">
+                      D8001 = <span style="color:#a78bfa;">[High Byte 0x5E]</span> <span style="color:#34d399;">[Low Byte 0xFE]</span>
+                    </div>
+                    <div style="color: #e2e8f0; font-size: 0.82rem; line-height: 1.6;">
+                      ★ <strong>傳輸順序：Little-Endian（低位先傳）</strong><br>
+                      • <span style="color:#34d399; font-weight:bold;">1st Data</span> = 低位元組（Low Byte: <code>0xFE</code>）<br>
+                      • <span style="color:#a78bfa; font-weight:bold;">Last Data</span> = 高位元組（High Byte: <code>0x5E</code>）
+                    </div>
+                  </div>
+
+                  <!-- 層次二：微觀 Byte 層次 (ASCII Nibble) -->
+                  <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 14px;">
+                    <div style="color: #38bdf8; font-weight: 800; font-size: 0.88rem; margin-bottom: 6px;">
+                      <i class="fa-solid fa-font mr-1"></i> 第二層：微觀字元（Nibble 4-Bit 級別）
+                    </div>
+                    <div style="color: #94a3b8; font-size: 0.82rem; margin-bottom: 8px;">
+                      每個 Byte 拆成 2 個十六進位 ASCII 字元傳送：
+                    </div>
+                    <div style="background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; text-align: center; border: 1px dashed rgba(56, 189, 248, 0.4); margin-bottom: 8px;">
+                      1 Byte = <span style="color:#60a5fa;">[Upper 4-bit]</span> + <span style="color:#22d3ee;">[Lower 4-bit]</span>
+                    </div>
+                    <div style="color: #e2e8f0; font-size: 0.82rem; line-height: 1.6;">
+                      ★ <strong>傳輸順序：先傳 Upper，後傳 Lower</strong><br>
+                      • <code>0xFE</code> 拆為：Upper <code>'F' (46H)</code> + Lower <code>'E' (45H)</code><br>
+                      • <code>0x5E</code> 拆為：Upper <code>'5' (35H)</code> + Lower <code>'E' (45H)</code>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- 完整串列封包位元流展開時序圖 -->
+                <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px 16px;">
+                  <div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 8px;">
+                    <i class="fa-solid fa-arrow-right-arrow-left text-emerald-400 mr-1"></i> <strong>實體通訊線上的完整 ASCII 位元流時序（由左至右傳送）：</strong>
+                  </div>
+                  <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: 'Fira Code', monospace; font-size: 0.84rem;">
+                    <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #60a5fa; padding: 4px 8px; border-radius: 4px;">02 (STX)</span>
+                    <span style="color:#64748b;">➔</span>
+                    <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #34d399; padding: 4px 8px; border-radius: 4px;">46 ('F', 1st Upper)</span>
+                    <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #34d399; padding: 4px 8px; border-radius: 4px;">45 ('E', 1st Lower)</span>
+                    <span style="color:#64748b;">➔</span>
+                    <span style="background: rgba(168, 85, 247, 0.2); border: 1px solid #a855f7; color: #c084fc; padding: 4px 8px; border-radius: 4px;">35 ('5', Last Upper)</span>
+                    <span style="background: rgba(168, 85, 247, 0.2); border: 1px solid #a855f7; color: #c084fc; padding: 4px 8px; border-radius: 4px;">45 ('E', Last Lower)</span>
+                    <span style="color:#64748b;">➔</span>
+                    <span style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; padding: 4px 8px; border-radius: 4px;">03 (ETX)</span>
+                    <span style="color:#64748b;">➔</span>
+                    <span style="background: rgba(244, 63, 94, 0.2); border: 1px solid #f43f5e; color: #fb7185; padding: 4px 8px; border-radius: 4px;">30 38 (SUM '0''8')</span>
+                  </div>
+                  <div style="margin-top: 10px; color: #34d399; font-size: 0.85rem; font-family: monospace;">
+                    ★ PC 端解碼公式：Word = (Last_Data &lt;&lt; 8) | 1st_Data = (0x5E &lt;&lt; 8) | 0xFE = 0x5EFE (十進位 24318 ➔ FX3U Ver. 3.18)
+                  </div>
+                </div>
+
+              </div>
+
               </div>
             </div>
           </div>
