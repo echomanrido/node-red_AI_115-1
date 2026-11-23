@@ -1483,6 +1483,79 @@ public static string HexToString(string hexInput) {
                   </div>
                 </div>
 
+                <!-- 連續多筆讀取 (1st, 2nd, 3rd, 4th Data) 排列圖解 -->
+                <div style="margin-top: 16px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; padding: 18px; box-shadow: inset 0 0 25px rgba(0,0,0,0.6);">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                    <div style="color: #c084fc; font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                      <i class="fa-solid fa-cubes text-purple-400"></i>
+                      <span>【進階延伸圖解】若連續讀取多筆暫存器（1st, 2nd, 3rd, 4th Data）如何排列？</span>
+                    </div>
+                    <span style="font-size: 0.78rem; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); color: #c084fc; padding: 3px 10px; border-radius: 12px; font-weight: bold;">
+                      連續 2 個 Word（4 個 Bytes）實例
+                    </span>
+                  </div>
+
+                  <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.7; margin-bottom: 14px;">
+                    當上位機一次連續讀取多個暫存器（例如連續讀取 <strong>D0 與 D1</strong>，指定長度為 <code>04</code> 即 4 個 Bytes）時，三菱 FX 依然貫徹<strong>「低位暫存器先傳、暫存器內低位元組先傳」</strong>的純粹 Little-Endian 哲學：
+                  </p>
+
+                  <!-- 4 筆 Data 與暫存器對照網格 -->
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                    
+                    <!-- 1st Data -->
+                    <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+                      <span style="background: #0284c7; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">1st Data</span>
+                      <div style="color: #38bdf8; font-weight: 800; font-size: 0.92rem; margin: 6px 0 2px 0;">D0 的 Low Byte</div>
+                      <div style="color: #94a3b8; font-size: 0.78rem;">D0 的第 0~7 位元</div>
+                      <div style="background: rgba(2, 6, 23, 0.7); padding: 4px; border-radius: 4px; margin-top: 6px; font-family: monospace; font-size: 0.8rem; color: #f1f5f9;">Upper + Lower</div>
+                    </div>
+
+                    <!-- 2nd Data -->
+                    <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+                      <span style="background: #0369a1; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">2nd Data</span>
+                      <div style="color: #38bdf8; font-weight: 800; font-size: 0.92rem; margin: 6px 0 2px 0;">D0 的 High Byte</div>
+                      <div style="color: #94a3b8; font-size: 0.78rem;">D0 的第 8~15 位元</div>
+                      <div style="background: rgba(2, 6, 23, 0.7); padding: 4px; border-radius: 4px; margin-top: 6px; font-family: monospace; font-size: 0.8rem; color: #f1f5f9;">Upper + Lower</div>
+                    </div>
+
+                    <!-- 3rd Data -->
+                    <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+                      <span style="background: #7c3aed; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">3rd Data</span>
+                      <div style="color: #c084fc; font-weight: 800; font-size: 0.92rem; margin: 6px 0 2px 0;">D1 的 Low Byte</div>
+                      <div style="color: #94a3b8; font-size: 0.78rem;">D1 的第 0~7 位元</div>
+                      <div style="background: rgba(2, 6, 23, 0.7); padding: 4px; border-radius: 4px; margin-top: 6px; font-family: monospace; font-size: 0.8rem; color: #f1f5f9;">Upper + Lower</div>
+                    </div>
+
+                    <!-- 4th Data -->
+                    <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+                      <span style="background: #6d28d9; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">4th Data (Last)</span>
+                      <div style="color: #c084fc; font-weight: 800; font-size: 0.92rem; margin: 6px 0 2px 0;">D1 的 High Byte</div>
+                      <div style="color: #94a3b8; font-size: 0.78rem;">D1 的第 8~15 位元</div>
+                      <div style="background: rgba(2, 6, 23, 0.7); padding: 4px; border-radius: 4px; margin-top: 6px; font-family: monospace; font-size: 0.8rem; color: #f1f5f9;">Upper + Lower</div>
+                    </div>
+
+                  </div>
+
+                  <!-- 具體數值實例演練 -->
+                  <div style="background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 14px; font-size: 0.85rem; line-height: 1.7;">
+                    <div style="color: #fbbf24; font-weight: bold; margin-bottom: 6px;">
+                      <i class="fa-solid fa-flask-vial mr-1"></i> 【真實數值演練】：假設 D0 = 1000 (0x03E8)，D1 = 2000 (0x07D0)
+                    </div>
+                    <div style="color: #cbd5e1;">
+                      • <strong>1st Data (D0 Low)</strong>：<code>0xE8</code> ➔ 送出 Upper <code>'E' (45H)</code>、Lower <code>'8' (38H)</code><br>
+                      • <strong>2nd Data (D0 High)</strong>：<code>0x03</code> ➔ 送出 Upper <code>'0' (30H)</code>、Lower <code>'3' (33H)</code><br>
+                      • <strong>3rd Data (D1 Low)</strong>：<code>0xD0</code> ➔ 送出 Upper <code>'D' (44H)</code>、Lower <code>'0' (30H)</code><br>
+                      • <strong>4th Data (D1 High)</strong>：<code>0x07</code> ➔ 送出 Upper <code>'0' (30H)</code>、Lower <code>'7' (37H)</code>
+                    </div>
+                    <div style="margin-top: 10px; padding: 8px 12px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; color: #a7f3d0; font-family: monospace;">
+                      回傳串列位元流：02 45 38 30 33 44 30 30 37 03 [SUM]<br>
+                      （對應字元：STX + "E8" + "03" + "D0" + "07" + ETX + SUM）
+                    </div>
+                  </div>
+
+                </div>
+
+
               </div>
 
               </div>
