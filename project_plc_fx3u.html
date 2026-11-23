@@ -1794,6 +1794,137 @@ public static string HexToString(string hexInput) {
                   <br>&nbsp;&nbsp;- <strong style="color:#38bdf8;">Y14 ON</strong>：<code style="color:#e2e8f0;">02 30 30 31 30 03 43 34</code>（資料：<code style="color:#a78bfa;">0 0 1 0</code>，高 Byte 為 10）
                   <br>• <strong>CheckSum 驗證</strong>：<code style="color:#cbd5e1;">30+31+30+30+03 = C4</code>（ASCII <code style="color:#e2e8f0;">43 34</code>）。
                 </p>
+
+              <!-- 深度圖解：從 16-Bit 暫存器與 4 個 Nibble 視角深度解析 Y0~Y17 狀態 -->
+              <div style="margin-top: 18px; background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 10px; padding: 18px; box-shadow: inset 0 0 25px rgba(0,0,0,0.6);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                  <div style="color: #38bdf8; font-weight: 800; font-size: 0.98rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-microchip text-emerald-400"></i>
+                    <span>【核心解密】從 16-Bit 暫存器與 4 個 Nibble（半字節）視角看 Y 輸出回傳</span>
+                  </div>
+                  <span style="font-size: 0.78rem; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; padding: 3px 10px; border-radius: 12px; font-weight: bold;">
+                    16-Bit 暫存器 = 2 Bytes = 4 個 Nibbles
+                  </span>
+                </div>
+
+                <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.7; margin-bottom: 14px;">
+                  Y0~Y17 輸出狀態在 PLC 內部實質上就是一個 <strong>16-Bit 的點位暫存器（K4Y0）</strong>。當拆解為 2 個 Bytes（Byte 0 與 Byte 1）傳送時，每個 Byte 又各自拆為 <strong>Upper（高 4 位）與 Lower（低 4 位）兩個 Nibble</strong>，剛好精準掌管 4 顆實體繼電器：
+                </p>
+
+                <!-- 16-Bit 暫存器與 4 個 Nibble 階層架構方塊圖 -->
+                <div style="background: rgba(15, 23, 42, 0.9); border: 2px solid rgba(56, 189, 248, 0.4); border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+                  
+                  <div style="color: #94a3b8; font-size: 0.8rem; font-weight: bold; margin-bottom: 8px; text-align: center;">
+                    【Y0~Y17 點位暫存器 (16-Bit) ➔ 2 個 Bytes ➔ 4 個 Nibble (半字節) 映射全景】
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px;">
+                    
+                    <!-- Byte 1 (High Byte) -->
+                    <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 6px; padding: 10px;">
+                      <div style="display: flex; justify-content: space-between; color: #c084fc; font-weight: bold; font-size: 0.85rem; margin-bottom: 6px; border-bottom: 1px solid rgba(168, 85, 247, 0.2); padding-bottom: 4px;">
+                        <span>Byte 1 (High Byte，★後傳)</span>
+                        <span>控制 Y17 ~ Y10</span>
+                      </div>
+                      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-family: monospace; text-align: center;">
+                        <div style="background: rgba(2, 6, 23, 0.8); border: 1px dashed #a855f7; padding: 6px; border-radius: 4px;">
+                          <div style="color: #d8b4fe; font-size: 0.72rem;">Nibble 3 (Upper)</div>
+                          <div style="color: #fbbf24; font-weight: bold; font-size: 0.82rem;">Y17 Y16 Y15 Y14</div>
+                          <div style="color: #94a3b8; font-size: 0.7rem; margin-top: 2px;">對應第 4 字元</div>
+                        </div>
+                        <div style="background: rgba(2, 6, 23, 0.8); border: 1px dashed #a855f7; padding: 6px; border-radius: 4px;">
+                          <div style="color: #d8b4fe; font-size: 0.72rem;">Nibble 2 (Lower)</div>
+                          <div style="color: #fbbf24; font-weight: bold; font-size: 0.82rem;">Y13 Y12 Y11 Y10</div>
+                          <div style="color: #94a3b8; font-size: 0.7rem; margin-top: 2px;">對應第 3 字元</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Byte 0 (Low Byte) -->
+                    <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 6px; padding: 10px;">
+                      <div style="display: flex; justify-content: space-between; color: #38bdf8; font-weight: bold; font-size: 0.85rem; margin-bottom: 6px; border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding-bottom: 4px;">
+                        <span>Byte 0 (Low Byte，★先傳)</span>
+                        <span>控制 Y7 ~ Y0</span>
+                      </div>
+                      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-family: monospace; text-align: center;">
+                        <div style="background: rgba(2, 6, 23, 0.8); border: 1px dashed #38bdf8; padding: 6px; border-radius: 4px;">
+                          <div style="color: #7dd3fc; font-size: 0.72rem;">Nibble 1 (Upper)</div>
+                          <div style="color: #fbbf24; font-weight: bold; font-size: 0.82rem;">Y7 Y6 Y5 Y4</div>
+                          <div style="color: #94a3b8; font-size: 0.7rem; margin-top: 2px;">對應第 2 字元</div>
+                        </div>
+                        <div style="background: rgba(2, 6, 23, 0.8); border: 1px dashed #38bdf8; padding: 6px; border-radius: 4px;">
+                          <div style="color: #7dd3fc; font-size: 0.72rem;">Nibble 0 (Lower)</div>
+                          <div style="color: #fbbf24; font-weight: bold; font-size: 0.82rem;">Y3 Y2 Y1 Y0</div>
+                          <div style="color: #94a3b8; font-size: 0.7rem; margin-top: 2px;">對應第 1 字元</div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!-- 實體傳輸位元順序箭頭 -->
+                  <div style="text-align: center; color: #34d399; font-size: 0.82rem; font-family: monospace;">
+                    實體傳輸順序（由左至右）：STX ➔ 【Byte 0: Upper, Lower】 ➔ 【Byte 1: Upper, Lower】 ➔ ETX ➔ SUM
+                  </div>
+                </div>
+
+                <!-- 四大實例在 4 個 Nibble 裡的精準對照表 -->
+                <div style="overflow-x: auto;">
+                  <table class="fx-table" style="font-size: 0.84rem; margin: 0; min-width: 650px;">
+                    <thead>
+                      <tr style="background: #1e293b;">
+                        <th>觸發狀態</th>
+                        <th style="color:#38bdf8;">Byte 0 Upper<br><span style="font-size:0.7rem; font-weight:normal;">(Y7~Y4)</span></th>
+                        <th style="color:#38bdf8;">Byte 0 Lower<br><span style="font-size:0.7rem; font-weight:normal;">(Y3~Y0)</span></th>
+                        <th style="color:#c084fc;">Byte 1 Upper<br><span style="font-size:0.7rem; font-weight:normal;">(Y17~Y14)</span></th>
+                        <th style="color:#c084fc;">Byte 1 Lower<br><span style="font-size:0.7rem; font-weight:normal;">(Y13~Y10)</span></th>
+                        <th>回傳 ASCII 資料串</th>
+                        <th>完整回傳封包與說明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong style="color: #38bdf8;">Y0 ON</strong></td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#34d399; font-weight:bold;">'1' (0001)</td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#fbbf24; font-weight:bold;">"0100"</td>
+                        <td style="font-size:0.78rem;"><code>02 30 31 30 30 03 43 34</code>（Y0 落在 Byte 0 Lower）</td>
+                      </tr>
+                      <tr>
+                        <td><strong style="color: #38bdf8;">Y4 ON</strong></td>
+                        <td style="font-family:monospace; color:#34d399; font-weight:bold;">'1' (0001)</td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#fbbf24; font-weight:bold;">"1000"</td>
+                        <td style="font-size:0.78rem;"><code>02 31 30 30 30 03 43 34</code>（Y4 落在 Byte 0 Upper）</td>
+                      </tr>
+                      <tr>
+                        <td><strong style="color: #c084fc;">Y10 ON</strong></td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#34d399; font-weight:bold;">'1' (0001)</td>
+                        <td style="font-family:monospace; color:#fbbf24; font-weight:bold;">"0001"</td>
+                        <td style="font-size:0.78rem;"><code>02 30 30 30 31 03 43 34</code>（Y10 落在 Byte 1 Lower）</td>
+                      </tr>
+                      <tr>
+                        <td><strong style="color: #c084fc;">Y14 ON</strong></td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#34d399; font-weight:bold;">'1' (0001)</td>
+                        <td style="font-family:monospace; color:#94a3b8;">'0' (0000)</td>
+                        <td style="font-family:monospace; color:#fbbf24; font-weight:bold;">"0010"</td>
+                        <td style="font-size:0.78rem;"><code>02 30 30 31 30 03 43 34</code>（Y14 落在 Byte 1 Upper）</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+
               </div>
             </div>
           </div>
