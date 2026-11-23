@@ -371,6 +371,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mainContent) mainContent.scrollTop = 0;
   }
 
+  // 安全 URL 轉換：防止未編碼的特殊字元 (如 % 未轉義為 %25) 導致伺服器報 400 Bad Request
+  function safeUrl(url) {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return url.replace(/%(?![0-9a-fA-F]{2})/g, '%25');
+  }
+
   // 渲染單元詳細內容 (支援 Google 5-Day 子模組分頁導覽列)
   function renderLabContent(lab) {
     let catClass = 'tag-category-eng';
@@ -437,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const icon = ref.icon || 'fa-solid fa-laptop-code';
       const badgeHtml = ref.badge ? `<span style="margin-left: 8px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: ${textColor}; color: #0f172a; display: inline-block;">${escapeHtml(ref.badge)}</span>` : '';
       return `
-        <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="ref-item" style="border-color: ${border}; background: ${bg}; transition: all 0.2s ease;">
+        <a href="${safeUrl(ref.url)}" target="_blank" rel="noopener noreferrer" class="ref-item" style="border-color: ${border}; background: ${bg}; transition: all 0.2s ease;">
           <i class="${icon}" style="color: ${textColor};"></i>
           <span style="font-weight: ${isCustom ? '600' : 'normal'}; color: ${isCustom ? '#fef08a' : 'inherit'};">${escapeHtml(ref.title)}</span>
           ${badgeHtml}
@@ -459,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 右側卡片：若是投影片/獨立 HTML，提供 iframe 嵌入與外部開啟按鈕
     const hasSlide = !!lab.slideUrl;
-    const slideUrl = lab.slideUrl || '';
+    const slideUrl = safeUrl(lab.slideUrl || '');
 
     contentBodyEl.innerHTML = `
       <!-- (1) 單元 Header 卡片 -->

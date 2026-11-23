@@ -1956,8 +1956,8 @@ unit_modern_web_guidance = {
         loop_label="Chrome / Edge / Firefox / MDN 現代 Web 共通規範：AI 生成前先檢索 Baseline，拒絕盲目重造輪子",
         accent="#0ea5e9"
     ),
-    "resultImage": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%.html",
-    "slideUrl": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%.html",
+    "resultImage": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測 Modern Web Guidance 1.0.html",
+    "slideUrl": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測 Modern Web Guidance 1.0.html",
     "objective": "1. 理解 AI 輔助前端開發時常見的「訓練數據過時、重造輪子、過度引進第三方套件」等核心痛點。\n2. 掌握 Modern Web Guidance 1.0 的三大核心支柱：專家指南、Baseline 跨瀏覽器標準對照、以及舊版瀏覽器 Fallback 替代策略。\n3. 學習如何將 Modern Web Guidance 整合進 Claude Code 與 Cursor 等 AI 工具中，將代碼通過率從 53% 提升至 92%。",
     "tutorialSteps": [
         {
@@ -1985,7 +1985,7 @@ unit_modern_web_guidance = {
     "references": [
         {
             "title": "AI 寫的網頁過得了幾項檢查？Google 實測 Modern Web Guidance 1.0 (專屬互動教學頁面)",
-            "url": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%.html",
+            "url": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測 Modern Web Guidance 1.0.html",
             "bgColor": "rgba(14, 165, 233, 0.15)",
             "borderColor": "rgba(14, 165, 233, 0.6)",
             "color": "#38bdf8",
