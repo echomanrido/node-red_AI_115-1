@@ -1041,6 +1041,297 @@ public static string HexToString(string hexInput) {
           </div>
         </div>
 
+
+        <!-- ========================================== -->
+        <!-- 【圖文並茂流程一】PC 與三菱 FX PLC 序列通訊 7 階生命週期運作時序流程圖 -->
+        <!-- ========================================== -->
+        <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 35px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding-bottom: 14px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.5); display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 1.1rem;">
+                <i class="fa-solid fa-network-wired"></i>
+              </div>
+              <h4 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #f8fafc; font-family: 'Outfit', 'Noto Sans TC', sans-serif;">
+                <span style="color: #38bdf8;">【核心流程圖解】</span> PC 與三菱 FX PLC 序列通訊 7 階完整運作生命週期
+              </h4>
+            </div>
+            <span style="font-size: 0.8rem; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 12px; border-radius: 20px; color: #38bdf8; font-weight: 700;">
+              工業通訊閉環控制全景
+            </span>
+          </div>
+
+          <p style="color: #94a3b8; font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px;">
+            以下為 PC-Based 控制系統（C# / Python / Node-RED）與三菱 FX3U PLC 透過編程口進行通訊時，從底層實體連線、封包組裝、CheckSum 計算，到 PLC 核心處理與 Little-Endian 解碼的完整標準時序流程：
+          </p>
+
+          <!-- 7 階流程步驟卡片 (響應式流向網格) -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+
+            <!-- Step 1 -->
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; position: relative;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <span style="background: #0284c7; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">STEP 01</span>
+                <i class="fa-solid fa-plug-circle-bolt" style="color: #38bdf8; font-size: 1.2rem;"></i>
+              </div>
+              <h5 style="color: #f1f5f9; font-size: 0.98rem; font-weight: 700; margin: 0 0 8px 0;">實體連線與通訊埠初始化</h5>
+              <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                透過 <strong>USB-SC09 (RS-422)</strong> 或 USB-RS232 連接線插入 FX3U 編程口 (MD8 圓頭)。PC 端開啟 SerialPort，配置標準參數為 <code style="color:#38bdf8;">9600-7-E-1</code>。
+              </p>
+            </div>
+
+            <!-- Step 2 -->
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; position: relative;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <span style="background: #d97706; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">STEP 02</span>
+                <i class="fa-solid fa-map-location-dot" style="color: #fbbf24; font-size: 1.2rem;"></i>
+              </div>
+              <h5 style="color: #f1f5f9; font-size: 0.98rem; font-weight: 700; margin: 0 0 8px 0;">決定命令碼與查表換算位址</h5>
+              <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                選定 CMD（讀取 <code style="color:#fbbf24;">'0'</code>、寫入 <code style="color:#fbbf24;">'1'</code>）。依據手冊公式換算通訊群位址：如讀取型號 D8001 為 <code style="color:#34d399;">0E02</code>、讀取 Y0~Y17 為 <code style="color:#38bdf8;">00A0</code>、讀取 X0~X17 為 <code style="color:#a78bfa;">0080</code>。
+              </p>
+            </div>
+
+            <!-- Step 3 -->
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; position: relative;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <span style="background: #059669; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">STEP 03</span>
+                <i class="fa-solid fa-calculator" style="color: #34d399; font-size: 1.2rem;"></i>
+              </div>
+              <h5 style="color: #f1f5f9; font-size: 0.98rem; font-weight: 700; margin: 0 0 8px 0;">組裝封包與計算 CheckSum</h5>
+              <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                構建 <code style="color:#60a5fa;">STX</code> + <code style="color:#fbbf24;">CMD</code> + <code style="color:#c084fc;">ADDR</code> + <code style="color:#22d3ee;">LEN</code> + <code style="color:#f87171;">ETX</code>。累加 CMD 至 ETX 之間所有字元之 ASCII 十六進位值，取末兩位轉為 ASCII 校驗碼。
+              </p>
+            </div>
+
+            <!-- Step 4 -->
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; position: relative;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <span style="background: #7c3aed; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">STEP 04</span>
+                <i class="fa-solid fa-wave-square" style="color: #a78bfa; font-size: 1.2rem;"></i>
+              </div>
+              <h5 style="color: #f1f5f9; font-size: 0.98rem; font-weight: 700; margin: 0 0 8px 0;">序列輸出與波形驅動</h5>
+              <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                PC TXD 線路將封包轉為 UART 實體電氣信號。每個字元前置 <code style="color:#ef4444;">StartBit (0)</code> 喚醒接收端，經過 7 位元資料與偶同位計算，後置 <code style="color:#22c55e;">StopBit (1)</code> 依序傳輸。
+              </p>
+            </div>
+
+            <!-- Step 5 -->
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; position: relative;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <span style="background: #dc2626; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">STEP 05</span>
+                <i class="fa-solid fa-microchip" style="color: #f87171; font-size: 1.2rem;"></i>
+              </div>
+              <h5 style="color: #f1f5f9; font-size: 0.98rem; font-weight: 700; margin: 0 0 8px 0;">PLC 核心解碼與執行</h5>
+              <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                PLC 在每段階梯圖掃描週期的 END 處理階段檢驗命令 CheckSum。若校驗一致，從內部 RAM 提取對應數值並組裝回傳封包；若格式有誤則回應 <code style="color:#f43f5e;">NAK (0x15)</code>。
+              </p>
+            </div>
+
+            <!-- Step 6 -->
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; position: relative;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <span style="background: #4f46e5; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">STEP 06</span>
+                <i class="fa-solid fa-right-left" style="color: #818cf8; font-size: 1.2rem;"></i>
+              </div>
+              <h5 style="color: #f1f5f9; font-size: 0.98rem; font-weight: 700; margin: 0 0 8px 0;">接收回傳與 Little-Endian 翻轉</h5>
+              <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                PC 接收 PLC 回傳資料並驗證末尾 SUM。對 16-Bit Word 執行低位元組在前、高位元組在後之翻轉重組（如 <code style="color:#fbbf24;">FE 5E ➔ 0x5EFE = 24318</code>）。
+              </p>
+            </div>
+
+            <!-- Step 7 -->
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; position: relative;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <span style="background: #059669; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">STEP 07</span>
+                <i class="fa-solid fa-rotate" style="color: #34d399; font-size: 1.2rem;"></i>
+              </div>
+              <h5 style="color: #f1f5f9; font-size: 0.98rem; font-weight: 700; margin: 0 0 8px 0;">位元遮罩解析與 100ms 輪詢迴圈</h5>
+              <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.6; margin: 0;">
+                對 I/O 回傳資料進行位元運算（<code style="color:#34d399;">byte & 0x10</code>）判定單點狀態，觸發 UI 畫面渲染，並透過 Timer 以 <strong>100ms 週期輪詢</strong> 實現即時監控。
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 【圖文並茂流程二】封包結構視覺拆解圖（Packet Anatomy Comparison） -->
+        <!-- ========================================== -->
+        <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 35px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding-bottom: 14px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.5); display: flex; align-items: center; justify-content: center; color: #c084fc; font-size: 1.1rem;">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <h4 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #f8fafc; font-family: 'Outfit', 'Noto Sans TC', sans-serif;">
+                <span style="color: #c084fc;">【封包結構圖解】</span> PC 發送命令 vs PLC 回傳資料 視覺化拆解對照
+              </h4>
+            </div>
+            <span style="font-size: 0.8rem; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); padding: 4px 12px; border-radius: 20px; color: #c084fc; font-weight: 700;">
+              ASCII 協議封包透視
+            </span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+
+            <!-- 封包對照 1：讀取 D8001 型號 -->
+            <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 18px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                <span style="color: #38bdf8; font-weight: 800; font-size: 0.92rem;"><i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> 【發送命令】PC 請求讀取 D8001 (PLC型號與版本)</span>
+                <span style="color: #94a3b8; font-size: 0.78rem; font-family: monospace;">長度：11 Bytes (全 ASCII)</span>
+              </div>
+              <div class="packet-strip" style="margin: 0 0 10px 0;">
+                <div class="packet-chip chip-stx"><span class="chip-hex">02</span><span class="chip-name">STX</span></div>
+                <div class="packet-chip chip-cmd"><span class="chip-hex">30</span><span class="chip-name">CMD '0'</span></div>
+                <div class="packet-chip chip-addr"><span class="chip-hex">30</span><span class="chip-name">A3 '0'</span></div>
+                <div class="packet-chip chip-addr"><span class="chip-hex">45</span><span class="chip-name">A2 'E'</span></div>
+                <div class="packet-chip chip-addr"><span class="chip-hex">30</span><span class="chip-name">A1 '0'</span></div>
+                <div class="packet-chip chip-addr"><span class="chip-hex">32</span><span class="chip-name">A0 '2'</span></div>
+                <div class="packet-chip chip-len"><span class="chip-hex">30</span><span class="chip-name">L1 '0'</span></div>
+                <div class="packet-chip chip-len"><span class="chip-hex">32</span><span class="chip-name">L0 '2'</span></div>
+                <div class="packet-chip chip-etx"><span class="chip-hex">03</span><span class="chip-name">ETX</span></div>
+                <div class="packet-chip chip-sum"><span class="chip-hex">36</span><span class="chip-name">SUM '6'</span></div>
+                <div class="packet-chip chip-sum"><span class="chip-hex">43</span><span class="chip-name">SUM 'C'</span></div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 14px; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                <span style="color: #34d399; font-weight: 800; font-size: 0.92rem;"><i class="fa-solid fa-arrow-right-to-bracket mr-1"></i> 【回應資料】PLC 回傳 D8001 數值 (24318 = FX3U Ver 3.18)</span>
+                <span style="color: #94a3b8; font-size: 0.78rem; font-family: monospace;">長度：8 Bytes</span>
+              </div>
+              <div class="packet-strip" style="margin: 0;">
+                <div class="packet-chip chip-stx"><span class="chip-hex">02</span><span class="chip-name">STX</span></div>
+                <div class="packet-chip chip-data" style="background: rgba(16, 185, 129, 0.25);"><span class="chip-hex">46</span><span class="chip-name">Low 'F'</span></div>
+                <div class="packet-chip chip-data" style="background: rgba(16, 185, 129, 0.25);"><span class="chip-hex">45</span><span class="chip-name">Low 'E'</span></div>
+                <div class="packet-chip chip-data" style="background: rgba(5, 150, 105, 0.35);"><span class="chip-hex">35</span><span class="chip-name">High '5'</span></div>
+                <div class="packet-chip chip-data" style="background: rgba(5, 150, 105, 0.35);"><span class="chip-hex">45</span><span class="chip-name">High 'E'</span></div>
+                <div class="packet-chip chip-etx"><span class="chip-hex">03</span><span class="chip-name">ETX</span></div>
+                <div class="packet-chip chip-sum"><span class="chip-hex">30</span><span class="chip-name">SUM '0'</span></div>
+                <div class="packet-chip chip-sum"><span class="chip-hex">38</span><span class="chip-name">SUM '8'</span></div>
+              </div>
+            </div>
+
+            <!-- 封包對照 2：讀取 Y0~Y17 輸出繼電器 -->
+            <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 18px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                <span style="color: #38bdf8; font-weight: 800; font-size: 0.92rem;"><i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> 【發送命令】PC 請求讀取 Y0~Y17 輸出狀態群組 (位址 00A0)</span>
+                <span style="color: #94a3b8; font-size: 0.78rem; font-family: monospace;">長度：11 Bytes</span>
+              </div>
+              <div class="packet-strip" style="margin: 0 0 10px 0;">
+                <div class="packet-chip chip-stx"><span class="chip-hex">02</span><span class="chip-name">STX</span></div>
+                <div class="packet-chip chip-cmd"><span class="chip-hex">30</span><span class="chip-name">CMD '0'</span></div>
+                <div class="packet-chip chip-addr"><span class="chip-hex">30</span><span class="chip-name">A3 '0'</span></div>
+                <div class="packet-chip chip-addr"><span class="chip-hex">30</span><span class="chip-name">A2 '0'</span></div>
+                <div class="packet-chip chip-addr"><span class="chip-hex">41</span><span class="chip-name">A1 'A'</span></div>
+                <div class="packet-chip chip-addr"><span class="chip-hex">30</span><span class="chip-name">A0 '0'</span></div>
+                <div class="packet-chip chip-len"><span class="chip-hex">30</span><span class="chip-name">L1 '0'</span></div>
+                <div class="packet-chip chip-len"><span class="chip-hex">32</span><span class="chip-name">L0 '2'</span></div>
+                <div class="packet-chip chip-etx"><span class="chip-hex">03</span><span class="chip-name">ETX</span></div>
+                <div class="packet-chip chip-sum"><span class="chip-hex">36</span><span class="chip-name">SUM '6'</span></div>
+                <div class="packet-chip chip-sum"><span class="chip-hex">36</span><span class="chip-name">SUM '6'</span></div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 14px; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                <span style="color: #34d399; font-weight: 800; font-size: 0.92rem;"><i class="fa-solid fa-arrow-right-to-bracket mr-1"></i> 【回應資料】PLC 回傳 Y0~Y17 狀態 (例：當僅 Y0 為 ON 時)</span>
+                <span style="color: #94a3b8; font-size: 0.78rem; font-family: monospace;">長度：8 Bytes</span>
+              </div>
+              <div class="packet-strip" style="margin: 0;">
+                <div class="packet-chip chip-stx"><span class="chip-hex">02</span><span class="chip-name">STX</span></div>
+                <div class="packet-chip chip-data" style="background: rgba(16, 185, 129, 0.25);"><span class="chip-hex">30</span><span class="chip-name">B0_H '0'</span></div>
+                <div class="packet-chip chip-data" style="background: rgba(16, 185, 129, 0.25);"><span class="chip-hex">31</span><span class="chip-name">B0_L '1'</span></div>
+                <div class="packet-chip chip-data" style="background: rgba(5, 150, 105, 0.35);"><span class="chip-hex">30</span><span class="chip-name">B1_H '0'</span></div>
+                <div class="packet-chip chip-data" style="background: rgba(5, 150, 105, 0.35);"><span class="chip-hex">30</span><span class="chip-name">B1_L '0'</span></div>
+                <div class="packet-chip chip-etx"><span class="chip-hex">03</span><span class="chip-name">ETX</span></div>
+                <div class="packet-chip chip-sum"><span class="chip-hex">43</span><span class="chip-name">SUM 'C'</span></div>
+                <div class="packet-chip chip-sum"><span class="chip-hex">34</span><span class="chip-name">SUM '4'</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 【圖文並茂流程三】CheckSum 累加和 4 步推導流程 + Little-Endian 翻轉機制 -->
+        <!-- ========================================== -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px; margin-bottom: 35px;">
+
+          <!-- CheckSum 計算 4 步圖解卡片 -->
+          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 22px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding-bottom: 12px;">
+              <div style="width: 32px; height: 32px; border-radius: 6px; background: rgba(245, 158, 11, 0.2); display: flex; align-items: center; justify-content: center; color: #fbbf24; font-size: 1rem;">
+                <i class="fa-solid fa-calculator"></i>
+              </div>
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #f8fafc;">
+                CheckSum 累加和 4 步算法推導
+              </h4>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem; line-height: 1.6;">
+              <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 14px; border-radius: 8px; border-left: 3px solid #38bdf8;">
+                <strong style="color: #38bdf8;">步驟 1 · 截取計算範圍：</strong>
+                <div style="color: #cbd5e1; margin-top: 4px;">由 <code style="color:#fbbf24;">CMD</code> 開始至 <code style="color:#f87171;">ETX</code> 為止（不含 STX），逐一轉為十六進位 ASCII 碼。</div>
+              </div>
+
+              <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 14px; border-radius: 8px; border-left: 3px solid #fbbf24;">
+                <strong style="color: #fbbf24;">步驟 2 · 十六進位累加求和：</strong>
+                <div style="color: #cbd5e1; margin-top: 4px; font-family: monospace;">
+                  30H + 30H + 45H + 30H + 32H + 30H + 32H + 03H = <span style="color:#f59e0b; font-weight:bold;">16CH</span>
+                </div>
+              </div>
+
+              <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 14px; border-radius: 8px; border-left: 3px solid #34d399;">
+                <strong style="color: #34d399;">步驟 3 · 取最低 1 個位元組（低 8 位元）：</strong>
+                <div style="color: #cbd5e1; margin-top: 4px; font-family: monospace;">
+                  16CH &amp; 0xFF = <span style="color:#34d399; font-weight:bold;">6CH</span>（拋棄高位溢位 1H）
+                </div>
+              </div>
+
+              <div style="background: rgba(30, 41, 59, 0.6); padding: 10px 14px; border-radius: 8px; border-left: 3px solid #f43f5e;">
+                <strong style="color: #f43f5e;">步驟 4 · 拆為 2 位 ASCII 字元輸出：</strong>
+                <div style="color: #cbd5e1; margin-top: 4px; font-family: monospace;">
+                  高半字節 6H ➔ <span style="color:#f43f5e; font-weight:bold;">'6' (36H)</span> | 低半字節 CH ➔ <span style="color:#f43f5e; font-weight:bold;">'C' (43H)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Little-Endian 翻轉機制圖解卡片 -->
+          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 22px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding-bottom: 12px;">
+              <div style="width: 32px; height: 32px; border-radius: 6px; background: rgba(56, 189, 248, 0.2); display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 1rem;">
+                <i class="fa-solid fa-shuffle"></i>
+              </div>
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #f8fafc;">
+                Little-Endian（低位先傳）重組機制
+              </h4>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.88rem; line-height: 1.6;">
+              <p style="color: #cbd5e1; margin: 0;">
+                三菱 FX 暫存器（16-Bit Word）在序列傳輸中嚴格採用 <strong>Little-Endian</strong>，即「先送出低位元組（Lower Byte），後送出高位元組（Upper Byte）」。
+              </p>
+
+              <!-- 翻轉對照視覺方塊 -->
+              <div style="background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 14px; text-align: center;">
+                <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 6px;">PLC 序列線路上實際接收字元順序：</div>
+                <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 12px;">
+                  <span style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #60a5fa; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-weight:bold;">1st: 'F' 'E' (0xFE)</span>
+                  <span style="color: #94a3b8; align-self: center;">➔</span>
+                  <span style="background: rgba(168, 85, 247, 0.2); border: 1px solid #a855f7; color: #c084fc; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-weight:bold;">2nd: '5' 'E' (0x5E)</span>
+                </div>
+
+                <div style="color: #f59e0b; font-size: 1.1rem; margin: 8px 0;"><i class="fa-solid fa-arrow-down"></i> 經 PC 程式翻轉重組 16-Bit Word</div>
+
+                <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #34d399; padding: 8px; border-radius: 6px; font-family: monospace; font-size: 1rem; font-weight:bold;">
+                  (0x5E &lt;&lt; 8) | 0xFE = 0x5EFE (十進位 24318)
+                </div>
+              </div>
+
+              <div style="color: #94a3b8; font-size: 0.82rem;">
+                <i class="fa-solid fa-circle-check" style="color: #34d399;"></i> <strong>結果對照：</strong>前 2 碼 <code>24</code> = FX2N/FX3U 機型代碼，後 3 碼 <code>318</code> = 韌體版本 Ver 3.18。
+              </div>
+            </div>
+          </div>
+
+        </div>
+
         <!-- 9 大精選圖解網格容器 -->
         <div style="display: flex; flex-direction: column; gap: 36px;">
 
