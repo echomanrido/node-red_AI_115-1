@@ -2016,7 +2016,7 @@ public static string HexToString(string hexInput) {
                 <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; line-height: 1.6; color: #cbd5e1;">
                   <div>
                     <strong style="color: #fbbf24;">Q1：為什麼十六進位只有 1, 2, 4, 8 這四種數字？</strong><br>
-                    因為每個 Nibble 包含 4 個二進位位元，權重分別為 $2^0=1,\ 2^1=2,\ 2^2=4,\ 2^3=8$。當單一個輸出點為 ON 時，其餘 3 位皆為 0，因此 Hex 值必定為 1, 2, 4, 8 之一。
+                    因為每個 Nibble 包含 4 個二進位位元，權重分別為 <code>2<sup>0</sup> = 1</code>、<code>2<sup>1</sup> = 2</code>、<code>2<sup>2</sup> = 4</code>、<code>2<sup>3</sup> = 8</code>。當單一個輸出點為 ON 時，其餘 3 位皆為 0，因此 Hex 值必定為 1, 2, 4, 8 之一。
                   </div>
                   <div>
                     <strong style="color: #fbbf24;">Q2：為什麼點位沒有 Y8 和 Y9？</strong><br>
@@ -2038,6 +2038,131 @@ public static string HexToString(string hexInput) {
                   <code>bool isY10On = (byte1 & 0x01) != 0; // 檢測 Y10</code><br>
                   <code>bool isY14On = (byte1 & 0x10) != 0; // 檢測 Y14</code>
                 </div>
+
+              <!-- 【工業實戰擴充圖解】接上擴充卡：一次連續讀取 32 點（Y0~Y37）4 大組別全景圖 -->
+              <div style="margin-top: 18px; background: rgba(15, 23, 42, 0.95); border: 2px solid rgba(56, 189, 248, 0.45); border-radius: 12px; padding: 22px; box-shadow: 0 10px 35px rgba(0,0,0,0.5);">
+                
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                  <div style="color: #38bdf8; font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-puzzle-piece text-amber-400"></i>
+                    <span>【工業實戰進階】接上輸出擴充卡：一次連續讀取 32 點（Y0~Y37）4 大組別圖文並茂全景</span>
+                  </div>
+                  <span style="font-size: 0.8rem; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; padding: 4px 12px; border-radius: 12px; font-weight: bold;">
+                    本機 16 點 + 擴充模組 16 點 = 4 個 Bytes
+                  </span>
+                </div>
+
+                <p style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.7; margin-bottom: 16px;">
+                  在自動化機台設備中，當 FX3U 主機右側串接了 16 點輸出擴充模組（例如 <strong>FX2N-16EYR</strong> 或 <strong>FX3U-16EYT</strong>）時，輸出點數擴充至 32 點（$Y0 \sim Y37$）。上位機只需發送一條命令，即可<strong>一次連續讀取 4 個組別（4 個 Bytes = 32 點）</strong>：
+                </p>
+
+                <!-- PC 發送讀取命令卡片 -->
+                <div style="background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;">
+                  <div style="color: #38bdf8; font-weight: bold; font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fa-solid fa-terminal mr-1"></i> PC 發送命令（讀取 Y0 起始之 4 個 Bytes，共 32 點輸出）：
+                  </div>
+                  <div style="font-family: 'Fira Code', monospace; font-size: 0.88rem; color: #f1f5f9; background: rgba(15, 23, 42, 0.8); padding: 8px 12px; border-radius: 6px; border: 1px dashed rgba(56, 189, 248, 0.35); overflow-x: auto;">
+                    <span style="color:#60a5fa;">02</span> <span style="color:#fbbf24;">30</span> <span style="color:#c084fc;">30 30 41 30</span> <span style="color:#22d3ee;">30 34</span> <span style="color:#f87171;">03</span> <span style="color:#fb7185;">36 38</span>
+                    <span style="color:#94a3b8; font-size:0.78rem; margin-left:10px;">(STX + CMD '0' + 位址 00A0 + 長度 04 + ETX + CheckSum '68')</span>
+                  </div>
+                </div>
+
+                <!-- 4 大組別硬體與點位對照網格 (強制橫向排齊) -->
+                <div style="overflow-x: auto; padding-bottom: 6px; margin-bottom: 16px;">
+                  <div style="display: grid; grid-template-columns: repeat(4, minmax(200px, 1fr)); gap: 12px; min-width: 820px;">
+                    
+                    <!-- 第 1 組：Y0 ~ Y7 -->
+                    <div style="background: rgba(30, 41, 59, 0.8); border: 2px solid #0284c7; border-radius: 8px; padding: 14px;">
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="background: #0284c7; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">1st Data</span>
+                        <span style="color: #38bdf8; font-size: 0.75rem; font-weight: bold;">本機主體</span>
+                      </div>
+                      <div style="color: #f1f5f9; font-weight: 800; font-size: 1rem; margin-bottom: 2px;">第 1 組：Y0 ~ Y7</div>
+                      <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 8px;">Byte 0（Low Byte，★先傳）</div>
+                      <div style="background: rgba(2, 6, 23, 0.85); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 6px; padding: 8px; font-size: 0.78rem; line-height: 1.6; color: #cbd5e1; font-family: monospace;">
+                        • Upper: Y7 Y6 Y5 Y4<br>
+                        • Lower: Y3 Y2 Y1 Y0<br>
+                        <span style="color:#34d399;">➔ 對應回傳第 1、2 字元</span>
+                      </div>
+                    </div>
+
+                    <!-- 第 2 組：Y10 ~ Y17 -->
+                    <div style="background: rgba(30, 41, 59, 0.8); border: 2px solid #0369a1; border-radius: 8px; padding: 14px;">
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="background: #0369a1; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">2nd Data</span>
+                        <span style="color: #38bdf8; font-size: 0.75rem; font-weight: bold;">本機主體</span>
+                      </div>
+                      <div style="color: #f1f5f9; font-weight: 800; font-size: 1rem; margin-bottom: 2px;">第 2 組：Y10 ~ Y17</div>
+                      <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 8px;">Byte 1（High Byte）</div>
+                      <div style="background: rgba(2, 6, 23, 0.85); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 6px; padding: 8px; font-size: 0.78rem; line-height: 1.6; color: #cbd5e1; font-family: monospace;">
+                        • Upper: Y17 Y16 Y15 Y14<br>
+                        • Lower: Y13 Y12 Y11 Y10<br>
+                        <span style="color:#34d399;">➔ 對應回傳第 3、4 字元</span>
+                      </div>
+                    </div>
+
+                    <!-- 第 3 組：Y20 ~ Y27 -->
+                    <div style="background: rgba(30, 41, 59, 0.8); border: 2px solid #7c3aed; border-radius: 8px; padding: 14px;">
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="background: #7c3aed; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">3rd Data</span>
+                        <span style="color: #c084fc; font-size: 0.75rem; font-weight: bold;">擴充模組</span>
+                      </div>
+                      <div style="color: #f1f5f9; font-weight: 800; font-size: 1rem; margin-bottom: 2px;">第 3 組：Y20 ~ Y27</div>
+                      <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 8px;">Byte 2（擴充卡 Low Byte）</div>
+                      <div style="background: rgba(2, 6, 23, 0.85); border: 1px dashed rgba(168, 85, 247, 0.4); border-radius: 6px; padding: 8px; font-size: 0.78rem; line-height: 1.6; color: #cbd5e1; font-family: monospace;">
+                        • Upper: Y27 Y26 Y25 Y24<br>
+                        • Lower: Y23 Y22 Y21 Y20<br>
+                        <span style="color:#c084fc;">➔ 對應回傳第 5、6 字元</span>
+                      </div>
+                    </div>
+
+                    <!-- 第 4 組：Y30 ~ Y37 -->
+                    <div style="background: rgba(30, 41, 59, 0.8); border: 2px solid #6d28d9; border-radius: 8px; padding: 14px;">
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="background: #6d28d9; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">4th Data (Last)</span>
+                        <span style="color: #c084fc; font-size: 0.75rem; font-weight: bold;">擴充模組</span>
+                      </div>
+                      <div style="color: #f1f5f9; font-weight: 800; font-size: 1rem; margin-bottom: 2px;">第 4 組：Y30 ~ Y37</div>
+                      <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 8px;">Byte 3（擴充卡 High Byte）</div>
+                      <div style="background: rgba(2, 6, 23, 0.85); border: 1px dashed rgba(168, 85, 247, 0.4); border-radius: 6px; padding: 8px; font-size: 0.78rem; line-height: 1.6; color: #cbd5e1; font-family: monospace;">
+                        • Upper: Y37 Y36 Y35 Y34<br>
+                        • Lower: Y33 Y32 Y31 Y30<br>
+                        <span style="color:#c084fc;">➔ 對應回傳第 7、8 字元</span>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- 實例情境演示：現場多組並存導通實例 -->
+                <div style="background: rgba(2, 6, 23, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 16px;">
+                  <div style="color: #fbbf24; font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;">
+                    <i class="fa-solid fa-lightbulb mr-1"></i> 【現場狀況實例演示】：若 Y0 (輸送帶)、Y14 (氣缸)、Y22 (警示燈)、Y37 (警報器) 同時 ON
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 12px;">
+                    <div>• <strong>第 1 組 (Byte 0)</strong>：只有 Y0 ON ➔ <code>0x01</code>（ASCII: <strong style="color:#38bdf8;">"01"</strong>）</div>
+                    <div>• <strong>第 2 組 (Byte 1)</strong>：只有 Y14 ON ➔ <code>0x10</code>（ASCII: <strong style="color:#38bdf8;">"10"</strong>）</div>
+                    <div>• <strong>第 3 組 (Byte 2)</strong>：只有 Y22 ON ➔ <code>0x04</code>（ASCII: <strong style="color:#c084fc;">"04"</strong>）</div>
+                    <div>• <strong>第 4 組 (Byte 3)</strong>：只有 Y37 ON ➔ <code>0x80</code>（ASCII: <strong style="color:#c084fc;">"80"</strong>）</div>
+                  </div>
+
+                  <div style="padding: 10px 14px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 6px; font-family: monospace; font-size: 0.85rem; color: #a7f3d0; margin-bottom: 10px;">
+                    ★ PLC 實體回傳字元串：STX + <strong style="color:#fff;">"01"</strong> + <strong style="color:#fff;">"10"</strong> + <strong style="color:#fff;">"04"</strong> + <strong style="color:#fff;">"80"</strong> + ETX + SUM<br>
+                    ★ 十六進位字元流：02 <span style="color:#38bdf8;">30 31</span> <span style="color:#38bdf8;">31 30</span> <span style="color:#c084fc;">30 34</span> <span style="color:#c084fc;">38 30</span> 03 [SUM]
+                  </div>
+
+                  <div style="background: rgba(15, 23, 42, 0.9); border-left: 3px solid #38bdf8; padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 0.84rem; color: #cbd5e1; line-height: 1.7;">
+                    <strong style="color: #38bdf8;">C# 上位機 32 點一秒高效解碼判定（UInt32 遮罩法）：</strong><br>
+                    <code>uint y_all = ((uint)byte3 &lt;&lt; 24) | ((uint)byte2 &lt;&lt; 16) | ((uint)byte1 &lt;&lt; 8) | (uint)byte0;</code><br>
+                    <code>bool isY0On  = (y_all &amp; (1u &lt;&lt; 0))  != 0; // 檢測本機 Y0</code><br>
+                    <code>bool isY14On = (y_all &amp; (1u &lt;&lt; 12)) != 0; // 檢測本機 Y14 (Byte 1 bit 4)</code><br>
+                    <code>bool isY22On = (y_all &amp; (1u &lt;&lt; 18)) != 0; // 檢測擴充卡 Y22 (Byte 2 bit 2)</code><br>
+                    <code>bool isY37On = (y_all &amp; (1u &lt;&lt; 31)) != 0; // 檢測擴充卡 Y37 (Byte 3 bit 7)</code>
+                  </div>
+                </div>
+
+              </div>
+
 
               </div>
               </div>
