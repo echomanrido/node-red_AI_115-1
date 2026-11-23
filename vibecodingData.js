@@ -1529,8 +1529,82 @@ window.INITIAL_VIBE_DATA = [
     ]
   },
   {
-    "id": "vibe-git-kelly",
+    "id": "vibe-modern-web-guidance",
     "labNumber": "20",
+    "title": "AI 寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%",
+    "shortTitle": "Google 實測 Modern Web Guidance 1.0",
+    "category": "其他",
+    "subCategory": "Modern Web Guidance",
+    "date": "2026-11-24",
+    "summary": "AI 寫網頁雖然飛快，但訓練資料往往停留在好幾年前，面對現代瀏覽器原生早已支援的新功能，常盲目引進肥大套件或重造輪子，導致實測通過率僅 53%！由 Chrome 聯合 Edge、Firefox 與 MDN 共同維護的開源專家指南 Modern Web Guidance 1.0，收錄超過 200 篇瀏覽器規範與 Baseline 相容性清單。在 AI 生成代碼前先查閱規範，實測檢查通過率大幅飆升至 92%！本單元包含運作架構圖、手機側邊欄性能對比模擬器、四大核心檢查指標與 CLI 安裝指引，助你打造高水準現代 Web 應用。",
+    "flowTitle": "Modern Web Guidance 1.0 現代網頁檢核與 AI 賦能流水線",
+    "resultTitle": "Modern Web 實測儀表板、架構圖、側邊欄模擬器與逐字稿工作台",
+    "flowImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MjAgMzIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDEzNWRlZywgIzBiMTUyMiAwJSwgIzBkMjIyOSAxMDAlKTsgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksIE5vdG8gU2FucyBUQywgc2Fucy1zZXJpZjsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkQmFyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMwZWE1ZTkiIHN0b3Atb3BhY2l0eT0iMC44Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM4YmRmOCIgc3RvcC1vcGFjaXR5PSIwLjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI2IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNiIgbWFya2VySGVpZ2h0PSI2IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAxIEwgMTAgNSBMIDAgOSB6IiBmaWxsPSIjMGVhNWU5Ii8+CiAgICA8L21hcmtlcj4KICAgIDxmaWx0ZXIgaWQ9ImNhcmRHbG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjQiIHN0ZERldmlhdGlvbj0iNiIgZmxvb2QtY29sb3I9IiMwMDAwMDAiIGZsb29kLW9wYWNpdHk9IjAuNCIvPgogICAgPC9maWx0ZXI+CiAgPC9kZWZzPgogIDxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgPHBhdGggZD0iTSAzMCAwIEwgMCAwIDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSI3MjAiIGhlaWdodD0iMzIwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgogIDxyZWN0IHg9IjI1IiB5PSIyNCIgd2lkdGg9IjQiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJ1cmwoI2dyYWRCYXIpIi8+CiAgPHRleHQgeD0iMzgiIHk9IjQyIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgbGV0dGVyLXNwYWNpbmc9IjAuNSI+TW9kZXJuIFdlYiBHdWlkYW5jZSAxLjAg54++5Luj57ay6aCB6KaP56+E5rWB5rC057eaPC90ZXh0PgogIDx0ZXh0IHg9IjM4IiB5PSI2MCIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSIxMSI+QUkg5o+Q56S66KmeIC0mZ3Q7IOWwiOWutuaMh+WNlyAoMjAwK+evhykgLSZndDsgQmFzZWxpbmUg5qiZ5rqW5qqi57SiIC0mZ3Q7IOWOn+eUn+WEquWFiOWvpuS9nCAtJmd0OyDpmY3ntJogRmFsbGJhY2sg6amX6K2JICg5MiXpgJrpgY7njocpPC90ZXh0PgogIDxyZWN0IHg9IjI1IiB5PSI4MCIgd2lkdGg9IjY3MCIgaGVpZ2h0PSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDgpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSIzNCIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjM0IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiMwZWE1ZTkiLz4KICAgIDxjaXJjbGUgY3g9IjU2IiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiMwZWE1ZTkiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iNTYiIHk9IjE0MCIgZmlsbD0iIzBlYTVlOSIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk1XLTE8L3RleHQ+CiAgICA8cmVjdCB4PSIxMDIiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iMTIzIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5MZWdhY3kgSXNzdWU8L3RleHQ+CiAgICA8dGV4dCB4PSI0NiIgeT0iMTY4IiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+6ZyA5rGC55eb6buePC90ZXh0PgogICAgPHRleHQgeD0iNDYiIHk9IjE4NiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSI5LjUiPkFJIOiIiuizh+aWmeWvq+mBjuaZguiqnuazlSA1MzwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ2IiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij4lPC90ZXh0PgogIDwvZz4KICA8cGF0aCBkPSJNIDE1MyAxNjAgTCAxNjUgMTYwIiBzdHJva2U9IiMwZWE1ZTkiIHN0cm9rZS13aWR0aD0iMS44IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgogIDxnIGZpbHRlcj0idXJsKCNjYXJkR2xvdykiPgogICAgPHJlY3QgeD0iMTY4IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxMzI3MzAiIHN0cm9rZT0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogICAgPHJlY3QgeD0iMTY4IiB5PSIxMTAiIHdpZHRoPSIxMTYiIGhlaWdodD0iNCIgcng9IjIiIGZpbGw9IiMwZWE1ZTkiLz4KICAgIDxjaXJjbGUgY3g9IjE5MCIgY3k9IjEzNiIgcj0iMTIiIGZpbGw9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjE1KSIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDx0ZXh0IHg9IjE5MCIgeT0iMTQwIiBmaWxsPSIjMGVhNWU5IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TVctMjwvdGV4dD4KICAgIDxyZWN0IHg9IjIzNiIgeT0iMTI2IiB3aWR0aD0iNDIiIGhlaWdodD0iMTYiIHJ4PSI0IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIi8+CiAgICA8dGV4dCB4PSIyNTciIHk9IjEzOCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSI4LjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkd1aWRlbGluZXM8L3RleHQ+CiAgICA8dGV4dCB4PSIxODAiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuimj+evhOafpeipojwvdGV4dD4KICAgIDx0ZXh0IHg9IjE4MCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+MjAwKyDlsIjlrrbmjIfljZfoiIcgQmFzPC90ZXh0PgogICAgPHRleHQgeD0iMTgwIiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij5lbGluZTwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSAyODcgMTYwIEwgMjk5IDE2MCIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjEuOCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8ZyBmaWx0ZXI9InVybCgjY2FyZEdsb3cpIj4KICAgIDxyZWN0IHg9IjMwMiIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjMTMyNzMwIiBzdHJva2U9InJnYmEoNTYsIDE4OSwgMjQ4LCAwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICAgIDxyZWN0IHg9IjMwMiIgeT0iMTEwIiB3aWR0aD0iMTE2IiBoZWlnaHQ9IjQiIHJ4PSIyIiBmaWxsPSIjMGVhNWU5Ii8+CiAgICA8Y2lyY2xlIGN4PSIzMjQiIGN5PSIxMzYiIHI9IjEyIiBmaWxsPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4xNSkiIHN0cm9rZT0iIzBlYTVlOSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8dGV4dCB4PSIzMjQiIHk9IjE0MCIgZmlsbD0iIzBlYTVlOSIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk1XLTM8L3RleHQ+CiAgICA8cmVjdCB4PSIzNzAiIHk9IjEyNiIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE2IiByeD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIvPgogICAgPHRleHQgeD0iMzkxIiB5PSIxMzgiIGZpbGw9IiMzOGJkZjgiIGZvbnQtc2l6ZT0iOC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5OYXRpdmUtRmlyc3Q8L3RleHQ+CiAgICA8dGV4dCB4PSIzMTQiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuWOn+eUn+WEquWFiDwvdGV4dD4KICAgIDx0ZXh0IHg9IjMxNCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+5ZaE55So54CP6Ka95Zmo5Y6f55SfIERpYWxvZzwvdGV4dD4KICAgIDx0ZXh0IHg9IjMxNCIgeT0iMjAwIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjguNSI+L1BvcG92ZXI8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gNDIxIDE2MCBMIDQzMyAxNjAiIHN0cm9rZT0iIzBlYTVlOSIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSI0MzYiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSI0MzYiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzBlYTVlOSIvPgogICAgPGNpcmNsZSBjeD0iNDU4IiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiMwZWE1ZTkiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iNDU4IiB5PSIxNDAiIGZpbGw9IiMwZWE1ZTkiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NVy00PC90ZXh0PgogICAgPHJlY3QgeD0iNTA0IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjUyNSIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RmFsbGJhY2s8L3RleHQ+CiAgICA8dGV4dCB4PSI0NDgiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPumZjee0muWCmeahiDwvdGV4dD4KICAgIDx0ZXh0IHg9IjQ0OCIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+6Yed5bCN6IiK54CP6Ka95Zmo5o+Q5L6bIEZhbGxiPC90ZXh0PgogICAgPHRleHQgeD0iNDQ4IiB5PSIyMDAiIGZpbGw9IiM2NDc0OGIiIGZvbnQtc2l6ZT0iOC41Ij5hY2s8L3RleHQ+CiAgPC9nPgogIDxwYXRoIGQ9Ik0gNTU1IDE2MCBMIDU2NyAxNjAiIHN0cm9rZT0iIzBlYTVlOSIgc3Ryb2tlLXdpZHRoPSIxLjgiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPGcgZmlsdGVyPSJ1cmwoI2NhcmRHbG93KSI+CiAgICA8cmVjdCB4PSI1NzAiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSIxMDAiIHJ4PSIxMCIgZmlsbD0iIzEzMjczMCIgc3Ryb2tlPSJyZ2JhKDU2LCAxODksIDI0OCwgMC4yNSkiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgICA8cmVjdCB4PSI1NzAiIHk9IjExMCIgd2lkdGg9IjExNiIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzBlYTVlOSIvPgogICAgPGNpcmNsZSBjeD0iNTkyIiBjeT0iMTM2IiByPSIxMiIgZmlsbD0icmdiYSg1NiwgMTg5LCAyNDgsIDAuMTUpIiBzdHJva2U9IiMwZWE1ZTkiIHN0cm9rZS13aWR0aD0iMSIvPgogICAgPHRleHQgeD0iNTkyIiB5PSIxNDAiIGZpbGw9IiMwZWE1ZTkiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NVy01PC90ZXh0PgogICAgPHJlY3QgeD0iNjM4IiB5PSIxMjYiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNiIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiLz4KICAgIDx0ZXh0IHg9IjY1OSIgeT0iMTM4IiBmaWxsPSIjMzhiZGY4IiBmb250LXNpemU9IjguNSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+OTIlIFBhc3M8L3RleHQ+CiAgICA8dGV4dCB4PSI1ODIiIHk9IjE2OCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPuWvpua4rOmpl+aUtjwvdGV4dD4KICAgIDx0ZXh0IHg9IjU4MiIgeT0iMTg2IiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjkuNSI+5qqi5p+l6YCa6YGO546H5aSn5bmF6LqN5Y2H6IezIDkyJTwvdGV4dD4KICA8L2c+CiAgPHBhdGggZD0iTSA2MjggMjE4IEMgNjI4IDI2NSwgOTIgMjY1LCA5MiAyMTgiIHN0cm9rZT0iIzBlYTVlOSIgc3Ryb2tlLXdpZHRoPSIxLjIiIHN0cm9rZS1kYXNoYXJyYXk9IjUsNCIgZmlsbD0ibm9uZSIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8dGV4dCB4PSIzNjAiIHk9IjI2MCIgZmlsbD0iIzM4YmRmOCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjUwMCI+Q2hyb21lIC8gRWRnZSAvIEZpcmVmb3ggLyBNRE4g54++5LujIFdlYiDlhbHpgJropo/nr4TvvJpBSSDnlJ/miJDliY3lhYjmqqLntKIgQmFzZWxpbmXvvIzmi5LntZXnm7Lnm67ph43pgKDovKrlrZA8L3RleHQ+Cjwvc3ZnPg==",
+    "resultImage": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%.html",
+    "slideUrl": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%.html",
+    "objective": "1. 理解 AI 輔助前端開發時常見的「訓練數據過時、重造輪子、過度引進第三方套件」等核心痛點。\n2. 掌握 Modern Web Guidance 1.0 的三大核心支柱：專家指南、Baseline 跨瀏覽器標準對照、以及舊版瀏覽器 Fallback 替代策略。\n3. 學習如何將 Modern Web Guidance 整合進 Claude Code 與 Cursor 等 AI 工具中，將代碼通過率從 53% 提升至 92%。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 拆解問題根源 — 為何 AI 寫的網頁實測通過率僅有 53%？",
+        "description": "深入分析 AI 大模型訓練語料存在的時間延遲，剖析其常常忽略瀏覽器原生內建新 API 的技術死穴。"
+      },
+      {
+        "step": "步驟 2: 深入 Modern Web Guidance 架構 — 專家指南、Baseline 與 Fallback",
+        "description": "掌握由四大瀏覽器核心巨頭共同維護的 200+ 篇專家指南架構，學習以 Baseline 作為相容性基準判斷。"
+      },
+      {
+        "step": "步驟 3: 實作對比驗證 — 手機側邊欄原生 CSS vs 舊式 JS 卡頓動態模擬",
+        "description": "在互動模擬器中親身體會原生 CSS 巢狀與平滑過渡帶來的絲滑 60fps 體驗，對比舊式多層 JS 的掉幀卡頓。"
+      },
+      {
+        "step": "步驟 4: 工具鏈整合實戰 — 一鍵在 Claude Code / Cursor 中掛載現代網頁指引規範",
+        "description": "掌握 npx modern-web-guidance init 初始指令與 Agent 系統提示詞掛載，在僅增加微量 Token 成本下取得 92% 成果。"
+      }
+    ],
+    "promptTemplate": "你是一位精通現代 Web 前端標準與瀏覽器原生特性的架構顧問。\n請依據 Google、Edge、Firefox 與 MDN 共同制定的「Modern Web Guidance 1.0」標準：\n1. 請檢視我目前提供的 HTML/CSS/JS 代碼，指出哪些地方在「重造輪子」或引進了不必要的外部龐大套件（例如模態框、彈出選單、側邊抽屜等）。\n2. 請以瀏覽器原生支援的最新特性（如 <dialog>、Popover API、CSS :has()、原生 CSS 巢狀等）進行現代化重構，並說明其在 Baseline 跨瀏覽器中的支援度。\n3. 為不支援最新特性的舊版瀏覽器提供優雅降級（Fallback）的處理策略。",
+    "codeSnippet": {
+      "language": "bash",
+      "code": "# 在 Claude Code / Cursor 中快速安裝 Modern Web Guidance\n$ npx modern-web-guidance init\n\n# 讓 AI 遵循現代網頁基準規範寫代碼範例：原生 Popover 與 Dialog\n# 不再需要引用 jQuery 或 50KB 的外部 Modal 函式庫！\n<button popovertarget='my-popover'>開啟現代浮層</button>\n<div id='my-popover' popover>\n  <p>這是現代瀏覽器原生支援的零依賴浮層！</p>\n</div>"
+    },
+    "references": [
+      {
+        "title": "AI 寫的網頁過得了幾項檢查？Google 實測 Modern Web Guidance 1.0 (專屬互動教學頁面)",
+        "url": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%.html",
+        "bgColor": "rgba(14, 165, 233, 0.15)",
+        "borderColor": "rgba(14, 165, 233, 0.6)",
+        "color": "#38bdf8",
+        "icon": "fa-solid fa-compass-drafting",
+        "badge": "本單元專題"
+      },
+      {
+        "title": "YouTube 官方原片：Google Chrome Developers (vi4QLSU2oT4)",
+        "url": "https://www.youtube.com/watch?v=vi4QLSU2oT4"
+      },
+      {
+        "title": "Web.dev 官方 Baseline 跨瀏覽器標準清單",
+        "url": "https://web.dev/baseline"
+      },
+      {
+        "title": "MDN Web Docs：Modern Web Guidance 與瀏覽器原生 API",
+        "url": "https://developer.mozilla.org/"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-mobile-screen-button",
+        "scenario": "行動端與工控 HMI 輕量化前端介面",
+        "description": "利用瀏覽器原生 CSS 與 HTML 標籤替代笨重函式庫，消除滾動與抽屜動畫的掉幀卡頓，極致降低記憶體與 CPU 佔用。"
+      },
+      {
+        "icon": "fa-solid fa-code-compare",
+        "scenario": "AI Coding Agent 前端代碼自動審查與防退化",
+        "description": "在 Cursor / Claude Code 自動生成介面代碼時，自動比對 Baseline 標準規範，阻斷過時語法與高風險相容性漏洞。"
+      }
+    ]
+  },
+  {
+    "id": "vibe-git-kelly",
+    "labNumber": "21",
     "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！｜Kelly Tsai",
     "shortTitle": "從零搞懂 Git 版本控制",
     "category": "版本控管",
@@ -1580,11 +1654,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "https://www.youtube.com/watch?v=xDPoBLnyWIo"
       },
       {
-        "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 21)",
+        "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 22)",
         "url": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html"
       },
       {
-        "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 22)",
+        "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 23)",
         "url": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html"
       }
     ],
@@ -1603,7 +1677,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-github-nontech",
-    "labNumber": "21",
+    "labNumber": "22",
     "title": "給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能",
     "shortTitle": "非技術人員的 GitHub 教學",
     "category": "版本控管",
@@ -1653,11 +1727,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "https://www.youtube.com/watch?v=atqcAb7MFAM"
       },
       {
-        "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 20)",
+        "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 21)",
         "url": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html"
       },
       {
-        "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 22)",
+        "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 23)",
         "url": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html"
       }
     ],
@@ -1676,7 +1750,7 @@ window.INITIAL_VIBE_DATA = [
   },
   {
     "id": "vibe-cicd-gary",
-    "labNumber": "22",
+    "labNumber": "23",
     "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (自動化軟體工廠指南)",
     "shortTitle": "新手看懂 CI/CD 自動化工廠",
     "category": "版本控管",
@@ -1726,11 +1800,11 @@ window.INITIAL_VIBE_DATA = [
         "url": "https://www.youtube.com/watch?v=aCvEYczBVSY"
       },
       {
-        "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 20)",
+        "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 21)",
         "url": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html"
       },
       {
-        "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 21)",
+        "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 22)",
         "url": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html"
       }
     ],

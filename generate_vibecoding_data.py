@@ -1930,6 +1930,95 @@ unit_18_ost_vibe_coding = {
 }
 
 
+
+# 20：AI 寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%
+unit_modern_web_guidance = {
+    "id": "vibe-modern-web-guidance",
+    "labNumber": "20",
+    "title": "AI 寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%",
+    "shortTitle": "Google 實測 Modern Web Guidance 1.0",
+    "category": "其他",
+    "subCategory": "Modern Web Guidance",
+    "date": "2026-11-24",
+    "summary": "AI 寫網頁雖然飛快，但訓練資料往往停留在好幾年前，面對現代瀏覽器原生早已支援的新功能，常盲目引進肥大套件或重造輪子，導致實測通過率僅 53%！由 Chrome 聯合 Edge、Firefox 與 MDN 共同維護的開源專家指南 Modern Web Guidance 1.0，收錄超過 200 篇瀏覽器規範與 Baseline 相容性清單。在 AI 生成代碼前先查閱規範，實測檢查通過率大幅飆升至 92%！本單元包含運作架構圖、手機側邊欄性能對比模擬器、四大核心檢查指標與 CLI 安裝指引，助你打造高水準現代 Web 應用。",
+    "flowTitle": "Modern Web Guidance 1.0 現代網頁檢核與 AI 賦能流水線",
+    "resultTitle": "Modern Web 實測儀表板、架構圖、側邊欄模擬器與逐字稿工作台",
+    "flowImage": make_svg_diagram(
+        "Modern Web Guidance 1.0 現代網頁規範流水線",
+        "AI 提示詞 -> 專家指南 (200+篇) -> Baseline 標準檢索 -> 原生優先實作 -> 降級 Fallback 驗證 (92%通過率)",
+        [
+            {"num": "MW-1", "title": "需求痛點", "sub": "AI 舊資料寫過時語法 53%", "tag": "Legacy Issue"},
+            {"num": "MW-2", "title": "規範查詢", "sub": "200+ 專家指南與 Baseline", "tag": "Guidelines"},
+            {"num": "MW-3", "title": "原生優先", "sub": "善用瀏覽器原生 Dialog/Popover", "tag": "Native-First"},
+            {"num": "MW-4", "title": "降級備案", "sub": "針對舊瀏覽器提供 Fallback", "tag": "Fallback"},
+            {"num": "MW-5", "title": "實測驗收", "sub": "檢查通過率大幅躍升至 92%", "tag": "92% Pass"}
+        ],
+        loop_label="Chrome / Edge / Firefox / MDN 現代 Web 共通規範：AI 生成前先檢索 Baseline，拒絕盲目重造輪子",
+        accent="#0ea5e9"
+    ),
+    "resultImage": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%.html",
+    "slideUrl": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%.html",
+    "objective": "1. 理解 AI 輔助前端開發時常見的「訓練數據過時、重造輪子、過度引進第三方套件」等核心痛點。\n2. 掌握 Modern Web Guidance 1.0 的三大核心支柱：專家指南、Baseline 跨瀏覽器標準對照、以及舊版瀏覽器 Fallback 替代策略。\n3. 學習如何將 Modern Web Guidance 整合進 Claude Code 與 Cursor 等 AI 工具中，將代碼通過率從 53% 提升至 92%。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 拆解問題根源 — 為何 AI 寫的網頁實測通過率僅有 53%？",
+            "description": "深入分析 AI 大模型訓練語料存在的時間延遲，剖析其常常忽略瀏覽器原生內建新 API 的技術死穴。"
+        },
+        {
+            "step": "步驟 2: 深入 Modern Web Guidance 架構 — 專家指南、Baseline 與 Fallback",
+            "description": "掌握由四大瀏覽器核心巨頭共同維護的 200+ 篇專家指南架構，學習以 Baseline 作為相容性基準判斷。"
+        },
+        {
+            "step": "步驟 3: 實作對比驗證 — 手機側邊欄原生 CSS vs 舊式 JS 卡頓動態模擬",
+            "description": "在互動模擬器中親身體會原生 CSS 巢狀與平滑過渡帶來的絲滑 60fps 體驗，對比舊式多層 JS 的掉幀卡頓。"
+        },
+        {
+            "step": "步驟 4: 工具鏈整合實戰 — 一鍵在 Claude Code / Cursor 中掛載現代網頁指引規範",
+            "description": "掌握 npx modern-web-guidance init 初始指令與 Agent 系統提示詞掛載，在僅增加微量 Token 成本下取得 92% 成果。"
+        }
+    ],
+    "promptTemplate": "你是一位精通現代 Web 前端標準與瀏覽器原生特性的架構顧問。\n請依據 Google、Edge、Firefox 與 MDN 共同制定的「Modern Web Guidance 1.0」標準：\n1. 請檢視我目前提供的 HTML/CSS/JS 代碼，指出哪些地方在「重造輪子」或引進了不必要的外部龐大套件（例如模態框、彈出選單、側邊抽屜等）。\n2. 請以瀏覽器原生支援的最新特性（如 <dialog>、Popover API、CSS :has()、原生 CSS 巢狀等）進行現代化重構，並說明其在 Baseline 跨瀏覽器中的支援度。\n3. 為不支援最新特性的舊版瀏覽器提供優雅降級（Fallback）的處理策略。",
+    "codeSnippet": {
+        "language": "bash",
+        "code": "# 在 Claude Code / Cursor 中快速安裝 Modern Web Guidance\n$ npx modern-web-guidance init\n\n# 讓 AI 遵循現代網頁基準規範寫代碼範例：原生 Popover 與 Dialog\n# 不再需要引用 jQuery 或 50KB 的外部 Modal 函式庫！\n<button popovertarget='my-popover'>開啟現代浮層</button>\n<div id='my-popover' popover>\n  <p>這是現代瀏覽器原生支援的零依賴浮層！</p>\n</div>"
+    },
+    "references": [
+        {
+            "title": "AI 寫的網頁過得了幾項檢查？Google 實測 Modern Web Guidance 1.0 (專屬互動教學頁面)",
+            "url": "Vibe Coding/03.其他/寫的網頁過得了幾項檢查？Google 實測Modern Web Guidance 1.0，通過率從 53% 到 92%.html",
+            "bgColor": "rgba(14, 165, 233, 0.15)",
+            "borderColor": "rgba(14, 165, 233, 0.6)",
+            "color": "#38bdf8",
+            "icon": "fa-solid fa-compass-drafting",
+            "badge": "本單元專題"
+        },
+        {
+            "title": "YouTube 官方原片：Google Chrome Developers (vi4QLSU2oT4)",
+            "url": "https://www.youtube.com/watch?v=vi4QLSU2oT4"
+        },
+        {
+            "title": "Web.dev 官方 Baseline 跨瀏覽器標準清單",
+            "url": "https://web.dev/baseline"
+        },
+        {
+            "title": "MDN Web Docs：Modern Web Guidance 與瀏覽器原生 API",
+            "url": "https://developer.mozilla.org/"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-mobile-screen-button",
+            "scenario": "行動端與工控 HMI 輕量化前端介面",
+            "description": "利用瀏覽器原生 CSS 與 HTML 標籤替代笨重函式庫，消除滾動與抽屜動畫的掉幀卡頓，極致降低記憶體與 CPU 佔用。"
+        },
+        {
+            "icon": "fa-solid fa-code-compare",
+            "scenario": "AI Coding Agent 前端代碼自動審查與防退化",
+            "description": "在 Cursor / Claude Code 自動生成介面代碼時，自動比對 Baseline 標準規範，阻斷過時語法與高風險相容性漏洞。"
+        }
+    ]
+}
+
 # 20：Vibe Coding 必學的版本控制：從零搞懂 Git！｜Kelly Tsai
 unit_20_git_kelly = {
     "id": "vibe-git-kelly",
@@ -1995,11 +2084,11 @@ unit_20_git_kelly = {
             "url": "https://www.youtube.com/watch?v=xDPoBLnyWIo"
         },
         {
-            "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 21)",
+            "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 22)",
             "url": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html"
         },
         {
-            "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 22)",
+            "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 23)",
             "url": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html"
         }
     ],
@@ -2082,11 +2171,11 @@ unit_21_github_nontech = {
             "url": "https://www.youtube.com/watch?v=atqcAb7MFAM"
         },
         {
-            "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 20)",
+            "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 21)",
             "url": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html"
         },
         {
-            "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 22)",
+            "title": "用 AI 寫程式你得懂的 CI/CD？新手一支影片看懂 (單元 23)",
             "url": "Vibe Coding/05.版本控管/用 AI 寫程式你得懂的 CICD？.html"
         }
     ],
@@ -2169,11 +2258,11 @@ unit_22_cicd_gary = {
             "url": "https://www.youtube.com/watch?v=aCvEYczBVSY"
         },
         {
-            "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 20)",
+            "title": "Vibe Coding 必學的版本控制：從零搞懂 Git！(單元 21)",
             "url": "Vibe Coding/05.版本控管/Vibe Coding必學的版本控制：從零搞懂 Git！｜Kelly Tsai.html"
         },
         {
-            "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 21)",
+            "title": "給非技術人員的 Github 教學，Vibe Coding 必學基礎 (單元 22)",
             "url": "Vibe Coding/05.版本控管/給非技術人員的 Github 教學，Vibe Coding 必學的基礎技能.html"
         }
     ],
@@ -2211,10 +2300,15 @@ vibe_labs = [
     unit_16_team_dev_transcript,
     unit_17_team_dev_transcript_interactive,
     unit_18_ost_vibe_coding,
+    unit_modern_web_guidance,
     unit_20_git_kelly,
     unit_21_github_nontech,
     unit_22_cicd_gary
 ]
+
+# 自動依序重新編號所有單元 labNumber，確保 01, 02, 03 ... 完全連續且零填充
+for idx, lab in enumerate(vibe_labs, 1):
+    lab["labNumber"] = f"{idx:02d}"
 
 # 寫入 vibecoding.json
 out_dir = os.path.dirname(os.path.abspath(__file__))
