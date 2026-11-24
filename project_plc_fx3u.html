@@ -1501,7 +1501,7 @@ public static string HexToString(string hexInput) {
           </div>
 
           
-          <!-- 圖 3 卡片：PC與PLC通訊主從架構、控制字元與ENQ/ACK握手時序 (新加入) -->
+          <!-- 圖 3 卡片：PC與PLC通訊主從架構、控制字元與ENQ/ACK握手時序 (最新更新版) -->
           <div class="slide-item-card" style="background: #090d16; border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, border-color 0.2s;">
             <div style="padding: 14px 20px; background: linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, rgba(30, 41, 59, 0.6) 100%); border-bottom: 1px solid rgba(56, 189, 248, 0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
               <span style="font-weight: 800; color: #38bdf8; font-size: 0.92rem; font-family: 'Fira Code', monospace; background: rgba(56, 189, 248, 0.15); padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3);"><i class="fa-solid fa-handshake mr-1"></i> 圖解 03</span>
@@ -1511,9 +1511,9 @@ public static string HexToString(string hexInput) {
               
               <!-- 圖片展示框 -->
               <div style="position: relative; overflow: hidden; border-radius: 8px; background: #020617; border: 1px solid rgba(56, 189, 248, 0.25); text-align: center; padding: 10px; box-shadow: inset 0 0 30px rgba(0,0,0,0.6);">
-                <img src="images_src/fx3u/proto_pc_plc_handshake.jpg" alt="PC與PLC通訊主從架構、控制字元對照與串口助手ENQ/ACK實測" style="width: 100%; max-height: 540px; object-fit: contain; cursor: zoom-in; display: block;" title="點選圖片放大檢視：主從握手時序與控制字元表">
+                <img src="images_src/fx3u/proto_pc_plc_handshake.jpg" alt="PC與PLC通訊主從架構、控制字元對照、ACK不可見字元與十六進位06雙對照實測" style="width: 100%; max-height: 540px; object-fit: contain; cursor: zoom-in; display: block;" title="點選圖片放大檢視：主從握手時序、控制字元表與 ACK/06 實測細節">
                 <div style="margin-top: 8px; font-size: 0.8rem; color: #94a3b8;">
-                  圖解 03：涵蓋 PC(Master) 與 PLC(Slave) 握手時序、ASCII 5 大關鍵控制字元對照表及串口調試助手發送 05 回 06 實測
+                  圖解 03：PC(Master) 與 PLC(Slave) 握手時序、ASCII 5 大關鍵控制字元對照表，以及右下角串口調試助手<strong>「文字模式下不可見字元 ACK (紅框+綠箭頭) vs 勾選十六進位顯示 06」</strong>雙對照實測
                 </div>
               </div>
 
@@ -1529,8 +1529,11 @@ public static string HexToString(string hexInput) {
                     &nbsp;&nbsp;<strong>Step 2</strong>：PLC 若就緒，立即回應 <code style="color:#10b981; font-weight:700;">ACK (0x06)</code> 確認信號。
                     &nbsp;&nbsp;<strong>Step 3</strong>：PC 收到 ACK 後，正式發送讀取或寫入之<strong>命令訊息</strong>（以 STX 起頭、ETX 結尾）。
                     &nbsp;&nbsp;<strong>Step 4</strong>：PLC 執行內部暫存器存取，並回傳<strong>回應命令</strong>（或回覆 ACK 表示寫入成功）。
-                    <br>• <strong>串口助手實測重點（右下方實測畫面）</strong>：
-                    在標準 7-E-1 參數下，上位機傳送 Hex <code style="color:#38bdf8;">05</code>，PLC 瞬間回應 Hex <code style="color:#10b981;">06</code>！這是現場調試時<strong>最快速驗證 USB-SC09 連接線、RS-422 轉換晶片與 PLC 程式口是否完好的「串口 Ping 探針」</strong>！
+                    <br>• <strong>🔥 串口助手實測深解（圖中紅框標註與綠色箭頭的重大玄機）</strong>：
+                    請特別留意右下方串口調試助手的通訊紀錄：
+                    <br>&nbsp;&nbsp;① <strong>第一次發送 <code style="color:#38bdf8;">» 05</code></strong>：接收框顯示 <code style="color:#f87171;">« </code>（後面看似空白，紅框標記處）。初學者常誤以為「PLC 沒反應」！但旁邊<strong>綠色箭頭揭露了真相</strong>：PLC 其實已經回傳了字元 <code style="color:#10b981; font-weight:700;">ACK</code>，但因為 ASCII 碼 <code style="color:#10b981;">0x06</code> 屬於「不可見控制字元」，在文字模式下會呈現為空白或黑底白字方塊 <code style="background:#020617; border:1px solid #334155; padding:1px 6px; border-radius:4px; color:#38bdf8;">1 | ACK</code>！
+                    <br>&nbsp;&nbsp;② <strong>勾選「十六進位顯示」後第二次發送 <code style="color:#38bdf8;">» 05</code></strong>：接收框立刻清楚打印出二進位真實數值 <code style="color:#10b981; font-weight:800;">« 06</code>！
+                    <br>&nbsp;&nbsp;③ <strong>C# 上位機實戰避坑</strong>：在撰寫 C# `SerialPort` 通訊程式時，切勿使用 `ReadLine()` 或 `ReadExisting()` 接收字串，否則會抓到看不見的字元或拋出 Timeout 異常；<strong style="color:#34d399;">務必採用 Byte 陣列 `Read(buffer, 0, count)` 並判斷 `buffer[0] == 0x06`</strong>，才是最穩固的通訊寫法！
                   </div>
 
                   <!-- 表格 1：ASCII 5 大核心控制字元規格表 (圖片精華完全數位化) -->
@@ -1545,8 +1548,9 @@ public static string HexToString(string hexInput) {
                             <th style="padding: 8px 12px; white-space: nowrap;">控制符 (ASCII)</th>
                             <th style="padding: 8px 12px; white-space: nowrap;">16 進制 (Hex)</th>
                             <th style="padding: 8px 12px; white-space: nowrap;">10 進制 (Dec)</th>
-                            <th style="padding: 8px 12px; min-width: 150px;">英文全稱</th>
-                            <th style="padding: 8px 12px; min-width: 280px;">通訊協定角色與說明</th>
+                            <th style="padding: 8px 12px; min-width: 140px;">英文全稱</th>
+                            <th style="padding: 8px 12px; min-width: 160px;">文字/Hex 顯示型態</th>
+                            <th style="padding: 8px 12px; min-width: 250px;">通訊協定角色與實務說明</th>
                           </tr>
                         </thead>
                         <tbody style="color: #cbd5e1;">
@@ -1555,6 +1559,7 @@ public static string HexToString(string hexInput) {
                             <td style="padding: 8px 12px; font-family: monospace; font-weight: 700; color: #38bdf8;">02H (0x02)</td>
                             <td style="padding: 8px 12px;">2</td>
                             <td style="padding: 8px 12px; color: #94a3b8;">Start of Text</td>
+                            <td style="padding: 8px 12px;">文字: 不可見<br>Hex: <code style="color:#38bdf8;">02</code></td>
                             <td style="padding: 8px 12px;"><strong style="color: #60a5fa;">訊息格式之開頭字元</strong>：所有讀寫命令與回傳資料封包的固定第 1 個 Byte。</td>
                           </tr>
                           <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
@@ -1562,6 +1567,7 @@ public static string HexToString(string hexInput) {
                             <td style="padding: 8px 12px; font-family: monospace; font-weight: 700; color: #38bdf8;">03H (0x03)</td>
                             <td style="padding: 8px 12px;">3</td>
                             <td style="padding: 8px 12px; color: #94a3b8;">End of Text</td>
+                            <td style="padding: 8px 12px;">文字: 不可見<br>Hex: <code style="color:#38bdf8;">03</code></td>
                             <td style="padding: 8px 12px;"><strong style="color: #f472b6;">訊息格式之結束字元</strong>：正文結束標記，緊接其後為 2 Bytes 的 CheckSum 校驗碼。</td>
                           </tr>
                           <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: rgba(56, 189, 248, 0.02);">
@@ -1569,6 +1575,7 @@ public static string HexToString(string hexInput) {
                             <td style="padding: 8px 12px; font-family: monospace; font-weight: 700; color: #38bdf8;">05H (0x05)</td>
                             <td style="padding: 8px 12px;">5</td>
                             <td style="padding: 8px 12px; color: #94a3b8;">Enquiry</td>
+                            <td style="padding: 8px 12px;">文字: 不可見<br>Hex: <code style="color:#fbbf24;">05</code></td>
                             <td style="padding: 8px 12px;"><strong style="color: #fbbf24;">來自 PC 之詢問信號</strong>：PC 在通訊開始前敲門詢問 PLC 是否連線在線。</td>
                           </tr>
                           <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
@@ -1576,6 +1583,7 @@ public static string HexToString(string hexInput) {
                             <td style="padding: 8px 12px; font-family: monospace; font-weight: 700; color: #38bdf8;">06H (0x06)</td>
                             <td style="padding: 8px 12px;">6</td>
                             <td style="padding: 8px 12px; color: #94a3b8;">Acknowledge</td>
+                            <td style="padding: 8px 12px;">文字: <span style="color:#f87171;">空白/ [ACK]</span><br>Hex: <code style="color:#10b981; font-weight:800;">06</code></td>
                             <td style="padding: 8px 12px;"><strong style="color: #34d399;">確認回應訊息</strong>：對 ENQ 確認回應（在線）；或寫入指令成功時 PLC 給出的確認碼。</td>
                           </tr>
                           <tr>
@@ -1583,6 +1591,7 @@ public static string HexToString(string hexInput) {
                             <td style="padding: 8px 12px; font-family: monospace; font-weight: 700; color: #38bdf8;">15H (0x15 / FH)</td>
                             <td style="padding: 8px 12px;">21 / 15</td>
                             <td style="padding: 8px 12px; color: #94a3b8;">Negative Acknowledge</td>
+                            <td style="padding: 8px 12px;">文字: 不可見<br>Hex: <code style="color:#f87171;">15</code></td>
                             <td style="padding: 8px 12px;"><strong style="color: #f87171;">無法確認之回應訊息 (拒絕/報錯)</strong>：當 CheckSum 錯誤、格式不合或位址越界時回傳。</td>
                           </tr>
                         </tbody>
@@ -1612,7 +1621,7 @@ public static string HexToString(string hexInput) {
                             <td style="padding: 8px 12px;">PC ➔ PLC</td>
                             <td style="padding: 8px 12px; font-family: monospace; color: #fbbf24;">05 (ENQ)</td>
                             <td style="padding: 8px 12px; font-family: monospace; color: #34d399;">06 (ACK)</td>
-                            <td style="padding: 8px 12px;">若無回應：檢查 USB-SC09 連接線、驅動程式 COM Port、波特率必須為 9600-7-E-1。</td>
+                            <td style="padding: 8px 12px;">若接收框為空白，請勾選「十六進位顯示」即可看到 06；若徹底無回應：檢查線材與 9600-7-E-1 參數。</td>
                           </tr>
                           <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                             <td style="padding: 8px 12px; font-weight: 700; color: #10b981;">2. 讀取資料</td>
