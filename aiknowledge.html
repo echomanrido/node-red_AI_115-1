@@ -10,6 +10,307 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* AI 知識專區專屬客製與響應式 (RWD) 強化樣式 */
+    :root {
+      --ai-rose: #fb7185;
+      --ai-rose-dark: #f43f5e;
+      --ai-rose-glow: rgba(251, 113, 133, 0.35);
+      --ai-blue: #38bdf8;
+      --ai-purple: #c084fc;
+    }
+
+    /* 頂部分類 Tab 按鈕列 */
+    .vibe-category-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.25);
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      flex-shrink: 0;
+    }
+    .vibe-category-tabs::-webkit-scrollbar {
+      display: none;
+    }
+    .vibe-tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .vibe-tab-btn:hover {
+      background: rgba(251, 113, 133, 0.15);
+      color: #ffffff;
+      border-color: rgba(251, 113, 133, 0.4);
+    }
+    .vibe-tab-btn.active {
+      background: linear-gradient(135deg, rgba(244, 63, 94, 0.35), rgba(168, 85, 247, 0.25));
+      border-color: #fb7185;
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 0 14px rgba(244, 63, 94, 0.3);
+    }
+
+    /* 分類標籤色彩 */
+    .tag-category-aiknowledge {
+      background: rgba(244, 63, 94, 0.2) !important;
+      color: #fb7185 !important;
+      border: 1px solid rgba(251, 113, 133, 0.4) !important;
+    }
+
+    /* 頂部導航列按鈕群 */
+    .vibe-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+    .vibe-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      padding: 5px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .vibe-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* 獨立開啟按鈕 */
+    .btn-open-external {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      padding: 5px 11px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-open-external:hover {
+      background: rgba(56, 189, 248, 0.3);
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+    }
+
+    /* 即時簡報與成果預覽 iframe 容器 */
+    .slide-iframe-container {
+      width: 100%;
+      height: 380px;
+      border: none;
+      border-radius: 8px;
+      background: #0f172a;
+    }
+
+    /* Prompt 一鍵複製反饋動畫 */
+    .copy-success-pulse {
+      animation: copySuccess 0.4s ease;
+    }
+    @keyframes copySuccess {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.06); background: #10b981; color: #fff; }
+      100% { transform: scale(1); }
+    }
+
+    /* ==========================================================================
+       手機行動端 RWD 深度適配
+       ========================================================================== */
+    @media (max-width: 900px) {
+      .app-container {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+      }
+      .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        width: min(86vw, 320px) !important;
+        z-index: 9999 !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 12px 0 35px rgba(0, 0, 0, 0.85) !important;
+        background: #0d1527 !important;
+      }
+      .sidebar.open {
+        transform: translateX(0) !important;
+      }
+      .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+      }
+      .gallery-section {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+      .slide-iframe-container {
+        height: 420px !important;
+        min-height: 360px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .top-header {
+        height: auto !important;
+        min-height: 52px !important;
+        padding: 8px 12px !important;
+        display: grid !important;
+        grid-template-columns: auto 1fr !important;
+        grid-template-rows: auto auto !important;
+        column-gap: 10px !important;
+        row-gap: 8px !important;
+        background: rgba(10, 15, 30, 0.95) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-bottom: 1px solid rgba(244, 63, 94, 0.25) !important;
+      }
+      .mobile-toggle-btn {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: rgba(244, 63, 94, 0.18) !important;
+        border: 1px solid rgba(244, 63, 94, 0.5) !important;
+        color: #fb7185 !important;
+        padding: 6px 12px !important;
+        border-radius: 8px !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+      }
+      .mobile-toggle-btn::after {
+        content: " AI單元";
+        font-size: 0.78rem;
+        font-weight: 700;
+        margin-left: 6px;
+      }
+      .breadcrumb {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        align-self: center !important;
+        font-size: 0.78rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        color: #94a3b8 !important;
+      }
+      .breadcrumb .active-lab-name {
+        color: #fb7185 !important;
+        font-weight: 600 !important;
+      }
+      .header-actions {
+        grid-column: 1 / -1 !important;
+        grid-row: 2 !important;
+        display: flex !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        padding-bottom: 2px !important;
+      }
+      .header-actions::-webkit-scrollbar {
+        display: none !important;
+      }
+      .vibe-nav-links {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+      }
+      .vibe-nav-btn {
+        font-size: 0.75rem !important;
+        padding: 5px 10px !important;
+      }
+      .content-body {
+        padding: 12px 10px 40px 10px !important;
+        gap: 16px !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .lab-header-card {
+        padding: 14px 12px !important;
+        border-radius: 12px !important;
+      }
+      .lab-main-title {
+        font-size: 1.25rem !important;
+        line-height: 1.35 !important;
+      }
+      .lab-summary {
+        font-size: 0.85rem !important;
+        line-height: 1.55 !important;
+      }
+      .step-card {
+        padding: 12px 10px !important;
+        margin-bottom: 12px !important;
+      }
+      .step-header {
+        font-size: 0.88rem !important;
+      }
+      .step-desc {
+        font-size: 0.82rem !important;
+      }
+      .prompt-box, .code-box, .json-box {
+        padding: 10px !important;
+        font-size: 0.78rem !important;
+      }
+      .search-box input {
+        font-size: 16px !important; /* 防止 iOS Safari 輸入框聚焦時自動縮放畫面 */
+      }
+    }
+
+    @media (max-width: 480px) {
+      .top-header {
+        padding: 6px 10px !important;
+      }
+      .mobile-toggle-btn {
+        padding: 5px 9px !important;
+        font-size: 0.8rem !important;
+      }
+      .mobile-toggle-btn::after {
+        content: " 單元";
+        font-size: 0.72rem;
+      }
+      .lab-main-title {
+        font-size: 1.15rem !important;
+      }
+      .slide-iframe-container {
+        height: 360px !important;
+      }
+    }
+  </style>
+
 </head>
 <body>
   <div class="app-container">
@@ -68,6 +369,9 @@
         </div>
       </div>
     </aside>
+    <!-- 行動端側邊欄遮罩層 -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 
     <!-- 主內容區域 -->
     <main class="main-content">

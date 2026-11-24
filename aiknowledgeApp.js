@@ -13,6 +13,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const sidebar = document.getElementById('sidebar');
   const sidebarOpenBtn = document.getElementById('sidebarOpenBtn');
   const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+  function openSidebar() {
+    if (sidebar) sidebar.classList.add('open');
+    if (sidebarOverlay) sidebarOverlay.classList.add('active');
+    if (window.innerWidth <= 900) {
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeSidebar() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
 
   // Lightbox 元素
   const lightboxModal = document.getElementById('lightboxModal');
@@ -25,11 +40,28 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeCategory = 'all';
 
   if (sidebarOpenBtn) {
-    sidebarOpenBtn.addEventListener('click', () => sidebar.classList.add('open'));
+    sidebarOpenBtn.addEventListener('click', openSidebar);
   }
   if (sidebarCloseBtn) {
-    sidebarCloseBtn.addEventListener('click', () => sidebar.classList.remove('open'));
+    sidebarCloseBtn.addEventListener('click', closeSidebar);
   }
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', closeSidebar);
+  }
+
+  // 監聽 ESC 鍵關閉側邊欄
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sidebar && sidebar.classList.contains('open')) {
+      closeSidebar();
+    }
+  });
+
+  // 監聽視窗尺寸改變時重置側邊欄
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 900 && sidebar && sidebar.classList.contains('open')) {
+      closeSidebar();
+    }
+  });
 
   // Toast 提示訊息
   function showToast(message) {
@@ -245,8 +277,8 @@ document.addEventListener('DOMContentLoaded', () => {
         el.addEventListener('click', (e) => {
           e.preventDefault();
           selectItem(item.id);
-          if (window.innerWidth <= 900 && sidebar.classList.contains('open')) {
-            sidebar.classList.remove('open');
+          if (window.innerWidth <= 900) {
+            closeSidebar();
           }
         });
 
