@@ -283,6 +283,83 @@ var INITIAL_AI_KNOWLEDGE_DATA = [
         "description": "針對指針型儀表（壓力表、時鐘、溫度計）界面開發，優先引導 AI 產出 SVG / Canvas 向量代碼計算角位移，杜絕像素繪製翻車。"
       }
     ]
+  },
+  {
+    "id": "ai-kn-05",
+    "itemNumber": "05",
+    "title": "誰在幫 AI 模型評分？看懂 Artificial Analysis 排行榜，模型原來這樣選",
+    "shortTitle": "看懂 Artificial Analysis 排行榜",
+    "category": "AI模型評測",
+    "subCategory": "排行榜權威 · 指標解讀與選型",
+    "date": "2026-11-26",
+    "summary": "誰在幫全球 AI 大模型打分數？為何路透社、彭博社與金融時報等權威媒體爭相引用 Artificial Analysis？深度拆解三大評測機構（Artificial Analysis 性能實測、METR 安全自主能力、ARC-AGI 抽象推理基準），讀懂四大核心公信力指標：Quality Index（智力品質綜合指數）、TTFT（首字響應延遲）、TPS（輸出吞吐速率）與 Blended Price（百萬 Token 混合成本）。揭密業界「自誇現象、評估外包與背題刷分」三大爭議盲點，掌握帕累托最優前緣（Pareto Frontier）與實戰四步選型指南！",
+    "flowTitle": "Artificial Analysis 評測體系與選型維度架構圖",
+    "resultTitle": "看懂 Artificial Analysis 排行榜 互動教學與時間軸逐字稿",
+    "flowImage": "images_src/ai_knowledge_05_flow.svg",
+    "resultImage": "AI知識/AI模型評測/誰在幫 AI 模型評分？看懂 Artificial Analysis 排行榜，模型原來這樣選.html",
+    "slideUrl": "AI知識/AI模型評測/誰在幫 AI 模型評分？看懂 Artificial Analysis 排行榜，模型原來這樣選.html",
+    "objective": "1. 理解主流媒體（路透、彭博、金融時報）為何一致採用 Artificial Analysis 作為 AI 評分權威。\n2. 掌握三大評測機構的分工：Artificial Analysis（工程效能與成本）、METR（自主能力與安全監督）、ARC-AGI（抽象推理與未知適應）。\n3. 熟練解讀四大核心指標：Quality Index（智力指數）、TTFT（首字延遲）、TPS（輸出速率）與 Blended Price（百萬 Token 混合價格）。\n4. 警惕評測三大盲點：官方挑有利基準的「自誇現象」、模型商委託第三方測試的「評估外包利益」，以及題目洩漏導致的「背題刷分」。\n5. 依據任務複雜度、延遲響應、預算限制與資料隱私四步漏斗，在帕累托最優前緣上挑選最佳落地模型。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 權威來源 —— 為什麼各大媒體都引用 Artificial Analysis？",
+        "description": "由麥肯錫背景團隊創立，獨立於科技巨頭。在各大模型發表時，媒體需公正客觀的數據進行橫向對比。Artificial Analysis 兼具「學術基準」與「雲端 API 真實推論效能實測」，因此成為彭博社、路透社報導的標準引用來源。"
+      },
+      {
+        "step": "步驟 2: 評測體系 —— 三大機構分工與評測側重點",
+        "description": "評估 AI 不能只看單一維度：Artificial Analysis 專注於工程落地性價比（智力/速度/價格）；METR（原 Alignment Research Center）專注於模型自主性危害與安全紅線評估；ARC-AGI 則以圖像規律矩陣考驗模型跳脫訓練記憶的全新抽象推理能力。"
+      },
+      {
+        "step": "步驟 3: 四大公信力機制 —— 超越廠商宣傳的客觀標尺",
+        "description": "第一看 Quality Index（綜合多項基準的智力指數）；第二看 TTFT（Time to First Token，衡量首字延遲與打字機體驗）；第三看 TPS（Tokens Per Second，決定大段文本生成的等待時間）；第四看 Blended Price（按 3:1 輸入輸出比例計算每百萬 Token 混合成本）。"
+      },
+      {
+        "step": "步驟 4: 識破盲點 —— 評測排行榜的三大爭議與陷阱",
+        "description": "1. 自誇現象：廠商只在發表會雷達圖挑自己贏的指標；2. 評估外包：第三方受託測試時可能存在利益傾斜；3. 背題刷分：公開測試題被無意或刻意納入訓練集（Data Contamination），造成跑分虛高但實際泛化能力低落。"
+      },
+      {
+        "step": "步驟 5: 實戰指南 —— 業務場景選型四部曲與帕累托最佳解",
+        "description": "第 1 步判斷任務本質（需要慢思考 reasoning 還是快速檢索）；第 2 步設定延遲底線（客服/語音對話 TTFT < 800ms，離線分析可放寬）；第 3 步精算百萬次成本；第 4 步確立隱私邊界（雲端 API 或地端開源模型）。最後在 Artificial Analysis 帕累托前緣尋找最具性價比的甜點模型。"
+      }
+    ],
+    "promptTemplate": "你是一位精通雲端與邊緣 AI 架構的首席技術專家。\n請參照 Artificial Analysis 排行榜的核心指標（Quality Index, TTFT, TPS, Blended Price），為以下業務場景提出最佳選型評估：\n\n【應用需求】：\n- 業務型態：工業物聯網 edge gateway 即時異常事件診斷與語音回報\n- 延遲限制：TTFT 首字延遲必須 < 600ms，TPS 輸出速度 > 80 tokens/s\n- 成本考量：每日需處理 20,000 次診斷，每月 API 混合成本需壓在 $15 美元以內\n- 智力門檻：Quality Index 需具備處理 JSON Schema 與基本工程因果判斷能力\n\n【評估輸出】：\n1. 請在帕累托前緣（Pareto Frontier）推薦 2 款候選商業雲端 API（分析其 TTFT, TPS, 混合每百萬 Token 價格）。\n2. 評估若日後改為廠區本地地端部署，是否有同級的開源輕量模型（如 Qwen 2.5 或 Llama 3）可達標？",
+    "codeSnippet": {
+      "language": "javascript",
+      "code": "// 基於 Artificial Analysis 指標之模型選型帕累托評分與性價比計算器\nfunction evaluateModelPareto({\n  name,\n  qualityIndex,    // 例如 75 ~ 95\n  ttftMs,          // 首字延遲 (ms)\n  tps,             // 輸出吞吐量 (tokens/s)\n  blendedPriceUSD  // 每百萬 Token 混合價格 (USD)\n}) {\n  // 延遲懲罰係數 (以 800ms 為基準)\n  const latencyPenalty = ttftMs > 800 ? Math.pow(ttftMs / 800, 1.2) : 1;\n  // 每美元所換取之有效智力 (加權吞吐量並扣除延遲代價)\n  const throughputBoost = Math.log10(Math.max(10, tps));\n  const scorePerDollar = (qualityIndex * throughputBoost) / (blendedPriceUSD * latencyPenalty);\n  \n  return {\n    model: name,\n    paretoScore: Number(scorePerDollar.toFixed(2)),\n    recommendation: blendedPriceUSD <= 1.0 && qualityIndex >= 70\n      ? '極致性價比 (Flash/Mini 級推薦)'\n      : qualityIndex >= 85\n        ? '高階推理旗艦 (適合關鍵複雜決策)'\n        : '均衡型模型'\n  };\n}"
+    },
+    "references": [
+      {
+        "title": "誰在幫 AI 模型評分？看懂 Artificial Analysis 排行榜（專屬互動講義與逐字稿）",
+        "url": "AI知識/AI模型評測/誰在幫 AI 模型評分？看懂 Artificial Analysis 排行榜，模型原來這樣選.html"
+      },
+      {
+        "title": "Artificial Analysis 官方獨立評測平台 (artificialanalysis.ai)",
+        "url": "https://artificialanalysis.ai/"
+      },
+      {
+        "title": "METR (Model Evaluation & Threat Research) 安全自主性研究機構",
+        "url": "https://metr.org/"
+      },
+      {
+        "title": "ARC Prize (Abstraction and Reasoning Corpus) 抽象推理基準",
+        "url": "https://arcprize.org/"
+      },
+      {
+        "title": "LMSYS Chatbot Arena 人類盲測對抗平台 (lmarena.ai)",
+        "url": "https://lmarena.ai/"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-chart-line",
+        "scenario": "企業大模型技術選型與帕累托成本優化",
+        "description": "打破廠商發表會的片面宣傳，藉由 TTFT、TPS 及 Blended Price 實測數據，找出最具性價比的企業級 API。"
+      },
+      {
+        "icon": "fa-solid fa-microchip",
+        "scenario": "工控機電邊緣閘道器 (Edge Gateway) 延遲與推理配置",
+        "description": "針對需要小於 1 秒快速響應的工業異常警報場景，精準篩選低首字延遲 (TTFT) 與高輸出速率之邊緣或雲端模型。"
+      }
+    ]
   }
 ];
 

@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>誰在幫 AI 模型評分？看懂 Artificial Analysis 排行榜｜互動式教學與時間軸逐字稿</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    svg text {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .svg-node {
+      cursor: pointer;
+      transition: transform 0.18s ease, filter 0.18s ease;
+    }
+    .svg-node:hover {
+      filter: drop-shadow(0 6px 14px rgba(79, 70, 229, 0.22));
+    }
+    .svg-node.active rect.node-bg {
+      stroke: #4f46e5;
+      stroke-width: 3;
+      fill: #eef2ff;
+    }
+    .citation-bar-row {
+      cursor: pointer;
+      transition: opacity 0.18s ease;
+    }
+    .citation-bar-row:hover rect.row-hit {
+      fill: rgba(255, 255, 255, 0.06);
+    }
+    .citation-bar-row.active rect.row-hit {
+      fill: rgba(91, 180, 176, 0.14);
+      stroke: #5bb4b0;
+      stroke-width: 1.5;
+    }
+    .timeline-line {
+      position: absolute;
+      left: 19px;
+      top: 12px;
+      bottom: 12px;
+      width: 2px;
+      background: linear-gradient(to bottom, #6366f1, #cbd5e1);
+    }
+    mark.search-hl {
+      background-color: #fef08a;
+      color: #0f172a;
+      padding: 0 2px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    .toast-enter {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .toast-exit {
+      transform: translateY(16px);
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+  <!-- Sticky Navigation -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+      <a href="#top" class="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base truncate">
+        <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-600 text-white text-xs font-extrabold shrink-0">AA</span>
+        <span class="truncate">看懂 Artificial Analysis 排行榜</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600">
+        <a href="#media-chart" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-indigo-600 transition">媒體引用圖</a>
+        <a href="#guide" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-indigo-600 transition">導讀重點</a>
+        <a href="#sources" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-indigo-600 transition">三大來源</a>
+        <a href="#mechanism" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-indigo-600 transition">評測機制</a>
+        <a href="#blindspots" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-indigo-600 transition">爭議盲點</a>
+        <a href="#selector" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-indigo-600 transition">模型選型</a>
+        <a href="#timeline" class="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition">時間軸逐字稿</a>
+        <a href="../../aiknowledge.html" class="ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition text-xs font-bold border border-slate-200">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          回 AI 知識
+        </a>
+      </nav>
+      <button id="mobileMenuBtn" type="button" aria-label="開啟選單" class="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-slate-600 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-1 text-sm font-medium text-slate-700">
+      <a href="#media-chart" class="block px-3 py-2 rounded-lg hover:bg-slate-100">誰最常被國外媒體引用（SVG 圖解）</a>
+      <a href="#guide" class="block px-3 py-2 rounded-lg hover:bg-slate-100">導讀與本集重點</a>
+      <a href="#sources" class="block px-3 py-2 rounded-lg hover:bg-slate-100">三大評測來源與創辦故事</a>
+      <a href="#mechanism" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Artificial Analysis 評測機制</a>
+      <a href="#blindspots" class="block px-3 py-2 rounded-lg hover:bg-slate-100">三大爭議與盲點</a>
+      <a href="#selector" class="block px-3 py-2 rounded-lg hover:bg-slate-100">互動式 AI 模型選型指南</a>
+      <a href="#timeline" class="block px-3 py-2 rounded-lg bg-indigo-50 text-indigo-700">互動式時間軸逐字稿</a>
+      <a href="../../aiknowledge.html" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 text-slate-800 font-bold hover:bg-indigo-50 hover:text-indigo-600">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        返回 AI 核心知識庫
+      </a>
+    </div>
+  </header>
+
+  <main id="top" class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-12">
+
+    <!-- Top Featured Redrawn SVG Chart & Explanation -->
+    <section id="media-chart" class="space-y-5">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <!-- Dark Slate SVG Stage matching the original slide aesthetic -->
+        <div class="bg-gradient-to-br from-[#1f262a] via-[#191f23] to-[#111518] p-4 sm:p-6">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-200">
+              📊 重繪互動式 SVG 圖表（可反白選字 · 點擊長條查看解說）
+            </span>
+            <button id="copyChartSummaryBtn" type="button"
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 text-xs font-semibold border border-white/15 transition">
+              複製圖表數據摘要
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <svg id="citationSvg" viewBox="0 0 880 430" class="w-full h-auto min-w-[540px] rounded-xl" role="img" aria-label="誰最常被國外媒體引用？2026年7至10月16家國外科技財經媒體X貼文統計圖">
+              <defs>
+                <linearGradient id="chartBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#22292d" />
+                  <stop offset="100%" stop-color="#13171a" />
+                </linearGradient>
+                <linearGradient id="tealBar" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#4ea8a4" />
+                  <stop offset="100%" stop-color="#64c2bd" />
+                </linearGradient>
+                <linearGradient id="grayBar" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#bcc5ce" />
+                  <stop offset="100%" stop-color="#d2dae2" />
+                </linearGradient>
+              </defs>
+
+              <!-- Background -->
+              <rect x="0" y="0" width="880" height="430" rx="14" fill="url(#chartBg)" />
+              <!-- Top-left accent ribbon -->
+              <polygon points="0,0 56,0 0,92" fill="#2dd4bf" opacity="0.85" />
+              <polygon points="0,0 44,0 0,44" fill="#ffffff" />
+
+              <!-- Top-right Source Attribution -->
+              <text x="844" y="32" text-anchor="end" font-size="13" font-weight="500">
+                <tspan fill="#64c2bd" font-weight="700">來源 </tspan>
+                <tspan fill="#cbd5e1">泛科學院自行統計（2026-07-01～10-31；METR 多為安全監督新聞）</tspan>
+              </text>
+
+              <!-- Subtitle & Main Title -->
+              <rect x="58" y="57" width="3" height="16" rx="1.5" fill="#64c2bd" />
+              <text x="70" y="70" fill="#94a3b8" font-size="14.5" font-weight="600">2026 年 7–10 月 ｜ 16 家國外科技、財經媒體的 X 貼文</text>
+              <text x="58" y="114" fill="#ffffff" font-size="32" font-weight="800" letter-spacing="0.5">
+                誰最常被國外媒體<tspan fill="#64c2bd">引用</tspan>？
+              </text>
+
+              <!-- Subtle vertical guide grid -->
+              <line x1="275" y1="138" x2="275" y2="365" stroke="#334155" stroke-width="1" stroke-dasharray="3 4" />
+              <line x1="475" y1="138" x2="475" y2="365" stroke="#334155" stroke-width="1" stroke-dasharray="3 4" opacity="0.55" />
+              <line x1="675" y1="138" x2="675" y2="365" stroke="#334155" stroke-width="1" stroke-dasharray="3 4" opacity="0.55" />
+
+              <!-- Row 1: Artificial Analysis (21) -> width = 21/21 * 440 = 440 -->
+              <g class="citation-bar-row active" data-org="aa">
+                <rect class="row-hit" x="42" y="138" width="796" height="42" rx="8" fill="transparent" />
+                <text x="260" y="165" text-anchor="end" fill="#ffffff" font-size="17" font-weight="700">Artificial Analysis</text>
+                <rect x="275" y="145" width="440" height="28" rx="4" fill="url(#tealBar)" />
+                <text x="729" y="166" fill="#ffffff" font-size="23" font-weight="800">21</text>
+                <text x="760" y="165" fill="#94a3b8" font-size="14" font-weight="600">則</text>
+              </g>
+
+              <!-- Row 2: METR (15) -> width = 15/21 * 440 = 314 -->
+              <g class="citation-bar-row" data-org="metr">
+                <rect class="row-hit" x="42" y="184" width="796" height="42" rx="8" fill="transparent" />
+                <text x="260" y="211" text-anchor="end" fill="#e2e8f0" font-size="17" font-weight="700">METR</text>
+                <rect x="275" y="191" width="314" height="28" rx="4" fill="url(#grayBar)" />
+                <text x="603" y="212" fill="#ffffff" font-size="23" font-weight="800">15</text>
+                <text x="634" y="211" fill="#94a3b8" font-size="14" font-weight="600">則</text>
+              </g>
+
+              <!-- Row 3: ARC-AGI (3) -> width = 3/21 * 440 = 63 -->
+              <g class="citation-bar-row" data-org="arc">
+                <rect class="row-hit" x="42" y="230" width="796" height="42" rx="8" fill="transparent" />
+                <text x="260" y="257" text-anchor="end" fill="#e2e8f0" font-size="17" font-weight="700">ARC-AGI</text>
+                <rect x="275" y="237" width="63" height="28" rx="4" fill="url(#grayBar)" />
+                <text x="352" y="258" fill="#ffffff" font-size="23" font-weight="800">3</text>
+                <text x="371" y="257" fill="#94a3b8" font-size="14" font-weight="600">則</text>
+              </g>
+
+              <!-- Row 4: SWE／Terminal-Bench (3) -> width = 63 -->
+              <g class="citation-bar-row" data-org="swe">
+                <rect class="row-hit" x="42" y="276" width="796" height="42" rx="8" fill="transparent" />
+                <text x="260" y="303" text-anchor="end" fill="#e2e8f0" font-size="17" font-weight="700">SWE／Terminal-Bench</text>
+                <rect x="275" y="283" width="63" height="28" rx="4" fill="url(#grayBar)" />
+                <text x="352" y="304" fill="#ffffff" font-size="23" font-weight="800">3</text>
+                <text x="371" y="303" fill="#94a3b8" font-size="14" font-weight="600">則</text>
+              </g>
+
+              <!-- Row 5: Arena (2) -> width = 2/21 * 440 = 42 -->
+              <g class="citation-bar-row" data-org="arena">
+                <rect class="row-hit" x="42" y="322" width="796" height="42" rx="8" fill="transparent" />
+                <text x="260" y="349" text-anchor="end" fill="#e2e8f0" font-size="17" font-weight="700">Arena</text>
+                <rect x="275" y="329" width="42" height="28" rx="4" fill="url(#grayBar)" />
+                <text x="331" y="350" fill="#ffffff" font-size="23" font-weight="800">2</text>
+                <text x="350" y="349" fill="#94a3b8" font-size="14" font-weight="600">則</text>
+              </g>
+
+              <!-- Footer Callout inside Chart -->
+              <line x1="58" y1="382" x2="838" y2="382" stroke="#334155" stroke-width="1" />
+              <text x="58" y="408" fill="#cbd5e1" font-size="15.5" font-weight="500">
+                另抽 31 篇新模型報導：<tspan fill="#64c2bd" font-weight="800">13 篇</tspan>引用 Artificial Analysis（佔比約 41.9%）
+              </text>
+              <text x="838" y="408" text-anchor="end" fill="#64748b" font-size="12.5" font-weight="600">
+                點擊任一長條查看下方深度解說 ↑
+              </text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Detailed Explanation & Bidirectional Linked Card -->
+        <div class="p-5 sm:p-7 space-y-5 bg-white">
+          <!-- Interactive selected bar insight -->
+          <div id="citationDetailBox" class="rounded-xl border border-teal-200 bg-teal-50/60 p-4 sm:p-5"></div>
+
+          <!-- 3-Column Core Chart Interpretation -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-1.5">
+              <div class="text-xs font-bold text-teal-700">① 為什麼 Artificial Analysis 遙遙領先？</div>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                在 4 個月內被 16 家國外科技財經媒體於 X 引用 <strong>21 則</strong>，且在 31 篇新模型報導中高達 <strong>13 篇（41.9%）</strong>引用。原因在於它同時涵蓋「能力、速度、價格」且獨立重跑，最符合媒體快速橫向比較新模型的需求。
+              </p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-1.5">
+              <div class="text-xs font-bold text-amber-700">② 第二名 METR（15 則）的關鍵備註</div>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                圖表右上角特別註明「<strong>METR 多為安全監督新聞</strong>」——代表 METR 雖有 15 則引用，但多集中在 AI 風險與安全合規議題；若只看「幫一般人比較哪個模型比較好用」，Artificial Analysis 的聲量差距其實更大。
+              </p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-1.5">
+              <div class="text-xs font-bold text-indigo-700">③ 單一指標 vs 綜合榜單的差異</div>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                <strong>ARC-AGI（3 則）</strong>、<strong>SWE／Terminal-Bench（3 則）</strong>與 <strong>Arena（2 則）</strong>各自聚焦抽象推理、寫程式或盲測投票，偏向特定領域；Artificial Analysis 則把多維度整合成一站式儀表板，因此最受主流財經媒體青睞。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hero & Top Reading Guide -->
+    <section id="guide" class="space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-8">
+          <div class="flex flex-wrap items-center gap-2 text-xs font-semibold mb-3">
+            <span class="px-2.5 py-1 rounded-full bg-indigo-500/30 border border-indigo-400/40 text-indigo-200">泛科學院</span>
+            <span class="px-2.5 py-1 rounded-full bg-white/10 text-slate-200">2026-11-26</span>
+            <span class="px-2.5 py-1 rounded-full bg-white/10 text-slate-200">片長 09:28</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-snug mb-3">
+            誰在幫 AI 模型評分？看懂 Artificial Analysis 排行榜，模型原來這樣選
+          </h1>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-3xl mb-5">
+            每家 AI 大廠發表會都自稱第一名，到底該信誰？本頁整理影片完整脈絡，帶你拆解第三方評測權威 Artificial Analysis 的評分規則、潛在盲點，並透過互動選型工具依工作場景挑出最划算的模型。
+          </p>
+          <div class="flex flex-wrap items-center gap-3">
+            <a href="https://youtu.be/rurFPRaojdE" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold shadow-sm transition">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+              前往 YouTube 觀看原影片
+            </a>
+            <button id="toggleEmbedBtn" type="button"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-semibold border border-white/15 transition">
+              <span>展開／收合影片播放器</span>
+            </button>
+            <a href="#timeline"
+               class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-100 text-sm font-semibold border border-indigo-400/30 transition">
+              跳至互動時間軸逐字稿 ↓
+            </a>
+          </div>
+
+          <div id="videoEmbedWrap" class="hidden mt-5 rounded-xl overflow-hidden border border-white/15 bg-black aspect-video max-w-3xl">
+            <iframe id="ytIframe" class="w-full h-full" title="誰在幫 AI 模型評分？看懂 Artificial Analysis 排行榜"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <!-- 一句話說明 + 閱讀路線圖 -->
+        <div class="p-6 sm:p-8 space-y-6">
+          <div class="rounded-xl bg-indigo-50 border-l-4 border-indigo-600 p-4 sm:p-5">
+            <div class="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-1">💡 一句話說明</div>
+            <p class="text-slate-800 text-sm sm:text-base font-medium leading-relaxed">
+              別只看總排名第一名！懂得以 <strong>Artificial Analysis</strong> 的「分項指標」（知識工作、自動化、幻覺率、寫程式、價格、PDF 推理）對應自己的日常任務，才能避開大廠行銷話術、用更低成本挑到真正好用的 AI 模型。
+            </p>
+          </div>
+
+          <!-- 🔍 本集重點互動清單 -->
+          <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">🔍 本集重點（點擊可快速跳轉並勾選閱讀進度）</h2>
+              <span id="checklistProgress" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700">已閱讀 0 / 6</span>
+            </div>
+            <div id="focusChecklist" class="grid grid-cols-1 md:grid-cols-2 gap-2.5"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 1: 三大評測來源 & 創辦故事 -->
+    <section id="sources" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold text-sm">1</span>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">AI 評分的三大來源與 Artificial Analysis 崛起故事</h2>
+      </div>
+
+      <!-- 三大來源並排比較 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 mb-3">來源一 · 最常見</div>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">模型公司自測報告</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              由模型開發商自行挑選題目與評測項目，發布時往往只放大自家最擅長的分數。
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-semibold text-rose-700">
+            🎭 比喻：運動員兼裁判，專挑強項說嘴
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 mb-3">來源二 · 重安全</div>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">政府機構安全評測</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              如英國 AI 安全研究所，會在模型上市前先測過一輪，但重點是「危不危險」，並非比較誰更聰明。
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-semibold text-sky-700">
+            🛡️ 限制：報告中不會出現能力排行榜
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border-2 border-indigo-200 p-5 shadow-sm flex flex-col justify-between relative">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 mb-3">來源三 · 獨立客觀</div>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">第三方評測機構</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              自己不做模型、專門評測 AI。其中 <strong>Artificial Analysis</strong> 是國外科技媒體引用率最高的指標單位。
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-indigo-100 text-xs font-semibold text-indigo-700">
+            📊 地位：跨模型能力、速度與價格的公認參照
+          </div>
+        </div>
+      </div>
+
+      <!-- 2欄：媒體引用數據 + 創辦故事 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <h3 class="text-base font-bold text-slate-900">📈 媒體引用實測（泛科學院統計：7 月～10 月底）</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm font-semibold mb-1.5">
+                <span class="text-slate-700">16 家國外科技財經媒體在 X 提及次數</span>
+                <span class="text-indigo-600">21 則（遠高於同業）</span>
+              </div>
+              <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-indigo-600 rounded-full" style="width: 84%;"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm font-semibold mb-1.5">
+                <span class="text-slate-700">隨機抽樣 31 篇新模型報導的引用率</span>
+                <span class="text-emerald-600">13 / 31 篇（約 42%）</span>
+              </div>
+              <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-emerald-500 rounded-full" style="width: 42%;"></div>
+              </div>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            高媒體曝光加上獨立實測定位，使其成為每次旗艦模型發表後最常被引用的第三方數據來源。
+          </p>
+        </div>
+
+        <div class="bg-amber-50/70 rounded-2xl border border-amber-200 p-6 space-y-3">
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">🏠 創辦故事 · 無心插柳</div>
+          <h3 class="text-base font-bold text-slate-900">從地下室業餘專案到指標評測網</h3>
+          <ul class="text-sm text-slate-700 space-y-2 list-disc pl-5 leading-relaxed">
+            <li><strong>起點痛點：</strong>前麥肯錫分析師 Micah Hill-Smith 創業做「AI 法律研究助理」時，發現找不到可靠資料比較各家模型。</li>
+            <li><strong>地下室啟動：</strong>與共同創辦人 George Cameron 動手自建評測工具，隔年 1 月正式上線。</li>
+            <li><strong>爆紅契機：</strong>獲知名 AI Podcast《Latent Space》主持人轉推，又逢法國開源模型 Mistral 上線，用戶急需比較各家雲端服務商的「速度與價格」，一舉打響名號。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: 互動式雙向連動 SVG 評測機制 -->
+    <section id="mechanism" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold text-sm">2</span>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">它跟廠商自測差在哪？四大公信力機制（點擊圖表互動）</h2>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6">
+        <p class="text-sm text-slate-600 mb-4">
+          點擊下方 SVG 架構圖中的任一節點，右側說明面板會同步切換對應原理與生活化比喻（圖中文字皆可直接反白選取複製）：
+        </p>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <!-- Interactive Pure SVG -->
+          <div class="lg:col-span-7 bg-slate-50 rounded-xl border border-slate-200 p-3 overflow-x-auto">
+            <svg id="mechSvg" viewBox="0 0 560 360" class="w-full h-auto min-w-[320px]" role="img" aria-label="Artificial Analysis 四大評測機制架構圖">
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#94a3b8" />
+                </marker>
+              </defs>
+
+              <!-- Center Hub -->
+              <rect x="195" y="142" width="170" height="76" rx="14" fill="#1e1b4b" />
+              <text x="280" y="173" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700">Artificial Analysis</text>
+              <text x="280" y="196" text-anchor="middle" fill="#c7d2fe" font-size="11.5">第三方獨立實測引擎</text>
+
+              <!-- Connector Lines -->
+              <line x1="175" y1="78" x2="225" y2="142" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+              <line x1="385" y1="78" x2="335" y2="142" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+              <line x1="175" y1="282" x2="225" y2="218" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+              <line x1="385" y1="282" x2="335" y2="218" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+
+              <!-- Node 1: 統一條件自己跑 -->
+              <g class="svg-node active" data-node="uniform">
+                <rect class="node-bg" x="18" y="20" width="210" height="82" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+                <text x="34" y="46" fill="#4f46e5" font-size="11" font-weight="700">01 · 公平起跑線</text>
+                <text x="34" y="68" fill="#0f172a" font-size="14" font-weight="700">統一條件親自實測</text>
+                <text x="34" y="88" fill="#64748b" font-size="11">拒絕「帶小抄 vs 裸考」</text>
+              </g>
+
+              <!-- Node 2: 神秘客政策 -->
+              <g class="svg-node" data-node="mystery">
+                <rect class="node-bg" x="332" y="20" width="210" height="82" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+                <text x="348" y="46" fill="#0284c7" font-size="11" font-weight="700">02 · 防特製高配版</text>
+                <text x="348" y="68" fill="#0f172a" font-size="14" font-weight="700">米其林式「神秘客」</text>
+                <text x="348" y="88" fill="#64748b" font-size="11">匿名帳號測出真實水準</text>
+              </g>
+
+              <!-- Node 3: 60% 不公開考題 -->
+              <g class="svg-node" data-node="private">
+                <rect class="node-bg" x="18" y="258" width="210" height="82" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+                <text x="34" y="284" fill="#059669" font-size="11" font-weight="700">03 · 防背題庫</text>
+                <text x="34" y="306" fill="#0f172a" font-size="14" font-weight="700">60% 不公開考題加權</text>
+                <text x="34" y="326" fill="#64748b" font-size="11">定期依前沿能力改版更新</text>
+              </g>
+
+              <!-- Node 4: 智能指數 V5 -->
+              <g class="svg-node" data-node="v5">
+                <rect class="node-bg" x="332" y="258" width="210" height="82" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+                <text x="348" y="284" fill="#7c3aed" font-size="11" font-weight="700">04 · 10 月底上線</text>
+                <text x="348" y="306" fill="#0f172a" font-size="14" font-weight="700">智能指數 V5（9 卷 4 類）</text>
+                <text x="348" y="326" fill="#64748b" font-size="11">四大維度各佔 25% 權重</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Dynamic Detail Panel -->
+          <div id="mechDetailPanel" class="lg:col-span-5 rounded-xl bg-indigo-50/60 border border-indigo-200 p-5 space-y-3">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: 三大爭議與盲點 -->
+    <section id="blindspots" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-rose-600 text-white font-bold text-sm">3</span>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">公信力滿分嗎？必須知道的三大爭議與盲點</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-rose-50/60 rounded-2xl border border-rose-200 p-5 space-y-2.5">
+          <div class="text-xs font-bold text-rose-700">⚠️ 盲點一 · 商業模式</div>
+          <h3 class="text-base font-bold text-slate-900">客戶包含主流模型大廠</h3>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            雖然創辦人強調「沒人能付錢上榜」，但公司營收來自<strong>企業訂閱</strong>與<strong>客製化 AI 評測</strong>，客戶名單中確實包含主流模型大廠，潛在利益關係仍需保持警覺。
+          </p>
+        </div>
+
+        <div class="bg-amber-50/70 rounded-2xl border border-amber-200 p-5 space-y-2.5">
+          <div class="text-xs font-bold text-amber-800">🕵️ 盲點二 · 考題外洩風險</div>
+          <h3 class="text-base font-bold text-slate-900">MiniMax 疑似外洩事件</h3>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            10 月有網友指控中國 MiniMax 可能偷看不公開考題；隨後幻覺測試從 <strong>6,000 題精簡更新為 3,000 題</strong>，MiniMax 新模型分數立刻掉了 <strong>2 分</strong>（截至 11/5 雙方皆未正式回應）。
+          </p>
+        </div>
+
+        <div class="bg-violet-50/70 rounded-2xl border border-violet-200 p-5 space-y-2.5">
+          <div class="text-xs font-bold text-violet-800">🎯 盲點三 · 評測導向特訓</div>
+          <h3 class="text-base font-bold text-slate-900">高分 ≠ 真正變聰明</h3>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            一旦某評測成為眾人焦點，各廠就會針對題型特訓。就像<strong>考多益只練時間配比與高分題型</strong>，分數變漂亮但實際英文實力進步有限。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: 互動式 AI 模型選型指南 -->
+    <section id="selector" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-600 text-white font-bold text-sm">4</span>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">實戰選型指南：依你的工作場景挑模型</h2>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 space-y-6">
+        <!-- Scenario Tabs -->
+        <div id="scenarioTabs" class="flex flex-wrap gap-2" role="tablist" aria-label="工作場景切換"></div>
+
+        <!-- Dynamic Scenario Panel -->
+        <div id="scenarioContent" class="rounded-xl border border-slate-200 bg-slate-50/70 p-5 sm:p-6"></div>
+
+        <!-- Summary Matrix Table -->
+        <div class="pt-2">
+          <h3 class="text-sm font-bold text-slate-800 mb-3">📋 六大工作場景快速對照表（影片錄製當下實測數據）</h3>
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="bg-slate-100 text-slate-700 text-xs uppercase">
+                  <th class="py-3 px-4 font-bold">目標族群 / 任務</th>
+                  <th class="py-3 px-4 font-bold">必看指標</th>
+                  <th class="py-3 px-4 font-bold">領先 / 推薦模型</th>
+                  <th class="py-3 px-4 font-bold">選型核心策略</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white">
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-4 font-semibold text-slate-900">上班族（報告／簡報）</td>
+                  <td class="py-3 px-4 font-mono text-xs text-indigo-700">A briefcast</td>
+                  <td class="py-3 px-4">Claude Sonnet 5.5（與 Opus 5.5 分數相近）</td>
+                  <td class="py-3 px-4 text-slate-600">Sonnet 5.5 價格僅一半，優先選用</td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-4 font-semibold text-slate-900">重複流程（信件／試算表）</td>
+                  <td class="py-3 px-4 font-mono text-xs text-indigo-700">Automation Bench</td>
+                  <td class="py-3 px-4">Google Gemini 4 系列（第 1 名 Carbon）</td>
+                  <td class="py-3 px-4 text-slate-600">跨 App 流程處理以 Gemini 4 領先</td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-4 font-semibold text-slate-900">研究者／記者（事實查核）</td>
+                  <td class="py-3 px-4 font-mono text-xs text-rose-700">幻覺率（越低越好）</td>
+                  <td class="py-3 px-4">Gemini 4 Carbon (11%)、Organ (15%)</td>
+                  <td class="py-3 px-4 text-slate-600">避開高幻覺率模型，重要資訊仍須人工覆核</td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-4 font-semibold text-slate-900">工程師（寫程式／工具）</td>
+                  <td class="py-3 px-4 font-mono text-xs text-indigo-700">Terminal Bench 4.0</td>
+                  <td class="py-3 px-4">Kimi K3.1 Pro (67%)、Sonnet 5.5 (64%)</td>
+                  <td class="py-3 px-4 text-slate-600">前幾名差距小（59%–67%），選便宜又快的</td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-4 font-semibold text-slate-900">大量簡單任務（摘要／翻譯）</td>
+                  <td class="py-3 px-4 font-mono text-xs text-emerald-700">價格圖（每百萬 Token）</td>
+                  <td class="py-3 px-4">Claude Haiku 5.5、ChatGPT 6 Luna ($0.1)</td>
+                  <td class="py-3 px-4 text-slate-600">分數略低無妨，成本才是關鍵</td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-4 font-semibold text-slate-900">常讀專業 PDF</td>
+                  <td class="py-3 px-4 font-mono text-xs text-amber-700">GDP.PDF（全對計分）</td>
+                  <td class="py-3 px-4">M Wonderful (33%)、K3.1 Pro 等 (31%)</td>
+                  <td class="py-3 px-4 text-slate-600">最強也僅 1/3 全對，重點數字必對原文</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: 上站前必知兩大提醒 -->
+    <section id="reminders" class="space-y-5">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500 text-white font-bold text-sm">5</span>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">使用 Artificial Analysis 前的兩大提醒</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-2xl border-l-4 border-amber-500 border-t border-r border-b border-slate-200 p-5 shadow-sm">
+          <div class="text-xs font-bold text-amber-700 mb-1">提醒 1 · 智能指數更新機制</div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">模型「降智」可能不會即時反映</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            智能指數的分數是模型剛加入時考一次就定案的；若之後發生模型變笨（降智），榜單未必即時呈現。但只要<strong>考卷改版</strong>或有<strong>新模型加入</strong>，整體排名就會跟著變動。
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border-l-4 border-sky-500 border-t border-r border-b border-slate-200 p-5 shadow-sm">
+          <div class="text-xs font-bold text-sky-700 mb-1">提醒 2 · 速度與更多排行</div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">速度每 3 小時重測一次</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            模型輸出速度每隔 <strong>3 小時</strong>就會重新測試一次，因此每天看到的數字都會略有不同。此外，網站還提供<strong>影像生成</strong>、<strong>逐字稿轉錄</strong>排行，並可參與社群票選最佳模型。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: 互動式單欄時間軸逐字稿 -->
+    <section id="timeline" class="space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 text-white font-bold text-sm">6</span>
+          <div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">互動式時間軸完整逐字稿</h2>
+            <p class="text-xs sm:text-sm text-slate-500">點擊時間戳記可直接跳轉至 YouTube 對應秒數；支援分類篩選、關鍵字搜尋與單段／全文複製</p>
+          </div>
+        </div>
+        <button id="copyAllBtn" type="button"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold transition shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          複製完整逐字稿
+        </button>
+      </div>
+
+      <!-- Filter & Search Controls -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+          <div class="relative flex-1">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input id="transcriptSearch" type="text" placeholder="搜尋逐字稿關鍵字（例如：幻覺率、Sonnet、MiniMax、PDF...）"
+                   class="w-full pl-10 pr-20 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+            <button id="clearSearchBtn" type="button" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold px-2 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600">
+              清除
+            </button>
+          </div>
+          <div id="matchCountBadge" class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl text-center shrink-0">
+            顯示 14 / 14 段
+          </div>
+        </div>
+
+        <div id="categoryFilters" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- Single Vertical Timeline -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 shadow-sm">
+        <div id="timelineContainer" class="relative space-y-6"></div>
+        <div id="emptyTimelineState" class="hidden text-center py-10 space-y-2">
+          <p class="text-slate-500 font-medium">找不到符合條件的逐字稿段落</p>
+          <button id="resetFiltersBtn" type="button" class="text-sm font-semibold text-indigo-600 hover:underline">重設所有篩選與搜尋</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="pt-4 pb-8 text-center text-xs text-slate-400">
+      整理自泛科學院影片《<a href="https://youtu.be/rurFPRaojdE" target="_blank" rel="noopener noreferrer" class="underline hover:text-indigo-500">誰在幫 AI 模型評分？看懂 Artificial Analysis 排行榜，模型原來這樣選</a>》· 部分新模型名稱依原影片自動字幕保留供核對
+    </footer>
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg transition-all duration-200 toast-exit" role="status" aria-live="polite">
+    已複製到剪貼簿
+  </div>
+
+  <script>
+    (function () {
+      const VIDEO_ID = 'rurFPRaojdE';
+
+      // 1. 本集重點資料
+      const checklistItems = [
+        { id: 'c1', label: '分辨三種 AI 評分來源（自測、政府安全、第三方）', target: '#sources', tag: '基礎概念' },
+        { id: 'c2', label: '了解 Artificial Analysis 從地下室爆紅的創業故事', target: '#sources', tag: '背景脈絡' },
+        { id: 'c3', label: '掌握 4 大公信力機制：統一實測、神秘客與 60% 私有題', target: '#mechanism', tag: '評測原理' },
+        { id: 'c4', label: '看清 3 大盲點：商業客戶、MiniMax 疑雲與多益式刷分', target: '#blindspots', tag: '批判思維' },
+        { id: 'c5', label: '依 6 大工作場景（上班族、工程師、PDF 等）挑對模型', target: '#selector', tag: '實戰選型' },
+        { id: 'c6', label: '上站前必知：不反映模型降智、速度每 3 小時重測', target: '#reminders', tag: '使用提醒' }
+      ];
+
+      // 2. SVG 雙向連動評測機制資料
+      const mechanismDetails = {
+        uniform: {
+          badge: '01 · 公平起跑線',
+          badgeClass: 'bg-indigo-100 text-indigo-700',
+          title: '所有考試統一條件親自實測',
+          summary: 'Artificial Analysis 不採信廠商提交的分數，而是自己用完全一致的提示詞與環境重跑每一個模型。',
+          analogyTitle: '📝 生活化比喻：帶小抄進場 vs 裸考',
+          analogyText: '創辦人回憶，Google 當年宣傳 Gemini 的 MMLU 成績時，每個科目用了 32 個未公開推理範例，等於有人帶小抄進場；拿別家裸考的分數來比根本失真。',
+          bullets: [
+            '消除各家實驗室提示詞（Prompt）寫法不同造成的偏差',
+            '確保所有模型站在同一條起跑線上比較'
+          ]
+        },
+        mystery: {
+          badge: '02 · 防特製高配版',
+          badgeClass: 'bg-sky-100 text-sky-700',
+          title: '米其林評審式「神秘客」政策',
+          summary: '透過看不出是評測機構的匿名帳號進行呼叫與實測，確保測到的與一般用戶拿到的完全一致。',
+          analogyTitle: '🍽️ 生活化比喻：米其林秘密客',
+          analogyText: '餐廳如果知道評審來了，可能會端出特製頂級料理；神秘客政策正是為了避免 AI 廠商給評測單位「特調滿血版」，卻給大眾「縮水版」。',
+          bullets: [
+            '隱藏評測機構身分，防堵廠商針對性放水或特調',
+            '真實反映一般用戶透過 API 取得的模型表現'
+          ]
+        },
+        private: {
+          badge: '03 · 防背題庫',
+          badgeClass: 'bg-emerald-100 text-emerald-700',
+          title: '60% 加權分數來自不公開考題',
+          summary: '保留大量不對外公開的考題，並隨最新前沿模型能力定期改版更新，避免模型把公開題庫背起來刷高分。',
+          analogyTitle: '🔒 生活化比喻：考前不洩題的素養題庫',
+          analogyText: '公開考古題容易被模型直接拿去訓練（背答案），唯有高比例的保密新題才能檢驗真正的推理與泛化能力。',
+          bullets: [
+            '加權後 60% 總分來自不公開考題',
+            '依前沿模型進步速度定期淘汰舊題、更新考卷'
+          ]
+        },
+        v5: {
+          badge: '04 · 10 月底上線',
+          badgeClass: 'bg-violet-100 text-violet-700',
+          title: '智能指數 V5：9 份考卷 × 4 大類各 25%',
+          summary: '最新改版的智能指數 V5 涵蓋 9 份考卷，均衡劃分為四大能力維度，每類各佔 1/4（25%）權重。',
+          analogyTitle: '📊 四大維度權重分布（各佔 25%）',
+          analogyText: '包含：① 知識工作、② 寫程式、③ 科學研究、④ 一般知識（內含測試模型「會不會不知道還硬掰」的幻覺測試）。',
+          bullets: [
+            '共 9 份考卷，避免單一學科分數主導總榜',
+            '明確納入幻覺測試，懲罰胡說八道的模型'
+          ]
+        }
+      };
+
+      // 3. 互動式 AI 模型選型場景資料（完全依據影片逐字稿數據）
+      const scenarios = [
+        {
+          id: 'office',
+          label: '💼 上班族（報告／簡報）',
+          benchmark: 'A briefcast（知識工作評測）',
+          description: '適合每天工作都在寫報告、做簡報、處理文書與商業分析的上班族。',
+          takeaway: 'Claude Opus 5.5 與 Sonnet 5.5 皆名列前茅、分數幾乎相同，但 Sonnet 5.5 價格只要一半，建議上班族直接從 Sonnet 5.5 開始。',
+          takeawayType: 'emerald',
+          metricNote: '重點比較：能力幾乎打平，但成本省 50%',
+          bars: [
+            { name: 'Claude Sonnet 5.5（推薦首選）', valueText: '前段班 · 價格僅一半', pct: 95, color: 'bg-emerald-500' },
+            { name: 'Claude Opus 5.5', valueText: '前段班 · 價格 2 倍', pct: 96, color: 'bg-slate-400' }
+          ]
+        },
+        {
+          id: 'automation',
+          label: '⚙️ 重複流程自動化',
+          benchmark: 'Automation Bench',
+          description: '適合每天處理重複性流程的人，例如整理信件、更新試算表，需要在好幾個 App 之間來回操作的工作。',
+          takeaway: '影片錄製當下由 Google 的 Gemini 4 系列領先，第一名為 Gemini 4 Carbon。',
+          takeawayType: 'indigo',
+          metricNote: '跨 App 自動化任務領先梯隊',
+          bars: [
+            { name: 'Gemini 4 Carbon（第 1 名）', valueText: '榜單領先 #1', pct: 95, color: 'bg-indigo-600' },
+            { name: 'Google Gemini 4 系列其他型號', valueText: '整體系列表現領先', pct: 85, color: 'bg-indigo-400' }
+          ]
+        },
+        {
+          id: 'research',
+          label: '🔎 研究者與記者（查資料）',
+          benchmark: '幻覺率（Hallucination Rate，越低越好）',
+          description: '需要查證資料、高度要求事實正確性的研究者、記者與內容編輯。',
+          takeaway: 'Gemini 4 Carbon（11%）與 Organ（15%）幻覺率遠低於 GPT-6 Ultra（51%）與 GPT-6.1（54%）。但無論用哪個模型，重要資訊都必須自己反覆確認。',
+          takeawayType: 'rose',
+          metricNote: '數值越低代表越不容易胡說八道（越低越好）',
+          bars: [
+            { name: 'Gemini 4 Carbon（最低幻覺率）', valueText: '11%（佳）', pct: 11, color: 'bg-emerald-500' },
+            { name: 'Organ', valueText: '15%（佳）', pct: 15, color: 'bg-teal-500' },
+            { name: 'GPT-6 Ultra', valueText: '51%（偏高）', pct: 51, color: 'bg-amber-500' },
+            { name: 'GPT-6.1', valueText: '54%（偏高）', pct: 54, color: 'bg-rose-500' }
+          ]
+        },
+        {
+          id: 'engineer',
+          label: '💻 工程師（寫程式）',
+          benchmark: 'Terminal Bench 4.0',
+          description: '日常工作為寫程式、開發小工具、終端機除錯與自動化腳本的工程師。',
+          takeaway: 'Kimi K3.1 Pro（67%）最高，但前四名差距僅 8 個百分點，實務上可以先挑選便宜又快的模型即可。',
+          takeawayType: 'indigo',
+          metricNote: 'Terminal Bench 4.0 得分（越高越好）',
+          bars: [
+            { name: 'Kimi K3.1 Pro（第 1 名）', valueText: '67%', pct: 67, color: 'bg-indigo-600' },
+            { name: 'Claude Sonnet 5.5', valueText: '64%', pct: 64, color: 'bg-indigo-500' },
+            { name: 'Claude Opus 5.5', valueText: '60%', pct: 60, color: 'bg-slate-500' },
+            { name: 'Astra', valueText: '59%', pct: 59, color: 'bg-slate-400' }
+          ]
+        },
+        {
+          id: 'bulk',
+          label: '⚡ 大量簡單任務',
+          benchmark: '價格圖（每百萬 Token 輸入價格）',
+          description: '適合需要大量批次執行的簡單日常任務，例如文章摘要、多語翻譯、資料分類。',
+          takeaway: '這類任務分數差一點完全沒關係，價格才是重點！Claude Haiku 5.5 與 ChatGPT 6 Luna 每百萬 Token 輸入都只要 0.1 美元，優先選用。',
+          takeawayType: 'emerald',
+          metricNote: '每百萬輸入 Token 價格（越低越省錢）',
+          bars: [
+            { name: 'Claude Haiku 5.5（超值首選）', valueText: '$0.1 / 1M input tokens', pct: 20, color: 'bg-emerald-500' },
+            { name: 'ChatGPT 6 Luna（超值首選）', valueText: '$0.1 / 1M input tokens', pct: 20, color: 'bg-emerald-500' }
+          ]
+        },
+        {
+          id: 'pdf',
+          label: '📄 常看專業 PDF',
+          benchmark: 'GDP.PDF（每個任務跑 5 次共 500 次，單檔全對才計分）',
+          description: '需要深度閱讀財報、論文、合約或技術規格等專業 PDF 文件並進行推理的工作者。',
+          takeaway: '就算最強的 M Wonderful 也只有 33%（約三次才全對一次），便宜與頂尖模型僅差約 10 個百分點。讀 PDF 時重點數字一定要自己回頭核對原文！',
+          takeawayType: 'amber',
+          metricNote: 'GDP.PDF 嚴格全對率（越高越好）',
+          bars: [
+            { name: 'M Wonderful（第 1 名）', valueText: '33%', pct: 33, color: 'bg-amber-600' },
+            { name: 'K3.1 Pro / GPT-6A / GPT-6.1（並列第 2）', valueText: '31%', pct: 31, color: 'bg-amber-500' },
+            { name: 'Claude Opus 5.5 / Sonnet 5.5', valueText: '26%', pct: 26, color: 'bg-indigo-500' },
+            { name: 'GPT-6 Luna', valueText: '23%', pct: 23, color: 'bg-slate-500' },
+            { name: 'Claude Haiku 5.5', valueText: '21%', pct: 21, color: 'bg-slate-400' }
+          ]
+        }
+      ];
+
+      // 4. 完整時間軸逐字稿資料
+      const transcriptSegments = [
+        {
+          id: 't1', time: '00:00', seconds: 0, category: '評測來源', title: '開場：各家都自稱第一名，排名到底在排什麼？',
+          text: '今年堪稱是模型大爆發的一年，幾乎每隔一個月甚至半個月就有旗艦模型大更新。然後你就會發現一件很有趣的事情：每一次發表，每一家大廠都說自己是第一名。這些排名到底在排什麼？而且有些評測根本是 AI 大廠自己測的報告。最重要的是，這些評測跟我們這些一般用戶到底有什麼關係？有哪些值得參考的數據可以幫你做模型的選擇？今天就帶你一次看懂。'
+        },
+        {
+          id: 't2', time: '00:32', seconds: 32, category: '評測來源', title: 'AI 評分三大來源：廠商自測 vs 政府安全測試',
+          text: '目前主流媒體上看到的 AI 評分，來源主要分為三種。第一種最常見的是模型公司自己發的測試報告，有點像運動員兼裁判，要測什麼、考哪些題目都是由模型公司自己選擇的；但你知道的，通常大家都會拿自己比較強的地方出來說嘴。第二種是政府發的，像英國的 AI 安全研究所會在模型上市前先測過一輪，不過它主要測的是危不危險，不是誰比較聰明，所以你不會在它的報告裡面看到排名。'
+        },
+        {
+          id: 't3', time: '01:00', seconds: 60, category: '評測來源', title: '第三方評測權威 Artificial Analysis 與媒體引用統計',
+          text: '第三種就是第三方評測機構，自己不做模型，專門測驗 AI 的單位。而在這一類裡有一家的名字，你只要看過國外科技新聞，一定會頻繁地看到，它就是 Artificial Analysis。我們實際統計過，從 7 月到 10 月底，16 個國外主要科技財經媒體在 X 上面的貼文，提到 Artificial Analysis 的就有 21 則，遠多於其他評測機構。我們還另外抽了 31 篇新模型的報導，也有 13 篇引用它。它甚至拿到前執行長的投資。但最早創辦人的創業項目根本不是做 AI 評測，而是 AI 法律助理。'
+        },
+        {
+          id: 't4', time: '01:43', seconds: 103, category: '創辦故事', title: '從地下室業餘專案到 Mistral 帶動的爆紅契機',
+          text: '好，時間回到三年前，Micah Hill-Smith（字幕作 Michel Hills Smith）原本是麥肯錫的分析師，後來自己出來創業做法律 AI 研究助理。但有件事情卻在開發的過程中困擾了他，就是當他要用不同的模型進行測試與比較，卻發現找不到一個可靠的資料可以參考。於是他就跟朋友、同時也是另外一位共同創辦人 George Cameron（字幕作 jorge Cameron）一起在地下室開啟這個業餘評測專案。原本只是做好玩，沒想到隔年 1 月（字幕作 2020 年 1 月）網站正式上線，靠 AI 知名的 Podcast《Latent Space》（字幕作 lant space）主持人轉推整個大爆紅。再加上當時法國開源模型 Mistral（字幕作 Mix）剛上線，大家急著比較哪家雲端服務又快又便宜。因為開源模型需要昂貴的顯示卡才跑得動，所以有多家服務商各自架設、按用量收費，各家的速度和價格都不同。而 Artificial Analysis 最早就是在比這件事情，解決用戶的困擾，馬上成為指標性的評測機構。'
+        },
+        {
+          id: 't5', time: '02:43', seconds: 163, category: '評測機制', title: '統一條件自己跑 + 米其林式「神秘客」政策',
+          text: '那它跟廠商自己測試到底差在哪？最根本的差別是所有考試它都自己跑，而且每一個模型它都用同一個條件。Smith 說他們會決定自己動手測，就是因為各家實驗室下提詞的方式都不一樣。他在訪談中回憶，Google 當年宣傳 Gemini（字幕作 GRA）的 MMLU 成績時，用的是每個科目 32 個沒公開的推理範例，等於有人帶小抄進場啊，你拿裸考的分數跟它比當然比不出東西。而且它有一個「神秘客」的政策，就像米其林評審的秘密客一樣，它會用看不出來是自己的帳號去測，避免廠商給評測機構一個特製的好模型版本，但實際上給一般人的卻是比較差的版本。'
+        },
+        {
+          id: 't6', time: '03:32', seconds: 212, category: '評測機制', title: '智能指數 V5：9 份考卷、4 大類與 60% 不公開考題',
+          text: '另外它有很多考題是不公開的，並且是依據最新前沿模型的能力，會定期改版更新考題。更新的智能指數 V5 在 10 月底上線，總共九份考卷分成四大類，各佔四分之一。考題內容包含知識工作、寫程式、科學研究，還有一般知識，裡面包括會不會不知道還硬掰的幻覺測試。加權之後有 60% 的分數來自不公開的考題，就是為了防止模型（作弊／刷題）。'
+        },
+        {
+          id: 't7', time: '04:02', seconds: 242, category: '爭議與限制', title: '商業模式客戶包含大廠 + MiniMax 考題疑似外洩風波',
+          text: '看起來這個規則好像很周全，而且具有公信力，但它真的完全沒有問題嗎？雖然 Hill-Smith 自己說過，沒有人付錢就能上我們的網站，但公司總要賺錢，它的收入來自企業訂閱，還有替企業、替 AI 做客製評測，也就是說它的客戶裡也有那些主流模型大廠。另外，考題也有可能有外洩的狀況。10 月就有網友指控中國的 MiniMax（字幕作 Miniask / MIMX / Minix）可能偷看了它不公開的考題。Artificial Analysis 不久之後把幻覺測試從 6000 題精簡更新成 3000 題，結果 MiniMax 新模型的分數一下子就掉了 2 分，也許有作弊的嫌疑，不過這只是我們的猜測。截至 11 月 5 號，MiniMax 跟 Artificial Analysis 都還沒有正式回應這件事。'
+        },
+        {
+          id: 't8', time: '04:51', seconds: 291, category: '爭議與限制', title: '多益刷分比喻：針對評測特訓不等於真正變聰明',
+          text: '最後一件、也是最根本的：它選了哪些考卷，就決定了大家怎麼看 AI。Hill-Smith 自己也承認，一旦某個評測變成大家都在盯的目標，各家就會針對它特訓，分數自然就會變好看，但這不代表模型整體真的變聰明了。這就跟有些人準備多益的方式，可能只是很會配比時間、知道哪個分數價值比較高、優先答題，但實際上英文進步的幅度有限，是同樣的概念。'
+        },
+        {
+          id: 't9', time: '05:23', seconds: 323, category: '模型選型', title: '上班族寫報告做簡報：看 A briefcast，選 Sonnet 5.5 省一半',
+          text: '不過這份考卷還是有它值得參考的地方，我們直接進網站看一下。打開 Models 這頁，好，最上面這張是大家最常看到的智能指數總排名，但先別急著只看第一名喔，因為你是做什麼工作的，該看的分數就不一樣。那我們一路往下滑。第一站：上班族。如果你每天的工作就是寫報告、做簡報，看這個 A briefcast（字幕原文），它考的就是這類知識工作。你看 Claude Opus 5.5 跟 Sonnet 5.5（字幕作 Cloud Opus 5.5 跟 s5.5）都排在前面，分數幾乎一樣，但 Sonnet 5.5 的價格只要一半，所以上班族先從 Sonnet 5.5 開始就對啦。'
+        },
+        {
+          id: 't10', time: '05:59', seconds: 359, category: '模型選型', title: '重複流程自動化 & 研究者記者必看幻覺率',
+          text: '再往下滑，你就會看到 Automation Bench（字幕作 Auto Mansion Bench），這一項呢是給每天都在做重複流程的人看的，例如整理信件、更新試算表這類要在好幾個 App 裡面來回處理的工作。那在我們這個錄影的當下，是 Google 的 Gemini 4 系列領先，第一名呢是 Carbon（字幕作 Cbon）。接下來這一項，研究者跟記者要特別注意囉！你們要查資料、要求事實正確，就要看「幻覺率」，這個數字是越低越好。所以可以看到 Gemini 4 Carbon（字幕作 GM 4 carbon）是 11%，Organ（字幕原文）是 15%，GPT-6 Ultra 是 51%，GPT-6.1 是 54%，好高！不過要強調呢，不管你用哪一個模型，重要資訊都還是要自己反覆確認。'
+        },
+        {
+          id: 't11', time: '06:47', seconds: 407, category: '模型選型', title: '工程師看 Terminal Bench 4.0 & 大量簡單任務看價格圖',
+          text: '然後是工程師，換你們啦！如果你們日常的工作是寫程式、做小工具，就看 Terminal Bench 4.0。目前 Kimi K3.1 Pro（字幕作 Kimik 3.1 Pro）是 67% 最高，Sonnet 5.5（字幕作 S5.5）64%，Opus 5.5 60%，Astra 則是 59%。好，你會發現前幾名的差距其實不大，所以呢可以先選便宜又快的就好啦。如果你手上是大量又簡單的日常任務，像是摘要、翻譯、分類，那我們就回頭看這一張價格圖。這項工作分數差一點真的沒關係，價格才是重點。Claude Haiku 5.5（字幕作 Ch5.5）跟 ChatGPT 的 6 Luna（字幕作 CH GPT 的 6Luna）每百萬 Token 輸入都只要 0.1 美元，所以可以優先選它們。'
+        },
+        {
+          id: 't12', time: '07:35', seconds: 455, category: '模型選型', title: '常看 PDF 必看 GDP.PDF：最強也只有 33% 全對',
+          text: '最後，如果你常常要看 PDF，可以看 GDP.PDF 這項評測，它考的是專業文件的理解跟推理。那要注意它的計分方式（字幕作 OP）：每個任務跑五次，共 500 次嘗試，一份文件裡面的題目要全部答對才會算。好，你看第一名是 M Wonderful（字幕原文），也只有 33%；第二名是一群 31%，包括 K3.1 Pro、GPT-6A、GPT-6.1；Claude Opus 5.5 跟 Sonnet 5.5 都是 26%；而便宜的 GPT-6 Luna 則是 23%，Claude Haiku 5.5（字幕作 Cloud High 5.5）是 21%。也就是說，就算是再強的模型，三次嘗試裡面大約只有一次可以全對，而且便宜跟頂尖的模型差了大約 10 個百分點。所以要讀 PDF 的話，重點數字一定要自己回頭對原文。'
+        },
+        {
+          id: 't13', time: '08:28', seconds: 508, category: '使用提醒', title: '使用前兩大提醒：不反映模型降智、速度每 3 小時重測',
+          text: '看到這裡，你應該也很想要點開網站玩一波。不過使用之前提醒兩件事情：第一，智能指數的分數是模型加入時考一次就定下來的，所以遇到模型降智的問題，可能沒辦法真實呈現在排行榜上面；但只要考卷改版或是有新模型加入，排名就會跟著變動。第二，模型的速度，Artificial Analysis 每三小時就會測一次，所以你每天看到的數字都不太一樣。這個網站上還有很多有趣的排名，比方說針對影像生成、逐字稿轉錄，你甚至可以參加他們的票選活動，選出你覺得最佳的模型。'
+        },
+        {
+          id: 't14', time: '09:03', seconds: 543, category: '使用提醒', title: '結語：工作實戰測試與互動提問',
+          text: '好的，以上就是本集的內容。而這些數據又應該怎麼進一步落實到工作中去測試它的效能？更深度的內容我們會放在實戰生會員裡面。如果你也常常在 Token 用量上面撞到上限，點選加入跟我們一起深度學習。也想問問大家，你平常最常用哪個模型？你覺得它是第一名嗎？留言告訴我們。Yeah！'
+        }
+      ];
+
+      const categoryColors = {
+        '評測來源': 'bg-sky-100 text-sky-800',
+        '創辦故事': 'bg-amber-100 text-amber-800',
+        '評測機制': 'bg-indigo-100 text-indigo-800',
+        '爭議與限制': 'bg-rose-100 text-rose-800',
+        '模型選型': 'bg-emerald-100 text-emerald-800',
+        '使用提醒': 'bg-violet-100 text-violet-800'
+      };
+
+      // State
+      let checkedSet = new Set();
+      try {
+        const saved = localStorage.getItem('aa_guide_checked_v1');
+        if (saved) checkedSet = new Set(JSON.parse(saved));
+      } catch (e) {}
+
+      const citationDetails = {
+        aa: {
+          badge: '第 1 名 · 21 則 X 貼文 · 13 / 31 篇新模型報導',
+          badgeCls: 'bg-teal-100 text-teal-800',
+          title: 'Artificial Analysis：主流科技財經媒體最常引用的綜合評測指標',
+          desc: '同時提供「智能指數、輸出速度、每百萬 Token 價格」三大維度，並以統一條件與神秘客機制獨立實測，讓媒體在新模型發表第一時間就能做出客觀橫向對照。',
+          tip: '看圖重點：在 4 個月統計期間（2026/07–10）奪下冠軍，且在 31 篇新模型深度報導中引用率逼近 42%。'
+        },
+        metr: {
+          badge: '第 2 名 · 15 則 X 貼文（多為安全監督新聞）',
+          badgeCls: 'bg-amber-100 text-amber-800',
+          title: 'METR：專注 AI 自主能力風險與安全評估的非營利機構',
+          desc: 'METR（Model Evaluation & Threat Research）主要評估前沿模型的潛在危險能力與安全邊界，因此媒體引用大多出現在 AI 安全監管、政策監督與風險評估相關新聞中。',
+          tip: '看圖重點：圖表右上角特別備註其多為安全監督新聞，與挑選日常好用模型的「效能排行」定位不同。'
+        },
+        arc: {
+          badge: '並列第 3 名 · 3 則 X 貼文',
+          badgeCls: 'bg-indigo-100 text-indigo-800',
+          title: 'ARC-AGI：測試抽象邏輯與通用推理（AGI）的指標',
+          desc: '專門檢驗模型在沒見過的新規則下能否展現類人抽象推理能力，在學術界與 AI 圈極具代表性，但因偏向理論推理，一般財經媒體日常引用頻率較低。',
+          tip: '看圖重點：適合觀察模型推理上限，但無法直接反映寫報告、翻譯或 API 性價比。'
+        },
+        swe: {
+          badge: '並列第 3 名 · 3 則 X 貼文',
+          badgeCls: 'bg-sky-100 text-sky-800',
+          title: 'SWE／Terminal-Bench：工程師與程式代理實戰評測',
+          desc: '聚焦真實軟體工程除錯（SWE-bench）與終端機命令列任務（Terminal-Bench），是開發者選寫程式模型的重要參考，Artificial Analysis 本身也納入了 Terminal Bench 4.0。',
+          tip: '看圖重點：對工程師極具參考價值，但受眾相對垂直，因此主流大眾媒體引用次數較少。'
+        },
+        arena: {
+          badge: '第 5 名 · 2 則 X 貼文',
+          badgeCls: 'bg-violet-100 text-violet-800',
+          title: 'Arena（Chatbot Arena）：人類盲測 PK 投票排行榜',
+          desc: '透過讓全球用戶在不知道模型名稱的情況下進行雙盲對決投票（Elo 積分制），反映人類主觀偏好與對話體感，但在統計期間內被這 16 家國外媒體引用僅 2 則。',
+          tip: '看圖重點：適合看聊天體感，但缺乏如價格、延遲速度與專業文件全對率等量化數據。'
+        }
+      };
+      let activeCitationOrg = 'aa';
+      let activeMech = 'uniform';
+      let activeScenario = 'office';
+      let activeCategory = '全部';
+      let searchQuery = '';
+      let toastTimer = null;
+
+      // Utility: Copy to clipboard with execCommand fallback
+      function copyText(text, message) {
+        let ok = false;
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.top = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+        } catch (e) {
+          ok = false;
+        }
+        if (!ok && navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(function () {});
+        }
+        showToast(message || '已複製到剪貼簿');
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.remove('toast-exit');
+        toast.classList.add('toast-enter');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          toast.classList.remove('toast-enter');
+          toast.classList.add('toast-exit');
+        }, 2200);
+      }
+
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function highlightText(text, query) {
+        const safe = escapeHtml(text);
+        if (!query.trim()) return safe;
+        const escapedQ = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp('(' + escapedQ + ')', 'gi');
+        return safe.replace(re, '<mark class="search-hl">$1</mark>');
+      }
+
+      // Render Checklist
+      function renderChecklist() {
+        const wrap = document.getElementById('focusChecklist');
+        const badge = document.getElementById('checklistProgress');
+        if (!wrap || !badge) return;
+
+        badge.textContent = '已閱讀 ' + checkedSet.size + ' / ' + checklistItems.length;
+        wrap.innerHTML = checklistItems.map(function (item) {
+          const done = checkedSet.has(item.id);
+          return (
+            '<div class="flex items-start gap-2.5 p-2.5 rounded-xl border transition ' +
+            (done ? 'bg-emerald-50/70 border-emerald-200' : 'bg-white border-slate-200 hover:border-indigo-300') + '">' +
+              '<input type="checkbox" data-check-id="' + item.id + '" ' + (done ? 'checked' : '') +
+              ' class="mt-1 w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer shrink-0" />' +
+              '<a href="' + item.target + '" data-jump-id="' + item.id + '" class="flex-1 text-sm leading-snug ' +
+              (done ? 'text-slate-500 line-through' : 'text-slate-800 hover:text-indigo-700 font-medium') + '">' +
+                '<span class="inline-block text-[11px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 mr-1.5 no-underline">' + item.tag + '</span>' +
+                escapeHtml(item.label) +
+              '</a>' +
+            '</div>'
+          );
+        }).join('');
+
+        wrap.querySelectorAll('input[data-check-id]').forEach(function (cb) {
+          cb.addEventListener('change', function () {
+            const id = cb.getAttribute('data-check-id');
+            if (cb.checked) checkedSet.add(id);
+            else checkedSet.delete(id);
+            try { localStorage.setItem('aa_guide_checked_v1', JSON.stringify(Array.from(checkedSet))); } catch (e) {}
+            renderChecklist();
+          });
+        });
+
+        wrap.querySelectorAll('a[data-jump-id]').forEach(function (link) {
+          link.addEventListener('click', function () {
+            const id = link.getAttribute('data-jump-id');
+            checkedSet.add(id);
+            try { localStorage.setItem('aa_guide_checked_v1', JSON.stringify(Array.from(checkedSet))); } catch (e) {}
+            renderChecklist();
+          });
+        });
+      }
+
+      // Render Mechanism Detail Panel
+      function renderMechanismDetail() {
+        const panel = document.getElementById('mechDetailPanel');
+        if (!panel) return;
+        const d = mechanismDetails[activeMech];
+        panel.innerHTML =
+          '<span class="inline-block text-xs font-bold px-2.5 py-1 rounded-full ' + d.badgeClass + '">' + d.badge + '</span>' +
+          '<h3 class="text-lg font-extrabold text-slate-900">' + escapeHtml(d.title) + '</h3>' +
+          '<p class="text-sm text-slate-700 leading-relaxed">' + escapeHtml(d.summary) + '</p>' +
+          '<div class="rounded-lg bg-white border border-indigo-100 p-3.5 space-y-1">' +
+            '<div class="text-xs font-bold text-indigo-700">' + escapeHtml(d.analogyTitle) + '</div>' +
+            '<p class="text-xs sm:text-sm text-slate-600 leading-relaxed">' + escapeHtml(d.analogyText) + '</p>' +
+          '</div>' +
+          '<ul class="text-xs sm:text-sm text-slate-700 space-y-1.5 list-disc pl-5">' +
+            d.bullets.map(function (b) { return '<li>' + escapeHtml(b) + '</li>'; }).join('') +
+          '</ul>';
+
+        document.querySelectorAll('#mechSvg .svg-node').forEach(function (node) {
+          if (node.getAttribute('data-node') === activeMech) node.classList.add('active');
+          else node.classList.remove('active');
+        });
+      }
+
+      // Attach SVG node click with text-selection drag guard
+      function initMechanismSvg() {
+        let downX = 0, downY = 0;
+        document.querySelectorAll('#mechSvg .svg-node').forEach(function (node) {
+          node.addEventListener('mousedown', function (e) {
+            downX = e.clientX;
+            downY = e.clientY;
+          });
+          node.addEventListener('click', function (e) {
+            const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
+            const sel = window.getSelection ? window.getSelection().toString() : '';
+            if (moved > 5 || sel.length > 0) return;
+            activeMech = node.getAttribute('data-node');
+            renderMechanismDetail();
+          });
+        });
+        renderMechanismDetail();
+      }
+
+      // Render Scenario Tabs & Content
+      function renderScenarios() {
+        const tabsEl = document.getElementById('scenarioTabs');
+        const contentEl = document.getElementById('scenarioContent');
+        if (!tabsEl || !contentEl) return;
+
+        tabsEl.innerHTML = scenarios.map(function (s) {
+          const isActive = s.id === activeScenario;
+          return (
+            '<button type="button" role="tab" aria-selected="' + (isActive ? 'true' : 'false') + '" data-scen="' + s.id + '" ' +
+            'class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition border ' +
+            (isActive
+              ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+              : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300 hover:text-indigo-700') + '">' +
+              escapeHtml(s.label) +
+            '</button>'
+          );
+        }).join('');
+
+        tabsEl.querySelectorAll('button[data-scen]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            activeScenario = btn.getAttribute('data-scen');
+            renderScenarios();
+          });
+        });
+
+        const cur = scenarios.find(function (s) { return s.id === activeScenario; }) || scenarios[0];
+        const calloutMap = {
+          emerald: 'bg-emerald-50 border-emerald-200 text-emerald-900',
+          indigo: 'bg-indigo-50 border-indigo-200 text-indigo-900',
+          rose: 'bg-rose-50 border-rose-200 text-rose-900',
+          amber: 'bg-amber-50 border-amber-200 text-amber-900'
+        };
+
+        contentEl.innerHTML =
+          '<div class="space-y-4">' +
+            '<div class="flex flex-wrap items-center justify-between gap-2">' +
+              '<h3 class="text-lg font-extrabold text-slate-900">' + escapeHtml(cur.label) + '</h3>' +
+              '<span class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-indigo-700">必看指標：' + escapeHtml(cur.benchmark) + '</span>' +
+            '</div>' +
+            '<p class="text-sm text-slate-600 leading-relaxed">' + escapeHtml(cur.description) + '</p>' +
+            '<div class="bg-white rounded-xl border border-slate-200 p-4 space-y-3">' +
+              '<div class="text-xs font-semibold text-slate-500">' + escapeHtml(cur.metricNote) + '</div>' +
+              cur.bars.map(function (b) {
+                return (
+                  '<div class="space-y-1">' +
+                    '<div class="flex justify-between items-center text-xs sm:text-sm font-semibold gap-2">' +
+                      '<span class="text-slate-800">' + escapeHtml(b.name) + '</span>' +
+                      '<span class="text-slate-700 shrink-0">' + escapeHtml(b.valueText) + '</span>' +
+                    '</div>' +
+                    '<div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">' +
+                      '<div class="h-full rounded-full transition-all duration-300 ' + b.color + '" style="width:' + Math.max(8, Math.min(100, b.pct)) + '%;"></div>' +
+                    '</div>' +
+                  '</div>'
+                );
+              }).join('') +
+            '</div>' +
+            '<div class="rounded-xl border p-4 text-sm font-medium leading-relaxed ' + (calloutMap[cur.takeawayType] || calloutMap.indigo) + '">' +
+              '<strong>🎯 實戰建議：</strong>' + escapeHtml(cur.takeaway) +
+            '</div>' +
+          '</div>';
+      }
+
+      // Render Timeline Category Filters & Transcript
+      function renderTimeline() {
+        const filterWrap = document.getElementById('categoryFilters');
+        const listWrap = document.getElementById('timelineContainer');
+        const emptyWrap = document.getElementById('emptyTimelineState');
+        const countBadge = document.getElementById('matchCountBadge');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        if (!filterWrap || !listWrap) return;
+
+        const categories = ['全部', '評測來源', '創辦故事', '評測機制', '爭議與限制', '模型選型', '使用提醒'];
+        filterWrap.innerHTML = categories.map(function (cat) {
+          const cnt = cat === '全部'
+            ? transcriptSegments.length
+            : transcriptSegments.filter(function (s) { return s.category === cat; }).length;
+          const active = cat === activeCategory;
+          return (
+            '<button type="button" data-cat="' + cat + '" class="px-3 py-1.5 rounded-full text-xs font-semibold transition border ' +
+            (active
+              ? 'bg-slate-900 text-white border-slate-900'
+              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100') + '">' +
+              cat + ' (' + cnt + ')' +
+            '</button>'
+          );
+        }).join('');
+
+        filterWrap.querySelectorAll('button[data-cat]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            activeCategory = btn.getAttribute('data-cat');
+            renderTimeline();
+          });
+        });
+
+        if (clearBtn) {
+          if (searchQuery.trim().length > 0) clearBtn.classList.remove('hidden');
+          else clearBtn.classList.add('hidden');
+        }
+
+        const q = searchQuery.trim().toLowerCase();
+        const filtered = transcriptSegments.filter(function (seg) {
+          const catOk = activeCategory === '全部' || seg.category === activeCategory;
+          const qOk = !q || seg.text.toLowerCase().includes(q) || seg.title.toLowerCase().includes(q) || seg.time.includes(q);
+          return catOk && qOk;
+        });
+
+        if (countBadge) {
+          countBadge.textContent = '顯示 ' + filtered.length + ' / ' + transcriptSegments.length + ' 段';
+        }
+
+        if (filtered.length === 0) {
+          listWrap.innerHTML = '';
+          if (emptyWrap) emptyWrap.classList.remove('hidden');
+          return;
+        }
+        if (emptyWrap) emptyWrap.classList.add('hidden');
+
+        listWrap.innerHTML =
+          '<div class="timeline-line" aria-hidden="true"></div>' +
+          filtered.map(function (seg) {
+            const ytUrl = 'https://youtu.be/' + VIDEO_ID + '?t=' + seg.seconds + 's';
+            const badgeCls = categoryColors[seg.category] || 'bg-slate-100 text-slate-700';
+            return (
+              '<article class="relative pl-12">' +
+                '<div class="absolute left-2 top-1.5 w-5 h-5 rounded-full bg-white border-2 border-indigo-600 flex items-center justify-center">' +
+                  '<span class="w-2 h-2 rounded-full bg-indigo-600"></span>' +
+                '</div>' +
+                '<div class="rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-indigo-200 p-4 transition">' +
+                  '<div class="flex flex-wrap items-center justify-between gap-2 mb-2">' +
+                    '<div class="flex flex-wrap items-center gap-2">' +
+                      '<a href="' + ytUrl + '" target="_blank" rel="noopener noreferrer" title="跳轉至 YouTube ' + seg.time + '" ' +
+                      'class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-mono text-xs font-bold transition">' +
+                        '▶ ' + seg.time +
+                      '</a>' +
+                      '<span class="text-xs font-bold px-2 py-0.5 rounded-full ' + badgeCls + '">' + escapeHtml(seg.category) + '</span>' +
+                      '<h3 class="text-sm font-bold text-slate-900">' + highlightText(seg.title, searchQuery) + '</h3>' +
+                    '</div>' +
+                    '<button type="button" data-copy-seg="' + seg.id + '" class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-700 hover:border-indigo-300 transition shrink-0">' +
+                      '複製此段' +
+                    '</button>' +
+                  '</div>' +
+                  '<p class="text-sm text-slate-700 leading-relaxed">' + highlightText(seg.text, searchQuery) + '</p>' +
+                '</div>' +
+              '</article>'
+            );
+          }).join('');
+
+        listWrap.querySelectorAll('button[data-copy-seg]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            const id = btn.getAttribute('data-copy-seg');
+            const seg = transcriptSegments.find(function (s) { return s.id === id; });
+            if (seg) {
+              copyText('[' + seg.time + '] ' + seg.title + '\n' + seg.text, '已複製 [' + seg.time + '] 段落');
+            }
+          });
+        });
+      }
+
+      // Event Wiring
+      function renderCitationDetail() {
+        const box = document.getElementById('citationDetailBox');
+        if (!box) return;
+        const item = citationDetails[activeCitationOrg] || citationDetails.aa;
+        box.innerHTML =
+          '<div class="flex flex-wrap items-center justify-between gap-2 mb-2">' +
+            '<span class="inline-block text-xs font-bold px-2.5 py-1 rounded-full ' + item.badgeCls + '">' + escapeHtml(item.badge) + '</span>' +
+            '<span class="text-xs text-slate-500">點擊上方 SVG 任一長條可切換解說</span>' +
+          '</div>' +
+          '<h3 class="text-base sm:text-lg font-extrabold text-slate-900 mb-1.5">' + escapeHtml(item.title) + '</h3>' +
+          '<p class="text-sm text-slate-700 leading-relaxed mb-2">' + escapeHtml(item.desc) + '</p>' +
+          '<div class="text-xs sm:text-sm font-semibold text-teal-800 bg-white/80 border border-teal-200/80 rounded-lg px-3 py-2">💡 ' + escapeHtml(item.tip) + '</div>';
+
+        document.querySelectorAll('#citationSvg .citation-bar-row').forEach(function (row) {
+          if (row.getAttribute('data-org') === activeCitationOrg) row.classList.add('active');
+          else row.classList.remove('active');
+        });
+      }
+
+      function initCitationSvg() {
+        let downX = 0, downY = 0;
+        document.querySelectorAll('#citationSvg .citation-bar-row').forEach(function (row) {
+          row.addEventListener('mousedown', function (e) {
+            downX = e.clientX;
+            downY = e.clientY;
+          });
+          row.addEventListener('click', function (e) {
+            const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
+            const sel = window.getSelection ? window.getSelection().toString() : '';
+            if (moved > 5 || sel.length > 0) return;
+            activeCitationOrg = row.getAttribute('data-org');
+            renderCitationDetail();
+          });
+        });
+        const copyChartBtn = document.getElementById('copyChartSummaryBtn');
+        if (copyChartBtn) {
+          copyChartBtn.addEventListener('click', function () {
+            const summary = [
+              '誰最常被國外媒體引用？（來源：泛科學院自行統計 2026-07-01～10-31，16 家國外科技、財經媒體 X 貼文）',
+              '- Artificial Analysis：21 則',
+              '- METR：15 則（多為安全監督新聞）',
+              '- ARC-AGI：3 則',
+              '- SWE／Terminal-Bench：3 則',
+              '- Arena：2 則',
+              '另抽 31 篇新模型報導：13 篇引用 Artificial Analysis（約 41.9%）'
+            ].join('\n');
+            copyText(summary, '已複製媒體引用統計數據');
+          });
+        }
+        renderCitationDetail();
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        initCitationSvg();
+        renderChecklist();
+        initMechanismSvg();
+        renderScenarios();
+        renderTimeline();
+
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileBtn && mobileMenu) {
+          mobileBtn.addEventListener('click', function () {
+            mobileMenu.classList.toggle('hidden');
+          });
+          mobileMenu.querySelectorAll('a').forEach(function (a) {
+            a.addEventListener('click', function () {
+              mobileMenu.classList.add('hidden');
+            });
+          });
+        }
+
+        const embedBtn = document.getElementById('toggleEmbedBtn');
+        const embedWrap = document.getElementById('videoEmbedWrap');
+        const ytIframe = document.getElementById('ytIframe');
+        if (embedBtn && embedWrap && ytIframe) {
+          embedBtn.addEventListener('click', function () {
+            const isHidden = embedWrap.classList.contains('hidden');
+            if (isHidden && !ytIframe.getAttribute('src')) {
+              ytIframe.setAttribute('src', 'https://www.youtube.com/embed/' + VIDEO_ID);
+            }
+            embedWrap.classList.toggle('hidden');
+          });
+        }
+
+        const searchInput = document.getElementById('transcriptSearch');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        const resetBtn = document.getElementById('resetFiltersBtn');
+        if (searchInput) {
+          searchInput.addEventListener('input', function () {
+            searchQuery = searchInput.value;
+            renderTimeline();
+          });
+        }
+        if (clearBtn && searchInput) {
+          clearBtn.addEventListener('click', function () {
+            searchQuery = '';
+            searchInput.value = '';
+            renderTimeline();
+          });
+        }
+        if (resetBtn && searchInput) {
+          resetBtn.addEventListener('click', function () {
+            activeCategory = '全部';
+            searchQuery = '';
+            searchInput.value = '';
+            renderTimeline();
+          });
+        }
+
+        const copyAllBtn = document.getElementById('copyAllBtn');
+        if (copyAllBtn) {
+          copyAllBtn.addEventListener('click', function () {
+            const fullText = transcriptSegments.map(function (s) {
+              return '[' + s.time + '] ' + s.title + '\n' + s.text;
+            }).join('\n\n');
+            copyText(fullText, '已複製完整 14 段逐字稿');
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
