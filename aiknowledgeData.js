@@ -360,6 +360,79 @@ var INITIAL_AI_KNOWLEDGE_DATA = [
         "description": "針對需要小於 1 秒快速響應的工業異常警報場景，精準篩選低首字延遲 (TTFT) 與高輸出速率之邊緣或雲端模型。"
       }
     ]
+  },
+  {
+    "id": "ai-kn-06",
+    "itemNumber": "06",
+    "title": "什麼是 AI 斬殺線 (AI Kill Line)？能力門檻 × 邊界成本大雪崩與全球開發者大遷移",
+    "shortTitle": "什麼是 AI 斬殺線 (AI Kill Line)",
+    "category": "AI模型評測",
+    "subCategory": "成本臨界點 · 開源大遷移 · 選型防線",
+    "date": "2026-11-26",
+    "summary": "什麼是 AI 斬殺線？當某款高智力模型（如 DeepSeek-R1、Claude 3.5 Haiku、Gemini Flash）跨越實用智力門檻，且單位 Token 成本暴跌至原本的十分之一甚至幾十分之一時，昂貴的平庸模型與套殼工具便瞬間失去生存空間，被直接「斬殺」淘汰！深度拆解「能力 × 成本四象限圖譜」、百萬 Token 成本大暴跌數據、兩大全球路線（算力暴力堆疊 vs 極致開源蒸餾）之激烈碰撞，並提供專屬「AI 斬殺線判定模擬器」與「大小模型動態路由突圍策略」，助工程師與架構師遠離技術與職場斬殺線！",
+    "flowTitle": "AI 斬殺線能力邊界與產業大遷移架構圖",
+    "resultTitle": "什麼是 AI 斬殺線 深度圖文互動解析工作台",
+    "flowImage": "images_src/ai_knowledge_06_flow.svg",
+    "resultImage": "AI知識/AI模型評測/什麼是 AI 斬殺線.html",
+    "slideUrl": "AI知識/AI模型評測/什麼是 AI 斬殺線.html",
+    "objective": "1. 深刻理解「AI 斬殺線 (AI Kill Line)」的本質定義：推論能力門檻與每百萬 Token 邊際成本極限壓縮的雙重交點。\n2. 掌握「能力 × 成本四象限圖譜」：精準辨識霸主區、旗艦區、試驗區與遭直接斬殺的淘汰區。\n3. 分析全球開發者大遷移原因：從高價閉源 API 轉投開源及高性價比模型，理解真實商業世界降本增效的剛性需求。\n4. 辨析兩大模型演進路線：OpenAI 龐大算力資本壁壘 vs DeepSeek 等架構創新與高效率蒸餾開源生態。\n5. 建立「大小模型協作（Router 架構）」防禦策略：輕量模型承載 90% 常態請求，旗艦模型攻堅 10% 難題，並提升工程師的架構整合不可替代性。",
+    "tutorialSteps": [
+      {
+        "step": "步驟 1: 概念核心 —— 什麼是 AI 斬殺線與其觸發機制？",
+        "description": "在電競術語中，「斬殺線」代表血量低於特定閾值時會被一擊必殺。在 AI 產業中，當高階推理能力下放至低成本模型，讓「可用智力」的邊際成本逼近於零時，溢價嚴重且無護城河的中階產品將被瞬間毀滅。"
+      },
+      {
+        "step": "步驟 2: 四象限圖譜 —— 判定模型與應用的生死邊界",
+        "description": "以「模型智力水準 (SWE-bench / GPQA)」為縱軸、以「推論成本 (Blended Price)」為橫軸。左上角（高智力、極低價）形成吞噬市場的斬殺黑洞；右上角（高智力、高成本）專攻極限科學推理；右下角（低智力、高成本）則是已被徹底斬殺的危險區。"
+      },
+      {
+        "step": "步驟 3: 數據震撼 —— 引爆全球開發者向性價比大遷移",
+        "description": "從 GPT-4 時代的每百萬 Token 數十美元，到 DeepSeek-R1 與 Gemini 2.0 Flash 的幾角美元，推論成本崩跌超過 90%。這直接導致 OpenRouter 等平台上開源與平價模型的呼叫量以指數級攀升。"
+      },
+      {
+        "step": "步驟 4: 路線碰撞 —— 算力暴力美學 vs 精準知識蒸餾",
+        "description": "一條是閉源巨頭依賴數萬張 H100 叢集訓練超大參數量模型；另一條則是透過強化學習（RL）冷啟動與知識蒸餾，將旗艦思維鏈壓縮至十數億至數百億參數模型，讓邊緣運算與私有化部署成為可能。"
+      },
+      {
+        "step": "步驟 5: 突圍生存 —— 大小模型分工與人類職場防禦線",
+        "description": "架構上採用語義路由器（Semantic Router），將 90% 的常規問答與格式整理派發給輕量模型，僅 10% 複雜邏輯調用頂級模型；人類則必須從「只會敲代碼的執行者」轉型為「定義真實商業痛點的系統架構師」。"
+      }
+    ],
+    "promptTemplate": "你是一位專精於雲端 AI 成本架構與邊緣部署的資深技術專家。\n請參照「AI 斬殺線 (AI Kill Line)」的能力與成本四象限理論，為以下專案提出防斬殺技術選型方案：\n\n【專案背景】：\n- 業務場景：智慧工廠邊緣 Gateway 即時數據過濾與產線日誌自動摘要\n- 調用規模：每日約 10 萬筆設備日誌，每月輸入 Token 約 3 億，輸出約 5,000 萬\n- 預算上限：每月 API 總費用需壓在 $30 美元以內\n- 痛點：目前使用的商業大模型每月成本高達 $800 美元，面臨嚴重的「成本斬殺線」危機\n\n【請提出突圍方案】：\n1. 設計大小模型分流架構（Router）：說明如何以輕量級開源模型處理 85% 常規日誌，其餘 15% 異常日誌再路由至高階思考模型。\n2. 計算遷移後的預估月費，並評估若改為在地端邊緣運行（如 Ollama / vLLM）的硬體門檻與成本可行性。",
+    "codeSnippet": {
+      "language": "javascript",
+      "code": "// AI 斬殺線判定器：評估任務是否落入高性價比模型之替代斬殺區\nfunction evaluateKillLineRisk({\n  taskComplexity,   // 'simple' | 'medium' | 'complex'\n  currentCostPerM,  // 目前每百萬 Token 成本 (USD)\n  killerCostPerM = 0.55 // 新一代性價比模型成本 (如 R1/Flash 等級)\n}) {\n  const costRatio = currentCostPerM / killerCostPerM;\n  let isUnderKillLine = false;\n  let advice = '';\n\n  if (taskComplexity !== 'complex' && costRatio >= 3) {\n    isUnderKillLine = true;\n    advice = '🚨 警報：已深陷 AI 斬殺線！該任務已有極低價同級模型，請立即安排遷移避免浪費預算。';\n  } else if (costRatio >= 5) {\n    isUnderKillLine = true;\n    advice = '⚠️ 警告：成本溢價過高！建議導入 Semantic Router 實施大小模型動態分流。';\n  } else {\n    advice = '✅ 安全：目前模型配置具備不可替代性或極高複雜推理護城河。';\n  }\n\n  return {\n    costRatio: Number(costRatio.toFixed(1)),\n    isUnderKillLine,\n    advice\n  };\n}"
+    },
+    "references": [
+      {
+        "title": "什麼是 AI 斬殺線 (AI Kill Line)？深度圖文互動解析工作台",
+        "url": "AI知識/AI模型評測/什麼是 AI 斬殺線.html"
+      },
+      {
+        "title": "DeepSeek 官方開源推理模型研究與架構",
+        "url": "https://github.com/deepseek-ai"
+      },
+      {
+        "title": "Artificial Analysis 實測大模型吞吐與性價比矩陣",
+        "url": "https://artificialanalysis.ai/"
+      },
+      {
+        "title": "OpenRouter 產線模型即時呼叫量與定價大盤",
+        "url": "https://openrouter.ai/rankings"
+      }
+    ],
+    "applications": [
+      {
+        "icon": "fa-solid fa-calculator",
+        "scenario": "企業級大模型產線成本大雪崩防禦",
+        "description": "透過計算能力門檻與百萬 Token 邊際成本，找出性價比臨界點，避免持續為中庸閉源 API 支付高達數十倍的溢價。"
+      },
+      {
+        "icon": "fa-solid fa-network-wired",
+        "scenario": "工控機電 Edge 閘道器大小模型動態路由架構",
+        "description": "利用輕量級邊緣模型（SLM）處理 90% 常態監測與過濾，僅在異常診斷時回傳雲端旗艦思考模型，實現極致低延遲與零預算超標。"
+      }
+    ]
   }
 ];
 
