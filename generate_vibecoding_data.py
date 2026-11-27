@@ -2019,6 +2019,263 @@ unit_modern_web_guidance = {
     ]
 }
 
+
+# 軟體工程新單元 1：Vibe Coding 時代的價值轉移：為什麼懂需求、規格、流程、架構、驗證才值錢？
+unit_value_shift_spec_arch_verify = {
+    "id": "vibe-value-shift-spec-arch-verify",
+    "labNumber": "11",
+    "title": "Vibe Coding 時代，程式碼本身已經不值錢。真正值錢的是：需求、規格、流程、架構、驗證",
+    "shortTitle": "價值轉移：需求、規格、流程、架構、驗證",
+    "category": "軟體工程",
+    "date": "2026-11-27",
+    "summary": "進入 Vibe Coding 時代，純粹的 Coding 產能已被 AI 壓至近乎零邊際成本，程式碼本身已不再值錢！真正決定專案成敗的五大核心支柱是：需求（痛點定位與商業價值）、規格（邊界與契約）、流程（狀態機與時序）、架構（職責劃分與鬆耦合）、驗證（自動化測試與回歸防護）。本單元以單一「咖啡廳點餐系統」實戰案例貫穿，並提供 Vibe Coding 成熟度互動診斷工具，助你精準重塑工程核心競爭力。",
+    "flowTitle": "Vibe Coding 五大核心價值支柱與能力躍遷架構",
+    "resultTitle": "價值轉移互動解析、咖啡廳實戰貫穿與成熟度診斷工作台",
+    "flowImage": make_svg_diagram(
+        "Vibe Coding 五大核心價值支柱躍遷流",
+        "需求 (Why) -> 規格 (What) -> 流程 (When/How) -> 架構 (Where) -> 驗證 (Gate)",
+        [
+            {"num": "VS-1", "title": "需求探索", "sub": "痛點價值定位 (Why)", "tag": "Requirement"},
+            {"num": "VS-2", "title": "精確規格", "sub": "契約邊界定義 (What)", "tag": "Specification"},
+            {"num": "VS-3", "title": "流程時序", "sub": "狀態機與流轉 (When)", "tag": "Workflow"},
+            {"num": "VS-4", "title": "架構解耦", "sub": "職責劃分防擴散 (Where)", "tag": "Architecture"},
+            {"num": "VS-5", "title": "守門驗證", "sub": "自動測試防回歸 (Gate)", "tag": "Verification"}
+        ],
+        loop_label="程式碼邊際成本趨近於零：掌握五大支柱，讓 AI 成為頂級執行手，人做真正的工程決策",
+        accent="#3b82f6"
+    ),
+    "resultImage": "Vibe Coding/01.軟體工程/Vibe Coding 時代，程式碼本身已經不值錢。真正值錢的是：需求、規格、流程、架構、驗證.html",
+    "slideUrl": "Vibe Coding/01.軟體工程/Vibe Coding 時代，程式碼本身已經不值錢。真正值錢的是：需求、規格、流程、架構、驗證.html",
+    "objective": "1. 徹底理解 AI 時代的「代碼邊際成本崩跌」效應，破除盲目追求 Coding 速度的盲區。\n2. 掌握重構工程師護城河的五大支柱：需求定位、規格邊界、業務流程、解耦架構與自動化驗證。\n3. 透過咖啡廳點餐系統全流程貫穿，體會從混亂 Vibe 走向規格驅動（Spec-Driven）的工程實踐。\n4. 利用成熟度互動診斷工具，評估個人與團隊從 Level 1 (盲投) 到 Level 5 (全自控) 的能力等級。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 認知重構 — 為什麼在 Vibe Coding 時代「寫程式碼」本身不再值錢？",
+            "description": "深入剖析 AI 工具讓產碼邊際成本暴降後的軟體工程全新價值格局。"
+        },
+        {
+            "step": "步驟 2: 解構五大價值支柱 — 需求、規格、流程、架構、驗證",
+            "description": "逐一拆解五大支柱的具體內涵，建立高抗幻覺的工程思考框架。"
+        },
+        {
+            "step": "步驟 3: 案例穿透演練 — 咖啡廳點餐系統在五個維度的實踐與反思",
+            "description": "以單一實例貫穿折扣計算、訂單狀態機、分層架構與自動化單元測試防線。"
+        },
+        {
+            "step": "步驟 4: 成熟度自我檢測 — 評估你的 Vibe Coding 是否具備工程防爆能力",
+            "description": "透過互動診斷器評估團隊技術成熟度，取得針對性的轉型落地方案。"
+        }
+    ],
+    "promptTemplate": "你是一位精通現代軟體架構與規格驅動開發（SDD）的資深技術顧問。\n請依據「需求、規格、流程、架構、驗證」五大核心支柱，協助我將以下模糊的業務想法梳理為可交給 AI Coding Agent 精確執行的工程工件：\n【業務需求描述】：（請填寫你的專案構想，例如：產線設備即時溫濕度告警系統）\n請依序輸出：\n1. 需求邊界（In-scope / Out-of-scope）與關鍵指標\n2. 核心規格（資料結構定義、輸入驗證、邊界條件與錯誤碼契約）\n3. 業務流轉狀態機（State Diagram 狀態移轉條件）\n4. 架構分層（核心邏輯與外部 I/O 隔離原則）\n5. 驗收標準與 Given-When-Then 自動化測試案例",
+    "codeSnippet": {
+        "language": "yaml",
+        "code": "# 規格驅動核心契約範例 (OpenSpec / SDD 精神)\nfeature: 咖啡廳訂單狀態機與折扣驗證\nin_scope:\n  - 支援會員自動套用 9 折優惠\n  - 滿 500 元可疊加滿額折抵 50 元\nout_of_scope:\n  - 第三方外送平台 API 串接\nvalidation_rules:\n  - rule: single_coupon_per_type\n    description: 同類型優惠券不可重複疊加\n  - rule: minimum_payable_zero\n    description: 折扣後最終應付金額不得小於 0\nstate_transitions:\n  CREATED -> PAID -> PREPARING -> COMPLETED\n  PAID -> REFUNDED (僅限製作前)"
+    },
+    "references": [
+        {
+            "title": "Vibe Coding 時代的價值轉移：為什麼懂需求、規格、流程、架構、驗證才值錢？(專屬互動頁面)",
+            "url": "Vibe Coding/01.軟體工程/Vibe Coding 時代，程式碼本身已經不值錢。真正值錢的是：需求、規格、流程、架構、驗證.html",
+            "bgColor": "rgba(59, 130, 246, 0.15)",
+            "borderColor": "rgba(59, 130, 246, 0.6)",
+            "color": "#60a5fa",
+            "icon": "fa-solid fa-layer-group",
+            "badge": "本單元專題"
+        },
+        {
+            "title": "AI 時代工程師還要會什麼？規格、驗收標準與 SDD、TDD、BDD、DDD 實戰問答",
+            "url": "Vibe Coding/01.軟體工程/AI 時代工程師還要會什麼？規格、驗收標準與 SDD、TDD、BDD、DDD 實戰問答.html"
+        },
+        {
+            "title": "軟體工程演進全景圖：從混沌到 Vibe Coding",
+            "url": "Vibe Coding/01.軟體工程/vibe_coding_軟體工程.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-store",
+            "scenario": "新零售與智慧餐飲業務系統架構規劃",
+            "description": "在業務需求頻繁變更時，以規格邊界與狀態機鎖定核心業務，避免 AI 產出折扣邏輯混亂或負數金額漏洞。"
+        },
+        {
+            "icon": "fa-solid fa-microchip",
+            "scenario": "工控邊緣通訊與狀態轉換防禦",
+            "description": "在 PLC / SCADA 邊緣採集與控制情境中，以嚴格狀態機和驗收契約阻斷異常連線重試風暴與未授權寫入。"
+        }
+    ]
+}
+
+
+# 軟體工程新單元 2：AI 時代工程師還要會什麼？規格、驗收標準與 SDD、TDD、BDD、DDD 實戰問答
+unit_engineer_skills_sdd_tdd_bdd_ddd = {
+    "id": "vibe-engineer-skills-sdd-tdd-bdd-ddd",
+    "labNumber": "12",
+    "title": "AI 時代工程師還要會什麼？規格、驗收標準與 SDD、TDD、BDD、DDD 實戰問答",
+    "shortTitle": "AI 時代工程師必備：規格、驗收標準與 SDD/TDD/BDD/DDD",
+    "category": "軟體工程",
+    "date": "2026-11-27",
+    "summary": "水球潘（服務 20+ 企業之軟工顧問）與外商前端主管 JW 深度對談：在 AI 狂潮下，代碼生成已被自動化，工程師的護城河正式轉移至「最上游的複雜技術決策與規格定義」！本單元徹底解密 SDD、TDD、BDD、DDD 的核心本質皆為「拆解 LLM 注意力」，搭配產品生命週期與 Kano Model 技術選型矩陣、Evaluator Skill 雙模型架構審查、以及打破穀倉效應的 DDD 統一語言與 Shared Context 認知超前，助你打造不可替代的高階工程思維。",
+    "flowTitle": "AI 時代軟工上下游價值鏈與 LLM 注意力拆解流水線",
+    "resultTitle": "水球潘 × JW 實戰問答解析、決策矩陣模擬器與時間軸逐字稿",
+    "flowImage": make_svg_diagram(
+        "AI 時代工程師價值鏈與注意力拆解架構",
+        "複雜決策 (最上游·極高稀缺) -> 規格定義 (SDD/DDD) -> 注意力拆解 (TDD/BDD) -> AI 產碼 (下游) -> 雙模型 Review (Evaluator)",
+        [
+            {"num": "ENG-1", "title": "複雜決策", "sub": "最上游技術與架構權衡", "tag": "Upstream"},
+            {"num": "ENG-2", "title": "規格契約", "sub": "SDD 規格與 DDD 統一語言", "tag": "Spec/DDD"},
+            {"num": "ENG-3", "title": "注意力拆解", "sub": "TDD/BDD 單一職責化邊界", "tag": "Decompose"},
+            {"num": "ENG-4", "title": "AI 執行產碼", "sub": "LLM 落地高品質代碼", "tag": "AI Coding"},
+            {"num": "ENG-5", "title": "雙模型審查", "sub": "Evaluator 切除架構腫瘤", "tag": "Evaluator"}
+        ],
+        loop_label="打破穀倉效應：用 Shared Context 認知超前，以 SDD/TDD/BDD 成為 LLM 的頂級領航員",
+        accent="#0ea5e9"
+    ),
+    "resultImage": "Vibe Coding/01.軟體工程/AI 時代工程師還要會什麼？規格、驗收標準與 SDD、TDD、BDD、DDD 實戰問答.html",
+    "slideUrl": "Vibe Coding/01.軟體工程/AI 時代工程師還要會什麼？規格、驗收標準與 SDD、TDD、BDD、DDD 實戰問答.html",
+    "objective": "1. 掌握 AI 海嘯下的「上下游思維」：分清下游易替代的產碼勞務與最上游極高稀缺的架構決策。\n2. 深入理解 SDD、TDD、BDD、DDD 的共同本質：透過邊界約束化解 LLM 幻覺並「拆解大模型注意力」。\n3. 熟悉 Kano Model 與產品生命週期選型矩陣：學會在 MVP 敏捷摸索期（Vibe Coding）與核心成熟期（AI-BDD）之間切換。\n4. 掌握 Evaluator Skill 雙模型 Code Review 策略與 Shared Context 企業落地指引。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 建立上下游思維 — 認識軟體工程價值鏈中的稀缺技術決策",
+            "description": "剖析工程師核心資產如何從編寫程式碼轉移為規格邊界劃分與非功能性決策。"
+        },
+        {
+            "step": "步驟 2: 破解四大 D 的本質 — SDD、TDD、BDD、DDD 如何拆解 LLM 注意力",
+            "description": "掌握透過規格驅動、測試驅動與領域驅動，將龐大需求拆解為精準上下文的精髓。"
+        },
+        {
+            "step": "步驟 3: 操作互動決策器 — 需求一直改，到底該 Vibe Coding 還是 AI-BDD？",
+            "description": "運用 Kano Model 與產品生命週期矩陣，評估專案應採取的最佳工程規範等級。"
+        },
+        {
+            "step": "步驟 4: 落地 Evaluator Skill — 建立雙模型架構審查與 Shared Context 認知超前",
+            "description": "運用 Evaluator Agent 實施架構體檢，建立全團隊統一語言跨越溝通鴻溝。"
+        }
+    ],
+    "promptTemplate": "你是一位頂級軟體工程架構師兼 AI 輔助開發教練（具備水球潘顧問實戰體系）。\n請針對我即將交付給 AI Coding Agent 實作的功能模組：\n1. 【注意力拆解】：依據單一職責原則，將本功能拆解為不超過 300 行代碼的獨立驗證小任務。\n2. 【SDD 規格定義】：列出清晰的輸入/輸出邊界、型別宣告、Pre-conditions 與 Post-conditions。\n3. 【BDD 驗收案例】：以 Gherkin 語法撰寫至少 3 組 Given-When-Then 驗收測試。\n4. 【Evaluator 審查清單】：列出在 AI 產碼完成後，用來切除「架構腫瘤」的 5 個核心檢查點（如職責蔓延、過度工程、隱式耦合等）。",
+    "codeSnippet": {
+        "language": "gherkin",
+        "code": "# AI-BDD 驗收規格範例 (拆解 LLM 注意力)\nFeature: 智慧電表即時負載異常監控\n\n  Scenario: 用電功率超出安全閥值觸發警報\n    Given 產線智慧電表目前取樣週期為 1 秒\n    And 額定安全功率上限為 50.0 kW\n    When 傳感器連續 3 秒回傳功率讀數為 52.3 kW, 53.1 kW, 52.8 kW\n    Then 系統應判定為「過載警報」狀態\n    And 應發送警報推播並於 500ms 內觸發 PLC 卸載接點"
+    },
+    "references": [
+        {
+            "title": "AI 時代工程師還要會什麼？規格、驗收標準與 SDD、TDD、BDD、DDD 實戰問答 (專屬互動頁面)",
+            "url": "Vibe Coding/01.軟體工程/AI 時代工程師還要會什麼？規格、驗收標準與 SDD、TDD、BDD、DDD 實戰問答.html",
+            "bgColor": "rgba(14, 165, 233, 0.15)",
+            "borderColor": "rgba(14, 165, 233, 0.6)",
+            "color": "#38bdf8",
+            "icon": "fa-solid fa-code-compare",
+            "badge": "本單元專題"
+        },
+        {
+            "title": "YouTube 官方原片：水球潘 × 外商前端主管 JW",
+            "url": "https://www.youtube.com/watch?v=mNQNKLhQp6E"
+        },
+        {
+            "title": "當 Vibe Coding 遇上嚴謹工程學：SDD vs BDD vs TDD 深入解析",
+            "url": "Vibe Coding/02.Skills(技能)/vibe_coding_sdd_vs_bdd_vs_tdd.html"
+        },
+        {
+            "title": "Vibe Coding 時代，程式碼本身已經不值錢。真正值錢的是：需求、規格、流程、架構、驗證",
+            "url": "Vibe Coding/01.軟體工程/Vibe Coding 時代，程式碼本身已經不值錢。真正值錢的是：需求、規格、流程、架構、驗證.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-brain",
+            "scenario": "複雜工業物聯網 (IIoT) 數據中台架構審查",
+            "description": "在龐大時序資料流與多通訊協定整合時，以 Evaluator 審查機制切除代碼膨脹與高耦合架構腫瘤。"
+        },
+        {
+            "icon": "fa-solid fa-diagram-project",
+            "scenario": "領域驅動設計 (DDD) 統一語言與跨部門協同",
+            "description": "利用 DDD 限界上下文與 Shared Context，使產線工程師、IT 開發者與業務決策者精準同頻。"
+        }
+    ]
+}
+
+
+# 其他新單元 3：5 位當代軟體開發傳奇人物，怎麼看 AI 寫程式？
+unit_legendary_engineers_ai = {
+    "id": "vibe-legendary-engineers-ai",
+    "labNumber": "21",
+    "title": "5 位當代軟體開發傳奇人物，怎麼看 AI 寫程式？",
+    "shortTitle": "5 位軟體傳奇大師，怎麼看 AI 寫程式",
+    "category": "其他",
+    "subCategory": "軟體傳奇思維",
+    "date": "2026-11-27",
+    "summary": "匯集五位當代軟體工程宗師——Linux 之父 Linus Torvalds、C++ 發明者 Bjarne Stroustrup、Ruby on Rails 創始人 DHH、敏捷宣言起草人兼 TDD 之父 Kent Beck、以及 Clean Code 作者 Uncle Bob——對 AI 輔助編程的深度洞見與思維演進。從 2023 到 2026 年，大師們如何界定「哪些代碼能託付 AI、哪些邊界必須由人掌控」？包含宗師思維對照矩陣、精華短語速查卡與時間軸逐字稿，給所有 Vibe Coding 開發者的定心丸與大師級指引。",
+    "flowTitle": "五大軟體工程宗師立場光譜與 AI 賦能邊界圖",
+    "resultTitle": "五位大師深度解析、立場光譜矩陣、核心分歧與時間軸逐字稿",
+    "flowImage": make_svg_diagram(
+        "五大軟體傳奇宗師 AI 立場光譜圖",
+        "Linus (務實工具) <-> Bjarne (正確本質) <-> DHH (效率賦能) <-> Kent Beck (思考伴侶) <-> Uncle Bob (責任防線)",
+        [
+            {"num": "LEG-1", "title": "Linus Torvalds", "sub": "Git/Linux：AI 是高階自動補全", "tag": "Pragmatist"},
+            {"num": "LEG-2", "title": "Bjarne Stroustrup", "sub": "C++：正確性比代碼量更重要", "tag": "Correctness"},
+            {"num": "LEG-3", "title": "DHH", "sub": "Rails：AI 抹平技術落差擴大生產力", "tag": "Productivity"},
+            {"num": "LEG-4", "title": "Kent Beck", "sub": "TDD：AI 是即時回饋的思考夥伴", "tag": "TDD Master"},
+            {"num": "LEG-5", "title": "Uncle Bob", "sub": "Clean Code：工程師永遠負最終責任", "tag": "Clean Code"}
+        ],
+        loop_label="大師核心共識：代碼生成越快，對架構判斷力、驗證責任與系統品味的要求就越嚴苛",
+        accent="#6366f1"
+    ),
+    "resultImage": "Vibe Coding/03.其他/5 位當代軟體開發傳奇人物，怎麼看 AI 寫程式.html",
+    "slideUrl": "Vibe Coding/03.其他/5 位當代軟體開發傳奇人物，怎麼看 AI 寫程式.html",
+    "objective": "1. 綜覽五位當代軟體開發傳奇人物對 AI 編程的演進觀點，建立平衡而深邃的技術哲學觀。\n2. 理解「生產力暴增派 (DHH/Kent Beck)」與「品質責任派 (Bjarne/Uncle Bob)」的核心論點與分歧。\n3. 汲取 Linus Torvalds 的務實主義思維：將 AI 視為高級工具而非神祇，始終緊抓底層代碼審查權。\n4. 掌握大師共識：在 AI 狂飆的時代，如何守護軟體設計的 Clean Code 精神與架構純潔性。",
+    "tutorialSteps": [
+        {
+            "step": "步驟 1: 綜覽立場光譜 — 從熱情擁抱到嚴格審慎的五維觀點分佈",
+            "description": "探索五位宗師在開發速度、心智模型、代碼責任與架構哲學上的光譜定位。"
+        },
+        {
+            "step": "步驟 2: 深入五位大師的核心主張 — Linus、Bjarne、DHH、Kent Beck、Uncle Bob",
+            "description": "解讀每位大師從早期質疑到如今實踐的真實反饋與深層警告。"
+        },
+        {
+            "step": "步驟 3: 剖析三大核心分歧 — AI 會消滅工程師嗎？TDD 還重要嗎？新手該用 AI 嗎？",
+            "description": "從宗師辯論中提煉不同開發場景下的權衡策略與學習建議。"
+        },
+        {
+            "step": "步驟 4: 提煉 Vibe Coding 心法 — 建立「AI 提速、人把關品味與責任」的工程準則",
+            "description": "將宗師智慧內化為日常開發習慣，既享受極速產出又杜絕技術債堆積。"
+        }
+    ],
+    "promptTemplate": "你是一位融會貫通 Linus Torvalds、Bjarne Stroustrup、DHH、Kent Beck 與 Uncle Bob 軟工哲學的技術思想家。\n請針對我目前的軟體專案架構（或 AI 生成代碼）：\n1. 【Uncle Bob 視角】：這段代碼是否符合 Clean Code 原則？責任邊界是否清晰？若出事誰該負責？\n2. 【Kent Beck 視角】：這段邏輯是否具備高覆蓋、可信任的測試防護網（TDD 精神）？\n3. 【Bjarne Stroustrup 視角】：是否有潛在的型別安全、記憶體洩漏或效能陷阱？是否為了方便犧牲了正確性？\n4. 【DHH 視角】：我們是否過度工程（Over-engineering）？如何用最優雅簡練的現代語義交付最大價值？\n5. 【Linus 視角】：請給出最務實、不講廢話的審查反饋（實話實說）。",
+    "codeSnippet": {
+        "language": "javascript",
+        "code": "// 大師哲學指導下的 Clean Code 原則：\n// 1. 意圖明確 (Uncle Bob)\n// 2. 測試先行 (Kent Beck)\n// 3. 簡練優雅 (DHH)\n// 4. 正確安全 (Bjarne)\n// 5. 不搞花俏 (Linus)\n\n// 永遠不要讓 AI 產出未受測試保護的盲盒代碼\ndescribe('TemperatureController', () => {\n  it('應在溫度超過 85°C 時精確切斷加熱電驛並紀錄審計日誌', () => {\n    const controller = new IndustrialController({ maxTemp: 85.0 });\n    controller.feedSensorReading(86.2);\n    expect(controller.relayState).toBe('DISCONNECTED');\n    expect(controller.auditLog).toContain('OVERHEAT_CUTOFF');\n  });\n});"
+    },
+    "references": [
+        {
+            "title": "5 位當代軟體開發傳奇人物，怎麼看 AI 寫程式？(專屬互動頁面)",
+            "url": "Vibe Coding/03.其他/5 位當代軟體開發傳奇人物，怎麼看 AI 寫程式.html",
+            "bgColor": "rgba(99, 102, 241, 0.15)",
+            "borderColor": "rgba(99, 102, 241, 0.6)",
+            "color": "#818cf8",
+            "icon": "fa-solid fa-users-viewfinder",
+            "badge": "本單元專題"
+        },
+        {
+            "title": "YouTube 官方原片：5 位當代軟體傳奇人物對談精華",
+            "url": "https://www.youtube.com/watch?v=edcIT5Pbh18"
+        },
+        {
+            "title": "AI Coding 新時代的團隊開發：從個人用 AI 到 AI-Native 團隊 (單元 16)",
+            "url": "Vibe Coding/03.其他/AI Coding 新時代的團隊開發/AI Coding 新時代的團隊開發.html"
+        }
+    ],
+    "applications": [
+        {
+            "icon": "fa-solid fa-graduation-cap",
+            "scenario": "團隊工程文化與技術準則建構",
+            "description": "在組織全面導入 AI 輔助開發時，借鑒大師觀點建立「代碼品質與驗證責任歸屬」的技術紅線。"
+        },
+        {
+            "icon": "fa-solid fa-compass",
+            "scenario": "資深工程師自我定位與職業演進指南",
+            "description": "跳脫語法生成工具的焦慮，將個人核心能力深化至架構品味、邊界把關與系統驗證等無可取代的領域。"
+        }
+    ]
+}
+
 # 20：Vibe Coding 必學的版本控制：從零搞懂 Git！｜Kelly Tsai
 unit_20_git_kelly = {
     "id": "vibe-git-kelly",
@@ -2291,6 +2548,8 @@ vibe_labs = [
     unit_07_google,
     unit_08_uml_blueprint,
     unit_09_uml_advanced,
+    unit_value_shift_spec_arch_verify,
+    unit_engineer_skills_sdd_tdd_bdd_ddd,
     unit_10_openspec,
     unit_11_opsx_guide,
     unit_12_superpowers,
@@ -2301,6 +2560,7 @@ vibe_labs = [
     unit_17_team_dev_transcript_interactive,
     unit_18_ost_vibe_coding,
     unit_modern_web_guidance,
+    unit_legendary_engineers_ai,
     unit_20_git_kelly,
     unit_21_github_nontech,
     unit_22_cicd_gary

@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 時代工程師還要會什麼？規格、驗收標準與 SDD、TDD、BDD、DDD 實戰問答｜互動教學與時間軸逐字稿</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    html {
+      scroll-behavior: smooth;
+      font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    /* 確保 SVG 內所有文字皆可選取與複製 */
+    svg text, svg tspan {
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      cursor: text;
+    }
+
+    .svg-node {
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+    }
+    .svg-node:hover {
+      filter: drop-shadow(0 6px 12px rgba(37, 99, 235, 0.22));
+    }
+    .svg-node.active rect,
+    .svg-node.active polygon {
+      stroke-width: 3px;
+      filter: drop-shadow(0 0 0 3px rgba(59, 130, 246, 0.35));
+    }
+
+    /* 單一垂直時間軸樣式 */
+    .timeline-line {
+      position: relative;
+    }
+    .timeline-line::before {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      background: linear-gradient(180deg, #3b82f6 0%, #6366f1 50%, #10b981 100%);
+      border-radius: 999px;
+    }
+
+    .highlight-mark {
+      background-color: #fef08a;
+      color: #854d0e;
+      padding: 0 2px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    .toast-enter {
+      animation: toastSlideUp 0.25s ease-out forwards;
+    }
+    @keyframes toastSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-200 selection:text-blue-900">
+
+  <!-- 頂部固定導覽列 -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 shrink-0">
+        <a href="../../vibecoding.html?id=vibe-engineer-skills-sdd-tdd-bdd-ddd"
+           class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border border-blue-500/30 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs sm:text-sm font-semibold transition shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          <span>返回 Vibe Coding</span>
+        </a>
+        <a href="#top" class="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base truncate">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-blue-600 text-white text-xs font-extrabold shrink-0">AI</span>
+          <span class="truncate hidden sm:inline">AI 時代工程師護城河與 SDD/TDD/BDD/DDD</span>
+        </a>
+      </div>
+      <nav class="hidden md:flex items-center gap-1 text-xs font-medium text-slate-600">
+        <a href="#guide" class="px-2.5 py-1.5 rounded-md hover:bg-slate-100 hover:text-blue-600 transition">閱讀導覽</a>
+        <a href="#value-shift" class="px-2.5 py-1.5 rounded-md hover:bg-slate-100 hover:text-blue-600 transition">上下游價值</a>
+        <a href="#four-d" class="px-2.5 py-1.5 rounded-md hover:bg-slate-100 hover:text-blue-600 transition">四大 D 拆解</a>
+        <a href="#lifecycle" class="px-2.5 py-1.5 rounded-md hover:bg-slate-100 hover:text-blue-600 transition">週期×Kano</a>
+        <a href="#review-context" class="px-2.5 py-1.5 rounded-md hover:bg-slate-100 hover:text-blue-600 transition">審查與上下文</a>
+        <a href="#timeline-transcript" class="px-2.5 py-1.5 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition font-semibold">⏱️ 時間軸逐字稿</a>
+      </nav>
+      <a href="#timeline-transcript" class="md:hidden px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs font-semibold shrink-0">⏱️ 逐字稿</a>
+    </div>
+  </header>
+
+  <main id="top" class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-10">
+
+    <!-- Hero 標題與 YouTube 來源區 -->
+    <section class="bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white rounded-2xl p-6 sm:p-8 shadow-lg border border-slate-800">
+      <div class="flex flex-wrap items-center gap-2 text-xs font-semibold mb-3">
+        <span class="px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30">水球軟體學院 × 錢端工程師 JW</span>
+        <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">2026-11-26 直播講座</span>
+        <span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30">片長 01:07:55</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-snug mb-3">
+        AI 時代工程師還要會什麼？規格、驗收標準與 SDD、TDD、BDD、DDD 實戰問答
+      </h1>
+      <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">
+        水球潘（服務 20+ 企業之軟工顧問）與外商前端主管 JW 深度對談：從軟體工程上下游稀缺性、LLM 注意力拆解、產品生命週期與 Kano Model 選型，到 Evaluator Skill、Shared Context 與雙模型架構審查，一次建立不焦慮的 AI 時代開發方法論。
+      </p>
+
+      <!-- YouTube 嵌入與原片連結 -->
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-5 items-center">
+        <div class="lg:col-span-3 rounded-xl overflow-hidden bg-black border border-white/15 shadow-inner aspect-video">
+          <iframe
+            class="w-full h-full"
+            src="https://www.youtube.com/embed/mNQNKLhQp6E"
+            title="AI 時代工程師還要會什麼？規格、驗收標準與 SDD、TDD、BDD、DDD 實戰問答｜水球潘 x 錢端工程師"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+        <div class="lg:col-span-2 bg-white/10 backdrop-blur rounded-xl p-4 border border-white/15 space-y-3">
+          <div class="text-xs uppercase tracking-wider text-blue-200 font-bold">一句話核心總結</div>
+          <p class="text-sm text-white leading-relaxed font-medium">
+            AI 正從下游淹沒「純寫 Code」的稀缺性；工程師唯一的護城河，是憑藉<span class="text-amber-300 font-bold">「可落地的抽象能力」</span>往上游搶佔規格、驗收標準與技術決策，並用 <span class="text-emerald-300 font-bold">Skill Engineering ＋ 自動化測試 ＋ Shared Context</span> 讓 AI 可靠交付。
+          </p>
+          <div class="pt-2 flex flex-wrap gap-2">
+            <a href="https://www.youtube.com/watch?v=mNQNKLhQp6E" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition shadow">
+              <span>▶</span> 前往 YouTube 觀看原片
+            </a>
+            <a href="#timeline-transcript"
+               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs font-semibold transition border border-white/20">
+              <span>⏱️</span> 直達互動時間軸逐字稿
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 頂部閱讀導覽與 🔍 本集重點 -->
+    <section id="guide" class="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-slate-200 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+            <span>🔍</span> 本集重點與閱讀導覽
+          </h2>
+          <p class="text-xs text-slate-500 mt-1">點擊主題直接跳轉至對應章節，勾選方框可追蹤你的學習複習進度。</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="checklist-progress" class="text-xs font-bold px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+            已複習 0 / 7 項
+          </span>
+          <button id="reset-checklist-btn" type="button" class="text-xs text-slate-500 hover:text-slate-800 underline">重置</button>
+        </div>
+      </div>
+
+      <!-- 可勾選＋可點擊跳轉清單 -->
+      <div id="focus-checklist" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 transition">
+          <input type="checkbox" data-check-id="c1" class="focus-check mt-1 w-4 h-4 accent-blue-600 rounded cursor-pointer shrink-0" />
+          <a href="#value-shift" class="flex-1 text-sm">
+            <div class="font-bold text-slate-900">1. 核心價值轉移：從下游 Coding 往上游搶灘</div>
+            <div class="text-xs text-slate-500 mt-0.5">價值＝企業重視 ∩ 市場稀缺；工程師憑「可落地的抽象能力」碾壓上游。</div>
+          </a>
+        </div>
+        <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 transition">
+          <input type="checkbox" data-check-id="c2" class="focus-check mt-1 w-4 h-4 accent-blue-600 rounded cursor-pointer shrink-0" />
+          <a href="#four-d" class="flex-1 text-sm">
+            <div class="font-bold text-slate-900">2. 四大 D 一次看懂：SDD、TDD、BDD、DDD</div>
+            <div class="text-xs text-slate-500 mt-0.5">SDD 不是方法論而是「祈禱拜拜」；TDD/BDD/DDD 本質是拆解 LLM 注意力。</div>
+          </a>
+        </div>
+        <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 transition">
+          <input type="checkbox" data-check-id="c3" class="focus-check mt-1 w-4 h-4 accent-blue-600 rounded cursor-pointer shrink-0" />
+          <a href="#skills-section" class="flex-1 text-sm">
+            <div class="font-bold text-slate-900">3. Agent Skill（SKILL.md）：模組化你的工程大腦</div>
+            <div class="text-xs text-slate-500 mt-0.5">一個產出物配一個 Skill，將規格與實作沉澱為職涯複利資產。</div>
+          </a>
+        </div>
+        <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 transition">
+          <input type="checkbox" data-check-id="c4" class="focus-check mt-1 w-4 h-4 accent-blue-600 rounded cursor-pointer shrink-0" />
+          <a href="#lifecycle" class="flex-1 text-sm">
+            <div class="font-bold text-slate-900">4. 方法論選用時機：產品生命週期 × Kano Model</div>
+            <div class="text-xs text-slate-500 mt-0.5">導入期 Vibe Coding；成長/成熟期與「基本門檻功能」必上 Test-First。</div>
+          </a>
+        </div>
+        <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 transition">
+          <input type="checkbox" data-check-id="c5" class="focus-check mt-1 w-4 h-4 accent-blue-600 rounded cursor-pointer shrink-0" />
+          <a href="#review-context" class="flex-1 text-sm">
+            <div class="font-bold text-slate-900">5. Code Review 與 Evaluator Skill：省下 90% 審查時間</div>
+            <div class="text-xs text-slate-500 mt-0.5">別再逐行看 Code！用 Worker + Evaluator Sub-agent 揪出架構「腫瘤」。</div>
+          </a>
+        </div>
+        <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 transition">
+          <input type="checkbox" data-check-id="c6" class="focus-check mt-1 w-4 h-4 accent-blue-600 rounded cursor-pointer shrink-0" />
+          <a href="#shared-context" class="flex-1 text-sm">
+            <div class="font-bold text-slate-900">6. 打破穀倉效應：DDD、Shared Context 與認知超前</div>
+            <div class="text-xs text-slate-500 mt-0.5">PM 當責單一事實來源、GitHub Repo 存 Plan 與決策，消除 AI 認知負債。</div>
+          </a>
+        </div>
+        <div class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 transition md:col-span-2">
+          <input type="checkbox" data-check-id="c7" class="focus-check mt-1 w-4 h-4 accent-blue-600 rounded cursor-pointer shrink-0" />
+          <a href="#model-iq" class="flex-1 text-sm">
+            <div class="font-bold text-slate-900">7. 模型智商分配與非功能性需求：左高右低、避開 Self-Bias</div>
+            <div class="text-xs text-slate-500 mt-0.5">高智商模型負責「寫測試與語意架構審查」，中低階模型實作；搭配 Skill Engineering 打造個人護城河。</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- 核心思維公式與生活化比喻 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div class="text-xs font-bold text-blue-700 uppercase tracking-wide mb-1">📘 核心價值公式</div>
+          <div class="text-sm sm:text-base font-extrabold text-slate-900 font-mono">
+            工程師價值 ＝ 企業重視（貼近營收） ∩ 市場稀缺性
+          </div>
+          <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+            當 AI 讓「寫出程式碼」變得廉價（稀缺性趨近於零），唯有往上游移動到「定義規格、驗收標準、複雜技術決策」才能維持高薪與不可替代性。
+          </p>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div class="text-xs font-bold text-amber-800 uppercase tracking-wide mb-1">💡 生活化比喻（ELI5）</div>
+          <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+            <strong>蓋房子比喻：</strong>以前工程師是稀缺的「泥作師傅（寫 Code）」，現在 AI 是速度 10 倍的 3D 建築機器人。工程師別跟機器人比砌磚，而要轉型成懂施工細節的<strong>「建築師＋驗屋師」</strong>——因為你親手砌過磚（寫過 Code），畫出來的藍圖（規格）與驗屋清單（自動化測試）才不會天馬行空、無法落地！
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 章節 1：上下游價值轉移互動圖 -->
+    <section id="value-shift" class="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-slate-200 space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Part 1 · 00:07:06 – 00:15:00</span>
+          <h2 class="text-xl font-extrabold text-slate-900 mt-0.5">AI 海嘯下的「上下游思維」與工程師核心價值</h2>
+        </div>
+        <span class="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">點擊下方流程節點查看詳解</span>
+      </div>
+
+      <!-- 互動式 SVG 1：上下游價值移動圖 -->
+      <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 overflow-x-auto">
+        <svg id="svg-upstream" viewBox="0 0 920 210" class="w-full min-w-[680px] h-auto" role="img" aria-label="AI 海嘯上下游價值移動圖">
+          <defs>
+            <linearGradient id="waveGrad" x1="100%" y1="0%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#ef4444" stop-opacity="0.22"/>
+              <stop offset="55%" stop-color="#f59e0b" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="#10b981" stop-opacity="0.16"/>
+            </linearGradient>
+            <marker id="arrowLeft" viewBox="0 0 10 10" refX="2" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 10 0 L 0 5 L 10 10 z" fill="#2563eb"/>
+            </marker>
+          </defs>
+
+          <!-- 背景光譜帶 -->
+          <rect x="20" y="20" width="880" height="170" rx="16" fill="url(#waveGrad)" stroke="#e2e8f0" stroke-width="1.5"/>
+
+          <!-- 頂部移動方向箭頭 -->
+          <line x1="820" y1="45" x2="100" y2="45" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#arrowLeft)"/>
+          <text x="460" y="38" text-anchor="middle" fill="#1d4ed8" font-size="13" font-weight="700">🌊 AI 海嘯從下游淹上來 → 工程師必須往上游搶佔高稀缺價值區</text>
+
+          <!-- 5 個可點擊節點 -->
+          <g class="svg-node active" data-value-node="decision">
+            <rect x="40" y="72" width="155" height="92" rx="12" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+            <text x="117" y="98" text-anchor="middle" fill="#065f46" font-size="11" font-weight="700">最上游 · 極高稀缺</text>
+            <text x="117" y="122" text-anchor="middle" fill="#0f172a" font-size="14" font-weight="800">複雜技術決策</text>
+            <text x="117" y="144" text-anchor="middle" fill="#475569" font-size="11">人拍板、避開 AI 幻覺</text>
+          </g>
+
+          <g class="svg-node" data-value-node="spec">
+            <rect x="212" y="72" width="155" height="92" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+            <text x="289" y="98" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="700">上游 · 核心戰場</text>
+            <text x="289" y="122" text-anchor="middle" fill="#0f172a" font-size="14" font-weight="800">規格與規範</text>
+            <text x="289" y="144" text-anchor="middle" fill="#475569" font-size="11">Data / API / 業務規則</text>
+          </g>
+
+          <g class="svg-node" data-value-node="acceptance">
+            <rect x="384" y="72" width="155" height="92" rx="12" fill="#eef2ff" stroke="#6366f1" stroke-width="2"/>
+            <text x="461" y="98" text-anchor="middle" fill="#4338ca" font-size="11" font-weight="700">中上游 · 品質防線</text>
+            <text x="461" y="122" text-anchor="middle" fill="#0f172a" font-size="14" font-weight="800">驗收標準</text>
+            <text x="461" y="144" text-anchor="middle" fill="#475569" font-size="11">Gherkin / 自動化測試</text>
+          </g>
+
+          <g class="svg-node" data-value-node="arch">
+            <rect x="556" y="72" width="155" height="92" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+            <text x="633" y="98" text-anchor="middle" fill="#b45309" font-size="11" font-weight="700">中下游 · 加速替代中</text>
+            <text x="633" y="122" text-anchor="middle" fill="#0f172a" font-size="14" font-weight="800">系統架構實作</text>
+            <text x="633" y="144" text-anchor="middle" fill="#475569" font-size="11">AI 10 倍速產出，需審核</text>
+          </g>
+
+          <g class="svg-node" data-value-node="code">
+            <rect x="728" y="72" width="155" height="92" rx="12" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+            <text x="805" y="98" text-anchor="middle" fill="#b91c1c" font-size="11" font-weight="700">最下游 · 海嘯重災區</text>
+            <text x="805" y="122" text-anchor="middle" fill="#0f172a" font-size="14" font-weight="800">純寫程式碼</text>
+            <text x="805" y="144" text-anchor="middle" fill="#475569" font-size="11">稀缺性急遽歸零</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- 雙向連動說明卡片 -->
+      <div id="value-detail-card" class="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 sm:p-5 transition">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+          <h3 id="value-detail-title" class="font-bold text-slate-900 text-base">複雜技術決策（最上游 · 極高稀缺）</h3>
+          <span id="value-detail-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">投資建議：最高優先</span>
+        </div>
+        <p id="value-detail-desc" class="text-sm text-slate-700 leading-relaxed">
+          由於 LLM 的注意力有限、容易在跨系統權衡時出現盲點或幻覺，複雜的技術選型、跨平台解耦與邊界條件權衡，仍必須由具備實戰底蘊的工程師最終拍板。
+        </p>
+      </div>
+
+      <!-- 桌面兩欄對比：悲觀 vs 樂觀 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4">
+          <div class="text-xs font-bold text-rose-700 mb-1">⚠️ 悲觀現實：別再死守下游</div>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            Junior 與純切版/純寫 Code 職缺急劇萎縮，公司越來越傾向找 FDE 或全端工程師。當 AI 寫 Code 速度是你的 10 倍時，花時間精進手寫語法的投資報酬率已大幅降低。
+          </p>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+          <div class="text-xs font-bold text-emerald-700 mb-1">🚀 樂觀護城河：可落地的抽象能力</div>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            <strong>工程師憑什麼做 PM 的事？</strong>因為你寫過 Code，定規格時腦袋裡同步浮現 Data Model、API Model 與自動化測試邊界。<strong>一旦工程師走到上游，幾乎沒人能跟你競爭！</strong>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 章節 2：SDD、TDD、BDD、DDD 互動拆解 -->
+    <section id="four-d" class="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-slate-200 space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Part 2 · 00:14:53 – 00:21:10</span>
+          <h2 class="text-xl font-extrabold text-slate-900 mt-0.5">SDD、TDD、BDD、DDD 差別在哪？本質都是「拆解 LLM 注意力」</h2>
+        </div>
+        <span class="text-xs px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 font-semibold">點擊流程圖任一階段連動說明</span>
+      </div>
+
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl text-sm text-slate-700">
+        <strong>🔥 關鍵破題：這四個 D 裡面，只有 <span class="text-rose-600 font-bold">SDD 不是方法論</span>！</strong><br/>
+        TDD、BDD、DDD 都是累積 10～20 年文獻、解決重複痛點的嚴謹方法論；而 SDD（Spec-Driven Development）本質只是把 Spec 一次塞給 AI 後「祈禱拜拜」。因此，<strong>TDD / BDD / DDD 在 AI 時代的實戰目的，就是拆解 LLM 注意力（Attention），大幅拉高 Spec → Code 的可靠度！</strong>
+      </div>
+
+      <!-- 互動式 SVG 2：注意力拆解管線 -->
+      <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 overflow-x-auto">
+        <svg id="svg-four-d" viewBox="0 0 920 270" class="w-full min-w-[700px] h-auto" role="img" aria-label="SDD TDD BDD DDD 注意力拆解圖">
+          <defs>
+            <marker id="arrRight" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+            </marker>
+          </defs>
+
+          <!-- DDD 輔助層（上方橫跨 Spec） -->
+          <g class="svg-node" data-d-node="ddd">
+            <rect x="40" y="18" width="250" height="66" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
+            <text x="165" y="42" text-anchor="middle" fill="#6d28d9" font-size="12" font-weight="800">DDD · Domain Model（領域模型）</text>
+            <text x="165" y="62" text-anchor="middle" fill="#4c1d95" font-size="11">收斂企業名詞與規則 → 讓規格寫得更準</text>
+          </g>
+          <line x1="165" y1="84" x2="165" y2="118" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrRight)"/>
+
+          <!-- 主管線：Spec -> Gherkin -> Test -> Code -->
+          <g class="svg-node active" data-d-node="sdd">
+            <rect x="40" y="122" width="180" height="86" rx="12" fill="#fff1f2" stroke="#f43f5e" stroke-width="2"/>
+            <text x="130" y="148" text-anchor="middle" fill="#be123c" font-size="11" font-weight="700">起點（純 SDD 只有頭尾）</text>
+            <text x="130" y="172" text-anchor="middle" fill="#0f172a" font-size="15" font-weight="800">Spec 規格</text>
+            <text x="130" y="192" text-anchor="middle" fill="#64748b" font-size="11">需求與功能描述</text>
+          </g>
+
+          <line x1="220" y1="165" x2="262" y2="165" stroke="#64748b" stroke-width="2" marker-end="url(#arrRight)"/>
+
+          <g class="svg-node" data-d-node="bdd">
+            <rect x="268" y="122" width="190" height="86" rx="12" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+            <text x="363" y="148" text-anchor="middle" fill="#047857" font-size="11" font-weight="700">BDD 拆解層</text>
+            <text x="363" y="172" text-anchor="middle" fill="#0f172a" font-size="15" font-weight="800">Gherkin 語法</text>
+            <text x="363" y="192" text-anchor="middle" fill="#64748b" font-size="11">連 PM 都懂的 Given-When-Then</text>
+          </g>
+
+          <line x1="458" y1="165" x2="500" y2="165" stroke="#64748b" stroke-width="2" marker-end="url(#arrRight)"/>
+
+          <g class="svg-node" data-d-node="tdd">
+            <rect x="506" y="122" width="190" height="86" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+            <text x="601" y="148" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="700">TDD 拆解層</text>
+            <text x="601" y="172" text-anchor="middle" fill="#0f172a" font-size="15" font-weight="800">Automated Test</text>
+            <text x="601" y="192" text-anchor="middle" fill="#64748b" font-size="11">自動化測試一翻兩瞪眼</text>
+          </g>
+
+          <line x1="696" y1="165" x2="738" y2="165" stroke="#64748b" stroke-width="2" marker-end="url(#arrRight)"/>
+
+          <g class="svg-node" data-d-node="code">
+            <rect x="744" y="122" width="140" height="86" rx="12" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+            <text x="814" y="148" text-anchor="middle" fill="#334155" font-size="11" font-weight="700">最終產出</text>
+            <text x="814" y="172" text-anchor="middle" fill="#0f172a" font-size="15" font-weight="800">Code 實作</text>
+            <text x="814" y="192" text-anchor="middle" fill="#64748b" font-size="11">通過測試才下班</text>
+          </g>
+
+          <!-- 底部括號說明 -->
+          <text x="460" y="246" text-anchor="middle" fill="#475569" font-size="12" font-weight="600">
+            拆得越細 → LLM 每次只專注單一任務（不眼高手低）→ 產出可靠度呈指數級上升
+          </text>
+        </svg>
+      </div>
+
+      <!-- 連動詳解面板 -->
+      <div id="four-d-panel" class="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <h3 id="four-d-title" class="font-bold text-slate-900 text-base">SDD（Spec-Driven Development）— 規格驅動開發</h3>
+          <span id="four-d-flow" class="font-mono text-xs px-2.5 py-1 rounded bg-rose-100 text-rose-800 font-bold">Spec → Code（祈禱拜拜）</span>
+        </div>
+        <p id="four-d-desc" class="text-sm text-slate-700 leading-relaxed">
+          單純把需求規格寫清楚後一次餵給 AI 產出程式碼。它本身不是嚴謹方法論，因為中間缺乏驗證關卡，LLM 一次處理太多脈絡容易眼高手低。適合「導入期」快速驗證，但成長期後必須疊加 TDD/BDD。
+        </p>
+      </div>
+
+      <!-- 桌面完整對照表 -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+              <th class="py-2.5 px-3 font-bold">名詞</th>
+              <th class="py-2.5 px-3 font-bold">是否為方法論</th>
+              <th class="py-2.5 px-3 font-bold">工作流程</th>
+              <th class="py-2.5 px-3 font-bold">在 AI 時代解決的核心痛點</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            <tr class="hover:bg-slate-50">
+              <td class="py-2.5 px-3 font-bold text-rose-700">SDD</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 text-xs font-bold">否（市場名詞）</span></td>
+              <td class="py-2.5 px-3 font-mono text-xs">Spec → Code</td>
+              <td class="py-2.5 px-3 text-slate-600">取代零散對話 Prompt，但缺乏驗證，靠祈禱拜拜。</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2.5 px-3 font-bold text-blue-700">TDD</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-xs font-bold">是</span></td>
+              <td class="py-2.5 px-3 font-mono text-xs">Spec → Test → Code</td>
+              <td class="py-2.5 px-3 text-slate-600">加入自動化測試：驗證 AI 正確性＋回歸保護既有程式碼。</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2.5 px-3 font-bold text-emerald-700">BDD</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-xs font-bold">是</span></td>
+              <td class="py-2.5 px-3 font-mono text-xs">Spec → Gherkin → Test → Code</td>
+              <td class="py-2.5 px-3 text-slate-600">避免 AI 連 Test 都寫錯；用白話 Gherkin 對齊 PM 與 RD。</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2.5 px-3 font-bold text-purple-700">DDD</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-xs font-bold">是</span></td>
+              <td class="py-2.5 px-3 font-mono text-xs">Domain Model 輔助 Spec</td>
+              <td class="py-2.5 px-3 text-slate-600">統一跨部門語言（Ubiquitous Language），減少認知落差。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 章節 3：Agent Skill (SKILL.md) -->
+    <section id="skills-section" class="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-slate-200 space-y-5">
+      <div>
+        <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Part 3 · 00:21:11 – 00:23:38</span>
+        <h2 class="text-xl font-extrabold text-slate-900 mt-0.5">Agent Skill（別只叫 SKILL.md）：用模組化 Prompt 落地全自動工作流</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-4 space-y-2">
+          <div class="font-bold text-blue-900 text-sm">📦 正名：Agent Skill 是一個 Package（資料夾）</div>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            單一檔案裝不下複雜工程知識，所以才需要用資料夾將指令、規範、範本與腳本封裝成<strong>「模組化的 Prompt」</strong>。
+          </p>
+        </div>
+        <div class="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 space-y-2">
+          <div class="font-bold text-emerald-900 text-sm">🧩 新手拆分法則：一個產出物 ＝ 一個 Skill</div>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            以最簡 SDD 為例：<strong>Skill 1</strong> 專門追問需求、寫好寫滿規格；<strong>Skill 2</strong> 專門將規格轉為程式碼。投資時間打磨專屬 Skill，能在整個職涯持續產生複利！
+          </p>
+        </div>
+      </div>
+
+      <!-- 可複製 Gherkin BDD 範例 -->
+      <div class="bg-slate-900 rounded-xl overflow-hidden border border-slate-700">
+        <div class="flex items-center justify-between px-4 py-2.5 bg-slate-800 border-b border-slate-700">
+          <span class="text-xs font-mono text-slate-300">範例：AI-BDD Gherkin 行為規格（連 PM 都看得懂的驗收標準）</span>
+          <button type="button" data-copy-target="code-gherkin" class="copy-btn px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition">複製範例</button>
+        </div>
+        <pre id="code-gherkin" class="p-4 text-xs sm:text-sm text-emerald-300 font-mono overflow-x-auto leading-relaxed">Feature: 核心門檻功能保護（Kano Threshold）
+  Background:
+    Given 專案已進入「成長期」且具備既有付費用戶
+
+  Scenario: 實作新需求時不得破壞既有核心功能
+    Given 系統已建立「結帳金流」與「筆記儲存」的自動化回歸測試
+    When AI Agent 根據新需求修改程式碼
+    Then 所有既有的自動化測試必須 100% 通過
+    And 架構審查 Evaluator Skill 不得回報嚴重耦合（Bad Smell）</pre>
+      </div>
+    </section>
+
+    <!-- 章節 4：產品生命週期 × Kano Model 互動決策模擬器 -->
+    <section id="lifecycle" class="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-slate-200 space-y-5">
+      <div>
+        <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Part 4 · 00:23:39 – 00:35:00</span>
+        <h2 class="text-xl font-extrabold text-slate-900 mt-0.5">互動決策器：需求一直改，到底該 Vibe Coding 還是 AI-BDD？</h2>
+        <p class="text-sm text-slate-600 mt-1">別再無腦追求 95% 覆蓋率！請點選你的<strong>「產品生命週期」</strong>與<strong>「Kano 功能類型」</strong>，即時查看水球潘建議的工程策略。</p>
+      </div>
+
+      <!-- 互動選擇控制區 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <div>
+          <div class="text-xs font-bold text-slate-500 uppercase mb-2">步驟 1：選擇產品生命週期</div>
+          <div id="stage-buttons" class="grid grid-cols-2 gap-2">
+            <button type="button" data-stage="intro" class="stage-btn px-3 py-2.5 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:border-blue-400 transition">🌱 導入期（探索市場）</button>
+            <button type="button" data-stage="growth" class="stage-btn px-3 py-2.5 rounded-lg text-xs font-bold border-2 border-blue-600 bg-blue-600 text-white shadow-sm transition">🚀 成長期（流量爆發）</button>
+            <button type="button" data-stage="mature" class="stage-btn px-3 py-2.5 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:border-blue-400 transition">🏛️ 成熟期（高效維護）</button>
+            <button type="button" data-stage="decline" class="stage-btn px-3 py-2.5 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:border-blue-400 transition">📉 衰退期（專案收尾）</button>
+          </div>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-slate-500 uppercase mb-2">步驟 2：選擇功能類型（Kano Model）</div>
+          <div id="kano-buttons" class="grid grid-cols-1 gap-2">
+            <button type="button" data-kano="threshold" class="kano-btn px-3 py-2 rounded-lg text-xs font-bold border-2 border-emerald-600 bg-emerald-600 text-white shadow-sm text-left transition">🧱 基本門檻型（Threshold）：改壞三次用戶直接走人</button>
+            <button type="button" data-kano="performance" class="kano-btn px-3 py-2 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:border-emerald-400 text-left transition">⚡ 效能型（Performance）：做得越好，黏著度越高</button>
+            <button type="button" data-kano="excitement" class="kano-btn px-3 py-2 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:border-emerald-400 text-left transition">✨ 興奮嘗鮮型（Excitement）：測試市場、Aha Moment</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 動態決策結果卡片 -->
+      <div id="decision-output" class="rounded-xl p-5 border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 space-y-2">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div id="decision-method" class="text-lg font-extrabold text-blue-900">建議策略：AI-BDD / TDD（Test-First 嚴格保護）</div>
+          <span id="decision-coverage" class="text-xs font-bold px-3 py-1 rounded-full bg-blue-600 text-white">自動化測試比重：極高（含探索性測試）</span>
+        </div>
+        <p id="decision-reason" class="text-sm text-slate-700 leading-relaxed">
+          成長期已有真實付費用戶，基本門檻功能（如筆記軟體的筆記功能、白板軟體的畫布）一旦被 AI 改壞，用戶會立刻流失。必須導入 Test-First 回歸測試，確保每次迭代都不會改壞既有功能。
+        </p>
+      </div>
+    </section>
+
+    <!-- 章節 5：Code Review、Evaluator Skill 與團隊導入 -->
+    <section id="review-context" class="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-slate-200 space-y-5">
+      <div>
+        <span class="text-xs font-bold text-purple-600 uppercase tracking-wider">Part 5 · 00:35:01 – 00:44:27</span>
+        <h2 class="text-xl font-extrabold text-slate-900 mt-0.5">Code Review 新思維（Evaluator Skill）與企業導入實戰</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- 左欄：Evaluator Skill -->
+        <div class="bg-purple-50/60 border border-purple-200 rounded-xl p-4 space-y-2.5">
+          <h3 class="font-bold text-purple-900 text-base">🩺 為什麼要 Code Review？為了切除架構「腫瘤」</h3>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            Review 源自 <strong>Trust Issue</strong>，但千萬別逐行人工看！真正的目的是防止架構長出「腫瘤」（越長越大、無法維護，還會以訛傳訛讓團隊照抄錯誤寫法）。
+          </p>
+          <ul class="text-xs sm:text-sm text-slate-700 space-y-1.5 list-disc pl-4">
+            <li><strong>第一步</strong>：做 Pattern Matching，列出你在意的 Bad Smell（解耦、跨平台、效能）。</li>
+            <li><strong>第二步</strong>：寫成專屬 <strong>Evaluator Skill</strong>。</li>
+            <li><strong>第三步</strong>：用 <strong>Worker Agent</strong> 寫 Code ＋ <strong>Evaluator Sub-agent</strong> 吃 Skill 嚴格審查，直接省下 <strong>90% 審查時間</strong>！</li>
+          </ul>
+        </div>
+
+        <!-- 右欄：團隊導入策略 -->
+        <div class="bg-teal-50/60 border border-teal-200 rounded-xl p-4 space-y-2.5">
+          <h3 class="font-bold text-teal-900 text-base">🏢 怎麼說服公司導入？看對象給「具體成效」</h3>
+          <ul class="text-xs sm:text-sm text-slate-700 space-y-2">
+            <li><strong>對 PM（讓事情變簡單）</strong>：給他一個會自動追問的 Skill，輕鬆產出能落地的 Gherkin 規格，自然不會排斥。</li>
+            <li><strong>對工程師（別談規格，談自動化測試！）</strong>：工程師有派系且懷疑規格價值；讓他們看到「上萬個自動化測試在背景跑 5～6 小時、看 AI 表演」，自然就會加入。</li>
+            <li><strong>最大阻力＝業務團隊</strong>：連董事長都不敢動賺錢的業務。解法是<strong>靠科技而非強迫學 Skill</strong>——讓業務照舊開工單，由 AI 幫他們補齊後端溝通。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 章節 6：DDD、Shared Context 與認知超前 -->
+    <section id="shared-context" class="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-slate-200 space-y-5">
+      <div>
+        <span class="text-xs font-bold text-sky-600 uppercase tracking-wider">Part 6 · 00:44:28 – 00:55:06</span>
+        <h2 class="text-xl font-extrabold text-slate-900 mt-0.5">打破穀倉效應：DDD 統一語言、Shared Context 與「認知超前」</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 space-y-2">
+          <div class="text-xs font-bold text-rose-700">❌ 治標不治本：Local 端 1-on-1 對話（穀倉效應）</div>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            每個人的 Context 鎖在各自終端機 Session 裡，Jira 規格過時沒同步，導致 AI 被誤導、產生嚴重「認知負債」。不導入共享上下文，怎麼優化個人 Prompt 都無法根治。
+          </p>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-2">
+          <div class="text-xs font-bold text-emerald-700">✅ 根本解法：GitHub Repo Shared Context（認知超前）</div>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            以 <strong>GitHub Repo</strong> 作為單一事實來源（Single Source of Truth），PM 率先當責並學會用 Git 開 Plan；每次討論完就讓 Agent 把<strong>關鍵決策（Decisions）寫回共享 Context</strong>，AI 就能跨會議、跨程式碼、跨專案自動串聯洞察！
+          </p>
+        </div>
+      </div>
+
+      <!-- 可複製 Shared Context 模板 -->
+      <div class="bg-slate-900 rounded-xl overflow-hidden border border-slate-700">
+        <div class="flex items-center justify-between px-4 py-2.5 bg-slate-800 border-b border-slate-700">
+          <span class="text-xs font-mono text-slate-300">範本：Shared Context 決策紀錄（存入 GitHub Repo / docs/decisions/）</span>
+          <button type="button" data-copy-target="code-context" class="copy-btn px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition">複製範本</button>
+        </div>
+        <pre id="code-context" class="p-4 text-xs sm:text-sm text-sky-300 font-mono overflow-x-auto leading-relaxed"># Plan: 2026-Q4 訂單結帳重構
+- **當責人 (Owner)**：PM（規格與 Glossary 一致性檢查）＋ RD（實作交付確認）
+- **Ubiquitous Language (Glossary)**：
+  - `Order`：已成立之交易單（不可與 `Cart` 混用）
+- **關鍵決策流水帳 (Decisions Log)**：
+  1. [2026-11-26] 跨平台共用核心結帳規則，抽離至 `domain/checkout`，禁止直接依賴前端框架。
+  2. [2026-11-26] 所有 Session 討論出的邊界條件，結束前必須由 Agent 寫回本檔並提交 PR。</pre>
+      </div>
+    </section>
+
+    <!-- 章節 7：模型智商分配與非功能性需求（互動 SVG） -->
+    <section id="model-iq" class="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-slate-200 space-y-5">
+      <div>
+        <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Part 7 · 00:55:07 – 01:07:55</span>
+        <h2 class="text-xl font-extrabold text-slate-900 mt-0.5">雙模型智商分配：高智商管「測試與架構審查」，避開 Self-Bias</h2>
+      </div>
+
+      <!-- 互動式 SVG 3：雙模型與非功能性需求防線 -->
+      <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 overflow-x-auto">
+        <svg viewBox="0 0 900 220" class="w-full min-w-[660px] h-auto" role="img" aria-label="雙模型智商分配與防線圖">
+          <!-- 左側高智商 -->
+          <rect x="25" y="20" width="380" height="180" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+          <text x="215" y="48" text-anchor="middle" fill="#1d4ed8" font-size="14" font-weight="800">🧠 左側：驗收與審查方（必用高智商模型）</text>
+          <rect x="48" y="66" width="334" height="52" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+          <text x="215" y="88" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="700">1. 功能性需求 → 寫出精準自動化測試</text>
+          <text x="215" y="106" text-anchor="middle" fill="#475569" font-size="11">搭配資安等成熟工具：沒全過不准下班</text>
+
+          <rect x="48" y="130" width="334" height="52" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+          <text x="215" y="152" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="700">2. 非功能性需求（架構）→ Evaluator 語意審查</text>
+          <text x="215" y="170" text-anchor="middle" fill="#475569" font-size="11">吃「架構標準文件（含合法/非法範例）」避開 Self-Bias</text>
+
+          <!-- 中間箭頭 -->
+          <line x1="405" y1="92" x2="490" y2="92" stroke="#2563eb" stroke-width="2.5"/>
+          <polygon points="490,92 480,86 480,98" fill="#2563eb"/>
+          <text x="448" y="82" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="700">約束條件</text>
+
+          <line x1="490" y1="154" x2="405" y2="154" stroke="#10b981" stroke-width="2.5"/>
+          <polygon points="405,154 415,148 415,160" fill="#10b981"/>
+          <text x="448" y="144" text-anchor="middle" fill="#047857" font-size="11" font-weight="700">提交審查</text>
+
+          <!-- 右側中低階模型 -->
+          <rect x="495" y="20" width="380" height="180" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+          <text x="685" y="48" text-anchor="middle" fill="#047857" font-size="14" font-weight="800">⚙️ 右側：實作方（可用中低階／地端模型省錢）</text>
+          <rect x="518" y="66" width="334" height="52" rx="8" fill="#ffffff" stroke="#6ee7b7"/>
+          <text x="685" y="88" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="700">Worker Agent 狂跑實作迴圈</text>
+          <text x="685" y="106" text-anchor="middle" fill="#475569" font-size="11">水球實測：免費模型靠數百測試寫完線上遊戲僅 2 Bug</text>
+
+          <rect x="518" y="130" width="334" height="52" rx="8" fill="#fef2f2" stroke="#fca5a5"/>
+          <text x="685" y="152" text-anchor="middle" fill="#991b1b" font-size="12" font-weight="700">⚠️ 切忌讓笨模型「自我檢查」</text>
+          <text x="685" y="170" text-anchor="middle" fill="#7f1d1d" font-size="11">Agent 會有 Self-Bias（自我偏袒），一定會自我滿足</text>
+        </svg>
+      </div>
+
+      <!-- 結語行動清單 -->
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-5">
+        <h3 class="font-extrabold text-amber-900 text-base mb-2">🏆 結語：給想拿年薪 120～150 萬工程師的行動清單</h3>
+        <p class="text-sm text-slate-700 leading-relaxed">
+          工具與技術不是你的護城河，<strong>你這個人與你沉澱下來的 Skill 才是</strong>。今天下班就列出目前工作讓你最不滿意的 <strong>10 個痛點</strong>——停止抱怨，每解決一個痛點就寫成一個屬於自己的 Skill（Skill Engineering）。專注累積不超過 20 個步驟，你的職場競爭力就會名列前茅！
+        </p>
+      </div>
+    </section>
+
+    <!-- 底部：⏱️ 互動式時間軸完整逐字稿 (@網頁-時間軸逐字稿) -->
+    <section id="timeline-transcript" class="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-slate-200 space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-slate-100 pb-4">
+        <div>
+          <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Interactive Timeline Transcript</span>
+          <h2 class="text-xl font-extrabold text-slate-900 mt-0.5 flex items-center gap-2">
+            <span>⏱️</span> 互動式時間軸完整逐字稿
+          </h2>
+          <p class="text-xs text-slate-500 mt-1">點擊任意時間標籤可直接跳轉至 YouTube 對應秒數；支援關鍵字即時搜尋、主題篩選與單段複製。</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="transcript-count" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">顯示 11 / 11 段</span>
+          <button id="toggle-all-btn" type="button" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 transition">全部收合</button>
+        </div>
+      </div>
+
+      <!-- 搜尋列與分類篩選 -->
+      <div class="space-y-3">
+        <div class="relative">
+          <input
+            id="transcript-search"
+            type="text"
+            placeholder="輸入關鍵字搜尋逐字稿（例如：Gherkin、Kano、Self-Bias、GitHub、業務、腫瘤）..."
+            class="w-full pl-10 pr-20 py-2.5 text-sm rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
+          />
+          <span class="absolute left-3.5 top-2.5 text-slate-400">🔎</span>
+          <button id="clear-search-btn" type="button" class="hidden absolute right-3 top-2 px-2 py-1 text-xs font-semibold text-slate-500 hover:text-slate-800 bg-slate-100 rounded">清除</button>
+        </div>
+
+        <div id="category-filters" class="flex flex-wrap gap-2">
+          <button type="button" data-cat="all" class="cat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-blue-600 text-white shadow-sm transition">全部主題</button>
+          <button type="button" data-cat="intro" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">開場與背景</button>
+          <button type="button" data-cat="value" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">上下游核心價值</button>
+          <button type="button" data-cat="fourd" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">SDD/TDD/BDD/DDD</button>
+          <button type="button" data-cat="lifecycle" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">生命週期與 Kano</button>
+          <button type="button" data-cat="review" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">審查與導入</button>
+          <button type="button" data-cat="context" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">DDD 與 Shared Context</button>
+          <button type="button" data-cat="model" class="cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">模型智商與職涯</button>
+        </div>
+      </div>
+
+      <!-- 單一垂直時間軸容器 -->
+      <div id="timeline-container" class="timeline-line space-y-4 pt-2"></div>
+      <div id="empty-search-state" class="hidden text-center py-10 text-slate-500 text-sm">
+        找不到符合條件的逐字稿段落，請試著更換關鍵字或重設分類篩選。
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-5xl mx-auto px-4 sm:px-6 py-8 text-center text-xs text-slate-400">
+    資料來源：<a href="https://www.youtube.com/watch?v=mNQNKLhQp6E" target="_blank" rel="noopener noreferrer" class="underline hover:text-slate-600">水球軟體學院 YouTube 頻道</a>｜整理為單頁互動教學與時間軸逐字稿
+  </footer>
+
+  <!-- Toast 通知 -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-semibold shadow-lg"></div>
+
+  <script>
+    (function () {
+      const VIDEO_BASE = 'https://www.youtube.com/watch?v=mNQNKLhQp6E';
+
+      // ---------- 1. Toast 與剪貼簿複製（支援 iframe execCommand fallback） ----------
+      let toastTimer = null;
+      function showToast(msg) {
+        const el = document.getElementById('toast');
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.remove('hidden');
+        el.classList.add('toast-enter');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          el.classList.add('hidden');
+          el.classList.remove('toast-enter');
+        }, 2200);
+      }
+
+      function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(
+            () => showToast('已複製到剪貼簿！'),
+            () => fallbackCopy(text)
+          );
+        } else {
+          fallbackCopy(text);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('已複製到剪貼簿！');
+        } catch (err) {
+          showToast('複製失敗，請手動選取文字');
+        }
+        document.body.removeChild(ta);
+      }
+
+      document.querySelectorAll('.copy-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-copy-target');
+          const el = document.getElementById(targetId);
+          if (el) copyTextToClipboard(el.innerText);
+        });
+      });
+
+      // ---------- 2. 頂部「🔍 本集重點」勾選進度追蹤 ----------
+      const CHECK_KEY = 'ai_eng_checklist_v1';
+      const checks = Array.from(document.querySelectorAll('.focus-check'));
+      const progressEl = document.getElementById('checklist-progress');
+
+      function updateChecklistProgress() {
+        const checkedIds = checks.filter((c) => c.checked).map((c) => c.dataset.checkId);
+        progressEl.textContent = `已複習 ${checkedIds.length} / ${checks.length} 項`;
+        try {
+          localStorage.setItem(CHECK_KEY, JSON.stringify(checkedIds));
+        } catch (e) {}
+      }
+
+      try {
+        const saved = JSON.parse(localStorage.getItem(CHECK_KEY) || '[]');
+        if (Array.isArray(saved)) {
+          checks.forEach((c) => {
+            if (saved.includes(c.dataset.checkId)) c.checked = true;
+          });
+        }
+      } catch (e) {}
+      updateChecklistProgress();
+
+      checks.forEach((c) => c.addEventListener('change', updateChecklistProgress));
+      const resetBtn = document.getElementById('reset-checklist-btn');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          checks.forEach((c) => { c.checked = false; });
+          updateChecklistProgress();
+          showToast('已重置複習進度');
+        });
+      }
+
+      // ---------- 3. SVG 1：上下游價值節點雙向連動 ----------
+      const valueData = {
+        decision: {
+          title: '複雜技術決策（最上游 · 極高稀缺）',
+          badge: '投資建議：最高優先',
+          badgeClass: 'bg-emerald-100 text-emerald-800',
+          cardClass: 'bg-emerald-50/70 border-emerald-200',
+          desc: '由於 LLM 的注意力有限、容易在跨系統權衡時出現盲點或幻覺，複雜的技術選型、跨平台解耦與邊界條件權衡，仍必須由具備實戰底蘊的工程師最終拍板。'
+        },
+        spec: {
+          title: '規格與規範（上游 · 核心戰場）',
+          badge: '投資建議：核心轉型區',
+          badgeClass: 'bg-blue-100 text-blue-800',
+          cardClass: 'bg-blue-50/70 border-blue-200',
+          desc: '工程師定規格的獨家優勢是「可落地的抽象能力」——定規格時腦中能同步想到 Data Model、API Model 與業務規則，這是沒寫過程式的角色難以取代的護城河。'
+        },
+        acceptance: {
+          title: '驗收標準（中上游 · 品質防線）',
+          badge: '投資建議：必學方法論',
+          badgeClass: 'bg-indigo-100 text-indigo-800',
+          cardClass: 'bg-indigo-50/70 border-indigo-200',
+          desc: '透過 Gherkin 行為規格與自動化測試建立明確的「通過／失敗」一翻兩瞪眼標準，讓 AI 有明確約束，既能驗證新功能，也能透過回歸測試保護既有程式碼。'
+        },
+        arch: {
+          title: '系統架構實作（中下游 · 加速替代中）',
+          badge: '投資建議：轉為「訂標準＋審查」',
+          badgeClass: 'bg-amber-100 text-amber-800',
+          cardClass: 'bg-amber-50/70 border-amber-200',
+          desc: 'AI 可以用 10 倍速產出大量架構與模組程式碼，工程師不該再純手刻，而要轉為撰寫「架構標準驗收文件（含合法/非法範例）」並交由高智商模型審查。'
+        },
+        code: {
+          title: '純寫程式碼（最下游 · 海嘯重災區）',
+          badge: '投資建議：停止重倉投資',
+          badgeClass: 'bg-rose-100 text-rose-800',
+          cardClass: 'bg-rose-50/70 border-rose-200',
+          desc: '過去數十年工程師的話語權建立在下游寫 Code 的高度稀缺性，如今已被 AI Coding 淹沒。應把時間移往上游，別跟 AI 比手寫語法速度。'
+        }
+      };
+
+      const upstreamNodes = document.querySelectorAll('[data-value-node]');
+      upstreamNodes.forEach((node) => {
+        node.addEventListener('click', () => {
+          if (window.getSelection && window.getSelection().toString().trim().length > 0) return;
+          const key = node.getAttribute('data-value-node');
+          const d = valueData[key];
+          if (!d) return;
+          upstreamNodes.forEach((n) => n.classList.remove('active'));
+          node.classList.add('active');
+          const card = document.getElementById('value-detail-card');
+          card.className = `border rounded-xl p-4 sm:p-5 transition ${d.cardClass}`;
+          document.getElementById('value-detail-title').textContent = d.title;
+          const badge = document.getElementById('value-detail-badge');
+          badge.textContent = d.badge;
+          badge.className = `text-xs font-bold px-2.5 py-0.5 rounded-full ${d.badgeClass}`;
+          document.getElementById('value-detail-desc').textContent = d.desc;
+        });
+      });
+
+      // ---------- 4. SVG 2：四大 D 注意力拆解雙向連動 ----------
+      const fourDData = {
+        sdd: {
+          title: 'SDD（Spec-Driven Development）— 規格驅動開發',
+          flow: 'Spec → Code（祈禱拜拜）',
+          flowClass: 'bg-rose-100 text-rose-800',
+          desc: '單純把需求規格寫清楚後一次餵給 AI 產出程式碼。它本身不是嚴謹方法論，因為中間缺乏驗證關卡，LLM 一次處理太多脈絡容易眼高手低。適合「導入期」快速驗證，但成長期後必須疊加 TDD/BDD。'
+        },
+        bdd: {
+          title: 'BDD（Behavior-Driven Development）— 行為驅動開發',
+          flow: 'Spec → Gherkin → Test → Code',
+          flowClass: 'bg-emerald-100 text-emerald-800',
+          desc: '只靠 TDD 仍可能發生「AI 連自動化測試都寫錯」的問題。BDD 加入連 PM 都看得懂的 Gherkin（Given-When-Then）行為規格，把 LLM 注意力再切細一層，同時對齊跨職能共識。'
+        },
+        tdd: {
+          title: 'TDD（Test-Driven Development）— 測試驅動開發',
+          flow: 'Spec → Automated Test → Code',
+          flowClass: 'bg-blue-100 text-blue-800',
+          desc: '在規格與實作間插入「自動化測試」，帶來兩大核心價值：① 驗證 AI 寫出的程式碼是否符合預期；② 建立回歸測試防線，確保後續改動不會改壞既有功能。'
+        },
+        ddd: {
+          title: 'DDD（Domain-Driven Design）— 領域驅動設計',
+          flow: 'Domain Model 輔助 Spec 撰寫',
+          flowClass: 'bg-purple-100 text-purple-800',
+          desc: '解決跨部門（程式碼、技術詞、業務行話、QA）語言不統一的協作瓶頸。透過 Domain Model 與 Glossary 建立統一語言（Ubiquitous Language），讓規格撰寫與 AI 理解都不再雞同鴨講。'
+        },
+        code: {
+          title: 'Code 實作層 — 交給 AI 在約束下自動迭代',
+          flow: '通過所有測試 ＋ 架構審查才下班',
+          flowClass: 'bg-slate-200 text-slate-800',
+          desc: '當上游的規格、Gherkin、自動化測試與架構審查文件都完備後，實作程式碼就可以交由 Worker Agent 在背景自動反覆迭代，直到測試 100% 通過且通過 Evaluator 審查。'
+        }
+      };
+
+      const dNodes = document.querySelectorAll('[data-d-node]');
+      dNodes.forEach((node) => {
+        node.addEventListener('click', () => {
+          if (window.getSelection && window.getSelection().toString().trim().length > 0) return;
+          const key = node.getAttribute('data-d-node');
+          const d = fourDData[key];
+          if (!d) return;
+          dNodes.forEach((n) => n.classList.remove('active'));
+          node.classList.add('active');
+          document.getElementById('four-d-title').textContent = d.title;
+          const flowEl = document.getElementById('four-d-flow');
+          flowEl.textContent = d.flow;
+          flowEl.className = `font-mono text-xs px-2.5 py-1 rounded font-bold ${d.flowClass}`;
+          document.getElementById('four-d-desc').textContent = d.desc;
+        });
+      });
+
+      // ---------- 5. 產品生命週期 × Kano Model 決策模擬器 ----------
+      let currentStage = 'growth';
+      let currentKano = 'threshold';
+
+      function updateDecision() {
+        const methodEl = document.getElementById('decision-method');
+        const covEl = document.getElementById('decision-coverage');
+        const reasonEl = document.getElementById('decision-reason');
+        const box = document.getElementById('decision-output');
+
+        if (currentStage === 'decline') {
+          methodEl.textContent = '建議策略：準備跳槽 🏃‍♂️';
+          covEl.textContent = '職涯投資：轉向有成長性的專案';
+          covEl.className = 'text-xs font-bold px-3 py-1 rounded-full bg-rose-600 text-white';
+          box.className = 'rounded-xl p-5 border-2 border-rose-200 bg-rose-50 space-y-2';
+          reasonEl.textContent = '專案已進入衰退期即將結束，不需要再過度投入重型工程方法論，應把心力放在累積個人 Skill 資產並尋求更有發展性的舞台。';
+          return;
+        }
+
+        if (currentStage === 'intro') {
+          methodEl.textContent = '建議策略：Vibe Coding（若 PM 給力可加輕量 SDD）';
+          covEl.textContent = '自動化測試比重：極低／先求驗證市場';
+          covEl.className = 'text-xs font-bold px-3 py-1 rounded-full bg-amber-600 text-white';
+          box.className = 'rounded-xl p-5 border-2 border-amber-200 bg-amber-50 space-y-2';
+          reasonEl.textContent = '導入期還在探索商業模式，底層核心功能隨時可能大改。這是唯一允許被改壞的時期，此時業務驗證遠比工程保護重要，先用 Vibe Coding 快速迭代！';
+          return;
+        }
+
+        // growth or mature
+        const stageName = currentStage === 'growth' ? '成長期' : '成熟期';
+        if (currentKano === 'threshold') {
+          methodEl.textContent = `建議策略：AI-BDD / TDD（Test-First 嚴格保護）`;
+          covEl.textContent = '自動化測試比重：極高（含探索性測試）';
+          covEl.className = 'text-xs font-bold px-3 py-1 rounded-full bg-blue-600 text-white';
+          box.className = 'rounded-xl p-5 border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 space-y-2';
+          reasonEl.textContent = `${stageName}已有穩定流量與付費用戶，基本門檻功能（如筆記軟體的筆記功能、白板軟體的畫布）一旦被 AI 改壞超過三次，用戶就會直接流失。必須嚴格執行 Test-First 回歸保護。`;
+        } else if (currentKano === 'performance') {
+          methodEl.textContent = `建議策略：AI-BDD / TDD（核心路徑自動化保護）`;
+          covEl.textContent = '自動化測試比重：中高（保護主流程與體驗）';
+          covEl.className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-600 text-white';
+          box.className = 'rounded-xl p-5 border-2 border-emerald-200 bg-emerald-50 space-y-2';
+          reasonEl.textContent = `${stageName}的效能型功能直接決定用戶黏著度。建議對核心商業路徑建立自動化測試，確保優化體驗時不會產生回歸 Bug。`;
+        } else {
+          methodEl.textContent = `建議策略：先 Vibe Coding / SDD 試水溫，確認保留再補 BDD`;
+          covEl.textContent = '自動化測試比重：按需補測（先輕後重）';
+          covEl.className = 'text-xs font-bold px-3 py-1 rounded-full bg-purple-600 text-white';
+          box.className = 'rounded-xl p-5 border-2 border-purple-200 bg-purple-50 space-y-2';
+          reasonEl.textContent = `即使在${stageName}，針對用來測試市場反應的嘗鮮型功能（Excitement），需求變動依然極快。無須一開始就寫滿測試，先快速驗證，確定成為常駐核心後再補齊 AI-BDD 防護網。`;
+        }
+      }
+
+      document.querySelectorAll('.stage-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          currentStage = btn.getAttribute('data-stage');
+          document.querySelectorAll('.stage-btn').forEach((b) => {
+            b.className = 'stage-btn px-3 py-2.5 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:border-blue-400 transition';
+          });
+          btn.className = 'stage-btn px-3 py-2.5 rounded-lg text-xs font-bold border-2 border-blue-600 bg-blue-600 text-white shadow-sm transition';
+          updateDecision();
+        });
+      });
+
+      document.querySelectorAll('.kano-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          currentKano = btn.getAttribute('data-kano');
+          document.querySelectorAll('.kano-btn').forEach((b) => {
+            b.className = 'kano-btn px-3 py-2 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:border-emerald-400 text-left transition';
+          });
+          btn.className = 'kano-btn px-3 py-2 rounded-lg text-xs font-bold border-2 border-emerald-600 bg-emerald-600 text-white shadow-sm text-left transition';
+          updateDecision();
+        });
+      });
+
+      // ---------- 6. 互動式時間軸完整逐字稿 ----------
+      const transcriptItems = [
+        {
+          id: 't1',
+          time: '00:00:00',
+          seconds: 0,
+          category: 'intro',
+          catLabel: '開場與背景',
+          speaker: 'JW ＆ 水球潘',
+          title: '開場互動與來賓背景：從大學畫 300 張架構圖到企業顧問',
+          summary: '外商前端主管 JW 介紹本場講座主題與調查聽眾角色及 AI Coding 工具（Claude Code、Cursor、Copilot、Codex）；水球潘分享從銘傳大二迷上物件導向、畫過 300 張架構圖、創辦《軟體設計模式精通之旅》到服務 20+ 企業並推廣 AI-BDD 的歷程。',
+          content: 'JW 開場歡迎大家下班後持續充實自己，介紹自己目前在外商擔任 Frontend Team Leader，開發經驗約八年。水球潘自我介紹擁有約 10 年軟工研究經驗，大二時因物件導向老師啟發，覺得物件讓程式碼像生態系一樣活起來，大學就畫了 300 張架構圖。LLM 出現後，他發現過去累積的架構思維剛好卡在最佳位置：把思維架構好，讓 AI 幫忙 do the rest。現場也互動調查了聽眾職能（工程師居多）與常用工具（Claude Code、Cursor、Copilot、Codex）。'
+        },
+        {
+          id: 't2',
+          time: '00:07:06',
+          seconds: 426,
+          category: 'value',
+          catLabel: '上下游核心價值',
+          speaker: '水球潘',
+          title: 'Q1：AI 時代工程師的核心價值是什麼？上下游思維與稀缺性',
+          summary: '價值的定義是「企業重視（與錢相關）∩ 市場稀缺性」。AI 海嘯從下游（純寫 Code）淹上來，工程師必須往上游（規格、驗收標準、複雜技術決策）移動。',
+          content: '水球潘指出，沒有理論基礎很容易在 AI 時代焦慮。企業付薪水的邏輯取決於兩件事：解決的問題與營收的關聯，以及「稀缺性」。過去工程師在下游（寫 Code）因為極度稀缺而擁有話語權，但現在 AI 以 10 倍速淹沒下游，工程師必須沿著開發鏈往上游移動——從 Code → 架構 → 驗收標準、規格與複雜技術決策。工程師往上游搶灘的獨家優勢是「可落地的抽象能力」：因為親手寫過程式，定規格時腦中能同步推演 Data Model、API Model 與測試邊界；一旦工程師走到上游，幾乎沒人能競爭。'
+        },
+        {
+          id: 't3',
+          time: '00:14:53',
+          seconds: 893,
+          category: 'fourd',
+          catLabel: 'SDD/TDD/BDD/DDD',
+          speaker: 'JW ＆ 水球潘',
+          title: 'Q2：SDD、TDD、BDD、DDD 差別與搭配？拆解 LLM 注意力',
+          summary: '只有 SDD 不是方法論，它本質是寫完規格後「祈禱拜拜」。TDD、BDD、DDD 在 AI 時代的實戰意義，都是把 LLM 的注意力（Attention）拆得更細，提升 Spec → Code 的可靠度。',
+          content: '水球潘先點破：TDD、BDD、DDD 背後都有數十年文獻解決重複痛點，唯獨 SDD（Spec-Driven Development）不是方法論，只是廠商教育市場先寫 Spec 再交給 AI 的概念，直接 Spec → Code 就像祈禱拜拜。由於 LLM 底層是 Attention 機制，一次做太多事容易眼高手低，因此：① TDD 加入 Automated Test（Spec → Test → Code）；② BDD 為避免 AI 連 Test 都寫錯，再加入連 PM 都懂的 Gherkin（Spec → Gherkin → Test → Code）；③ DDD 則透過 Domain Model 收斂企業領域知識與規則，輔助把規格寫得更精準。拆得越細，LLM 越可靠。'
+        },
+        {
+          id: 't4',
+          time: '00:21:11',
+          seconds: 1271,
+          category: 'fourd',
+          catLabel: 'SDD/TDD/BDD/DDD',
+          speaker: '水球潘',
+          title: 'Q3：有了 SKILL.md（Agent Skill），SDD 是否更能落地？',
+          summary: '正名「Agent Skill」是一個資料夾（模組化的 Prompt）。新手可用「一個產出物配一個 Skill」拆分工作流，持續打磨專屬 Skill 能在職涯運作一輩子。',
+          content: '針對聽眾問的 SKILL.md，水球潘先正名為 Anthropic 提出的 Agent Skill——它是一個 Package（資料夾），因為單一檔案裝不下複雜邏輯，需要把 Prompt 模組化。結合軟體工程的「分割擊破」，最簡單的分法是「一個產出物一個 Skill」：例如 SDD 可拆成「專門釐清需求並寫滿規格的 Skill」與「將規格轉程式碼的 Skill」。把自己的經驗沉澱成專屬 Skill，投資報酬率極高，能真正把 AI Coding 推向高可靠度與全自動化。'
+        },
+        {
+          id: 't5',
+          time: '00:23:39',
+          seconds: 1419,
+          category: 'lifecycle',
+          catLabel: '生命週期與 Kano',
+          speaker: '水球潘',
+          title: 'Q4（上）：需求一直改還適合 AI-BDD 嗎？看產品生命週期四階段',
+          summary: '停止抱怨公司需求亂改！先判斷專案處於導入期、成長期、成熟期或衰退期。導入期用 Vibe Coding/SDD；成長與成熟期為保護既有功能，必上 Test-First（TDD/BDD）。',
+          content: '水球潘強調，想拿年薪 100～150 萬的第一步是停止抱怨 PM 與公司，而是培養專業判斷力。自動化測試（Test-First）有兩大好處：① 驗證 AI 產出正確性；② 回歸測試，保護既有程式碼不被改壞。對應產品四週期：① 導入期（探索市場、核心隨時大改）→ 唯一允許改壞，直接 Vibe Coding（PM 給力就加 SDD）；② 成長期（流量爆發、核心需保護）與 ③ 成熟期（高效維護）→ 必須導入 TDD/BDD 自動化測試，否則專案必完蛋；④ 衰退期 → 準備跳槽。'
+        },
+        {
+          id: 't6',
+          time: '00:30:50',
+          seconds: 1850,
+          category: 'lifecycle',
+          catLabel: '生命週期與 Kano',
+          speaker: 'JW ＆ 水球潘',
+          title: 'Q4（下）：成長/成熟期的新需求怎麼辦？用 Kano Model 按需補測',
+          summary: '別無腦追求 95% 覆蓋率！用 Kano Model 區分「基本門檻型（Threshold）」、「效能型（Performance）」與「興奮嘗鮮型（Excitement）」，按重要性決定自動化測試比重。',
+          content: 'JW 追問：成長到成熟期的專案若有經常變動的新需求，是否先 Vibe Code 再補測試？水球潘高度肯定這題，並引入產品領域的 Kano Model：① 基本門檻型（Threshold，如筆記軟體的筆記功能、Miro 的白板功能）改壞三次用戶就會走人，測試覆蓋率必須拉高甚至加做探索性測試；② 效能型（Performance）做得越好黏著度越高，需保護核心路徑；③ 興奮嘗鮮型（Excitement）用來測市場、創造 Aha Moment，可先輕量試水溫，確認定案後再補齊自動化測試。'
+        },
+        {
+          id: 't7',
+          time: '00:35:01',
+          seconds: 2101,
+          category: 'review',
+          catLabel: '審查與導入',
+          speaker: 'JW ＆ 水球潘',
+          title: 'Q5：測試都寫好了還要 Code Review 嗎？用 Evaluator Skill 省 90% 時間',
+          summary: 'Code Review 源自 Trust Issue，真正目的是防止架構長出「腫瘤」。把你在意的 Bad Smell 寫成 Evaluator Skill，交給 Sub-agent 審查，直接省下 90% 人工時間。',
+          content: '水球潘用主管帶下屬來比喻帶 AI：我們不會逐行 Review，而是看關鍵風險點（例如跨平台是否做好模組化拆分），防止架構出現「腫瘤」（越長越大、難維護，還會讓團隊以訛傳訛照抄錯誤寫法）。正確做法是運用第一性思考：先做 Pattern Matching 抓出 Bad Smell，寫成專屬的 Evaluator Skill，再配置 Worker Agent（寫 Code）搭配 Evaluator Sub-agent（吃 Skill 嚴格審查），就能省下 90% 的時間，把精力留在「抓大放小」。'
+        },
+        {
+          id: 't8',
+          time: '00:39:33',
+          seconds: 2373,
+          category: 'review',
+          catLabel: '審查與導入',
+          speaker: 'JW ＆ 水球潘',
+          title: 'Q6：如何說服團隊導入 AI-BDD？以及企業導入的最大阻力',
+          summary: '導入關鍵是「具體成效」：對 PM 讓寫規格變簡單；對工程師別談規格、要展現上萬自動化測試的爽感。企業最大阻力則是「業務團隊」，需靠科技而非強迫學 Skill 解決。',
+          content: '水球潘分享導入心法：讓 PM 用會自動追問的 Skill 輕鬆產出 Gherkin，阻力立刻下降；對有派系且懷疑規格價值的工程師，別說教「寫規格很重要」，而是讓他們親眼看到「寫規格是為了換取上萬個自動化測試在背景跑五六小時、看 AI 表演」。至於企業導入最大阻力是「業務」（連董事長都不敢動賺錢團隊），這不該靠教業務寫 Skill，而要靠科技平台讓業務照舊開工單，由 AI 在後面自動銜接 PM 補齊溝通。'
+        },
+        {
+          id: 't9',
+          time: '00:44:28',
+          seconds: 2668,
+          category: 'context',
+          catLabel: 'DDD 與 Shared Context',
+          speaker: 'JW ＆ 水球潘',
+          title: 'Q7：Glossary／Jira 知識庫過時誰負責？DDD 統一語言與單一事實來源',
+          summary: 'DDD 核心是解決跨職能「語言不統一」；知識庫過時不是 RD 單獨扛，而是全員透過 Shared Context 工具集中維護，並由 PM 率先當責跑一致性檢查。',
+          content: '面對 Jira 規格過時導致 AI 被誤導、RD 與程式碼專有名詞打架的問題，水球潘給出 DDD 懶人包：不用死啃厚書，只要懂它是在把程式碼、技術詞、業務行話與 QA 術語收斂為統一語言（Ubiquitous Language）。2026～2027 年全球（含 Atlassian Rovo）都在狂投 Shared Context 技術。實務上要建立 Single Source of Truth（單一事實來源），寫規格的 PM 率先當責做一致性檢查（Consistency Analysis），RD 交付時順手確認，讓資訊集中在單一可信處。'
+        },
+        {
+          id: 't10',
+          time: '00:51:46',
+          seconds: 3106,
+          category: 'context',
+          catLabel: 'DDD 與 Shared Context',
+          speaker: 'JW ＆ 水球潘',
+          title: 'Q8：怎麼解決 AI 認知負債與個人 Local Context 穀倉效應？',
+          summary: '把 Context 鎖在個人終端機 100% 無解！用 GitHub Repo 管理共享 Plan（連 PM 都要會 Git），並養成讓 Agent 把關鍵決策寫回共享 Context 的習慣，就能實現「認知超前」。',
+          content: '水球潘直言，只要團隊的 Context 還停留在個人 Local 1-on-1 對話，穀倉效應（Silo Effect）就 100% 無解，其餘都是治標不治本。根本解法是：① 用 GitHub Repo（比 Confluence 輕便得多）作為共享空間開 Plan，水球自己公司所有 PM 都會用 Git；② 養成習慣，每做完一個關鍵決策（Decisions），就讓 Agent 寫回共享 Context。當 Shared Context 串起來後，AI 能自動關聯會議紀錄、程式碼與其他專案 API，從「認知負債」進化為「認知超前」。'
+        },
+        {
+          id: 't11',
+          time: '00:55:07',
+          seconds: 3307,
+          category: 'model',
+          catLabel: '模型智商與職涯',
+          speaker: 'JW ＆ 水球潘',
+          title: 'Q9 與結語：模型智商分配、避開 Self-Bias 與 Skill Engineering 職涯建議',
+          summary: '左側（寫測試、訂架構標準文件與語意審查）必用高智商模型避開 Self-Bias；右側實作可用中低階模型省錢。結語鼓勵列出工作 10 大痛點，用 Skill Engineering 打造個人護城河。',
+          content: '針對導入 AI-BDD 後能否用笨模型省錢，水球潘回答 Yes and No：瓶頸已轉移到「寫對測試」。他實測過用免費 Cursor Auto 靠數百個自動化測試寫完線上遊戲僅 2 個邊界 Bug，但笨模型容易寫出爛架構。面對非功能性需求：① 資安等有成熟工具的直接進測試迴圈；② 架構則要寫出含「合法/非法範例」的標準文件，並由高智商模型（如 Opus 5.5）做語意審查，避開笨模型的 Self-Bias（自我偏袒）。最後水球潘鼓勵大家：工具不是護城河，你這個人才是；列出工作 10 個不滿意的地方，每解決一個就沉澱成自己的 Skill，專注累積不超過 20 步，年薪 120～150 萬就在眼前！'
+        }
+      ];
+
+      const container = document.getElementById('timeline-container');
+      const countEl = document.getElementById('transcript-count');
+      const emptyEl = document.getElementById('empty-search-state');
+      const searchInput = document.getElementById('transcript-search');
+      const clearSearchBtn = document.getElementById('clear-search-btn');
+      const toggleAllBtn = document.getElementById('toggle-all-btn');
+
+      let activeCategory = 'all';
+      let searchQuery = '';
+      let expandedMap = {};
+      transcriptItems.forEach((item) => { expandedMap[item.id] = true; });
+      let allExpanded = true;
+
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function highlightText(text, query) {
+        const safe = escapeHtml(text);
+        if (!query) return safe;
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escapedQuery})`, 'gi');
+        return safe.replace(regex, '<mark class="highlight-mark">$1</mark>');
+      }
+
+      function renderTimeline() {
+        const q = searchQuery.trim();
+        const filtered = transcriptItems.filter((item) => {
+          const catMatch = activeCategory === 'all' || item.category === activeCategory;
+          if (!catMatch) return false;
+          if (!q) return true;
+          const haystack = `${item.title} ${item.summary} ${item.content} ${item.speaker} ${item.catLabel}`.toLowerCase();
+          return haystack.includes(q.toLowerCase());
+        });
+
+        countEl.textContent = `顯示 ${filtered.length} / ${transcriptItems.length} 段`;
+        if (filtered.length === 0) {
+          container.innerHTML = '';
+          emptyEl.classList.remove('hidden');
+          return;
+        }
+        emptyEl.classList.add('hidden');
+
+        container.innerHTML = filtered.map((item) => {
+          const isOpen = !!expandedMap[item.id];
+          const ytUrl = `${VIDEO_BASE}&t=${item.seconds}s`;
+          return `
+            <article class="relative pl-12">
+              <span class="absolute left-2.5 top-4 w-4 h-4 rounded-full bg-white border-4 border-blue-600 shadow-sm"></span>
+              <div class="rounded-xl border border-slate-200 bg-slate-50/60 hover:border-blue-300 transition overflow-hidden">
+                <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white border-b border-slate-100">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <a href="${ytUrl}" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-mono text-xs font-bold transition shadow-sm"
+                       title="在 YouTube 開啟 ${item.time}">
+                      ▶ ${item.time}
+                    </a>
+                    <span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold border border-indigo-100">${escapeHtml(item.catLabel)}</span>
+                    <span class="text-xs font-medium text-slate-500">🎙️ ${escapeHtml(item.speaker)}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button type="button" data-copy-item="${item.id}" class="copy-item-btn px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">複製段落</button>
+                    <button type="button" data-toggle-item="${item.id}" class="toggle-item-btn px-2.5 py-1 rounded-md border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-semibold transition">${isOpen ? '收合' : '展開'}</button>
+                  </div>
+                </div>
+                <div class="p-4 space-y-2">
+                  <h3 class="font-bold text-slate-900 text-sm sm:text-base">${highlightText(item.title, q)}</h3>
+                  <p class="text-xs sm:text-sm text-blue-900 bg-blue-50/70 border border-blue-100 rounded-lg px-3 py-2 leading-relaxed">
+                    <strong>重點摘要：</strong>${highlightText(item.summary, q)}
+                  </p>
+                  <div class="${isOpen ? '' : 'hidden'} text-sm text-slate-700 leading-relaxed pt-1">
+                    ${highlightText(item.content, q)}
+                  </div>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+
+      container.addEventListener('click', (e) => {
+        const toggleBtn = e.target.closest('.toggle-item-btn');
+        if (toggleBtn) {
+          const id = toggleBtn.getAttribute('data-toggle-item');
+          expandedMap[id] = !expandedMap[id];
+          renderTimeline();
+          return;
+        }
+        const copyBtn = e.target.closest('.copy-item-btn');
+        if (copyBtn) {
+          const id = copyBtn.getAttribute('data-copy-item');
+          const item = transcriptItems.find((x) => x.id === id);
+          if (item) {
+            const text = `[${item.time}] ${item.title}\n（${VIDEO_BASE}&t=${item.seconds}s）\n重點：${item.summary}\n內容：${item.content}`;
+            copyTextToClipboard(text);
+          }
+        }
+      });
+
+      document.querySelectorAll('.cat-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeCategory = btn.getAttribute('data-cat');
+          document.querySelectorAll('.cat-btn').forEach((b) => {
+            b.className = 'cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+          });
+          btn.className = 'cat-btn px-3 py-1.5 rounded-full text-xs font-bold bg-blue-600 text-white shadow-sm transition';
+          renderTimeline();
+        });
+      });
+
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        clearSearchBtn.classList.toggle('hidden', searchQuery.trim().length === 0);
+        renderTimeline();
+      });
+
+      clearSearchBtn.addEventListener('click', () => {
+        searchQuery = '';
+        searchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        renderTimeline();
+      });
+
+      toggleAllBtn.addEventListener('click', () => {
+        allExpanded = !allExpanded;
+        transcriptItems.forEach((item) => { expandedMap[item.id] = allExpanded; });
+        toggleAllBtn.textContent = allExpanded ? '全部收合' : '全部展開';
+        renderTimeline();
+      });
+
+      // 初始化渲染
+      renderTimeline();
+    })();
+  </script>
+</body>
+</html>

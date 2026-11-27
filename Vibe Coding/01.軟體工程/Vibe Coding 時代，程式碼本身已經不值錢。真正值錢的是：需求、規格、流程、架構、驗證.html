@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vibe Coding 時代的價值轉移：為什麼懂需求、規格、流程、架構、驗證才值錢？</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    /* Ensure SVG text is selectable and copyable */
+    svg text, svg tspan {
+      user-select: text;
+      -webkit-user-select: text;
+      cursor: text;
+    }
+    .svg-node {
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .svg-node:hover .node-box {
+      filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.12));
+    }
+    .svg-node.active .node-box {
+      stroke-width: 3;
+      filter: drop-shadow(0 8px 16px rgba(37, 99, 235, 0.25));
+    }
+    /* Custom range slider styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      border-radius: 9999px;
+      background: #e2e8f0;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #2563eb;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+      transition: transform 0.15s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.12);
+    }
+    .toast-enter {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .toast-exit {
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden">
+
+  <!-- Sticky Navigation -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2.5 shrink-0">
+        <a href="../../vibecoding.html?id=vibe-value-shift-spec-arch-verify"
+           class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border border-blue-500/30 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs sm:text-sm font-semibold transition shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          <span>返回 Vibe Coding</span>
+        </a>
+        <a href="#top" class="flex items-center gap-2 font-bold text-slate-900 text-sm sm:text-base shrink-0">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-blue-600 text-white text-xs font-extrabold">VC</span>
+          <span class="truncate hidden sm:inline">Vibe Coding 價值轉移指南</span>
+        </a>
+      </div>
+      <nav aria-label="頁面導覽" class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600">
+        <a href="#guide" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition">閱讀導覽</a>
+        <a href="#shift" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition">價值轉移</a>
+        <a href="#pillars" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition">五大支柱</a>
+        <a href="#case-study" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition">實戰案例</a>
+        <a href="#diagnostic" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition">互動診斷</a>
+        <a href="#checklist" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition">行動清單</a>
+      </nav>
+      <button id="mobileMenuBtn" type="button" aria-label="開啟導覽選單" aria-expanded="false" class="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+    <!-- Mobile Dropdown -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-1 text-sm font-medium text-slate-700">
+      <a href="#guide" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-slate-100">1. 閱讀導覽與核心類比</a>
+      <a href="#shift" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-slate-100">2. 為什麼 Coding 本身不再值錢？</a>
+      <a href="#pillars" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-slate-100">3. 五大核心價值支柱（互動架構圖）</a>
+      <a href="#case-study" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-slate-100">4. 單一案例貫穿：咖啡廳點餐系統</a>
+      <a href="#diagnostic" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-slate-100">5. Vibe Coding 成熟度互動診斷</a>
+      <a href="#checklist" class="mobile-nav-link block px-3 py-2 rounded-lg hover:bg-slate-100">6. 轉型清單與開工 Prompt 模板</a>
+    </div>
+  </header>
+
+  <main id="top" class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-14">
+
+    <!-- HERO & TOP READING GUIDE -->
+    <section id="guide" class="space-y-6">
+      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-700/60">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-semibold mb-4">
+          <span>AI 軟體工程思維重構</span>
+          <span>•</span>
+          <span>Vibe Coding → Vibe Engineering</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+          Vibe Coding 時代，程式碼本身已經不值錢<br class="hidden sm:inline" />
+          <span class="text-blue-300">真正值錢的是：需求、規格、流程、架構、驗證</span>
+        </h1>
+        <p class="mt-4 text-slate-300 text-base sm:text-lg max-w-3xl leading-relaxed">
+          當 AI 能在幾秒內吐出數百行可執行的程式碼，「把想法翻譯成語法」的稀缺性已迅速歸零。軟體開發的核心護城河，正在全面轉移到<strong class="text-white">定義問題（上游）</strong>與<strong class="text-white">控制風險與品質（下游）</strong>。
+        </p>
+
+        <!-- One-Sentence Summary -->
+        <div class="mt-6 bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-4 sm:p-5">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-300 mb-1">一句話說明</div>
+          <p class="text-sm sm:text-base text-white font-medium leading-relaxed">
+            AI 讓「寫程式」變得像影印一樣便宜，但如果你不知道要印什麼（需求）、沒排版好（規格）、沒設計結構（架構）、沒管好版本節奏（流程）、也沒校對（驗證），AI 只會用十倍速度幫你量產十倍大的系統災難。
+          </p>
+        </div>
+
+        <!-- Reading Roadmap -->
+        <div class="mt-6">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2.5">閱讀路線圖（點擊快速跳轉）</div>
+          <div class="flex flex-wrap gap-2">
+            <a href="#shift" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-blue-600 border border-slate-700 text-xs sm:text-sm text-slate-200 hover:text-white transition">
+              <span class="font-bold text-blue-300">01</span> 價值轉移對比
+            </a>
+            <a href="#pillars" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-blue-600 border border-slate-700 text-xs sm:text-sm text-slate-200 hover:text-white transition">
+              <span class="font-bold text-blue-300">02</span> 五大核心支柱圖解
+            </a>
+            <a href="#case-study" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-blue-600 border border-slate-700 text-xs sm:text-sm text-slate-200 hover:text-white transition">
+              <span class="font-bold text-blue-300">03</span> 咖啡廳系統實戰對照
+            </a>
+            <a href="#diagnostic" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-blue-600 border border-slate-700 text-xs sm:text-sm text-slate-200 hover:text-white transition">
+              <span class="font-bold text-blue-300">04</span> 互動風險診斷器
+            </a>
+            <a href="#checklist" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-blue-600 border border-slate-700 text-xs sm:text-sm text-slate-200 hover:text-white transition">
+              <span class="font-bold text-blue-300">05</span> 轉型清單與 Prompt 模板
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Core Formula & Everyday Analogy (2-column desktop) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Core Mental Formula -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-3">
+              核心思維公式
+            </div>
+            <h2 class="text-lg font-bold text-slate-900">軟體的商業價值，不再取決於打字速度</h2>
+            <div class="mt-4 p-4 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs sm:text-sm leading-relaxed overflow-x-auto">
+              <div class="text-slate-400 line-through mb-2">舊時代價值 = 程式碼行數 × 語法熟練度</div>
+              <div class="text-emerald-300 font-semibold">
+                新時代價值 = (需求精準度 × 規格清晰度 × 架構穩健度 × 驗證嚴謹度) ÷ 流程混亂度
+              </div>
+            </div>
+            <p class="mt-3 text-sm text-slate-600 leading-relaxed">
+              注意這是<strong class="text-slate-900">乘法關係</strong>：只要其中任何一項為 0（例如需求搞錯，或完全沒驗證），就算 AI 幫你生成一萬行看似華麗的程式碼，最終交付的真實價值依然趨近於 0，甚至變成負資產（難以維護的技術債）。
+            </p>
+          </div>
+          <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
+            <div class="p-2 rounded-lg bg-slate-50">
+              <div class="text-xs text-slate-500">語法產出成本</div>
+              <div class="text-sm font-bold text-rose-600 mt-0.5">趨近於零 ↓</div>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-50">
+              <div class="text-xs text-slate-500">決策錯誤代價</div>
+              <div class="text-sm font-bold text-amber-600 mt-0.5">放大十倍 ↑</div>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-50">
+              <div class="text-xs text-slate-500">系統把關溢價</div>
+              <div class="text-sm font-bold text-emerald-600 mt-0.5">核心護城河 ★</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Everyday Analogy (ELI5) -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md mb-3">
+            生活化類比（ELI5）
+          </div>
+          <h2 class="text-lg font-bold text-slate-900">從「手工砌磚」到「3D 列印蓋房子」</h2>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+            想像建築業突然發明了免費的「超高速 3D 列印蓋房機」（這就是 AI Coding），一小時就能印出一棟樓。這時候，原本最值錢的「手速很快的砌磚工」瞬間失去優勢，真正高薪且不可取代的變成這 5 種角色：
+          </p>
+          <div class="mt-3 p-3 rounded-xl bg-amber-50/50 border border-amber-200/70">
+            <svg viewBox="0 0 520 148" class="w-full h-auto" role="img" aria-label="3D 列印蓋房類比圖：五大高價值人類角色圍繞 AI 列印機">
+              <!-- Center AI 3D Printer -->
+              <rect x="182" y="42" width="156" height="64" rx="12" fill="#f1f5f9" stroke="#64748b" stroke-width="1.8" stroke-dasharray="4 3" />
+              <text x="260" y="66" text-anchor="middle" fill="#334155" font-size="12" font-weight="800">AI 3D 蓋房列印機</text>
+              <text x="260" y="84" text-anchor="middle" fill="#64748b" font-size="10">1小時印出牆壁 (Coding)</text>
+              <text x="260" y="98" text-anchor="middle" fill="#94a3b8" font-size="9.5">成本趨近於零</text>
+              <!-- Top-left: 需求 -->
+              <rect x="8" y="8" width="128" height="36" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5" />
+              <text x="72" y="24" text-anchor="middle" fill="#3730a3" font-size="10.5" font-weight="700">1. 生活顧問（需求）</text>
+              <text x="72" y="37" text-anchor="middle" fill="#4f46e5" font-size="9">決定蓋什麼給誰住</text>
+              <line x1="136" y1="30" x2="182" y2="56" stroke="#6366f1" stroke-width="1.5" />
+              <!-- Bottom-left: 規格 -->
+              <rect x="8" y="56" width="128" height="36" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5" />
+              <text x="72" y="72" text-anchor="middle" fill="#1e40af" font-size="10.5" font-weight="700">2. 藍圖繪師（規格）</text>
+              <text x="72" y="85" text-anchor="middle" fill="#2563eb" font-size="9">標清尺寸與插座位置</text>
+              <line x1="136" y1="74" x2="182" y2="74" stroke="#3b82f6" stroke-width="1.5" />
+              <!-- Bottom-center-left: 架構 -->
+              <rect x="8" y="104" width="128" height="36" rx="8" fill="#f0fdfa" stroke="#0d9488" stroke-width="1.5" />
+              <text x="72" y="120" text-anchor="middle" fill="#115e59" font-size="10.5" font-weight="700">3. 結構技師（架構）</text>
+              <text x="72" y="133" text-anchor="middle" fill="#0d9488" font-size="9">規劃承重牆與管線</text>
+              <line x1="136" y1="118" x2="182" y2="92" stroke="#14b8a6" stroke-width="1.5" />
+              <!-- Top-right: 流程 -->
+              <rect x="384" y="24" width="128" height="36" rx="8" fill="#fffbeb" stroke="#d97706" stroke-width="1.5" />
+              <text x="448" y="40" text-anchor="middle" fill="#92400e" font-size="10.5" font-weight="700">4. 工地主任（流程）</text>
+              <text x="448" y="53" text-anchor="middle" fill="#d97706" font-size="9">控管工序與階段存檔</text>
+              <line x1="384" y1="45" x2="338" y2="62" stroke="#f59e0b" stroke-width="1.5" />
+              <!-- Bottom-right: 驗證 -->
+              <rect x="384" y="88" width="128" height="36" rx="8" fill="#fff1f2" stroke="#e11d48" stroke-width="1.5" />
+              <text x="448" y="104" text-anchor="middle" fill="#9f1239" font-size="10.5" font-weight="700">5. 專業驗屋師（驗證）</text>
+              <text x="448" y="117" text-anchor="middle" fill="#e11d48" font-size="9">測漏水、跳電與耐震</text>
+              <line x1="384" y1="103" x2="338" y2="86" stroke="#f43f5e" stroke-width="1.5" />
+            </svg>
+          </div>
+          <ul class="mt-3 space-y-2 text-sm text-slate-700">
+            <li class="flex items-start gap-2">
+              <span class="shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center mt-0.5">1</span>
+              <span><strong>懂需求（生活顧問）：</strong>搞清楚屋主是真的要「大客廳」，還是其實需要「好收納的玄關」。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center mt-0.5">2</span>
+              <span><strong>懂規格（藍圖繪師）：</strong>標明每面牆幾公分、插座在哪、門往哪開，不讓列印機靠猜的。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="shrink-0 w-5 h-5 rounded-full bg-teal-100 text-teal-700 font-bold text-xs flex items-center justify-center mt-0.5">3</span>
+              <span><strong>懂架構（結構技師）：</strong>規劃承重牆、水電管線分離，避免日後換一條水管得敲掉整面牆。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="shrink-0 w-5 h-5 rounded-full bg-amber-100 text-amber-700 font-bold text-xs flex items-center justify-center mt-0.5">4</span>
+              <span><strong>懂流程（工地主任）：</strong>排定先打地基、再灌漿、最後裝潢的順序，每階段存檔拍照不亂套。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="shrink-0 w-5 h-5 rounded-full bg-rose-100 text-rose-700 font-bold text-xs flex items-center justify-center mt-0.5">5</span>
+              <span><strong>懂驗證（專業驗屋師）：</strong>實際潑水測漏、跳電測試、抗震檢查，確保能安全入住。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: VALUE SHIFT COMPARISON -->
+    <section id="shift" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Section 01</span>
+          <h2 class="text-2xl font-extrabold text-slate-900 mt-1">為什麼「Coding 本身」不再值錢？</h2>
+          <p class="text-sm text-slate-600 mt-1">不是程式碼不重要，而是「純手寫程式碼的供給」變成無限大，稀缺性完全轉移了。</p>
+        </div>
+      </div>
+
+      <!-- 2-Column Side-by-Side Comparison -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h3 class="font-bold text-slate-700 text-base">傳統手寫時代（Pre-AI Era）</h3>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">實作稀缺</span>
+          </div>
+          <ul class="mt-4 space-y-3 text-sm text-slate-600">
+            <li class="flex gap-2.5">
+              <span class="text-slate-400 font-bold">•</span>
+              <span><strong>瓶頸在打字與記憶：</strong>熟記語法、框架 API、手刻 CRUD 與版面需要數年累積，因此「寫得出來」本身就有高溢價。</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="text-slate-400 font-bold">•</span>
+              <span><strong>思考夾雜在寫碼中：</strong>寫程式速度慢，反而強迫工程師在敲鍵盤的過程中邊寫邊發現邏輯漏洞。</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="text-slate-400 font-bold">•</span>
+              <span><strong>產出量有限：</strong>一天能手寫的程式碼有限，程式碼品質與架構腐化的速度相對緩慢。</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-blue-50/60 rounded-2xl p-6 border-2 border-blue-200 shadow-sm">
+          <div class="flex items-center justify-between pb-3 border-b border-blue-200/70">
+            <h3 class="font-bold text-blue-950 text-base">Vibe Coding 時代（AI-Assisted Era）</h3>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-600 text-white">定義與驗證稀缺</span>
+          </div>
+          <ul class="mt-4 space-y-3 text-sm text-slate-700">
+            <li class="flex gap-2.5">
+              <span class="text-blue-600 font-bold">✓</span>
+              <span><strong>實作變成水電煤：</strong>任何語法、前端元件、API 串接都能在數十秒內生成，「會寫語法」不再構成競爭門檻。</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="text-blue-600 font-bold">✓</span>
+              <span><strong>模糊指令會被 AI 腦補：</strong>沒寫清楚的邊界條件，AI 會自行「猜測」並產出看似合理、實則埋雷的邏輯。</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="text-blue-600 font-bold">✓</span>
+              <span><strong>閱讀與除錯成為最大成本：</strong>生成只要 10 秒，但找出 AI 悄悄改壞的隱蔽 Bug 可能要花 10 小時。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Visual Diagram: AI as a 10x Amplifier (GIGO vs Engineering) -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+        <div class="mb-4">
+          <h3 class="font-bold text-slate-900 text-base">圖解：為什麼 AI 是「十倍放大器」，而不是「免費魔法棒」？</h3>
+          <p class="text-xs sm:text-sm text-slate-600 mt-0.5">AI 把產出速度乘以 10 倍；上游定義得好，就得到 10 倍價值；上游模糊不清，只會用 10 倍速度製造技術債。</p>
+        </div>
+        <div class="w-full overflow-x-auto">
+          <svg viewBox="0 0 880 218" class="w-full min-w-[620px] h-auto" role="img" aria-label="AI 十倍放大器雙路徑對比圖：模糊輸入導致技術債循環，五支柱輸入帶來穩健交付">
+            <defs>
+              <marker id="arrRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#e11d48" />
+              </marker>
+              <marker id="arrGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#059669" />
+              </marker>
+            </defs>
+
+            <!-- Row 1: Bad Path -->
+            <rect x="10" y="10" width="860" height="90" rx="14" fill="#fff1f2" stroke="#fecdd3" stroke-width="1.5" />
+            <text x="26" y="31" fill="#be123c" font-size="11.5" font-weight="800">路徑 A：只會下模糊 Prompt（跳過五大能力）</text>
+            <rect x="26" y="40" width="210" height="46" rx="10" fill="#ffffff" stroke="#fda4af" stroke-width="1.5" />
+            <text x="131" y="60" text-anchor="middle" fill="#881337" font-size="12" font-weight="700">模糊許願輸入</text>
+            <text x="131" y="76" text-anchor="middle" fill="#be123c" font-size="10.5">「幫我做一個好看的點餐網」</text>
+
+            <line x1="236" y1="63" x2="296" y2="63" stroke="#e11d48" stroke-width="2" marker-end="url(#arrRed)" />
+
+            <rect x="304" y="40" width="180" height="46" rx="10" fill="#ffe4e6" stroke="#f43f5e" stroke-width="1.8" />
+            <text x="394" y="60" text-anchor="middle" fill="#881337" font-size="12" font-weight="800">AI 10x 盲目腦補</text>
+            <text x="394" y="76" text-anchor="middle" fill="#9f1239" font-size="10.5">30 秒吐出 1,500 行麵條碼</text>
+
+            <line x1="484" y1="63" x2="544" y2="63" stroke="#e11d48" stroke-width="2" marker-end="url(#arrRed)" />
+
+            <rect x="552" y="40" width="302" height="46" rx="10" fill="#be123c" />
+            <text x="703" y="60" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="800">10x 技術債與「修 A 壞 B」死循環</text>
+            <text x="703" y="76" text-anchor="middle" fill="#ffe4e6" font-size="10.5">上線賣超、漏單、沒 Git 可回滾 → 砍掉重練</text>
+
+            <!-- Row 2: Good Path -->
+            <rect x="10" y="116" width="860" height="92" rx="14" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1.5" />
+            <text x="26" y="137" fill="#047857" font-size="11.5" font-weight="800">路徑 B：五支柱齊全（Vibe Engineering 實踐）</text>
+            <rect x="26" y="146" width="210" height="48" rx="10" fill="#ffffff" stroke="#6ee7b7" stroke-width="1.5" />
+            <text x="131" y="166" text-anchor="middle" fill="#064e3b" font-size="12" font-weight="700">清晰需求 + 規格 + 架構</text>
+            <text x="131" y="183" text-anchor="middle" fill="#047857" font-size="10.5">痛點明確、邊界合約、模組分層</text>
+
+            <line x1="236" y1="170" x2="296" y2="170" stroke="#059669" stroke-width="2" marker-end="url(#arrGreen)" />
+
+            <rect x="304" y="146" width="180" height="48" rx="10" fill="#d1fae5" stroke="#10b981" stroke-width="1.8" />
+            <text x="394" y="166" text-anchor="middle" fill="#064e3b" font-size="12" font-weight="800">AI 10x 護欄內執行</text>
+            <text x="394" y="183" text-anchor="middle" fill="#047857" font-size="10.5">小步實作 + Git Commit + 測試</text>
+
+            <line x1="484" y1="170" x2="544" y2="170" stroke="#059669" stroke-width="2" marker-end="url(#arrGreen)" />
+
+            <rect x="552" y="146" width="302" height="48" rx="10" fill="#059669" />
+            <text x="703" y="166" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="800">10x 穩健可演進的商業產品</text>
+            <text x="703" y="183" text-anchor="middle" fill="#d1fae5" font-size="10.5">精準解決痛點、測試有保障、改功能不心慌</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Interactive Value Allocation Bar Chart (Pure HTML/CSS, Conceptual Model) -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">概念模型：高價值投入佔比轉移模擬</h3>
+            <p class="text-xs text-slate-500 mt-0.5">點擊切換時代，觀察工程師「最有價值的精力」如何從純 Coding 移向五大能力（教學概念比例）</p>
+          </div>
+          <div class="inline-flex rounded-xl bg-slate-100 p-1 shrink-0" role="tablist" aria-label="時代切換">
+            <button id="eraTraditionalBtn" type="button" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition text-slate-600 hover:text-slate-900">
+              傳統手寫時代
+            </button>
+            <button id="eraVibeBtn" type="button" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition bg-blue-600 text-white shadow-sm">
+              Vibe Coding 時代
+            </button>
+          </div>
+        </div>
+
+        <div id="eraBarsContainer" class="mt-5 space-y-3.5">
+          <!-- Populated dynamically by JS -->
+        </div>
+        <div id="eraInsightBox" class="mt-5 p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700 leading-relaxed">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: INTERACTIVE BIDIRECTIONAL SVG ARCHITECTURE (5 PILLARS) -->
+    <section id="pillars" class="space-y-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Section 02</span>
+        <h2 class="text-2xl font-extrabold text-slate-900 mt-1">五大核心價值支柱：互動式系統全貌圖</h2>
+        <p class="text-sm text-slate-600 mt-1">點擊下圖任一節點（或下方標籤），即可雙向連動檢視該能力的<strong class="text-slate-800">核心本質、失控災難、交付產出物與可複製模板</strong>。圖中所有文字均可直接反白選取複製。</p>
+      </div>
+
+      <!-- Interactive SVG Diagram -->
+      <div class="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-sm">
+        <div class="w-full overflow-x-auto">
+          <svg id="pillarsSvg" viewBox="0 0 980 280" class="w-full min-w-[680px] h-auto" role="img" aria-label="Vibe Coding 五大核心價值支柱與 AI 執行層流程圖">
+            <defs>
+              <marker id="arrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b" />
+              </marker>
+              <marker id="arrowFeedback" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb" />
+              </marker>
+            </defs>
+
+            <!-- Background band for Human High-Value Layer -->
+            <rect x="12" y="14" width="956" height="140" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="6 4" />
+            <text x="28" y="38" fill="#1e40af" font-size="12" font-weight="700">人類高價值決策與把關層（不可外包的五大護城河）</text>
+
+            <!-- Background band for AI Commodity Layer -->
+            <rect x="210" y="178" width="560" height="84" rx="14" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" />
+            <text x="490" y="206" text-anchor="middle" fill="#475569" font-size="14" font-weight="700">AI Coding 執行層（語法生成 / 樣板程式碼 / 重構打字）</text>
+            <text x="490" y="229" text-anchor="middle" fill="#64748b" font-size="12">邊際成本趨近於零：給它好輸入，它產出 10x 生產力；給它爛輸入，它產出 10x 技術債</text>
+            <text x="490" y="248" text-anchor="middle" fill="#94a3b8" font-size="11">※ Coding 本身已商品化，不再是稀缺價值來源</text>
+
+            <!-- Connecting Arrows Top Row -->
+            <line x1="186" y1="95" x2="210" y2="95" stroke="#64748b" stroke-width="2" marker-end="url(#arrowBlue)" />
+            <line x1="376" y1="95" x2="400" y2="95" stroke="#64748b" stroke-width="2" marker-end="url(#arrowBlue)" />
+            <line x1="566" y1="95" x2="590" y2="95" stroke="#64748b" stroke-width="2" marker-end="url(#arrowBlue)" />
+            <line x1="756" y1="95" x2="780" y2="95" stroke="#64748b" stroke-width="2" marker-end="url(#arrowBlue)" />
+
+            <!-- Arrows down to AI layer & up to Verification -->
+            <path d="M 483 142 L 483 174" stroke="#64748b" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrowBlue)" />
+            <path d="M 673 142 L 673 174" stroke="#64748b" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrowBlue)" />
+            <path d="M 770 220 L 868 220 L 868 148" fill="none" stroke="#2563eb" stroke-width="2.2" marker-end="url(#arrowFeedback)" />
+
+            <!-- Feedback loop from Verification back to Requirements -->
+            <path d="M 868 52 L 868 24 L 105 24 L 105 46" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arrowFeedback)" />
+            <text x="490" y="20" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="600">持續回饋循環：真實使用者驗證結果 → 修正下一輪需求與規格</text>
+
+            <!-- Node 1: 需求 -->
+            <g class="svg-node active" data-pillar="requirements" tabindex="0" role="button" aria-label="檢視支柱 1：懂需求">
+              <rect class="node-box" x="26" y="52" width="158" height="86" rx="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" />
+              <text x="105" y="76" text-anchor="middle" fill="#4338ca" font-size="11" font-weight="700">01 / UPSTREAM</text>
+              <text x="105" y="99" text-anchor="middle" fill="#1e1b4b" font-size="15" font-weight="800">懂需求</text>
+              <text x="105" y="120" text-anchor="middle" fill="#4f46e5" font-size="11">做對的事 (Why)</text>
+            </g>
+
+            <!-- Node 2: 規格 -->
+            <g class="svg-node" data-pillar="spec" tabindex="0" role="button" aria-label="檢視支柱 2：懂規格">
+              <rect class="node-box" x="216" y="52" width="158" height="86" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2" />
+              <text x="295" y="76" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="700">02 / CONTRACT</text>
+              <text x="295" y="99" text-anchor="middle" fill="#172554" font-size="15" font-weight="800">懂規格</text>
+              <text x="295" y="120" text-anchor="middle" fill="#2563eb" font-size="11">寫清邊界 (What)</text>
+            </g>
+
+            <!-- Node 3: 架構 -->
+            <g class="svg-node" data-pillar="architecture" tabindex="0" role="button" aria-label="檢視支柱 3：懂架構">
+              <rect class="node-box" x="406" y="52" width="158" height="86" rx="12" fill="#f0fdfa" stroke="#0d9488" stroke-width="2" />
+              <text x="485" y="76" text-anchor="middle" fill="#0f766e" font-size="11" font-weight="700">03 / STRUCTURE</text>
+              <text x="485" y="99" text-anchor="middle" fill="#134e4a" font-size="15" font-weight="800">懂架構</text>
+              <text x="485" y="120" text-anchor="middle" fill="#0d9488" font-size="11">切好模組 (How)</text>
+            </g>
+
+            <!-- Node 4: 流程 -->
+            <g class="svg-node" data-pillar="workflow" tabindex="0" role="button" aria-label="檢視支柱 4：懂流程">
+              <rect class="node-box" x="596" y="52" width="158" height="86" rx="12" fill="#fffbeb" stroke="#d97706" stroke-width="2" />
+              <text x="675" y="76" text-anchor="middle" fill="#b45309" font-size="11" font-weight="700">04 / GOVERNANCE</text>
+              <text x="675" y="99" text-anchor="middle" fill="#451a03" font-size="15" font-weight="800">懂流程</text>
+              <text x="675" y="120" text-anchor="middle" fill="#d97706" font-size="11">小步控管 (SOP)</text>
+            </g>
+
+            <!-- Node 5: 驗證 -->
+            <g class="svg-node" data-pillar="verification" tabindex="0" role="button" aria-label="檢視支柱 5：懂驗證">
+              <rect class="node-box" x="786" y="52" width="166" height="86" rx="12" fill="#fff1f2" stroke="#e11d48" stroke-width="2" />
+              <text x="869" y="76" text-anchor="middle" fill="#be123c" font-size="11" font-weight="700">05 / QUALITY GATE</text>
+              <text x="869" y="99" text-anchor="middle" fill="#4c0519" font-size="15" font-weight="800">懂驗證</text>
+              <text x="869" y="120" text-anchor="middle" fill="#e11d48" font-size="11">證明沒壞 (Proof)</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Synchronized Pillar Selector Pills -->
+        <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-2" id="pillarTabs" role="tablist" aria-label="選擇五大支柱">
+          <button type="button" data-pillar="requirements" class="pillar-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition bg-indigo-600 text-white border-indigo-600">
+            1. 懂需求
+          </button>
+          <button type="button" data-pillar="spec" class="pillar-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+            2. 懂規格
+          </button>
+          <button type="button" data-pillar="architecture" class="pillar-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+            3. 懂架構
+          </button>
+          <button type="button" data-pillar="workflow" class="pillar-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+            4. 懂流程
+          </button>
+          <button type="button" data-pillar="verification" class="pillar-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+            5. 懂驗證
+          </button>
+        </div>
+
+        <!-- Dynamic Detail Card for Selected Pillar -->
+        <div id="pillarDetailCard" class="mt-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-5 sm:p-6">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- Compact Summary Table of All 5 Pillars -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/60">
+          <h3 class="font-bold text-slate-900 text-base">五大核心能力速查對照表</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs uppercase">
+                <th class="py-3 px-4 font-bold">能力維度</th>
+                <th class="py-3 px-4 font-bold">回答的核心問題</th>
+                <th class="py-3 px-4 font-bold">缺乏時的典型災難</th>
+                <th class="py-3 px-4 font-bold">關鍵交付物 / 武器</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              <tr class="hover:bg-slate-50/80">
+                <td class="py-3 px-4 font-bold text-indigo-700 whitespace-nowrap">1. 懂需求</td>
+                <td class="py-3 px-4">誰要解決什麼痛點？不做會怎樣？</td>
+                <td class="py-3 px-4">用 AI 一天做完沒人要用的漂亮垃圾</td>
+                <td class="py-3 px-4">User Story、JTBD、核心場景優先序</td>
+              </tr>
+              <tr class="hover:bg-slate-50/80">
+                <td class="py-3 px-4 font-bold text-blue-700 whitespace-nowrap">2. 懂規格</td>
+                <td class="py-3 px-4">輸入、輸出、例外與驗收標準是什麼？</td>
+                <td class="py-3 px-4">AI 自由發揮腦補，每次重跑邏輯都不一樣</td>
+                <td class="py-3 px-4">Spec 文件 (SDD)、Given-When-Then、資料結構</td>
+              </tr>
+              <tr class="hover:bg-slate-50/80">
+                <td class="py-3 px-4 font-bold text-teal-700 whitespace-nowrap">3. 懂架構</td>
+                <td class="py-3 px-4">模組怎麼切？資料流與狀態放哪裡？</td>
+                <td class="py-3 px-4">2000 行麵條碼，改按鈕壞掉資料庫</td>
+                <td class="py-3 px-4">分層邊界、API Contract、單一職責模組</td>
+              </tr>
+              <tr class="hover:bg-slate-50/80">
+                <td class="py-3 px-4 font-bold text-amber-700 whitespace-nowrap">4. 懂流程</td>
+                <td class="py-3 px-4">怎麼拆任務、控版本、何時回滾？</td>
+                <td class="py-3 px-4">AI 一次亂改 15 檔，沒存檔點無法還原</td>
+                <td class="py-3 px-4">Git Branch/Worktree、小步 Commit、CI/CD</td>
+              </tr>
+              <tr class="hover:bg-slate-50/80">
+                <td class="py-3 px-4 font-bold text-rose-700 whitespace-nowrap">5. 懂驗證</td>
+                <td class="py-3 px-4">如何證明極端狀況與安全性都過關？</td>
+                <td class="py-3 px-4">「看起來能動」就上線，實戰掉單或洩密</td>
+                <td class="py-3 px-4">自動化測試、邊界壓測、Diff Review、資安檢查</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: END-TO-END WORKED EXAMPLE (SINGLE VERTICAL TIMELINE) -->
+    <section id="case-study" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Section 03</span>
+          <h2 class="text-2xl font-extrabold text-slate-900 mt-1">單一實戰案例貫穿：小型咖啡廳「線上點餐＋庫存扣減」</h2>
+          <p class="text-sm text-slate-600 mt-1">用同一個真實情境，對比「只靠盲目許願的 Vibe Coding」與「五大能力全開的 Vibe Engineering」差在哪裡。</p>
+        </div>
+        <div class="inline-flex rounded-xl bg-slate-200/80 p-1 shrink-0" role="tablist" aria-label="案例模式切換">
+          <button id="modeEngineeringBtn" type="button" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition bg-slate-900 text-white shadow-sm">
+            五大能力全開（推薦）
+          </button>
+          <button id="modeBlindBtn" type="button" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition text-slate-700 hover:text-slate-900">
+            盲目許願對照（踩坑）
+          </button>
+        </div>
+      </div>
+
+      <!-- Visual Sequence Diagram: Concurrency Race Condition (Last 1 Oat Latte) -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+        <div class="mb-4">
+          <h3 class="font-bold text-slate-900 text-base">圖解實戰核心痛點：2 位客人同時搶最後 1 杯燕麥拿鐵</h3>
+          <p class="text-xs sm:text-sm text-slate-600 mt-0.5">這就是為什麼光會讓 AI 畫出「好看的點餐畫面」遠遠不夠——真正決定系統生死的，是底層規格、架構鎖與併發驗證。</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <!-- Without Architecture/Verification -->
+          <div class="rounded-xl border border-rose-200 bg-rose-50/40 p-4">
+            <div class="text-xs font-bold text-rose-700 mb-2">✕ 盲目 Vibe Coding：沒規格、沒交易鎖 → 賣超翻車</div>
+            <svg viewBox="0 0 400 170" class="w-full h-auto" role="img" aria-label="無交易鎖導致超賣時序圖">
+              <rect x="10" y="8" width="90" height="26" rx="6" fill="#ffffff" stroke="#fb7185" />
+              <text x="55" y="25" text-anchor="middle" fill="#881337" font-size="10.5" font-weight="700">客人 A &amp; B</text>
+              <rect x="155" y="8" width="90" height="26" rx="6" fill="#ffffff" stroke="#fb7185" />
+              <text x="200" y="25" text-anchor="middle" fill="#881337" font-size="10.5" font-weight="700">後端 API</text>
+              <rect x="296" y="8" width="94" height="26" rx="6" fill="#ffffff" stroke="#fb7185" />
+              <text x="343" y="25" text-anchor="middle" fill="#881337" font-size="10.5" font-weight="700">資料庫 (庫存=1)</text>
+              <line x1="55" y1="34" x2="55" y2="162" stroke="#fda4af" stroke-dasharray="4 3" />
+              <line x1="200" y1="34" x2="200" y2="162" stroke="#fda4af" stroke-dasharray="4 3" />
+              <line x1="343" y1="34" x2="343" y2="162" stroke="#fda4af" stroke-dasharray="4 3" />
+              <!-- Step 1 -->
+              <line x1="55" y1="56" x2="195" y2="56" stroke="#e11d48" stroke-width="1.6" />
+              <text x="125" y="51" text-anchor="middle" fill="#9f1239" font-size="9.5">同時下單買 1 杯</text>
+              <line x1="200" y1="74" x2="338" y2="74" stroke="#e11d48" stroke-width="1.6" />
+              <text x="270" y="69" text-anchor="middle" fill="#9f1239" font-size="9.5">A、B 都讀到庫存 = 1</text>
+              <line x1="200" y1="102" x2="338" y2="102" stroke="#e11d48" stroke-width="1.6" />
+              <text x="270" y="97" text-anchor="middle" fill="#9f1239" font-size="9.5">雙方各自執行 stock - 1</text>
+              <!-- Result box -->
+              <rect x="68" y="120" width="268" height="36" rx="8" fill="#be123c" />
+              <text x="202" y="136" text-anchor="middle" fill="#ffffff" font-size="10.5" font-weight="800">災難結果：A、B 雙雙結帳成功！</text>
+              <text x="202" y="150" text-anchor="middle" fill="#ffe4e6" font-size="9.5">庫存變成 -1，晚班店員被迫打電話道歉退款</text>
+            </svg>
+          </div>
+
+          <!-- With 5 Pillars -->
+          <div class="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+            <div class="text-xs font-bold text-emerald-800 mb-2">✓ Vibe Engineering：明確規格 + 原子交易鎖 → 零超賣</div>
+            <svg viewBox="0 0 400 170" class="w-full h-auto" role="img" aria-label="使用資料庫原子交易鎖防超賣時序圖">
+              <rect x="10" y="8" width="90" height="26" rx="6" fill="#ffffff" stroke="#34d399" />
+              <text x="55" y="25" text-anchor="middle" fill="#064e3b" font-size="10.5" font-weight="700">客人 A &amp; B</text>
+              <rect x="148" y="8" width="104" height="26" rx="6" fill="#ffffff" stroke="#34d399" />
+              <text x="200" y="25" text-anchor="middle" fill="#064e3b" font-size="10.5" font-weight="700">InventoryService</text>
+              <rect x="296" y="8" width="94" height="26" rx="6" fill="#ffffff" stroke="#34d399" />
+              <text x="343" y="25" text-anchor="middle" fill="#064e3b" font-size="10.5" font-weight="700">DB 原子鎖 (=1)</text>
+              <line x1="55" y1="34" x2="55" y2="162" stroke="#6ee7b7" stroke-dasharray="4 3" />
+              <line x1="200" y1="34" x2="200" y2="162" stroke="#6ee7b7" stroke-dasharray="4 3" />
+              <line x1="343" y1="34" x2="343" y2="162" stroke="#6ee7b7" stroke-dasharray="4 3" />
+              <!-- Step 1 -->
+              <line x1="55" y1="54" x2="195" y2="54" stroke="#059669" stroke-width="1.6" />
+              <text x="125" y="49" text-anchor="middle" fill="#065f46" font-size="9.5">同時下單買 1 杯</text>
+              <line x1="200" y1="74" x2="338" y2="74" stroke="#059669" stroke-width="1.6" />
+              <text x="270" y="69" text-anchor="middle" fill="#065f46" font-size="9.5">WHERE stock &gt;= 1 排隊上鎖</text>
+              <line x1="195" y1="98" x2="55" y2="98" stroke="#059669" stroke-width="1.6" />
+              <text x="125" y="93" text-anchor="middle" fill="#047857" font-size="9.5" font-weight="700">A 先搶到 → 200 OK (庫存=0)</text>
+              <line x1="195" y1="116" x2="55" y2="116" stroke="#d97706" stroke-width="1.6" stroke-dasharray="4 2" />
+              <text x="125" y="111" text-anchor="middle" fill="#b45309" font-size="9.5" font-weight="700">B 隨後到 → 409 剛售完</text>
+              <!-- Result box -->
+              <rect x="68" y="128" width="268" height="30" rx="8" fill="#059669" />
+              <text x="202" y="147" text-anchor="middle" fill="#ffffff" font-size="10.5" font-weight="800">零超賣、庫存歸 0、客訴歸零</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Single Vertical Timeline -->
+      <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+        <div id="timelineHeaderBadge" class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm font-medium">
+          <!-- Updated by JS -->
+        </div>
+
+        <ol id="caseTimeline" class="relative border-l-2 border-slate-200 ml-3 space-y-8">
+          <!-- Populated dynamically by JS -->
+        </ol>
+      </div>
+
+      <!-- Concrete Scenario Outcome Comparison Table -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h3 class="font-bold text-slate-900 text-base">同一個案子的時間與返工成本推演（情境範例）</h3>
+          <span class="text-xs text-slate-500">說明：純手寫打字已交給 AI，差距全來自「返工與除錯」</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs uppercase">
+                <th class="py-3 px-4 font-bold">階段指標</th>
+                <th class="py-3 px-4 font-bold text-rose-700">盲目 Vibe Coding（跳過五支柱）</th>
+                <th class="py-3 px-4 font-bold text-emerald-700">Vibe Engineering（落實五支柱）</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              <tr>
+                <td class="py-3 px-4 font-semibold">前期需求與規格投入</td>
+                <td class="py-3 px-4">5 分鐘（打兩句話就開始生成）</td>
+                <td class="py-3 px-4">45 分鐘（確認超賣痛點、寫清 Given-When-Then）</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-4 font-semibold">AI 首次產出可看畫面</td>
+                <td class="py-3 px-4">10 分鐘（很快看到 Demo，產生完成錯覺）</td>
+                <td class="py-3 px-4">25 分鐘（分層生成 Schema → API → UI）</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-4 font-semibold">修 A 壞 B 的無盡除錯迴圈</td>
+                <td class="py-3 px-4 font-semibold text-rose-600">6+ 小時（改庫存壞購物車、沒 Commit 還原不了）</td>
+                <td class="py-3 px-4 font-semibold text-emerald-700">30 分鐘（測試立刻抓出併發鎖問題，精準修補）</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-4 font-semibold">真實尖峰上線結果</td>
+                <td class="py-3 px-4">燕麥奶賣超 4 杯、客訴不斷、最後被迫關站</td>
+                <td class="py-3 px-4">最後 1 杯正確鎖定、第 2 位客人收到友善缺貨提示</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: INTERACTIVE DIAGNOSTIC SIMULATOR -->
+    <section id="diagnostic" class="space-y-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Section 04</span>
+        <h2 class="text-2xl font-extrabold text-slate-900 mt-1">互動診斷器：測測你的 Vibe Coding 工程成熟度</h2>
+        <p class="text-sm text-slate-600 mt-1">拖動下方五個滑桿，或點選預設情境，即時計算你的「交付穩定度」與「返工爆炸風險」，找出目前最危險的短板。</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+        <!-- Preset Buttons -->
+        <div class="flex flex-wrap items-center gap-2 pb-5 border-b border-slate-100">
+          <span class="text-xs font-bold text-slate-500 mr-1">快速載入情境：</span>
+          <button type="button" data-preset="wishful" class="preset-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition">
+            只會許願「幫我做一個 App」
+          </button>
+          <button type="button" data-preset="no-test" class="preset-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 transition">
+            重規格但完全不驗證
+          </button>
+          <button type="button" data-preset="pro" class="preset-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition">
+            完整 Vibe Engineering 實踐
+          </button>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <!-- Sliders Column -->
+          <div class="lg:col-span-7 space-y-5">
+            <div>
+              <div class="flex justify-between text-sm font-semibold mb-1.5">
+                <label for="sliderReq" class="text-slate-800">1. 懂需求（痛點與使用者場景清晰度）</label>
+                <span id="valReq" class="text-indigo-600 font-mono">3 / 5</span>
+              </div>
+              <input id="sliderReq" type="range" min="1" max="5" value="3" class="w-full" />
+              <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                <span>1: 憑感覺猜功能</span>
+                <span>5: 有明確使用者痛點與優先序</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-sm font-semibold mb-1.5">
+                <label for="sliderSpec" class="text-slate-800">2. 懂規格（輸入輸出與邊界條件明確度）</label>
+                <span id="valSpec" class="text-blue-600 font-mono">3 / 5</span>
+              </div>
+              <input id="sliderSpec" type="range" min="1" max="5" value="3" class="w-full" />
+              <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                <span>1: 一句話模糊指令</span>
+                <span>5: 完整 Spec 與驗收條件</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-sm font-semibold mb-1.5">
+                <label for="sliderArch" class="text-slate-800">3. 懂架構（模組邊界與資料流設計）</label>
+                <span id="valArch" class="text-teal-600 font-mono">2 / 5</span>
+              </div>
+              <input id="sliderArch" type="range" min="1" max="5" value="2" class="w-full" />
+              <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                <span>1: 全塞在單一大檔案</span>
+                <span>5: 關注點分離與清晰契約</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-sm font-semibold mb-1.5">
+                <label for="sliderFlow" class="text-slate-800">4. 懂流程（小步拆解、Git 版控與回滾紀律）</label>
+                <span id="valFlow" class="text-amber-600 font-mono">3 / 5</span>
+              </div>
+              <input id="sliderFlow" type="range" min="1" max="5" value="3" class="w-full" />
+              <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                <span>1: 沒開 Git 直接全改</span>
+                <span>5: 任務拆分 + Branch + 小步 Commit</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-sm font-semibold mb-1.5">
+                <label for="sliderVerify" class="text-slate-800">5. 懂驗證（自動化測試、邊界與 Diff 審查）</label>
+                <span id="valVerify" class="text-rose-600 font-mono">2 / 5</span>
+              </div>
+              <input id="sliderVerify" type="range" min="1" max="5" value="2" class="w-full" />
+              <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                <span>1: 畫面沒報錯就上線</span>
+                <span>5: 測試 + 邊界壓測 + 安全檢核</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Result Panel -->
+          <div class="lg:col-span-5 bg-slate-900 text-white rounded-2xl p-6 space-y-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">即時診斷結果</span>
+              <span id="diagLevelBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                進階摸索期
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-slate-800/80 rounded-xl p-3.5 border border-slate-700">
+                <div class="text-xs text-slate-400">綜合工程價值指數</div>
+                <div id="diagScoreText" class="text-2xl font-extrabold text-blue-300 mt-1">52 / 100</div>
+              </div>
+              <div class="bg-slate-800/80 rounded-xl p-3.5 border border-slate-700">
+                <div class="text-xs text-slate-400">返工爆炸風險</div>
+                <div id="diagRiskText" class="text-2xl font-extrabold text-rose-400 mt-1">高風險</div>
+              </div>
+            </div>
+
+            <!-- Live SVG Mini Radar / Pentagon -->
+            <div class="flex justify-center py-1">
+              <svg id="radarSvg" viewBox="0 0 240 210" class="w-56 h-auto" aria-label="五維度能力雷達圖">
+                <!-- Background pentagons -->
+                <polygon points="120,25 196,80 167,170 73,170 44,80" fill="none" stroke="#334155" stroke-width="1" />
+                <polygon points="120,55 166,88 148,142 92,142 74,88" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="3 3" />
+                <polygon points="120,85 135,96 129,114 111,114 105,96" fill="none" stroke="#334155" stroke-width="1" />
+                <!-- Axes -->
+                <line x1="120" y1="105" x2="120" y2="25" stroke="#334155" stroke-width="1" />
+                <line x1="120" y1="105" x2="196" y2="80" stroke="#334155" stroke-width="1" />
+                <line x1="120" y1="105" x2="167" y2="170" stroke="#334155" stroke-width="1" />
+                <line x1="120" y1="105" x2="73" y2="170" stroke="#334155" stroke-width="1" />
+                <line x1="120" y1="105" x2="44" y2="80" stroke="#334155" stroke-width="1" />
+                <!-- Dynamic Data Polygon -->
+                <polygon id="radarPoly" points="120,57 166,90 139,131 92,144 90,95" fill="rgba(59,130,246,0.35)" stroke="#60a5fa" stroke-width="2.5" />
+                <!-- Labels -->
+                <text x="120" y="15" text-anchor="middle" fill="#c7d2fe" font-size="11" font-weight="700">需求</text>
+                <text x="212" y="83" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="700">規格</text>
+                <text x="176" y="190" text-anchor="middle" fill="#99f6e4" font-size="11" font-weight="700">架構</text>
+                <text x="64" y="190" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="700">流程</text>
+                <text x="28" y="83" text-anchor="middle" fill="#fecdd3" font-size="11" font-weight="700">驗證</text>
+              </svg>
+            </div>
+
+            <div class="bg-slate-800/70 rounded-xl p-4 border border-slate-700/80 space-y-1.5">
+              <div class="text-xs font-bold text-amber-300">目前最危險短板診斷</div>
+              <p id="diagAdviceText" class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                <!-- Populated dynamically -->
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: ACTIONABLE CHECKLIST & COPYABLE STARTER PROMPT -->
+    <section id="checklist" class="space-y-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Section 05</span>
+        <h2 class="text-2xl font-extrabold text-slate-900 mt-1">立刻就能用的轉型清單與開工 Prompt 模板</h2>
+        <p class="text-sm text-slate-600 mt-1">下次打開 AI Coding 工具前，先勾選這 5 個習慣，再把右方的萬用開工模板貼給 AI。</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Interactive Checklist -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-slate-900 text-base">開工前五維度自我檢核</h3>
+              <span id="checklistProgressText" class="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full">0 / 5 完成</span>
+            </div>
+            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-5">
+              <div id="checklistBar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div class="space-y-3" id="checklistItems">
+              <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" class="check-item mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+                <span class="text-sm text-slate-700"><strong class="text-slate-900">[需求]</strong> 我能用一句話說出「誰在什麼情境下會用它」，且砍掉了非必要功能。</span>
+              </label>
+              <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" class="check-item mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+                <span class="text-sm text-slate-700"><strong class="text-slate-900">[規格]</strong> 我已寫出具體的輸入、輸出與至少 2 個異常狀況的處理方式。</span>
+              </label>
+              <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" class="check-item mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+                <span class="text-sm text-slate-700"><strong class="text-slate-900">[架構]</strong> 我已先請 AI 提出檔案結構與資料模型，確認合理才准它動手寫程式。</span>
+              </label>
+              <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" class="check-item mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+                <span class="text-sm text-slate-700"><strong class="text-slate-900">[流程]</strong> 我已初始化 Git，且規定 AI 每次只完成一個小任務就 Commit 存檔。</span>
+              </label>
+              <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                <input type="checkbox" class="check-item mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+                <span class="text-sm text-slate-700"><strong class="text-slate-900">[驗證]</strong> 我要求 AI 同步產出測試腳本，並會親自審查關鍵 Diff 與邊界案例。</span>
+              </label>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+            <button id="resetChecklistBtn" type="button" class="text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
+              重設勾選狀態
+            </button>
+          </div>
+        </div>
+
+        <!-- Copyable Starter Prompt -->
+        <div class="bg-slate-900 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div>
+                <h3 class="font-bold text-white text-base">萬用開工 Prompt（先思考、再寫碼）</h3>
+                <p class="text-xs text-slate-400 mt-0.5">強迫 AI 進入「規格驅動」模式，避免直接亂寫一通</p>
+              </div>
+              <button id="copyMasterPromptBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition">
+                複製模板
+              </button>
+            </div>
+            <pre id="masterPromptCode" class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 text-xs sm:text-[13px] text-slate-200 leading-relaxed overflow-x-auto whitespace-pre-wrap font-mono">你是一位資深軟體架構師。在寫任何一行程式碼之前，請先協助我完成以下五個步驟：
+
+1. 【需求對齊】目標使用者是 [填入對象]，要解決的核心痛點是 [填入痛點]。請指出我可能遺漏的關鍵場景。
+2. 【規格定義】請將此功能轉化為明確的 Spec，包含：輸入/輸出格式、資料結構，以及至少 3 個 Given-When-Then 驗收條件（含異常邊界狀況）。
+3. 【架構設計】請規劃最小可行模組與檔案切分，說明各模組職責與資料流，避免邏輯全部耦合在同一檔案。
+4. 【開發流程】請將實作拆解為 3～5 個可獨立驗證的小步驟（每步完成後我會 Git Commit）。
+5. 【驗證計畫】請列出每個步驟對應的自動化測試或手動驗證清單。
+
+※ 規則：請先輸出上述計畫等我確認，在我說「同意計畫，執行步驟 1」之前，先不要生成完整程式碼。</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="pt-6 pb-10 border-t border-slate-200 text-center text-xs text-slate-500">
+      Vibe Coding 時代的工程價值指南 — 把打字交給 AI，把「需求、規格、流程、架構、驗證」留給自己。
+    </footer>
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" role="status" aria-live="polite" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg border border-slate-700 transition-all duration-200 toast-exit">
+    已複製到剪貼簿
+  </div>
+
+  <script>
+    (function () {
+      // --- Utility: Copy to clipboard with execCommand fallback ---
+      let toastTimer = null;
+      function showToast(msg) {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.remove('toast-exit');
+        toast.classList.add('toast-enter');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          toast.classList.remove('toast-enter');
+          toast.classList.add('toast-exit');
+        }, 2200);
+      }
+
+      function copyText(text, successMsg) {
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(function () {
+            showToast(successMsg || '已複製到剪貼簿');
+          }).catch(function () {
+            fallbackCopy(text, successMsg);
+          });
+        } else {
+          fallbackCopy(text, successMsg);
+        }
+      }
+
+      function fallbackCopy(text, successMsg) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast(successMsg || '已複製到剪貼簿');
+        } catch (err) {
+          showToast('複製失敗，請手動選取複製');
+        }
+        document.body.removeChild(ta);
+      }
+
+      // --- Mobile Menu Toggle ---
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+      if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', function () {
+          const isHidden = mobileMenu.classList.toggle('hidden');
+          mobileMenuBtn.setAttribute('aria-expanded', String(!isHidden));
+        });
+        document.querySelectorAll('.mobile-nav-link').forEach(function (link) {
+          link.addEventListener('click', function () {
+            mobileMenu.classList.add('hidden');
+            mobileMenuBtn.setAttribute('aria-expanded', 'false');
+          });
+        });
+      }
+
+      // --- Section 1: Era Value Allocation Toggle ---
+      const eraData = {
+        traditional: {
+          insight: '在傳統手寫時代，超過一半的開發時間花在「查文件、寫樣板語法、除語法錯」，因此能快速寫出可執行程式碼本身就很有市場價值。',
+          bars: [
+            { label: '純手寫 Coding（語法 / 樣板 / CRUD）', pct: 55, color: 'bg-slate-500' },
+            { label: '需求釐清與商業對齊', pct: 12, color: 'bg-indigo-500' },
+            { label: '規格定義與邊界合約', pct: 10, color: 'bg-blue-500' },
+            { label: '系統架構與模組切分', pct: 10, color: 'bg-teal-500' },
+            { label: '開發流程與版本控管', pct: 6, color: 'bg-amber-500' },
+            { label: '自動化驗證與品質把關', pct: 7, color: 'bg-rose-500' }
+          ]
+        },
+        vibe: {
+          insight: '在 Vibe Coding 時代，AI 接管了絕大部分純打字與樣板生成（壓縮至極低佔比）；人類真正創造不可替代價值的，是上游的需求、規格、架構，與貫穿全程的流程與驗證。',
+          bars: [
+            { label: '純手寫 Coding（由 AI 執行層接管）', pct: 8, color: 'bg-slate-400' },
+            { label: '需求釐清與商業對齊', pct: 22, color: 'bg-indigo-600' },
+            { label: '規格定義與邊界合約', pct: 20, color: 'bg-blue-600' },
+            { label: '系統架構與模組切分', pct: 18, color: 'bg-teal-600' },
+            { label: '開發流程與版本控管', pct: 14, color: 'bg-amber-500' },
+            { label: '自動化驗證與品質把關', pct: 18, color: 'bg-rose-600' }
+          ]
+        }
+      };
+
+      function renderEra(mode) {
+        const data = eraData[mode];
+        const container = document.getElementById('eraBarsContainer');
+        const insightBox = document.getElementById('eraInsightBox');
+        const btnTrad = document.getElementById('eraTraditionalBtn');
+        const btnVibe = document.getElementById('eraVibeBtn');
+        if (!container || !insightBox) return;
+
+        if (mode === 'traditional') {
+          btnTrad.className = 'px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition bg-slate-800 text-white shadow-sm';
+          btnVibe.className = 'px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition text-slate-600 hover:text-slate-900';
+        } else {
+          btnVibe.className = 'px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition bg-blue-600 text-white shadow-sm';
+          btnTrad.className = 'px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition text-slate-600 hover:text-slate-900';
+        }
+
+        container.innerHTML = data.bars.map(function (b) {
+          return (
+            '<div>' +
+              '<div class="flex justify-between text-xs sm:text-sm font-medium text-slate-700 mb-1">' +
+                '<span>' + b.label + '</span>' +
+                '<span class="font-mono font-bold text-slate-900">' + b.pct + '%</span>' +
+              '</div>' +
+              '<div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">' +
+                '<div class="h-full ' + b.color + ' rounded-full transition-all duration-500" style="width:' + b.pct + '%"></div>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+        insightBox.textContent = data.insight;
+      }
+
+      document.getElementById('eraTraditionalBtn').addEventListener('click', function () { renderEra('traditional'); });
+      document.getElementById('eraVibeBtn').addEventListener('click', function () { renderEra('vibe'); });
+      renderEra('vibe');
+
+      // --- Section 2: Bidirectional SVG + Pillar Detail Panel ---
+      const pillarDetails = {
+        requirements: {
+          tag: '01 / UPSTREAM',
+          badgeClass: 'bg-indigo-100 text-indigo-800',
+          tabActiveClass: 'bg-indigo-600 text-white border-indigo-600',
+          title: '懂需求（Requirements）— 確保你在做「對的事」',
+          coreQuestion: '使用者真正卡關的地方在哪裡？如果只能先做 20% 的功能解決 80% 的痛點，該做什麼？',
+          analogy: '就像醫生開藥前先問診：病人說「我要止痛藥」（表面功能），但真正的需求可能是找出發炎源頭（底層痛點）。',
+          disaster: 'AI 非常擅長迎合你。你說「做個超酷儀表板」，它馬上給你十張圖表，結果上線後發現使用者根本沒時間看，他們只想要「庫存低於 5 個時發 LINE 通知」。',
+          artifacts: ['User Story（身為…我想要…以便…）', 'JTBD 核心任務定義', 'Must-Have / Won’t-Have 砍需求清單'],
+          templateLabel: '需求釐清 Prompt 範本',
+          diagramTitle: '圖解：需求冰山模型（別只做水面上的許願功能）',
+          diagramSvg: '<svg viewBox="0 0 420 132" class="w-full h-auto" role="img" aria-label="需求冰山圖">' +
+            '<rect x="0" y="0" width="420" height="54" rx="8" fill="#eef2ff" />' +
+            '<rect x="0" y="54" width="420" height="78" rx="8" fill="#e0e7ff" />' +
+            '<line x1="0" y1="54" x2="420" y2="54" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5 3" />' +
+            '<polygon points="105,12 142,54 68,54" fill="#ffffff" stroke="#4f46e5" stroke-width="1.5" />' +
+            '<polygon points="68,54 142,54 166,120 44,120" fill="#4f46e5" opacity="0.88" />' +
+            '<text x="105" y="42" text-anchor="middle" fill="#312e81" font-size="10" font-weight="800">表面功能</text>' +
+            '<text x="105" y="88" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">真實痛點</text>' +
+            '<text x="105" y="105" text-anchor="middle" fill="#e0e7ff" font-size="9.5">商業價值所在</text>' +
+            '<text x="182" y="26" fill="#3730a3" font-size="11" font-weight="700">水面之上（AI 隨手就能畫出來）</text>' +
+            '<text x="182" y="43" fill="#475569" font-size="10.5">「要有華麗首頁、10張圖表、會員等級」</text>' +
+            '<text x="182" y="78" fill="#312e81" font-size="11" font-weight="800">水面之下（人類必須挖出來的核心）</text>' +
+            '<text x="182" y="96" fill="#1e1b4b" font-size="10.5">「尖峰 10 秒內同步停售、零超賣、</text>' +
+            '<text x="182" y="113" fill="#1e1b4b" font-size="10.5">店員不用打電話退款道歉」</text>' +
+            '</svg>',
+          template: '【需求對齊】\n使用者角色：咖啡廳晚班店員\n核心痛點：尖峰時段常因原物料用完卻沒即時下架，導致客人線上點單後被迫退款道歉。\n成功指標：熱門品項售完 10 秒內全站同步停售，零超賣。\n本次「不做」的範圍：會員集點、折價券系統（先砍掉）。'
+        },
+        spec: {
+          tag: '02 / CONTRACT',
+          badgeClass: 'bg-blue-100 text-blue-800',
+          tabActiveClass: 'bg-blue-600 text-white border-blue-600',
+          title: '懂規格（Specification）— 消除 AI 的「自由腦補」',
+          coreQuestion: '每個欄位的格式、狀態轉換、極端邊界與錯誤處理規則是什麼？',
+          analogy: '就像簽裝潢合約：只寫「客廳要溫馨」一定會吵架；寫明「3000K 暖白光、木地板耐磨係數 AC4、插座離地 30cm」才不會走鐘。',
+          disaster: '模糊的 Prompt 會讓 AI 每次生成都自己猜規則（例如金額要不要四捨五入、庫存為 0 能不能下單），最後系統行為像開盲盒，誰也說不清哪個版本才對。',
+          artifacts: ['Spec-Driven Development (SDD) 規格書', 'Given-When-Then 驗收條件', 'API Input / Output Schema 與錯誤碼表'],
+          templateLabel: '規格驗收條件範本（Given-When-Then）',
+          diagramTitle: '圖解：模糊 Prompt（發散猜測）vs 明確 Spec（精準收斂）',
+          diagramSvg: '<svg viewBox="0 0 420 132" class="w-full h-auto" role="img" aria-label="規格收斂對比圖">' +
+            '<rect x="6" y="8" width="408" height="54" rx="8" fill="#fff1f2" stroke="#fecdd3" />' +
+            '<rect x="16" y="21" width="112" height="28" rx="6" fill="#ffffff" stroke="#fb7185" />' +
+            '<text x="72" y="39" text-anchor="middle" fill="#9f1239" font-size="10.5" font-weight="700">模糊：做庫存扣減</text>' +
+            '<line x1="128" y1="35" x2="184" y2="20" stroke="#f43f5e" stroke-width="1.5" />' +
+            '<line x1="128" y1="35" x2="184" y2="35" stroke="#f43f5e" stroke-width="1.5" />' +
+            '<line x1="128" y1="35" x2="184" y2="50" stroke="#f43f5e" stroke-width="1.5" />' +
+            '<text x="192" y="23" fill="#be123c" font-size="10">AI 猜測 1：存在前端變數（重整歸零）</text>' +
+            '<text x="192" y="39" fill="#be123c" font-size="10">AI 猜測 2：允許扣成 -1 負庫存</text>' +
+            '<text x="192" y="54" fill="#be123c" font-size="10">AI 猜測 3：靜默失敗不提示客人</text>' +
+            '<rect x="6" y="70" width="408" height="54" rx="8" fill="#eff6ff" stroke="#bfdbfe" />' +
+            '<rect x="16" y="83" width="112" height="28" rx="6" fill="#2563eb" />' +
+            '<text x="72" y="101" text-anchor="middle" fill="#ffffff" font-size="10.5" font-weight="700">Given-When-Then</text>' +
+            '<line x1="128" y1="97" x2="184" y2="97" stroke="#2563eb" stroke-width="2" />' +
+            '<rect x="188" y="79" width="216" height="36" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5" />' +
+            '<text x="296" y="94" text-anchor="middle" fill="#1e3a8a" font-size="10.5" font-weight="800">唯一確定行為（零模糊空間）</text>' +
+            '<text x="296" y="108" text-anchor="middle" fill="#2563eb" font-size="9.5">搶到鎖回 200（庫存=0），其餘回 409 售完</text>' +
+            '</svg>',
+          template: '【規格：庫存扣減驗收條件】\n- Given 燕麥拿鐵目前庫存為 1\n- When 兩位顧客在 1 秒內同時送出購買 1 杯的結帳請求\n- Then 只有先取得交易鎖的訂單成功（HTTP 200，庫存歸 0）\n- And 另一筆請求必須回傳 HTTP 409 與明確訊息「品項剛售完」，不得出現負庫存。'
+        },
+        architecture: {
+          tag: '03 / STRUCTURE',
+          badgeClass: 'bg-teal-100 text-teal-800',
+          tabActiveClass: 'bg-teal-600 text-white border-teal-600',
+          title: '懂架構（Architecture）— 守住系統的「可演進性」',
+          coreQuestion: '資料存哪裡？商業邏輯跟介面怎麼切開？系統變大十倍時哪裡會先崩潰？',
+          analogy: '就像大樓的水電管線與承重牆設計：前期沒分層，之後只要想換個燈泡，就得把整面水泥牆打掉重練。',
+          disaster: 'AI 為了「最快讓你看到能動」，常把資料庫操作、商業邏輯、畫面渲染全部寫在同一個巨大檔案裡。前兩天超快，第三天開始「修一個按鈕，結帳就壞掉」。',
+          artifacts: ['系統分層圖（UI / Service / Data）', '資料表關聯與狀態所有權', '模組介面合約（Interface / Types）'],
+          templateLabel: '架構約束 Prompt 範本',
+          diagramTitle: '圖解：單體麵條碼 vs 三層清晰架構',
+          diagramSvg: '<svg viewBox="0 0 420 132" class="w-full h-auto" role="img" aria-label="架構分層對比圖">' +
+            '<rect x="6" y="8" width="164" height="116" rx="10" fill="#fff1f2" stroke="#fecdd3" />' +
+            '<text x="88" y="26" text-anchor="middle" fill="#be123c" font-size="11" font-weight="800">✕ 沒架構：單檔麵條碼</text>' +
+            '<rect x="24" y="38" width="128" height="72" rx="8" fill="#ffffff" stroke="#fb7185" stroke-dasharray="4 2" />' +
+            '<text x="88" y="58" text-anchor="middle" fill="#9f1239" font-size="10" font-weight="700">app.js (2,000行)</text>' +
+            '<text x="88" y="75" text-anchor="middle" fill="#be123c" font-size="9.5">UI + 算錢 + SQL 全纏在一起</text>' +
+            '<text x="88" y="95" text-anchor="middle" fill="#e11d48" font-size="9.5" font-weight="700">改一個按鈕 → 結帳壞掉</text>' +
+            '<rect x="182" y="8" width="232" height="116" rx="10" fill="#f0fdfa" stroke="#99f6e4" />' +
+            '<text x="298" y="26" text-anchor="middle" fill="#0f766e" font-size="11" font-weight="800">✓ 懂架構：三層關注點分離</text>' +
+            '<rect x="196" y="36" width="204" height="22" rx="5" fill="#ffffff" stroke="#14b8a6" />' +
+            '<text x="298" y="51" text-anchor="middle" fill="#134e4a" font-size="10" font-weight="700">UI 層：只管畫面顯示與使用者互動</text>' +
+            '<rect x="196" y="65" width="204" height="22" rx="5" fill="#ccfbf1" stroke="#0d9488" />' +
+            '<text x="298" y="80" text-anchor="middle" fill="#134e4a" font-size="10" font-weight="700">Service 層：訂單與庫存核心規則</text>' +
+            '<rect x="196" y="94" width="204" height="22" rx="5" fill="#0f766e" />' +
+            '<text x="298" y="109" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">DB 交易層：原子扣庫存（防併發）</text>' +
+            '</svg>',
+          template: '【架構邊界約束】\n1. UI 元件只負責顯示與呼叫 Service，禁止直接操作資料庫或寫複雜計算。\n2. 庫存扣減必須封裝在獨立的 InventoryService 內，並使用資料庫 Transaction 確保原子性。\n3. 單一檔案不超過 250 行，超過請依職責拆分子模組。'
+        },
+        workflow: {
+          tag: '04 / GOVERNANCE',
+          badgeClass: 'bg-amber-100 text-amber-800',
+          tabActiveClass: 'bg-amber-600 text-white border-amber-600',
+          title: '懂流程（Workflow / SOP）— 讓 AI 在「護欄內」高速奔跑',
+          coreQuestion: '如何拆解任務粒度？怎麼用 Git 隔離變更、隨時無痛回滾？',
+          analogy: '就像開賽車要有煞車與安全護欄：不是為了讓你開慢，而是因為有煞車與存檔點，你才敢放膽加速。',
+          disaster: '沒開 Git Branch、沒拆小步，一口氣叫 AI「重構整個專案並加三個新功能」，結果改壞 18 個檔案、AI 越修越歪，最後只能含淚砍掉重練。',
+          artifacts: ['Git Branch / Worktree 隔離開發', '一任務一 Commit 存檔點', '自動化 CI（Lint / Typecheck / Test）'],
+          templateLabel: '安全開發流程 SOP 範本',
+          diagramTitle: '圖解：小步 Commit 安全護欄（隨時可無痛回滾）',
+          diagramSvg: '<svg viewBox="0 0 420 132" class="w-full h-auto" role="img" aria-label="Git 小步提交與回滾流程圖">' +
+            '<rect x="4" y="6" width="412" height="120" rx="10" fill="#fffbeb" stroke="#fde68a" />' +
+            '<line x1="36" y1="54" x2="380" y2="54" stroke="#d97706" stroke-width="2.5" />' +
+            '<circle cx="52" cy="54" r="11" fill="#059669" />' +
+            '<text x="52" y="58" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="800">C1</text>' +
+            '<text x="52" y="34" text-anchor="middle" fill="#065f46" font-size="9.5" font-weight="700">DB Schema</text>' +
+            '<circle cx="152" cy="54" r="11" fill="#059669" />' +
+            '<text x="152" y="58" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="800">C2</text>' +
+            '<text x="152" y="34" text-anchor="middle" fill="#065f46" font-size="9.5" font-weight="700">扣庫存 API</text>' +
+            '<circle cx="256" cy="54" r="11" fill="#e11d48" />' +
+            '<text x="256" y="58" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="800">✕</text>' +
+            '<text x="256" y="34" text-anchor="middle" fill="#be123c" font-size="9.5" font-weight="700">AI 改壞 UI</text>' +
+            '<path d="M 256 68 C 256 102, 152 102, 152 69" fill="none" stroke="#e11d48" stroke-width="1.8" stroke-dasharray="4 3" />' +
+            '<text x="204" y="111" text-anchor="middle" fill="#be123c" font-size="9.5" font-weight="700">1 秒 git restore 回到 C2 綠點</text>' +
+            '<circle cx="364" cy="54" r="11" fill="#059669" />' +
+            '<text x="364" y="58" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="800">C3</text>' +
+            '<text x="364" y="34" text-anchor="middle" fill="#065f46" font-size="9.5" font-weight="700">重做過關</text>' +
+            '</svg>',
+          template: '【AI 協作流程規範】\n1. 每次只實作「一個」小任務（例：先只做 DB Schema 與 Migration）。\n2. 變更範圍僅限指定資料夾，不得順手重構無關的既有檔案。\n3. 每個小任務通過測試後立刻 Git Commit，建立可隨時 git restore 的安全點。'
+        },
+        verification: {
+          tag: '05 / QUALITY GATE',
+          badgeClass: 'bg-rose-100 text-rose-800',
+          tabActiveClass: 'bg-rose-600 text-white border-rose-600',
+          title: '懂驗證（Verification）— 把「看起來能動」變成「證明沒壞」',
+          coreQuestion: '除了正常路徑（Happy Path），斷網、併發、惡意輸入與資安邊界都測過了嗎？',
+          analogy: '就像飛機起飛前的儀表檢核與風洞測試：不能只因為「發動時聲音聽起來很順」就直接載客起飛。',
+          disaster: 'AI 產出的程式碼非常「善於偽裝」——語法漂亮、正常操作都對，但暗藏 SQL Injection、外洩 API Key、或漏掉空值檢查，直到上線當天在真實客戶面前爆炸。',
+          artifacts: ['單元測試與整合測試（含邊界值）', 'Git Diff 逐行安全與邏輯審查', '真實使用者 Prototype 驗證'],
+          templateLabel: '驗證與自我審查 Prompt 範本',
+          diagramTitle: '圖解：四道品質防線（把 AI 隱藏地雷攔在門外）',
+          diagramSvg: '<svg viewBox="0 0 420 132" class="w-full h-auto" role="img" aria-label="四道品質驗證防線圖">' +
+            '<rect x="4" y="6" width="412" height="120" rx="10" fill="#fff1f2" stroke="#fecdd3" />' +
+            '<rect x="16" y="24" width="84" height="84" rx="8" fill="#ffffff" stroke="#fda4af" stroke-width="1.5" />' +
+            '<text x="58" y="48" text-anchor="middle" fill="#9f1239" font-size="10.5" font-weight="800">第 1 道</text>' +
+            '<text x="58" y="68" text-anchor="middle" fill="#334155" font-size="10">正常路徑</text>' +
+            '<text x="58" y="84" text-anchor="middle" fill="#64748b" font-size="9">Happy Path</text>' +
+            '<rect x="114" y="24" width="84" height="84" rx="8" fill="#ffffff" stroke="#fb7185" stroke-width="1.5" />' +
+            '<text x="156" y="48" text-anchor="middle" fill="#be123c" font-size="10.5" font-weight="800">第 2 道</text>' +
+            '<text x="156" y="68" text-anchor="middle" fill="#334155" font-size="10">極端邊界</text>' +
+            '<text x="156" y="84" text-anchor="middle" fill="#64748b" font-size="9">0庫存 / 空值</text>' +
+            '<rect x="212" y="24" width="84" height="84" rx="8" fill="#ffffff" stroke="#f43f5e" stroke-width="1.5" />' +
+            '<text x="254" y="48" text-anchor="middle" fill="#be123c" font-size="10.5" font-weight="800">第 3 道</text>' +
+            '<text x="254" y="68" text-anchor="middle" fill="#334155" font-size="10">併發壓測</text>' +
+            '<text x="254" y="84" text-anchor="middle" fill="#64748b" font-size="9">10人同時搶1杯</text>' +
+            '<rect x="310" y="24" width="94" height="84" rx="8" fill="#e11d48" />' +
+            '<text x="357" y="48" text-anchor="middle" fill="#ffffff" font-size="10.5" font-weight="800">第 4 道</text>' +
+            '<text x="357" y="68" text-anchor="middle" fill="#ffe4e6" font-size="10">Diff 安全審查</text>' +
+            '<text x="357" y="84" text-anchor="middle" fill="#fecdd3" font-size="9">防金鑰外洩</text>' +
+            '</svg>',
+          template: '【強制驗證清單】\n請針對剛完成的結帳模組，補齊以下測試並回報結果：\n1. 正常購買扣庫存（Happy Path）\n2. 庫存不足與併發搶購（Edge Case）\n3. 檢查是否有硬編碼金鑰、未驗證的使用者輸入或未處理的 Promise 錯誤。'
+        }
+      };
+
+      function selectPillar(key) {
+        const p = pillarDetails[key];
+        if (!p) return;
+
+        // Update SVG active class
+        document.querySelectorAll('.svg-node').forEach(function (node) {
+          if (node.getAttribute('data-pillar') === key) {
+            node.classList.add('active');
+          } else {
+            node.classList.remove('active');
+          }
+        });
+
+        // Update Tab Buttons
+        document.querySelectorAll('.pillar-tab').forEach(function (btn) {
+          const isMatch = btn.getAttribute('data-pillar') === key;
+          btn.className = 'pillar-tab px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition ' +
+            (isMatch ? p.tabActiveClass : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50');
+        });
+
+        // Render Detail Card
+        const card = document.getElementById('pillarDetailCard');
+        if (!card) return;
+        const artifactsHtml = p.artifacts.map(function (a) {
+          return '<span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-medium text-slate-700">' + a + '</span>';
+        }).join('');
+
+        card.innerHTML =
+          '<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">' +
+            '<div class="lg:col-span-7 space-y-3.5">' +
+              '<div class="flex flex-wrap items-center gap-2">' +
+                '<span class="text-xs font-bold px-2.5 py-0.5 rounded-md ' + p.badgeClass + '">' + p.tag + '</span>' +
+                '<h3 class="text-lg font-extrabold text-slate-900">' + p.title + '</h3>' +
+              '</div>' +
+              '<div class="p-3.5 rounded-xl bg-white border border-slate-200">' +
+                '<div class="text-xs font-bold text-slate-500 mb-1">核心提問</div>' +
+                '<p class="text-sm font-semibold text-slate-800">' + p.coreQuestion + '</p>' +
+              '</div>' +
+              '<div class="p-3.5 rounded-xl bg-white border border-slate-200">' +
+                '<div class="text-xs font-bold text-slate-500 mb-2">' + p.diagramTitle + '</div>' +
+                p.diagramSvg +
+              '</div>' +
+              '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
+                '<div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/70">' +
+                  '<div class="text-xs font-bold text-amber-800 mb-1">生活化類比</div>' +
+                  '<p class="text-xs sm:text-sm text-slate-700 leading-relaxed">' + p.analogy + '</p>' +
+                '</div>' +
+                '<div class="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200/70">' +
+                  '<div class="text-xs font-bold text-rose-800 mb-1">缺少它會發生什麼災難？</div>' +
+                  '<p class="text-xs sm:text-sm text-slate-700 leading-relaxed">' + p.disaster + '</p>' +
+                '</div>' +
+              '</div>' +
+              '<div>' +
+                '<div class="text-xs font-bold text-slate-500 mb-2">實戰關鍵產出物</div>' +
+                '<div class="flex flex-wrap gap-2">' + artifactsHtml + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="lg:col-span-5 flex flex-col justify-between bg-slate-900 text-slate-100 rounded-xl p-4 border border-slate-800">' +
+              '<div>' +
+                '<div class="flex items-center justify-between gap-2 mb-2.5">' +
+                  '<span class="text-xs font-bold text-blue-300">' + p.templateLabel + '</span>' +
+                  '<button type="button" id="copyPillarTemplateBtn" class="px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition">複製範本</button>' +
+                '</div>' +
+                '<pre class="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed font-mono bg-slate-950/70 p-3 rounded-lg border border-slate-800">' + p.template + '</pre>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+
+        const copyBtn = document.getElementById('copyPillarTemplateBtn');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', function () {
+            copyText(p.template, '已複製「' + p.templateLabel + '」');
+          });
+        }
+      }
+
+      // Bind SVG nodes (respecting text selection so dragging text does not trigger click)
+      document.querySelectorAll('.svg-node').forEach(function (node) {
+        node.addEventListener('click', function () {
+          const sel = window.getSelection();
+          if (sel && sel.toString().trim().length > 0) return;
+          selectPillar(node.getAttribute('data-pillar'));
+        });
+        node.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectPillar(node.getAttribute('data-pillar'));
+          }
+        });
+      });
+
+      document.querySelectorAll('.pillar-tab').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          selectPillar(btn.getAttribute('data-pillar'));
+        });
+      });
+      selectPillar('requirements');
+
+      // --- Section 3: End-to-End Case Study Single Vertical Timeline ---
+      const caseStudies = {
+        engineering: {
+          bannerClass: 'bg-emerald-50 border-emerald-200 text-emerald-900',
+          bannerText: '目前檢視：【五大能力全開模式】— 先定義痛點與規格、切好架構、小步開發並自動化驗證，AI 成為精準的高速執行引擎。',
+          steps: [
+            {
+              num: '01',
+              color: 'bg-indigo-600',
+              title: '懂需求：抓出真正會讓店裡崩潰的痛點',
+              desc: '跟店長聊 15 分鐘後發現，最痛的不是「網頁不夠美」，而是尖峰時段燕麥奶剩 1 杯時被 3 位客人同時下單，店員還得打電話道歉退款。決定第一版只做「即時庫存點餐＋售完鎖定」，砍掉花俏的會員集點。',
+              tag: '決策：聚焦零超賣'
+            },
+            {
+              num: '02',
+              color: 'bg-blue-600',
+              title: '懂規格：把模糊想法寫成明確合約',
+              desc: '寫出 Given-When-Then 驗收條件：當庫存剩 1 杯且兩人同時結帳，系統必須確保「僅 1 人成功、庫存變 0、第 2 人看到 409 售完提示」，絕不允許負庫存。',
+              tag: '產出：Spec 文件'
+            },
+            {
+              num: '03',
+              color: 'bg-teal-600',
+              title: '懂架構：切開介面、商業邏輯與資料庫交易',
+              desc: '明確規定前端只管顯示與送單；後端獨立出 OrderService 與 InventoryService，並強制用資料庫原子交易（Atomic Update: WHERE stock >= qty）防併發超賣。',
+              tag: '設計：三層解耦'
+            },
+            {
+              num: '04',
+              color: 'bg-amber-500',
+              title: '懂流程：拆小任務 + Git 分步存檔',
+              desc: '讓 AI 分 3 步做：Step 1 建資料表（Commit）→ Step 2 寫扣庫存 API（Commit）→ Step 3 接前端菜單頁（Commit）。每步不超過 200 行變動，出錯一秒回滾。',
+              tag: '紀律：小步 Commit'
+            },
+            {
+              num: '05',
+              color: 'bg-rose-600',
+              title: '懂驗證：針對最怕的場景寫自動化測試',
+              desc: '用測試腳本模擬 10 個請求同時搶最後 1 杯燕麥拿鐵，驗證結果確為「1 成功、9 拒絕、最終庫存 = 0」，並檢查 Diff 確認沒有外洩資料庫密碼。',
+              tag: '把關：併發測試通過'
+            }
+          ]
+        },
+        blind: {
+          bannerClass: 'bg-rose-50 border-rose-200 text-rose-900',
+          bannerText: '目前檢視：【盲目許願踩坑模式】— 跳過需求、規格、架構、流程與驗證，直接叫 AI「幫我寫一個咖啡廳點餐網站」。',
+          steps: [
+            {
+              num: '01',
+              color: 'bg-slate-500',
+              title: '跳過需求：想到什麼加什麼',
+              desc: '直接跟 AI 說「做一個很漂亮的咖啡廳點餐網，要有輪播圖、會員等級、優惠券」。AI 很開心照做，卻完全沒處理尖峰庫存扣減這個核心痛點。',
+              tag: '風險：做錯方向'
+            },
+            {
+              num: '02',
+              color: 'bg-slate-500',
+              title: '跳過規格：讓 AI 自由猜測邏輯',
+              desc: '沒定義「庫存為 0 怎麼辦」，AI 自行用前端 JavaScript 變數暫存庫存——結果客人重新整理網頁，庫存又變回 10 杯。',
+              tag: '風險：邏輯靠腦補'
+            },
+            {
+              num: '03',
+              color: 'bg-slate-500',
+              title: '跳過架構：所有程式擠成一團麵條',
+              desc: '不斷追問「再幫我加一個外帶備註」、「再改一下按鈕顏色」，AI 把 1,500 行 HTML/JS/API 邏輯全塞進同一個檔案，改 A 處就弄壞 B 處。',
+              tag: '風險：高度耦合'
+            },
+            {
+              num: '04',
+              color: 'bg-slate-500',
+              title: '跳過流程：沒用 Git 存檔，越修越崩',
+              desc: '發現結帳壞掉後直接對 AI 喊「幫我修好」，AI 順手刪掉了原本能動的購物車程式碼；因為沒有 Git Commit 紀錄，連回到半小時前的版本都做不到。',
+              tag: '風險：無法回滾'
+            },
+            {
+              num: '05',
+              color: 'bg-slate-500',
+              title: '跳過驗證：自己點一次能動就上線',
+              desc: '自己單人測試點一杯沒報錯就急著啟用。隔天早上尖峰時段同時湧入 8 位客人，系統賣超 4 杯燕麥奶、訂單漏單，最後被迫手寫紙本救火。',
+              tag: '結果：實戰翻車'
+            }
+          ]
+        }
+      };
+
+      function renderCaseTimeline(mode) {
+        const data = caseStudies[mode];
+        const badge = document.getElementById('timelineHeaderBadge');
+        const list = document.getElementById('caseTimeline');
+        const btnEng = document.getElementById('modeEngineeringBtn');
+        const btnBlind = document.getElementById('modeBlindBtn');
+        if (!badge || !list) return;
+
+        if (mode === 'engineering') {
+          btnEng.className = 'px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition bg-slate-900 text-white shadow-sm';
+          btnBlind.className = 'px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition text-slate-700 hover:text-slate-900';
+        } else {
+          btnBlind.className = 'px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition bg-rose-600 text-white shadow-sm';
+          btnEng.className = 'px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition text-slate-700 hover:text-slate-900';
+        }
+
+        badge.className = 'mb-6 p-4 rounded-xl border text-sm font-medium ' + data.bannerClass;
+        badge.textContent = data.bannerText;
+
+        list.innerHTML = data.steps.map(function (st) {
+          return (
+            '<li class="ml-6">' +
+              '<span class="absolute -left-3.5 flex items-center justify-center w-7 h-7 rounded-full text-white text-xs font-extrabold ring-4 ring-white ' + st.color + '">' +
+                st.num +
+              '</span>' +
+              '<div class="bg-slate-50/80 border border-slate-200 rounded-xl p-4 sm:p-5">' +
+                '<div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">' +
+                  '<h4 class="font-bold text-slate-900 text-sm sm:text-base">' + st.title + '</h4>' +
+                  '<span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600">' + st.tag + '</span>' +
+                '</div>' +
+                '<p class="text-sm text-slate-600 leading-relaxed">' + st.desc + '</p>' +
+              '</div>' +
+            '</li>'
+          );
+        }).join('');
+      }
+
+      document.getElementById('modeEngineeringBtn').addEventListener('click', function () { renderCaseTimeline('engineering'); });
+      document.getElementById('modeBlindBtn').addEventListener('click', function () { renderCaseTimeline('blind'); });
+      renderCaseTimeline('engineering');
+
+      // --- Section 4: Interactive Diagnostic Simulator ---
+      const sliders = {
+        req: document.getElementById('sliderReq'),
+        spec: document.getElementById('sliderSpec'),
+        arch: document.getElementById('sliderArch'),
+        flow: document.getElementById('sliderFlow'),
+        verify: document.getElementById('sliderVerify')
+      };
+
+      const bottleneckTips = {
+        req: '短板在【懂需求】：目前容易陷入「用 AI 做出沒人要的酷炫功能」。建議下次動手前先寫出 1 句核心使用者痛點與「本次不做清單」。',
+        spec: '短板在【懂規格】：模糊指令會讓 AI 自行腦補邊界條件。建議開工前至少寫出 3 條 Given-When-Then 驗收標準。',
+        arch: '短板在【懂架構】：程式碼很快會變成牽一髮動全身的麵條碼。建議先請 AI 規劃模組與資料流，確認邊界後再開始實作。',
+        flow: '短板在【懂流程】：缺乏小步拆解與 Git 存檔點，一旦 AI 改壞就很難救回。建議養成「一小功能一 Commit」的節奏。',
+        verify: '短板在【懂驗證】：只憑「畫面看起來沒錯」就上線，極易在真實邊界狀況翻車。建議強制補上單元/邊界測試並親自審 Diff。'
+      };
+
+      function updateDiagnostic() {
+        const vals = {
+          req: Number(sliders.req.value),
+          spec: Number(sliders.spec.value),
+          arch: Number(sliders.arch.value),
+          flow: Number(sliders.flow.value),
+          verify: Number(sliders.verify.value)
+        };
+
+        document.getElementById('valReq').textContent = vals.req + ' / 5';
+        document.getElementById('valSpec').textContent = vals.spec + ' / 5';
+        document.getElementById('valArch').textContent = vals.arch + ' / 5';
+        document.getElementById('valFlow').textContent = vals.flow + ' / 5';
+        document.getElementById('valVerify').textContent = vals.verify + ' / 5';
+
+        const arr = [vals.req, vals.spec, vals.arch, vals.flow, vals.verify];
+        const minVal = Math.min.apply(null, arr);
+        const avg = arr.reduce(function (a, b) { return a + b; }, 0) / 5;
+        // Penalize severely if any single pillar is 1 (multiplicative bottleneck effect)
+        const penalty = minVal === 1 ? 0.72 : (minVal === 2 ? 0.88 : 1.0);
+        const score = Math.round((avg / 5) * 100 * penalty);
+
+        const scoreEl = document.getElementById('diagScoreText');
+        const riskEl = document.getElementById('diagRiskText');
+        const badgeEl = document.getElementById('diagLevelBadge');
+        const adviceEl = document.getElementById('diagAdviceText');
+
+        scoreEl.textContent = score + ' / 100';
+
+        if (score >= 80 && minVal >= 4) {
+          badgeEl.textContent = 'AI 驅動系統架構師';
+          badgeEl.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30';
+          riskEl.textContent = '極低風險';
+          riskEl.className = 'text-2xl font-extrabold text-emerald-400 mt-1';
+        } else if (score >= 55 && minVal >= 2) {
+          badgeEl.textContent = '進階協作工程師';
+          badgeEl.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30';
+          riskEl.textContent = '中等風險';
+          riskEl.className = 'text-2xl font-extrabold text-amber-300 mt-1';
+        } else {
+          badgeEl.textContent = '盲抽許願高危區';
+          badgeEl.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-400/30';
+          riskEl.textContent = '高爆炸風險';
+          riskEl.className = 'text-2xl font-extrabold text-rose-400 mt-1';
+        }
+
+        // Find lowest pillar
+        const keys = ['req', 'spec', 'arch', 'flow', 'verify'];
+        let weakest = 'req';
+        keys.forEach(function (k) {
+          if (vals[k] < vals[weakest]) weakest = k;
+        });
+
+        if (minVal >= 4) {
+          adviceEl.textContent = '五個維度都已達標！你已經把 AI 當成受控的高速工程引擎，接下來可以進一步導入自動化 CI/CD 與多 Agent 平行協作。';
+        } else {
+          adviceEl.textContent = bottleneckTips[weakest];
+        }
+
+        // Update SVG Radar Pentagon
+        const cx = 120, cy = 105, maxR = 80;
+        const angles = [-90, -18, 54, 126, 198];
+        const pts = keys.map(function (k, idx) {
+          const r = (vals[k] / 5) * maxR;
+          const rad = (angles[idx] * Math.PI) / 180;
+          const x = (cx + r * Math.cos(rad)).toFixed(1);
+          const y = (cy + r * Math.sin(rad)).toFixed(1);
+          return x + ',' + y;
+        }).join(' ');
+        const poly = document.getElementById('radarPoly');
+        if (poly) poly.setAttribute('points', pts);
+      }
+
+      Object.keys(sliders).forEach(function (k) {
+        sliders[k].addEventListener('input', updateDiagnostic);
+      });
+
+      const presets = {
+        wishful: { req: 2, spec: 1, arch: 1, flow: 1, verify: 1 },
+        'no-test': { req: 4, spec: 4, arch: 3, flow: 3, verify: 1 },
+        pro: { req: 5, spec: 5, arch: 4, flow: 5, verify: 5 }
+      };
+
+      document.querySelectorAll('.preset-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const p = presets[btn.getAttribute('data-preset')];
+          if (!p) return;
+          sliders.req.value = p.req;
+          sliders.spec.value = p.spec;
+          sliders.arch.value = p.arch;
+          sliders.flow.value = p.flow;
+          sliders.verify.value = p.verify;
+          updateDiagnostic();
+        });
+      });
+      updateDiagnostic();
+
+      // --- Section 5: Interactive Checklist & Copy Master Prompt ---
+      const checkItems = document.querySelectorAll('.check-item');
+      function updateChecklist() {
+        let checked = 0;
+        checkItems.forEach(function (cb) { if (cb.checked) checked++; });
+        const pct = Math.round((checked / checkItems.length) * 100);
+        document.getElementById('checklistProgressText').textContent = checked + ' / ' + checkItems.length + ' 完成';
+        document.getElementById('checklistBar').style.width = pct + '%';
+      }
+      checkItems.forEach(function (cb) {
+        cb.addEventListener('change', updateChecklist);
+      });
+      document.getElementById('resetChecklistBtn').addEventListener('click', function () {
+        checkItems.forEach(function (cb) { cb.checked = false; });
+        updateChecklist();
+      });
+
+      document.getElementById('copyMasterPromptBtn').addEventListener('click', function () {
+        const text = document.getElementById('masterPromptCode').textContent;
+        copyText(text, '已複製「萬用開工 Prompt 模板」');
+      });
+    })();
+  </script>
+</body>
+</html>
